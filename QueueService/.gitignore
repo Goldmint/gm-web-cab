@@ -1,0 +1,5 @@
+/bin/
+/obj/
+/Properties/
+/QueueService.csproj.user
+/appsettings*

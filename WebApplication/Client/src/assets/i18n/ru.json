@@ -1,0 +1,120 @@
+{
+  "HEADER": {
+    "Balance": "Баланс:",
+    "SignIn": "Вход",
+    "SignUp": "Регистрация",
+    "Menu": {
+      "Sell": "Продать",
+      "Buy": "Купить",
+      "Transfer": "Перевод активов",
+      "History": "История",
+      "Limits": "Лимиты аккаунта",
+      "Support": "Поддержка"
+    }
+  },
+  "FOOTER": {
+    "Menu": {
+      "About": "О нас",
+      "Transparency": "Прозрачность",
+      "Terms": "Условия использования",
+      "Privacy": "Конфиденциальность",
+      "FAQ": "FAQ"
+    },
+    "Copyright": "ООО GoldMint © {{year}}"
+  },
+  "PAGES": {
+    "Home": {
+      "Or": "или",
+      "Buttons": {
+        "Sell": "Продать",
+        "Buy": "Купить"
+      }
+    },
+    "Sell": {
+      "Discount": "Скидка"
+    },
+    "Buy": {
+      "Buttons": {
+        "Deposit": "Депозит"
+      }
+    },
+    "Transfer": {
+      "Note": "*Далеко-далеко за словесными горами в стране, гласных и согласных живут рыбные тексты."
+    },
+    "History": {
+      "Heading": "История",
+      "SectionTitle": "Операции",
+      "Table": {
+        "Columns": {
+          "Date": "Дата",
+          "Amount": "Сумма",
+          "Balance": "Баланс",
+          "Type": "Операция",
+          "Fee": "Fee",
+          "Comment": "Комментарий"
+        },
+        "EmptyMessage": "Загрузка данных..."
+      },
+      "Types": {
+        "Withdraw": "Изъятие",
+        "Deposit": "Депозит"
+      }
+    },
+    "Login": {
+      "SectionTitles": {
+        "Login": "Авторизация",
+        "Social": "Вход через социальную сеть"
+      },
+      "Labels": {
+        "Username": "Email или логин",
+        "Password": "Пароль"
+      },
+      "Errors": {
+        "Username": {
+          "required": "Введите email или логин"
+        },
+        "Password": {
+          "required": "Это обязательное поле"
+        }
+      },
+      "Buttons": {
+        "LogIn": "Войти",
+        "LogInViaSocial": "Войти через {{ provider }}"
+      }
+    },
+    "Register": {
+      "SectionTitles": {
+        "Register": "Регистрация",
+        "Social": "Войти через социальную сеть"
+      },
+      "Labels": {
+        "Username": "Email или логин",
+        "Password": "Пароль"
+      },
+      "Errors": {
+        "Username": {
+          "required": "Введите email или логин",
+          "minlength": "Email или логин должен быть не короче 3х символов"
+        },
+        "Email": {
+          "required": "Это обязательное поле",
+          "pattern": "Введите корректный email"
+        },
+        "Password": {
+          "required": "Это обязательное поле",
+          "minlength": "Пароль должен быть не короче 6 символов"
+        }
+      },
+      "Buttons": {
+        "Register": "Регистрация",
+        "RegisterViaSocial": "Войти через {{ provider }}"
+      }
+    }
+  },
+  "ERRORS": {
+    "Login": {
+      "AccountNotFound": "Пара логин/пароль не найдена",
+      "AccountEmailNotConfirmed": "Ваш email ещё не подтверждён"
+    }
+  }
+}

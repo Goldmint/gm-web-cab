@@ -1,0 +1,169 @@
+<!-- <div class="page"> -->
+  <!-- <h1 class="page__heading">{{ "PAGES.History.Heading" | translate }}</h1> -->
+
+  <section class="page__section section section--table">
+    <h2 class="section__title" id="pageSectionTitle">{{ "PAGES.History.SectionTitle" | translate }}</h2>
+
+<!-- [scrollbarH]="scrollbarHorizontal" -->
+    <div class="section__content">
+      <ngx-datatable class="table" #table
+        [rows]="rows"
+
+        [columnMode]="'force'"
+        [sorts]="sorts"
+        [headerHeight]="53"
+        [rowHeight]="'auto'"
+        [footerHeight]="135"
+        [reorderable]="false"
+        [loadingIndicator]="loading"
+        [count]="page.totalElements"
+        [offset]="page.pageNumber"
+        [limit]="page.size"
+        [externalSorting]="true"
+        (sort)="onSort($event)"
+        [externalPaging]="true"
+        [scrollbarH]="true"
+        (page)='setPage($event)'
+        [messages]="messages">
+
+        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [width]="150">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.Date" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-timestamp="value" ngx-datatable-cell-template>
+            <!-- {{ timestamp * 1000 | date:'yyyy-MM-dd HH:mm:ss' }} -->
+            {{ timestamp * 1000 | date:'short':'':locale }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [minWidth]="125">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.Amount" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
+            <div *ngIf="row.type === 'withdraw'; then amountWithdrawBlock else amountDepositBlock"></div>
+
+            <ng-template #amountWithdrawBlock>
+              <svg class="icon icon--fix icon--green" width="8px" height="8px">
+                <use xlink:href="#amount-plus"></use>
+              </svg>
+            </ng-template>
+
+            <ng-template #amountDepositBlock>
+              <svg class="icon icon--fix icon--red" width="8px" height="2px">
+                <use xlink:href="#amount-minus"></use>
+              </svg>
+            </ng-template>
+
+            <span>
+              {{ amount?.prefix }}
+              {{ amount.amount | number:'1.2-2':locale }}
+              {{ amount?.suffix }}
+            </span>
+            <!-- <span>{{ amount | currency:row.currency.code:'code':'1.2-2':locale }}</span> -->
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="balance" [draggable]="false" [resizeable]="false" [minWidth]="115">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.Balance" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-balance="value" let-row="row" ngx-datatable-cell-template>
+            {{ balance?.prefix }}
+            {{ balance.amount | number:'1.2-2':locale }}
+            {{ balance?.suffix }}
+            <!-- {{ balance | currency:row.currency.code:'code':'1.2-2':locale }} -->
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [minWidth]="135">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper ml-3" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.Type" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-type="value" ngx-datatable-cell-template>
+            <div *ngIf="type === 'withdraw'; then typeWithdrawBlock else typeDepositBlock"></div>
+
+            <ng-template #typeWithdrawBlock>
+              <svg class="icon icon--fix icon--gold" width="16px" height="15px">
+                <use xlink:href="#withdraw"></use>
+              </svg>
+            </ng-template>
+
+            <ng-template #typeDepositBlock>
+              <svg class="icon icon--fix icon--gold" width="16px" height="15px">
+                <use xlink:href="#deposit"></use>
+              </svg>
+            </ng-template>
+
+            <span class="text-uppercase">
+              {{ (type.toLowerCase() === 'withdraw' ? "PAGES.History.Types.Withdraw" : "PAGES.History.Types.Deposit") | translate }}
+            </span>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="fee" [draggable]="false" [resizeable]="false" [minWidth]="95" [width]="100">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.Fee" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-fee="value" let-row="row" ngx-datatable-cell-template>
+            <span *ngIf="fee.amount && fee.amount > 0; else noFeeBlock">
+              {{ fee?.prefix }}
+              {{ fee.amount | number:'1.0-2':locale }}
+              {{ fee?.suffix }}
+              <!-- {{ fee | currency:row.currency.code:'symbol':'1.2-2':locale }} -->
+            </span>
+
+            <ng-template #noFeeBlock> - </ng-template>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+            {{ "PAGES.History.Table.Columns.Comment" | translate }}
+          </ng-template>
+
+          <ng-template let-comment="value" ngx-datatable-cell-template>
+            {{ comment }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-footer>
+          <ng-template
+            ngx-datatable-footer-template
+            let-rowCount="rowCount"
+            let-pageSize="pageSize"
+            let-selectedCount="selectedCount"
+            let-curPage="curPage"
+            let-offset="offset">
+            <app-pager
+              [pagerLeftArrowIcon]="'datatable-icon-left'"
+              [pagerRightArrowIcon]="'datatable-icon-right'"
+              [pagerPreviousIcon]="'datatable-icon-prev'"
+              [pagerNextIcon]="'datatable-icon-skip'"
+              [page]="curPage"
+              [size]="pageSize"
+              [count]="rowCount"
+              [hidden]="!((rowCount / pageSize) > 1)"
+              (change)="table.onFooterPage($event)">
+            </app-pager>
+          </ng-template>
+        </ngx-datatable-footer>
+      </ngx-datatable>
+    </div>
+  </section>
+<!-- </div> -->

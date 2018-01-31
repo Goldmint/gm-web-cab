@@ -1,0 +1,445 @@
+{
+  "HEADER": {
+    "Wallet": "Wallet:",
+    "SignIn": "Sign in",
+    "SignUp": "Sign up",
+    "Menu": {
+      "Sell": "Sell Gold",
+      "Buy": "Buy Gold",
+      "Transfer": "Transfer Gold",
+      "Finance": "Finance"
+    }
+  },
+  "FOOTER": {
+    "Menu": {
+      "About": "About",
+      "Transparency": "Transparency",
+      "Terms": "Terms of use",
+      "Privacy": "Privacy policy",
+      "HelpCenter": "Help Center"
+    },
+    "Copyright": "GoldMint, PTE, LTD © {{year}}"
+  },
+  "PAGES": {
+    "Home": {
+      "Heading": "Do You want to buy or sell gold cryptoassets?",
+      "Or": "or",
+      "Buttons": {
+        "Sell": "Sell",
+        "Buy": "Buy"
+      }
+    },
+    "Sell": {
+      "Heading": "Sell {{ asset }} cryptoassets",
+      "SectionTitle": "Instant Sell",
+      "SectionTitleValue": "{{ asset }}",
+      "Discount": "Discount",
+      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
+      "Buttons": {
+        "SellNow": "Sell now",
+        "BuyMore": "Buy more"
+      }
+    },
+    "Buy": {
+      "Heading": "Buy {{ asset }} cryptoassets",
+      "SectionTitle": "Instant Buy",
+      "SectionTitleValue": "{{ asset }}",
+      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
+	  "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
+      "Buttons": {
+        "BuyNow": "Buy now",
+        "Deposit": "Deposit",
+        "BuyMore": "Buy more"
+      }
+    },
+    "Transfer": {
+      "Heading": "Transfer gold cryptoassets",
+      "Note": "*Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet nam minus consequuntur voluptas dolore inventore nemo!",
+      "Labels": {
+        "TransferToWallet": "Transfer to wallet"
+      },
+      "Placeholders": {
+        "EtheriumWallet": "Etherium wallet"
+      },
+      "Buttons": {
+        "Send": "Send",
+        "BuyMore": "Buy more"
+      }
+    },
+    "Finance": {
+      "Heading": "Finance",
+      "Menu": {
+        "Deposit": "Deposit",
+        "Withdraw": "Withdraw",
+        "History": "History"
+      }
+    },
+    "Deposit": {
+      "Heading": "Deposit",
+      "SectionTitle": "Choose deposit payment method",
+      "TFA": {
+        "SectionTitle": "You need to enable 2FA first",
+        "Text": "<span class=\"lead\">Enable 2FA in a few clicks</span>",
+        "Pros": {
+          "Secure": {
+            "Title": "Secure",
+            "Text": "All provided information is encrypted and securely stored."
+          },
+          "Simple": {
+            "Title": "Simple",
+            "Text": "Verification process is very simple and takes not more than 15 minutes."
+          },
+          "Complaint": {
+            "Title": "Complaint",
+            "Text": "Verification procedure is fully compilant with AML and KYC regulations."
+          }
+        },
+        "Button": "Enable 2FA"
+      },
+      "CardsList": {
+        "SectionTitle": "Card details"
+      }
+    },
+    "Withdraw": {
+      "Heading": "Withdraw {{ asset }}",
+      "SectionTitle": "Choose withdrawal payment method",
+      "TFA": {
+        "SectionTitle": "You need to enable 2FA first",
+        "Text": "<span class=\"lead\">Enable 2FA in a few clicks</span>",
+        "Pros": {
+          "Secure": {
+            "Title": "Secure",
+            "Text": "All provided information is encrypted and securely stored."
+          },
+          "Simple": {
+            "Title": "Simple",
+            "Text": "Verification process is very simple and takes not more than 15 minutes."
+          },
+          "Complaint": {
+            "Title": "Complaint",
+            "Text": "Verification procedure is fully compilant with AML and KYC regulations."
+          }
+        },
+        "Button": "Enable 2FA"
+      }
+    },
+    "History": {
+      "Heading": "History",
+      "SectionTitle": "Transactions",
+      "Table": {
+        "Columns": {
+          "Date": "Date",
+          "Amount": "Amount",
+          "Balance": "Balance",
+          "Type": "Type",
+          "Fee": "Fee",
+          "Comment": "Comment"
+        },
+        "EmptyMessage": "Waiting for data..."
+      },
+      "Types": {
+        "Withdraw": "Withdraw",
+        "Deposit": "Deposit"
+      }
+    },
+    "Login": {
+      "SectionTitles": {
+        "Login": "Sign in",
+        "Social": "Sign in via Social Network"
+      },
+      "Labels": {
+        "Username": "Email or Username",
+        "Password": "Password",
+        "TFACode": "Two-factor authentication code"
+      },
+      "Errors": {
+        "Username": {
+          "required": "Email or Username is required",
+          "minlength": "Email or Username is too short",
+          "maxlength": "Email or Username is too long"
+        },
+        "Password": {
+          "required": "Password is required",
+          "minlength": "The password is too short",
+          "maxlength": "The password is too long"
+        },
+        "TFACode": {
+          "pattern": "Only 6-digits numeric code is allowed"
+        }
+      },
+      "Buttons": {
+        "LogIn": "Sign in",
+        "LogInViaSocial": "Sign in via {{ provider }}"
+      }
+    },
+    "Register": {
+      "SectionTitles": {
+        "Register": "Register",
+        "Social": "Sign in via Social Network"
+      },
+      "Labels": {
+        "Username": "Email or Username",
+        "Email": "Email",
+        "Password": "Password"
+      },
+      "Errors": {
+        "Username": {
+          "required": "Email or Username is required",
+          "minlength": "Should be at least 3 symbols length"
+        },
+        "Email": {
+          "required": "Email is required",
+          "pattern": "Should be a valid email address, at least 5 symbols length"
+        },
+        "Password": {
+          "required": "Password is required",
+          "minlength": "Should be at least 6 symbols length"
+        }
+      },
+      "Buttons": {
+        "Register": "Register",
+        "RegisterViaSocial": "Sign in via {{ provider }}"
+      },
+      "SuccessPage":  {
+        "Title": "Registered",
+        "Content": "We have sent you confirmation email. Please check your email and follow confirmation link."
+      },
+      "EmailConfirmedPage":  {
+        "Title": "Email confirmation",
+        "ContentProcessing": "Checking email confirmation.",
+		"ContentSuccess": "Your email has been successfully confirmed. Now you are free to sign in.",
+		"ContentFailure": "There was an error while email confirmation. Please contact our support team."
+      },
+      "EmailTakenPage":  {
+        "Title": "This email is already taken",
+        "Content": "We are sorry, but email you specified is already taken. Please try another one."
+      }
+    },
+    "Settings": {
+      "Heading": "Account Info",
+      "Menu": {
+        "Profile": "Profile",
+        "Verification": "KYC Verification",
+        "TFA": "Two-Factor Authentication",
+        "Cards": "Cards",
+        "SocialNetworks": "Social Networks",
+        "AccountActivity": "Account Activity",
+        "AccountLimits": "Account Limits"
+      },
+      "Profile": {
+        "UserIdSection": {
+          "Title": "UserID"
+        },
+		    "EmailSection": {
+          "Title": "Email",
+          "Labels": {
+            "PrimaryEmail": "Primary Email Address"
+          },
+          "Buttons": {
+            "Confirm": "Confirm"
+          },
+          "Errors": {
+            "Email": {
+              "required": "Email is required",
+              "email": "Should be a valid email"
+            }
+          }
+        },
+        "PasswordSection": {
+          "Title": "Change Password",
+          "Labels": {
+            "CurrentPassword": "Current Password",
+            "NewPassword": "New Password",
+            "NewPasswordRepeat": "Repeat New Password"
+          },
+          "Buttons": {
+            "ChangePassword": "Change password"
+          },
+          "Errors": {
+            "CurrentPassword": {
+              "required": "Current password is required"
+            },
+            "NewPassword": {
+              "required": "New password is required",
+              "minlength": "Should be at least 6 symbols length"
+            },
+            "NewPasswordRepeat": {
+              "required": "Repeat new password, please",
+              "equal": "New passwords does not match"
+            }
+          }
+        }
+      },
+      "KYC": {
+        "AccountType": {
+          "Label": "Account type:",
+          "Types": {
+            "Verified": "Verified",
+            "VerifiedPlus": "Verified+"
+          }
+        },
+        "DefaultSection": {
+          "Title": "Identity verification",
+          "Text": "Complete verification to withdraw fiat funds and unlock account opportinities",
+          "Note": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
+          "UpgradeText": "<span class=\"lead\">Complete verification to withdraw fiat funds and unlock account opportinities</span>",
+          "UpgradeNote": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
+          "Buttons": {
+            "Start": "Start Verification",
+            "Upgrade": "Upgrade Verification"
+          }
+        },
+        "FinishedSection": {
+          "Title": "Advanced verification",
+          "Text": "<span class=\"lead\">Congratulations! Identity verification successfully finished!</span>"
+        },
+        "WarningSection": {
+          "Title": "Warning about deposits",
+          "Text": "Unverified accounts cannot withdraw from Goldmint. Please see this <a href=\"#\">link</a> for more information."
+        },
+        "FormSection": {
+          "Title": "Basic Information",
+          "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it axists on your government identification.",
+          "UpgradeAccountText": "<b>UPGRADE ACCOUNT.</b> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur vel eos perspiciatis aliquid officia labore expedita ipsam sequi totam magnam aspernatur libero quia, itaque eveniet pariatur omnis molestias, suscipit corporis.",
+          "RequiredFields": "Required fields",
+          "Labels": {
+            "FirstName": "First Name",
+            "MiddleName": "Middle Name",
+            "LastName": "Last Name",
+            "BirthMonth": "Birth Month",
+            "BirthDay": "Birth Day",
+            "BirthYear": "Birth Year",
+            "Country": "Country",
+            "State": "State or province",
+            "City": "City",
+            "PostalCode": "Postal or ZIP code",
+            "Street": "Street Address",
+            "Apartment": "Apartment or unit",
+            "Passport": "Passport number (optional)",
+            "Phone": "Phone number"
+          },
+          "Placeholders": {
+            "ChooseCountry": "Choose your Country",
+            "ChooseState": "Choose your State",
+            "ChooseBirthYear": "Choose your Birth Year..."
+          },
+          "Errors": {
+            "FirstName": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "MiddleName": {
+              "pattern": "Only latin characters allowed"
+            },
+            "LastName": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "BirthMonth": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "BirthDay": {
+              "required": "This field is required"
+            },
+            "BirthYear": {
+              "required": "This field is required"
+            },
+            "Country": {
+              "required": "This field is required"
+            },
+            "Street": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "City": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "State": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "PostalCode": {
+              "required": "This field is required",
+              "pattern": "Only numbers allowed"
+            },
+            "PhoneNumber": {
+              "required": "This field is required"
+            }
+          },
+          "Buttons": {
+            "Submit": "Submit"
+          }
+        }
+      },
+      "TFA": {
+        "IntroSection": {
+          "Title": "Goldmint encourages the use of two-factor authentication",
+          "Content": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provic ed.</p>"
+        },
+        "SecretKeySection": {
+          "Title": "Two-factor authentication",
+          "TitleWidget": {
+            "Enabled": "Enabled",
+            "Disabled": "Disabled"
+          },
+          "Text": "<p><b>Please back up your secret key.</b> Reseting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
+          "KeyLabel": "Secret key:",
+          "CodeLabel": "Authenticator Code",
+          "CodeHelpText": "Input your 6-digit authenticatoe code",
+          "Errors": {
+            "pattern": "Only 6-digits numeric code is allowed"
+          },
+          "Buttons": {
+            "Enable": "Enable 2FA",
+            "Disable": "Disable 2FA"
+          }
+        }
+      },
+      "Social": {
+        "NetworksSection": {
+          "Title": "Social Networks",
+          "Text": "You can sign in into app.goldmint.io with your Social Network account",
+          "Buttons": {
+            "Connect": "Connect",
+            "Connected": "Connected"
+          }
+        }
+      },
+      "Activity": {
+        "SectionTitle": "Account activity events",
+        "TitleWidget": {
+          "Label": "Date"
+        },
+        "ActivityTypes": {
+          "auth": "Authentication",
+          "password": "User password",
+          "settings": "Settings",
+          "deposit": "Deposit",
+          "withdraw": "Withdraw",
+          "exchange": "Assets exchange"
+        }
+      }
+    },
+    "ErrorPage": {
+      "404": {
+        "Heading": "Error 404. Page not found",
+        "SectionTitle": "Use the menu to navigate the site"
+      }
+    }
+  },
+  "ERRORS": {
+    "Registration": {
+      "AccountEmailTaken": "This email address is already taken"
+    },
+    "Login": {
+      "AccountNotFound": "User/password pair not found",
+      "AccountLocked": "Too many unsuccessful attempts. Account is locked, try to sign in later",
+      "AccountEmailNotConfirmed": "Your email address is not confirmed yet"
+    },
+    "TFA": {
+      "InvalidCode": "Invalid code"
+    }
+  }
+}

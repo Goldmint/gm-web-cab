@@ -1,0 +1,85 @@
+<!-- host: .page -->
+  <h1 class="page__heading">{{ "PAGES.Transfer.Heading" | translate }}</h1>
+
+  <section class="page__section section">
+    <div class="section__content">
+      <form action="#">
+        <div class="row">
+
+          <div class="col-8 form-group mb-0">
+            <label for="input_toSpend">{{ "PAGES.Transfer.Labels.TransferToWallet" | translate }}</label>
+            <div class="d-flex align-items-center">
+              <img src="assets/img/icons/etherium.svg" width="21" height="35" alt="Etherium" class="mb-2 mr-2">
+              <input type="text" class="form-control ml-1" id="input_toSpend" placeholder="{{ 'PAGES.Transfer.Placeholders.EtheriumWallet' | translate }}" disabled>
+            </div>
+          </div>
+
+          <div class="col-auto pt-3 ml-auto">
+            <button class="btn btn-primary" (click)="modal(chooseMethodModal)" disabled>{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <div class="section__footer">
+      <span class="page__note">
+        {{ "PAGES.Transfer.Note" | translate }}
+      </span>
+    </div>
+  </section>
+
+  <div class="row">
+    <div class="col-auto">
+      <a href="javascript:void(0)" class="btn btn-primary btn-wide disabled">{{ "PAGES.Transfer.Buttons.BuyMore" | translate }}</a>
+    </div>
+    <div class="col-5 form-text disabled">
+      <b>MNTP Balance 12.46</b>
+      <span>Buy now <b>90 MNT</b> and get <b>Y USD</b> discounts</span>
+    </div>
+  </div>
+
+
+  <ng-template #chooseMethodModal let-close="close">
+    <div class="modal-header">
+      <h4 class="modal-title">Choose transfer method</h4>
+      <button type="button" class="close" (click)="modalRef.hide()">
+        <svg class="icon" width="24px" height="24px">
+          <use xlink:href="#close"></use>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row align-items-center py-4">
+        <div class="col">
+          <a class="btn btn-primary btn-block" href="javascript:void(0)" (click)="modal(myEtheriumWalletModal)">My Etherium wallet</a>
+        </div>
+        <div class="col-1 text-center">or</div>
+        <div class="col">
+          <a class="btn btn-primary btn-block" href="javascript:void(0)">MetaMask</a>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #myEtheriumWalletModal let-close="close">
+    <div class="modal-header">
+      <h4 class="modal-title">My Etherium wallet</h4>
+      <button type="button" class="close" (click)="modalRef.hide()">
+        <svg class="icon" width="24px" height="24px">
+          <use xlink:href="#close"></use>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row align-items-center py-4">
+        <div class="col-auto mx-auto">
+          <ol class="mb-0">
+            <li>Перейдите на <a href="http://myetherwallet.com" target="_blank" class="link link--bolder link--gold">myetherwallet.com</a></li>
+            <li>Введите адрес смарт-контракта <b>0х2342344f23455213443</b></li>
+            <li>Нажмите подтвердить транзакцию</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </ng-template>

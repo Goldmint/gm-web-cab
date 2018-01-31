@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>Goldmint.CoreLogic</RootNamespace>
+    <AssemblyName>Goldmint.CoreLogic</AssemblyName>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\DAL\DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Data\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Nethereum.Web3" Version="2.2.3" />
+  </ItemGroup>
+
+</Project>

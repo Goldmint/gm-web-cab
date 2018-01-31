@@ -1,0 +1,63 @@
+<section class="section">
+  <h2 class="section__title">{{ "PAGES.Settings.Social.NetworksSection.Title" | translate }}</h2>
+
+  <div class="section__content">
+
+    <div class="section__preface">{{ "PAGES.Settings.Social.NetworksSection.Text" | translate }}</div>
+
+    <div class="row">
+      <div class="col form-group">
+        <button class="btn btn-social btn-social--lg btn-social--fb" [ngClass]="{'selected': selected == 'facebook'}" (click)="selectSocial('facebook')" disabled>
+          <svg class="icon">
+            <use xlink:href="#social-fb"></use>
+          </svg>
+          <span>
+            {{ (user?.social.facebook
+              ? "PAGES.Settings.Social.NetworksSection.Buttons.Connected"
+              : "PAGES.Settings.Social.NetworksSection.Buttons.Connect") | translate }}
+          </span>
+        </button>
+      </div>
+
+      <div class="col form-group">
+        <button class="btn btn-social btn-social--lg btn-social--gh" [ngClass]="{'selected': selected == 'github'}" (click)="selectSocial('github')" disabled>
+          <svg class="icon">
+            <use xlink:href="#social-gh"></use>
+          </svg>
+          <span>
+            {{ (user?.social.github
+              ? "PAGES.Settings.Social.NetworksSection.Buttons.Connected"
+              : "PAGES.Settings.Social.NetworksSection.Buttons.Connect") | translate }}
+          </span>
+        </button>
+      </div>
+
+      <div class="col form-group">
+        <button class="btn btn-social btn-social--lg btn-social--gp" [ngClass]="{'selected': selected == 'google'}" (click)="selectSocial('google')" disabled>
+          <svg class="icon">
+            <use xlink:href="#social-gp"></use>
+          </svg>
+          <span>
+            {{ (user?.social.google
+              ? "PAGES.Settings.Social.NetworksSection.Buttons.Connected"
+              : "PAGES.Settings.Social.NetworksSection.Buttons.Connect") | translate }}
+          </span>
+        </button>
+      </div>
+
+      <div class="col form-group">
+        <button class="btn btn-social btn-social--lg btn-social--vk" [ngClass]="{'selected': selected == 'vkontakte'}" (click)="selectSocial('vkontakte')" disabled>
+          <svg class="icon">
+            <use xlink:href="#social-vk"></use>
+          </svg>
+          <span>
+            {{ (user?.social.vkontakte
+              ? "PAGES.Settings.Social.NetworksSection.Buttons.Connected"
+              : "PAGES.Settings.Social.NetworksSection.Buttons.Connect") | translate }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>

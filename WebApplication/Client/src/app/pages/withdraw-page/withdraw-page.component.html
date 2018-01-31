@@ -1,0 +1,221 @@
+<!-- <ng-container *ngIf="page === _pages.Default"> -->
+  <section class="page__section section section--table">
+    <h2 class="section__title">{{ "PAGES.Withdraw.SectionTitle" | translate }}</h2>
+
+    <div class="section__content pt-4">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <div class="row">
+        <div class="col form-group text-center">
+          <label for="btnPaymentCard">Payment card</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentCard">
+            <svg class="icon" width="56px" height="56px">
+              <use href="#payment-card"></use>
+            </svg>
+          </button>
+        </div>
+        <div class="col form-group text-center">
+          <label for="btnPaymentBank" disabled>Bank transfer</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentBank">
+            <svg class="icon" width="107px" height="56px">
+              <use href="#payment-bank"></use>
+            </svg>
+          </button>
+        </div>
+        <div class="col form-group text-center">
+          <label for="btnPaymentCrypto">Crypto capital</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
+            <svg class="icon" width="56px" height="56px">
+              <use href="#payment-crypto"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="row pb-4 mb-3">
+        <tabset class="col tabs">
+          <tab heading="Daily">
+            <div class="limits-bar">
+              <div class="limits-bar__caption">
+                <span>Account limits</span>
+                <div class="limits-bar__increase" *ngIf="limitsIncrease">
+                  <svg class="icon" width="20px" height="20px">
+                    <use xlink:href="#increase"></use>
+                  </svg>
+                  <span>Increase</span>
+                </div>
+              </div>
+              <div class="limits-bar__progress progress">
+                <div class="progress-bar w-25"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-6">
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">Payment Card</div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar"></div>
+                  </div>
+                  <dl class="limits-bar__list">
+                    <dt class="col-auto">Daily limis used:</dt>
+                    <dd class="col">$ 0.00 of $ 300.00</dd>
+                  </dl>
+                </div>
+
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">
+                    <span>Avialable for payment</span>
+                    <div class="limits-bar__value">$ 300.00</div>
+                  </div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar w-75"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-6">
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">Account Limit</div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar w-25"></div>
+                  </div>
+                  <dl class="limits-bar__list">
+                    <dt class="col-auto">Daily limis used:</dt>
+                    <dd class="col">$ 0.00 of $ 300.00</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </tab>
+
+          <tab heading="Monthly">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente iusto, ducimus ullam eaque dolore architecto ad consequatur quia enim, quaerat, assumenda, perspiciatis illo modi autem amet ut! Quae, unde, explicabo.</p>
+          </tab>
+        </tabset>
+      </div>
+
+    </div>
+  </section>
+
+  <ng-container *ngIf="!loading">
+    <section class="section section--warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">
+      <h2 class="section__title section__title--warning">
+        <svg class="icon" width="18px" height="16px">
+          <use xlink:href="#warning"></use>
+        </svg>
+        {{ "PAGES.Withdraw.TFA.SectionTitle" | translate }}
+      </h2>
+
+      <div class="section__content section__content--clean pt-2">
+        <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.TFA.Text' | translate "></p>
+
+        <div class="row kyc-pros mb-4 pb-2">
+          <div class="col">
+            <svg class="kyc-pros__icon" width="33px" height="44px">
+              <use xlink:href="#verify-secure"></use>
+            </svg>
+            <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Secure.Title" | translate }}</div>
+            <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Secure.Text" | translate }}</p>
+          </div>
+          <div class="col">
+            <svg class="kyc-pros__icon" width="28px" height="44px">
+              <use xlink:href="#verify-simple"></use>
+            </svg>
+            <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Simple.Title" | translate }}</div>
+            <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Simple.Text" | translate }}</p>
+          </div>
+          <div class="col">
+            <svg class="kyc-pros__icon" width="36px" height="44px">
+              <use xlink:href="#verify-complaint"></use>
+            </svg>
+            <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Title" | translate }}</div>
+            <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Text" | translate }}</p>
+          </div>
+          <div class="col-auto pl-4 ml-2 align-self-center pb-3">
+            <a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.TFA.Button" | translate }}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <ng-template #tfaEnabled>
+
+    </ng-template>
+  </ng-container>
+<!-- </ng-container> -->
+
+<!-- <ng-container *ngIf="page === _pages.CardsList">
+  <section class="page__section section section--table">
+    <h2 class="section__title">{{ "PAGES.Withdraw.CardsList.SectionTitle" | translate }}</h2>
+
+    <div class="section__content pt-4">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <ng-container *ngIf="cards && cards.list.length; else noCardsBlock">
+        <form name="withdrawForm" (ngSubmit)="withdrawForm.form.valid && submit()" #withdrawForm="ngForm" novalidate>
+          <div class="row">
+            <div class="col-4">
+              <div class="form-group">
+                <label for="selectCard">Select a card:</label>
+                <select id="selectCard" class="custom-select" #assetBuySelect required
+                        name="cardId" [(ngModel)]="withdrawModel.cardId" #cardId="ngModel"
+                        [ngClass]="{'is-invalid': (errors?.CardId || !cardId.valid) && (withdrawForm.submitted || !cardId.pristine)}"
+                        (ngModelChange)="errors.CardId = false"
+                        [disabled]="processing">
+                  <option *ngFor="let card of cards.list" value="card.id">{{ card.mask }}</option>
+                </select>
+
+                <div class="invalid-feedback" *ngIf="errors?.CardId">
+                  {{ errors?.CardId }}
+                </div>
+              </div>
+
+              <div class="form-row align-items-end">
+                <div class="form-group col-auto">
+                  <label for="inputAmount">Amount:</label>
+                  <input type="number" min="0" step="0.01" required
+                         class="form-control" id="inputAmount"
+                         name="amount" [(ngModel)]="withdrawModel.amount" #amount="ngModel"
+                         [ngClass]="{'is-invalid': (errors?.Amount || !amount.valid) && (withdrawForm.submitted || !amount.pristine)}"
+                         (ngModelChange)="errors.Amount = false"
+                         [readonly]="processing">
+
+                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors?.Amount">
+                    {{ errors?.Amount }}
+                  </div>
+                </div>
+                <div class="form-group col-auto">
+                  <div class="form-currency form-currency--usd">
+                    <svg class="icon">
+                      <use xlink:href="#cur-usd"></use>
+                    </svg>
+                    <span>USD</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-auto pt-4">
+              <button type="submit" class="btn btn-primary">Proceed</button>
+            </div>
+          </div>
+        </form>
+      </ng-container>
+
+      <ng-template #noCardsBlock>
+        <div class="row">
+          <div class="col">
+            <a routerLink="/account/cards" class="btn btn-primary">Add a card</a>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+  </section>
+</ng-container> -->

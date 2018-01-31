@@ -1,0 +1,76 @@
+<!-- host: .page -->
+  <h1 class="page__heading" translate [translateParams]="{asset: assetBuySelect.value}">PAGES.Buy.Heading</h1>
+
+  <section class="page__section section">
+    <h2 class="section__title">
+      {{ "PAGES.Buy.SectionTitle" | translate }}&nbsp;
+      <span class="text-uppercase" translate [translateParams]="{asset: assetBuySelect.value}">PAGES.Buy.SectionTitleValue</span>
+    </h2>
+
+    <div class="section__content">
+      <form action="#">
+        <div class="row">
+
+          <div class="col">
+            <div class="form-row align-items-end">
+              <div class="form-group col-auto">
+                <label for="input_toSpend">To Spend</label>
+                <input type="number" min="0" step="0.01" class="form-control" id="input_toSpend" (input)="onToSpendChanged($event.target.value)" disabled>
+              </div>
+              <div class="form-group col-auto mr-5">
+                <select class="custom-select form-currency" id="select_Asset" #assetBuySelect
+                        name="buyCurrency" [(ngModel)]="buyCurrency"
+                        (change)="onCurrencyChanged($event.target.value)" disabled>
+                  <option value="gold">GOLD</option>
+                  <option value="usd">USD</option>
+                </select>
+              </div>
+
+              <div class="form-group col-auto">
+                <label for="input_EstimateAmount">Estimates Amount *</label>
+                <input type="text" class="form-control" id="input_EstimateAmount" readonly [value]="estimate_amount > 0 ? estimate_amount : ''" disabled>
+              </div>
+              <div class="form-group col-auto">
+                <div class="form-currency form-currency--{{ resultCurrrency }} disabled">
+                  <svg class="icon">
+                    <use attr.xlink:href="#cur-{{ resultCurrrency }}"></use>
+                  </svg>
+                  <span>{{ resultCurrrency }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-auto pt-3">
+            <button class="btn btn-primary" disabled>{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <div class="section__footer">
+      <span class="page__note">
+        {{ "PAGES.Buy.Note" | translate }}
+      </span>
+    </div>
+  </section>
+
+  <div class="row mb-4 pb-2">
+    <div class="col-auto">
+      <a routerLink="/finance/deposit" class="btn btn-primary btn-wide">{{ "PAGES.Buy.Buttons.Deposit" | translate }}</a>
+    </div>
+    <div class="col-5 form-text">
+      <span>{{ "PAGES.Buy.DepositDesc" | translate }}</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-auto">
+      <a href="javascript:void(0)" class="btn btn-primary btn-wide disabled">{{ "PAGES.Buy.Buttons.BuyMore" | translate }}</a>
+    </div>
+    <div class="col-5 form-text disabled">
+      <b>MNTP Balance 12.46</b>
+      <span>Buy now <b>90 MNT</b> and get <b>Y USD</b> discounts</span>
+    </div>
+  </div>

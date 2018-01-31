@@ -1,0 +1,136 @@
+﻿using Goldmint.DAL.Models;
+using Goldmint.DAL.Models.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
+
+namespace Goldmint.DAL {
+
+	public class ApplicationDbContext : IdentityDbContext<User, Role, long, UserClaim, UserRole, UserLogin, RoleClaim, UserToken> {
+
+		public DbSet<Settings> Settings { get; set; }
+		public DbSet<UserOptions> UserOptions { get; set; }
+		public DbSet<KycShuftiProTicket> KycShuftiProTicket { get; set; }
+		public DbSet<UserVerification> UserVerification { get; set; }
+		public DbSet<Models.Mutex> Mutex { get; set; }
+		public DbSet<Card> Card { get; set; }
+		public DbSet<CardPayment> CardPayment { get; set; }
+		public DbSet<Deposit> Deposit { get; set; }
+		public DbSet<Withdraw> Withdraw { get; set; }
+		public DbSet<Notification> Notification { get; set; }
+		public DbSet<UserActivity> UserActivity { get; set; }
+		public DbSet<BuyRequest> BuyRequest { get; set; }
+		public DbSet<SellRequest> SellRequest { get; set; }
+
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
+		}
+
+		protected override void OnModelCreating(ModelBuilder builder) {
+			base.OnModelCreating(builder);
+
+			builder.Entity<Role>().ToTable("gm_role");
+			builder.Entity<RoleClaim>().ToTable("gm_role_claim");
+			builder.Entity<User>().ToTable("gm_user");
+			builder.Entity<UserClaim>().ToTable("gm_user_claim");
+			builder.Entity<UserLogin>().ToTable("gm_user_login");
+			builder.Entity<UserRole>().ToTable("gm_user_role");
+			builder.Entity<UserToken>().ToTable("gm_user_token");
+
+			// for currency amount
+			foreach (var property in builder.Model.GetEntityTypes().SelectMany(t => t.GetProperties()).Where(p => p.ClrType == typeof(decimal))) {
+				property.Relational().ColumnType = "decimal(26, 2)";
+			}
+		}
+
+		// ---
+
+		public override int SaveChanges() {
+			updateConcurrencyStamps();
+			return base.SaveChanges();
+		}
+
+		public override int SaveChanges(bool acceptAllChangesOnSuccess) {
+			updateConcurrencyStamps();
+			return base.SaveChanges(acceptAllChangesOnSuccess);
+		}
+
+		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken)) {
+			updateConcurrencyStamps();
+			return base.SaveChangesAsync(cancellationToken);
+		}
+
+		public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken)) {
+			updateConcurrencyStamps();
+			return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+		}
+
+		private void updateConcurrencyStamps() {
+
+			var entries = ChangeTracker.Entries();
+			foreach (var e in entries) {
+				if ((e.State == EntityState.Added || e.State == EntityState.Modified) && e.Entity is IConcurrentUpdate) {
+					(e.Entity as IConcurrentUpdate).OnConcurrencyStampRegen();
+				}
+			}
+		}
+
+		// ---
+
+		public async Task<string> GetDBSetting(Common.DbSetting key, string def) {
+			Settings sett = null;
+
+			try {
+				sett = await (
+					from s in this.Settings
+					where s.Key == key.ToString()
+					select s
+				)
+				.AsNoTracking()
+				.FirstOrDefaultAsync();
+
+				if (sett != null) {
+					return sett.Value;
+				}
+			}
+			catch { }
+
+			return def;
+		}
+
+		public async Task<bool> SaveDbSetting(Common.DbSetting key, string value) {
+			Settings sett = null;
+
+			try {
+				sett = await (
+					from s in this.Settings
+					where s.Key == key.ToString()
+					select s
+				)
+				.FirstOrDefaultAsync();
+
+				if (sett != null) {
+					sett.Value = value;
+				}
+				else {
+					sett = new Settings() {
+						Key = key.ToString(),
+						Value = value,
+					};
+
+					this.Settings.Add(sett);
+				}
+
+				await SaveChangesAsync();
+
+				return true;
+			}
+			catch { }
+			finally {
+				if (sett != null) this.Entry(sett).State = EntityState.Detached;
+			}
+			return false;
+		}
+	}
+}

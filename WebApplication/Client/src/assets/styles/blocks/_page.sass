@@ -1,0 +1,49 @@
+.page
+  display: block
+  padding-top: 50px
+
+  &__heading
+    font-weight: 300
+    font-size: rem(48px)
+    line-height: rem(46px)
+    letter-spacing: .1em
+    text-transform: uppercase
+    margin-bottom: 0
+    min-height: 92px
+
+  &__jumbotron
+    .page--auth &
+      margin-top: 47px
+      margin-bottom: 37px
+      text-align: center
+
+  &__title
+    /* */
+
+  &__subtitle
+    font-size: rem(24px)
+    line-height: rem(30px)
+    text-transform: uppercase
+    letter-spacing: .1em
+
+    .page--auth &
+      margin-top: 16px
+      margin-bottom: 16px
+      padding: rem(16px) 0
+
+  &__sidebar
+    // padding-top: 9px /* @todo: remove it */
+    padding-top: 34px
+
+  &__section
+    min-height: 150px
+    position: relative
+
+    &--bottom-border
+      border-bottom: 3px solid $color-gray-0
+
+  &__note
+    font-size: rem(12px)
+    line-height: rem(14px)
+    display: inline-block
+    color: $color-gray-1

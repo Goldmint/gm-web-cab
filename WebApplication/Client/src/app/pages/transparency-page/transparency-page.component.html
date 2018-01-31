@@ -1,0 +1,150 @@
+<div class="page">
+  <h1 class="page__heading">Transparency</h1>
+
+  <div class="page__section">
+
+    <div class="trn-info">
+      <div class="col px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--plus">
+          <svg class="icon" width="8px" height="8px">
+            <use xlink:href="#amount-plus"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">Total issued:</div>
+        <div class="trn-info__value">
+          {{ summary.issued?.prefix }}
+          {{ summary.issued.amount }}
+          {{ summary.issued?.suffix }}
+        </div>
+      </div>
+
+      <div class="col px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--minus">
+          <svg class="icon" width="8px" height="2px">
+            <use xlink:href="#amount-minus"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">Total burnt:</div>
+        <div class="trn-info__value">
+          {{ summary.burnt?.prefix }}
+          {{ summary.burnt.amount }}
+          {{ summary.burnt?.suffix }}
+        </div>
+      </div>
+
+      <div class="col px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--circ">
+          <svg class="icon" width="21px" height="16px">
+            <use xlink:href="#circulation"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">Total in circulation:</div>
+        <div class="trn-info__value">
+          {{ summary.circulation?.prefix }}
+          {{ summary.circulation.amount }}
+          {{ summary.circulation?.suffix }}
+        </div>
+      </div>
+    </div>
+
+    <section class="section section--table">
+      <h2 class="section__title" id="pageSectionTitle">Transactions</h2>
+
+      <div class="section__content">
+        <ngx-datatable class="table table--no-footer" #table
+          [rows]="rows"
+
+          [columnMode]="'force'"
+          [sorts]="sorts"
+          [headerHeight]="53"
+          [rowHeight]="'auto'"
+          [footerHeight]="135"
+          [reorderable]="false"
+          [loadingIndicator]="loading"
+          [count]="page.totalElements"
+          [offset]="page.pageNumber"
+          [limit]="page.size"
+          [externalSorting]="true"
+          (sort)="onSort($event)"
+          [externalPaging]="true"
+          (page)='setPage($event)'
+          [messages]="messages">
+
+          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.History.Table.Columns.Date" | translate }}
+              </span>
+            </ng-template>
+
+            <ng-template let-timestamp="value" ngx-datatable-cell-template>
+              <!-- {{ timestamp * 1000 | date:'yyyy-MM-dd HH:mm:ss' }} -->
+              {{ timestamp * 1000 | date:'short':'':locale }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="160">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.History.Table.Columns.Amount" | translate }}
+              </span>
+            </ng-template>
+
+            <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
+              <div *ngIf="row.type === 'withdraw'; then amountWithdrawBlock else amountDepositBlock"></div>
+
+              <ng-template #amountWithdrawBlock>
+                <svg class="icon icon--fix icon--green" width="8px" height="8px">
+                  <use xlink:href="#amount-plus"></use>
+                </svg>
+              </ng-template>
+
+              <ng-template #amountDepositBlock>
+                <svg class="icon icon--fix icon--red" width="8px" height="2px">
+                  <use xlink:href="#amount-minus"></use>
+                </svg>
+              </ng-template>
+
+              <span>
+                {{ amount?.prefix }}
+                {{ amount.amount | number:'1.2-2':locale }}
+                {{ amount?.suffix }}
+              </span>
+              <!-- <span>{{ amount | currency:row.currency.code:'code':'1.2-2':locale }}</span> -->
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [width]="450">
+            <ng-template ngx-datatable-header-template>
+              Confirmation Link
+              <!-- {{ "PAGES.History.Table.Columns.Comment" | translate }} -->
+            </ng-template>
+
+            <ng-template let-link="value" ngx-datatable-cell-template>
+              <a [href]="link">{{ link }}</a>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+              <svg class="icon icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+              <svg class="icon icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+  </div>
+</div>

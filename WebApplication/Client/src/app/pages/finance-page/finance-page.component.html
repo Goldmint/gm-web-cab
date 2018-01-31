@@ -1,0 +1,17 @@
+<div class="page">
+  <h1 class="page__heading">{{ "PAGES.Finance.Heading" | translate }}</h1>
+
+  <div class="row">
+    <div class="col-4 page__sidebar sidebar pr-4">
+      <nav class="nav">
+        <a class="nav-link" routerLinkActive="active" routerLink="./deposit">{{ "PAGES.Finance.Menu.Deposit" | translate }}</a>
+        <a class="nav-link" routerLinkActive="active" routerLink="./withdraw">{{ "PAGES.Finance.Menu.Withdraw" | translate }}</a>
+        <a class="nav-link" routerLinkActive="active" routerLink="./history">{{ "PAGES.Finance.Menu.History" | translate }}</a>
+      </nav>
+    </div>
+
+    <div class="col-8 page__section pl-3">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
