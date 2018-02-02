@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180130145951_financial-history-2")]
+    partial class financialhistory2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -291,6 +292,9 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<long>("AmountCents")
                         .HasColumnName("amount");
+
+                    b.Property<long>("BalanceCents")
+                        .HasColumnName("balance");
 
                     b.Property<string>("Comment")
                         .IsRequired()

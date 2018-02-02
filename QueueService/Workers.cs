@@ -25,7 +25,8 @@ namespace Goldmint.QueueService {
 
 					// doesn't require ethereum at all
 					new NotificationSender(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(3)),
-					new CardPaymentUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(30))
+					new CardPaymentUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(30)),
+					new GoldRateUpdater().Period(TimeSpan.FromSeconds(3)),
 				});
 			}
 
@@ -40,7 +41,7 @@ namespace Goldmint.QueueService {
 					new DepositUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new WithdrawUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new BuyingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10))
+					new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 				});
 			}
 

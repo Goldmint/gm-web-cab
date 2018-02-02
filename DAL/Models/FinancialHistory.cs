@@ -7,17 +7,14 @@ using System.Text;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_deposit")]
-	public class Deposit : BaseFinancialHistoryEntity, IConcurrentUpdate {
+	[Table("gm_financial_history")]
+	public class FinancialHistory : BaseUserEntity, IConcurrentUpdate {
+
+		[Column("type"), Required]
+		public FinancialHistoryType Type { get; set; }
 
 		[Column("status"), Required]
-		public DepositStatus Status { get; set; }
-
-		[Column("source"), Required]
-		public DepositSource Source { get; set; }
-
-		[Column("source_id")]
-		public long SourceId { get; set; }
+		public FinancialHistoryStatus Status { get; set; }
 
 		[Column("currency"), Required]
 		public FiatCurrency Currency { get; set; }
@@ -25,17 +22,17 @@ namespace Goldmint.DAL.Models {
 		[Column("amount"), Required]
 		public long AmountCents { get; set; }
 
+		[Column("fee"), Required]
+		public long FeeCents { get; set; }
+
+		[Column("comment"), MaxLength(512), Required]
+		public string Comment { get; set; }
+
 		[Column("desk_ticket_id"), MaxLength(32), Required]
 		public string DeskTicketId { get; set; }
 
-		[Column("eth_transaction_id"), MaxLength(66)]
-		public string EthTransactionId { get; set; }
-
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
-
-		[Column("time_next_check"), Required]
-		public DateTime TimeNextCheck { get; set; }
 
 		[Column("time_completed")]
 		public DateTime? TimeCompleted { get; set; }
@@ -48,5 +45,6 @@ namespace Goldmint.DAL.Models {
 		public void OnConcurrencyStampRegen() {
 			this.ConcurrencyStamp = ConcurrentStamp.GetGuid();
 		}
+
 	}
 }

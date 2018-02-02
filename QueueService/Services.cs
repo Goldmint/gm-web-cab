@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace Goldmint.QueueService {
 
@@ -75,6 +76,9 @@ namespace Goldmint.QueueService {
 				// mail sender
 				services.AddSingleton<IEmailSender, MailGunSender>();
 
+				// rates
+				services.AddSingleton<IGoldRateProvider>(new LocalGoldRateProvider());
+
 				// rpc server
 				var workerRPCService = new WorkerRPCService();
 				_defaultRpcServer = new JsonRPCServer<WorkerRPCService>(workerRPCService, _loggerFactory);
@@ -86,8 +90,10 @@ namespace Goldmint.QueueService {
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, InfuraWriter>();
 
-				// rates
-				services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
+				// rates (could be added in section above)
+				if (services.Count(x => x.ServiceType == typeof(IGoldRateProvider)) == 0) {
+					services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
+				}
 			}
 		}
 	}

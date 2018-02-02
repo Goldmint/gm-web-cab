@@ -52,8 +52,6 @@ namespace Goldmint.Common {
 		public ServicesSection Services { get; set; } = new ServicesSection();
 		public class ServicesSection {
 
-			public string NLogConfig { get; set; } = "nlog.config";
-
 			public RecaptchaSection Recaptcha { get; set; } = new RecaptchaSection();
 			public class RecaptchaSection {
 

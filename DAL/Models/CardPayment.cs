@@ -43,11 +43,10 @@ namespace Goldmint.DAL.Models {
 		[Column("desk_ticket_id"), MaxLength(32), Required]
 		public string DeskTicketId { get; set; }
 
-		[Column("ref_entity")]
-		public CardPaymentRefEntity? RefEntity { get; set; }
-
-		[Column("ref_entity_id")]
-		public long? RefEntityId { get; set; }
+		[Column("ref_payment_id")]
+		public long? RefPaymentId { get; set; }
+		[ForeignKey(nameof(RefPaymentId))]
+		public virtual CardPayment RefPayment { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

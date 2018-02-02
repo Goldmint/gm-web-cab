@@ -41,9 +41,7 @@ namespace Goldmint.WebApplication {
 				_appConfig = new AppConfig();
 				_configuration.Bind(_appConfig);
 
-				var nlogConfigFile = _appConfig.Services.NLogConfig;
-				if (nlogConfigFile == null) throw new Exception("NLog not configured");
-				_nlogConfiguration = new NLog.Config.XmlLoggingConfiguration(nlogConfigFile);
+				_nlogConfiguration = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
 				_loggerFactory = new LogFactory(_nlogConfiguration);
 			} catch (Exception e) {
 				throw new Exception("Failed to get app settings", e);

@@ -22,7 +22,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		public async Task<APIResponse> GoldRate() {
 			return APIResponse.Success(
 				new GoldRateView() {
-					Rate = await GoldRateProvider.GetGoldRate(Common.FiatCurrency.USD) / 100d,
+					Rate = await GoldRateCached.GetGoldRate(Common.FiatCurrency.USD) / 100d,
 				}
 			);
 		}

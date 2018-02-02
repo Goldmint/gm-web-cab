@@ -11,6 +11,7 @@ import { User, Balance, OAuthRedirectResponse } from '../interfaces';
 import { APIResponse, AuthResponse, RegistrationResponse } from '../interfaces/api-response';
 import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';
+import { EthereumService } from './ethereum.service';
 
 import { AppDefaultLanguage } from '../app.languages';
 
@@ -23,6 +24,7 @@ export class UserService {
   public currentLocale : Observable<string> = this._locale.asObservable();
 
   constructor(
+    private _ethereumService: EthereumService,
     private _router: Router,
     private _apiService: APIService,
     private _jwtHelper: JwtHelperService,
@@ -128,7 +130,7 @@ export class UserService {
 
         zip(
           this._apiService.getProfile(),
-          this._apiService.getBalance(),
+          this._apiService.getBalance(this._ethereumService.getEthAddress()),
           // shareReplay(),
           (profile: APIResponse<User>, balance: APIResponse<Balance>) => {
             let user = profile.data;

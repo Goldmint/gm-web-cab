@@ -140,6 +140,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			);
 			DbContext.CardPayment.Add(payment);
 			DbContext.SaveChanges();
+			DbContext.Detach(payment);
 
 			return APIResponse.Success(
 				new AddView() {
@@ -249,6 +250,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			);
 			DbContext.CardPayment.Add(payment);
 			DbContext.SaveChanges();
+			DbContext.Detach(payment);
 
 			return APIResponse.Success(
 				new AddView() {

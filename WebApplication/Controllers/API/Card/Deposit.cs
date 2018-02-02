@@ -32,6 +32,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
+			
 
 			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
@@ -47,6 +48,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			var transId = CardPaymentQueue.GenerateTransactionId();
 			var transCurrency = FiatCurrency.USD;
+			// var currentBalance = await EthereumObserver.GetUserFiatBalance(user.Id, transCurrency);
 
 			// new ticket
 			var ticket = await TicketDesk.CreateCardDepositTicket(TicketStatus.Opened, card.User.UserName, amountCents, transCurrency, "New deposit request");
@@ -60,12 +62,36 @@ namespace Goldmint.WebApplication.Controllers.API {
 				deskTicketId: ticket
 			);
 			DbContext.CardPayment.Add(payment);
-			DbContext.SaveChanges();
+
+			// history
+			var finHistory = new DAL.Models.FinancialHistory() {
+				Type = FinancialHistoryType.Deposit,
+				AmountCents = amountCents,
+				FeeCents = 0,
+				Currency = transCurrency,
+				DeskTicketId = ticket,
+				Status = FinancialHistoryStatus.Pending,
+				TimeCreated = DateTime.UtcNow,
+				User = user,
+				Comment = "", // see below
+			};
+			DbContext.FinancialHistory.Add(finHistory);
+
+			// save
+			await DbContext.SaveChangesAsync();
+			DbContext.Detach(payment, finHistory);
+
+			// update comment
+			finHistory.Comment = $"Deposit payment #{payment.Id} from {card.CardMask}";
+			DbContext.Update(finHistory);
+			await DbContext.SaveChangesAsync();
+			DbContext.Detach(finHistory);
 
 			// try
 			var queryResult = await DepositQueue.StartDepositWithCard(
 				services: HttpContext.RequestServices,
-				payment: payment
+				payment: payment,
+				financialHistory: finHistory
 			);
 
 			switch (queryResult.Status) {

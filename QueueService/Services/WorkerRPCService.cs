@@ -10,8 +10,8 @@ namespace Goldmint.QueueService.Services {
 		public WorkerRPCService() { }
 
 		[JsonRpcMethod(RouteServices + "goldrate.usd")]
-		public long GoldRate() {
-			return 133000 + (SecureRandom.GetPositiveInt() % 6000) - 3000;
+		public long? GoldRate() {
+			return Workers.GoldRateUpdater.GetGoldRate(FiatCurrency.USD);
 		}
 	}
 }

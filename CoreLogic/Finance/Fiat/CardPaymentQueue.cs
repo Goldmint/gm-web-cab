@@ -16,8 +16,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 	public static class CardPaymentQueue {
 
-		// TODO: detach processing items from db context
-
 		/// <summary>
 		/// New card input data operation to enqueue
 		/// </summary>
@@ -52,7 +50,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 			// ---
 
-			var amountCents = 100L; // 1 USD
+			var amountCents = card.VerificationAmountCents;
 			var tid = GenerateTransactionId();
 
 			var gwTransactionId = await cardAcquirer.StartPaymentCharge(new StartPaymentCharge() {
@@ -132,8 +130,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				Card = refPayment.Card,
 				TransactionId = GenerateTransactionId(),
 				GWTransactionId = "", // empty until charge
-				RefEntity = CardPaymentRefEntity.CardPayment,
-				RefEntityId = refPayment.Id,
+				RefPayment = refPayment,
 				Type = CardPaymentType.Refund,
 				User = refPayment.User,
 				Currency = refPayment.Currency,
@@ -280,9 +277,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					}
 
 					// update payment
-					dbContext.Entry(payment).State = EntityState.Modified;
+					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Entry(payment).State = EntityState.Detached;
+					dbContext.Detach(payment);
 
 					// now is final
 					if (finalized) {
@@ -367,16 +364,15 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						}
 
 						// update card state
-						dbContext.Entry(card).State = EntityState.Modified;
+						dbContext.Update(card);
 						await dbContext.SaveChangesAsync();
-						dbContext.Entry(payment).State = EntityState.Detached;
+						dbContext.Detach(card, payment);
 
 						if (verificationPaymentEnqueued != null) {
+							// saved, dont track instance
+							dbContext.Detach(verificationPaymentEnqueued);
 
 							ret.VerificationPaymentId = verificationPaymentEnqueued.Id;
-
-							// dont track instance
-							dbContext.Entry(verificationPaymentEnqueued).State = EntityState.Detached;
 
 							try {
 								await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Verification payment enqueued");
@@ -442,9 +438,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					// prevent double spending
 					payment.Status = CardPaymentStatus.Charging;
-					dbContext.Entry(payment).State = EntityState.Modified;
+					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Entry(payment).State = EntityState.Detached;
+					dbContext.Detach(payment);
 
 					// charge
 					ChargeResult result = null;
@@ -474,7 +470,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					// payment.TimeNextCheck = doesn't matter
 
 					// payment will be updated
-					dbContext.Entry(payment).State = EntityState.Modified;
+					dbContext.Update(payment);
 
 					CardPayment refundEnqueued = null;
 
@@ -486,7 +482,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 						// new step on card verification
 						payment.Card.State = CardState.Verification;
-						dbContext.Entry(payment.Card).State = EntityState.Modified;
+						dbContext.Update(payment.Card);
 
 						// refund
 						try {
@@ -508,7 +504,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					// failed
 					else {
 						payment.Card.State = CardState.Deleted;
-						dbContext.Entry(payment.Card).State = EntityState.Modified;
+						dbContext.Update(payment.Card);
 
 						// didnt charge
 						ret.Result = ProcessVerificationPaymentResult.ResultEnum.ChargeFailed;
@@ -522,14 +518,14 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					}
 
 					// dont track
-					dbContext.Entry(payment).State = EntityState.Detached;
+					dbContext.Detach(payment.Card, payment);
 
 					// update ticket
 					try {
 						if (refundEnqueued != null) {
 
-							// dont track
-							dbContext.Entry(refundEnqueued).State = EntityState.Detached;
+							// saved, dont track
+							dbContext.Detach(refundEnqueued);
 
 							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Refund enqueued");
 						}
@@ -570,13 +566,13 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					.AsNoTracking()
 					.FirstOrDefaultAsync();
 
-					if (payment == null || payment.RefEntity != CardPaymentRefEntity.CardPayment || payment.RefEntityId == null) return false;
+					if (payment == null || payment.RefPaymentId == null) return false;
 
 					// get ref payment
 					var refPayment = await (
 						from p in dbContext.CardPayment
 						where
-						p.Id == payment.RefEntityId.Value &&
+						p.Id == payment.RefPaymentId.Value &&
 						(p.Type == CardPaymentType.Deposit || p.Type == CardPaymentType.Verification) &&
 						p.Status == CardPaymentStatus.Success
 						select p
@@ -590,9 +586,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					// prevent double spending
 					payment.Status = CardPaymentStatus.Charging;
-					dbContext.Entry(payment).State = EntityState.Modified;
+					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Entry(payment).State = EntityState.Detached;
+					dbContext.Detach(payment);
 
 					// charge
 					string resultGWTID = null;
@@ -627,10 +623,11 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						// update payment
 						payment.GWTransactionId = resultGWTID;
 						payment.Status = CardPaymentStatus.Success;
-						dbContext.Entry(payment).State = EntityState.Modified;
+						dbContext.Update(payment);
 					}
 
 					await dbContext.SaveChangesAsync();
+					dbContext.Detach(payment);
 
 					return payment.Status == CardPaymentStatus.Success;
 				}

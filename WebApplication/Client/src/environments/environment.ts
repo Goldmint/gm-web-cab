@@ -5,9 +5,6 @@
 
 export const environment = {
   production: false,
-  // apiUrl: 'http://localhost:8000/api/v1',
   apiUrl: 'https://app.goldmint.io/api/v1',
-  // apiUrl: 'http://gm-cabinet-dev.pashog.net/api-sandbox.php?action=/api',
-  // recaptchaSiteKey: '6LfqWzwUAAAAAKd9gu2-jDLvIKYPMm_aneMp1enn'
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k'
 };

@@ -246,29 +246,6 @@ namespace Goldmint.Common {
 		NotFound
 	}
 
-	public enum CardPaymentRefEntity {
-
-		/// <summary>
-		/// Another card payment ID
-		/// </summary>
-		CardPayment = 1,
-		
-		/// <summary>
-		/// Deposit ID
-		/// </summary>
-		Deposit,
-
-		/// <summary>
-		/// Withdraw ID
-		/// </summary>
-		Withdraw,
-
-		/// <summary>
-		/// Client's credit card
-		/// </summary>
-		Card
-	}
-
 	public enum CardPaymentStatus {
 
 		/// <summary>
@@ -453,5 +430,46 @@ namespace Goldmint.Common {
 		/// Credit card operation
 		/// </summary>
 		CreditCard,
+	}
+
+	public enum FinancialHistoryType {
+
+		/// <summary>
+		/// Deposit
+		/// </summary>
+		Deposit = 1,
+
+		/// <summary>
+		/// Completed
+		/// </summary>
+		Withdraw,
+
+		/// <summary>
+		/// Gold bought
+		/// </summary>
+		GoldBuying,
+
+		/// <summary>
+		/// Gold sold
+		/// </summary>
+		GoldSelling
+	}
+
+	public enum FinancialHistoryStatus {
+
+		/// <summary>
+		/// Pending
+		/// </summary>
+		Pending = 1,
+
+		/// <summary>
+		/// Completed
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Failed or cancelled
+		/// </summary>
+		Cancelled
 	}
 }

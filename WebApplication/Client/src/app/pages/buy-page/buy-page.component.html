@@ -15,23 +15,22 @@
             <div class="form-row align-items-end">
               <div class="form-group col-auto">
                 <label for="input_toSpend">To Spend</label>
-                <input type="number" min="0" step="0.01" class="form-control" id="input_toSpend" (input)="onToSpendChanged($event.target.value)" disabled>
+                <input type="number" min="0" step="0.01" class="form-control" id="input_toSpend" (input)="onToSpendChanged($event.target.value)">
               </div>
               <div class="form-group col-auto mr-5">
                 <select class="custom-select form-currency" id="select_Asset" #assetBuySelect
                         name="buyCurrency" [(ngModel)]="buyCurrency"
-                        (change)="onCurrencyChanged($event.target.value)" disabled>
-                  <option value="gold">GOLD</option>
+                        (change)="onCurrencyChanged($event.target.value)">
                   <option value="usd">USD</option>
                 </select>
               </div>
 
               <div class="form-group col-auto">
                 <label for="input_EstimateAmount">Estimates Amount *</label>
-                <input type="text" class="form-control" id="input_EstimateAmount" readonly [value]="estimate_amount > 0 ? estimate_amount : ''" disabled>
+                <input type="text" class="form-control" id="input_EstimateAmount" readonly [value]="estimate_amount > 0 ? estimate_amount : ''">
               </div>
               <div class="form-group col-auto">
-                <div class="form-currency form-currency--{{ resultCurrrency }} disabled">
+                <div class="form-currency form-currency--{{ resultCurrrency }}">
                   <svg class="icon">
                     <use attr.xlink:href="#cur-{{ resultCurrrency }}"></use>
                   </svg>
@@ -42,7 +41,7 @@
           </div>
 
           <div class="col-auto pt-3">
-            <button class="btn btn-primary" disabled>{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+            <button class="btn btn-primary" (click)="onBuy()">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
           </div>
 
         </div>

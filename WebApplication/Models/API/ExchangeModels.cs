@@ -56,7 +56,7 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 		/// Payload to use in eth transaction
 		/// </summary>
 		[Required]
-		public string Payload { get; set; }
+		public string[] Payload { get; set; }
 	}
 
 	// ---
@@ -110,7 +110,7 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 		/// Payload to use in eth transaction
 		/// </summary>
 		[Required]
-		public string Payload { get; set; }
+		public string[] Payload { get; set; }
 	}
 
 	// ---

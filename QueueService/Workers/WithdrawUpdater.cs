@@ -37,6 +37,7 @@ namespace Goldmint.QueueService.Workers {
 				d.TimeNextCheck <= nowTime
 				select d
 			)
+				.Include(_ => _.FinancialHistory)
 				.Include(_ => _.User)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -48,8 +49,8 @@ namespace Goldmint.QueueService.Workers {
 			foreach (var row in rows) {
 				await WithdrawQueue.ProcessWithdraw(_services, row);
 
-				// dont track for sure
-				_dbContext.Entry(row).State = EntityState.Detached;
+				// dont track anymore
+				_dbContext.Detach(row);
 			}
 		}
 	}

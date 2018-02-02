@@ -178,5 +178,59 @@ namespace Goldmint.WebApplication.Controllers.API {
 				}
 			);
 		}
+
+		/// <summary>
+		/// Fiat history
+		/// </summary>
+		[AreaAuthorized]
+		[HttpPost, Route("fiat/history")]
+		[ProducesResponseType(typeof(FiatHistoryView), 200)]
+		public async Task<APIResponse> FiatHistory([FromBody] FiatHistoryModel model) {
+
+			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.FinancialHistory, object>>>() {
+				{ "date",   _ => _.TimeCreated },
+				{ "amount", _ => _.AmountCents },
+				{ "type",   _ => _.Type },
+				{ "fee",    _ => _.FeeCents },
+			};
+
+			// validate
+			if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var user = await GetUserFromDb();
+
+			var query = (
+				from a in DbContext.FinancialHistory
+				where a.UserId == user.Id
+				select a
+			);
+
+			var page = await query.PagerAsync(
+				model.Offset, model.Limit,
+				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
+			);
+
+			var list =
+				from i in page.Selected
+				select new FiatHistoryViewItem() {
+					Type = i.Type.ToString().ToLower(),
+					Comment = i.Comment,
+					Amount = FiatHistoryViewItem.AmountStruct.Create(i.AmountCents, i.Currency),
+					Fee = i.FeeCents > 0 ? FiatHistoryViewItem.AmountStruct.Create(i.FeeCents, i.Currency) : null,
+					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
+				}
+			;
+
+			return APIResponse.Success(
+				new FiatHistoryView() {
+					Items = list.ToArray(),
+					Limit = model.Limit,
+					Offset = model.Offset,
+					Total = page.TotalCount,
+				}
+			);
+		}
 	}
 }

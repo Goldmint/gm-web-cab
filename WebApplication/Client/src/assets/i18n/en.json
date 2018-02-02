@@ -135,7 +135,7 @@
           "Fee": "Fee",
           "Comment": "Comment"
         },
-        "EmptyMessage": "Waiting for data..."
+        "EmptyMessage": "No data"
       },
       "Types": {
         "Withdraw": "Withdraw",

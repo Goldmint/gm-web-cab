@@ -15,14 +15,13 @@
             <div class="form-row align-items-end">
               <div class="form-group col-auto pb-4">
                 <label for="input_toSell">To Sell</label>
-                <input type="number" min="0" step="0.01" class="form-control" id="input_toSell" (input)="onToSellChanged($event.target.value)" disabled>
+                <input type="number" min="0" step="0.01" class="form-control" id="input_toSell" (input)="onToSellChanged($event.target.value)">
               </div>
               <div class="form-group col-auto pb-4 mr-5">
                 <select class="custom-select form-currency" id="select_Asset" #assetSellSelect
                         name="sellCurrency" [(ngModel)]="sellCurrency"
-                        (change)="onCurrencyChanged($event.target.value)" disabled>
+                        (change)="onCurrencyChanged($event.target.value)">
                   <option value="gold">GOLD</option>
-                  <option value="usd">USD</option>
                 </select>
               </div>
 
@@ -34,7 +33,7 @@
                 </div>
               </div>
               <div class="form-group col-auto pb-4">
-                <div class="form-currency form-currency--{{ resultCurrrency }} disabled">
+                <div class="form-currency form-currency--{{ resultCurrrency }}">
                   <svg class="icon">
                     <use attr.xlink:href="#cur-{{ resultCurrrency }}"></use>
                   </svg>
@@ -45,7 +44,7 @@
           </div>
 
           <div class="col-auto pt-3">
-            <button class="btn btn-primary" disabled>{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+            <button class="btn btn-primary" (click)="onSell()">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
           </div>
 
         </div>

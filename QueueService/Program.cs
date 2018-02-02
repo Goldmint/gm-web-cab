@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Goldmint.QueueService {
 
@@ -84,8 +85,7 @@ namespace Goldmint.QueueService {
 			}
 
 			// nlog
-			var nlogXml = _appConfig.Services.NLogConfig;
-			var nlogConfig = new NLog.Config.XmlLoggingConfiguration(nlogXml);
+			var nlogConfig = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
 			_loggerFactory = new LogFactory(nlogConfig);
 
 			var logger = _loggerFactory.GetLogger(typeof(Program).FullName);

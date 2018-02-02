@@ -17,12 +17,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 	public static class WithdrawQueue {
 
-		// TODO: detach processing items from db context
-
 		/// <summary>
 		/// Attempt to start deposit
 		/// </summary>
-		public static async Task<WithdrawResult> StartWithdrawWithCard(IServiceProvider services, CardPayment payment) {
+		public static async Task<WithdrawResult> StartWithdrawWithCard(IServiceProvider services, CardPayment payment, FinancialHistory financialHistory) {
 
 			if (payment.Type != CardPaymentType.Withdraw) throw new ArgumentException("Incorrect payment type");
 			if (payment.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
@@ -41,6 +39,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						Status = WithdrawStatus.Initial,
 						Currency = payment.Currency,
 						AmountCents = payment.AmountCents,
+						RefFinancialHistoryId = financialHistory.Id,
 						Destination = WithdrawDestination.CreditCard,
 						DestinationId = payment.Id,
 						DeskTicketId = payment.DeskTicketId,
@@ -82,6 +81,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							try {
 								dbContext.Withdraw.Add(withdraw);
 								await dbContext.SaveChangesAsync();
+								dbContext.Detach(withdraw);
 							}
 							catch (Exception e) {
 								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Cancelled, "DB failed while withdraw enqueue");
@@ -124,6 +124,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		public static async Task ProcessWithdraw(IServiceProvider services, Withdraw withdraw) {
 
 			if (withdraw.User == null) throw new ArgumentException("User not included");
+			if (withdraw.FinancialHistory == null) throw new ArgumentException("Financial history not included");
 
 			var logger = services.GetLoggerFor(typeof(WithdrawQueue));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -155,9 +156,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// update status to prevent double spending
 							withdraw.Status = WithdrawStatus.BlockchainInit;
-							dbContext.Entry(withdraw).State = EntityState.Modified;
+							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Entry(withdraw).State = EntityState.Detached;
+							dbContext.Detach(withdraw);
 
 							try {
 								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Blockchain transaction initiated");
@@ -172,9 +173,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							withdraw.Status = WithdrawStatus.BlockchainConfirm;
 
 							// save
-							dbContext.Entry(withdraw).State = EntityState.Modified;
+							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Entry(withdraw).State = EntityState.Detached;
+							dbContext.Detach(withdraw);
 
 							try {
 								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Blockchain transaction checking started");
@@ -195,8 +196,15 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// final
 							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
-								withdraw.Status = result == BlockchainTransactionStatus.Success ? WithdrawStatus.Success : WithdrawStatus.Failed;
+
+								var success = result == BlockchainTransactionStatus.Success;
+
+								withdraw.Status = success ? WithdrawStatus.Success : WithdrawStatus.Failed;
 								withdraw.TimeCompleted = DateTime.UtcNow;
+
+								withdraw.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								withdraw.FinancialHistory.TimeCompleted = withdraw.TimeCompleted;
+								dbContext.Update(withdraw.FinancialHistory);
 							}
 
 							// finalize
@@ -236,9 +244,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								catch { }
 							}
 
-							dbContext.Entry(withdraw).State = EntityState.Modified;
+							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Entry(withdraw).State = EntityState.Detached;
+							dbContext.Detach(withdraw, withdraw.FinancialHistory);
 						}
 					}
 					catch (Exception e) {
@@ -288,9 +296,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			payment.ProviderStatus = chargeResult?.ProviderStatus;
 			payment.TimeCompleted = DateTime.UtcNow;
 
-			dbContext.Entry(payment).State = EntityState.Modified;
+			dbContext.Update(payment);
 			await dbContext.SaveChangesAsync();
-			dbContext.Entry(payment).State = EntityState.Detached;
+			dbContext.Detach(payment);
 		}
 
 		// ---

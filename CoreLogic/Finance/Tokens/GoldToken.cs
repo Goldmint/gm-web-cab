@@ -243,7 +243,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						logger.Error(e, $"Failed to mark buying request #{request.Id} for processing");
 					}
 					finally {
-						dbContext.Entry(request).State = EntityState.Detached;
+						dbContext.Detach(request);
 					}
 				}
 				return false;
@@ -314,7 +314,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						logger.Error(e, $"Failed to mark selling request #{request.Id} for processing");
 					}
 					finally {
-						dbContext.Entry(request).State = EntityState.Detached;
+						dbContext.Detach(request);
 					}
 				}
 				return false;
@@ -349,8 +349,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						(r.Status == Common.ExchangeRequestStatus.Processing || r.Status == Common.ExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
-					.AsTracking()
-					.FirstOrDefaultAsync()
+						.Include(_ => _.FinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
 					;
 
 					if (request == null) {
@@ -430,8 +431,13 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							// final
 							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
 
-								request.Status = result == BlockchainTransactionStatus.Success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
+								var success = result == BlockchainTransactionStatus.Success;
+								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
+
+								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -451,7 +457,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					} catch (Exception e) {
 						logger.Error(e, $"Failed to process buying request #{request.Id}");
 					} finally {
-						dbContext.Entry(request).State = EntityState.Detached;
+						dbContext.Detach(request);
 					}
 				}
 
@@ -487,8 +493,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						(r.Status == Common.ExchangeRequestStatus.Processing || r.Status == Common.ExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
-					.AsTracking()
-					.FirstOrDefaultAsync()
+						.Include(_ => _.FinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
 					;
 
 					if (request == null) {
@@ -568,8 +575,14 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							// final
 							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
 
-								request.Status = result == BlockchainTransactionStatus.Success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
+								var success = result == BlockchainTransactionStatus.Success;
+
+								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
+
+								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -591,7 +604,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						logger.Error(e, $"Failed to process selling request #{request.Id}");
 					}
 					finally {
-						dbContext.Entry(request).State = EntityState.Detached;
+						dbContext.Detach(request);
 					}
 				}
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, HostBinding, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, isDevMode } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -47,6 +47,11 @@ export class LoginPageComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    if (isDevMode()) {
+      this.loginModel.recaptcha = "devmode";
+    }
+
     this._userService.currentUser.subscribe(currentUser => {
       if (currentUser && currentUser.hasOwnProperty('challenges')) {
         console.log('currentUser.challenges', currentUser, currentUser.challenges);

@@ -308,4 +308,76 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 		[Required]
 		public long Date { get; set; } 
 	}
+
+	// ---
+
+	public class FiatHistoryModel : BasePagerModel {
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<FiatHistoryModel>();
+			v.CascadeMode = CascadeMode.Continue;
+			return v.Validate(this);
+		}
+	}
+
+	public class FiatHistoryView : BasePagerView<FiatHistoryViewItem> {
+	}
+
+	public class FiatHistoryViewItem {
+
+		/// <summary>
+		/// Type: deposit, withdraw, etc
+		/// </summary>
+		[Required]
+		public string Type { get; set; }
+
+		/// <summary>
+		/// Comment
+		/// </summary>
+		[Required]
+		public string Comment { get; set; }
+
+		/// <summary>
+		/// Amount data
+		/// </summary>
+		[Required]
+		public AmountStruct Amount { get; set; }
+
+		/// <summary>
+		/// Fee data, optional
+		/// </summary>
+		public AmountStruct Fee { get; set; }
+
+		/// <summary>
+		/// Unixtime
+		/// </summary>
+		[Required]
+		public long Date { get; set; }
+
+		// ---
+
+		public class AmountStruct {
+
+			[Required]
+			public double Amount { get; set; }
+
+			/// <summary>
+			/// Optional prefix
+			/// </summary>
+			public string Prefix { get; set; }
+			
+			/// <summary>
+			/// Optional suffix
+			/// </summary>
+			public string Suffix { get; set; }
+
+			public static AmountStruct Create(long cents, Common.FiatCurrency currency) {
+				return new AmountStruct() {
+					Amount = cents / 100d,
+					Prefix = "",
+					Suffix = " " + currency.ToString().ToUpper(),
+				};
+			}
+		}
+	}
 }

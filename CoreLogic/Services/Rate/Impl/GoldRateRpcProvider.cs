@@ -18,16 +18,12 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		public async Task<long> GetGoldRate(FiatCurrency currency) {
 
-			if (currency != FiatCurrency.USD) {
-				throw new NotImplementedException("Currency not implemented");
-			}
-
 			var result = (long?)null;
 
 			using (var req = new Request(_logger)) {
 				await req
 					.AcceptJson()
-					.BodyJsonRpc("services.goldrate.usd", null)
+					.BodyJsonRpc($"services.goldrate.{currency.ToString().ToLower()}", null)
 					.OnResult(async (res) => {
 						if (res.GetHttpStatus() == System.Net.HttpStatusCode.OK) {
 							var rpc = await res.ToJsonRpcResult<long?>();

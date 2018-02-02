@@ -17,6 +17,7 @@ using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.CoreLogic.Services.Ticket.Impl;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
+using Goldmint.WebApplication.Services.Cache;
 using Goldmint.WebApplication.Services.OAuth.Impl;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -171,6 +172,7 @@ namespace Goldmint.WebApplication {
 
 			// rates
 			services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
+			services.AddSingleton<CachedGoldRate>();
 
 			return services.BuildServiceProvider();
 		}

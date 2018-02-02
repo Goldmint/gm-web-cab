@@ -16,12 +16,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 	public static class DepositQueue {
 
-		// TODO: detach processing items from db context
-
 		/// <summary>
 		/// Attempt to start deposit
 		/// </summary>
-		public static async Task<DepositResult> StartDepositWithCard(IServiceProvider services, CardPayment payment) {
+		public static async Task<DepositResult> StartDepositWithCard(IServiceProvider services, CardPayment payment, FinancialHistory financialHistory) {
 
 			if (payment.Type != CardPaymentType.Deposit) throw new ArgumentException("Incorrect payment type");
 			if (payment.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
@@ -48,10 +46,8 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					payment.ProviderStatus = chargeResult.ProviderStatus;
 					payment.TimeCompleted = DateTime.UtcNow;
 
-					dbContext.Entry(payment).State = EntityState.Modified;
+					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Entry(payment).State = EntityState.Detached;
-
 				}
 				catch (Exception e) {
 					logger?.Error(e, $"Failed to update payment status while charging deposit payment #{payment.Id}");
@@ -72,6 +68,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					Status = DepositStatus.Initial,
 					Currency = payment.Currency,
 					AmountCents = payment.AmountCents,
+					RefFinancialHistoryId = financialHistory.Id,
 					Source = DepositSource.CreditCard,
 					SourceId = payment.Id,
 					DeskTicketId = payment.DeskTicketId,
@@ -112,6 +109,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							try {
 								dbContext.Deposit.Add(deposit);
 								await dbContext.SaveChangesAsync();
+								dbContext.Detach(deposit);
 							}
 							catch (Exception e) {
 								await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Cancelled, "DB failed while deposit enqueue");
@@ -154,6 +152,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		public static async Task ProcessDeposit(IServiceProvider services, Deposit deposit) {
 
 			if (deposit.User == null) throw new ArgumentException("User not included");
+			if (deposit.FinancialHistory == null) throw new ArgumentException("Financial history not included");
 
 			var logger = services.GetLoggerFor(typeof(DepositQueue));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -185,9 +184,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// update status to prevent double spending
 							deposit.Status = DepositStatus.BlockchainInit;
-							dbContext.Entry(deposit).State = EntityState.Modified;
+							dbContext.Update(deposit);
 							await dbContext.SaveChangesAsync();
-							dbContext.Entry(deposit).State = EntityState.Detached;
+							dbContext.Detach(deposit);
 
 							try {
 								await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Opened, "Blockchain transaction initiated");
@@ -202,9 +201,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// set new status
 							deposit.Status = DepositStatus.BlockchainConfirm;
-							dbContext.Entry(deposit).State = EntityState.Modified;
+							dbContext.Update(deposit);
 							await dbContext.SaveChangesAsync();
-							dbContext.Entry(deposit).State = EntityState.Detached;
+							dbContext.Detach(deposit);
 
 							// update ticket safely
 							try {
@@ -225,13 +224,20 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// final
 							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
-								deposit.Status = result == BlockchainTransactionStatus.Success ? DepositStatus.Success : DepositStatus.Failed;
+
+								bool success = result == BlockchainTransactionStatus.Success;
+
+								deposit.Status = success ? DepositStatus.Success : DepositStatus.Failed;
 								deposit.TimeCompleted = DateTime.UtcNow;
+
+								deposit.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								deposit.FinancialHistory.TimeCompleted = deposit.TimeCompleted;
+								dbContext.Update(deposit.FinancialHistory);
 							}
 
-							dbContext.Entry(deposit).State = EntityState.Modified;
+							dbContext.Update(deposit);
 							await dbContext.SaveChangesAsync();
-							dbContext.Entry(deposit).State = EntityState.Detached;
+							dbContext.Detach(deposit, deposit.FinancialHistory);
 
 							try {
 								if (deposit.Status == DepositStatus.Success) {

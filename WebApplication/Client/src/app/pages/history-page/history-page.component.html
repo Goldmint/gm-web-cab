@@ -4,6 +4,10 @@
   <section class="page__section section section--table">
     <h2 class="section__title" id="pageSectionTitle">{{ "PAGES.History.SectionTitle" | translate }}</h2>
 
+    <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+      <div class="container"></div>
+    </div>
+
 <!-- [scrollbarH]="scrollbarHorizontal" -->
     <div class="section__content">
       <ngx-datatable class="table" #table
@@ -67,21 +71,6 @@
               {{ amount?.suffix }}
             </span>
             <!-- <span>{{ amount | currency:row.currency.code:'code':'1.2-2':locale }}</span> -->
-          </ng-template>
-        </ngx-datatable-column>
-
-        <ngx-datatable-column prop="balance" [draggable]="false" [resizeable]="false" [minWidth]="115">
-          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-            <span class="datatable-header-cell-wrapper" (click)="sort()">
-              {{ "PAGES.History.Table.Columns.Balance" | translate }}
-            </span>
-          </ng-template>
-
-          <ng-template let-balance="value" let-row="row" ngx-datatable-cell-template>
-            {{ balance?.prefix }}
-            {{ balance.amount | number:'1.2-2':locale }}
-            {{ balance?.suffix }}
-            <!-- {{ balance | currency:row.currency.code:'code':'1.2-2':locale }} -->
           </ng-template>
         </ngx-datatable-column>
 

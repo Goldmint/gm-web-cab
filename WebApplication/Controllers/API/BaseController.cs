@@ -10,6 +10,7 @@ using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Models;
+using Goldmint.WebApplication.Services.Cache;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -38,7 +39,8 @@ namespace Goldmint.WebApplication.Controllers.API {
 		protected ICardAcquirer CardAcquirer { get; private set; }
 		protected ITicketDesk TicketDesk { get; private set; }
 		protected IEthereumReader EthereumObserver { get; private set; }
-		protected IGoldRateProvider GoldRateProvider {get; private set;}
+		protected IGoldRateProvider GoldRateProvider { get; private set; }
+		protected CachedGoldRate GoldRateCached { get; private set; }
 
 		protected BaseController() { }
 
@@ -58,6 +60,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			TicketDesk = services.GetRequiredService<ITicketDesk>();
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
 			GoldRateProvider = services.GetRequiredService<IGoldRateProvider>();
+			GoldRateCached = services.GetRequiredService<CachedGoldRate>();
 		}
 
 		// ---
@@ -123,7 +126,16 @@ namespace Goldmint.WebApplication.Controllers.API {
 		protected UserAgentInfo GetUserAgentInfo() {
 
 			var ip = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-			
+
+#if DEBUG
+			if (HostingEnvironment.IsDevelopment() && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DEBUG_CUSTOM_IP"))) {
+				System.Net.IPAddress customIp;
+				if (System.Net.IPAddress.TryParse(Environment.GetEnvironmentVariable("DEBUG_CUSTOM_IP"), out customIp)) {
+					ip = customIp.MapToIPv4().ToString();
+				}
+			}
+#endif
+
 			// ip object
 			var ipObj = System.Net.IPAddress.Parse(ip);
 

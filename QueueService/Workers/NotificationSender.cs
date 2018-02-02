@@ -80,6 +80,7 @@ namespace Goldmint.QueueService.Workers {
 
 						// save changes on
 						await _dbContext.SaveChangesAsync();
+						_dbContext.Detach(r);
 					}
 				});
 			}

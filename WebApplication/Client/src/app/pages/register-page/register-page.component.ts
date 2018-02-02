@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, HostBinding, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, isDevMode } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { RecaptchaComponent as reCaptcha } from 'ng-recaptcha';
@@ -36,6 +36,10 @@ export class RegisterPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (isDevMode()) {
+      this.signupModel.recaptcha = "devmode";
+    }
+
     if (this.userService.isAuthenticated()) {
       this.router.navigate(['/home']);
     }

@@ -53,7 +53,7 @@
           "Fee": "Fee",
           "Comment": "Комментарий"
         },
-        "EmptyMessage": "Загрузка данных..."
+        "EmptyMessage": "Нет данных..."
       },
       "Types": {
         "Withdraw": "Изъятие",

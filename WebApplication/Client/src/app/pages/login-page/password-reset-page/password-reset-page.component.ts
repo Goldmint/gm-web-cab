@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, isDevMode } from '@angular/core';
 import { Router, ActivatedRoute } from "@angular/router";
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { RecaptchaComponent as reCaptcha } from 'ng-recaptcha';
@@ -54,6 +54,9 @@ export class PasswordResetPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (isDevMode()) {
+      this.passwordResetModel.recaptcha = "devmode";
+    }
   }
 
   captchaResolved(captchaResponse: string) {

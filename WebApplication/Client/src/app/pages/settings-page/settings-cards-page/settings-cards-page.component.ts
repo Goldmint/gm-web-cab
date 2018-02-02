@@ -31,12 +31,12 @@ export class SettingsCardsPageComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-	private _router: Router,
+    private _router: Router,
     private _userService: UserService,
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService) {
-
+    private _messageBox: MessageBoxService
+  ) {
     this._route.params
       .subscribe(params => {
         if (params.cardId) {
@@ -65,13 +65,13 @@ export class SettingsCardsPageComponent implements OnInit {
       this._cdRef.detectChanges();
     }
   }
-  
+
   navigateToCardStatus(cardId: number) {
-	  this._router.navigate(['/account/cards/' + cardId]);
+    this._router.navigate(['/account/cards/' + cardId]);
   }
-  
+
   navigateToCardList() {
-	  this._router.navigate(['/account/cards']);
+    this._router.navigate(['/account/cards']);
   }
 
   goto(page: Page) {
@@ -88,10 +88,10 @@ export class SettingsCardsPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        res => {
-          window.location.href = res.data.redirect;
-        },
-        err => {});
+      res => {
+        window.location.href = res.data.redirect;
+      },
+      err => { });
   }
 
   proceedCardAdditionFlow(cardId: number) {
@@ -104,34 +104,34 @@ export class SettingsCardsPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        (res: APIResponse<CardStatusResponse>) => {
-          switch (res.data.status) {
-            case 'initial':
-              this.goto(Page.OnNew);
-              break;
+      (res: APIResponse<CardStatusResponse>) => {
+        switch (res.data.status) {
+          case 'initial':
+            this.goto(Page.OnNew);
+            break;
 
-            case 'confirm':
-              this.goto(Page.OnNeedConfirmation);
-              break;
+          case 'confirm':
+            this.goto(Page.OnNeedConfirmation);
+            break;
 
-            case 'verification':
-              this.goto(Page.OnNeedVerification);
-              break;
+          case 'verification':
+            this.goto(Page.OnNeedVerification);
+            break;
 
-            case 'verified':
-              this.goto(Page.OnVerified);
-              break;
+          case 'verified':
+            this.goto(Page.OnVerified);
+            break;
 
-            case 'failed':
-              this.goto(Page.OnFailure);
-              break;
+          case 'failed':
+            this.goto(Page.OnFailure);
+            break;
 
-            // case 'payment':
-            //   this._messageBox.alert('Pending test payment completion...<br>You can continue adding your cards.');
-            //   break;
-          }
-        },
-        err => {});
+          // case 'payment':
+          //   this._messageBox.alert('Pending test payment completion...<br>You can continue adding your cards.');
+          //   break;
+        }
+      },
+      err => { });
   }
 
   confirmCard(cardId: number) {
@@ -144,22 +144,22 @@ export class SettingsCardsPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        res => {
-          window.location.href = res.data.redirect;
-        },
-        err => {
-          if (err.error && err.error.errorCode) {
-            switch (err.error.errorCode) {
-              case 100:
-                this._messageBox.alert('Wrong card ID');
-                break;
+      res => {
+        window.location.href = res.data.redirect;
+      },
+      err => {
+        if (err.error && err.error.errorCode) {
+          switch (err.error.errorCode) {
+            case 100:
+              this._messageBox.alert('Wrong card ID');
+              break;
 
-              default:
-                this._messageBox.alert(err.error.errorDesc);
-                break;
-            }
+            default:
+              this._messageBox.alert(err.error.errorDesc);
+              break;
           }
-        });
+        }
+      });
   }
 
   verifyCard(cardId: number) {
@@ -174,34 +174,34 @@ export class SettingsCardsPageComponent implements OnInit {
           this._cdRef.detectChanges();
         })
         .subscribe(
-          res => {
-            this.goto(Page.OnVerified);
-            this.loading = true;
+        res => {
+          this.goto(Page.OnVerified);
+          this.loading = true;
 
-            this._apiService.getFiatCards()
-              .finally(() => {
-                this.loading = false;
-                this._cdRef.detectChanges();
-              })
-              .subscribe(
-                res => {
-                  this.cards = res.data;
-                },
-                err => {});
-          },
-          err => {
-            if (err.error && err.error.errorCode) {
-              switch (err.error.errorCode) {
-                case 100:
-                  this._messageBox.alert('Invalid code');
-                  break;
+          this._apiService.getFiatCards()
+            .finally(() => {
+              this.loading = false;
+              this._cdRef.detectChanges();
+            })
+            .subscribe(
+            res => {
+              this.cards = res.data;
+            },
+            err => { });
+        },
+        err => {
+          if (err.error && err.error.errorCode) {
+            switch (err.error.errorCode) {
+              case 100:
+                this._messageBox.alert('Invalid code');
+                break;
 
-                default:
-                  this._messageBox.alert(err.error.errorDesc);
-                  break;
-              }
+              default:
+                this._messageBox.alert(err.error.errorDesc);
+                break;
             }
-          });
+          }
+        });
     }
     else {
       this._messageBox.alert('Invalid code format. Only digits are allowed.');

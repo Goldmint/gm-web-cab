@@ -8,7 +8,7 @@ using System.Text;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_withdraw")]
-	public class Withdraw : BaseUserEntity, IConcurrentUpdate {
+	public class Withdraw : BaseFinancialHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
 		public WithdrawStatus Status { get; set; }

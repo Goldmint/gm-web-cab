@@ -22,7 +22,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			var web3 = new Web3(JsonRpcClient);
 			var txinfo = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionId);
-
+			
 			if (txinfo != null) {
 				if (txinfo.BlockNumber.HexValue != null) {
 					return BlockchainTransactionStatus.Success;

@@ -82,5 +82,6 @@ namespace Goldmint.DAL.Models.Identity {
 		public virtual IEnumerable<UserActivity> UserActivity { get; set; }
 		public virtual IEnumerable<BuyRequest> BuyRequest { get; set; }
 		public virtual IEnumerable<SellRequest> SellRequest { get; set; }
+		public virtual IEnumerable<FinancialHistory> FinancialHistory { get; set; }
 	}
 }

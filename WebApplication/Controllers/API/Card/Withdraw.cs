@@ -60,12 +60,36 @@ namespace Goldmint.WebApplication.Controllers.API {
 				deskTicketId: ticket
 			);
 			DbContext.CardPayment.Add(payment);
+
+			// history
+			var finHistory = new DAL.Models.FinancialHistory() {
+				Type = FinancialHistoryType.Withdraw,
+				AmountCents = amountCents,
+				FeeCents = 0,
+				Currency = transCurrency,
+				DeskTicketId = ticket,
+				Status = FinancialHistoryStatus.Pending,
+				TimeCreated = DateTime.UtcNow,
+				User = user,
+				Comment = "", // see below
+			};
+			DbContext.FinancialHistory.Add(finHistory);
+			
+			// save
 			DbContext.SaveChanges();
+			DbContext.Detach(payment, finHistory);
+
+			// update comment
+			finHistory.Comment = $"Withdrawal payment #{payment.Id} to {card.CardMask}";
+			DbContext.Update(finHistory);
+			await DbContext.SaveChangesAsync();
+			DbContext.Detach(finHistory);
 
 			// try
 			var queryResult = await WithdrawQueue.StartWithdrawWithCard(
 				services: HttpContext.RequestServices,
-				payment: payment
+				payment: payment,
+				financialHistory: finHistory
 			);
 
 			switch (queryResult.Status) {
@@ -77,7 +101,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.CreditCard,
-						comment: $"Withdrawal payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card {card.CardMask}) initiated",
+						comment: $"Withdrawal payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card ) initiated",
 						ip: agent.Ip,
 						agent: agent.Agent
 					);

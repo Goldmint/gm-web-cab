@@ -54,10 +54,10 @@ export class HistoryPageComponent implements OnInit {
 
     this.apiService.getHistory(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
-        data => {
-          this.rows = data.data;
+        res => {
+          this.rows = res.data.items;
 
-          this.page.totalElements = data.count;
+          this.page.totalElements = res.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
 
           this.loading = false;

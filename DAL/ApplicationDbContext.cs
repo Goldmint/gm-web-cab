@@ -23,6 +23,7 @@ namespace Goldmint.DAL {
 		public DbSet<UserActivity> UserActivity { get; set; }
 		public DbSet<BuyRequest> BuyRequest { get; set; }
 		public DbSet<SellRequest> SellRequest { get; set; }
+		public DbSet<FinancialHistory> FinancialHistory { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}
@@ -45,6 +46,12 @@ namespace Goldmint.DAL {
 		}
 
 		// ---
+
+		public void Detach(params object[] entities) {
+			foreach (var v in entities) {
+				this.Entry(v).State = EntityState.Detached;
+			}
+		}
 
 		public override int SaveChanges() {
 			updateConcurrencyStamps();
