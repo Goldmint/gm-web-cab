@@ -33,9 +33,9 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			return BlockchainTransactionStatus.NotFound;
 		}
 
-		public async Task<long> GetUserFiatBalance(long userId, FiatCurrency currency) {
+		public async Task<long> GetUserFiatBalance(string userId, FiatCurrency currency) {
 
-			if (userId <= 0) {
+			if (string.IsNullOrWhiteSpace(userId)) {
 				throw new ArgumentException("Invalid user ID");
 			}
 
@@ -47,7 +47,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				);
 
 				var func = contract.GetFunction("getUserFiatBalance");
-				var funcRet = await func.CallAsync<BigInteger>(userId.ToString());
+				var funcRet = await func.CallAsync<BigInteger>(userId);
 
 				return funcRet > long.MaxValue? long.MaxValue: (long)funcRet;
 			}
@@ -118,7 +118,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				RequestIndex = requestIndex,
 				Payload = funcRet.Payload,
 				Address = funcRet.Address,
-				UserId = long.Parse(funcRet.UserId),
+				UserId = funcRet.UserId,
 				IsBuyRequest = funcRet.IsBuyRequest,
 				IsPending = funcRet.State == 0,
 				IsSucceeded = funcRet.State == 1,

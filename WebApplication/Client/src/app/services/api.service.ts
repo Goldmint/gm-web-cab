@@ -162,7 +162,7 @@ export class APIService {
       );
   }
 
-  getBalance(ethAddress: string = null): Observable<APIResponse<Balance>> {
+  /*getBalance(ethAddress: string = null): Observable<APIResponse<Balance>> {
     return this._http
       .post(`${this._baseUrl}/user/balance`, { ethAddress: ethAddress }, this.jwt())
       .pipe(
@@ -179,7 +179,7 @@ export class APIService {
         return response;
       })
       );
-  }
+  }*/
 
   getLimits(): Observable<APIResponse<Limits>> {
     return this._http

@@ -25,9 +25,9 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		// ---
 
-		public async Task<string> ChangeUserFiatBalance(long userId, FiatCurrency currency, long amountCents) {
+		public async Task<string> ChangeUserFiatBalance(string userId, FiatCurrency currency, long amountCents) {
 
-			if (userId <= 0) {
+			if (string.IsNullOrWhiteSpace(userId)) {
 				throw new ArgumentException("Invalid user ID");
 			}
 			if (amountCents == 0) {
@@ -49,7 +49,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 					_gmAccount.Address,
 					_defaultGas,
 					new HexBigInteger(0),
-					userId.ToString(), new BigInteger(amountCents)
+					userId, new BigInteger(amountCents)
 				);
 			}
 

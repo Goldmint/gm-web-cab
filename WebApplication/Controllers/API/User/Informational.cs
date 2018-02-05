@@ -30,7 +30,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			return APIResponse.Success(
 				new BalanceView() {
-					Usd = await EthereumObserver.GetUserFiatBalance(user.Id, FiatCurrency.USD) / 100d,
+					Usd = await EthereumObserver.GetUserFiatBalance(user.UserName, FiatCurrency.USD) / 100d,
 					Gold = model.EthAddress == null ? 0d : CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(await EthereumObserver.GetUserGoldBalance(model.EthAddress), false),
 					Mntp = model.EthAddress == null ? 0d : CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(await EthereumObserver.GetUserMntpBalance(model.EthAddress), false),
 				}

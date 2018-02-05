@@ -50,7 +50,7 @@ namespace Goldmint.QueueService.Workers {
 				await WithdrawQueue.ProcessWithdraw(_services, row);
 
 				// dont track anymore
-				_dbContext.Detach(row);
+				_dbContext.Detach(row.FinancialHistory, row.User, row);
 			}
 		}
 	}

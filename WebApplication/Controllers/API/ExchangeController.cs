@@ -40,7 +40,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// ---
 
 			var currency = FiatCurrency.USD;
-			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.Id, currency);
+			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
 			// estimate
@@ -115,7 +115,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				new BuyRequestView() {
 					GoldAmount = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.GoldAmount, true),
 					GoldRate = goldRate / 100d,
-					Payload = new[] { user.Id.ToString(), buyRequest.Id.ToString() },
+					Payload = new[] { user.UserName, buyRequest.Id.ToString() },
 				}
 			);
 		}
@@ -216,7 +216,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				new SellRequestView() {
 					FiatAmount = estimated.CentsAmount / 100d,
 					GoldRate = goldRate / 100d,
-					Payload = new[] { user.Id.ToString(), sellRequest.Id.ToString() },
+					Payload = new[] { user.UserName, sellRequest.Id.ToString() },
 				}
 			);
 		}
@@ -245,7 +245,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// ---
 
 			var currency = FiatCurrency.USD;
-			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.Id, currency);
+			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
 
 			// estimate
