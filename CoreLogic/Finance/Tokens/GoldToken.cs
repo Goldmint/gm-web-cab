@@ -189,9 +189,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				return false;
 			}
 
-			if (userId <= 0) throw new ArgumentException("Used ID is invalid");
-			if (string.IsNullOrWhiteSpace(address)) throw new ArgumentException("Address is invalid");
-			if (requestIndex < 0) throw new ArgumentException("Request index is invalid");
+			if (userId <= 0) return false;
+			if (string.IsNullOrWhiteSpace(address)) return false;
+			if (requestIndex < 0) return false;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -260,9 +260,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				return false;
 			}
 
-			if (userId <= 0) throw new ArgumentException("Used ID is invalid");
-			if (string.IsNullOrWhiteSpace(address)) throw new ArgumentException("Address is invalid");
-			if (requestIndex < 0) throw new ArgumentException("Request index is invalid");
+			if (userId <= 0) return false;
+			if (string.IsNullOrWhiteSpace(address)) return false;
+			if (requestIndex < 0) return false;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();

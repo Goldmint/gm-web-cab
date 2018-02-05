@@ -107,52 +107,6 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 			return v.Validate(this);
 		}
 	}
-
-	// ---
-
-	public class BalanceModel : BaseValidableModel {
-
-		/// <summary>
-		/// Ethereum address to obtain tokens amount, optional
-		/// </summary>
-		public string EthAddress { get; set; }
-
-		// ---
-
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<BalanceModel>();
-			v.CascadeMode = CascadeMode.Continue;
-
-			v.RuleFor(_ => _.EthAddress)
-				.Must(Common.ValidationRules.BeValidEthereumAddress)
-				.When(_ => _.EthAddress != null)
-				.WithMessage("Invalid eth address format")
-			;
-
-			return v.Validate(this);
-		}
-	}
-
-	public class BalanceView {
-
-		/// <summary>
-		/// USD fiat amount
-		/// </summary>
-		[Required]
-		public double Usd { get; set; }
-
-		/// <summary>
-		/// Gold token amount
-		/// </summary>
-		[Required]
-		public double Gold { get; set; }
-
-		/// <summary>
-		/// Mntp token amount
-		/// </summary>
-		[Required]
-		public double Mntp { get; set; }
-	}
 	
 	// ---
 

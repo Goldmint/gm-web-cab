@@ -166,7 +166,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							catch { }
 
 							// launch transaction
-							var txid = await ethereumWriter.ChangeUserFiatBalance(withdraw.User.Id, withdraw.Currency, -1 * withdraw.AmountCents);
+							var txid = await ethereumWriter.ChangeUserFiatBalance(withdraw.User.UserName, withdraw.Currency, -1 * withdraw.AmountCents);
 							withdraw.EthTransactionId = txid;
 
 							// set new status

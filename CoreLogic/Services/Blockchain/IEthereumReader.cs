@@ -28,7 +28,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Get user's fiat balance in cents
 		/// </summary>
 		/// <returns>User fiat amount</returns>
-		Task<long> GetUserFiatBalance(long userId, FiatCurrency currency);
+		Task<long> GetUserFiatBalance(string userId, FiatCurrency currency);
 
 		/// <summary>
 		/// Gold exchange total requests count

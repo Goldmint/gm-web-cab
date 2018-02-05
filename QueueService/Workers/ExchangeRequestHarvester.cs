@@ -46,28 +46,32 @@ namespace Goldmint.QueueService.Workers {
 
 				var data = await _ethereumReader.GetExchangeRequestByIndex(_lastIndex);
 
+				var userId = CoreLogic.UserAccount.ExtractId(data.UserId);
+
 				// is pending
 				if (data.IsPending) {
 
-					// TODO: cancel request here in case of: invalid user id, invalid payload, invalid eth address
+					var success = false;
 
 					if (data.IsBuyRequest) {
-						await CoreLogic.Finance.Tokens.GoldToken.PrepareBuyingExchangeRequest(
+						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareBuyingExchangeRequest(
 							services: _services,
-							userId: data.UserId,
+							userId: userId,
 							payload: data.Payload,
 							address: data.Address,
 							requestIndex: data.RequestIndex
 						);
 					} else {
-						await CoreLogic.Finance.Tokens.GoldToken.PrepareSellingExchangeRequest(
+						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareSellingExchangeRequest(
 							services: _services,
-							userId: data.UserId,
+							userId: userId,
 							payload: data.Payload,
 							address: data.Address,
 							requestIndex: data.RequestIndex
 						);
 					}
+
+					// TODO: cancel request here in case of: invalid user id, invalid payload, invalid eth address
 				}
 
 				_lastIndex++;

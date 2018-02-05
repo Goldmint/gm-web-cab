@@ -81,14 +81,14 @@ export class SellPageComponent implements OnInit {
     }
 
     this.progress = true;
-    this._apiService.goldBuyReqest(ethAddress, this.to_sell)
+    this._apiService.goldSellReqest(ethAddress, this.to_sell)
       .finally(() => {
         this.progress = false;
         this._cdRef.detectChanges();
       })
       .subscribe(res => {
-        this._messageBox.alert('Estimated gold amount is ' + res.data.goldAmount);
-        this._ethService.sendBuyRequest(ethAddress, res.data.payload);
+        this._messageBox.alert('Estimated USD amount is ' + res.data.fiatAmount);
+        this._ethService.sendSellRequest(ethAddress, res.data.payload);
       },
       err => {
         if (err.error && err.error.errorCode) {

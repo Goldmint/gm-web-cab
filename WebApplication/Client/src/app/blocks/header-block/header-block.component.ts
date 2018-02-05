@@ -6,7 +6,7 @@ import { zip } from 'rxjs/observable/zip';
 import * as Web3 from 'web3';
 
 import { User } from '../../interfaces';
-import { UserService, APIService, MessageBoxService } from '../../services';
+import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
 
 @Component({
   selector: 'app-header',
@@ -24,19 +24,17 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public locale: string;
   public signupButtonBlur = new EventEmitter<boolean>();
 
-  private _web3: Web3;
-  public metamaskAccount: string;
+  metamaskAccount: string = null;
+  goldBalance: number | null = null;
+  usdBalance: number | null = null;
 
   constructor(
+    private _ethService: EthereumService,
     private _apiService: APIService,
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService) {
-
-    this._apiService.getGoldRate().subscribe(data => {
-      this.gold_usd_rate = data.data.rate;
-      this._cdRef.detectChanges();
-    });
+    private _messageBox: MessageBoxService
+  ) {
   }
 
   // ngOnChanges() {
@@ -44,6 +42,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   // }
 
   ngOnInit() {
+
+    this._apiService.getGoldRate().subscribe(data => {
+      this.gold_usd_rate = data.data.rate;
+      this._cdRef.detectChanges();
+    });
+
     this._userService.currentUser.subscribe(currentUser => {
       this.user = currentUser;
       this._cdRef.detectChanges();
@@ -54,7 +58,22 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this._cdRef.detectChanges();
     });
 
-    if (window.hasOwnProperty('web3')) {
+    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
+      this.metamaskAccount = ethAddr;
+      this._cdRef.detectChanges();
+    });
+
+    this._ethService.getObservableGoldBalance().subscribe(bal => {
+      this.goldBalance = bal;
+      this._cdRef.detectChanges();
+    });
+
+    this._ethService.getObservableUsdBalance().subscribe(bal => {
+      this.usdBalance = bal;
+      this._cdRef.detectChanges();
+    });
+
+    /*if (window.hasOwnProperty('web3')) {
       this._web3 = new Web3(window['web3'].currentProvider);
       this.metamaskAccount = this._web3.eth.accounts.length ? this._web3.eth.accounts[0] : undefined;
 
@@ -62,7 +81,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     } else {
       // this._messageBox.alert('You need to get a web3 browser. Or install <a href="https://metamask.io">MetaMask</a> to continue.');
       console.info('You need to get a web3 browser. Or install <a href="https://metamask.io">MetaMask</a> to continue.');
-    }
+    }*/
   }
 
   // ngDoCheck() {

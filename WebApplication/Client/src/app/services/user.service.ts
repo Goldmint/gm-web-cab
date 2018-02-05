@@ -8,11 +8,11 @@ import { zip } from 'rxjs/observable/zip';
 import { tap, shareReplay } from 'rxjs/operators';
 import { interval } from "rxjs/observable/interval";
 
-import { User, Balance, OAuthRedirectResponse } from '../interfaces';
+import { User, OAuthRedirectResponse } from '../interfaces';
 import { APIResponse, AuthResponse, RegistrationResponse } from '../interfaces/api-response';
 import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';
-import { EthereumService } from './ethereum.service';
+//import { EthereumService } from './ethereum.service';
 
 import { AppDefaultLanguage } from '../app.languages';
 
@@ -25,7 +25,7 @@ export class UserService {
   public currentLocale : Observable<string> = this._locale.asObservable();
 
   constructor(
-    private _ethereumService: EthereumService,
+    //private _ethereumService: EthereumService,
     private _router: Router,
     private _apiService: APIService,
     private _jwtHelper: JwtHelperService,
@@ -132,11 +132,11 @@ export class UserService {
 
         zip(
           this._apiService.getProfile(),
-          this._apiService.getBalance(this._ethereumService.getEthAddress()),
-          // shareReplay(),
-          (profile: APIResponse<User>, balance: APIResponse<Balance>) => {
+          //this._apiService.getBalance(this._ethereumService.getEthAddress()),
+           shareReplay(),
+          (profile: APIResponse<User>) => { //, balance: APIResponse<Balance>) => {
             let user = profile.data;
-                user.balance = balance.data;
+                //user.balance = balance.data;
 
                 //@todo: move to settings-social-page.component.ts
                 user.social = {
@@ -171,12 +171,12 @@ export class UserService {
     this._user.next(Object.assign(this._user.getValue(), newUser));
   }
 
-  public setBalance(balance: Balance) {
+  /*public setBalance(balance: Balance) {
     let user = this._user.getValue();
         user.balance = balance;
 
     this._user.next(user);
-  }
+  }*/
 
   public setLocale(locale: string) {
     this._locale.next(locale);

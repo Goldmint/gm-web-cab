@@ -10,7 +10,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Change balance on deposit/withdraw ops
 		/// </summary>
 		/// <returns>Transaction ID</returns>
-		Task<string> ChangeUserFiatBalance(long userId, FiatCurrency currency, long amountCents);
+		Task<string> ChangeUserFiatBalance(string userId, FiatCurrency currency, long amountCents);
 
 		/// <summary>
 		/// Process exchange request by it's index

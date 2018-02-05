@@ -17,7 +17,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// <summary>
 		/// User ID
 		/// </summary>
-		public long UserId { get; set; }
+		public string UserId { get; set; }
 
 		/// <summary>
 		/// Request payload

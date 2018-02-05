@@ -11,6 +11,18 @@ namespace Goldmint.CoreLogic {
 
 	public static class UserAccount {
 
+		/// <summary>
+		/// User ID to long value: "u0001" => 1L, "2" => 2L
+		/// </summary>
+		public static long ExtractId(string data) {
+			var ret = 0L;
+			if (!string.IsNullOrWhiteSpace(data) && (data[0] == 'u' || char.IsDigit(data[0]))) {
+				var digits = string.Join("", data.Where(c => char.IsDigit(c)).Select(c => c.ToString()).ToArray()).TrimStart('0');
+				long.TryParse(digits, out ret);
+			}
+			return ret;
+		}
+
 		public static bool IsUserVerifiedL0(User user) {
 			return (user?.UserVerification?.FirstName?.Length ?? 0) > 0 && (user?.UserVerification?.LastName?.Length ?? 0) > 0;
 		}

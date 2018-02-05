@@ -41,7 +41,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "@angular/cli": "1.6.3",
+    "@angular/cli": "^1.6.7",
     "@angular/compiler-cli": "^5.2.1",
     "@angular/language-service": "^5.2.1",
     "@biesbjerg/ngx-translate-extract": "^2.3.4",

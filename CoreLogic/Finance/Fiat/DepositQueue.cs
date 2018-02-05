@@ -195,7 +195,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// launch transaction
 							if (string.IsNullOrWhiteSpace(deposit.EthTransactionId)) {
-								var txid = await ethereumWriter.ChangeUserFiatBalance(deposit.User.Id, deposit.Currency, deposit.AmountCents);
+								var txid = await ethereumWriter.ChangeUserFiatBalance(deposit.User.UserName, deposit.Currency, deposit.AmountCents);
 								deposit.EthTransactionId = txid;
 							}
 
