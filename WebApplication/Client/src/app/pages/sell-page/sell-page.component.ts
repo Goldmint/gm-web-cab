@@ -1,5 +1,8 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding } from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
+import * as Web3 from 'web3';
+import {Subscription} from 'rxjs/Subscription';
+import {FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-sell-page',
@@ -19,6 +22,13 @@ export class SellPageComponent implements OnInit {
   public sellCurrency:    'usd'|'gold' = 'gold';
   public resultCurrrency: 'usd'|'gold' = 'usd';
 
+  goldBalance: number;
+  goldUsdRate: number;
+  estimatesAmount;
+  goldBalancePercent;
+
+  form: FormGroup;
+
   constructor(
     private _userService: UserService,
     private _apiService: APIService,
@@ -28,15 +38,34 @@ export class SellPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._ethService.checkWeb3();
+    this._ethService.transferBalance$.subscribe((data) => {
+      this.goldBalance = data['gold'];
+    });
+    this._apiService.getGoldRate().subscribe(data => {
+      this.goldUsdRate = +data.data.rate;
+    });
   }
 
   onToSellChanged(value: number) {
-    this.to_sell = value;
+    this.to_sell = +value;
+
+
+    this.estimatesAmount = this.estimatesAmountDecor((this.to_sell * this.goldUsdRate));
 
     this.estimate_amount = 0; // value * 2;
     // this.discount = value && value > 0 ? Math.floor(Math.random() * 100) : 0;
-
     this._cdRef.detectChanges();
+  }
+
+  onSetSellPercent(percent) {
+    this.goldBalancePercent = this.goldBalance * percent;
+    this.to_sell = this.goldBalancePercent;
+    this.estimatesAmount = this.estimatesAmountDecor((this.goldBalancePercent * this.goldUsdRate));
+  }
+
+  estimatesAmountDecor(price) {
+    return price.toFixed(2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
   }
 
   onCurrencyChanged(value: string) {
@@ -44,8 +73,8 @@ export class SellPageComponent implements OnInit {
   }
 
   onSell() {
-
     var ethAddress = this._ethService.getEthAddress();
+
     if (ethAddress == null) {
       this._messageBox.alert('Enable metamask first');
       return;
