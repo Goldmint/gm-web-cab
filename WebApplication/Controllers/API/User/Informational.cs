@@ -14,30 +14,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 	public partial class UserController : BaseController {
 
 		/// <summary>
-		/// User balance on blockchain
-		/// </summary>
-		[AreaAuthorized]
-		[HttpPost, Route("balance")]
-		[ProducesResponseType(typeof(BalanceView), 200)]
-		public async Task<APIResponse> Balance([FromBody] BalanceModel model) {
-
-			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
-			}
-
-			var user = await GetUserFromDb();
-
-			return APIResponse.Success(
-				new BalanceView() {
-					Usd = await EthereumObserver.GetUserFiatBalance(user.UserName, FiatCurrency.USD) / 100d,
-					Gold = model.EthAddress == null ? 0d : CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(await EthereumObserver.GetUserGoldBalance(model.EthAddress), false),
-					Mntp = model.EthAddress == null ? 0d : CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(await EthereumObserver.GetUserMntpBalance(model.EthAddress), false),
-				}
-			);
-		}
-
-		/// <summary>
 		/// Fiat limits
 		/// </summary>
 		[AreaAuthorized]

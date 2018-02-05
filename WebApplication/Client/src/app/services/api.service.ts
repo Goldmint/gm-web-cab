@@ -9,7 +9,7 @@ import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/retry';
 
 import {
-  User, Balance, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
+  User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
   GoldRate, TFAInfo, KYCStart, KYCStatus, TransparencyRecord, Limits,
   CardsList,
   GoldBuyResponse, GoldSellResponse, GoldBuyDryResponse, GoldSellDryResponse
@@ -161,25 +161,6 @@ export class APIService {
       shareReplay()
       );
   }
-
-  /*getBalance(ethAddress: string = null): Observable<APIResponse<Balance>> {
-    return this._http
-      .post(`${this._baseUrl}/user/balance`, { ethAddress: ethAddress }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-      tap(response => {
-        //@todo: fix api response format
-        response.data = {
-          gold: { amount: response.data.gold },
-          usd: { amount: response.data.usd },
-          mntp: 0
-        };
-
-        return response;
-      })
-      );
-  }*/
 
   getLimits(): Observable<APIResponse<Limits>> {
     return this._http

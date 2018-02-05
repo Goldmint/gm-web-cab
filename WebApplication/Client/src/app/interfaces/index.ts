@@ -1,6 +1,5 @@
 export * from './api-response';
 export * from './user';
-export * from './balance';
 export * from './price';
 export * from './history-record';
 export * from './activity-record';
