@@ -26,6 +26,7 @@ export class SellPageComponent implements OnInit {
   public resultCurrrency: 'usd'|'gold' = 'usd';
 
   goldBalance: number;
+  mntpBalance: number;
   goldUsdRate: number;
   estimatesAmount;
   goldBalancePercent;
@@ -42,21 +43,27 @@ export class SellPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(this._ethService.getObservableGoldBalance(), this._apiService.getGoldRate())
+    Observable.combineLatest(this._ethService.getObservableGoldBalance(),
+                            this._apiService.getGoldRate(),
+                            this._ethService.getObservableMntpBalance())
       .subscribe((data) => {
         this.goldBalance = data[0];
         this.goldUsdRate = data[1].data.rate;
+        this.mntpBalance = data[2];
         if (!this.stopUpdate && this.goldBalance !== null) {
           this.onSetSellPercent(1);
           this.onToSellChanged(this.goldBalance);
           this.stopUpdate = true;
         }
       });
+
   }
 
   onToSellChanged(value: number) {
     this.to_sell = +value;
-    this.estimatesAmount = this.estimatesAmountDecor((this.to_sell * this.goldUsdRate));
+    this.calculationDiscount(this.mntpBalance);
+    const amount = (this.to_sell * this.goldUsdRate) * ((100 - this.discount) / 100);
+    this.estimatesAmount = this.estimatesAmountDecor(amount);
 
     this.estimate_amount = 0; // value * 2;
     // this.discount = value && value > 0 ? Math.floor(Math.random() * 100) : 0;
@@ -64,9 +71,11 @@ export class SellPageComponent implements OnInit {
   }
 
   onSetSellPercent(percent) {
+    this.calculationDiscount(this.mntpBalance);
     this.goldBalancePercent = this.goldBalance * percent;
     this.to_sell = this.goldBalancePercent;
-    this.estimatesAmount = this.estimatesAmountDecor((this.goldBalancePercent * this.goldUsdRate));
+    const amount = (this.goldBalancePercent * this.goldUsdRate) * ((100 - this.discount) / 100);
+    this.estimatesAmount = this.estimatesAmountDecor(amount);
   }
 
   estimatesAmountDecor(price) {
@@ -75,6 +84,18 @@ export class SellPageComponent implements OnInit {
 
   onCurrencyChanged(value: string) {
     this.resultCurrrency = (value === 'usd') ? 'gold' : 'usd';
+  }
+
+  calculationDiscount(mntp) {
+    if (mntp <= 10) {
+      this.discount = 3;
+    } else if (mntp > 10 && mntp <= 1000) {
+      this.discount = 2.5;
+    } else if (mntp > 1000 && mntp <= 10000) {
+      this.discount = 1.5;
+    } else {
+      this.discount = 0.75;
+    }
   }
 
   onSell() {

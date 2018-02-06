@@ -41,11 +41,6 @@ export class BuyPageComponent implements OnInit {
       .subscribe((data) => {
         this.usdBalance = data[0];
         this.goldUsdRate = data[1].data.rate;
-        if (!this.stopUpdate && this.usdBalance !== null) {
-          this.onSetBuyPercent(1);
-          this.onToSpendChanged(this.usdBalance);
-          this.stopUpdate = true;
-        }
       });
   }
 
@@ -56,12 +51,6 @@ export class BuyPageComponent implements OnInit {
     this.estimate_amount = 0; // value && value > 0 ? value / 2 : 0;
     // this.discount = value && value > 0 ? Math.floor(Math.random() * 100) : 0;
     this._cdRef.detectChanges();
-  }
-
-  onSetBuyPercent(percent) {
-    this.usdBalancePercent = this.usdBalance * percent;
-    this.to_spend = this.usdBalancePercent;
-    this.estimatesAmount = this.estimatesAmountDecor((this.usdBalancePercent / this.goldUsdRate));
   }
 
   estimatesAmountDecor(price) {
