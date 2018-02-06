@@ -6,7 +6,7 @@ import { zip } from 'rxjs/observable/zip';
 import * as Web3 from 'web3';
 
 import { User } from '../../interfaces';
-import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
+import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 
 @Component({
   selector: 'app-header',
@@ -30,7 +30,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   constructor(
     private _ethService: EthereumService,
-    private _apiService: APIService,
+    private _goldrateService: GoldrateService,
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
     private _messageBox: MessageBoxService
@@ -43,8 +43,8 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    this._apiService.getGoldRate().subscribe(data => {
-      this.gold_usd_rate = data.data.rate;
+    this._goldrateService.getObservableRate().subscribe(data => {
+      this.gold_usd_rate = data;
       this._cdRef.detectChanges();
     });
 

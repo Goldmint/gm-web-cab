@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy} from '@angular/core';
-import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
+import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import { GoldBuyResponse, GoldBuyDryResponse } from '../../interfaces'
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from "rxjs/Observable";
@@ -33,14 +33,15 @@ export class BuyPageComponent implements OnInit {
     private _apiService: APIService,
     private _messageBox: MessageBoxService,
     private _ethService: EthereumService,
+    private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(this._ethService.getObservableUsdBalance(), this._apiService.getGoldRate())
+    Observable.combineLatest(this._ethService.getObservableUsdBalance(), this._goldrateService.getObservableRate())
       .subscribe((data) => {
         this.usdBalance = data[0];
-        this.goldUsdRate = data[1].data.rate;
+        this.goldUsdRate = data[1];
       });
   }
 

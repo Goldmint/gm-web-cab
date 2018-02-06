@@ -1,11 +1,11 @@
 import {
   Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding
 } from '@angular/core';
-import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
+import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import * as Web3 from 'web3';
-import {Subscription} from 'rxjs/Subscription';
-import {FormGroup} from '@angular/forms';
-import {Observable} from "rxjs/Observable";
+import { Subscription } from 'rxjs/Subscription';
+import { FormGroup } from '@angular/forms';
+import { Observable } from "rxjs/Observable";
 
 @Component({
   selector: 'app-sell-page',
@@ -22,8 +22,8 @@ export class SellPageComponent implements OnInit {
   estimate_amount: number;
   discount: number = 0;
 
-  public sellCurrency:    'usd'|'gold' = 'gold';
-  public resultCurrrency: 'usd'|'gold' = 'usd';
+  public sellCurrency: 'usd' | 'gold' = 'gold';
+  public resultCurrrency: 'usd' | 'gold' = 'usd';
 
   goldBalance: number;
   mntpBalance: number;
@@ -39,16 +39,19 @@ export class SellPageComponent implements OnInit {
     private _apiService: APIService,
     private _messageBox: MessageBoxService,
     private _ethService: EthereumService,
+    private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(this._ethService.getObservableGoldBalance(),
-                            this._apiService.getGoldRate(),
-                            this._ethService.getObservableMntpBalance())
+    Observable.combineLatest(
+      this._ethService.getObservableGoldBalance(),
+      this._goldrateService.getObservableRate(),
+      this._ethService.getObservableMntpBalance()
+    )
       .subscribe((data) => {
         this.goldBalance = data[0];
-        this.goldUsdRate = data[1].data.rate;
+        this.goldUsdRate = data[1];
         this.mntpBalance = data[2];
         if (!this.stopUpdate && this.goldBalance !== null) {
           this.onSetSellPercent(1);

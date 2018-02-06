@@ -18,7 +18,7 @@ import { AppRouting } from './app.routing';
   Guards and Services
  */
 import { AuthGuard } from './guards';
-import { MessageBoxService, APIService, UserService, EthereumService } from './services';
+import { MessageBoxService, APIService, UserService, EthereumService, GoldrateService } from './services';
 import { APIHttpInterceptor } from './common/api/api-http.interceptor'
 
 /*
@@ -183,6 +183,7 @@ export function getGoldmintToken() {
     APIService,
     UserService,
     EthereumService,
+    GoldrateService,
     {
       provide: RECAPTCHA_SETTINGS,
       useValue: {
