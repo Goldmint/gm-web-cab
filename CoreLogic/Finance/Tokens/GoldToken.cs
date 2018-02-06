@@ -81,7 +81,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Estimate exchange operation
 		/// </summary>
-		public static Task<BuyingEstimationResult> EstimateBuying(long fiatAmountCents, long inputTotalVolumeCents, long pricePerGoldOunceCents) {
+		public static Task<BuyingEstimationResult> EstimateBuying(long fiatAmountCents, long inputTotalVolumeCents, long pricePerGoldOunceCents, BigInteger mntpBalance) {
 
 			if (pricePerGoldOunceCents <= 0) {
 				throw new ArgumentException("Illegal gold price");
@@ -114,7 +114,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Estimate exchange operation
 		/// </summary>
-		public static Task<SellingEstimationResult> EstimateSelling(BigInteger goldAmountWei, BigInteger inputTotalVolumeWei, long pricePerGoldOunceCents) {
+		public static Task<SellingEstimationResult> EstimateSelling(BigInteger goldAmountWei, BigInteger inputTotalVolumeWei, long pricePerGoldOunceCents, BigInteger mntpBalance) {
 
 			if (pricePerGoldOunceCents <= 0) {
 				throw new ArgumentException("Illegal gold price");

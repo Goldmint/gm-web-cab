@@ -40,6 +40,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// ---
 
 			var currency = FiatCurrency.USD;
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
@@ -47,7 +48,8 @@ namespace Goldmint.WebApplication.Controllers.API {
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateBuying(
 				fiatAmountCents: amountCents,
 				inputTotalVolumeCents: fiatBalance,
-				pricePerGoldOunceCents: goldRate
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			// ---
@@ -142,13 +144,15 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			var currency = FiatCurrency.USD;
 			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserGoldBalance(model.EthAddress);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateSelling(
 				goldAmountWei: amountWei,
 				inputTotalVolumeWei: goldBalance,
-				pricePerGoldOunceCents: goldRate
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			// ---
@@ -244,15 +248,19 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// ---
 
+			// TODO: get values from client request, not from eth
+
 			var currency = FiatCurrency.USD;
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateBuying(
 				fiatAmountCents: amountCents,
 				inputTotalVolumeCents: fiatBalance,
-				pricePerGoldOunceCents: goldRate
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			return APIResponse.Success(
@@ -283,17 +291,20 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// ---
 
-			var amountWei = CoreLogic.Finance.Tokens.GoldToken.ToWei((decimal)model.Amount);
+			// TODO: get values from client request, not from eth
 
 			var currency = FiatCurrency.USD;
+			var amountWei = CoreLogic.Finance.Tokens.GoldToken.ToWei((decimal)model.Amount);
 			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserGoldBalance(model.EthAddress);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateSelling(
 				goldAmountWei: amountWei,
 				inputTotalVolumeWei: goldBalance,
-				pricePerGoldOunceCents: goldRate
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			return APIResponse.Success(
