@@ -1,8 +1,11 @@
-import {Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding
+} from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
 import * as Web3 from 'web3';
 import {Subscription} from 'rxjs/Subscription';
 import {FormGroup} from '@angular/forms';
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'app-sell-page',
@@ -26,6 +29,7 @@ export class SellPageComponent implements OnInit {
   goldUsdRate: number;
   estimatesAmount;
   goldBalancePercent;
+  stopUpdate = false;
 
   form: FormGroup;
 
@@ -38,19 +42,20 @@ export class SellPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._ethService.checkWeb3();
-    this._ethService.transferBalance$.subscribe((data) => {
-      this.goldBalance = data['gold'];
-    });
-    this._apiService.getGoldRate().subscribe(data => {
-      this.goldUsdRate = +data.data.rate;
-    });
+    Observable.combineLatest(this._ethService.getObservableGoldBalance(), this._apiService.getGoldRate())
+      .subscribe((data) => {
+        this.goldBalance = data[0];
+        this.goldUsdRate = data[1].data.rate;
+        if (!this.stopUpdate && this.goldBalance !== null) {
+          this.onSetSellPercent(1);
+          this.onToSellChanged(this.goldBalance);
+          this.stopUpdate = true;
+        }
+      });
   }
 
   onToSellChanged(value: number) {
     this.to_sell = +value;
-
-
     this.estimatesAmount = this.estimatesAmountDecor((this.to_sell * this.goldUsdRate));
 
     this.estimate_amount = 0; // value * 2;

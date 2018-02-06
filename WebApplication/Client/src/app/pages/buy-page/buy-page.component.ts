@@ -2,6 +2,7 @@ import {Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDet
 import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
 import { GoldBuyResponse, GoldBuyDryResponse } from '../../interfaces'
 import {Subscription} from 'rxjs/Subscription';
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'app-buy-page',
@@ -25,6 +26,7 @@ export class BuyPageComponent implements OnInit {
   goldUsdRate: number;
   estimatesAmount;
   usdBalancePercent;
+  stopUpdate = false;
 
   constructor(
     private _userService: UserService,
@@ -35,13 +37,16 @@ export class BuyPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._ethService.checkWeb3();
-    this._ethService.transferBalance$.subscribe((data) => {
-      this.usdBalance = data['usd'];
-    });
-    this._apiService.getGoldRate().subscribe(data => {
-      this.goldUsdRate = +data.data.rate;
-    });
+    Observable.combineLatest(this._ethService.getObservableUsdBalance(), this._apiService.getGoldRate())
+      .subscribe((data) => {
+        this.usdBalance = data[0];
+        this.goldUsdRate = data[1].data.rate;
+        if (!this.stopUpdate && this.usdBalance !== null) {
+          this.onSetBuyPercent(1);
+          this.onToSpendChanged(this.usdBalance);
+          this.stopUpdate = true;
+        }
+      });
   }
 
   onToSpendChanged(value: number) {

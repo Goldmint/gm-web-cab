@@ -15,7 +15,7 @@
             <div class="form-row align-items-end">
               <div class="form-group col-auto">
                 <label for="input_toSell">To Sell</label>
-                <input type="number" min="0" step="0.01" class="form-control" id="input_toSell" [value]="goldBalancePercent"
+                <input type="number" min="0" step="0.01" class="form-control" name="input_toSell" id="input_toSell" [value]="goldBalancePercent"
                        (input)="onToSellChanged($event.target.value)">
                 <div class="percent-btn-cont">
                   <button class="percent-btn" (click)="onSetSellPercent(0.25)">25%</button>
