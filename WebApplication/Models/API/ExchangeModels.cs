@@ -178,6 +178,11 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 		[Required]
 		public double GoldRate { get; set; }
 
+		/// <summary>
+		/// Fee amount for this operation
+		/// </summary>
+		[Required]
+		public double Fee { get; set; }
 	}
 
 	// ---
@@ -245,6 +250,11 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 		[Required]
 		public double GoldRate { get; set; }
 
+		/// <summary>
+		/// Fee amount for this operation
+		/// </summary>
+		[Required]
+		public double Fee { get; set; }
 	}
 
 	

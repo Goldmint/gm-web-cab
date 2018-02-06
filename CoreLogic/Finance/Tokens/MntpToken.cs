@@ -72,14 +72,23 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Fee in cents while buying gold
 		/// </summary>
-		public static long buyFee(BigInteger mntpBalance, long cents) {
+		public static long getBuyingFee(BigInteger mntpBalance, long cents) {
+			if (cents < 1) {
+				return 0L;
+			}
+
 			return 0L;
 		}
 
 		/// <summary>
 		/// Fee in cents while selling gold
 		/// </summary>
-		public static long sellFee(BigInteger mntpBalance, long cents) {
+		public static long getSellingFee(BigInteger mntpBalance, long cents) {
+
+			if (cents < 1) {
+				return 0L;
+			}
+
 			// 0.75%
 			if (mntpBalance >= ToWei(10000)) {
 				return (75L * cents / 10000L);
