@@ -20,7 +20,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Buying request
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("buyRequest")]
 		[ProducesResponseType(typeof(BuyRequestView), 200)]
 		public async Task<APIResponse> BuyRequest([FromBody] BuyRequestModel model) {
@@ -40,20 +40,22 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// ---
 
 			var currency = FiatCurrency.USD;
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateBuying(
 				fiatAmountCents: amountCents,
-				inputTotalVolumeCents: fiatBalance,
-				pricePerGoldOunceCents: goldRate
+				fiatTotalVolumeCents: fiatBalance,
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			// ---
 
 			// invalid amount passed
-			if (estimated.CentsUsed != amountCents) {
+			if (amountCents != estimated.InputUsed) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
 			}
 
@@ -63,7 +65,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			var finHistory = new DAL.Models.FinancialHistory() {
 				Type = FinancialHistoryType.GoldBuying,
 				AmountCents = amountCents,
-				FeeCents = 0,
+				FeeCents = estimated.ResultFeeCents,
 				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
@@ -78,7 +80,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// request
 			var buyRequest = new BuyRequest() {
-
 				User = user,
 				Status = ExchangeRequestStatus.Initial,
 				Currency = currency,
@@ -97,7 +98,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.Detach(buyRequest);
 
 			// update comment
-			finHistory.Comment = $"Buying order #{buyRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.GoldAmount, true)} GOLD";
+			finHistory.Comment = $"Buying order #{buyRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold, true)} GOLD";
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(finHistory);
 
@@ -113,7 +114,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			return APIResponse.Success(
 				new BuyRequestView() {
-					GoldAmount = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.GoldAmount, true),
+					GoldAmount = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold, true),
 					GoldRate = goldRate / 100d,
 					Payload = new[] { user.UserName, buyRequest.Id.ToString() },
 				}
@@ -123,7 +124,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Selling request
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("sellRequest")]
 		[ProducesResponseType(typeof(SellRequestView), 200)]
 		public async Task<APIResponse> SellRequest([FromBody] SellRequestModel model) {
@@ -142,19 +143,21 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			var currency = FiatCurrency.USD;
 			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserGoldBalance(model.EthAddress);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateSelling(
 				goldAmountWei: amountWei,
-				inputTotalVolumeWei: goldBalance,
-				pricePerGoldOunceCents: goldRate
+				goldTotalVolumeWei: goldBalance,
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			// ---
 
 			// invalid amount passed
-			if (estimated.WeiUsed != amountWei) {
+			if (estimated.InputUsed != amountWei) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
 			}
 
@@ -163,8 +166,8 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
 				Type = FinancialHistoryType.GoldSelling,
-				AmountCents = estimated.CentsAmount,
-				FeeCents = 0,
+				AmountCents = estimated.ResultGrossCents,
+				FeeCents = estimated.ResultFeeCents,
 				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
@@ -179,11 +182,10 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// request
 			var sellRequest = new SellRequest() {
-
 				User = user,
 				Status = ExchangeRequestStatus.Initial,
 				Currency = currency,
-				FiatAmountCents = estimated.CentsAmount,
+				FiatAmountCents = estimated.ResultGrossCents,
 				Address = model.EthAddress,
 				FixedRateCents = goldRate,
 				DeskTicketId = ticket,
@@ -207,14 +209,14 @@ namespace Goldmint.WebApplication.Controllers.API {
 				services: HttpContext.RequestServices,
 				user: user,
 				type: Common.UserActivityType.Exchange,
-				comment: $"GOLD selling request #{sellRequest.Id} ({TextFormatter.FormatAmount(estimated.CentsAmount, currency)}) from {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
+				comment: $"GOLD selling request #{sellRequest.Id} ({TextFormatter.FormatAmount(estimated.ResultGrossCents, currency)}) from {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
 				ip: agent.Ip,
 				agent: agent.Agent
 			);
 
 			return APIResponse.Success(
 				new SellRequestView() {
-					FiatAmount = estimated.CentsAmount / 100d,
+					FiatAmount = estimated.ResultGrossCents / 100d,
 					GoldRate = goldRate / 100d,
 					Payload = new[] { user.UserName, sellRequest.Id.ToString() },
 				}
@@ -226,7 +228,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Buying request, dry run with estimation
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("buyRequestDry")]
 		[ProducesResponseType(typeof(BuyRequestDryView), 200)]
 		public async Task<APIResponse> BuyRequestDry([FromBody] BuyRequestDryModel model) {
@@ -244,24 +246,29 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// ---
 
+			// TODO: get values from client request, not from eth
+
 			var currency = FiatCurrency.USD;
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateBuying(
 				fiatAmountCents: amountCents,
-				inputTotalVolumeCents: fiatBalance,
-				pricePerGoldOunceCents: goldRate
+				fiatTotalVolumeCents: fiatBalance,
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			return APIResponse.Success(
 				new BuyRequestDryView() {
-					AmountUsed = estimated.CentsUsed / 100d,
-					AmountMin = estimated.CentsMin / 100d,
-					AmountMax = estimated.CentsMax / 100d,
-					GoldAmount = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.GoldAmount, true),
+					AmountUsed = estimated.InputUsed / 100d,
+					AmountMin = estimated.InputMin / 100d,
+					AmountMax = estimated.InputMax / 100d,
+					GoldAmount = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold, true),
 					GoldRate = goldRate / 100d,
+					Fee = estimated.ResultFeeCents / 100d,
 				}
 			);
 		}
@@ -269,7 +276,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Selling request, dry run with estimation
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("sellRequestDry")]
 		[ProducesResponseType(typeof(SellRequestDryView), 200)]
 		public async Task<APIResponse> SellRequestDry([FromBody] SellRequestDryModel model) {
@@ -283,26 +290,30 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// ---
 
-			var amountWei = CoreLogic.Finance.Tokens.GoldToken.ToWei((decimal)model.Amount);
+			// TODO: get values from client request, not from eth
 
 			var currency = FiatCurrency.USD;
+			var amountWei = CoreLogic.Finance.Tokens.GoldToken.ToWei((decimal)model.Amount);
 			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserGoldBalance(model.EthAddress);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateProvider.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateSelling(
 				goldAmountWei: amountWei,
-				inputTotalVolumeWei: goldBalance,
-				pricePerGoldOunceCents: goldRate
+				goldTotalVolumeWei: goldBalance,
+				pricePerGoldOunceCents: goldRate,
+				mntpBalance: mntpBalance
 			);
 
 			return APIResponse.Success(
 				new SellRequestDryView() {
-					AmountUsed = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.WeiUsed, true),
-					AmountMin = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.WeiMin, true),
-					AmountMax = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.WeiMax, false),
-					FiatAmount = estimated.CentsAmount / 100d,
+					AmountUsed = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputUsed, true),
+					AmountMin = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputMin, true),
+					AmountMax = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputMax, false),
+					FiatAmount = estimated.ResultGrossCents / 100d,
 					GoldRate = goldRate / 100d,
+					Fee = estimated.ResultFeeCents / 100d,
 				}
 			);
 		}

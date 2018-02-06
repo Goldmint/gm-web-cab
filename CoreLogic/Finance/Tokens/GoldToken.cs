@@ -81,14 +81,14 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Estimate exchange operation
 		/// </summary>
-		public static Task<BuyingEstimationResult> EstimateBuying(long fiatAmountCents, long inputTotalVolumeCents, long pricePerGoldOunceCents) {
+		public static Task<BuyingEstimationResult> EstimateBuying(long fiatAmountCents, long fiatTotalVolumeCents, long pricePerGoldOunceCents, BigInteger mntpBalance) {
 
 			if (pricePerGoldOunceCents <= 0) {
 				throw new ArgumentException("Illegal gold price");
 			}
 
 			var min = 1L; // 1 cent
-			var max = inputTotalVolumeCents;
+			var max = fiatTotalVolumeCents;
 			if (min > max) {
 				min = 0;
 				max = 0;
@@ -96,17 +96,23 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			if (fiatAmountCents < min) fiatAmountCents = min;
 			if (fiatAmountCents > max) fiatAmountCents = max;
+
+			var fiatFeeCents = MntpToken.getBuyingFee(mntpBalance, fiatAmountCents);
+			var fiatCents = Math.Max(0L, fiatAmountCents - fiatFeeCents);
 			
 			var goldAmount = ToWei(
-				(fiatAmountCents / 100m) / (pricePerGoldOunceCents / 100m)
+				(fiatCents / 100m) / (pricePerGoldOunceCents / 100m)
 			);
 
 			return Task.FromResult(
 				new BuyingEstimationResult() {
-					CentsUsed = fiatAmountCents,
-					CentsMin = min,
-					CentsMax = max,
-					GoldAmount = goldAmount,
+					InputUsed = fiatAmountCents,
+					InputMin = min,
+					InputMax = max,
+
+					ResultGold = goldAmount,
+					ResultFeeCents = fiatFeeCents,
+					ResultNetCents = fiatCents,
 				}
 			);
 		}
@@ -114,14 +120,14 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Estimate exchange operation
 		/// </summary>
-		public static Task<SellingEstimationResult> EstimateSelling(BigInteger goldAmountWei, BigInteger inputTotalVolumeWei, long pricePerGoldOunceCents) {
+		public static Task<SellingEstimationResult> EstimateSelling(BigInteger goldAmountWei, BigInteger goldTotalVolumeWei, long pricePerGoldOunceCents, BigInteger mntpBalance) {
 
 			if (pricePerGoldOunceCents <= 0) {
 				throw new ArgumentException("Illegal gold price");
 			}
 
 			var min = ToWei(0.01M / (pricePerGoldOunceCents / 100m)); // gold amount for 1 cent
-			var max = inputTotalVolumeWei;
+			var max = goldTotalVolumeWei;
 			if (min > max) {
 				min = 0;
 				max = 0;
@@ -130,16 +136,21 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			if (goldAmountWei < min) goldAmountWei = min;
 			if (goldAmountWei > max) goldAmountWei = max;
 
-			var fiatAmountCents = (long)decimal.Truncate(
+			var fiatGrossCents = (long)decimal.Truncate(
 				FromWei(goldAmountWei) * pricePerGoldOunceCents
 			);
+			var fiatFeeCents = MntpToken.getSellingFee(mntpBalance, fiatGrossCents);
+			var fiatNetCents = Math.Max(0L, fiatGrossCents - fiatFeeCents);
 
 			return Task.FromResult(
 				new SellingEstimationResult() {
-					WeiUsed = goldAmountWei,
-					WeiMin = min,
-					WeiMax = max,
-					CentsAmount = fiatAmountCents,
+					InputUsed = goldAmountWei,
+					InputMin = min,
+					InputMax = max,
+
+					ResultGrossCents = fiatGrossCents,
+					ResultFeeCents = fiatFeeCents,
+					ResultNetCents = fiatNetCents,
 				}
 			);
 		}
@@ -147,7 +158,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Adjust exchange values right before actual processing
 		/// </summary>
-		private static async Task<AdjustResult> AdjustExchangeValues(IServiceProvider services, bool buying, FiatCurrency currency, long fixedGoldRateCents) {
+		private static async Task<AdjustResult> AdjustExchangeGoldRate(IServiceProvider services, bool buying, FiatCurrency currency, long fixedGoldRateCents) {
 	
 			if (fixedGoldRateCents <= 0) {
 				throw new ArgumentException("Illegal fixed gold price");
@@ -377,7 +388,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							}
 							catch { }
 
-							var adjust = await AdjustExchangeValues(
+							var adjust = await AdjustExchangeGoldRate(
 								services: services,
 								buying: true,
 								currency: request.Currency,
@@ -521,7 +532,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							}
 							catch { }
 
-							var adjust = await AdjustExchangeValues(
+							var adjust = await AdjustExchangeGoldRate(
 								services: services,
 								buying: false,
 								currency: request.Currency,
@@ -619,22 +630,32 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			/// <summary>
 			/// Input value used in estimation
 			/// </summary>
-			public long CentsUsed { get; set; }
+			public long InputUsed { get; set; }
 
 			/// <summary>
 			/// Input value lower limit
 			/// </summary>
-			public long CentsMin { get; set; }
+			public long InputMin { get; set; }
 
 			/// <summary>
 			/// Input value upper limit
 			/// </summary>
-			public long CentsMax { get; set; }
+			public long InputMax { get; set; }
 
 			/// <summary>
 			/// Result gold tokens
 			/// </summary>
-			public BigInteger GoldAmount { get; set; }
+			public BigInteger ResultGold { get; set; }
+
+			/// <summary>
+			/// Result cents fee amount
+			/// </summary>
+			public long ResultFeeCents { get; set; }
+
+			/// <summary>
+			/// Result net cents amount
+			/// </summary>
+			public long ResultNetCents { get; set; }
 
 		}
 
@@ -643,23 +664,32 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			/// <summary>
 			/// Input value used in estimation
 			/// </summary>
-			public BigInteger WeiUsed { get; set; }
+			public BigInteger InputUsed { get; set; }
 
 			/// <summary>
 			/// Input value lower limit
 			/// </summary>
-			public BigInteger WeiMin { get; set; }
+			public BigInteger InputMin { get; set; }
 
 			/// <summary>
 			/// Input value upper limit
 			/// </summary>
-			public BigInteger WeiMax { get; set; }
+			public BigInteger InputMax { get; set; }
 
 			/// <summary>
 			/// Result cents amount
 			/// </summary>
-			public long CentsAmount { get; set; }
+			public long ResultGrossCents { get; set; }
 
+			/// <summary>
+			/// Result cents fee amount
+			/// </summary>
+			public long ResultFeeCents { get; set; }
+
+			/// <summary>
+			/// Result net cents amount
+			/// </summary>
+			public long ResultNetCents { get; set; }
 		}
 
 		public class AdjustResult {

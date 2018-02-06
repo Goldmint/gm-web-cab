@@ -311,6 +311,24 @@ export class APIService {
       );
   }
 
+  goldBuyDryReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyDryResponse>> {
+    return this._http
+      .post(`${this._baseUrl}/gold/buyRequestDry`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
+      .pipe(
+      catchError(this._handleError),
+      shareReplay(),
+    );
+  }
+
+  goldSellDryReqest(ethAddress: string, amountGold: number): Observable<APIResponse<GoldSellDryResponse>> {
+    return this._http
+      .post(`${this._baseUrl}/gold/sellRequestDry`, { ethAddress: ethAddress, amount: amountGold }, this.jwt())
+      .pipe(
+      catchError(this._handleError),
+      shareReplay(),
+    );
+  }
+
   goldBuyReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
     return this._http
       .post(`${this._baseUrl}/gold/buyRequest`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())

@@ -1,4 +1,5 @@
-﻿using Goldmint.DAL.Models;
+﻿using Goldmint.Common;
+using Goldmint.DAL.Models;
 using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
@@ -18,7 +19,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Verification data
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpGet, Route("verification/view")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationView() {
@@ -29,7 +30,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Fill verification form
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/edit")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationEdit([FromBody] VerificationEditModel model) {
@@ -80,7 +81,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// KYC verification redirect. Level 0 verification required
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/kycStart")]
 		[ProducesResponseType(typeof(VerificationKycStartView), 200)]
 		public async Task<APIResponse> VerificationKycStart([FromBody] VerificationKycStartModel model) {
@@ -136,7 +137,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// KYC verification status
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/kycStatus")]
 		[ProducesResponseType(typeof(VerificationKycStatusView), 200)]
 		public async Task<APIResponse> VerificationKycStatus([FromBody] VerificationKycStatusModel model) {

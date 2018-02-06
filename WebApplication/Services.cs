@@ -109,10 +109,18 @@ namespace Goldmint.WebApplication {
 
 			// authorization
 			services.AddAuthorization(opts => {
+
+				// area
 				opts.AddPolicy(Core.Policies.Policy.AccessTFAArea, policy => policy.AddRequirements(new Core.Policies.RequireAreaToken(JwtArea.TFA)));
 				opts.AddPolicy(Core.Policies.Policy.AccessAuthorizedArea, policy => policy.AddRequirements(new Core.Policies.RequireAreaToken(JwtArea.Authorized)));
+
+				// access level
+				foreach (var ar in Enum.GetValues(typeof(AccessRights)) as AccessRights[]) {
+					opts.AddPolicy(Core.Policies.Policy.HasAccessRightsTemplate + ar.ToString(), policy => policy.AddRequirements(new Core.Policies.RequireAccessRights(ar)));
+				}
 			});
 			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireAreaToken.Handler>();
+			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireAccessRights.Handler>();
 			services.AddScoped<GoogleProvider>();
 
 			// tokens
