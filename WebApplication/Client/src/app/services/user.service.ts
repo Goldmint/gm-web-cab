@@ -1,4 +1,5 @@
 import { Injectable/*, ChangeDetectorRef*/ } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -29,7 +30,8 @@ export class UserService {
     private _apiService: APIService,
     private _jwtHelper: JwtHelperService,
     // private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService) {
+    private _messageBox: MessageBoxService,
+    private http: HttpClient) {
 
     const token = localStorage.getItem('gmint_token');
 

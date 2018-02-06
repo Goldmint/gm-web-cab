@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Router } from '@angular/router';
-import { BrowserModule, Title }  from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { JwtModule } from '@auth0/angular-jwt'
-import { FormsModule } from '@angular/forms';
+import { JwtModule } from '@auth0/angular-jwt';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { /*RECAPTCHA_LANGUAGE,*/ RECAPTCHA_SETTINGS,
          RecaptchaModule } from 'ng-recaptcha';
 
@@ -107,6 +107,7 @@ export function getGoldmintToken() {
     AppRouting,
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     RecaptchaModule.forRoot(),
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),

@@ -15,9 +15,15 @@
             <div class="form-row align-items-end">
               <div class="form-group col-auto">
                 <label for="input_toSpend">To Spend</label>
-                <input type="number" min="0" step="0.01" class="form-control" id="input_toSpend" (input)="onToSpendChanged($event.target.value)">
+                <input type="number" min="0" step="0.01" class="form-control" id="input_toSpend" [value]="usdBalancePercent" (input)="onToSpendChanged($event.target.value)">
+                <div class="percent-btn-cont">
+                  <button class="percent-btn" (click)="onSetBuyPercent(0.25)">25%</button>
+                  <button class="percent-btn" (click)="onSetBuyPercent(0.5)">50%</button>
+                  <button class="percent-btn" (click)="onSetBuyPercent(0.75)">75%</button>
+                  <button class="percent-btn" (click)="onSetBuyPercent(1)">100%</button>
+                </div>
               </div>
-              <div class="form-group col-auto mr-5">
+              <div class="form-group col-auto pb-4 mr-5">
                 <select class="custom-select form-currency" id="select_Asset" #assetBuySelect
                         name="buyCurrency" [(ngModel)]="buyCurrency"
                         (change)="onCurrencyChanged($event.target.value)">
@@ -25,11 +31,11 @@
                 </select>
               </div>
 
-              <div class="form-group col-auto">
+              <div class="form-group col-auto mb-4">
                 <label for="input_EstimateAmount">Estimates Amount *</label>
-                <input type="text" class="form-control" id="input_EstimateAmount" readonly [value]="estimate_amount > 0 ? estimate_amount : ''">
+                <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatesAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">
               </div>
-              <div class="form-group col-auto">
+              <div class="form-group col-auto mb-4">
                 <div class="form-currency form-currency--{{ resultCurrrency }}">
                   <svg class="icon">
                     <use attr.xlink:href="#cur-{{ resultCurrrency }}"></use>
@@ -41,7 +47,9 @@
           </div>
 
           <div class="col-auto pt-3">
-            <button class="btn btn-primary" (click)="onBuy()">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+            <button class="btn btn-primary" [disabled]="to_spend > usdBalance || !to_spend || to_spend < 0" (click)="onBuy()">
+              {{ "PAGES.Buy.Buttons.BuyNow" | translate }}
+            </button>
           </div>
 
         </div>

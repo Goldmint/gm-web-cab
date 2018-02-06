@@ -1,6 +1,8 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService } from '../../services';
 import { GoldBuyResponse, GoldBuyDryResponse } from '../../interfaces'
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'app-buy-page',
@@ -20,6 +22,12 @@ export class BuyPageComponent implements OnInit {
   public buyCurrency:     'usd'|'gold' = 'usd';
   public resultCurrrency: 'usd'|'gold' = 'gold';
 
+  usdBalance: number;
+  goldUsdRate: number;
+  estimatesAmount;
+  usdBalancePercent;
+  stopUpdate = false;
+
   constructor(
     private _userService: UserService,
     private _apiService: APIService,
@@ -29,15 +37,35 @@ export class BuyPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    Observable.combineLatest(this._ethService.getObservableUsdBalance(), this._apiService.getGoldRate())
+      .subscribe((data) => {
+        this.usdBalance = data[0];
+        this.goldUsdRate = data[1].data.rate;
+        if (!this.stopUpdate && this.usdBalance !== null) {
+          this.onSetBuyPercent(1);
+          this.onToSpendChanged(this.usdBalance);
+          this.stopUpdate = true;
+        }
+      });
   }
 
   onToSpendChanged(value: number) {
     this.to_spend = value;
+    this.estimatesAmount = this.estimatesAmountDecor((this.to_spend / this.goldUsdRate));
 
     this.estimate_amount = 0; // value && value > 0 ? value / 2 : 0;
     // this.discount = value && value > 0 ? Math.floor(Math.random() * 100) : 0;
-
     this._cdRef.detectChanges();
+  }
+
+  onSetBuyPercent(percent) {
+    this.usdBalancePercent = this.usdBalance * percent;
+    this.to_spend = this.usdBalancePercent;
+    this.estimatesAmount = this.estimatesAmountDecor((this.usdBalancePercent / this.goldUsdRate));
+  }
+
+  estimatesAmountDecor(price) {
+    return price.toFixed(2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
   }
 
   onCurrencyChanged(value: string) {
@@ -45,7 +73,6 @@ export class BuyPageComponent implements OnInit {
   }
 
   onBuy() {
-
     var ethAddress = this._ethService.getEthAddress();
     if (ethAddress == null) {
       this._messageBox.alert('Enable metamask first');
