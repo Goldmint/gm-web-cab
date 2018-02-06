@@ -124,7 +124,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			var user = await GetUserFromDb();
 
-			user.AccessStamp = Core.UserAccount.GenerateAccessStamp();
+			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
@@ -142,7 +142,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		public async Task<APIResponse> SignOut() {
 			var user = await GetUserFromDb();
 
-			user.AccessStamp = Core.UserAccount.GenerateAccessStamp();
+			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success();

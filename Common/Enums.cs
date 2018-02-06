@@ -48,6 +48,19 @@ namespace Goldmint.Common {
 		RestorePassword
 	}
 
+	public enum AccessRights : long {
+		
+		/// <summary>
+		/// Cabinet client
+		/// </summary>
+		Client = 1,
+
+		/// <summary>
+		/// Full access
+		/// </summary>
+		Owner = 2147483648,
+	}
+
 	public enum BlockchainTransactionStatus {
 
 		/// <summary>

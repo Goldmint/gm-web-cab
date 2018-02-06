@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Fiat limits
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpGet, Route("limits")]
 		[ProducesResponseType(typeof(LimitsView), 200)]
 		public async Task<APIResponse> Limits() {
@@ -79,7 +79,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Profile info
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpGet, Route("profile")]
 		[ProducesResponseType(typeof(ProfileView), 200)]
 		public async Task<APIResponse> Profile() {
@@ -107,7 +107,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// User activity
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("activity")]
 		[ProducesResponseType(typeof(ActivityView), 200)]
 		public async Task<APIResponse> Activity([FromBody] ActivityModel model) {
@@ -158,7 +158,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Fiat history
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("fiat/history")]
 		[ProducesResponseType(typeof(FiatHistoryView), 200)]
 		public async Task<APIResponse> FiatHistory([FromBody] FiatHistoryModel model) {

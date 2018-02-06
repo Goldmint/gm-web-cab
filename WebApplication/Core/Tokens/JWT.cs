@@ -20,7 +20,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		public const string GMAreaField = "gm_area";
 		public const string GMIdField = "gm_id";
 		public const string GMSecurityStampField = "gm_sstamp";
-		public const string GMRoleField = "gm_role";
+		public const string GMRightsField = "gm_role";
 
 		// ---
 
@@ -31,7 +31,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 			return new TokenValidationParameters() {
 				NameClaimType = GMIdField,
-				RoleClaimType = GMRoleField,
+				RoleClaimType = GMRightsField,
 				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = CreateJwtKey(appConfig),
 				ValidateIssuer = true,
@@ -84,9 +84,9 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
 				
 				// gm fields
-				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.AccessStamp)),
+				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.AccessStampWeb)),
 				new Claim(GMIdField, user.UserName),
-				new Claim(GMRoleField, "user"), // todo: implement roles
+				new Claim(GMRightsField, ((long)user.AccessRights).ToString()),
 				new Claim(GMAreaField, area.ToString().ToLowerInvariant()),
 			};
 
@@ -180,7 +180,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 						var sstamp = await (
 							from u in dbContext.Users
 							where u.UserName == userName
-							select ObtainSecurityStamp(u.AccessStamp)
+							select ObtainSecurityStamp(u.AccessStampWeb)
 						)
 							.AsNoTracking()
 							.FirstOrDefaultAsync()

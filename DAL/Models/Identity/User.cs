@@ -47,7 +47,7 @@ namespace Goldmint.DAL.Models.Identity {
 		[Column("concurrency_stamp"), MaxLength(64)]
 		public override string ConcurrencyStamp { get; set; }
 
-		[Column("asp_security_stamp"), MaxLength(64)]
+		[Column("security_stamp"), MaxLength(64)]
 		public override string SecurityStamp { get; set; }
 
 		[Column("lockout_enabled")]
@@ -61,8 +61,11 @@ namespace Goldmint.DAL.Models.Identity {
 
 		// ---
 
-		[Column("access_stamp"), MaxLength(64)]
-		public string AccessStamp { get; set; }
+		[Column("access_stamp_web"), MaxLength(64)]
+		public string AccessStampWeb { get; set; }
+
+		[Column("access_rights"), Required]
+		public long AccessRights { get; set; }
 
 		[Column("tfa_secret"), MaxLength(32), Required]
 		public string TFASecret { get; set; }

@@ -15,7 +15,13 @@ namespace Goldmint.WebApplication.Core.Policies {
 		/// </summary>
 		public const string AccessAuthorizedArea = "PolicyAreaAuthorized";
 
+		/// <summary>
+		/// Has access rights
+		/// </summary>
+		public const string HasAccessRightsTemplate = "PolicyAccessRights_";
 	}
+
+	// ---
 
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 	public class AreaAnonymousAttribute : AllowAnonymousAttribute {
@@ -30,5 +36,12 @@ namespace Goldmint.WebApplication.Core.Policies {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 	public class AreaTFAAttribute : AuthorizeAttribute {
 		public AreaTFAAttribute() : base(Policies.Policy.AccessTFAArea) { }
+	}
+
+	// ---
+
+	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
+	public class AccessRightsAttribute : AuthorizeAttribute {
+		public AccessRightsAttribute(Common.AccessRights rights) : base(Policies.Policy.HasAccessRightsTemplate + rights.ToString()) { }
 	}
 }

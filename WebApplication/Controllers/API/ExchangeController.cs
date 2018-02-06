@@ -20,7 +20,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Buying request
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("buyRequest")]
 		[ProducesResponseType(typeof(BuyRequestView), 200)]
 		public async Task<APIResponse> BuyRequest([FromBody] BuyRequestModel model) {
@@ -124,7 +124,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Selling request
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("sellRequest")]
 		[ProducesResponseType(typeof(SellRequestView), 200)]
 		public async Task<APIResponse> SellRequest([FromBody] SellRequestModel model) {
@@ -228,7 +228,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Buying request, dry run with estimation
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("buyRequestDry")]
 		[ProducesResponseType(typeof(BuyRequestDryView), 200)]
 		public async Task<APIResponse> BuyRequestDry([FromBody] BuyRequestDryModel model) {
@@ -276,7 +276,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Selling request, dry run with estimation
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("sellRequestDry")]
 		[ProducesResponseType(typeof(SellRequestDryView), 200)]
 		public async Task<APIResponse> SellRequestDry([FromBody] SellRequestDryModel model) {

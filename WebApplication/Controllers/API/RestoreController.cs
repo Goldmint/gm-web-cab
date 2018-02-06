@@ -48,7 +48,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			var token = Core.Tokens.JWT.CreateSecurityToken(
 				appConfig: AppConfig,
 				id: user.UserName,
-				securityStamp: user.AccessStamp,
+				securityStamp: user.AccessStampWeb,
 				area: Common.JwtArea.RestorePassword,
 				validFor: TimeSpan.FromHours(24)
 			);
@@ -98,7 +98,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				Common.JwtArea.RestorePassword,
 				async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
-					return user?.AccessStamp;
+					return user?.AccessStampWeb;
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
@@ -107,7 +107,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			await UserManager.RemovePasswordAsync(user);
 			await UserManager.AddPasswordAsync(user, model.Password);
 
-			user.AccessStamp = Core.UserAccount.GenerateAccessStamp();
+			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
 			await DbContext.SaveChangesAsync();
 
 			// posteffect

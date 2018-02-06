@@ -44,7 +44,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				var token = Core.Tokens.JWT.CreateSecurityToken(
 					appConfig: AppConfig,
 					id: result.User.UserName,
-					securityStamp: result.User.AccessStamp,
+					securityStamp: result.User.AccessStampWeb,
 					area: Common.JwtArea.Registration, 
 					validFor: TimeSpan.FromDays(90)
 				);
@@ -91,14 +91,14 @@ namespace Goldmint.WebApplication.Controllers.API {
 				Common.JwtArea.Registration,
 				async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
-					return user?.AccessStamp;
+					return user?.AccessStampWeb;
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
 			user.EmailConfirmed = true;
-			user.AccessStamp = Core.UserAccount.GenerateAccessStamp();
+			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success();

@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Deposit with card
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("deposit")]
 		[ProducesResponseType(typeof(DepositView), 200)]
 		public async Task<APIResponse> Deposit([FromBody] DepositModel model) {

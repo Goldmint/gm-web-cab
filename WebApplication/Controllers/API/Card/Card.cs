@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Cards list
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpGet, Route("list")]
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List() {
@@ -52,7 +52,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Add card
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("add")]
 		[ProducesResponseType(typeof(AddView), 200)]
 		public async Task<APIResponse> Add([FromBody] AddModel model) {
@@ -153,7 +153,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Confirm card
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("confirm")]
 		[ProducesResponseType(typeof(ConfirmView), 200)]
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
@@ -262,7 +262,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Verify card by security code
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("verify")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> Verify([FromBody] VerifyModel model) {
@@ -323,7 +323,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Card status
 		/// </summary>
-		[AreaAuthorized]
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("status")]
 		[ProducesResponseType(typeof(StatusView), 200)]
 		public async Task<APIResponse> Status([FromBody] StatusModel model) {

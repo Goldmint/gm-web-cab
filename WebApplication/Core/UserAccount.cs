@@ -43,12 +43,12 @@ namespace Goldmint.WebApplication.Core {
 					Email = email,
 					TFASecret = tfaSecret,
 					EmailConfirmed = emailConfirmed,
+					AccessRights = 0,
 
 					UserOptions = new DAL.Models.UserOptions() {
 						InitialTFAQuest = false,
 						PrimaryAgreementRead = false,
 					},
-					//UserVerification = new DAL.Models.UserVerification() {},
 
 					TimeRegistered = DateTime.UtcNow,
 				};
@@ -68,7 +68,9 @@ namespace Goldmint.WebApplication.Core {
 
 						newUser.UserName = name;
 						newUser.NormalizedUserName = name.ToUpperInvariant();
-						newUser.AccessStamp = GenerateAccessStamp();
+						newUser.AccessStampWeb = GenerateAccessStamp();
+						newUser.AccessRights = (long)AccessRights.Client;
+
 						await dbContext.SaveChangesAsync();
 					}
 					catch { }
