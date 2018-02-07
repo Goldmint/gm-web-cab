@@ -37,7 +37,7 @@
                 <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly
                        [(ngModel)]="estimatesAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">
                 <div class="discount-badge__wrap">
-                  <span class="discount-badge" [ngClass]="{'discount-badge--gold': discount > 0}"><b>{{ discount }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
+                  <span class="discount-badge" [ngClass]="{'discount-badge--gold': commission > 0}"><b>{{ commission }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
                 </div>
               </div>
               <div class="form-group col-auto pb-4">
@@ -68,12 +68,33 @@
     </div>
   </section>
 
-  <div class="row">
+  <!--<div class="row">
     <div class="col-auto">
       <a href="javascript:void(0)" class="btn btn-primary btn-wide disabled">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</a>
     </div>
     <div class="col-5 form-text disabled">
-      <b>MNTP Balance 12.46</b>
-      <span>Buy now <b>90 MNT</b> and get <b>Y USD</b> discounts</span>
+      <b>MNTP Balance {{ mntpBalance }}</b>
+      <span>Buy now <b>{{ buyMNT }} MNT</b> and get <b>{{ commissionUSD }} USD</b> discounts</span>
+    </div>
+  </div>-->
+
+  <div class="row">
+    <div class="col form-group text-center buy-mntp-block buy-mntp-block-1">
+      <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[0] }}</div>
+      <div class="buy-mntp-caption mb-4">MNTP BALANCE</div>
+      <button class="btn btn-primary btn-wide" [disabled]="buyMNT_DisableArray[0]">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
+      <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[0] }} MNT</b><br> and get <b>{{ discountUSDArray[0] }} USD</b> commission</div>
+    </div>
+    <div class="col form-group text-center buy-mntp-block buy-mntp-block-2">
+      <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[1] }}</div>
+      <div class="buy-mntp-caption mb-4">MNTP BALANCE</div>
+      <button class="btn btn-primary btn-wide" [disabled]="buyMNT_DisableArray[1]">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
+      <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[1] }} MNT</b><br> and get <b>{{ discountUSDArray[1] }} USD</b> commission</div>
+    </div>
+    <div class="col form-group text-center buy-mntp-block buy-mntp-block-3">
+      <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[2] }}</div>
+      <div class="buy-mntp-caption mb-4">MNTP BALANCE</div>
+      <button class="btn btn-primary btn-wide" [disabled]="buyMNT_DisableArray[2]">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
+      <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[2] }} MNT</b><br> and get <b>{{ discountUSDArray[2] }} USD</b> commission</div>
     </div>
   </div>
