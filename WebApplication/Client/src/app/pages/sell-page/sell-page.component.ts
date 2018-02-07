@@ -20,7 +20,7 @@ export class SellPageComponent implements OnInit {
   progress: boolean;
   to_sell: number;
   estimate_amount: number;
-  discount: number = 0;
+  commission: number = 0;
 
   public sellCurrency: 'usd' | 'gold' = 'gold';
   public resultCurrrency: 'usd' | 'gold' = 'usd';
@@ -31,6 +31,12 @@ export class SellPageComponent implements OnInit {
   estimatesAmount;
   goldBalancePercent;
   stopUpdate = false;
+
+  commissionArray: number[] = [3, 2.5, 1.5, 0.75];
+  mntpArray: number[] = [10, 1000, 10000];
+  buyMNT_DisableArray = [false, false, false, false];
+  buyMNTArray = [10, 1000, 10000];
+  discountUSDArray: number[] = [0, 1, 2, 3];
 
   form: FormGroup;
 
@@ -50,10 +56,22 @@ export class SellPageComponent implements OnInit {
       this._ethService.getObservableMntpBalance()
     )
       .subscribe((data) => {
+        if (this.stopUpdate && this.goldUsdRate !== data[1]) {
+          this.goldUsdRate = data[1];
+          this.onToSellChanged(this.to_sell);
+        } else if (this.stopUpdate && this.goldBalance !== data[0]) {
+          this.goldBalance = data[0];
+          this.onSetSellPercent(1);
+        } else if (this.mntpBalance && this.mntpBalance !== data[2]) {
+          this.mntpBalance = data[2];
+          this.onToSellChanged(this.to_sell);
+        }
+
         this.goldBalance = data[0];
         this.goldUsdRate = data[1];
         this.mntpBalance = data[2];
-        if (!this.stopUpdate && this.goldBalance !== null) {
+
+        if (!this.stopUpdate && this.goldBalance !== null && this.goldUsdRate !== null && this.mntpBalance !== null) {
           this.onSetSellPercent(1);
           this.onToSellChanged(this.goldBalance);
           this.stopUpdate = true;
@@ -64,9 +82,7 @@ export class SellPageComponent implements OnInit {
 
   onToSellChanged(value: number) {
     this.to_sell = +value;
-    this.calculationDiscount(this.mntpBalance);
-    const amount = (this.to_sell * this.goldUsdRate) * ((100 - this.discount) / 100);
-    this.estimatesAmount = this.estimatesAmountDecor(amount);
+    this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
 
     this.estimate_amount = 0; // value * 2;
     // this.discount = value && value > 0 ? Math.floor(Math.random() * 100) : 0;
@@ -74,11 +90,9 @@ export class SellPageComponent implements OnInit {
   }
 
   onSetSellPercent(percent) {
-    this.calculationDiscount(this.mntpBalance);
     this.goldBalancePercent = this.goldBalance * percent;
     this.to_sell = this.goldBalancePercent;
-    const amount = (this.goldBalancePercent * this.goldUsdRate) * ((100 - this.discount) / 100);
-    this.estimatesAmount = this.estimatesAmountDecor(amount);
+    this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
   }
 
   estimatesAmountDecor(price) {
@@ -89,15 +103,51 @@ export class SellPageComponent implements OnInit {
     this.resultCurrrency = (value === 'usd') ? 'gold' : 'usd';
   }
 
+  getDataCommission(rate, gold, mntp) {
+    this.calculationDiscount(mntp);
+    this.calculationData(mntp);
+    const amount = this.to_sell * this.goldUsdRate;
+
+    for (let i = 0; i < this.discountUSDArray.length; i++) {
+      const amountCommission = amount * ((100 - this.commissionArray[i]) / 100);
+      this.discountUSDArray[i] = +(amount - amountCommission).toFixed(2);
+      if (this.commissionArray[i] === this.commission) {
+        this.estimatesAmount = this.estimatesAmountDecor(amountCommission);
+      }
+    }
+  }
+
   calculationDiscount(mntp) {
-    if (mntp <= 10) {
-      this.discount = 3;
-    } else if (mntp > 10 && mntp <= 1000) {
-      this.discount = 2.5;
-    } else if (mntp > 1000 && mntp <= 10000) {
-      this.discount = 1.5;
+    if (mntp < this.mntpArray[0]) {
+      this.commission = this.commissionArray[0];
+    } else if (mntp >= this.mntpArray[0] && mntp < this.mntpArray[1]) {
+      this.commission = this.commissionArray[1];
+    } else if (mntp >= this.mntpArray[1] && mntp < this.mntpArray[2]) {
+      this.commission = this.commissionArray[2];
     } else {
-      this.discount = 0.75;
+      this.commission = this.commissionArray[3];
+    }
+  }
+
+  calculationData(mntp) {
+    this.buyMNTArray = [10, 1000, 10000];
+    this.buyMNT_DisableArray[0] = false;
+    this.buyMNT_DisableArray[1] = false;
+    this.buyMNT_DisableArray[2] = false;
+
+    if (mntp < this.mntpArray[0]) {
+      this.buyMNTArray[0] = this.mntpArray[0] -  mntp;
+    } else if (mntp >= this.mntpArray[0] && mntp < this.mntpArray[1]) {
+      this.buyMNTArray[1] = this.mntpArray[1] - mntp;
+      this.buyMNT_DisableArray[0] = true;
+    } else if (mntp >= this.mntpArray[1] && mntp < this.mntpArray[2]) {
+      this.buyMNTArray[2] = this.mntpArray[2] -  mntp;
+      this.buyMNT_DisableArray[0] = true;
+      this.buyMNT_DisableArray[1] = true;
+    } else {
+      this.buyMNT_DisableArray[0] = true;
+      this.buyMNT_DisableArray[1] = true;
+      this.buyMNT_DisableArray[2] = true;
     }
   }
 

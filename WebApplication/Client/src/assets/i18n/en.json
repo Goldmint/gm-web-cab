@@ -33,7 +33,7 @@
       "Heading": "Sell {{ asset }} cryptoassets",
       "SectionTitle": "Instant Sell",
       "SectionTitleValue": "{{ asset }}",
-      "Discount": "Discount",
+      "Discount": "Commission",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
       "Buttons": {
         "SellNow": "Sell now",
