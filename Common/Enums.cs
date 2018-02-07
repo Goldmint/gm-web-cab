@@ -443,6 +443,11 @@ namespace Goldmint.Common {
 		/// Credit card operation
 		/// </summary>
 		CreditCard,
+
+		/// <summary>
+		/// Swift reqeust
+		/// </summary>
+		Swift
 	}
 
 	public enum FinancialHistoryType {

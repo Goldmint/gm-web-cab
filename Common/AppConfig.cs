@@ -107,7 +107,7 @@ namespace Goldmint.Common {
 		public ConstantsSection Constants { get; set; } = new ConstantsSection();
 		public class ConstantsSection {
 
-			public double ExchangeThreshold { get; set; }  = 0.05d;
+			public double ExchangeThreshold { get; set; } = 0.5d;
 
 			public FiatLimitsSection FiatAccountLimitsUSD { get; set; } = new FiatLimitsSection();
 			public class FiatLimitsSection {
@@ -121,6 +121,15 @@ namespace Goldmint.Common {
 					public long DayWithdraw { get; set; } = 0;
 					public long MonthWithdraw { get; set; } = 0;
 				}
+			}
+
+			public SwiftLimitsSection SwiftLimitsUSD { get; set; } = new SwiftLimitsSection();
+			public class SwiftLimitsSection {
+
+				public long DepositMin { get; set; } = 0;
+				public long DepositMax { get; set; } = 0;
+				public long WithdrawMin { get; set; } = 0;
+				public long WithdrawMax { get; set; } = 0;
 			}
 		}
 	}

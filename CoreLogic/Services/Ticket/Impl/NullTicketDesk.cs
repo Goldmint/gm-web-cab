@@ -35,6 +35,16 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 			return Task.CompletedTask;
 		}
 
+		public Task<string> CreateSwiftDepositTicket(TicketStatus status, string username, long amount, FiatCurrency currency, string message) {
+			_logger?.Info("New Deposit Ticket (swift): " + message);
+			return Task.FromResult(SecureRandom.GetString09af(20));
+		}
+
+		public Task UpdateSwiftDepositTicket(string ticketId, TicketStatus status, string message) {
+			_logger?.Info("Update Deposit Ticket (swift): " + message);
+			return Task.CompletedTask;
+		}
+
 		public Task<string> CreateCardRefundTicket(string parentTicketId, TicketStatus status, string username, long amount, FiatCurrency currency, string message) {
 			_logger?.Info("New Refund Ticket: " + message);
 			return Task.FromResult(SecureRandom.GetString09af(20));
@@ -52,6 +62,16 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 
 		public Task UpdateCardWithdrawTicket(string ticketId, TicketStatus status, string message) {
 			_logger?.Info("Update Withdraw Ticket: " + message);
+			return Task.CompletedTask;
+		}
+
+		public Task<string> CreateSwiftWithdrawTicket(TicketStatus status, string username, long amount, FiatCurrency currency, string message) {
+			_logger?.Info("New Withdraw Ticket (swift): " + message);
+			return Task.FromResult(SecureRandom.GetString09af(20));
+		}
+
+		public Task UpdateSwiftWithdrawTicket(string ticketId, TicketStatus status, string message) {
+			_logger?.Info("Update Withdraw Ticket (swift): " + message);
 			return Task.CompletedTask;
 		}
 

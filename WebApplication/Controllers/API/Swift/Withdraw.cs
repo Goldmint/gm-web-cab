@@ -3,7 +3,7 @@ using Goldmint.CoreLogic.Finance.Fiat;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.CardModels;
+using Goldmint.WebApplication.Models.API.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.API {
 
-	public partial class CardController : BaseController {
+	public partial class SwiftController : BaseController {
 
 		/// <summary>
-		/// Withdraw to the card
+		/// Create swift withdraw request
 		/// </summary>
 		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpPost, Route("withdraw")]
@@ -119,4 +119,5 @@ namespace Goldmint.WebApplication.Controllers.API {
 			}
 		}
 	}
+
 }
