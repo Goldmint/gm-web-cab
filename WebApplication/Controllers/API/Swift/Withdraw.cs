@@ -30,36 +30,46 @@ namespace Goldmint.WebApplication.Controllers.API {
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
 
+			// limits
+			var transCurrency = FiatCurrency.USD;
+			if (amountCents < AppConfig.Constants.SwiftData.WithdrawMin || amountCents > AppConfig.Constants.SwiftData.WithdrawMax) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+
+			// user
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
-
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
-
-			// get card
-			var card = user.Card.SingleOrDefault(
-				c => c.Id == model.CardId && c.State == CardState.Verified
-			);
-			if (card == null) {
-				return APIResponse.BadRequest(nameof(model.CardId), "Card not found");
+			
+			// actual user balance check
+			var currentBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, transCurrency);
+			if (amountCents > currentBalance) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			var transId = CardPaymentQueue.GenerateTransactionId();
-			var transCurrency = FiatCurrency.USD;
-
 			// new ticket
-			var ticket = await TicketDesk.CreateCardWithdrawTicket(TicketStatus.Opened, card.User.UserName, amountCents, transCurrency, "New withdraw request");
+			var ticket = await TicketDesk.CreateSwiftWithdrawTicket(TicketStatus.Opened, user.UserName, amountCents, transCurrency, "New swift withdraw request");
 
 			// make payment
-			var payment = await CardPaymentQueue.CreateWithdrawPayment(
-				services: HttpContext.RequestServices,
-				card: card,
-				currency: transCurrency,
-				amountCents: amountCents,
-				deskTicketId: ticket
-			);
-			DbContext.CardPayment.Add(payment);
+			var request = new DAL.Models.SwiftPayment() {
+				Type = SwiftPaymentType.Withdraw,
+				Status = SwiftPaymentStatus.Pending,
+				Currency = transCurrency,
+				AmountCents = amountCents,
+				BenName = model.BenName,
+				BenAddress = model.BenAddress,
+				BenIban = model.BenIban,
+				BenBankName = model.BenBankName,
+				BenBankAddress = model.BenBankAddress,
+				BenSwift = model.BenSwift,
+				PaymentReference = "", // see below
+				DeskTicketId = ticket,
+				TimeCreated = DateTime.UtcNow,
+				UserId = user.Id,
+			};
+			DbContext.SwiftPayment.Add(request);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
@@ -70,53 +80,36 @@ namespace Goldmint.WebApplication.Controllers.API {
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
-				User = user,
+				UserId = user.Id,
 				Comment = "", // see below
 			};
 			DbContext.FinancialHistory.Add(finHistory);
-			
+
 			// save
-			DbContext.SaveChanges();
-			DbContext.Detach(payment, finHistory);
-
-			// update comment
-			finHistory.Comment = $"Withdrawal payment #{payment.Id} to {card.CardMask}";
-			DbContext.Update(finHistory);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
 
-			// try
-			var queryResult = await WithdrawQueue.StartWithdrawWithCard(
+			// update
+			request.PaymentReference = $"Order number: {request.Id}";
+			finHistory.Comment = $"Swift withdraw request #{request.Id}";
+
+			await DbContext.SaveChangesAsync();
+			DbContext.Detach(request, finHistory);
+
+			// activity
+			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,
-				payment: payment,
-				financialHistory: finHistory
+				user: user,
+				type: Common.UserActivityType.Swift,
+				comment: $"Swift withdraw #{request.Id} ({TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested",
+				ip: agent.Ip,
+				agent: agent.Agent
 			);
 
-			switch (queryResult.Status) {
-
-				case FiatEnqueueStatus.Success:
-
-					// activity
-					await CoreLogic.UserAccount.SaveActivity(
-						services: HttpContext.RequestServices,
-						user: user,
-						type: Common.UserActivityType.CreditCard,
-						comment: $"Withdrawal payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card ) initiated",
-						ip: agent.Ip,
-						agent: agent.Agent
-					);
-
-					return APIResponse.Success(
-						new WithdrawView() {
-						}
-					);
-
-				case FiatEnqueueStatus.Limit:
-					return APIResponse.BadRequest(APIErrorCode.AccountWithdrawLimit);
-
-				default:
-					throw new Exception(queryResult.Error.Message);
-			}
+			return APIResponse.Success(
+				new WithdrawView() {
+					Reference = request.PaymentReference,
+				}
+			);
 		}
 	}
 

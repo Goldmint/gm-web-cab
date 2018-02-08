@@ -27,8 +27,13 @@ namespace Goldmint.WebApplication.Controllers.API {
 			}
 
 			// round cents
+			var transCurrency = FiatCurrency.USD;
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
+
+			if (amountCents < AppConfig.Constants.CardPaymentData.WithdrawMin || amountCents > AppConfig.Constants.CardPaymentData.WithdrawMax) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
@@ -44,9 +49,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 			if (card == null) {
 				return APIResponse.BadRequest(nameof(model.CardId), "Card not found");
 			}
-
-			var transId = CardPaymentQueue.GenerateTransactionId();
-			var transCurrency = FiatCurrency.USD;
 
 			// new ticket
 			var ticket = await TicketDesk.CreateCardWithdrawTicket(TicketStatus.Opened, card.User.UserName, amountCents, transCurrency, "New withdraw request");

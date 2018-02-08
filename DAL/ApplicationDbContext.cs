@@ -17,6 +17,7 @@ namespace Goldmint.DAL {
 		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<Card> Card { get; set; }
 		public DbSet<CardPayment> CardPayment { get; set; }
+		public DbSet<SwiftPayment> SwiftPayment { get; set; }
 		public DbSet<Deposit> Deposit { get; set; }
 		public DbSet<Withdraw> Withdraw { get; set; }
 		public DbSet<Notification> Notification { get; set; }

@@ -55,7 +55,25 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			throw new NotImplementedException("Currency not implemented");
 		}
 
-		public async Task<BigInteger> GetUserGoldBalance(string address) {
+		public async Task<BigInteger> GetUserGoldBalance(string userId) {
+
+			if (string.IsNullOrWhiteSpace(userId)) {
+				throw new ArgumentException("Invalid user ID");
+			}
+
+			var web3 = new Web3(JsonRpcClient);
+			var contract = web3.Eth.GetContract(
+				"[{\"constant\":true,\"inputs\":[{\"name\":\"_userId\",\"type\":\"string\"}],\"name\":\"getUserGoldBalance\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+				FiatContractAddress
+			);
+
+			var func = contract.GetFunction("getUserGoldBalance");
+			var funcRet = await func.CallAsync<BigInteger>(userId);
+
+			return funcRet;
+		}
+
+		public async Task<BigInteger> GetAddressGoldBalance(string address) {
 
 			if (string.IsNullOrWhiteSpace(address)) {
 				throw new ArgumentException("Invalid address format");
@@ -73,7 +91,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			return funcRet;
 		}
 
-		public async Task<BigInteger> GetUserMntpBalance(string address) {
+		public async Task<BigInteger> GetAddressMntpBalance(string address) {
 
 			if (string.IsNullOrWhiteSpace(address)) {
 				throw new ArgumentException("Invalid address format");

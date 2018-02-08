@@ -80,6 +80,7 @@ namespace Goldmint.DAL.Models.Identity {
 		public virtual IEnumerable<KycShuftiProTicket> KycShuftiProTicket { get; set; }
 		public virtual IEnumerable<Card> Card { get; set; }
 		public virtual IEnumerable<CardPayment> CardPayment { get; set; }
+		public virtual IEnumerable<SwiftPayment> SwiftPayment { get; set; }
 		public virtual IEnumerable<Deposit> Deposit { get; set; }
 		public virtual IEnumerable<Withdraw> Withdraw { get; set; }
 		public virtual IEnumerable<UserActivity> UserActivity { get; set; }

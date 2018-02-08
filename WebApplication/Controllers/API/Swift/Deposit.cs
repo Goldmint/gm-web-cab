@@ -32,7 +32,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// limits
 			var transCurrency = FiatCurrency.USD;
-			if (amountCents < AppConfig.Constants.SwiftLimitsUSD.DepositMin || amountCents > AppConfig.Constants.SwiftLimitsUSD.DepositMax) {
+			if (amountCents < AppConfig.Constants.SwiftData.DepositMin || amountCents > AppConfig.Constants.SwiftData.DepositMax) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -43,17 +43,27 @@ namespace Goldmint.WebApplication.Controllers.API {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			var transId = CardPaymentQueue.GenerateTransactionId();
-			
-			// var currentBalance = await EthereumObserver.GetUserFiatBalance(user.Id, transCurrency);
-
 			// new ticket
 			var ticket = await TicketDesk.CreateSwiftDepositTicket(TicketStatus.Opened, user.UserName, amountCents, transCurrency, "New swift deposit request");
 
 			// make payment
-			var request = new SwiftPayment() {
+			var request = new DAL.Models.SwiftPayment() {
+				Type = SwiftPaymentType.Deposit,
+				Status = SwiftPaymentStatus.Pending,
+				Currency = transCurrency,
+				AmountCents = amountCents,
+				BenName = AppConfig.Constants.SwiftData.BenName,
+				BenAddress = AppConfig.Constants.SwiftData.BenAddress,
+				BenIban = AppConfig.Constants.SwiftData.BenIban,
+				BenBankName = AppConfig.Constants.SwiftData.BenBankName,
+				BenBankAddress = AppConfig.Constants.SwiftData.BenBankAddress,
+				BenSwift = AppConfig.Constants.SwiftData.BenSwift,
+				PaymentReference = "", // see below
+				DeskTicketId = ticket,
+				TimeCreated = DateTime.UtcNow,
+				UserId = user.Id,
 			};
-			DbContext.CardPayment.Add(request);
+			DbContext.SwiftPayment.Add(request);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
@@ -64,33 +74,40 @@ namespace Goldmint.WebApplication.Controllers.API {
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
-				User = user,
+				UserId = user.Id,
 				Comment = "", // see below
 			};
 			DbContext.FinancialHistory.Add(finHistory);
 
 			// save
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(request, finHistory);
 
-			// update comment
-			finHistory.Comment = $"Direct deposit request #{request.Id}";
-			DbContext.Update(finHistory);
+			// update
+			request.PaymentReference = $"Order number: {request.Id}";
+			finHistory.Comment = $"Swift deposit request #{request.Id}";
+
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
+			DbContext.Detach(request, finHistory);
 
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,
 				user: user,
 				type: Common.UserActivityType.Swift,
-				comment: $"Direct deposit #{request.Id} ({TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested",
+				comment: $"Swift deposit #{request.Id} ({TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested",
 				ip: agent.Ip,
 				agent: agent.Agent
 			);
 
 			return APIResponse.Success(
 				new DepositView() {
+					BenName = request.BenName,
+					BenAddress = request.BenAddress,
+					BenIban = request.BenIban,
+					BenBankName = request.BenBankName,
+					BenBankAddress = request.BenBankAddress,
+					BenSwift = request.BenSwift,
+					Reference = request.PaymentReference,
 				}
 			);
 		}

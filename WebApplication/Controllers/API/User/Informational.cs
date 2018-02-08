@@ -14,6 +14,29 @@ namespace Goldmint.WebApplication.Controllers.API {
 	public partial class UserController : BaseController {
 
 		/// <summary>
+		/// Fiat and gold balance on this user account
+		/// </summary>
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[HttpPost, Route("balance")]
+		[ProducesResponseType(typeof(BalanceView), 200)]
+		public async Task<APIResponse> Balance([FromBody] BalanceModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var user = await GetUserFromDb();
+
+			return APIResponse.Success(
+				new BalanceView() {
+					Usd = await EthereumObserver.GetUserFiatBalance(user.UserName, FiatCurrency.USD) / 100d,
+					Gold = (await EthereumObserver.GetUserGoldBalance(user.UserName)).ToString(),
+				}
+			);
+		}
+
+		/// <summary>
 		/// Fiat limits
 		/// </summary>
 		[AreaAuthorized, AccessRights(AccessRights.Client)]

@@ -27,13 +27,17 @@ namespace Goldmint.WebApplication.Controllers.API {
 			}
 
 			// round cents
+			var transCurrency = FiatCurrency.USD;
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
+
+			if (amountCents < AppConfig.Constants.CardPaymentData.DepositMin || amountCents > AppConfig.Constants.CardPaymentData.DepositMax) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 			
-
 			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
@@ -45,10 +49,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 			if (card == null) {
 				return APIResponse.BadRequest(nameof(model.CardId), "Card not found");
 			}
-
-			var transId = CardPaymentQueue.GenerateTransactionId();
-			var transCurrency = FiatCurrency.USD;
-			// var currentBalance = await EthereumObserver.GetUserFiatBalance(user.Id, transCurrency);
 
 			// new ticket
 			var ticket = await TicketDesk.CreateCardDepositTicket(TicketStatus.Opened, card.User.UserName, amountCents, transCurrency, "New deposit request");

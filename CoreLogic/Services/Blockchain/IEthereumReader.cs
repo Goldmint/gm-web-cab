@@ -16,19 +16,25 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Get user's Mint balance
 		/// </summary>
 		/// <returns>MNTP amount at specified address</returns>
-		Task<BigInteger> GetUserMntpBalance(string address);
+		Task<BigInteger> GetAddressMntpBalance(string address);
 
 		/// <summary>
 		/// Get user's Gold balance
 		/// </summary>
 		/// <returns>GOLD amount at specified address</returns>
-		Task<BigInteger> GetUserGoldBalance(string address);
+		Task<BigInteger> GetAddressGoldBalance(string address);
 
 		/// <summary>
 		/// Get user's fiat balance in cents
 		/// </summary>
 		/// <returns>User fiat amount</returns>
 		Task<long> GetUserFiatBalance(string userId, FiatCurrency currency);
+		
+		/// <summary>
+		/// Get user's gold balance
+		/// </summary>
+		/// <returns>User fiat amount</returns>
+		Task<BigInteger> GetUserGoldBalance(string userId);
 
 		/// <summary>
 		/// Gold exchange total requests count

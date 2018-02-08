@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 	public static class MntpToken {
 
 		public static readonly int TokenPercision = 18;
-		public static readonly long TokenPercisionMultiplier = (long)Math.Pow(10d, (double)TokenPercision);
+		public static readonly decimal TokenPercisionMultiplier = (long)Math.Pow(10d, (double)TokenPercision);
 
 		public static readonly int VisualTokenPercision = 6;
 		public static readonly long VisualTokenPercisionMultiplier = (long)Math.Pow(10d, (double)VisualTokenPercision);
@@ -19,16 +20,12 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// Token in wei. Ex: 1.5 => 1500000000000000000
 		/// </summary>
 		public static BigInteger ToWei(decimal amount) {
-
 			if (amount <= 0) return BigInteger.Zero;
-
-			var left = decimal.Truncate(amount);
-			var right = decimal.Round(amount - left, TokenPercision) * TokenPercisionMultiplier;
-
-			return
-				BigInteger.Multiply((BigInteger)left, (BigInteger)TokenPercisionMultiplier)
-				+ (BigInteger)right
-			;
+			var str = amount.ToString("F" + (TokenPercision + 1), System.Globalization.CultureInfo.InvariantCulture);
+			var parts = str.Substring(0, str.Length - 1).Split('.');
+			var left = parts.ElementAtOrDefault(0);
+			var right = (parts.ElementAtOrDefault(1) ?? "0");
+			return BigInteger.Parse(left + right);
 		}
 
 		/// <summary>
@@ -43,28 +40,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			}
 
 			return (decimal)amount / TokenPercisionMultiplier;
-		}
-
-		/// <summary>
-		/// Amount from wei. Ex: 1512345670000000000 => 1.512345
-		/// </summary>
-		public static double FromWeiFixed(BigInteger amount, bool roundUp) {
-			if (amount <= 0) return 0d;
-
-			var dec = FromWei(amount);
-
-			var ret =
-				decimal.ToDouble(decimal.Round(dec * VisualTokenPercisionMultiplier, 1))
-			;
-
-			if (!roundUp) {
-				ret = Math.Floor(ret);
-			}
-			else {
-				ret = Math.Ceiling(ret);
-			}
-
-			return ret / VisualTokenPercisionMultiplier;
 		}
 
 		// ---

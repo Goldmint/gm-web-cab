@@ -31,6 +31,49 @@ namespace Goldmint.WebApplication.Models.API.SwiftModels {
 	}
 
 	public class DepositView {
+
+		/// <summary>
+		/// Beneficiary name
+		/// </summary>
+		[Required]
+		public string BenName { get; set; }
+
+		/// <summary>
+		/// Beneficiary address
+		/// </summary>
+		[Required]
+		public string BenAddress { get; set; }
+
+		/// <summary>
+		/// Beneficiary IBAN
+		/// </summary>
+		[Required]
+		public string BenIban { get; set; }
+
+		/// <summary>
+		/// Beneficiary bank name
+		/// </summary>
+		[Required]
+		public string BenBankName { get; set; }
+
+		/// <summary>
+		/// Beneficiary bank addr
+		/// </summary>
+		[Required]
+		public string BenBankAddress { get; set; }
+
+		/// <summary>
+		/// Beneficiary bank SWIFT
+		/// </summary>
+		[Required]
+		public string BenSwift { get; set; }
+
+		/// <summary>
+		/// Payment ref
+		/// </summary>
+		[Required]
+		public string Reference { get; set; }
+
 	}
 
 	// ---
@@ -43,6 +86,42 @@ namespace Goldmint.WebApplication.Models.API.SwiftModels {
 		[Required]
 		public double Amount { get; set; }
 
+		/// <summary>
+		/// Beneficiary name
+		/// </summary>
+		[Required]
+		public string BenName { get; set; }
+
+		/// <summary>
+		/// Beneficiary address
+		/// </summary>
+		[Required]
+		public string BenAddress { get; set; }
+
+		/// <summary>
+		/// Beneficiary IBAN
+		/// </summary>
+		[Required]
+		public string BenIban { get; set; }
+
+		/// <summary>
+		/// Beneficiary bank name
+		/// </summary>
+		[Required]
+		public string BenBankName { get; set; }
+
+		/// <summary>
+		/// Beneficiary bank addr
+		/// </summary>
+		[Required]
+		public string BenBankAddress { get; set; }
+
+		/// <summary>
+		/// Beneficiary bank SWIFT
+		/// </summary>
+		[Required]
+		public string BenSwift { get; set; }
+
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<WithdrawModel>();
 			v.CascadeMode = CascadeMode.Continue;
@@ -52,11 +131,50 @@ namespace Goldmint.WebApplication.Models.API.SwiftModels {
 				.WithMessage("Invalid amount")
 			;
 
+			v.RuleFor(_ => _.BenName)
+				.NotEmpty()
+				.MaximumLength(256)
+				.WithMessage("Invalid name")
+			;
+
+			v.RuleFor(_ => _.BenAddress)
+				.NotEmpty()
+				.MaximumLength(512)
+				.WithMessage("Invalid address")
+			;
+
+			v.RuleFor(_ => _.BenIban)
+				.NotEmpty()
+				.MaximumLength(128)
+				.WithMessage("Invalid iban")
+			;
+
+			v.RuleFor(_ => _.BenBankName)
+				.NotEmpty()
+				.MaximumLength(256)
+				.WithMessage("Invalid bank name")
+			;
+
+			v.RuleFor(_ => _.BenBankAddress)
+				.NotEmpty()
+				.MaximumLength(512)
+				.WithMessage("Invalid bank address")
+			;
+
+			v.RuleFor(_ => _.BenSwift)
+				.NotEmpty()
+				.MaximumLength(64)
+				.WithMessage("Invalid swift")
+			;
+
 			return v.Validate(this);
 
 		}
 	}
 
 	public class WithdrawView {
+
+		[Required]
+		public string Reference { get; set; }
 	}
 }

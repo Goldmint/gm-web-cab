@@ -37,10 +37,10 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 	public class BuyRequestView {
 
 		/// <summary>
-		/// Estimated gold amount
+		/// Estimated gold amount in wei
 		/// </summary>
 		[Required]
-		public double GoldAmount { get; set; }
+		public string GoldAmount { get; set; }
 
 		/// <summary>
 		/// Gold rate used, now is fixed
@@ -66,10 +66,10 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 		public string EthAddress { get; set; }
 
 		/// <summary>
-		/// Gold amount to sell
+		/// Gold amount in wei
 		/// </summary>
 		[Required]
-		public double Amount { get; set; }
+		public string Amount { get; set; }
 
 		// ---
 
@@ -82,7 +82,10 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 				.WithMessage("Invalid eth address format")
 			;
 
-			// any amount
+			v.RuleFor(_ => _.Amount)
+				.NotEmpty()
+				.WithMessage("Invalid amount")
+			;
 
 			return v.Validate(this);
 		}
@@ -95,6 +98,12 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 		/// </summary>
 		[Required]
 		public double FiatAmount { get; set; }
+
+		/// <summary>
+		/// Estimated fee amount
+		/// </summary>
+		[Required]
+		public double FeeAmount { get; set; }
 
 		/// <summary>
 		/// Gold rate used, now is fixed

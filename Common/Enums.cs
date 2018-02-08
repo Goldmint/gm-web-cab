@@ -282,6 +282,42 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
+	public enum SwiftPaymentType {
+
+		/// <summary>
+		/// Deposit
+		/// </summary>
+		Deposit = 1,
+
+		/// <summary>
+		/// Withdraw
+		/// </summary>
+		Withdraw
+	}
+
+	public enum SwiftPaymentStatus {
+
+		/// <summary>
+		/// Initial state
+		/// </summary>
+		Initial = 1,
+
+		/// <summary>
+		/// Awaiting payment
+		/// </summary>
+		Pending,
+
+		/// <summary>
+		/// Completed
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Cancelled by support
+		/// </summary>
+		Cancelled,
+	}
+
 	public enum DepositSource {
 
 		/// <summary>

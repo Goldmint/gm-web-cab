@@ -1,10 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Observable";
 import { interval } from "rxjs/observable/interval";
-
 import * as Web3 from "web3";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { UserService } from "./user.service";
+import { APIService } from "./api.service";
+import { BigNumber } from 'bignumber.js'
 
 const EthFiatContractAddress = '0xC31723C9a4B480Fe6Fe81bf8f80Ca65F15796827';
 const EthFiatContractABI = '[{"constant":true,"inputs":[],"name":"creator","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_userId","type":"string"}],"name":"getGoldTransactionsCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_newFiatFee","type":"address"}],"name":"changeFiatFeeContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"x","type":"bytes32"},{"name":"y","type":"bytes32"}],"name":"bytes64ToString","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_ipfsDocLink","type":"string"}],"name":"addDoc","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"fiatFee","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_userId","type":"string"}],"name":"getUserFiatBalance","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_index","type":"uint256"}],"name":"getDoc","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_userId","type":"string"},{"name":"_requestHash","type":"string"}],"name":"addBuyTokensRequest","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_index","type":"uint256"}],"name":"cancelRequest","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getRequestsCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_userId","type":"string"}],"name":"getUserGoldBalance","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_newController","type":"address"}],"name":"changeController","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_userId","type":"string"},{"name":"_requestHash","type":"string"}],"name":"addSellTokensRequest","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getAllGoldTransactionsCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getDocCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"}],"name":"changeCreator","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"x","type":"bytes32"}],"name":"bytes32ToString","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"goldToken","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_userId","type":"string"},{"name":"_amount","type":"int256"}],"name":"addGoldTransaction","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_userId","type":"string"}],"name":"getFiatTransactionsCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_userId","type":"string"},{"name":"_index","type":"uint256"}],"name":"getFiatTransaction","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"stor","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_index","type":"uint256"}],"name":"getRequest","outputs":[{"name":"","type":"address"},{"name":"","type":"string"},{"name":"","type":"string"},{"name":"","type":"bool"},{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"mntpToken","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"s","type":"string"}],"name":"stringToBytes32","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getAllFiatTransactionsCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_index","type":"uint256"},{"name":"_amountCents","type":"uint256"},{"name":"_centsPerGold","type":"uint256"}],"name":"processRequest","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_userId","type":"string"},{"name":"_amountCents","type":"int256"}],"name":"addFiatTransaction","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"s","type":"string"}],"name":"stringToBytes64","outputs":[{"name":"","type":"bytes32"},{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_userId","type":"string"},{"name":"_index","type":"uint256"}],"name":"getGoldTransaction","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_mntpContractAddress","type":"address"},{"name":"_goldContractAddress","type":"address"},{"name":"_storageAddress","type":"address"},{"name":"_fiatFeeContract","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_userId","type":"string"}],"name":"NewTokenBuyRequest","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_userId","type":"string"}],"name":"NewTokenSellRequest","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_reqId","type":"uint256"}],"name":"RequestCancelled","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_reqId","type":"uint256"}],"name":"RequestProcessed","type":"event"}]';
@@ -24,17 +25,18 @@ export class EthereumService {
   private _contractGold: any;
   private _contractMntp: any;
 
-  private _obsEthAddressSubject = new BehaviorSubject<string | null>(null);
+  private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
-  private _obsGoldBalanceSubject = new BehaviorSubject<number | null>(null);
-  private _obsGoldBalance: Observable<number> = this._obsGoldBalanceSubject.asObservable();
-  private _obsUsdBalanceSubject = new BehaviorSubject<number | null>(null);
+  private _obsGoldBalanceSubject = new BehaviorSubject<BigNumber>(null);
+  private _obsGoldBalance: Observable<BigNumber> = this._obsGoldBalanceSubject.asObservable();
+  private _obsUsdBalanceSubject = new BehaviorSubject<number>(null);
   private _obsUsdBalance: Observable<number> = this._obsUsdBalanceSubject.asObservable();
-  private _obsMntpBalanceSubject = new BehaviorSubject<number | null>(null);
-  private _obsMntpBalance: Observable<number> = this._obsMntpBalanceSubject.asObservable();
+  private _obsMntpBalanceSubject = new BehaviorSubject<BigNumber>(null);
+  private _obsMntpBalance: Observable<BigNumber> = this._obsMntpBalanceSubject.asObservable();
 
   constructor(
-    private _userService: UserService
+    private _userService: UserService,
+    private _apiService: APIService
   ) {
     console.log('EthereumService constructor');
 
@@ -81,10 +83,19 @@ export class EthereumService {
   }
 
   private checkBalance() {
+    // check via eth
     if (this._lastAddress != null) {
       this.updateUsdBalance(this._userId);
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
+    }
+    // check via api
+    else if (this._userId != null) {
+      this._apiService.getUserBalance()
+        .subscribe(res => {
+          this._obsUsdBalanceSubject.next(res.data.usd);
+          // can get private gold balance here: res.data.gold - string in wei
+        });
     }
   }
 
@@ -102,19 +113,19 @@ export class EthereumService {
     return this._obsEthAddressSubject.value;
   }
 
-  public getObservableEthAddress(): Observable<string|null> {
+  public getObservableEthAddress(): Observable<string> {
     return this._obsEthAddress;
   }
 
-  public getObservableUsdBalance(): Observable<number | null> {
+  public getObservableUsdBalance(): Observable<number> {
     return this._obsUsdBalance;
   }
 
-  public getObservableGoldBalance(): Observable<number|null> {
+  public getObservableGoldBalance(): Observable<BigNumber> {
     return this._obsGoldBalance;
   }
 
-  public getObservableMntpBalance(): Observable<number|null> {
+  public getObservableMntpBalance(): Observable<BigNumber> {
     return this._obsMntpBalance;
   }
 
@@ -136,9 +147,7 @@ export class EthereumService {
       this._obsGoldBalanceSubject.next(null);
     } else {
       this._contractGold.balanceOf(addr, (err, res) => {
-        var decimals = 18;
-        res = res.toString();
-        this._obsGoldBalanceSubject.next(parseFloat(res.substring(0, res.length - decimals) + "." + res.substr(-decimals)));
+        this._obsGoldBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
       });
     }
   }
@@ -148,9 +157,7 @@ export class EthereumService {
       this._obsMntpBalanceSubject.next(null);
     } else {
       this._contractMntp.balanceOf(addr, (err, res) => {
-        var decimals = 18;
-        res = res.toString();
-        this._obsMntpBalanceSubject.next(parseFloat(res.substring(0, res.length - decimals) + "." + res.substr(-decimals)));
+        this._obsMntpBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
       });
     }
   }

@@ -40,9 +40,9 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// ---
 
 			var currency = FiatCurrency.USD;
-			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressMntpBalance(model.EthAddress);
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
-			var goldRate = await GoldRateProvider.GetGoldRate(currency);
+			var goldRate = await GoldRateCached.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateBuying(
@@ -64,7 +64,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
 				Type = FinancialHistoryType.GoldBuying,
-				AmountCents = amountCents,
+				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
 				Currency = currency,
 				DeskTicketId = ticket,
@@ -83,7 +83,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				User = user,
 				Status = ExchangeRequestStatus.Initial,
 				Currency = currency,
-				FiatAmountCents = amountCents,
+				FiatAmountCents = estimated.InputUsed,
 				Address = model.EthAddress,
 				FixedRateCents = goldRate,
 				DeskTicketId = ticket,
@@ -98,7 +98,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.Detach(buyRequest);
 
 			// update comment
-			finHistory.Comment = $"Buying order #{buyRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold, true)} GOLD";
+			finHistory.Comment = $"Buying order #{buyRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold)} GOLD";
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(finHistory);
 
@@ -114,7 +114,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			return APIResponse.Success(
 				new BuyRequestView() {
-					GoldAmount = CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold, true),
+					GoldAmount = estimated.ResultGold.ToString(),
 					GoldRate = goldRate / 100d,
 					Payload = new[] { user.UserName, buyRequest.Id.ToString() },
 				}
@@ -139,12 +139,15 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// ---
 
-			var amountWei = CoreLogic.Finance.Tokens.GoldToken.ToWei((decimal)model.Amount);
+			var amountWei = BigInteger.Zero;
+			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
 
 			var currency = FiatCurrency.USD;
-			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserGoldBalance(model.EthAddress);
-			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetUserMntpBalance(model.EthAddress);
-			var goldRate = await GoldRateProvider.GetGoldRate(currency);
+			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressGoldBalance(model.EthAddress);
+			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressMntpBalance(model.EthAddress);
+			var goldRate = await GoldRateCached.GetGoldRate(currency);
 
 			// estimate
 			var estimated = await CoreLogic.Finance.Tokens.GoldToken.EstimateSelling(
@@ -158,7 +161,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// invalid amount passed
 			if (estimated.InputUsed != amountWei) {
-				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
 			var ticket = await TicketDesk.CreateGoldSellingTicket(TicketStatus.Opened, user.UserName, "New gold selling request generated");
@@ -200,7 +203,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.Detach(sellRequest);
 
 			// update comment
-			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei, true)} GOLD";
+			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei)} GOLD";
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(finHistory);
 
@@ -216,7 +219,8 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			return APIResponse.Success(
 				new SellRequestView() {
-					FiatAmount = estimated.ResultGrossCents / 100d,
+					FiatAmount = estimated.ResultNetCents / 100d,
+					FeeAmount = estimated.ResultFeeCents / 100d,
 					GoldRate = goldRate / 100d,
 					Payload = new[] { user.UserName, sellRequest.Id.ToString() },
 				}

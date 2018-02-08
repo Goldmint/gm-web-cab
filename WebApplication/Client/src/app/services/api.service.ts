@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-// import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { catchError, tap, shareReplay } from 'rxjs/operators';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/retry';
+import { BigNumber } from 'bignumber.js'
 
 import {
   User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
@@ -16,7 +16,7 @@ import {
 } from '../interfaces';
 import {
   APIResponse, APIPagedResponse, AuthResponse, RegistrationResponse, CardAddResponse,
-  CardConfirmResponse, CardStatusResponse
+  CardConfirmResponse, CardStatusResponse, UserBalanceResponse
 } from '../interfaces/api-response';
 
 import { KYCProfile } from '../models/kyc-profile';
@@ -29,7 +29,6 @@ import { filter } from "rxjs/operator/filter";
 @Injectable()
 export class APIService {
   private _baseUrl = environment.apiUrl;
-  private _isOnline: boolean;
 
   constructor(
     private _http: HttpClient,
@@ -160,6 +159,15 @@ export class APIService {
       catchError(this._handleError),
       shareReplay()
       );
+  }
+
+  getUserBalance(): Observable<APIResponse<UserBalanceResponse>> {
+    return this._http
+      .post(`${this._baseUrl}/user/balance`, {}, this.jwt())
+      .pipe(
+      catchError(this._handleError),
+      shareReplay(),
+    );
   }
 
   getLimits(): Observable<APIResponse<Limits>> {
@@ -305,30 +313,24 @@ export class APIService {
       shareReplay(),
       tap(response => {
         console.log('APIService cardDeposit response', response);
-
         return response;
       })
       );
   }
-  /*
-  goldBuyDryReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyDryResponse>> {
+
+  cardWithdraw(cardId: number, amount: number): Observable<APIResponse<any>> {
     return this._http
-      .post(`${this._baseUrl}/gold/buyRequestDry`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
+      .post(`${this._baseUrl}/user/fiat/card/withdraw`, { cardId: cardId, amount: amount }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
-    );
+      tap(response => {
+        console.log('APIService cardWithdraw response', response);
+        return response;
+      })
+      );
   }
 
-  goldSellDryReqest(ethAddress: string, amountGold: number): Observable<APIResponse<GoldSellDryResponse>> {
-    return this._http
-      .post(`${this._baseUrl}/gold/sellRequestDry`, { ethAddress: ethAddress, amount: amountGold }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-    );
-  }
-  */
   goldBuyReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
     return this._http
       .post(`${this._baseUrl}/gold/buyRequest`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
@@ -338,28 +340,15 @@ export class APIService {
     );
   }
 
-  goldSellReqest(ethAddress: string, amountGold: number): Observable<APIResponse<GoldSellResponse>> {
+  goldSellReqest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
+    var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18));
     return this._http
-      .post(`${this._baseUrl}/gold/sellRequest`, { ethAddress: ethAddress, amount: amountGold }, this.jwt())
+      .post(`${this._baseUrl}/gold/sellRequest`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
     );
   }
-
-  // cardWithdraw(cardId: number, amount: number): Observable<APIResponse<any>> {
-  //   return this._http
-  //     .post(`${this._baseUrl}/user/fiat/card/withdraw`, { cardId: cardId, amount: amount }, this.jwt())
-  //     .pipe(
-  //       catchError(this._handleError),
-  //       shareReplay(),
-  //       tap(response => {
-  //         console.log('APIService cardWithdraw response', response);
-
-  //         return response;
-  //       })
-  //     );
-  // }
 
   getTFAInfo(): Observable<APIResponse<TFAInfo>> {
     return this._http

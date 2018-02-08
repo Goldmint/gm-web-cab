@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
 import { zip } from 'rxjs/observable/zip';
-// import { Subject } from 'rxjs/Subject';
+import { BigNumber } from "bignumber.js"
 // import { takeUntil } from 'rxjs/operators';
 
-import * as Web3 from 'web3';
+// import * as Web3 from 'web3';
 
 import { User } from '../../interfaces';
 import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
@@ -25,8 +25,8 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public signupButtonBlur = new EventEmitter<boolean>();
 
   metamaskAccount: string = null;
-  goldBalance: number | null = null;
-  usdBalance: number | null = null;
+  goldBalance: number|null = null;
+  usdBalance: number|null = null;
 
   constructor(
     private _ethService: EthereumService,
@@ -64,7 +64,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     });
 
     this._ethService.getObservableGoldBalance().subscribe(bal => {
-      this.goldBalance = bal;
+      if (bal != null) this.goldBalance = parseFloat(bal.toPrecision(3));
       this._cdRef.detectChanges();
     });
 

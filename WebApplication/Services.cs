@@ -179,8 +179,12 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, InfuraReader>();
 
 			// rates
-			services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
 			services.AddSingleton<CachedGoldRate>();
+#if DEBUG
+			services.AddSingleton<IGoldRateProvider>(fac => new DebugGoldRateProvider());
+#else
+			services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
+#endif
 
 			return services.BuildServiceProvider();
 		}

@@ -107,7 +107,34 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 			return v.Validate(this);
 		}
 	}
-	
+
+	// ---
+
+	public class BalanceModel : BaseValidableModel {
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<BalanceModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class BalanceView {
+
+		/// <summary>
+		/// USD fiat amount
+		/// </summary>
+		[Required]
+		public double Usd { get; set; }
+
+		/// <summary>
+		/// Gold token amount in wei
+		/// </summary>
+		[Required]
+		public string Gold { get; set; }
+	}
+
 	// ---
 
 	public class LimitsView {

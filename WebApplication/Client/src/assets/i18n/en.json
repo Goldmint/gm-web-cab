@@ -30,10 +30,9 @@
       }
     },
     "Sell": {
-      "Heading": "Sell {{ asset }} cryptoassets",
+      "Heading": "Sell GOLD cryptoassets",
       "SectionTitle": "Instant Sell",
-      "SectionTitleValue": "{{ asset }}",
-      "Discount": "Commission",
+      "Discount": "Fee",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
       "Buttons": {
         "SellNow": "Sell now",
@@ -41,7 +40,7 @@
       }
     },
     "Buy": {
-      "Heading": "Buy {{ asset }} cryptoassets",
+      "Heading": "Buy GOLD cryptoassets",
       "SectionTitle": "Instant Buy",
       "SectionTitleValue": "{{ asset }}",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",

@@ -123,13 +123,29 @@ namespace Goldmint.Common {
 				}
 			}
 
-			public SwiftLimitsSection SwiftLimitsUSD { get; set; } = new SwiftLimitsSection();
-			public class SwiftLimitsSection {
+			public CardPaymentDataSection CardPaymentData { get; set; } = new CardPaymentDataSection();
+			public class CardPaymentDataSection {
 
 				public long DepositMin { get; set; } = 0;
 				public long DepositMax { get; set; } = 0;
 				public long WithdrawMin { get; set; } = 0;
 				public long WithdrawMax { get; set; } = 0;
+			}
+
+			public SwiftDataSection SwiftData { get; set; } = new SwiftDataSection();
+			public class SwiftDataSection {
+
+				public long DepositMin { get; set; } = 0;
+				public long DepositMax { get; set; } = 0;
+				public long WithdrawMin { get; set; } = 0;
+				public long WithdrawMax { get; set; } = 0;
+
+				public string BenName { get; set; } = "";
+				public string BenAddress { get; set; } = "";
+				public string BenIban { get; set; } = "";
+				public string BenBankName { get; set; } = "";
+				public string BenBankAddress { get; set; } = "";
+				public string BenSwift { get; set; } = "";
 			}
 		}
 	}

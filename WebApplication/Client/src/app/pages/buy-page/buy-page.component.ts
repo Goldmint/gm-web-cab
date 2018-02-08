@@ -1,8 +1,9 @@
-import {Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy} from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import { GoldBuyResponse, GoldBuyDryResponse } from '../../interfaces'
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from "rxjs/Observable";
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from "rxjs/Observable";
+import { BigNumber } from 'bignumber.js'
 
 @Component({
   selector: 'app-buy-page',
@@ -14,19 +15,15 @@ import {Observable} from "rxjs/Observable";
 })
 export class BuyPageComponent implements OnInit {
 
-  progress: boolean;
-  to_spend: number;
-  estimate_amount: number;
-  discount: number = 0;
+  confirmation: boolean = false;
+  progress: boolean = false;
+  toSpendUnset: boolean = true;
+  toSpend: number = 1;
 
-  public buyCurrency:     'usd'|'gold' = 'usd';
-  public resultCurrrency: 'usd'|'gold' = 'gold';
-
-  usdBalance: number;
-  goldUsdRate: number;
-  estimatesAmount;
+  usdBalance: number = null;
+  goldUsdRate: number = null;
+  estimatedAmount: string;
   usdBalancePercent;
-  stopUpdate = false;
 
   constructor(
     private _userService: UserService,
@@ -40,29 +37,38 @@ export class BuyPageComponent implements OnInit {
   ngOnInit() {
     Observable.combineLatest(this._ethService.getObservableUsdBalance(), this._goldrateService.getObservableRate())
       .subscribe((data) => {
-        this.usdBalance = data[0];
-        this.goldUsdRate = data[1];
+        if (data[0] !== null) this.usdBalance = data[0];
+        if (data[1] !== null) this.goldUsdRate = data[1];
+
+        if (this.goldUsdRate !== null && this.usdBalance !== null) {
+
+          if (this.toSpendUnset) {
+            this.toSpendUnset = false;
+            this.toSpend = this.usdBalance;
+          }
+
+          if (!this.progress && !this.confirmation) {
+            this.estimate(this.toSpend);
+            this._cdRef.detectChanges();
+          }
+        }
       });
   }
 
   onToSpendChanged(value: number) {
-    this.to_spend = value;
-    this.estimatesAmount = this.estimatesAmountDecor((this.to_spend / this.goldUsdRate));
-
-    this.estimate_amount = 0; // value && value > 0 ? value / 2 : 0;
-    // this.discount = value && value > 0 ? Math.floor(Math.random() * 100) : 0;
+    this.toSpendUnset = false;
+    this.toSpend = value;
+    this.estimate(this.toSpend);
     this._cdRef.detectChanges();
   }
 
-  estimatesAmountDecor(price) {
-    return price.toFixed(2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
-  }
-
-  onCurrencyChanged(value: string) {
-    this.resultCurrrency = (value === 'usd') ? 'gold' : 'usd';
+  estimate(amount: number) {
+    this.estimatedAmount = (new BigNumber(amount)).dividedBy(this.goldUsdRate).toPrecision(18 + 1);
+    this.estimatedAmount = this.estimatedAmount.substr(0, this.estimatedAmount.length - 1);
   }
 
   onBuy() {
+
     var ethAddress = this._ethService.getEthAddress();
     if (ethAddress == null) {
       this._messageBox.alert('Enable metamask first');
@@ -70,14 +76,30 @@ export class BuyPageComponent implements OnInit {
     }
 
     this.progress = true;
-    this._apiService.goldBuyReqest(ethAddress, this.to_spend)
+    this._cdRef.detectChanges();
+
+    this._apiService.goldBuyReqest(ethAddress, this.toSpend)
       .finally(() => {
         this.progress = false;
         this._cdRef.detectChanges();
       })
       .subscribe(res => {
-        this._messageBox.alert('Estimated gold amount is ' + res.data.goldAmount);
-        this._ethService.sendBuyRequest(ethAddress, res.data.payload);
+        var confText =
+          "USD to spend: " + this.toSpend + "<br/>" +
+          "You will get: " + (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) + " GOLD<br/>" +
+          "GOLD/USD: $ " + res.data.goldRate
+          ;
+
+        this.confirmation = true;
+        this._cdRef.detectChanges();
+
+        this._messageBox.confirm(confText).subscribe(ok => {
+          this.confirmation = false;
+          if (ok) {
+            this._ethService.sendBuyRequest(ethAddress, res.data.payload);
+          }
+          this._cdRef.detectChanges();
+        });
       },
       err => {
         if (err.error && err.error.errorCode) {

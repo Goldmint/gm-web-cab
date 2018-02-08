@@ -9,7 +9,7 @@ namespace Goldmint.WebApplication.Services.Cache {
 
 	public class CachedGoldRate {
 
-		private const long CacheTimeoutSeconds = 30;
+		private const long CacheTimeoutSeconds = 10;
 
 		private IGoldRateProvider _goldRateProvider;
 

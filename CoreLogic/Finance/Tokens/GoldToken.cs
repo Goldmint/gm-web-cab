@@ -20,10 +20,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 	public static class GoldToken {
 
 		public static readonly int TokenPercision = 18;
-		public static readonly long TokenPercisionMultiplier = (long)Math.Pow(10d, (double)TokenPercision);
-
-		public static readonly int VisualTokenPercision = 6;
-		public static readonly long VisualTokenPercisionMultiplier = (long)Math.Pow(10d, (double)VisualTokenPercision);
+		public static readonly decimal TokenPercisionMultiplier = (decimal)Math.Pow(10d, (double)TokenPercision);
 
 		// ---
 
@@ -31,16 +28,12 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// Token in wei. Ex: 1.5 => 1500000000000000000
 		/// </summary>
 		public static BigInteger ToWei(decimal amount) {
-
 			if (amount <= 0) return BigInteger.Zero;
-
-			var left = decimal.Truncate(amount);
-			var right = decimal.Round(amount - left, TokenPercision) * TokenPercisionMultiplier;
-
-			return 
-				BigInteger.Multiply((BigInteger)left, (BigInteger)TokenPercisionMultiplier)
-				+ (BigInteger)right
-			;
+			var str = amount.ToString("F" + (TokenPercision + 1), System.Globalization.CultureInfo.InvariantCulture);
+			var parts = str.Substring(0, str.Length - 1).Split('.');
+			var left = parts.ElementAtOrDefault(0);
+			var right = (parts.ElementAtOrDefault(1) ?? "0");
+			return BigInteger.Parse(left + right);
 		}
 
 		/// <summary>
@@ -58,24 +51,15 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		}
 
 		/// <summary>
-		/// Amount from wei. Ex: 1512345670000000000 => 1.512345
+		/// Amount from wei. Ex: 1512345670000000000 => 1.51234567
 		/// </summary>
-		public static double FromWeiFixed(BigInteger amount, bool roundUp) {
-			if (amount <= 0) return 0d;
+		public static string FromWeiFixed(BigInteger amount) {
+			if (amount <= 0) return "0";
 
-			var dec = FromWei(amount);
+			var str = amount.ToString().PadLeft(TokenPercision + 1, '0');
+			str = str.Substring(0, str.Length - TokenPercision) + "." + str.Substring(str.Length - 18);
 
-			var ret = 
-				decimal.ToDouble(decimal.Round(dec * VisualTokenPercisionMultiplier, 1)) 
-			;
-
-			if (!roundUp) {
-				ret = Math.Floor(ret);
-			} else {
-				ret = Math.Ceiling(ret);
-			}
-
-			return ret / VisualTokenPercisionMultiplier;
+			return str.TrimEnd('0', '.');
 		}
 
 		/// <summary>
@@ -100,9 +84,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			var fiatFeeCents = MntpToken.getBuyingFee(mntpBalance, fiatAmountCents);
 			var fiatCents = Math.Max(0L, fiatAmountCents - fiatFeeCents);
 			
-			var goldAmount = ToWei(
-				(fiatCents / 100m) / (pricePerGoldOunceCents / 100m)
-			);
+			var goldAmount = ToWei((fiatCents / 100M) / (pricePerGoldOunceCents / 100M));
 
 			return Task.FromResult(
 				new BuyingEstimationResult() {
@@ -126,7 +108,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				throw new ArgumentException("Illegal gold price");
 			}
 
-			var min = ToWei(0.01M / (pricePerGoldOunceCents / 100m)); // gold amount for 1 cent
+			var min = ToWei(0.01M / (pricePerGoldOunceCents / 100M)); // gold amount per 1 cent
 			var max = goldTotalVolumeWei;
 			if (min > max) {
 				min = 0;
