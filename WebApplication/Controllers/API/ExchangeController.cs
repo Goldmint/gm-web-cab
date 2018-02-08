@@ -160,7 +160,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			// ---
 
 			// invalid amount passed
-			if (estimated.InputUsed != amountWei) {
+			if (amountWei < estimated.InputMin || amountWei > estimated.InputMax) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -203,7 +203,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.Detach(sellRequest);
 
 			// update comment
-			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei)} GOLD";
+			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputUsed)} GOLD";
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(finHistory);
 
@@ -219,6 +219,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			return APIResponse.Success(
 				new SellRequestView() {
+					GoldAmount = estimated.InputUsed.ToString(),
 					FiatAmount = estimated.ResultNetCents / 100d,
 					FeeAmount = estimated.ResultFeeCents / 100d,
 					GoldRate = goldRate / 100d,

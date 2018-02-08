@@ -28,8 +28,7 @@
 
               <div class="form-group col-auto">
                 <label for="input_EstimateAmount">Estimates Amount *</label>
-                <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly
-                       [(ngModel)]="estimatesAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">
+                <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">
                 <div class="discount-badge__wrap">
                   <span class="discount-badge" [ngClass]="{'discount-badge--gold': commission > 0}"><b>{{ commission }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
                 </div>

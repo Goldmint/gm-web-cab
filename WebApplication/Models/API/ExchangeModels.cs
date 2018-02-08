@@ -94,6 +94,12 @@ namespace Goldmint.WebApplication.Models.API.ExchangeModels {
 	public class SellRequestView {
 
 		/// <summary>
+		/// Actual gold amount to burn in wei
+		/// </summary>
+		[Required]
+		public string GoldAmount { get; set; }
+
+		/// <summary>
 		/// Estimated fiat amount
 		/// </summary>
 		[Required]

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
-import { GoldBuyResponse, GoldBuyDryResponse } from '../../interfaces'
+import { GoldBuyResponse } from '../../interfaces'
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js'

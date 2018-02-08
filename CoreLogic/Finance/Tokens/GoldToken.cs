@@ -124,6 +124,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			var fiatFeeCents = MntpToken.getSellingFee(mntpBalance, fiatGrossCents);
 			var fiatNetCents = Math.Max(0L, fiatGrossCents - fiatFeeCents);
 
+			// round back
+			goldAmountWei = ToWei((fiatGrossCents / 100M) / (pricePerGoldOunceCents / 100M));
+
 			return Task.FromResult(
 				new SellingEstimationResult() {
 					InputUsed = goldAmountWei,

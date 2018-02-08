@@ -30,15 +30,13 @@ export class SellPageComponent implements OnInit {
   goldBalance: BigNumber = null;
   mntpBalance: BigNumber = null;
   goldUsdRate: number = null;
-  estimatesAmount: string = null;
+  estimatedAmount: string = null;
  
   commissionArray: number[] = [3, 2.5, 1.5, 0.75];
   mntpArray: number[] = [10, 1000, 10000];
   buyMNT_DisableArray = [false, false, false, false];
   buyMNTArray = [10, 1000, 10000];
   discountUSDArray: number[] = [0, 0, 0, 0];
-
-  //form: FormGroup;
 
   constructor(
     private _userService: UserService,
@@ -100,10 +98,6 @@ export class SellPageComponent implements OnInit {
     this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
   }
 
-  estimatesAmountDecor(price) {
-    return price.toFixed(2).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
-  }
-
   getDataCommission(rate: number, gold: BigNumber, mntp: BigNumber) {
     this.calculationDiscount(mntp);
     this.calculationData(mntp);
@@ -115,7 +109,7 @@ export class SellPageComponent implements OnInit {
 
       this.discountUSDArray[i] = (amountCents - feeCents) / 100;
       if (this.commissionArray[i] === this.commission) {
-        this.estimatesAmount = this.estimatesAmountDecor(this.discountUSDArray[i]);
+        this.estimatedAmount = this.discountUSDArray[i].toFixed(2);
       }
     }
   }
@@ -170,7 +164,7 @@ export class SellPageComponent implements OnInit {
       })
       .subscribe(res => {
         var confText =
-          "GOLD to sell: " + this.toSell + "<br/>" +
+          "GOLD to sell: " + (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) + " GOLD<br/>" +
           "You will get: $ " + res.data.fiatAmount + " ($ " + res.data.feeAmount + " fee)<br/>" +
           "GOLD/USD: $ " + res.data.goldRate
           ;

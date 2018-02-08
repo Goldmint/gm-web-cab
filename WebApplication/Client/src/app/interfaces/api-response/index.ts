@@ -21,7 +21,5 @@ export * from './card-status';
 export * from './card-confirm';
 export * from './paged-data';
 export * from './gold-buy';
-export * from './gold-buy-dry';
 export * from './gold-sell';
-export * from './gold-sell-dry';
 export * from './user-balance';

@@ -12,7 +12,7 @@ import {
   User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
   GoldRate, TFAInfo, KYCStart, KYCStatus, TransparencyRecord, Limits,
   CardsList,
-  GoldBuyResponse, GoldSellResponse, GoldBuyDryResponse, GoldSellDryResponse
+  GoldBuyResponse, GoldSellResponse
 } from '../interfaces';
 import {
   APIResponse, APIPagedResponse, AuthResponse, RegistrationResponse, CardAddResponse,

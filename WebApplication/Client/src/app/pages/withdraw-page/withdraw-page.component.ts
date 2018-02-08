@@ -92,7 +92,7 @@ export class WithdrawPageComponent implements OnInit {
       })
       .subscribe(
       res => {
-        this._messageBox.alert('Successfully completed');
+        this._messageBox.alert('Your request is being processed');
       },
       err => {
         if (err.error && err.error.errorCode) {
