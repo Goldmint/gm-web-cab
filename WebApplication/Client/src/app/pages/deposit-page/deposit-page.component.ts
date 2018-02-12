@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
 import { TabsetComponent } from 'ngx-bootstrap';
+import { CurrencyPipe } from '@angular/common';
 
 import { TFAInfo, CardsList, CardsListItem } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
+import {Limit} from "../../interfaces/limit";
 
 enum Pages {Default, CardsList}
 
@@ -29,6 +31,7 @@ export class DepositPageComponent implements OnInit {
   public agreeCheck: boolean = false;
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
+  public limits = <Limit>{};
 
   constructor(
     private _apiService: APIService,
@@ -48,7 +51,18 @@ export class DepositPageComponent implements OnInit {
         },
         err => {});
 
+      this._apiService.getLimits()
+          .finally(() => {
+          })
+          .subscribe(res => {
+                  this.limits = res.data.current.deposit;
+                  this._cdRef.detectChanges();
+              },
+              err => {});
+
      this.page = Pages.Default;
+
+     // this.userViewData = this._user._user.getValue();
   }
 
   ngOnInit() {

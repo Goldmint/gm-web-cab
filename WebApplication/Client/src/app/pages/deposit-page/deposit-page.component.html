@@ -40,38 +40,38 @@
             <div class="limits-bar">
               <div class="limits-bar__caption">
                 <span>Account limits</span>
-                <div class="limits-bar__increase" *ngIf="limitsIncrease">
+                <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                   <svg class="icon" width="20px" height="20px">
                     <use xlink:href="#increase"></use>
                   </svg>
                   <span>Increase</span>
-                </div>
+                </a>
               </div>
               <div class="limits-bar__progress progress">
-                <div class="progress-bar w-25"></div>
+                <div class="progress-bar" [ngClass]="{'w-50': !tfaEnabled, 'w-100': tfaEnabled}"></div>
               </div>
             </div>
 
             <div class="row">
               <div class="col-6">
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">Payment Card</div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar"></div>
-                  </div>
-                  <dl class="limits-bar__list">
-                    <dt class="col-auto">Daily limis used:</dt>
-                    <dd class="col">$ 0.00 of $ 300.00</dd>
-                  </dl>
-                </div>
+                <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                  <!--<div class="limits-bar__caption">Payment Card</div>-->
+                  <!--<div class="limits-bar__progress progress">-->
+                    <!--<div class="progress-bar"></div>-->
+                  <!--</div>-->
+                  <!--<dl class="limits-bar__list">-->
+                    <!--<dt class="col-auto">Daily limis used:</dt>-->
+                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                  <!--</dl>-->
+                <!--</div>-->
 
                 <div class="limits-bar limits-bar--tiny">
                   <div class="limits-bar__caption">
                     <span>Avialable for payment</span>
-                    <div class="limits-bar__value">$ 300.00</div>
+                    <div class="limits-bar__value">{{limits.current | currency}}</div>
                   </div>
                   <div class="limits-bar__progress progress">
-                    <div class="progress-bar w-75"></div>
+                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/limits.day+ '%'}"></div>
                   </div>
                 </div>
               </div>
@@ -80,11 +80,11 @@
                 <div class="limits-bar limits-bar--tiny">
                   <div class="limits-bar__caption">Account Limit</div>
                   <div class="limits-bar__progress progress">
-                    <div class="progress-bar w-25"></div>
+                    <div class="progress-bar" [ngStyle]="{'width': (limits.day - limits.current)*100/limits.day + '%'}"></div>
                   </div>
                   <dl class="limits-bar__list">
-                    <dt class="col-auto">Daily limis used:</dt>
-                    <dd class="col">$ 0.00 of $ 300.00</dd>
+                    <dt class="col-auto">Daily limits used:</dt>
+                    <dd class="col">{{(limits.day - limits.current) | currency}} of {{limits.day | currency}}</dd>
                   </dl>
                 </div>
               </div>
@@ -100,51 +100,51 @@
     </div>
   </section>
 
-  <ng-container *ngIf="!loading">
-    <section class="section section--warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">
-      <h2 class="section__title section__title--warning">
-        <svg class="icon" width="18px" height="16px">
-          <use xlink:href="#warning"></use>
-        </svg>
-        {{ "PAGES.Deposit.TFA.SectionTitle" | translate }}
-      </h2>
+  <!--<ng-container *ngIf="!loading">-->
+    <!--<section class="section section&#45;&#45;warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">-->
+      <!--<h2 class="section__title section__title&#45;&#45;warning">-->
+        <!--<svg class="icon" width="18px" height="16px">-->
+          <!--<use xlink:href="#warning"></use>-->
+        <!--</svg>-->
+        <!--{{ "PAGES.Deposit.TFA.SectionTitle" | translate }}-->
+      <!--</h2>-->
 
-      <div class="section__content section__content--clean pt-2">
-        <p class="mb-5" [innerHTML]=" 'PAGES.Deposit.TFA.Text' | translate "></p>
+      <!--<div class="section__content section__content&#45;&#45;clean pt-2">-->
+        <!--<p class="mb-5" [innerHTML]=" 'PAGES.Deposit.TFA.Text' | translate "></p>-->
 
-        <div class="row kyc-pros mb-4 pb-2">
-          <div class="col">
-            <svg class="kyc-pros__icon" width="33px" height="44px">
-              <use xlink:href="#verify-secure"></use>
-            </svg>
-            <div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Secure.Title" | translate }}</div>
-            <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.TFA.Pros.Secure.Text" | translate }}</p>
-          </div>
-          <div class="col">
-            <svg class="kyc-pros__icon" width="28px" height="44px">
-              <use xlink:href="#verify-simple"></use>
-            </svg>
-            <div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Simple.Title" | translate }}</div>
-            <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.TFA.Pros.Simple.Text" | translate }}</p>
-          </div>
-          <div class="col">
-            <svg class="kyc-pros__icon" width="36px" height="44px">
-              <use xlink:href="#verify-complaint"></use>
-            </svg>
-            <div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Complaint.Title" | translate }}</div>
-            <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.TFA.Pros.Complaint.Text" | translate }}</p>
-          </div>
-          <div class="col-auto pl-4 ml-2 align-self-center pb-3">
-            <a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Deposit.TFA.Button" | translate }}</a>
-          </div>
-        </div>
-      </div>
-    </section>
+        <!--<div class="row kyc-pros mb-4 pb-2">-->
+          <!--<div class="col">-->
+            <!--<svg class="kyc-pros__icon" width="33px" height="44px">-->
+              <!--<use xlink:href="#verify-secure"></use>-->
+            <!--</svg>-->
+            <!--<div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Secure.Title" | translate }}</div>-->
+            <!--<p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Deposit.TFA.Pros.Secure.Text" | translate }}</p>-->
+          <!--</div>-->
+          <!--<div class="col">-->
+            <!--<svg class="kyc-pros__icon" width="28px" height="44px">-->
+              <!--<use xlink:href="#verify-simple"></use>-->
+            <!--</svg>-->
+            <!--<div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Simple.Title" | translate }}</div>-->
+            <!--<p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Deposit.TFA.Pros.Simple.Text" | translate }}</p>-->
+          <!--</div>-->
+          <!--<div class="col">-->
+            <!--<svg class="kyc-pros__icon" width="36px" height="44px">-->
+              <!--<use xlink:href="#verify-complaint"></use>-->
+            <!--</svg>-->
+            <!--<div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Complaint.Title" | translate }}</div>-->
+            <!--<p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Deposit.TFA.Pros.Complaint.Text" | translate }}</p>-->
+          <!--</div>-->
+          <!--<div class="col-auto pl-4 ml-2 align-self-center pb-3">-->
+            <!--<a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Deposit.TFA.Button" | translate }}</a>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</section>-->
 
-    <ng-template #tfaEnabled>
+    <!--<ng-template #tfaEnabled>-->
 
-    </ng-template>
-  </ng-container>
+    <!--</ng-template>-->
+  <!--</ng-container>-->
 </ng-container>
 
 <ng-container *ngIf="page === _pages.CardsList">
