@@ -54,7 +54,7 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 		}
 
 		public async Task<string> NewCardVerification(User user, Card card) {
-			return await CreateTicket(user.Id, $"New card verification ({card.CardMask}, #{card.Id}) started with {TextFormatter.FormatAmount(card.VerificationAmountCents, FiatCurrency.USD)}");
+			return await CreateTicket(user.Id, $"New card #{card.Id} verification started with {TextFormatter.FormatAmount(card.VerificationAmountCents, FiatCurrency.USD)}");
 		}
 
 		public async Task<string> NewCardDeposit(User user, Card card, FiatCurrency currency, long amount) {
@@ -74,11 +74,11 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 		}
 
 		public async Task<string> NewGoldBuying(User user, string ethAddress, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents) {
-			return await CreateTicket(user.Id, $"New gold buying #? for {TextFormatter.FormatAmount(fiatAmount, currency)} requested from {TextFormatter.MaskEthereumAddress(ethAddress)} at rate {TextFormatter.FormatAmount(rate, currency)} per oz, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {CoreLogic.Finance.Tokens.GoldToken.FromWei(estimatedGoldAmount)} oz, fee {TextFormatter.FormatAmount(feeCents, currency)}");
+			return await CreateTicket(user.Id, $"New gold buying #? for {TextFormatter.FormatAmount(fiatAmount, currency)} requested from {TextFormatter.MaskEthereumAddress(ethAddress)} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {CoreLogic.Finance.Tokens.GoldToken.FromWei(estimatedGoldAmount)} oz, fee {TextFormatter.FormatAmount(feeCents, currency)}");
 		}
 
 		public async Task<string> NewGoldSelling(User user, string ethAddress, FiatCurrency currency, BigInteger goldAmount, long rate, BigInteger mntpBalance, long estimatedFiatAmount, long feeCents) {
-			return await CreateTicket(user.Id, $"New gold selling #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from {TextFormatter.MaskEthereumAddress(ethAddress)} at rate {TextFormatter.FormatAmount(rate, currency)} per oz, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {TextFormatter.FormatAmount(estimatedFiatAmount, currency)}, fee {TextFormatter.FormatAmount(feeCents, currency)}");
+			return await CreateTicket(user.Id, $"New gold selling #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from {TextFormatter.MaskEthereumAddress(ethAddress)} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {TextFormatter.FormatAmount(estimatedFiatAmount, currency)}, fee {TextFormatter.FormatAmount(feeCents, currency)}");
 		}
 		
 	}

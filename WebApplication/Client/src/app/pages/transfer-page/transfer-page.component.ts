@@ -70,7 +70,6 @@ export class TransferPageComponent implements OnInit {
         this._walletAddressRaw = "";
         this._amount = new BigNumber(0);
       }
-      this._modalRef.hide();
       this._cdRef.detectChanges();
     });
   }

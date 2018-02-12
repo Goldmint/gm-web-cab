@@ -117,7 +117,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 					return APIResponse.BadRequest(APIErrorCode.AccountWithdrawLimit);
 
 				default:
-					throw new Exception(queryResult.Error.Message);
+					return APIResponse.BadRequest(APIErrorCode.AccountCardWithdrawFail, "Failed to make withdraw. Make sure card is valid, otherwise contact support");
 			}
 		}
 	}

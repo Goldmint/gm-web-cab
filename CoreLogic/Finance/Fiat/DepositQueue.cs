@@ -53,28 +53,32 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					logger?.Error(e, $"Failed to update payment status while charging deposit payment #{payment.Id}");
 				}
 
-				try {
-					if (chargeResult.Success) {
+				if (chargeResult.Success) {
+					try {
 						await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Charged succesfully");
 					}
-					else {
+					catch { }
+
+					return new Deposit() {
+						User = payment.User,
+						Status = DepositStatus.Initial,
+						Currency = payment.Currency,
+						AmountCents = payment.AmountCents,
+						RefFinancialHistoryId = financialHistory.Id,
+						Source = DepositSource.CreditCard,
+						SourceId = payment.Id,
+						DeskTicketId = payment.DeskTicketId,
+						TimeCreated = DateTime.UtcNow,
+						TimeNextCheck = DateTime.UtcNow,
+					};
+				}
+				else {
+					try {
 						await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Charge failed");
 					}
+					catch { }
+					return null;
 				}
-				catch { }
-
-				return new Deposit() {
-					User = payment.User,
-					Status = DepositStatus.Initial,
-					Currency = payment.Currency,
-					AmountCents = payment.AmountCents,
-					RefFinancialHistoryId = financialHistory.Id,
-					Source = DepositSource.CreditCard,
-					SourceId = payment.Id,
-					DeskTicketId = payment.DeskTicketId,
-					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow,
-				};
 			});
 		}
 

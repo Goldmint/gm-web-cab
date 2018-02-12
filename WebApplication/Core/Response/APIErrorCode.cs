@@ -61,6 +61,16 @@
 		/// Withdraw limit reached
 		/// </summary>
 		AccountWithdrawLimit = 1006,
+
+		/// <summary>
+		/// Card deposit failure
+		/// </summary>
+		AccountCardDepositFail = 1007,
+
+		/// <summary>
+		/// Card withdraw failure
+		/// </summary>
+		AccountCardWithdrawFail = 1008,
 	}
 
 	public static class APIErrorCodeExtensions {

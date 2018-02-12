@@ -187,13 +187,13 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							}
 							catch { }
 						}
-						
+
 						// initiating blockchain transaction
 						else if (withdraw.Status == WithdrawStatus.BlockchainInit) {
 							// actually should not get into this section.
 							// see initial status action above
 						}
-						
+
 						// check confirmation
 						else if (withdraw.Status == WithdrawStatus.BlockchainConfirm) {
 
@@ -222,14 +222,17 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								// pay to card
 								if (withdraw.Destination == WithdrawDestination.CreditCard) {
 									try {
-										var paymentId = await SendCardWithdraw(services, withdraw);
-										sendToSupport = false;
+										var wdrPayment = await SendCardWithdraw(services, withdraw);
 
-										try {
-											await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Completed, $"Withdraw completed with credit card payment #{paymentId}");
+										if (wdrPayment.Status == CardPaymentStatus.Success) {
+											sendToSupport = false;
+											try {
+												await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Completed, $"Withdraw completed with credit card payment #{wdrPayment.Id}");
+											}
+											catch { }
 										}
-										catch { }
-									} catch (Exception e) {
+									}
+									catch (Exception e) {
 										logger?.Error(e, $"Failed to complete credit card withdraw #{withdraw.Id}");
 									}
 								}
@@ -264,7 +267,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Completes previously initiated credit operation or falls with exception
 		/// </summary>
-		private static async Task<long> SendCardWithdraw(IServiceProvider services, Withdraw withdraw) {
+		private static async Task<CardPayment> SendCardWithdraw(IServiceProvider services, Withdraw withdraw) {
 
 			if (withdraw.Destination != WithdrawDestination.CreditCard) throw new ArgumentException("Illegal withdraw destination");
 
@@ -273,12 +276,12 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var logger = services.GetLoggerFor(typeof(WithdrawQueue));
 
-			var payment = await(
+			var payment = await (
 				from p in dbContext.CardPayment
-				where 
+				where
 				p.Id == withdraw.DestinationId &&
 				p.Type == CardPaymentType.Withdraw &&
-				p.UserId == withdraw.UserId && 
+				p.UserId == withdraw.UserId &&
 				p.Status == CardPaymentStatus.Pending
 				select p
 			)
@@ -292,11 +295,12 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			ChargeResult chargeResult = null;
 			try {
 				chargeResult = await cardAcquirer.DoCreditCharge(payment.GWTransactionId);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				logger?.Error(e, $"Failed to charge of withdraw payment #{payment.Id}");
 			}
 
-			payment.Status = (chargeResult?.Success ?? false) ? CardPaymentStatus.Success: CardPaymentStatus.Failed;
+			payment.Status = (chargeResult?.Success ?? false) ? CardPaymentStatus.Success : CardPaymentStatus.Failed;
 			payment.ProviderMessage = chargeResult?.ProviderMessage;
 			payment.ProviderStatus = chargeResult?.ProviderStatus;
 			payment.TimeCompleted = DateTime.UtcNow;
@@ -305,7 +309,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			await dbContext.SaveChangesAsync();
 			dbContext.Detach(payment);
 
-			return payment.Id;
+			return payment;
 		}
 
 		// ---

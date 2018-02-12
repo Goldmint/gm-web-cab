@@ -117,7 +117,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 					return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
 
 				default:
-					throw new Exception(queryResult.Error.Message);
+					return APIResponse.BadRequest(APIErrorCode.AccountCardDepositFail, "Failed to charge deposit. Make sure you have enough money and card is valid, otherwise contact support");
 			}
 		}
 	}
