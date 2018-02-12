@@ -17,8 +17,8 @@
           </button>
         </div>
         <div class="col form-group text-center">
-          <label for="btnPaymentBank" disabled>Bank transfer</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
+          <label for="btnPaymentBank">Bank transfer</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentBank" (click)="goto(_pages.BankTransfer)">
             <svg class="icon" width="107px" height="56px">
               <use href="#payment-bank"></use>
             </svg>
@@ -227,3 +227,88 @@
     </div>
   </section>
 </ng-container>
+
+<!-- START: Bank Transfer -->
+<ng-container *ngIf="page === _pages.BankTransfer">
+  <section class="page__section section section--table">
+    <div class="section__content pt-4">
+
+      <!-- TODO: Можно переделать на ngSwitch-->
+      <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Default">
+        Are you ready?
+
+        <div class="form-group pt-4">
+          <div class="custom-control custom-checkbox">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              id="riskChecked"
+              name="riskChecked"
+              [(ngModel)]="riskChecked">
+
+            <label class="custom-control-label" for="riskChecked">I have double-checked all the risks</label>
+          </div>
+        </div>
+
+        <div class="row align-items-center">
+          <div class="col text-center">
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!riskChecked"
+              (click)="nextStep(_bankTransferSteps.Form)">
+              Continue
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Form">
+        <form
+          name="transferForm"
+          (ngSubmit)="transferForm.form.valid && proceedTransfer()"
+          #transferForm="ngForm"
+          novalidate>
+          <div class="form-group">
+            <label for="transferAmount">USD Amount *</label>
+
+            <input
+              id="transferAmount"
+              type="number"
+              min="0"
+              step="0.01"
+              class="form-control"
+              name="amount"
+              required
+              [(ngModel)]="transferForm.amount"
+              #amount="ngModel"
+              [ngClass]="{'is-invalid': amount.invalid && (transferForm.submitted || amount.dirty)}">
+          </div>
+
+          <div class="form-group">
+            <label for="selectBankCountry">Choose your bank country</label>
+
+            <select
+              id="selectBankCountry"
+              class="custom-select"
+              #countrySelect
+              required
+              name="bankCountry"
+              [(ngModel)]="transferForm.bankCountry"
+              #bankCountry="ngModel"
+              [ngClass]="{'is-invalid': bankCountry.invalid && (transferForm.submitted || bankCountry.dirty)}">
+              <option
+                *ngFor="let country of countries"
+                [value]="country.countryShortCode">
+                {{country.countryName}}
+              </option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary">Proceed</button>
+        </form>
+      </ng-container>
+    </div>
+  </section>
+</ng-container>
+<!-- END: Bank Transfer -->

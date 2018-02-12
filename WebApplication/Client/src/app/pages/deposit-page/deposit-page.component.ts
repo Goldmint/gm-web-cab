@@ -1,10 +1,21 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
-import { TabsetComponent } from 'ngx-bootstrap';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  EventEmitter
+} from '@angular/core';
 
-import { TFAInfo, CardsList, CardsListItem } from '../../interfaces';
+// import { TabsetComponent } from 'ngx-bootstrap';
+
+import { TFAInfo, CardsList, CardsListItem, Country } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
 
-enum Pages {Default, CardsList}
+import * as countries from '../../../assets/data/countries.json';
+
+enum Pages { Default, CardsList, BankTransfer }
+enum BankTransferSteps { Default, Form, PaymentDetails }
 
 @Component({
   selector: 'app-deposit-page',
@@ -14,10 +25,11 @@ enum Pages {Default, CardsList}
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DepositPageComponent implements OnInit {
-
   private _pages = Pages;
+  private _bankTransferSteps = BankTransferSteps;
 
   public page: Pages;
+  public bankTransferStep: BankTransferSteps;
   public loading: boolean = true;
   public processing: boolean = false;
   public tfaInfo: TFAInfo;
@@ -29,6 +41,9 @@ export class DepositPageComponent implements OnInit {
   public agreeCheck: boolean = false;
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
+  public riskChecked: boolean = false; // use in Bank Transfer steps
+
+  public countries: Country[];
 
   constructor(
     private _apiService: APIService,
@@ -43,16 +58,16 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        res => {
-          this.tfaInfo = res.data;
-        },
-        err => {});
+        res => this.tfaInfo = res.data/* ,
+        err => {} */
+      );
 
-     this.page = Pages.Default;
+    this.page = Pages.Default;
+
+    this.countries = <Country[]><any> countries;
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   goto(page: Pages) {
     switch (page) {
@@ -69,8 +84,12 @@ export class DepositPageComponent implements OnInit {
             res => {
               this.cards = res.data;
               this.cards.list = this.cards.list.filter((card: CardsListItem) => card.status === 'verified');
-            },
-            err => {});
+            }/* ,
+            err => {} */);
+        break;
+      case Pages.BankTransfer:
+        this.page = page;
+        this.nextStep(BankTransferSteps.Default);
         break;
 
       default:
@@ -79,6 +98,31 @@ export class DepositPageComponent implements OnInit {
     }
 
     this._cdRef.detectChanges();
+  }
+
+  /**
+   * The control of Bank Transfer steps
+   */
+  nextStep(step: BankTransferSteps) {
+    switch (step) {
+      case BankTransferSteps.Default:
+        this.bankTransferStep = step;
+        break;
+      case BankTransferSteps.Form:
+        if (this.riskChecked)
+          this.bankTransferStep = step;
+        break;
+      case BankTransferSteps.PaymentDetails:
+        this.bankTransferStep = step;
+        break;
+      default:
+        // code...
+        break;
+    }
+  }
+
+  proceedTransfer() {
+    console.log('Proceeded!');
   }
 
   submit() {
@@ -91,9 +135,7 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        res => {
-          this._messageBox.alert('Your request is being processed');
-        },
+        (/* res */) => this._messageBox.alert('Your request is being processed'), // TODO: Maybe will be better to use pipes from RxJS
         err => {
           if (err.error && err.error.errorCode) {
             switch (err.error.errorCode) {
@@ -114,5 +156,5 @@ export class DepositPageComponent implements OnInit {
           }
         });
   }
-
 }
+
