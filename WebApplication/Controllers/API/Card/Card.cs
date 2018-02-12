@@ -128,7 +128,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.SaveChanges();
 
 			// make ticket
-			var ticketId = await TicketDesk.CreateCardVerificationTicket(null, TicketStatus.Opened, user.UserName, transCurrency, "New credit card verification started");
+			var ticketId = await TicketDesk.NewCardVerification(user, card);
 
 			// enqueue payment
 			var payment = CardPaymentQueue.CreateCardDataInputPayment(
@@ -141,6 +141,11 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.CardPayment.Add(payment);
 			DbContext.SaveChanges();
 			DbContext.Detach(payment);
+
+			try {
+				await TicketDesk.UpdateTicket(ticketId, UserOpLogStatus.Pending, $"Payment for first step is #{payment.Id}");
+			}
+			catch { }
 
 			return APIResponse.Success(
 				new AddView() {
@@ -251,6 +256,11 @@ namespace Goldmint.WebApplication.Controllers.API {
 			DbContext.CardPayment.Add(payment);
 			DbContext.SaveChanges();
 			DbContext.Detach(payment);
+
+			try {
+				await TicketDesk.UpdateTicket(prevPayment.DeskTicketId, UserOpLogStatus.Pending, $"Payment for second step is {payment.Id}");
+			}
+			catch { }
 
 			return APIResponse.Success(
 				new AddView() {

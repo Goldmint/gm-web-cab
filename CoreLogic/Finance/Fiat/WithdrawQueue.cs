@@ -84,12 +84,12 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								dbContext.Detach(withdraw);
 							}
 							catch (Exception e) {
-								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Cancelled, "DB failed while withdraw enqueue");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Failed, "DB failed while withdraw enqueue");
 								throw e;
 							}
 
 							try {
-								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Withdraw successfully enqueued");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Withdraw #{withdraw.Id} successfully enqueued");
 							}
 							catch { }
 
@@ -161,13 +161,18 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							dbContext.Detach(withdraw);
 
 							try {
-								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Blockchain transaction initiated");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
 							}
 							catch { }
 
 							// launch transaction
 							var txid = await ethereumWriter.ChangeUserFiatBalance(withdraw.User.UserName, withdraw.Currency, -1 * withdraw.AmountCents);
 							withdraw.EthTransactionId = txid;
+
+							try {
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {txid}");
+							}
+							catch { }
 
 							// set new status
 							withdraw.Status = WithdrawStatus.BlockchainConfirm;
@@ -178,7 +183,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							dbContext.Detach(withdraw);
 
 							try {
-								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Blockchain transaction checking started");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
 						}
@@ -210,18 +215,18 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// finalize
 							if (withdraw.Status == WithdrawStatus.Success) {
 
-								await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Withdraw has been saved on blockchain");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Withdraw has been saved on blockchain");
 
 								bool sendToSupport = true;
 
 								// pay to card
 								if (withdraw.Destination == WithdrawDestination.CreditCard) {
 									try {
-										await SendCardWithdraw(services, withdraw);
+										var paymentId = await SendCardWithdraw(services, withdraw);
 										sendToSupport = false;
 
 										try {
-											await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Success, "Withdraw completed with credit card payment");
+											await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Completed, $"Withdraw completed with credit card payment #{paymentId}");
 										}
 										catch { }
 									} catch (Exception e) {
@@ -231,15 +236,15 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 								try {
 									if (sendToSupport) {
-										await ticketDesk.CreateSupportWithdrawTicket(withdraw.DeskTicketId, withdraw, "Withdraw required manual processing");
-										await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Opened, "Request has been sent to support team");
+										await ticketDesk.NewManualSupportTicket($"Card withdraw #{withdraw.Id} requires manual processing due to failure");
+										await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Passed to support team");
 									}
 								}
 								catch { }
 							}
 							if (withdraw.Status == WithdrawStatus.Failed) {
 								try {
-									await ticketDesk.UpdateCardWithdrawTicket(withdraw.DeskTicketId, TicketStatus.Cancelled, "Withdraw has not been saved on blockchain");
+									await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Failed, "Withdraw has NOT been saved on blockchain");
 								}
 								catch { }
 							}
@@ -259,7 +264,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Completes previously initiated credit operation or falls with exception
 		/// </summary>
-		private static async Task SendCardWithdraw(IServiceProvider services, Withdraw withdraw) {
+		private static async Task<long> SendCardWithdraw(IServiceProvider services, Withdraw withdraw) {
 
 			if (withdraw.Destination != WithdrawDestination.CreditCard) throw new ArgumentException("Illegal withdraw destination");
 
@@ -299,6 +304,8 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			dbContext.Update(payment);
 			await dbContext.SaveChangesAsync();
 			dbContext.Detach(payment);
+
+			return payment.Id;
 		}
 
 		// ---

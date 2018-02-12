@@ -309,7 +309,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 									card.CardMask = cardMask;
 									
 									try {
-										await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Provided card data on first step is saved");
+										await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Provided card data on first step is saved");
 									}
 									catch { }
 
@@ -326,7 +326,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 										card.State = CardState.Payment;
 
 										try {
-											await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Provided card data on second step is saved");
+											await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Provided card data on second step is saved");
 										}
 										catch { }
 
@@ -344,7 +344,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 											ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.WithdrawSuccess;
 										}
 										catch (Exception e) {
-											logger?.Error(e, $"Failed to start verification charge for payment #{payment.Id}");
+											logger?.Error(e, $"Failed to start verification charge for this payment");
 
 											// failed to charge
 											ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.FailedToChargeVerification;
@@ -354,13 +354,13 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 										// mask mismatched
 										ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.WithdrawCardDataMismatched;
 
-										await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Cancelled, "Provided card data mismatched");
+										await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Provided card data is mismatched");
 									}
 								}
 							}
 						}
 						else if (payment.Status == CardPaymentStatus.Failed) {
-							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Cancelled, "Card data input step is unsuccessful");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, $"Card data input step is unsuccessful on a gateway side");
 						}
 
 						// update card state
@@ -375,7 +375,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							ret.VerificationPaymentId = verificationPaymentEnqueued.Id;
 
 							try {
-								await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Verification payment enqueued");
+								await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Verification payment #{verificationPaymentEnqueued.Id} enqueued");
 							}
 							catch { }
 						}
@@ -432,7 +432,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					}
 
 					try {
-						await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Charge started");
+						await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Charging {payment.AmountCents} cents");
 					}
 					catch { }
 
@@ -454,10 +454,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					// update ticket
 					try {
 						if (result?.Success ?? false) {
-							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Charge success");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Charged successfully");
 						}
 						else {
-							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Cancelled, "Charge failed");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Charge failed");
 						}
 					}
 					catch { }
@@ -527,7 +527,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// saved, dont track
 							dbContext.Detach(refundEnqueued);
 
-							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Refund enqueued");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Refund #{refundEnqueued.Id} enqueued");
 						}
 					}
 					catch { }
@@ -582,7 +582,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					if (refPayment == null) return false;
 
-					await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Refund started");
+					await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Refunding {payment.AmountCents} cents");
 
 					// prevent double spending
 					payment.Status = CardPaymentStatus.Charging;
@@ -606,10 +606,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					// update ticket
 					try {
 						if (resultGWTID != null) {
-							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Opened, "Refund success");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Refunded successfully");
 						}
 						else {
-							await ticketDesk.UpdateCardVerificationTicket(payment.DeskTicketId, TicketStatus.Cancelled, "Refund failed");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Refund failed");
 						}
 					}
 					catch { }

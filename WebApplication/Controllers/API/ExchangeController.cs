@@ -59,7 +59,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
 			}
 
-			var ticket = await TicketDesk.CreateGoldSellingTicket(TicketStatus.Opened, user.UserName, "New gold buying request generated");
+			var ticket = await TicketDesk.NewGoldBuying(user, model.EthAddress, currency, amountCents, goldRate, mntpBalance, estimated.ResultGold, estimated.ResultFeeCents);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
@@ -164,7 +164,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			var ticket = await TicketDesk.CreateGoldSellingTicket(TicketStatus.Opened, user.UserName, "New gold selling request generated");
+			var ticket = await TicketDesk.NewGoldSelling(user, model.EthAddress, currency, estimated.InputUsed, goldRate, mntpBalance, estimated.ResultNetCents, estimated.ResultFeeCents);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {

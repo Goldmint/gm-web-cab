@@ -52,7 +52,7 @@ namespace Goldmint.QueueService {
 			services.AddSingleton<ITemplateProvider, TemplateProvider>();
 
 			// ticket desk
-			services.AddSingleton<ITicketDesk, NullTicketDesk>();
+			services.AddSingleton<ITicketDesk, DBTicketDesk>();
 
 			// acquirer
 			services.AddScoped<ICardAcquirer>(fac => {

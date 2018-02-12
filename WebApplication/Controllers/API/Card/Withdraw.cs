@@ -51,7 +51,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			}
 
 			// new ticket
-			var ticket = await TicketDesk.CreateCardWithdrawTicket(TicketStatus.Opened, card.User.UserName, amountCents, transCurrency, "New withdraw request");
+			var ticket = await TicketDesk.NewCardWithdraw(user, card, transCurrency, amountCents);
 
 			// make payment
 			var payment = await CardPaymentQueue.CreateWithdrawPayment(

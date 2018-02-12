@@ -34,7 +34,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			return await StartDeposit(services, payment.User, payment.Currency, payment.AmountCents, async () => {
 
 				try {
-					await ticketDesk.UpdateCardDepositTicket(payment.DeskTicketId, TicketStatus.Opened, "Payment charge started");
+					await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Charging {payment.AmountCents} cents, card payment #{payment.Id}");
 				}
 				catch { }
 
@@ -55,10 +55,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 				try {
 					if (chargeResult.Success) {
-						await ticketDesk.UpdateCardDepositTicket(payment.DeskTicketId, TicketStatus.Opened, "Payment charged");
+						await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Charged succesfully");
 					}
 					else {
-						await ticketDesk.UpdateCardDepositTicket(payment.DeskTicketId, TicketStatus.Cancelled, "Payment charge failed");
+						await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Charge failed");
 					}
 				}
 				catch { }
@@ -112,12 +112,12 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								dbContext.Detach(deposit);
 							}
 							catch (Exception e) {
-								await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Cancelled, "DB failed while deposit enqueue");
+								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Failed, "DB failed while deposit enqueue");
 								throw e;
 							}
 
 							try {
-								await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Opened, "Deposit successfully enqueued");
+								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, $"Deposit #{deposit.Id} successfully enqueued");
 							}
 							catch { }
 
@@ -189,15 +189,18 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							dbContext.Detach(deposit);
 
 							try {
-								await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Opened, "Blockchain transaction initiated");
+								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
 							}
 							catch { }
 
 							// launch transaction
-							if (string.IsNullOrWhiteSpace(deposit.EthTransactionId)) {
-								var txid = await ethereumWriter.ChangeUserFiatBalance(deposit.User.UserName, deposit.Currency, deposit.AmountCents);
-								deposit.EthTransactionId = txid;
+							var txid = await ethereumWriter.ChangeUserFiatBalance(deposit.User.UserName, deposit.Currency, deposit.AmountCents);
+							deposit.EthTransactionId = txid;
+
+							try {
+								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {txid}");
 							}
+							catch { }
 
 							// set new status
 							deposit.Status = DepositStatus.BlockchainConfirm;
@@ -207,7 +210,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// update ticket safely
 							try {
-								await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Opened, "Blockchain transaction checking started");
+								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
 						}
@@ -241,10 +244,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							try {
 								if (deposit.Status == DepositStatus.Success) {
-									await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Success, "Deposit has been saved on blockchain");
+									await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Completed, "Deposit has been saved on blockchain");
 								}
 								if (deposit.Status == DepositStatus.Failed) {
-									await ticketDesk.UpdateCardDepositTicket(deposit.DeskTicketId, TicketStatus.Cancelled, "Deposit has not been saved on blockchain");
+									await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Failed, "Deposit has NOT been saved on blockchain");
 								}
 							}
 							catch { }

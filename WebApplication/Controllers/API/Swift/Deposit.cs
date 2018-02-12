@@ -44,7 +44,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			}
 
 			// new ticket
-			var ticket = await TicketDesk.CreateSwiftDepositTicket(TicketStatus.Opened, user.UserName, amountCents, transCurrency, "New swift deposit request");
+			var ticket = await TicketDesk.NewSwiftDeposit(user, transCurrency, amountCents);
 
 			// make payment
 			var request = new DAL.Models.SwiftPayment() {

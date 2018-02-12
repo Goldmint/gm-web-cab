@@ -150,7 +150,7 @@ namespace Goldmint.WebApplication {
 			services.AddScoped<IMutexHolder, DBMutexHolder>();
 
 			// tickets desk
-			services.AddSingleton<ITicketDesk, NullTicketDesk>();
+			services.AddSingleton<ITicketDesk, DBTicketDesk>();
 
 			// notifications
 			services.AddScoped<INotificationQueue, DBNotificationQueue>();

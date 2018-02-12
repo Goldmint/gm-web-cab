@@ -102,22 +102,22 @@ namespace Goldmint.Common {
 		Error,
 	}
 
-	public enum TicketStatus {
+	public enum UserOpLogStatus {
 
 		/// <summary>
-		/// Opened ticket, in process
+		/// Operation is pending
 		/// </summary>
-		Opened = 1,
+		Pending = 1,
 
 		/// <summary>
-		/// Succesfully closed
+		/// Operation succesfully completed
 		/// </summary>
-		Success,
+		Completed,
 
 		/// <summary>
-		/// Closed because of fail
+		/// Operation is failed
 		/// </summary>
-		Cancelled,
+		Failed,
 	}
 
 	public enum MutexEntity {

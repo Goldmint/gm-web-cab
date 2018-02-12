@@ -229,7 +229,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						await dbContext.SaveChangesAsync();
 
 						try {
-							await ticketDesk.UpdateGoldBuyingTicket(request.DeskTicketId, TicketStatus.Opened, "Request marked for processing");
+							await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Request #{request.Id} marked for processing");
 						}
 						catch { }
 
@@ -300,7 +300,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						await dbContext.SaveChangesAsync();
 
 						try {
-							await ticketDesk.UpdateGoldSellingTicket(request.DeskTicketId, TicketStatus.Opened, "Request marked for processing");
+							await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Request #{request.Id} marked for processing");
 						}
 						catch { }
 
@@ -369,7 +369,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateGoldBuyingTicket(request.DeskTicketId, TicketStatus.Opened, "Blockchain transaction initiated");
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
 							}
 							catch { }
 
@@ -387,7 +387,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.UpdateGoldBuyingTicket(request.DeskTicketId, TicketStatus.Cancelled, "Request has not been cancelled. Possibly due to significant gold rate change");
+									await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has been cancelled. Possibly due to significant gold rate change");
 								}
 								catch { }
 
@@ -408,12 +408,17 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								centsPerGoldToken: adjust.GoldRateCents
 							);
 
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
+							}
+							catch { }
+
 							// set new status
 							request.Status = ExchangeRequestStatus.BlockchainConfirm;
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateGoldBuyingTicket(request.DeskTicketId, TicketStatus.Opened, "Blockchain transaction checking started");
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
 
@@ -438,10 +443,10 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 								try {
 									if (request.Status == ExchangeRequestStatus.Success) {
-										await ticketDesk.UpdateGoldBuyingTicket(request.DeskTicketId, TicketStatus.Success, "Request has been saved on blockchain");
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
 									}
 									if (request.Status == ExchangeRequestStatus.Failed) {
-										await ticketDesk.UpdateGoldBuyingTicket(request.DeskTicketId, TicketStatus.Cancelled, "Request has not been saved on blockchain");
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
 									}
 								}
 								catch { }
@@ -513,7 +518,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateGoldSellingTicket(request.DeskTicketId, TicketStatus.Opened, "Blockchain transaction initiated");
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
 							}
 							catch { }
 
@@ -531,7 +536,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.UpdateGoldSellingTicket(request.DeskTicketId, TicketStatus.Cancelled, "Request has not been cancelled. Possibly due to significant gold rate change");
+									await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has been cancelled. Possibly due to significant gold rate change");
 								}
 								catch { }
 
@@ -552,12 +557,17 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								centsPerGoldToken: adjust.GoldRateCents
 							);
 
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
+							}
+							catch { }
+
 							// set new status
 							request.Status = ExchangeRequestStatus.BlockchainConfirm;
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateGoldSellingTicket(request.DeskTicketId, TicketStatus.Opened, "Blockchain transaction checking started");
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
 
@@ -583,10 +593,10 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 								try {
 									if (request.Status == ExchangeRequestStatus.Success) {
-										await ticketDesk.UpdateGoldSellingTicket(request.DeskTicketId, TicketStatus.Success, "Request has been saved on blockchain");
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
 									}
 									if (request.Status == ExchangeRequestStatus.Failed) {
-										await ticketDesk.UpdateGoldSellingTicket(request.DeskTicketId, TicketStatus.Cancelled, "Request has not been saved on blockchain");
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
 									}
 								}
 								catch { }

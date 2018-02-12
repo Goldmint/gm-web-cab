@@ -50,7 +50,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			}
 
 			// new ticket
-			var ticket = await TicketDesk.CreateSwiftWithdrawTicket(TicketStatus.Opened, user.UserName, amountCents, transCurrency, "New swift withdraw request");
+			var ticket = await TicketDesk.NewSwiftWithdraw(user, transCurrency, amountCents);
 
 			// make payment
 			var request = new DAL.Models.SwiftPayment() {
