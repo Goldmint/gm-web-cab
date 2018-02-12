@@ -47,7 +47,7 @@
           <div class="form-group">
             <label for="inputCode">{{ "PAGES.Settings.TFA.SecretKeySection.CodeLabel" | translate }}</label>
             <div class="form-help text-muted">Input your 6-digit authentication code</div>
-            <input type="text" id="inputCode" required pattern="[0-9]{6,6}"
+            <input type="text" noAutoComplete id="inputCode" required pattern="[0-9]{6,6}"
                    name="code" [(ngModel)]="tfaModel.code" #code="ngModel"
                    class="form-control col-2 mt-4 mx-auto"
                    [ngClass]="{'is-invalid': (errors?.Code || !code.valid) && (codeForm.submitted || !code.pristine)}"

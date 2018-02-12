@@ -1,117 +1,120 @@
 <!-- host: .page -->
-  <h1 class="page__heading">{{ "PAGES.Sell.Heading" | translate }}</h1>
+<h1 class="page__heading">{{ "PAGES.Sell.Heading" | translate }}</h1>
 
-  <section class="page__section section">
-    <h2 class="section__title">{{ "PAGES.Sell.SectionTitle" | translate }}</h2>
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Sell.SectionTitle" | translate }}</h2>
 
-    <div class="section__content">
-      <form action="#">
-        <div class="row">
+  <div class="section__content">
+    <form action="#">
+      <div class="row align-items-start">
 
-          <div class="col">
-            <div class="form-row align-items-end">
-              <div class="form-group col-5">
-                <label for="input_toSell">To Sell</label>
-                <input type="number" class="form-control" name="input_toSell" id="input_toSell" min="0" [max]="goldBalance" step="0.01" [value]="toSell" (input)="onToSellChanged($event.target.value)">
-                <div class="percent-btn-cont">
-                  <button class="percent-btn" (click)="onSetSellPercent(0.25)">25%</button>
-                  <button class="percent-btn" (click)="onSetSellPercent(0.5)">50%</button>
-                  <button class="percent-btn" (click)="onSetSellPercent(0.75)">75%</button>
-                  <button class="percent-btn" (click)="onSetSellPercent(1)">100%</button>
-                </div>
+        <div class="col-lg pb-4">
+          <div class="from-row form-group">
+            <label for="input_toSell">To Sell</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency form-currency--gold">
+                <svg class="icon">
+                  <use href="#cur-gold"></use>
+                </svg>
               </div>
-              <div class="form-group col-auto pb-4 mr-5">
-                <select class="custom-select form-currency">
-                  <option value="gold">GOLD</option>
-                </select>
+              <input type="number" class="form-control" name="input_toSell" id="input_toSell" min="0" [max]="goldBalance" step="0.1" [value]="toSell" (input)="onToSellChanged($event.target.value)">
+            </div>
+              <div class="percent-btn-cont">
+                <button class="percent-btn" (click)="onSetSellPercent(0.25)">25%</button>
+                <button class="percent-btn" (click)="onSetSellPercent(0.5)">50%</button>
+                <button class="percent-btn" (click)="onSetSellPercent(0.75)">75%</button>
+                <button class="percent-btn" (click)="onSetSellPercent(1)">100%</button>
               </div>
+          </div>
+        </div>
 
-              <div class="form-group col-auto">
-                <label for="input_EstimateAmount">Estimates Amount *</label>
-                <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">
-                <div class="discount-badge__wrap">
-                  <span class="discount-badge" [ngClass]="{'discount-badge--gold': commission > 0}"><b>{{ commission }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
-                </div>
+        <div class="col-lg pb-4">
+          <div class="from-row form-group">
+            <label for="input_EstimateAmount">Estimates Amount *</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency form-currency--usd">
+                <svg class="icon">
+                  <use href="#cur-usd"></use>
+                </svg>
               </div>
-              <div class="form-group col-auto pb-4">
-                <div class="form-currency form-currency--usd">
-                  <svg class="icon">
-                    <use attr.xlink:href="#cur-usd"></use>
-                  </svg>
-                  <span>USD</span>
-                </div>
-              </div>
+              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount">
+            </div>
+            <div class="discount-badge__wrap">
+              <span class="discount-badge" [ngClass]="{'discount-badge--gold': commission > 0}"><b>{{ commission }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
             </div>
           </div>
-
-          <div class="col-auto pt-3">
-            <button class="btn btn-primary" [disabled]="goldBalance == null || toSell.gt(goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
-              {{ "PAGES.Sell.Buttons.SellNow" | translate }}
-            </button>
-          </div>
-
         </div>
-      </form>
-    </div>
 
-    <div class="section__footer">
-      <span class="page__note">
-        {{ "PAGES.Sell.Note" | translate }}
-      </span>
-    </div>
-  </section>
+        <div class="col-lg-auto pb-4 pt-3">
+          <button class="btn btn-primary btn-block" [disabled]="goldBalance == null || toSell.gt(goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
+            {{ "PAGES.Sell.Buttons.SellNow" | translate }}
+          </button>
+        </div>
 
-  <!--<div class="row">
-    <div class="col-auto">
-      <a href="javascript:void(0)" class="btn btn-primary btn-wide disabled">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</a>
-    </div>
-    <div class="col-5 form-text disabled">
-      <b>MNTP Balance {{ mntpBalance }}</b>
-      <span>Buy now <b>{{ buyMNT }} MNT</b> and get <b>{{ commissionUSD }} USD</b> discounts</span>
-    </div>
-  </div>-->
-
-  <div class="row">
-    <div class="col form-group text-center buy-mntp-block buy-mntp-block-1">
-      <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[0] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
-      <div class="buy-mntp-caption mb-4">{{ commissionArray[1] }}% fee</div>
-
-      <div *ngIf="!buyMNT_DisableArray[0]; else okBlock">
-        <button class="btn btn-primary btn-wide">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
-        <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[0]  | number:'1.2-2':locale }} MNT</b><br> and get <b>{{ discountUSDArray[1] | number:'1.2-2':locale }} USD</b></div>
       </div>
-      <ng-template #okBlock>
-        <svg class="buy-mntp-icon-bought" width="50px" height="50px">
-          <use href="#ok"></use>
-        </svg>
-      </ng-template>
-    </div>
-    <div class="col form-group text-center buy-mntp-block buy-mntp-block-2">
-      <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[1] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
-      <div class="buy-mntp-caption mb-4">{{ commissionArray[2] }}% fee</div>
-
-      <div *ngIf="!buyMNT_DisableArray[1]; else okBlock">
-        <button class="btn btn-primary btn-wide">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
-        <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[1]  | number:'1.2-2':locale }} MNT</b><br> and get <b>{{ discountUSDArray[2] | number:'1.2-2':locale }} USD</b></div>
-      </div>
-      <ng-template #okBlock>
-        <svg class="buy-mntp-icon-bought" width="50px" height="50px">
-          <use href="#ok"></use>
-        </svg>
-      </ng-template>
-    </div>
-    <div class="col form-group text-center buy-mntp-block buy-mntp-block-3">
-      <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[2] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
-      <div class="buy-mntp-caption mb-4">{{ commissionArray[3] }}% fee</div>
-
-      <div *ngIf="!buyMNT_DisableArray[2]; else okBlock">
-        <button class="btn btn-primary btn-wide">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
-        <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[2]  | number:'1.2-2':locale }} MNT</b><br> and get <b>{{ discountUSDArray[3] | number:'1.2-2':locale }} USD</b></div>
-      </div>
-      <ng-template #okBlock>
-        <svg class="buy-mntp-icon-bought" width="50px" height="50px">
-          <use href="#ok"></use>
-        </svg>
-      </ng-template>
-    </div>
+    </form>
   </div>
+
+  <div class="section__footer">
+    <span class="page__note">
+      {{ "PAGES.Sell.Note" | translate }}
+    </span>
+  </div>
+</section>
+
+
+
+<!--<div class="row">
+  <div class="col-auto">
+    <a href="javascript:void(0)" class="btn btn-primary btn-wide disabled">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</a>
+  </div>
+  <div class="col-5 form-text disabled">
+    <b>MNTP Balance {{ mntpBalance }}</b>
+    <span>Buy now <b>{{ buyMNT }} MNT</b> and get <b>{{ commissionUSD }} USD</b> discounts</span>
+  </div>
+</div>-->
+
+<div class="row">
+  <div class="col form-group text-center buy-mntp-block buy-mntp-block-1">
+    <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[0] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
+    <div class="buy-mntp-caption mb-4">{{ commissionArray[1] }}% fee</div>
+
+    <div *ngIf="!buyMNT_DisableArray[0]; else okBlock">
+      <button class="btn btn-primary btn-wide">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
+      <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[0]  | number:'1.2-2':locale }} MNT</b><br> and get <b>{{ discountUSDArray[1] | number:'1.2-2':locale }} USD</b></div>
+    </div>
+    <ng-template #okBlock>
+      <svg class="buy-mntp-icon-bought" width="50px" height="50px">
+        <use href="#ok"></use>
+      </svg>
+    </ng-template>
+  </div>
+  <div class="col form-group text-center buy-mntp-block buy-mntp-block-2">
+    <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[1] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
+    <div class="buy-mntp-caption mb-4">{{ commissionArray[2] }}% fee</div>
+
+    <div *ngIf="!buyMNT_DisableArray[1]; else okBlock">
+      <button class="btn btn-primary btn-wide">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
+      <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[1]  | number:'1.2-2':locale }} MNT</b><br> and get <b>{{ discountUSDArray[2] | number:'1.2-2':locale }} USD</b></div>
+    </div>
+    <ng-template #okBlock>
+      <svg class="buy-mntp-icon-bought" width="50px" height="50px">
+        <use href="#ok"></use>
+      </svg>
+    </ng-template>
+  </div>
+  <div class="col form-group text-center buy-mntp-block buy-mntp-block-3">
+    <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[2] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
+    <div class="buy-mntp-caption mb-4">{{ commissionArray[3] }}% fee</div>
+
+    <div *ngIf="!buyMNT_DisableArray[2]; else okBlock">
+      <button class="btn btn-primary btn-wide">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</button>
+      <div class="buy-mntp-text mt-3 mb-5">Buy now <b>{{ buyMNTArray[2]  | number:'1.2-2':locale }} MNT</b><br> and get <b>{{ discountUSDArray[3] | number:'1.2-2':locale }} USD</b></div>
+    </div>
+    <ng-template #okBlock>
+      <svg class="buy-mntp-icon-bought" width="50px" height="50px">
+        <use href="#ok"></use>
+      </svg>
+    </ng-template>
+  </div>
+</div>

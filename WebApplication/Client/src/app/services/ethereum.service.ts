@@ -99,7 +99,7 @@ export class EthereumService {
     }
   }
 
-  private emitAddress(ethAddress:string) {
+  private emitAddress(ethAddress: string) {
     this._obsEthAddressSubject.next(ethAddress);
     this._obsUsdBalanceSubject.next(null);
     this._obsGoldBalanceSubject.next(null);
@@ -107,7 +107,42 @@ export class EthereumService {
     this.checkBalance();
   }
 
+  private updateUsdBalance(userId: string | null) {
+    if (userId == null || this._contractFiat == null) {
+      this._obsUsdBalanceSubject.next(null);
+    } else {
+      this._contractFiat.getUserFiatBalance(userId, (err, res) => {
+        res = res.toString();
+        this._obsUsdBalanceSubject.next(res / 100.0);
+      });
+    }
+  }
+
+  private updateGoldBalance(addr: string) {
+    if (addr == null || this._contractGold == null) {
+      this._obsGoldBalanceSubject.next(null);
+    } else {
+      this._contractGold.balanceOf(addr, (err, res) => {
+        this._obsGoldBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
+  private updateMntpBalance(addr: string) {
+    if (addr == null || this._contractGold == null) {
+      this._obsMntpBalanceSubject.next(null);
+    } else {
+      this._contractMntp.balanceOf(addr, (err, res) => {
+        this._obsMntpBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
   // ---
+
+  public isValidAddress(addr: string): boolean {
+    return (new Web3()).isAddress(addr);
+  }
 
   public getEthAddress(): string | null {
     return this._obsEthAddressSubject.value;
@@ -131,38 +166,7 @@ export class EthereumService {
 
   // ---
 
-  private updateUsdBalance(userId: string | null) {
-    if (userId == null || this._contractFiat == null) {
-      this._obsUsdBalanceSubject.next(null);
-    } else {
-      this._contractFiat.getUserFiatBalance(userId, (err, res) => {
-        res = res.toString();
-        this._obsUsdBalanceSubject.next(res / 100.0);
-      });
-    }
-  }
-
-  private updateGoldBalance(addr:string) {
-    if (addr == null || this._contractGold == null) {
-      this._obsGoldBalanceSubject.next(null);
-    } else {
-      this._contractGold.balanceOf(addr, (err, res) => {
-        this._obsGoldBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
-      });
-    }
-  }
-
-  private updateMntpBalance(addr: string) {
-    if (addr == null || this._contractGold == null) {
-      this._obsMntpBalanceSubject.next(null);
-    } else {
-      this._contractMntp.balanceOf(addr, (err, res) => {
-        this._obsMntpBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
-      });
-    }
-  }
-
-  public sendBuyRequest(fromAddr:string, payload:any[]) {
+  public sendBuyRequest(fromAddr: string, payload: any[]) {
     if (this._contractFiat == null) return;
     this._contractFiat.addBuyTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
   }
@@ -170,5 +174,11 @@ export class EthereumService {
   public sendSellRequest(fromAddr: string, payload: any[]) {
     if (this._contractFiat == null) return;
     this._contractFiat.addSellTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
+  }
+
+  public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
+    if (this._contractGold == null) return;
+    var goldAmountStr = goldAmount.times(new BigNumber(10).pow(18)).decimalPlaces(0, BigNumber.ROUND_DOWN).toString();
+    this._contractGold.transfer.sendTransaction(toAddr, goldAmountStr, { from: fromAddr, value: 0 }, (err, res) => { });
   }
 }
