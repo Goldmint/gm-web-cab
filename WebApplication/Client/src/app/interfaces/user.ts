@@ -1,3 +1,4 @@
+import { Limits} from "./limits";
 export interface User {
   id          ?: string;
   name        : string;
@@ -6,6 +7,7 @@ export interface User {
   verifiedL0  ?: boolean;
   verifiedL1  ?: boolean;
   challenges ?: string[];
+  limits     ?: Limits;
   social     ?: {
     facebook  : string|null,
     github    : string|null,

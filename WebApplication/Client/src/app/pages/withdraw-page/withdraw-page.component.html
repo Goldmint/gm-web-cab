@@ -1,108 +1,6 @@
 <ng-container *ngIf="page === _pages.Default">
-  <section class="page__section section section--table">
-    <h2 class="section__title">{{ "PAGES.Withdraw.SectionTitle" | translate }}</h2>
-
-    <div class="section__content pt-4">
-      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
-        <div class="container"></div>
-      </div>
-
-      <div class="row">
-        <div class="col form-group text-center">
-          <label for="btnPaymentCard">Payment card</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(_pages.CardsList)">
-            <svg class="icon" width="56px" height="56px">
-              <use href="#payment-card"></use>
-            </svg>
-          </button>
-        </div>
-        <div class="col form-group text-center">
-          <label for="btnPaymentBank" disabled>Bank transfer</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
-            <svg class="icon" width="107px" height="56px">
-              <use href="#payment-bank"></use>
-            </svg>
-          </button>
-        </div>
-        <!-- <div class="col form-group text-center">
-          <label for="btnPaymentCrypto">Crypto capital</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
-            <svg class="icon" width="56px" height="56px">
-              <use href="#payment-crypto"></use>
-            </svg>
-          </button>
-        </div> -->
-
-      </div>
-
-      <div class="row pb-4 mb-3">
-        <tabset class="col tabs">
-          <tab heading="Daily">
-            <div class="limits-bar">
-              <div class="limits-bar__caption">
-                <span>Account limits</span>
-                <div class="limits-bar__increase" *ngIf="limitsIncrease">
-                  <svg class="icon" width="20px" height="20px">
-                    <use xlink:href="#increase"></use>
-                  </svg>
-                  <span>Increase</span>
-                </div>
-              </div>
-              <div class="limits-bar__progress progress">
-                <div class="progress-bar w-25"></div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-6">
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">Payment Card</div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar"></div>
-                  </div>
-                  <dl class="limits-bar__list">
-                    <dt class="col-auto">Daily limis used:</dt>
-                    <dd class="col">$ 0.00 of $ 300.00</dd>
-                  </dl>
-                </div>
-
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">
-                    <span>Avialable for payment</span>
-                    <div class="limits-bar__value">$ 300.00</div>
-                  </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar w-75"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-6">
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">Account Limit</div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar w-25"></div>
-                  </div>
-                  <dl class="limits-bar__list">
-                    <dt class="col-auto">Daily limis used:</dt>
-                    <dd class="col">$ 0.00 of $ 300.00</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </tab>
-
-          <tab heading="Monthly">
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente iusto, ducimus ullam eaque dolore architecto ad consequatur quia enim, quaerat, assumenda, perspiciatis illo modi autem amet ut! Quae, unde, explicabo.</p>
-          </tab>
-        </tabset>
-      </div>
-
-    </div>
-  </section>
-
-  <ng-container *ngIf="!loading">
-    <section class="section section--warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">
+  <ng-container *ngIf="!loading && !tfaInfo.enabled">
+    <section class="section section--warning section--withdraw-warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">
       <h2 class="section__title section__title--warning">
         <svg class="icon" width="18px" height="16px">
           <use xlink:href="#warning"></use>
@@ -146,6 +44,108 @@
 
     </ng-template>
   </ng-container>
+  <section class="page__section section section--table">
+    <h2 class="section__title">{{ "PAGES.Withdraw.SectionTitle" | translate }}</h2>
+
+    <div class="section__content pt-4">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <div class="row">
+        <div class="col form-group text-center">
+          <label for="btnPaymentCard">Payment card</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(_pages.CardsList)">
+            <svg class="icon" width="56px" height="56px">
+              <use href="#payment-card"></use>
+            </svg>
+          </button>
+        </div>
+        <div class="col form-group text-center">
+          <label for="btnPaymentBank" disabled>Bank transfer</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
+            <svg class="icon" width="107px" height="56px">
+              <use href="#payment-bank"></use>
+            </svg>
+          </button>
+        </div>
+        <!-- <div class="col form-group text-center">
+          <label for="btnPaymentCrypto">Crypto capital</label>
+          <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
+            <svg class="icon" width="56px" height="56px">
+              <use href="#payment-crypto"></use>
+            </svg>
+          </button>
+        </div> -->
+
+      </div>
+
+      <div class="row pb-4 mb-3">
+        <tabset class="col tabs">
+          <tab heading="Daily">
+            <div class="limits-bar">
+              <div class="limits-bar__caption">
+                <span>Account limits</span>
+                <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                  <svg class="icon" width="20px" height="20px">
+                    <use xlink:href="#increase"></use>
+                  </svg>
+                  <span>Increase</span>
+                </a>
+              </div>
+              <div class="limits-bar__progress progress">
+                <div class="progress-bar" [ngClass]="{'w-50': !tfaEnabled, 'w-100': tfaEnabled}"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                  <!--<div class="limits-bar__caption">Payment Card</div>-->
+                  <!--<div class="limits-bar__progress progress">-->
+                    <!--<div class="progress-bar"></div>-->
+                  <!--</div>-->
+                  <!--<dl class="limits-bar__list">-->
+                    <!--<dt class="col-auto">Daily limis used:</dt>-->
+                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                  <!--</dl>-->
+                <!--</div>-->
+
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">
+                    <span>Avialable for payment</span>
+                    <div class="limits-bar__value">{{limits.current | currency}}</div>
+                  </div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/limits.day + '%'}"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">Account Limit</div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar" [ngStyle]="{'width': (limits.day - limits.current)*100/limits.day + '%'}"></div>
+                  </div>
+                  <dl class="limits-bar__list">
+                    <dt class="col-auto">Daily limits used:</dt>
+                    <dd class="col">{{(limits.day - limits.current) | currency}} of {{limits.day | currency}}</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </tab>
+
+          <tab heading="Monthly">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente iusto, ducimus ullam eaque dolore architecto ad consequatur quia enim, quaerat, assumenda, perspiciatis illo modi autem amet ut! Quae, unde, explicabo.</p>
+          </tab>
+        </tabset>
+      </div>
+
+    </div>
+  </section>
+
 </ng-container>
 
 <ng-container *ngIf="page === _pages.CardsList">

@@ -15,6 +15,7 @@ import { APIService } from './api.service';
 //import { EthereumService } from './ethereum.service';
 
 import { AppDefaultLanguage } from '../app.languages';
+import {Limits} from "../interfaces/limits";
 
 @Injectable()
 export class UserService {
@@ -130,14 +131,16 @@ export class UserService {
       if (jwt.gm_area === 'authorized') {
         if (jwt.gm_role === 'user' && jwt.gm_id) this._user.next({name: jwt.gm_id});
 
+
         zip(
           this._apiService.getProfile(),
+          this._apiService.getLimits(),
           //this._apiService.getBalance(this._ethereumService.getEthAddress()),
            shareReplay(),
-          (profile: APIResponse<User>) => { //, balance: APIResponse<Balance>) => {
+          (profile: APIResponse<User>, limits: APIResponse<Limits>) => { //, balance: APIResponse<Balance>) => {
             let user = profile.data;
                 //user.balance = balance.data;
-
+                user.limits = limits.data;
                 //@todo: move to settings-social-page.component.ts
                 user.social = {
                   facebook  : null,
