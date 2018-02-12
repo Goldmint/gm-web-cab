@@ -88,7 +88,7 @@
 
                 <div class="form-group">
                   <label for="inputUsername">{{ "PAGES.Login.Labels.TFACode" | translate }}</label>
-                  <input type="text" id="inputCode" required pattern="[0-9]{6,6}"
+                  <input type="text" noAutoComplete id="inputCode" required pattern="[0-9]{6,6}"
                          name="code" [(ngModel)]="tfaModel.code" #code="ngModel"
                          class="form-control col-7"
                          [ngClass]="{'is-invalid': (errors?.Code || !code.valid) && (tfaForm.submitted || !code.pristine)}"

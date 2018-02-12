@@ -90,6 +90,7 @@ import { TransparencyPageComponent } from './pages/transparency-page/transparenc
 import { DepositPageComponent } from './pages/deposit-page/deposit-page.component';
 import { WithdrawPageComponent } from './pages/withdraw-page/withdraw-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
+import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -175,6 +176,7 @@ export function getGoldmintToken() {
     DepositPageComponent,
     WithdrawPageComponent,
     FinancePageComponent,
+    NoautocompleteDirective,
   ],
   exports: [],
   providers: [
