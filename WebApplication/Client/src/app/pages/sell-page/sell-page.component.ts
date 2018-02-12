@@ -23,8 +23,7 @@ export class SellPageComponent implements OnInit {
   confirmation: boolean = false;
 
   toSellUnset: boolean = true;
-  toSell: BigNumber = new BigNumber (0);
-  estimate_amount:number = 0;
+  toSell: BigNumber = new BigNumber(0);
   commission: number = 0;
 
   goldBalance: BigNumber = null;
@@ -68,7 +67,7 @@ export class SellPageComponent implements OnInit {
 
         if (this.goldBalance !== null && this.goldBalance.gt(0) && this.toSellUnset) {
           this.toSellUnset = false;
-          this.toSell = this.goldBalance;
+          this.toSell = this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
         }
 
         if (this.goldBalance !== null && this.goldUsdRate !== null && this.mntpBalance !== null) {
@@ -85,17 +84,18 @@ export class SellPageComponent implements OnInit {
   onToSellChanged(value:string) {
     this.toSellUnset = false;
     this.toSell = new BigNumber(0);
-    if (value != '') this.toSell = new BigNumber(value);
+    if (value != '') {
+      this.toSell = new BigNumber(value);
+      this.toSell = this.toSell.decimalPlaces(6, BigNumber.ROUND_DOWN);
+    }
     this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
-    this.estimate_amount = 0;
     this._cdRef.detectChanges();
   }
 
   onSetSellPercent(percent:number) {
     var goldBalancePercent = new BigNumber(0);
     if (this.goldBalance != null) goldBalancePercent = new BigNumber(this.goldBalance.times(percent));
-    this.toSell = goldBalancePercent;
-    this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
+    this.onToSellChanged(goldBalancePercent.toString());
   }
 
   getDataCommission(rate: number, gold: BigNumber, mntp: BigNumber) {

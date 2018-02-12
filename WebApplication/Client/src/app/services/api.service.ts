@@ -341,7 +341,7 @@ export class APIService {
   }
 
   goldSellReqest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
-    var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18));
+    var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
       .post(`${this._baseUrl}/gold/sellRequest`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
       .pipe(
