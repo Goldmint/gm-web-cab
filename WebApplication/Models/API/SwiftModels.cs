@@ -74,6 +74,11 @@ namespace Goldmint.WebApplication.Models.API.SwiftModels {
 		[Required]
 		public string Reference { get; set; }
 
+		/// <summary>
+		/// Prepared html to show
+		/// </summary>
+		[Required]
+		public string Html { get; set; }
 	}
 
 	// ---

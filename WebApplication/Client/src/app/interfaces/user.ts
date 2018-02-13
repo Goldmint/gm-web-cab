@@ -1,4 +1,3 @@
-import { Limits} from "./limits";
 export interface User {
   id          ?: string;
   name        ?: string;
@@ -6,14 +5,5 @@ export interface User {
   tfaEnabled  ?: boolean;
   verifiedL0  ?: boolean;
   verifiedL1  ?: boolean;
-  challenges ?: string[];
-  limits     ?: Limits;
-
-  // TODO: remove, use API/profile
-  social     ?: {
-    facebook  : string|null,
-    github    : string|null,
-    vkontakte : string|null,
-    google    : string|null
-  };
+  challenges  ?: string[];
 }

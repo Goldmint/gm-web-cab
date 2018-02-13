@@ -10,7 +10,7 @@ import { BigNumber } from 'bignumber.js'
 
 import {
   User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
-  GoldRate, TFAInfo, KYCStart, KYCStatus, TransparencyRecord, Limits,
+  GoldRate, TFAInfo, KYCStart, KYCStatus, TransparencyRecord, FiatLimits,
   CardsList,
   GoldBuyResponse, GoldSellResponse
 } from '../interfaces';
@@ -170,7 +170,7 @@ export class APIService {
     );
   }
 
-  getLimits(): Observable<APIResponse<Limits>> {
+  getLimits(): Observable<APIResponse<FiatLimits>> {
     return this._http
       .get(`${this._baseUrl}/user/limits`, this.jwt())
       .pipe(

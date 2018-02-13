@@ -1,17 +1,16 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Finance.Fiat;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Localization;
 
 namespace Goldmint.WebApplication.Controllers.API {
 
-	public partial class SwiftController : BaseController {
+	public partial class SwiftController {
 
 		/// <summary>
 		/// Create swift deposit request
@@ -86,6 +85,19 @@ namespace Goldmint.WebApplication.Controllers.API {
 			request.PaymentReference = $"Order number: {request.Id}";
 			finHistory.Comment = $"Swift deposit request #{request.Id}";
 
+			// html
+			var renderedHtml = (await TemplateProvider.GetSwiftTemplate(SwiftTemplate.Invoice))
+				.Body
+				.Replace("{{BEN_NAME}}", AppConfig.Constants.SwiftData.BenName)
+				.Replace("{{BEN_ADDR}}", AppConfig.Constants.SwiftData.BenAddress)
+				.Replace("{{BEN_IBAN}}", AppConfig.Constants.SwiftData.BenIban)
+				.Replace("{{BEN_BANKNAME}}", AppConfig.Constants.SwiftData.BenBankName)
+				.Replace("{{BEN_BANKADDR}}", AppConfig.Constants.SwiftData.BenBankAddress)
+				.Replace("{{BEN_SWIFT}}", AppConfig.Constants.SwiftData.BenSwift)
+				.Replace("{{PAYMENT_REFERENCE}}", request.PaymentReference)
+				.Replace("{{AMOUNT}}", TextFormatter.FormatAmount(amountCents, transCurrency))
+			;
+
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(request, finHistory);
 
@@ -93,7 +105,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,
 				user: user,
-				type: Common.UserActivityType.Swift,
+				type: UserActivityType.Swift,
 				comment: $"Swift deposit #{request.Id} ({TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested",
 				ip: agent.Ip,
 				agent: agent.Agent
@@ -108,6 +120,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 					BenBankAddress = request.BenBankAddress,
 					BenSwift = request.BenSwift,
 					Reference = request.PaymentReference,
+					Html = renderedHtml,
 				}
 			);
 		}

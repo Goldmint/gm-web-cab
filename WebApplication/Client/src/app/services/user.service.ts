@@ -12,7 +12,6 @@ import { APIResponse, AuthResponse, RegistrationResponse } from '../interfaces/a
 import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';
 import { AppDefaultLanguage } from '../app.languages';
-import { Limits } from "../interfaces/limits";
 import { ReplaySubject } from "rxjs/ReplaySubject";
 
 @Injectable()
@@ -57,27 +56,14 @@ export class UserService {
 
         zip(
           this._apiService.getProfile(),
-          this._apiService.getLimits(),
-          //this._apiService.getBalance(this._ethereumService.getEthAddress()),
           shareReplay(),
-          (profile: APIResponse<User>, limits: APIResponse<Limits>) => { //, balance: APIResponse<Balance>) => {
+          (profile: APIResponse<User>) => {
             let user = profile.data;
-            //user.balance = balance.data;
-            user.limits = limits.data;
-            //@todo: move to settings-social-page.component.ts
-            user.social = {
-              facebook: null,
-              github: null,
-              vkontakte: null,
-              google: null
-            };
-
             return user;
           }
-        )
-          .subscribe(user => {
-            this._user.next(user);
-          });
+        ).subscribe(user => {
+          this._user.next(user);
+        });
       }
       else if (jwt.gm_area === 'tfa') {
         // 2FA token received. Continue flow further to the LoginPageController...

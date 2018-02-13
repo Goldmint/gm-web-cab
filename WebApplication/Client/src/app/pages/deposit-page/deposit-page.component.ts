@@ -11,13 +11,13 @@ import { CurrencyPipe } from '@angular/common';
 
 // import { TabsetComponent } from 'ngx-bootstrap';
 
-import { TFAInfo, CardsList, CardsListItem, Country } from '../../interfaces';
+import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
-import {Limit} from "../../interfaces/limit";
 
 import * as countries from '../../../assets/data/countries.json';
-import {User} from "../../interfaces/user";
-import {UserService} from "../../services/user.service";
+import { User } from "../../interfaces/user";
+import { UserService } from "../../services/user.service";
+import { Observable } from "rxjs/Observable";
 
 enum Pages { Default, CardsList, BankTransfer }
 enum BankTransferSteps { Default, Form, PaymentDetails }
@@ -35,6 +35,7 @@ export class DepositPageComponent implements OnInit {
 
   public page: Pages;
   public bankTransferStep: BankTransferSteps;
+
   public loading: boolean = true;
   public processing: boolean = false;
   public tfaInfo: TFAInfo;
@@ -49,53 +50,34 @@ export class DepositPageComponent implements OnInit {
   public riskChecked: boolean = false; // use in Bank Transfer steps
 
   public countries: Country[];
-  public limits = <Limit>{};
-  public user = <User>{};
+  public limits: FiatLimits;
+  public user: User;
 
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
     private _user: UserService,
-    private _messageBox: MessageBoxService) {
-
-    this.tfaInfo = {enabled: false} as TFAInfo;
-
-    this._apiService.getTFAInfo()
-      .finally(() => {
-        this.loading = false;
-        this._cdRef.detectChanges();
-      })
-      .subscribe(
-        res => this.tfaInfo = res.data/* ,
-        err => {} */
-      );
-      this._apiService.getLimits()
-          .finally(() => {
-          })
-          .subscribe(res => {
-                  this.limits = res.data.current.deposit;
-                  if (!this.limits.currentMonth) {
-                      this.limits.currentMonth = 0;
-                  }
-                  this._cdRef.detectChanges();
-              },
-              err => {});
-
-
-      this._apiService.getProfile()
-          .finally(()=>{
-
-          })
-          .subscribe(res => {
-              this.user = res.data;
-          });
-
+    private _messageBox: MessageBoxService
+  ) {
     this.page = Pages.Default;
-
-    this.countries = <Country[]><any> countries;
+    this.countries = <Country[]><any>countries;
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+
+    Observable.zip(
+      this._apiService.getTFAInfo(),
+      this._apiService.getLimits(),
+      this._user.currentUser
+    ).subscribe(res => {
+      this.tfaInfo = res[0].data;
+      this.limits = res[1].data;
+      this.user = res[2];
+
+      this.loading = false;
+      this._cdRef.markForCheck();
+    });
+  }
 
   goto(page: Pages) {
     switch (page) {
@@ -109,10 +91,10 @@ export class DepositPageComponent implements OnInit {
             this._cdRef.detectChanges();
           })
           .subscribe(
-            res => {
-              this.cards = res.data;
-              this.cards.list = this.cards.list.filter((card: CardsListItem) => card.status === 'verified');
-            }/* ,
+          res => {
+            this.cards = res.data;
+            this.cards.list = this.cards.list.filter((card: CardsListItem) => card.status === 'verified');
+          }/* ,
             err => {} */);
         break;
       case Pages.BankTransfer:
@@ -163,26 +145,26 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        (/* res */) => this._messageBox.alert('Your request is being processed'), // TODO: Maybe will be better to use pipes from RxJS
-        err => {
-          if (err.error && err.error.errorCode) {
-            switch (err.error.errorCode) {
-              case 100: // InvalidParameter
-                for (let i = err.error.data.length - 1; i >= 0; i--) {
-                  this.errors[err.error.data[i].field] = err.error.data[i].desc;
-                }
-                break;
+      (/* res */) => this._messageBox.alert('Your request is being processed'), // TODO: Maybe will be better to use pipes from RxJS
+      err => {
+        if (err.error && err.error.errorCode) {
+          switch (err.error.errorCode) {
+            case 100: // InvalidParameter
+              for (let i = err.error.data.length - 1; i >= 0; i--) {
+                this.errors[err.error.data[i].field] = err.error.data[i].desc;
+              }
+              break;
 
-              case 1005: // AccountDepositLimit
-                this._messageBox.alert('Deposit limit reached');
-                break;
+            case 1005: // AccountDepositLimit
+              this._messageBox.alert('Deposit limit reached');
+              break;
 
-              default:
-                this._messageBox.alert(err.error.errorDesc);
-                break;
-            }
+            default:
+              this._messageBox.alert(err.error.errorDesc);
+              break;
           }
-        });
+        }
+      });
   }
 }
 

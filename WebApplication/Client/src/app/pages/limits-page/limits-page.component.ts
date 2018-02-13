@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import 'rxjs/add/operator/finally';
 
-import { User, Limits } from '../../interfaces';
+import { User, FiatLimits } from '../../interfaces';
 import { APIService, UserService } from '../../services';
 
 @Component({
@@ -15,7 +15,7 @@ export class LimitsPageComponent implements OnInit {
 
   public loading: boolean = true;
   public user: User;
-  public limits: Limits;
+  public limits: FiatLimits;
   public limitsSwitchModel: {
     type: 'deposit'|'withdraw',
     currency: string

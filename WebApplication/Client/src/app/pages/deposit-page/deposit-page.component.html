@@ -3,154 +3,157 @@
     <h2 class="section__title">{{ "PAGES.Deposit.SectionTitle" | translate }}</h2>
 
     <div class="section__content pt-4">
-      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
         <div class="container"></div>
       </div>
 
-      <div class="row">
-        <div class="col form-group text-center">
-          <label for="btnPaymentCard">Payment card</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(_pages.CardsList)">
-            <svg class="icon" width="56px" height="56px">
-              <use href="#payment-card"></use>
-            </svg>
-          </button>
-        </div>
-        <div class="col form-group text-center">
-          <label for="btnPaymentBank">Bank transfer</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentBank" (click)="goto(_pages.BankTransfer)">
-            <svg class="icon" width="107px" height="56px">
-              <use href="#payment-bank"></use>
-            </svg>
-          </button>
-        </div>
-        <!-- <div class="col form-group text-center">
-          <label for="btnPaymentCrypto">Crypto capital</label>
-          <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
-            <svg class="icon" width="56px" height="56px">
-              <use href="#payment-crypto"></use>
-            </svg>
-          </button>
-        </div> -->
-      </div>
+      <ng-template #blockLoaded>
 
-      <div class="row pb-4 mb-3">
-        <tabset class="col tabs">
-          <tab heading="Daily">
-            <div class="limits-bar">
-              <div class="limits-bar__caption">
-                <span>Account limits</span>
-                <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
-                  <svg class="icon" width="20px" height="20px">
-                    <use xlink:href="#increase"></use>
-                  </svg>
-                  <span>Increase</span>
-                </a>
-              </div>
-              <div class="limits-bar__progress progress">
-                <div class="progress-bar"
-                     [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"
-                ></div>
-              </div>
-            </div>
+        <div class="row">
+          <div class="col form-group text-center">
+            <label for="btnPaymentCard">Payment card</label>
+            <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(_pages.CardsList)">
+              <svg class="icon" width="56px" height="56px">
+                <use href="#payment-card"></use>
+              </svg>
+            </button>
+          </div>
+          <div class="col form-group text-center">
+            <label for="btnPaymentBank">Bank transfer</label>
+            <button class="btn btn-primary btn-block" id="btnPaymentBank" (click)="goto(_pages.BankTransfer)">
+              <svg class="icon" width="107px" height="56px">
+                <use href="#payment-bank"></use>
+              </svg>
+            </button>
+          </div>
+          <!-- <div class="col form-group text-center">
+            <label for="btnPaymentCrypto">Crypto capital</label>
+            <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
+              <svg class="icon" width="56px" height="56px">
+                <use href="#payment-crypto"></use>
+              </svg>
+            </button>
+          </div> -->
+        </div>
 
-            <div class="row">
-              <div class="col-6">
-                <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+        <div class="row pb-4 mb-3">
+          <tabset class="col tabs">
+            <tab heading="Daily">
+              <div class="limits-bar">
+                <div class="limits-bar__caption">
+                  <span>Account limits</span>
+                  <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                    <svg class="icon" width="20px" height="20px">
+                      <use href="#increase"></use>
+                    </svg>
+                    <span>Increase</span>
+                  </a>
+                </div>
+                <div class="limits-bar__progress progress">
+                  <div class="progress-bar"
+                       [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-6">
+                  <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
                   <!--<div class="limits-bar__caption">Payment Card</div>-->
                   <!--<div class="limits-bar__progress progress">-->
-                    <!--<div class="progress-bar"></div>-->
+                  <!--<div class="progress-bar"></div>-->
                   <!--</div>-->
                   <!--<dl class="limits-bar__list">-->
-                    <!--<dt class="col-auto">Daily limis used:</dt>-->
-                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                  <!--<dt class="col-auto">Daily limis used:</dt>-->
+                  <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
                   <!--</dl>-->
-                <!--</div>-->
+                  <!--</div>-->
 
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">
-                    <span>Avialable for payment</span>
-                    <div class="limits-bar__value">{{limits.current | currency}}</div>
+                  <div class="limits-bar limits-bar--tiny">
+                    <div class="limits-bar__caption">
+                      <span>Available for payment</span>
+                      <div class="limits-bar__value">{{ limits.current.deposit.day | currency }}</div>
+                    </div>
+                    <div class="limits-bar__progress progress">
+                      <div class="progress-bar" [ngStyle]="{'width': limits.current.deposit.day*100/limits.levels.current.deposit.day + '%'}"></div>
+                    </div>
                   </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/limits.day + '%'}"></div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="limits-bar limits-bar--tiny">
+                    <div class="limits-bar__caption">
+                      Limit
+                      <div class="limits-bar__value">{{( limits.levels.current.deposit.day-limits.current.deposit.day) | currency}} of {{limits.levels.current.deposit.day | currency}}</div>
+                    </div>
+                    <div class="limits-bar__progress progress">
+                      <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.deposit.day - limits.current.deposit.day)*100/limits.levels.current.deposit.day + '%'}"></div>
+                    </div>
                   </div>
                 </div>
               </div>
+            </tab>
 
-              <div class="col-md-6">
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">Account Limit
-                    <div class="limits-bar__value">{{(limits.day - limits.current) | currency}} of {{limits.day | currency}}</div>
+            <tab heading="Monthly">
+              <div class="limits-bar">
+                <div class="limits-bar__caption">
+                  <span>Account limits</span>
+                  <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                    <svg class="icon" width="20px" height="20px">
+                      <use href="#increase"></use>
+                    </svg>
+                    <span>Increase</span>
+                  </a>
+                </div>
+                <div class="limits-bar__progress progress">
+                  <div class="progress-bar"
+                       [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                  <!--<div class="limits-bar__caption">Payment Card</div>-->
+                  <!--<div class="limits-bar__progress progress">-->
+                  <!--<div class="progress-bar"></div>-->
+                  <!--</div>-->
+                  <!--<dl class="limits-bar__list">-->
+                  <!--<dt class="col-auto">Daily limis used:</dt>-->
+                  <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                  <!--</dl>-->
+                  <!--</div>-->
 
+
+                  <div class="limits-bar limits-bar--tiny">
+                    <div class="limits-bar__caption">
+                      <span>Available for payment</span>
+                      <div class="limits-bar__value">{{ limits.current.deposit.month | currency}}</div>
+                    </div>
+                    <div class="limits-bar__progress progress">
+                      <div class="progress-bar" [ngStyle]="{'width': limits.current.deposit.month*100/(limits.levels.current.deposit.month || 1) + '%'}"></div>
+                    </div>
                   </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': (limits.day - limits.current)*100/limits.day + '%'}"></div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="limits-bar limits-bar--tiny">
+                    <div class="limits-bar__caption">
+                      Limit
+                      <div class="limits-bar__value">{{(limits.levels.current.deposit.month - limits.current.deposit.month) | currency}} of {{ limits.levels.current.deposit.month | currency}}</div>
+                    </div>
+                    <div class="limits-bar__progress progress">
+                      <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.deposit.month - limits.current.deposit.month)*100/(limits.levels.current.deposit.month || 1) + '%'}"></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </tab>
-
-          <tab heading="Monthly">
-            <div class="limits-bar">
-              <div class="limits-bar__caption">
-                <span>Account limits</span>
-                <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
-                  <svg class="icon" width="20px" height="20px">
-                    <use xlink:href="#increase"></use>
-                  </svg>
-                  <span>Increase</span>
-                </a>
-              </div>
-              <div class="limits-bar__progress progress">
-                <div class="progress-bar"
-                     [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"
-                ></div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
-                <!--<div class="limits-bar__caption">Payment Card</div>-->
-                <!--<div class="limits-bar__progress progress">-->
-                <!--<div class="progress-bar"></div>-->
-                <!--</div>-->
-                <!--<dl class="limits-bar__list">-->
-                <!--<dt class="col-auto">Daily limis used:</dt>-->
-                <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
-                <!--</dl>-->
-                <!--</div>-->
-
-
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">
-                    <span>Avialable for payment</span>
-                    <div class="limits-bar__value">{{limits.currentMonth | currency}}</div>
-                  </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': limits.currentMonth*100/(limits.month || 1) + '%'}"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">Account Limit
-                    <div class="limits-bar__value">{{(limits.month - limits.currentMonth) | currency}} of {{limits.month | currency}}</div>
-                  </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': (limits.month - limits.currentMonth)*100/(limits.month || 1) + '%'}"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </tab>
-        </tabset>
-      </div>
-
+            </tab>
+          </tabset>
+        </div>
+      </ng-template>
     </div>
   </section>
+
+
 
   <!--<ng-container *ngIf="!loading">-->
     <!--<section class="section section&#45;&#45;warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">-->
@@ -291,12 +294,11 @@
 
         <div class="form-group pt-4">
           <div class="custom-control custom-checkbox">
-            <input
-              type="checkbox"
-              class="custom-control-input"
-              id="riskChecked"
-              name="riskChecked"
-              [(ngModel)]="riskChecked">
+            <input type="checkbox"
+                   class="custom-control-input"
+                   id="riskChecked"
+                   name="riskChecked"
+                   [(ngModel)]="riskChecked">
 
             <label class="custom-control-label" for="riskChecked">I have double-checked all the risks</label>
           </div>
@@ -304,11 +306,10 @@
 
         <div class="row align-items-center">
           <div class="col text-center">
-            <button
-              type="button"
-              class="btn btn-primary"
-              [disabled]="!riskChecked"
-              (click)="nextStep(_bankTransferSteps.Form)">
+            <button type="button"
+                    class="btn btn-primary"
+                    [disabled]="!riskChecked"
+                    (click)="nextStep(_bankTransferSteps.Form)">
               Continue
             </button>
           </div>
@@ -316,42 +317,38 @@
       </ng-container>
 
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Form">
-        <form
-          name="transferForm"
-          (ngSubmit)="transferForm.form.valid && proceedTransfer()"
-          #transferForm="ngForm"
-          novalidate>
+        <form name="transferForm"
+              (ngSubmit)="transferForm.form.valid && proceedTransfer()"
+              #transferForm="ngForm"
+              novalidate>
           <div class="form-group">
             <label for="transferAmount">USD Amount *</label>
 
-            <input
-              id="transferAmount"
-              type="number"
-              min="0"
-              step="0.01"
-              class="form-control"
-              name="amount"
-              required
-              [(ngModel)]="transferForm.amount"
-              #amount="ngModel"
-              [ngClass]="{'is-invalid': amount.invalid && (transferForm.submitted || amount.dirty)}">
+            <input id="transferAmount"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   class="form-control"
+                   name="amount"
+                   required
+                   [(ngModel)]="transferForm.amount"
+                   #amount="ngModel"
+                   [ngClass]="{'is-invalid': amount.invalid && (transferForm.submitted || amount.dirty)}">
           </div>
 
           <div class="form-group">
             <label for="selectBankCountry">Choose your bank country</label>
 
-            <select
-              id="selectBankCountry"
-              class="custom-select"
-              #countrySelect
-              required
-              name="bankCountry"
-              [(ngModel)]="transferForm.bankCountry"
-              #bankCountry="ngModel"
-              [ngClass]="{'is-invalid': bankCountry.invalid && (transferForm.submitted || bankCountry.dirty)}">
-              <option
-                *ngFor="let country of countries"
-                [value]="country.countryShortCode">
+            <select id="selectBankCountry"
+                    class="custom-select"
+                    #countrySelect
+                    required
+                    name="bankCountry"
+                    [(ngModel)]="transferForm.bankCountry"
+                    #bankCountry="ngModel"
+                    [ngClass]="{'is-invalid': bankCountry.invalid && (transferForm.submitted || bankCountry.dirty)}">
+              <option *ngFor="let country of countries"
+                      [value]="country.countryShortCode">
                 {{country.countryName}}
               </option>
             </select>
