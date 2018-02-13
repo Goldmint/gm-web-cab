@@ -5,6 +5,8 @@ import { CurrencyPipe } from '@angular/common';
 import { TFAInfo, CardsList, CardsListItem } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
 import {Limit} from "../../interfaces/limit";
+import {UserService} from "../../services/user.service";
+import {User} from "../../interfaces/user";
 
 enum Pages { Default, CardsList }
 
@@ -32,10 +34,13 @@ export class WithdrawPageComponent implements OnInit {
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
   public limits = <Limit>{};
+  public user = <User>{};
+
 
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
+    private _user: UserService,
     private _messageBox: MessageBoxService) {
 
     this.tfaInfo = { enabled: false } as TFAInfo;
@@ -56,14 +61,28 @@ export class WithdrawPageComponent implements OnInit {
         })
         .subscribe(res => {
           this.limits = res.data.current.withdraw;
+          if (!this.limits.currentMonth) {
+            this.limits.currentMonth = 0;
+          }
           this._cdRef.detectChanges();
         },
             err => {});
+
+
+      this._apiService.getProfile()
+          .finally(()=>{
+
+          })
+          .subscribe(res => {
+              this.user = res.data;
+          });
+
     this.page = Pages.Default;
 
   }
 
   ngOnInit() {
+
   }
 
   goto(page: Pages) {

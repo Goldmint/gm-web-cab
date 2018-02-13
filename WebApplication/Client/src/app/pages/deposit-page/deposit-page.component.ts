@@ -16,6 +16,8 @@ import { APIService, MessageBoxService } from '../../services';
 import {Limit} from "../../interfaces/limit";
 
 import * as countries from '../../../assets/data/countries.json';
+import {User} from "../../interfaces/user";
+import {UserService} from "../../services/user.service";
 
 enum Pages { Default, CardsList, BankTransfer }
 enum BankTransferSteps { Default, Form, PaymentDetails }
@@ -48,10 +50,12 @@ export class DepositPageComponent implements OnInit {
 
   public countries: Country[];
   public limits = <Limit>{};
+  public user = <User>{};
 
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
+    private _user: UserService,
     private _messageBox: MessageBoxService) {
 
     this.tfaInfo = {enabled: false} as TFAInfo;
@@ -70,9 +74,21 @@ export class DepositPageComponent implements OnInit {
           })
           .subscribe(res => {
                   this.limits = res.data.current.deposit;
+                  if (!this.limits.currentMonth) {
+                      this.limits.currentMonth = 0;
+                  }
                   this._cdRef.detectChanges();
               },
               err => {});
+
+
+      this._apiService.getProfile()
+          .finally(()=>{
+
+          })
+          .subscribe(res => {
+              this.user = res.data;
+          });
 
     this.page = Pages.Default;
 

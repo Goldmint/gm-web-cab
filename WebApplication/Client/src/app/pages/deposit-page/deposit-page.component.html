@@ -48,7 +48,9 @@
                 </a>
               </div>
               <div class="limits-bar__progress progress">
-                <div class="progress-bar" [ngClass]="{'w-50': !tfaEnabled, 'w-100': tfaEnabled}"></div>
+                <div class="progress-bar"
+                     [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"
+                ></div>
               </div>
             </div>
 
@@ -71,28 +73,78 @@
                     <div class="limits-bar__value">{{limits.current | currency}}</div>
                   </div>
                   <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/limits.day+ '%'}"></div>
+                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/limits.day + '%'}"></div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-6">
+              <div class="col-md-6">
                 <div class="limits-bar limits-bar--tiny">
-                  <div class="limits-bar__caption">Account Limit</div>
+                  <div class="limits-bar__caption">Account Limit
+                    <div class="limits-bar__value">{{(limits.day - limits.current) | currency}} of {{limits.day | currency}}</div>
+
+                  </div>
                   <div class="limits-bar__progress progress">
                     <div class="progress-bar" [ngStyle]="{'width': (limits.day - limits.current)*100/limits.day + '%'}"></div>
                   </div>
-                  <dl class="limits-bar__list">
-                    <dt class="col-auto">Daily limits used:</dt>
-                    <dd class="col">{{(limits.day - limits.current) | currency}} of {{limits.day | currency}}</dd>
-                  </dl>
                 </div>
               </div>
             </div>
           </tab>
 
           <tab heading="Monthly">
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente iusto, ducimus ullam eaque dolore architecto ad consequatur quia enim, quaerat, assumenda, perspiciatis illo modi autem amet ut! Quae, unde, explicabo.</p>
+            <div class="limits-bar">
+              <div class="limits-bar__caption">
+                <span>Account limits</span>
+                <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                  <svg class="icon" width="20px" height="20px">
+                    <use xlink:href="#increase"></use>
+                  </svg>
+                  <span>Increase</span>
+                </a>
+              </div>
+              <div class="limits-bar__progress progress">
+                <div class="progress-bar"
+                     [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"
+                ></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                <!--<div class="limits-bar__caption">Payment Card</div>-->
+                <!--<div class="limits-bar__progress progress">-->
+                <!--<div class="progress-bar"></div>-->
+                <!--</div>-->
+                <!--<dl class="limits-bar__list">-->
+                <!--<dt class="col-auto">Daily limis used:</dt>-->
+                <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                <!--</dl>-->
+                <!--</div>-->
+
+
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">
+                    <span>Avialable for payment</span>
+                    <div class="limits-bar__value">{{limits.currentMonth | currency}}</div>
+                  </div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar" [ngStyle]="{'width': limits.currentMonth*100/(limits.month || 1) + '%'}"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="limits-bar limits-bar--tiny">
+                  <div class="limits-bar__caption">Account Limit
+                    <div class="limits-bar__value">{{(limits.month - limits.currentMonth) | currency}} of {{limits.month | currency}}</div>
+                  </div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar" [ngStyle]="{'width': (limits.month - limits.currentMonth)*100/(limits.month || 1) + '%'}"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </tab>
         </tabset>
       </div>
