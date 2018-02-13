@@ -13,9 +13,10 @@ import { CurrencyPipe } from '@angular/common';
 
 import { TFAInfo, CardsList, CardsListItem, Country } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
-import {Limit} from "../../interfaces/limit";
+import { Limit } from "../../interfaces/limit";
 
 import * as countries from '../../../assets/data/countries.json';
+import { Observable } from "rxjs/Observable";
 
 enum Pages { Default, CardsList, BankTransfer }
 enum BankTransferSteps { Default, Form, PaymentDetails }
@@ -52,34 +53,24 @@ export class DepositPageComponent implements OnInit {
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService) {
-
-    this.tfaInfo = {enabled: false} as TFAInfo;
-
-    this._apiService.getTFAInfo()
-      .finally(() => {
-        this.loading = false;
-        this._cdRef.detectChanges();
-      })
-      .subscribe(
-        res => this.tfaInfo = res.data/* ,
-        err => {} */
-      );
-      this._apiService.getLimits()
-          .finally(() => {
-          })
-          .subscribe(res => {
-                  this.limits = res.data.current.deposit;
-                  this._cdRef.detectChanges();
-              },
-              err => {});
-
+    private _messageBox: MessageBoxService
+  ) {
+    this.tfaInfo = { enabled: false } as TFAInfo;
     this.page = Pages.Default;
-
-    this.countries = <Country[]><any> countries;
+    this.countries = <Country[]><any>countries;
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    Observable.zip(
+      this._apiService.getTFAInfo(),
+      this._apiService.getLimits(),
+    ).subscribe(res => {
+      this.tfaInfo = res[0].data;
+      this.limits = res[1].data.current.deposit;
+      this.loading = false;
+      this._cdRef.detectChanges();
+    });
+  }
 
   goto(page: Pages) {
     switch (page) {
@@ -93,10 +84,10 @@ export class DepositPageComponent implements OnInit {
             this._cdRef.detectChanges();
           })
           .subscribe(
-            res => {
-              this.cards = res.data;
-              this.cards.list = this.cards.list.filter((card: CardsListItem) => card.status === 'verified');
-            }/* ,
+          res => {
+            this.cards = res.data;
+            this.cards.list = this.cards.list.filter((card: CardsListItem) => card.status === 'verified');
+          }/* ,
             err => {} */);
         break;
       case Pages.BankTransfer:
@@ -147,26 +138,26 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        (/* res */) => this._messageBox.alert('Your request is being processed'), // TODO: Maybe will be better to use pipes from RxJS
-        err => {
-          if (err.error && err.error.errorCode) {
-            switch (err.error.errorCode) {
-              case 100: // InvalidParameter
-                for (let i = err.error.data.length - 1; i >= 0; i--) {
-                  this.errors[err.error.data[i].field] = err.error.data[i].desc;
-                }
-                break;
+      (/* res */) => this._messageBox.alert('Your request is being processed'), // TODO: Maybe will be better to use pipes from RxJS
+      err => {
+        if (err.error && err.error.errorCode) {
+          switch (err.error.errorCode) {
+            case 100: // InvalidParameter
+              for (let i = err.error.data.length - 1; i >= 0; i--) {
+                this.errors[err.error.data[i].field] = err.error.data[i].desc;
+              }
+              break;
 
-              case 1005: // AccountDepositLimit
-                this._messageBox.alert('Deposit limit reached');
-                break;
+            case 1005: // AccountDepositLimit
+              this._messageBox.alert('Deposit limit reached');
+              break;
 
-              default:
-                this._messageBox.alert(err.error.errorDesc);
-                break;
-            }
+            default:
+              this._messageBox.alert(err.error.errorDesc);
+              break;
           }
-        });
+        }
+      });
   }
 }
 

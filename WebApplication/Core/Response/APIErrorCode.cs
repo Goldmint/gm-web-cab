@@ -71,6 +71,11 @@
 		/// Card withdraw failure
 		/// </summary>
 		AccountCardWithdrawFail = 1008,
+
+		/// <summary>
+		/// TFA must be enabled
+		/// </summary>
+		AccountTFADisabled = 1009,
 	}
 
 	public static class APIErrorCodeExtensions {

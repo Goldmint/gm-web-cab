@@ -39,18 +39,18 @@
         </div>
       </div>
     </section>
-
-    <ng-template #tfaEnabled>
-
-    </ng-template>
   </ng-container>
   <section class="page__section section section--table">
     <h2 class="section__title">{{ "PAGES.Withdraw.SectionTitle" | translate }}</h2>
 
     <div class="section__content pt-4">
-      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
         <div class="container"></div>
       </div>
+
+      <ng-template #blockLoaded>
+        TODO: loading
+      </ng-template>
 
       <div class="row">
         <div class="col form-group text-center">
