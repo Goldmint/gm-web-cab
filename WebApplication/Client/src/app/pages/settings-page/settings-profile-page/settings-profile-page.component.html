@@ -56,27 +56,21 @@
 
           <div class="form-group">
             <label for="inputCurrentPassword">{{ "PAGES.Settings.Profile.PasswordSection.Labels.CurrentPassword" | translate }}</label>
-            <input type="password" id="inputCurrentPassword" required noAutoComplete
+            <input type="password" id="inputCurrentPassword" noAutoComplete
                    name="currentPassword" [(ngModel)]="passwordModel.current" #currentPassword="ngModel"
-                   class="form-control col" [ngClass]="{'is-invalid': !currentPassword.valid && (passwordForm.submitted || !currentPassword.pristine)}">
+                   class="form-control col" [ngClass]="{'is-invalid': (!currentPassword.valid || passwordErrors?.Current) && (passwordForm.submitted || !currentPassword.pristine)}">
 
-            <div class="invalid-feedback" *ngIf="currentPassword.errors?.required">
-              {{ "PAGES.Settings.Profile.PasswordSection.Errors.CurrentPassword.required" | translate }}
-            </div>
+            <div class="invalid-feedback" *ngIf="passwordErrors?.Current">{{ "PAGES.Settings.Profile.PasswordSection.Errors.CurrentPassword.invalid" | translate }}</div>
           </div>
 
           <div class="form-group">
             <label for="inputNewPassword">{{ "PAGES.Settings.Profile.PasswordSection.Labels.NewPassword" | translate }}</label>
-            <input type="password" id="inputNewPassword" required noAutoComplete minlength="6" equal="newPasswordRepeat" reverse="true"
+            <input type="password" id="inputNewPassword" required noAutoComplete minlength="6" maxlength="128" equal="newPasswordRepeat" reverse="true"
                    name="newPassword" [(ngModel)]="passwordModel.new" #newPassword="ngModel"
-                   class="form-control col" [ngClass]="{'is-invalid': !newPassword.valid && (passwordForm.submitted || !newPassword.pristine)}">
+                   class="form-control col" [ngClass]="{'is-invalid': (!newPassword.valid || passwordErrors?.New) && (passwordForm.submitted || !newPassword.pristine)}">
 
-            <div class="invalid-feedback" *ngIf="newPassword.errors?.required">
-              {{ "PAGES.Settings.Profile.PasswordSection.Errors.NewPassword.required" | translate }}
-            </div>
-            <div class="invalid-feedback" *ngIf="newPassword.errors?.minlength">
-              {{ "PAGES.Settings.Profile.PasswordSection.Errors.NewPassword.minlength" | translate }}
-            </div>
+            <div class="invalid-feedback" *ngIf="newPassword.errors?.required">{{ "PAGES.Settings.Profile.PasswordSection.Errors.NewPassword.required" | translate }}</div>
+            <div class="invalid-feedback" *ngIf="passwordErrors?.New || newPassword.errors?.minlength">{{ "PAGES.Settings.Profile.PasswordSection.Errors.NewPassword.minlength" | translate }}</div>
           </div>
 
           <div class="form-group">
@@ -91,16 +85,17 @@
 
           <div class="form-group" *ngIf="_tfaInfo.enabled">
             <label for="inputNewPasswordTFACode">{{ "COMMONS.TFACode" | translate }}</label>
-            <input type="password" id="inputNewPasswordTFACode" required noAutoComplete minlength="6" maxlength="6"
+            <input type="text" id="inputNewPasswordTFACode" required noAutoComplete minlength="6" maxlength="6"
                    name="newPasswordTFACode" [(ngModel)]="passwordModel.tfaCode" #newPasswordTFACode="ngModel"
-                   class="form-control col" [ngClass]="{'is-invalid': !newPasswordTFACode.valid && (passwordForm.submitted || !newPasswordTFACode.pristine)}">
-            <div class="invalid-feedback" *ngIf="newPasswordTFACode.errors?.required || newPasswordTFACode.errors?.minlength">
+                   class="form-control col" [ngClass]="{'is-invalid': (!newPasswordTFACode.valid || passwordErrors?.TfaCode) && (passwordForm.submitted || !newPasswordTFACode.pristine)}">
+
+            <div class="invalid-feedback" *ngIf="passwordErrors?.TfaCode || newPasswordTFACode.errors?.required || newPasswordTFACode.errors?.minlength">
               {{ "COMMONS.TFACodeInvalid" | translate }}
             </div>
           </div>
 
           <div class="form-group mt-4">
-            <button class="btn btn-primary" [disabled]="true || passwordForm.form.pristine || !passwordForm.form.valid">
+            <button class="btn btn-primary" [disabled]="passwordForm.form.pristine || !passwordForm.form.valid">
               {{ "PAGES.Settings.Profile.PasswordSection.Buttons.ChangePassword" | translate }}
             </button>
             <img *ngIf="_changingPassword" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">

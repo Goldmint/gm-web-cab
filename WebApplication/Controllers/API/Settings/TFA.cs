@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.API {
 
-	[Route("api/v1/user/settings")]
 	public partial class SettingsController : BaseController {
 
 		/// <summary>
@@ -32,11 +31,10 @@ namespace Goldmint.WebApplication.Controllers.API {
 		[HttpPost, Route("tfa/edit")]
 		[ProducesResponseType(typeof(TFAView), 200)]
 		public async Task<APIResponse> TFAEdit([FromBody] TFAEditModel model) {
-			var invalidCodeError = "Invalid code";
-
+			
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(APIErrorCode.InvalidParameter, invalidCodeError);
+				return APIResponse.BadRequest(nameof(model.Code), "Invalid 2fa code");
 			}
 
 			var user = await GetUserFromDb();
@@ -44,7 +42,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 			// check
 			if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
-				return APIResponse.BadRequest(APIErrorCode.InvalidParameter, invalidCodeError);
+				return APIResponse.BadRequest(nameof(model.Code), "Invalid 2fa code");
 			}
 
 			var sendNoti = user.TwoFactorEnabled != model.Enable;

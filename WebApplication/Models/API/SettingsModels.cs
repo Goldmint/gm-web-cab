@@ -288,4 +288,43 @@ namespace Goldmint.WebApplication.Models.API.SettingsModels {
 		public bool Verified { get; set; }
 
 	}
+
+	// ---
+
+	public class ChangePasswordModel : BaseValidableModel {
+
+		/// <summary>
+		/// Current password
+		/// </summary>
+		[Required]
+		public string Current { get; set; }
+
+		/// <summary>
+		/// New password
+		/// </summary>
+		[Required]
+		public string New { get; set; }
+
+		/// <summary>
+		/// Current core in case of 2fa enabled, optional
+		/// </summary>
+		public string TfaCode { get; set; }
+
+		// ---
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<ChangePasswordModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.New)
+				.Must(Common.ValidationRules.BeValidPassword)
+				.WithMessage($"Password have to be from {Common.ValidationRules.PasswordMinLength} up to {Common.ValidationRules.PasswordMaxLength} symbols length")
+				;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class ChangePasswordView {
+	}
 }

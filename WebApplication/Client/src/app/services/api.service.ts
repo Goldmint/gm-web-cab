@@ -474,6 +474,14 @@ export class APIService {
       );
   }
 
+  changePassword(currentPassword: string, newPassword: string, tfaCode: string): Observable<APIResponse<any>> {
+    return this._http
+      .post(`${this._baseUrl}/user/settings/changePassword`, { current: currentPassword, new: newPassword, tfaCode: tfaCode }, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
 
   private _handleError(err: HttpErrorResponse | any) {
     // if (err == 'ohO_offline') {

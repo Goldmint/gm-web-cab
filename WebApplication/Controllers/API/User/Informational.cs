@@ -39,6 +39,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Fiat limits
 		/// </summary>
+		// TODO: send additional limits - card d/w onetime limits, swift d/w onetime limits
 		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpGet, Route("limits")]
 		[ProducesResponseType(typeof(LimitsView), 200)]

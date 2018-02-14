@@ -251,6 +251,9 @@
         },
         "PasswordSection": {
           "Title": "Change Password",
+		  "Texts": {
+			"Changed": "Password successfully changed"
+		  },
           "Labels": {
             "CurrentPassword": "Current Password",
             "NewPassword": "New Password",
@@ -261,7 +264,7 @@
           },
           "Errors": {
             "CurrentPassword": {
-              "required": "Current password is required"
+			  "invalid": "Invalid password specified"
             },
             "NewPassword": {
               "required": "New password is required",

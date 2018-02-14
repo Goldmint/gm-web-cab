@@ -25,7 +25,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				valid = totpv.Validate(
 					secret,
 					tokeni,
-					GenerationPeriodSeconds // means code valid within ttl of the next code
+					GenerationPeriodSeconds
 				);
 				
 			}
