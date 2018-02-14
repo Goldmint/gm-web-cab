@@ -16,7 +16,7 @@ import {
 } from '../interfaces';
 import {
   APIResponse, APIPagedResponse, AuthResponse, RegistrationResponse, CardAddResponse,
-  CardConfirmResponse, CardStatusResponse, UserBalanceResponse
+  CardConfirmResponse, CardStatusResponse, UserBalanceResponse, SwiftInvoice
 } from '../interfaces/api-response';
 
 import { KYCProfile } from '../models/kyc-profile';
@@ -472,6 +472,25 @@ export class APIService {
         return response;
       })
       );
+  }
+
+  getSwiftDepositInvoice(amount: number): Observable<APIResponse<SwiftInvoice>> {
+    let data = {
+      amount: amount,
+    };
+    let headers = this.jwt();
+    console.log(headers);
+    return this._http
+        .post(`${this._baseUrl}/user/fiat/swift/deposit`, data, headers)
+        .pipe(
+            catchError(this._handleError),
+                shareReplay(),
+                tap(res => {
+                  console.log(res);
+                  console.log(res.data);
+                  return res;
+                })
+        );
   }
 
 

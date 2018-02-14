@@ -73,7 +73,7 @@
                     <div class="limits-bar__value">{{limits.current | currency}}</div>
                   </div>
                   <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/limits.day + '%'}"></div>
+                    <div class="progress-bar" [ngStyle]="{'width': limits.current*100/(limits.day|| 1) + '%'}"></div>
                   </div>
                 </div>
               </div>
@@ -85,7 +85,7 @@
 
                   </div>
                   <div class="limits-bar__progress progress">
-                    <div class="progress-bar" [ngStyle]="{'width': (limits.day - limits.current)*100/limits.day + '%'}"></div>
+                    <div class="progress-bar" [ngStyle]="{'width': (limits.day - limits.current)*100/(limits.day|| 1) + '%'}"></div>
                   </div>
                 </div>
               </div>
@@ -318,7 +318,7 @@
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Form">
         <form
           name="transferForm"
-          (ngSubmit)="transferForm.form.valid && proceedTransfer()"
+          (ngSubmit)="transferForm.form.valid && submitTransferForm(transferForm.amount)"
           #transferForm="ngForm"
           novalidate>
           <div class="form-group">
@@ -357,8 +357,21 @@
             </select>
           </div>
 
-          <button class="btn btn-primary">Proceed</button>
+          <button class="btn btn-primary"
+                  [disabled]="!transferForm.bankCountry || !transferForm.amount"
+          >Proceed</button>
         </form>
+      </ng-container>
+      <ng-container *ngIf="bankTransferStep === _bankTransferSteps.PaymentDetails">
+        <div id="invoice-wrapper" class="invoice-wrapper">
+
+        </div>
+        <div class="invoice-actions-container">
+          <a href="#" (click)="downloadInvoice($event)"
+             [ngClass]="{'disabled-a': !invoiceHtml.length}"
+             download="invoice.html" class="btn btn-primary">download</a>
+          <button class="btn btn-primary" (click)="printInvoice()" [disabled]="!invoiceHtml.length">print</button>
+        </div>
       </ng-container>
     </div>
   </section>

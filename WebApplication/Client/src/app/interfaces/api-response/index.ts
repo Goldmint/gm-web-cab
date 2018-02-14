@@ -23,3 +23,4 @@ export * from './paged-data';
 export * from './gold-buy';
 export * from './gold-sell';
 export * from './user-balance';
+export * from './swift-invoice';

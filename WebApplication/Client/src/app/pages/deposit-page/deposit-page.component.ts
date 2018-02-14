@@ -51,11 +51,11 @@ export class DepositPageComponent implements OnInit {
   public countries: Country[];
   public limits = <Limit>{};
   public user = <User>{};
+  public invoiceHtml:string = '';
 
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
-    private _user: UserService,
     private _messageBox: MessageBoxService) {
 
     this.tfaInfo = {enabled: false} as TFAInfo;
@@ -74,6 +74,7 @@ export class DepositPageComponent implements OnInit {
           })
           .subscribe(res => {
                   this.limits = res.data.current.deposit;
+                  console.log(this.limits);
                   if (!this.limits.currentMonth) {
                       this.limits.currentMonth = 0;
                   }
@@ -151,6 +152,8 @@ export class DepositPageComponent implements OnInit {
 
   proceedTransfer() {
     console.log('Proceeded!');
+    console.log(this.bankTransferStep);
+    return true;
   }
 
   submit() {
@@ -183,6 +186,36 @@ export class DepositPageComponent implements OnInit {
             }
           }
         });
+  }
+
+  submitTransferForm(amount) {
+      this._apiService.getSwiftDepositInvoice(amount)
+          .finally(()=> {
+
+        this._cdRef.detectChanges();
+          })
+          .subscribe(res => {
+            let html = res.data.html;
+            let invoiceWrapper = document.getElementById('invoice-wrapper');
+            invoiceWrapper.innerHTML = html;
+            this.invoiceHtml = html;
+          })
+      this.nextStep(this._bankTransferSteps.PaymentDetails)
+  }
+
+  printInvoice() {
+    if (this.invoiceHtml.length) {
+        let win = window.open('');
+        win.document.write(this.invoiceHtml);
+        win.print();
+        win.close();
+    }
+  }
+
+  downloadInvoice(e) {
+    console.log(e);
+    let target = e.target;
+    target.href='data:text/html;charset=UTF-8,'+ encodeURIComponent(this.invoiceHtml);
   }
 }
 
