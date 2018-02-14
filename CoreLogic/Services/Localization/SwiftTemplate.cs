@@ -2,7 +2,7 @@
 
 	public sealed class SwiftTemplate {
 
-		public const string Invoice = "Invoice";
+		public const string DepositInvoice = "DepositInvoice";
 
 		public string Body { get; set; }
 	}

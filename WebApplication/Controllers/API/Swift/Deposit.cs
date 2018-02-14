@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Notification.Impl;
 
 namespace Goldmint.WebApplication.Controllers.API {
 
@@ -86,7 +87,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			finHistory.Comment = $"Swift deposit request #{request.Id}";
 
 			// html
-			var renderedHtml = (await TemplateProvider.GetSwiftTemplate(SwiftTemplate.Invoice))
+			var renderedHtml = (await TemplateProvider.GetSwiftTemplate(SwiftTemplate.DepositInvoice))
 				.Body
 				.Replace("{{BEN_NAME}}", AppConfig.Constants.SwiftData.BenName)
 				.Replace("{{BEN_ADDR}}", AppConfig.Constants.SwiftData.BenAddress)
@@ -110,6 +111,11 @@ namespace Goldmint.WebApplication.Controllers.API {
 				ip: agent.Ip,
 				agent: agent.Agent
 			);
+
+			// notification
+			await EmailComposer.FromTemplate($"Deposit request #{request.Id}", renderedHtml)
+				.Send(user.Email, EmailQueue)
+			;
 
 			return APIResponse.Success(
 				new DepositView() {
