@@ -42,7 +42,10 @@ namespace Goldmint.WebApplication.Controllers.API {
 			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
-			
+			if (!user.TwoFactorEnabled) {
+				return APIResponse.BadRequest(APIErrorCode.AccountTFADisabled);
+			}
+
 			// actual user balance check
 			var currentBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, transCurrency);
 			if (amountCents > currentBalance) {

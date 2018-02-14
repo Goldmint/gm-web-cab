@@ -73,7 +73,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					// get limit
 					var limit = await UserAccount.GetCurrentFiatWithdrawLimit(services, currency, user);
-					if (amountCents <= limit) {
+					if (amountCents <= limit.Minimal) {
 						try {
 							var withdraw = await onSuccess();
 							if (withdraw == null) throw new Exception("Got null withdraw object");

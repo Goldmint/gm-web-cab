@@ -53,45 +53,58 @@ namespace Goldmint.WebApplication.Controllers.API {
 			return APIResponse.Success(
 				new LimitsView() {
 
-					// current user
+					// current limits
 					Current = new LimitsView.UserLimits() {
 
 						Deposit = new LimitsView.UserLimitItem() {
-							Current = curDepositLimit / 100d,
-							Day = limits.CurrentUser.DayDeposit / 100d,
-							Month = limits.CurrentUser.MonthDeposit / 100d,
+							Minimal = curDepositLimit.Minimal / 100d,
+							Day = curDepositLimit.Day / 100d,
+							Month = curDepositLimit.Month / 100d,
 						},
+
 						Withdraw = new LimitsView.UserLimitItem() {
-							Current = curWithdrawLimit / 100d,
-							Day = limits.CurrentUser.DayWithdraw / 100d,
-							Month = limits.CurrentUser.MonthWithdraw / 100d,
+							Minimal = curWithdrawLimit.Minimal / 100d,
+							Day = curWithdrawLimit.Day / 100d,
+							Month = curWithdrawLimit.Month / 100d,
 						},
 					},
 
 					// levels
 					Levels = new LimitsView.VerificationLevels() {
 
+						Current = new LimitsView.VerificationLevelLimits() {
+
+							Deposit = new LimitsView.LimitItem() {
+								Day = limits.Current.Deposit.Day / 100d,
+								Month = limits.Current.Deposit.Month / 100d,
+							},
+							Withdraw = new LimitsView.LimitItem() {
+								Day = limits.Current.Withdraw.Day / 100d,
+								Month = limits.Current.Withdraw.Month / 100d,
+							}
+						},
+
 						L0 = new LimitsView.VerificationLevelLimits() {
 
 							Deposit = new LimitsView.LimitItem() {
-								Day = limits.Level0.DayDeposit / 100d,
-								Month = limits.Level0.MonthDeposit / 100d,
+								Day = limits.Level0.Deposit.Day / 100d,
+								Month = limits.Level0.Deposit.Month / 100d,
 							},
 							Withdraw = new LimitsView.LimitItem() {
-								Day = limits.Level0.DayWithdraw / 100d,
-								Month = limits.Level0.MonthWithdraw / 100d,
+								Day = limits.Level0.Withdraw.Day / 100d,
+								Month = limits.Level0.Withdraw.Month / 100d,
 							}
 						},
 
 						L1 = new LimitsView.VerificationLevelLimits() {
 
 							Deposit = new LimitsView.LimitItem() {
-								Day = limits.Level1.DayDeposit / 100d,
-								Month = limits.Level1.MonthDeposit / 100d,
+								Day = limits.Level1.Deposit.Day / 100d,
+								Month = limits.Level1.Deposit.Month / 100d,
 							},
 							Withdraw = new LimitsView.LimitItem() {
-								Day = limits.Level1.DayWithdraw / 100d,
-								Month = limits.Level1.MonthWithdraw / 100d,
+								Day = limits.Level1.Withdraw.Day / 100d,
+								Month = limits.Level1.Withdraw.Month / 100d,
 							}
 						}
 					},

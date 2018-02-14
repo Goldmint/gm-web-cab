@@ -20,7 +20,6 @@ export class SettingsSocialPageComponent implements OnInit {
     private apiService: APIService,
     private cdRef: ChangeDetectorRef) {
 
-    this.user = this.userService.user;
     this.selected = 'facebook';
   }
 

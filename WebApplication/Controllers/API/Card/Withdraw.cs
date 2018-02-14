@@ -42,6 +42,10 @@ namespace Goldmint.WebApplication.Controllers.API {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
+			if (!user.TwoFactorEnabled) {
+				return APIResponse.BadRequest(APIErrorCode.AccountTFADisabled);
+			}
+
 			// get card
 			var card = user.Card.SingleOrDefault(
 				c => c.Id == model.CardId && c.State == CardState.Verified

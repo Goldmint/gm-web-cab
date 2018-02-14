@@ -11,7 +11,6 @@ export * from './country';
 export * from './region';
 export * from './transparency-summary';
 export * from './transparency-record';
-export * from './limit';
-export * from './limits';
+export * from './fiat-limits';
 export * from './cards-list-item';
 export * from './cards-list';

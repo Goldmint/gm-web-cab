@@ -609,23 +609,27 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Refunded successfully");
 						}
 						else {
-							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Refund failed");
+							await ticketDesk.NewManualSupportTicket($"Card verification payment #{payment.Id} has not been refunded and requires manual processing due to failure");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Refund failed. Passed to support team");
 						}
 					}
 					catch { }
 
 					payment.Status = CardPaymentStatus.Failed;
+					payment.ProviderStatus = "Refund Failed";
+					payment.ProviderMessage = "Refund Failed";
 					payment.TimeCompleted = DateTime.UtcNow;
 					// payment.TimeNextCheck = doesn't matter
 
+					// update payment
 					if (resultGWTID != null) {
-
-						// update payment
-						payment.GWTransactionId = resultGWTID;
 						payment.Status = CardPaymentStatus.Success;
-						dbContext.Update(payment);
+						payment.GWTransactionId = resultGWTID;
+						payment.ProviderStatus = "Refund Success";
+						payment.ProviderMessage = "Refund Success";
 					}
 
+					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
 					dbContext.Detach(payment);
 

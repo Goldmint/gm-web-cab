@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
-import { User } from '../../../interfaces';
+import { User, TFAInfo } from '../../../interfaces';
 import { UserService, APIService } from '../../../services';
+import { Observable } from "rxjs/Observable";
 
 @Component({
   selector: 'app-settings-profile-page',
@@ -11,50 +12,53 @@ import { UserService, APIService } from '../../../services';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsProfilePageComponent implements OnInit {
+  
+  private _loading = true;
+  private _changingPassword: boolean;
 
-  public loading = true;
-  public user: User;
-  public passwordModel: any = {};
-  public submitButtonBlur = new EventEmitter<boolean>();
-
+  private _user: User;
+  private _tfaInfo: TFAInfo;
+  private passwordModel: any = {};
+  
   constructor(
-    private userService: UserService,
-    private apiService: APIService,
-    private cdRef: ChangeDetectorRef) {
+    private _userService: UserService,
+    private _apiService: APIService,
+    private _cdRef: ChangeDetectorRef
+  ) {
   }
 
   ngOnInit() {
-    this.userService.currentUser.subscribe(user => {
-      this.user = user;
-      this.onLoading();
+    Observable.combineLatest(
+      this._userService.currentUser,
+      this._apiService.getTFAInfo()
+    ).subscribe(res => {
+      this._user = res[0];
+      this._tfaInfo = res[1].data;
+      this._loading = false;
+      this._cdRef.markForCheck();
     });
   }
 
-  onLoading() {
-    if (this.user && this.user.id) {
-      this.loading = false;
-      this.cdRef.detectChanges();
-    }
-  }
+  // ---
 
   changeEmail() {
     //this.loading = true;
 
     setTimeout(() => {
       //this.loading = false;
-      this.cdRef.detectChanges();
+      this._cdRef.detectChanges();
 
-      alert('Method changeEmail(): \n' + this.user.email);
+      //alert('Method changeEmail(): \n' + this.user.email);
     }, 3000);
   }
 
   changePassword() {
-    //this.loading = true;
-    this.submitButtonBlur.emit();
+    this._changingPassword = true;
+    this._cdRef.markForCheck();
 
     setTimeout(() => {
-      //this.loading = false;
-      this.cdRef.detectChanges();
+      this._changingPassword = false;
+      this._cdRef.markForCheck();
     }, 3000);
   }
 

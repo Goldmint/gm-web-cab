@@ -139,12 +139,12 @@ export class LoginPageComponent implements OnInit {
       })
       .subscribe(
         res => {
-          if (this._userService.user.challenges && this._userService.user.challenges.indexOf('2fa') > -1) {
-            this._router.navigate(['/signup/2fa']);
-          }
-          else {
+          //if (this._userService.user.challenges && this._userService.user.challenges.indexOf('2fa') > -1) {
+          //  this._router.navigate(['/signup/2fa']);
+          //}
+          //else {
             this._router.navigate([this._returnUrl]);
-          }
+          //}
         },
         err => {
           if (err.error && err.error.errorCode) {

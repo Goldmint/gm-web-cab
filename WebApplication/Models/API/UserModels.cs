@@ -167,6 +167,7 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 
 		public class VerificationLevels {
 
+			public VerificationLevelLimits Current { get; set; }
 			public VerificationLevelLimits L0 { get; set; }
 			public VerificationLevelLimits L1 { get; set; }
 		}
@@ -192,7 +193,7 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 			/// Current limit
 			/// </summary>
 			[Required]
-			public double Current { get; set; }
+			public double Minimal { get; set; }
 		}
 	}
 

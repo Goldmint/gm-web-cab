@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
 import { TabsetComponent } from 'ngx-bootstrap';
 import { CurrencyPipe } from '@angular/common';
+import { Observable } from "rxjs/Observable";
 
-import { TFAInfo, CardsList, CardsListItem } from '../../interfaces';
+import { TFAInfo, CardsList, CardsListItem, FiatLimits } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
-import {Limit} from "../../interfaces/limit";
-import {UserService} from "../../services/user.service";
-import {User} from "../../interfaces/user";
+import { UserService } from "../../services/user.service";
+import { User } from "../../interfaces/user";
 
 enum Pages { Default, CardsList }
 
@@ -33,56 +33,32 @@ export class WithdrawPageComponent implements OnInit {
   public agreeCheck: boolean = false;
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
-  public limits = <Limit>{};
-  public user = <User>{};
-
+  public limits: FiatLimits;
+  public user: User;
 
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
     private _user: UserService,
-    private _messageBox: MessageBoxService) {
-
-    this.tfaInfo = { enabled: false } as TFAInfo;
-
-    this._apiService.getTFAInfo()
-      .finally(() => {
-        this.loading = false;
-        this._cdRef.detectChanges();
-      })
-      .subscribe(
-      res => {
-        this.tfaInfo = res.data;
-      },
-      err => { });
-
-    this._apiService.getLimits()
-        .finally(() => {
-        })
-        .subscribe(res => {
-          this.limits = res.data.current.withdraw;
-          if (!this.limits.currentMonth) {
-            this.limits.currentMonth = 0;
-          }
-          this._cdRef.detectChanges();
-        },
-            err => {});
-
-
-      this._apiService.getProfile()
-          .finally(()=>{
-
-          })
-          .subscribe(res => {
-              this.user = res.data;
-          });
-
+    private _messageBox: MessageBoxService
+  ) {
     this.page = Pages.Default;
-
   }
 
   ngOnInit() {
 
+    Observable.zip(
+      this._apiService.getTFAInfo(),
+      this._apiService.getLimits(),
+      this._user.currentUser
+    ).subscribe(res => {
+      this.tfaInfo = res[0].data;
+      this.limits = res[1].data;
+      this.user = res[2];
+
+      this.loading = false;
+      this._cdRef.markForCheck();
+    });
   }
 
   goto(page: Pages) {

@@ -1,4 +1,9 @@
 {
+  "COMMONS": {
+	"Loading": "Loading...",
+	"TFACode": "Two-factor authentication code",
+	"TFACodeInvalid": "Invalid code"
+  },
   "HEADER": {
     "Wallet": "Wallet:",
     "SignIn": "Sign in",

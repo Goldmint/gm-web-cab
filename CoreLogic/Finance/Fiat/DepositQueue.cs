@@ -105,7 +105,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					// get limit
 					var limit = await UserAccount.GetCurrentFiatDepositLimit(services, currency, user);
-					if (amountCents <= limit) {
+					if (amountCents <= limit.Minimal) {
 						try {
 							var deposit = await onSuccess();
 							if (deposit == null) throw new Exception("Got null deposit object");

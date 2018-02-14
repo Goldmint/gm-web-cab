@@ -17,7 +17,7 @@ namespace Goldmint.CoreLogic {
 		public static long ExtractId(string data) {
 			var ret = 0L;
 			if (!string.IsNullOrWhiteSpace(data) && (data[0] == 'u' || char.IsDigit(data[0]))) {
-				var digits = string.Join("", data.Where(c => char.IsDigit(c)).Select(c => c.ToString()).ToArray()).TrimStart('0');
+				var digits = string.Join("", data.Where(char.IsDigit).Select(c => c.ToString()).ToArray()).TrimStart('0');
 				long.TryParse(digits, out ret);
 			}
 			return ret;
@@ -31,22 +31,7 @@ namespace Goldmint.CoreLogic {
 			return user?.UserVerification?.KycShuftiProTicketId != null;
 		}
 
-		public sealed class FiatLimits {
-
-			public Limits CurrentUser { get; set; }
-			public Limits Level0 { get; set; }
-			public Limits Level1 { get; set; }
-
-			public class Limits {
-
-				public long DayDeposit { get; internal set; }
-				public long MonthDeposit { get; internal set; }
-				public long DayWithdraw { get; internal set; }
-				public long MonthWithdraw { get; internal set; }
-			}
-		}
-
-		public static Task<FiatLimits> GetFiatLimits(IServiceProvider services, FiatCurrency currency, User user) {
+		public static Task<FiatLimitsLevels> GetFiatLimits(IServiceProvider services, FiatCurrency currency, User user) {
 
 			var appConfig = services.GetRequiredService<AppConfig>();
 
@@ -54,37 +39,45 @@ namespace Goldmint.CoreLogic {
 				throw new NotImplementedException("Non-USD currency is not implemented");
 			}
 
-			var current = new FiatLimits.Limits();
-			var level0 = new FiatLimits.Limits();
-			var level1 = new FiatLimits.Limits();
+			var current = new UserAccount.FiatOperationsLimits();
+			var level0 = new UserAccount.FiatOperationsLimits();
+			var level1 = new UserAccount.FiatOperationsLimits();
 
 			// usd
 			if (currency == FiatCurrency.USD) {
 
-				level0 = new FiatLimits.Limits() {
-					DayDeposit = appConfig.Constants.FiatAccountLimitsUSD.L0.DayDeposit,
-					MonthDeposit = appConfig.Constants.FiatAccountLimitsUSD.L0.MonthDeposit,
-					DayWithdraw = appConfig.Constants.FiatAccountLimitsUSD.L0.DayWithdraw,
-					MonthWithdraw = appConfig.Constants.FiatAccountLimitsUSD.L0.MonthWithdraw,
+				level0 = new UserAccount.FiatOperationsLimits() {
+					Deposit = new FiatLimits() {
+						Day = appConfig.Constants.FiatAccountLimitsUSD.L0.DayDeposit,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.L0.MonthDeposit,
+					},
+					Withdraw = new FiatLimits() {
+						Day = appConfig.Constants.FiatAccountLimitsUSD.L0.DayWithdraw,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.L0.MonthWithdraw,
+					}
 				};
 
-				level1 = new FiatLimits.Limits() {
-					DayDeposit = appConfig.Constants.FiatAccountLimitsUSD.L1.DayDeposit,
-					MonthDeposit = appConfig.Constants.FiatAccountLimitsUSD.L1.MonthDeposit,
-					DayWithdraw = appConfig.Constants.FiatAccountLimitsUSD.L1.DayWithdraw,
-					MonthWithdraw = appConfig.Constants.FiatAccountLimitsUSD.L1.MonthWithdraw,
+				level1 = new UserAccount.FiatOperationsLimits() {
+					Deposit = new FiatLimits() {
+						Day = appConfig.Constants.FiatAccountLimitsUSD.L1.DayDeposit,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.L1.MonthDeposit,
+					},
+					Withdraw = new FiatLimits() {
+						Day = appConfig.Constants.FiatAccountLimitsUSD.L1.DayWithdraw,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.L1.MonthWithdraw,
+					}
 				};
 			}
 
 			// level 0
 			if (IsUserVerifiedL0(user)) current = level0;
-			
+
 			// level 1
 			if (IsUserVerifiedL1(user)) current = level1;
 
 			return Task.FromResult(
-				new FiatLimits() {
-					CurrentUser = current,
+				new FiatLimitsLevels() {
+					Current = current,
 					Level0 = level0,
 					Level1 = level1,
 				}
@@ -94,7 +87,7 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Current deposit limit for specified user
 		/// </summary>
-		public static async Task<long> GetCurrentFiatDepositLimit(IServiceProvider services, FiatCurrency currency, User user) {
+		public static async Task<FiatLimits> GetCurrentFiatDepositLimit(IServiceProvider services, FiatCurrency currency, User user) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
@@ -125,13 +118,16 @@ namespace Goldmint.CoreLogic {
 				amountMonth += d.AmountCents;
 			}
 
-			return Math.Max(0, Math.Min(accountLimits.CurrentUser.DayDeposit - amountDay, accountLimits.CurrentUser.MonthDeposit - amountMonth));
+			return new FiatLimits() {
+				Day = Math.Max(0, accountLimits.Current.Deposit.Day - amountDay),
+				Month = Math.Max(0, accountLimits.Current.Deposit.Month - amountMonth),
+			};
 		}
 
 		/// <summary>
 		/// Current withdraw limit for specified user
 		/// </summary>
-		public static async Task<long> GetCurrentFiatWithdrawLimit(IServiceProvider services, FiatCurrency currency, User user) {
+		public static async Task<FiatLimits> GetCurrentFiatWithdrawLimit(IServiceProvider services, FiatCurrency currency, User user) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
@@ -165,7 +161,10 @@ namespace Goldmint.CoreLogic {
 				amountMonth += d.AmountCents;
 			}
 
-			return Math.Max(0, Math.Min(accountLimits.CurrentUser.DayWithdraw - amountDay, accountLimits.CurrentUser.MonthWithdraw - amountMonth));
+			return new FiatLimits() {
+				Day = Math.Max(0, accountLimits.Current.Withdraw.Day - amountDay),
+				Month = Math.Max(0, accountLimits.Current.Withdraw.Month - amountMonth),
+			};
 		}
 
 		/// <summary>
@@ -186,6 +185,39 @@ namespace Goldmint.CoreLogic {
 
 			dbContext.Add(activity);
 			await dbContext.SaveChangesAsync();
+		}
+
+		// ---
+
+		/// <summary>
+		/// Levels
+		/// </summary>
+		public sealed class FiatLimitsLevels {
+
+			public FiatOperationsLimits Current { get; internal set; }
+			public FiatOperationsLimits Level0 { get; internal set; }
+			public FiatOperationsLimits Level1 { get; internal set; }
+		}
+
+		/// <summary>
+		/// Limited operations
+		/// </summary>
+		public sealed class FiatOperationsLimits {
+
+			public FiatLimits Deposit { get; internal set; }
+			public FiatLimits Withdraw { get; internal set; }
+		}
+
+		/// <summary>
+		/// Limits types
+		/// </summary>
+		public sealed class FiatLimits {
+
+			public long Day { get; internal set; }
+			public long Month { get; internal set; }
+
+			public long Minimal => Math.Max(0, Math.Min(Day, Month));
+			public long Maximal => Math.Max(0, Math.Max(Day, Month));
 		}
 	}
 }
