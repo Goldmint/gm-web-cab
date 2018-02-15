@@ -40,7 +40,7 @@
               <div class="account-type__name">Basic</div>
               <div class="account-type__icon">
                 <svg class="icon" width="66px" height="54px">
-                  <use href="#account-basic"></use>
+                  <use xlink:href="#account-basic"></use>
                 </svg>
               </div>
               <p class="account-type__desc">Buy and sale Bitcoins in a few clicks using your Visa or Master Card.</p>
@@ -53,7 +53,7 @@
               <div class="account-type__name">Verified</div>
               <div class="account-type__icon">
                 <svg class="icon" width="61px" height="58px">
-                  <use href="#account-verified"></use>
+                  <use xlink:href="#account-verified"></use>
                 </svg>
               </div>
               <p class="account-type__desc">Extend your limits and enable more payment options by verifying your identity.</p>
@@ -125,19 +125,19 @@
               <div class="limits__col-caption">Payment card</div>
               <div class="limits__col-icon">
                 <svg class="icon" width="70px" height="58px">
-                  <use href="#payment-card"></use>
+                  <use xlink:href="#payment-card"></use>
                 </svg>
               </div>
               <div class="limits__col-note"><b>Commission:</b> 3,5% + 0.25</div>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
+                <use xlink:href="#ok"></use>
               </svg>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && user.verifiedL1}">
               <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
+                <use xlink:href="#ok"></use>
               </svg>
             </div>
             <!-- <div class="col limits__col">
@@ -157,19 +157,19 @@
               <div class="limits__col-caption">Bank transfer</div>
               <div class="limits__col-icon">
                 <svg class="icon" width="134px" height="62px">
-                  <use href="#payment-bank"></use>
+                  <use xlink:href="#payment-bank"></use>
                 </svg>
               </div>
               <div class="limits__col-note"><b>Commission:</b> No commission</div>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <svg class="icon icon--red" width="17px" height="17px">
-                <use href="#nok"></use>
+                <use xlink:href="#nok"></use>
               </svg>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && user.verifiedL1}">
               <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
+                <use xlink:href="#ok"></use>
               </svg>
             </div>
             <!-- <div class="col limits__col">
@@ -189,19 +189,19 @@
               <div class="limits__col-caption">Crypto capital</div>
               <div class="limits__col-icon">
                 <svg class="icon" width="70px" height="70px">
-                  <use href="#payment-crypto"></use>
+                  <use xlink:href="#payment-crypto"></use>
                 </svg>
               </div>
               <div class="limits__col-note"><b>Commission:</b> No commission</div>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <svg class="icon icon--red" width="17px" height="17px">
-                <use href="#nok"></use>
+                <use xlink:href="#nok"></use>
               </svg>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && user.verifiedL1}">
               <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
+                <use xlink:href="#ok"></use>
               </svg>
             </div>
             <!-- <div class="col limits__col">
