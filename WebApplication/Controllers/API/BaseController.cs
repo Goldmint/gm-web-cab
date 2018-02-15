@@ -129,8 +129,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 #if DEBUG
 			if (HostingEnvironment.IsDevelopment() && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DEBUG_CUSTOM_IP"))) {
-				System.Net.IPAddress customIp;
-				if (System.Net.IPAddress.TryParse(Environment.GetEnvironmentVariable("DEBUG_CUSTOM_IP"), out customIp)) {
+				if (System.Net.IPAddress.TryParse(Environment.GetEnvironmentVariable("DEBUG_CUSTOM_IP"), out System.Net.IPAddress customIp)) {
 					ip = customIp.MapToIPv4().ToString();
 				}
 			}

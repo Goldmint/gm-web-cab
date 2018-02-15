@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.CoreLogic {
 
@@ -177,9 +178,9 @@ namespace Goldmint.CoreLogic {
 			var activity = new DAL.Models.UserActivity() {
 				User = user,
 				Ip = ip,
-				Agent = agent,
+				Agent = agent.LimitLength(128),
 				Type = type.ToString().ToLowerInvariant(),
-				Comment = comment,
+				Comment = comment.LimitLength(512),
 				TimeCreated = DateTime.UtcNow,
 			};
 

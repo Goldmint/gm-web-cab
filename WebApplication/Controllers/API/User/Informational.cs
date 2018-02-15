@@ -54,32 +54,32 @@ namespace Goldmint.WebApplication.Controllers.API {
 			return APIResponse.Success(
 				new LimitsView() {
 
-					// current limits
+					// current user fiat limits
 					Current = new LimitsView.UserLimits() {
 
-						Deposit = new LimitsView.UserLimitItem() {
+						Deposit = new LimitsView.UserPeriodLimitItem() {
 							Minimal = curDepositLimit.Minimal / 100d,
 							Day = curDepositLimit.Day / 100d,
 							Month = curDepositLimit.Month / 100d,
 						},
 
-						Withdraw = new LimitsView.UserLimitItem() {
+						Withdraw = new LimitsView.UserPeriodLimitItem() {
 							Minimal = curWithdrawLimit.Minimal / 100d,
 							Day = curWithdrawLimit.Day / 100d,
 							Month = curWithdrawLimit.Month / 100d,
 						},
 					},
 
-					// levels
+					// limits by verification level and current user level
 					Levels = new LimitsView.VerificationLevels() {
 
 						Current = new LimitsView.VerificationLevelLimits() {
 
-							Deposit = new LimitsView.LimitItem() {
+							Deposit = new LimitsView.PeriodLimitItem() {
 								Day = limits.Current.Deposit.Day / 100d,
 								Month = limits.Current.Deposit.Month / 100d,
 							},
-							Withdraw = new LimitsView.LimitItem() {
+							Withdraw = new LimitsView.PeriodLimitItem() {
 								Day = limits.Current.Withdraw.Day / 100d,
 								Month = limits.Current.Withdraw.Month / 100d,
 							}
@@ -87,11 +87,11 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 						L0 = new LimitsView.VerificationLevelLimits() {
 
-							Deposit = new LimitsView.LimitItem() {
+							Deposit = new LimitsView.PeriodLimitItem() {
 								Day = limits.Level0.Deposit.Day / 100d,
 								Month = limits.Level0.Deposit.Month / 100d,
 							},
-							Withdraw = new LimitsView.LimitItem() {
+							Withdraw = new LimitsView.PeriodLimitItem() {
 								Day = limits.Level0.Withdraw.Day / 100d,
 								Month = limits.Level0.Withdraw.Month / 100d,
 							}
@@ -99,16 +99,42 @@ namespace Goldmint.WebApplication.Controllers.API {
 
 						L1 = new LimitsView.VerificationLevelLimits() {
 
-							Deposit = new LimitsView.LimitItem() {
+							Deposit = new LimitsView.PeriodLimitItem() {
 								Day = limits.Level1.Deposit.Day / 100d,
 								Month = limits.Level1.Deposit.Month / 100d,
 							},
-							Withdraw = new LimitsView.LimitItem() {
+							Withdraw = new LimitsView.PeriodLimitItem() {
 								Day = limits.Level1.Withdraw.Day / 100d,
 								Month = limits.Level1.Withdraw.Month / 100d,
 							}
 						}
 					},
+
+					// limits per payment method
+					PaymentMethod = new LimitsView.PaymentMethods() {
+
+						Card = new LimitsView.PaymentMethodLimits() {
+							Deposit = new LimitsView.OnetimeLimitItem() {
+								Min = AppConfig.Constants.CardPaymentData.DepositMin / 100d,
+								Max = AppConfig.Constants.CardPaymentData.DepositMax / 100d,
+							},
+							Withdraw = new LimitsView.OnetimeLimitItem() {
+								Min = AppConfig.Constants.CardPaymentData.WithdrawMin / 100d,
+								Max = AppConfig.Constants.CardPaymentData.WithdrawMax / 100d,
+							}
+						},
+
+						Swift = new LimitsView.PaymentMethodLimits() {
+							Deposit = new LimitsView.OnetimeLimitItem() {
+								Min = AppConfig.Constants.SwiftData.DepositMin / 100d,
+								Max = AppConfig.Constants.SwiftData.DepositMax / 100d,
+							},
+							Withdraw = new LimitsView.OnetimeLimitItem() {
+								Min = AppConfig.Constants.SwiftData.WithdrawMin / 100d,
+								Max = AppConfig.Constants.SwiftData.WithdrawMax / 100d,
+							}
+						}
+					}
 				}
 			);
 		}

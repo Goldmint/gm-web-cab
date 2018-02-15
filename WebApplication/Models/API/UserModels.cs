@@ -151,18 +151,18 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 		[Required]
 		public VerificationLevels Levels { get; set; }
 
+		/// <summary>
+		/// Payment methods limits
+		/// </summary>
+		[Required]
+		public PaymentMethods PaymentMethod { get; set; }
+
 		// ---
 
 		public class UserLimits {
 
-			public UserLimitItem Deposit { get; set; }
-			public UserLimitItem Withdraw { get; set; }
-		}
-
-		public class VerificationLevelLimits {
-
-			public LimitItem Deposit { get; set; }
-			public LimitItem Withdraw { get; set; }
+			public UserPeriodLimitItem Deposit { get; set; }
+			public UserPeriodLimitItem Withdraw { get; set; }
 		}
 
 		public class VerificationLevels {
@@ -172,7 +172,44 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 			public VerificationLevelLimits L1 { get; set; }
 		}
 
-		public class LimitItem {
+		public class PaymentMethods {
+
+			public PaymentMethodLimits Card { get; set; }
+			public PaymentMethodLimits Swift { get; set; }
+		}
+
+		// ---
+
+		public class VerificationLevelLimits {
+
+			public PeriodLimitItem Deposit { get; set; }
+			public PeriodLimitItem Withdraw { get; set; }
+		}
+
+		public class PaymentMethodLimits {
+
+			public OnetimeLimitItem Deposit { get; set; }
+			public OnetimeLimitItem Withdraw { get; set; }
+		}
+
+		// ---
+
+		public class OnetimeLimitItem {
+
+			/// <summary>
+			/// Minimal value per operation
+			/// </summary>
+			[Required]
+			public double Min { get; set; }
+			
+			/// <summary>
+			/// Maximal value per operation
+			/// </summary>
+			[Required]
+			public double Max { get; set; }
+		}
+
+		public class PeriodLimitItem {
 
 			/// <summary>
 			/// Day limit
@@ -187,7 +224,7 @@ namespace Goldmint.WebApplication.Models.API.UserModels {
 			public double Month { get; set; }
 		}
 
-		public class UserLimitItem : LimitItem {
+		public class UserPeriodLimitItem : PeriodLimitItem {
 
 			/// <summary>
 			/// Current limit
