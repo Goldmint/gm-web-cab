@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="x-apple-disable-message-reformatting">
-	<title>Signed in</title>
+	<title>Deposit request</title>
 
 	{{HEAD}}
 </head>
@@ -14,7 +14,7 @@
 
 		<!-- Visually Hidden Preheader Text : BEGIN -->
 		<div style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
-			Signed in
+			Deposit request #{{REQID}}
 		</div>
 		<!-- Visually Hidden Preheader Text : END -->
 
@@ -44,15 +44,97 @@
 							<tr>
 								<td style="padding: 0 40px 5px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555;">
 									<h1 style="font-family: sans-serif; font-size: 36px; font-weight: 300; line-height: 0.95; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;">
-										Signed in
+										Deposit request
+										<br>
+										#{{REQID}}
 									</h1>
 								</td>
 							</tr>
 							<tr>
 								<td style="padding: 40px 40px 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; border-top-width: 2px; border-top-color: #E9CB6B; border-top-style: solid;">
-									<p style="margin: 0;">
-										You've just signed in at <a href="https://app.goldmint.io" class="link-a">app.goldmint.io</a> (IP: {{IP}}).
-									</p>
+									<table>
+
+										<tr>
+											<td>
+												Beneficiary name
+											</td>
+											<td>
+												{{BEN_NAME}}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Beneficiary address
+											</td>
+											<td>
+												{{BEN_ADDR}}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Beneficiary’s bank account number (IBAN)
+											</td>
+											<td>
+												{{BEN_IBAN}}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Beneficiary’s Bank name
+											</td>
+											<td>
+												{{BEN_BANKNAME}}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Beneficiary’s Bank address
+											</td>
+											<td>
+												{{BEN_BANKADDR}}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Beneficiary bank SWIFT
+											</td>
+											<td>
+												{{BEN_SWIFT}}
+											</td>
+										</tr>
+										<tr class="lg">
+											<td>
+												Amount
+											</td>
+											<td>
+												{{AMOUNT}}
+											</td>
+										</tr>
+										<tr class="lg">
+											<td>
+												Reference
+											</td>
+											<td>
+												{{PAYMENT_REFERENCE}}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<p class="acc">
+													REFERENCE SHOULD BE ENTERED FIRST IN THE NARRATIVE OF THE SENDING BANK'S PAYMENT INSTRUCTIONS, BEFORE ANY OTHER REFERENCES.
+												</p>
+												<p class="acc">
+													PLEASE SEND THE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR (EXCLUDING BANK CHARGES) AND MAKE SURE YOUR PAYMENT DETAILS IS STATED CORRECTLY.
+												</p>
+												<p class="acc">
+													PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SENDER. PLEASE NOTE THAT BANK CHARGES FOR PAYMENT RETURN WILL BE DEDUCTED FROM THE AMOUNT.
+												</p>
+												<p>
+													CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto Capital).
+												</p>
+											</td>
+										</tr>
+									</table>
 								</td>
 							</tr>
 							<tr>
@@ -61,8 +143,6 @@
 						</table>
 					</td>
 				</tr>
-
-
 
 				<!-- Clear Spacer : BEGIN -->
 				<tr>

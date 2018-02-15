@@ -8,6 +8,7 @@
 		public const string SignedIn = "SignedIn";
 		public const string TfaEnabled = "TfaEnabled";
 		public const string TfaDisabled = "TfaDisabled";
+		public const string SwiftDepositInvoice = "SwiftDepositInvoice";
 
 		public string Subject { get; set; }
 		public string Body { get; set; }

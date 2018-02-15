@@ -61,7 +61,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 					// notification
 					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.TfaEnabled))
 						.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
-						.Send(user.Email, EmailQueue)
+						.Send(user.Email, user.UserName, EmailQueue)
 					;
 
 					// activity
@@ -79,7 +79,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 					// notification
 					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.TfaDisabled))
 						.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
-						.Send(user.Email, EmailQueue)
+						.Send(user.Email, user.UserName, EmailQueue)
 					;
 
 					// activity

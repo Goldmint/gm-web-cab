@@ -49,24 +49,6 @@ namespace Goldmint.CoreLogic.Services.Localization.Impl {
 			);
 		}
 
-		public Task<SwiftTemplate> GetSwiftTemplate(string name, Locale locale = null) {
-			var body = "";
-			var localeStr = (locale?.Code ?? Locale.EN.Code)?.ToLower();
-
-			try {
-				body = GetResourceAsString("Swift", localeStr, name + ".html");
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to get template for {0}.{1}", name, localeStr);
-			}
-
-			return Task.FromResult(
-				new SwiftTemplate() {
-					Body = body,
-				}
-			);
-		}
-
 		// ---
 
 		public string GetResourceAsString(string type, string locale, string name) {

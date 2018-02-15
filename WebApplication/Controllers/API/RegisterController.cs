@@ -54,7 +54,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				// email confirmation
 				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.EmailConfirmation))
 					.Link(callbackUrl)
-					.Send(model.Email, EmailQueue)
+					.Send(model.Email, "", EmailQueue)
 				;
 
 				return APIResponse.Success();

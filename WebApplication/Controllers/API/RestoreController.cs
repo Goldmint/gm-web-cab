@@ -59,7 +59,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordRestoration))
 				.Link(callbackUrl)
 				.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
-				.Send(model.Email, EmailQueue)
+				.Send(model.Email, user.UserName, EmailQueue)
 			;
 
 			// activity
@@ -115,7 +115,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				// notification
 				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordChanged))
 					.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
-					.Send(user.Email, EmailQueue)
+					.Send(user.Email, user.UserName, EmailQueue)
 				;
 
 				// activity

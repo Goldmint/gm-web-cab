@@ -86,19 +86,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 			request.PaymentReference = $"Order number: {request.Id}";
 			finHistory.Comment = $"Swift deposit request #{request.Id}";
 
-			// html
-			var renderedHtml = (await TemplateProvider.GetSwiftTemplate(SwiftTemplate.DepositInvoice))
-				.Body
-				.Replace("{{BEN_NAME}}", AppConfig.Constants.SwiftData.BenName)
-				.Replace("{{BEN_ADDR}}", AppConfig.Constants.SwiftData.BenAddress)
-				.Replace("{{BEN_IBAN}}", AppConfig.Constants.SwiftData.BenIban)
-				.Replace("{{BEN_BANKNAME}}", AppConfig.Constants.SwiftData.BenBankName)
-				.Replace("{{BEN_BANKADDR}}", AppConfig.Constants.SwiftData.BenBankAddress)
-				.Replace("{{BEN_SWIFT}}", AppConfig.Constants.SwiftData.BenSwift)
-				.Replace("{{PAYMENT_REFERENCE}}", request.PaymentReference)
-				.Replace("{{AMOUNT}}", TextFormatter.FormatAmount(amountCents, transCurrency))
-			;
-
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(request, finHistory);
 
@@ -113,8 +100,20 @@ namespace Goldmint.WebApplication.Controllers.API {
 			);
 
 			// notification
-			await EmailComposer.FromTemplate($"Deposit request #{request.Id}", renderedHtml)
-				.Send(user.Email, EmailQueue)
+			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SwiftDepositInvoice))
+
+				.ReplaceBodyTag("BEN_NAME", AppConfig.Constants.SwiftData.BenName)
+				.ReplaceBodyTag("BEN_ADDR", AppConfig.Constants.SwiftData.BenAddress)
+				.ReplaceBodyTag("BEN_IBAN", AppConfig.Constants.SwiftData.BenIban)
+				.ReplaceBodyTag("BEN_BANKNAME", AppConfig.Constants.SwiftData.BenBankName)
+				.ReplaceBodyTag("BEN_BANKADDR", AppConfig.Constants.SwiftData.BenBankAddress)
+				.ReplaceBodyTag("BEN_SWIFT", AppConfig.Constants.SwiftData.BenSwift)
+				.ReplaceBodyTag("AMOUNT", TextFormatter.FormatAmount(amountCents, transCurrency))
+				.ReplaceBodyTag("PAYMENT_REFERENCE", request.PaymentReference)
+				
+				.ReplaceBodyTag("REQID", request.Id.ToString())
+				.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
+				.Send(user.Email, user.UserName, EmailQueue)
 			;
 
 			return APIResponse.Success(
@@ -126,7 +125,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 					BenBankAddress = request.BenBankAddress,
 					BenSwift = request.BenSwift,
 					Reference = request.PaymentReference,
-					Html = renderedHtml,
 				}
 			);
 		}
