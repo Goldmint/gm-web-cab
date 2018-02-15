@@ -11,7 +11,7 @@ import { CurrencyPipe } from '@angular/common';
 
 // import { TabsetComponent } from 'ngx-bootstrap';
 
-import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits } from '../../interfaces';
+import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits, SwiftInvoice } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
 
 import * as countries from '../../../assets/data/countries.json';
@@ -53,6 +53,7 @@ export class DepositPageComponent implements OnInit {
   public limits: FiatLimits;
   public user: User;
   public invoiceHtml:string = '';
+  public invoiceData:SwiftInvoice;
 
   constructor(
     private _apiService: APIService,
@@ -175,27 +176,23 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.detectChanges();
           })
           .subscribe(res => {
-            let html = res.data.html;
-            let invoiceWrapper = document.getElementById('invoice-wrapper');
-            invoiceWrapper.innerHTML = html;
-            this.invoiceHtml = html;
-          })
+            this.invoiceData = res.data;
+          });
       this.nextStep(this._bankTransferSteps.PaymentDetails)
   }
 
   printInvoice() {
-    if (this.invoiceHtml.length) {
-        let win = window.open('');
-        win.document.write(this.invoiceHtml);
+      let html = document.getElementById('invoice-wrapper').innerHTML;
+      let win = window.open('');
+        win.document.write(html);
         win.print();
         win.close();
-    }
   }
 
   downloadInvoice(e) {
-    console.log(e);
+      let html = document.getElementById('invoice-wrapper').innerHTML;
     let target = e.target;
-    target.href='data:text/html;charset=UTF-8,'+ encodeURIComponent(this.invoiceHtml);
+    target.href='data:text/html;charset=UTF-8,'+ encodeURIComponent(html);
   }
 }
 
