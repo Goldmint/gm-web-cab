@@ -33,6 +33,7 @@ import { SettingsCardsPageComponent }        from './pages/settings-page/setting
 import { SettingsSocialPageComponent }       from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent }     from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
+import {StaticPagesComponent} from "./pages/static-pages/static-pages.component";
 
 const appRoutes: Routes = [
 
@@ -51,6 +52,7 @@ const appRoutes: Routes = [
   { path: 'sell',     component: SellPageComponent,     canActivate: [AuthGuard] },
   { path: 'buy',      component: BuyPageComponent,      canActivate: [AuthGuard] },
   { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
+  { path: 'static-pages/:page', component: StaticPagesComponent },
   {
     path: 'finance',     component: FinancePageComponent,  canActivate: [AuthGuard],
     children: [

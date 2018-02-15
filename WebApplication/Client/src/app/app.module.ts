@@ -91,6 +91,8 @@ import { DepositPageComponent } from './pages/deposit-page/deposit-page.componen
 import { WithdrawPageComponent } from './pages/withdraw-page/withdraw-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
+import { StaticPagesComponent } from './pages/static-pages/static-pages.component';
+import {SafePipe} from "./directives/safe.pipe";
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -177,6 +179,8 @@ export function getGoldmintToken() {
     WithdrawPageComponent,
     FinancePageComponent,
     NoautocompleteDirective,
+    StaticPagesComponent,
+      SafePipe,
   ],
   exports: [],
   providers: [
