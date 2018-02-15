@@ -14,7 +14,7 @@
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--usd">
                 <svg class="icon">
-                  <use href="#cur-usd"></use>
+                  <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
               <input type="number" class="form-control" id="input_toSpend" min="1" [max]="usdBalance" step="1" [value]="toSpend" (input)="onToSpendChanged($event.target.value)">
@@ -28,7 +28,7 @@
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--gold">
                 <svg class="icon">
-                  <use href="#cur-gold"></use>
+                  <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
               <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">

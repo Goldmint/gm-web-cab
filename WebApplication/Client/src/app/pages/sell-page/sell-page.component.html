@@ -14,7 +14,7 @@
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--gold">
                 <svg class="icon">
-                  <use href="#cur-gold"></use>
+                  <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
               <input type="number" class="form-control" name="input_toSell" id="input_toSell" min="0" [max]="goldBalance" step="0.1" [value]="toSell" (input)="onToSellChanged($event.target.value)">
@@ -34,7 +34,7 @@
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--usd">
                 <svg class="icon">
-                  <use href="#cur-usd"></use>
+                  <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
               <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount">
@@ -85,7 +85,7 @@
     </div>
     <ng-template #okBlock>
       <svg class="buy-mntp-icon-bought" width="50px" height="50px">
-        <use href="#ok"></use>
+        <use xlink:href="#ok"></use>
       </svg>
     </ng-template>
   </div>
@@ -99,7 +99,7 @@
     </div>
     <ng-template #okBlock>
       <svg class="buy-mntp-icon-bought" width="50px" height="50px">
-        <use href="#ok"></use>
+        <use xlink:href="#ok"></use>
       </svg>
     </ng-template>
   </div>
@@ -113,7 +113,7 @@
     </div>
     <ng-template #okBlock>
       <svg class="buy-mntp-icon-bought" width="50px" height="50px">
-        <use href="#ok"></use>
+        <use xlink:href="#ok"></use>
       </svg>
     </ng-template>
   </div>

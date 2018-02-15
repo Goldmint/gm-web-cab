@@ -50,7 +50,7 @@
               <label for="btnPaymentCard">Payment card</label>
               <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(_pages.CardsList)">
                 <svg class="icon" width="56px" height="56px">
-                  <use href="#payment-card"></use>
+                  <use xlink:href="#payment-card"></use>
                 </svg>
               </button>
             </div>
@@ -58,7 +58,7 @@
               <label for="btnPaymentBank" disabled>Bank transfer</label>
               <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
                 <svg class="icon" width="107px" height="56px">
-                  <use href="#payment-bank"></use>
+                  <use xlink:href="#payment-bank"></use>
                 </svg>
               </button>
             </div>
@@ -82,7 +82,7 @@
                     <span>Account limits</span>
                     <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                       <svg class="icon" width="20px" height="20px">
-                        <use href="#increase"></use>
+                        <use xlink:href="#increase"></use>
                       </svg>
                       <span>Increase</span>
                     </a>
@@ -137,7 +137,7 @@
                     <span>Account limits</span>
                     <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                       <svg class="icon" width="20px" height="20px">
-                        <use href="#increase"></use>
+                        <use xlink:href="#increase"></use>
                       </svg>
                       <span>Increase</span>
                     </a>
