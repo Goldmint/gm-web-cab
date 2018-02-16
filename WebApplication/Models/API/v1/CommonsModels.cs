@@ -32,7 +32,7 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 	}
 
 	public class TransparencyViewItem {
-		
+
 		/// <summary>
 		/// Amount in USD
 		/// </summary>

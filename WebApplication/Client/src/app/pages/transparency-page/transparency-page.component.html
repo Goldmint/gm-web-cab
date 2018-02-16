@@ -52,23 +52,22 @@
 
       <div class="section__content">
         <ngx-datatable class="table table--no-footer" #table
-          [rows]="rows"
-
-          [columnMode]="'force'"
-          [sorts]="sorts"
-          [headerHeight]="53"
-          [rowHeight]="'auto'"
-          [footerHeight]="135"
-          [reorderable]="false"
-          [loadingIndicator]="loading"
-          [count]="page.totalElements"
-          [offset]="page.pageNumber"
-          [limit]="page.size"
-          [externalSorting]="true"
-          (sort)="onSort($event)"
-          [externalPaging]="true"
-          (page)='setPage($event)'
-          [messages]="messages">
+                       [rows]="rows"
+                       [columnMode]="'force'"
+                       [sorts]="sorts"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="page.totalElements"
+                       [offset]="page.pageNumber"
+                       [limit]="page.size"
+                       [externalSorting]="true"
+                       (sort)="onSort($event)"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages">
 
           <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
@@ -91,37 +90,27 @@
             </ng-template>
 
             <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-              <div *ngIf="row.type === 'withdraw'; then amountWithdrawBlock else amountDepositBlock"></div>
-
-              <ng-template #amountWithdrawBlock>
-                <svg class="icon icon--fix icon--green" width="8px" height="8px">
-                  <use xlink:href="#amount-plus"></use>
-                </svg>
-              </ng-template>
-
-              <ng-template #amountDepositBlock>
-                <svg class="icon icon--fix icon--red" width="8px" height="2px">
-                  <use xlink:href="#amount-minus"></use>
-                </svg>
-              </ng-template>
-
-              <span>
-                {{ amount?.prefix }}
-                {{ amount.amount | number:'1.2-2':locale }}
-                {{ amount?.suffix }}
-              </span>
-              <!-- <span>{{ amount | currency:row.currency.code:'code':'1.2-2':locale }}</span> -->
+              {{ amount | number:'1.2-2':locale }} USD
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [width]="450">
+          <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
             <ng-template ngx-datatable-header-template>
-              Confirmation Link
-              <!-- {{ "PAGES.History.Table.Columns.Comment" | translate }} -->
+              Document
             </ng-template>
 
             <ng-template let-link="value" ngx-datatable-cell-template>
-              <a [href]="link">{{ link }}</a>
+              <a [href]="link">Link</a>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template ngx-datatable-header-template>
+              Comment
+            </ng-template>
+
+            <ng-template let-link="value" ngx-datatable-cell-template>
+              {{ comment }}
             </ng-template>
           </ngx-datatable-column>
         </ngx-datatable>

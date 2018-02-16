@@ -1,7 +1,6 @@
-import { Price } from './price';
-
 export interface TransparencyRecord {
-  date   : number;
-  amount : Price;
-  link   : string;
+  date: number;
+  comment: string;
+  amount: number;
+  link: string;
 }

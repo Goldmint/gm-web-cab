@@ -1,11 +1,5 @@
-﻿using Goldmint.Common;
-using System;
-using System.Collections.Generic;
+﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation.Results;
-using FluentValidation;
 
 namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 

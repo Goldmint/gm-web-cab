@@ -57,7 +57,10 @@ namespace Goldmint.Common {
 
 		// 268435456
 
-		// 536870912
+		/// <summary>
+		/// Countries write access
+		/// </summary>
+		CountriesControl = 536870912,
 
 		/// <summary>
 		/// Transparency uploader rights

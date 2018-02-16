@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Goldmint.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -72,6 +73,20 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					Total = page.TotalCount,
 				}
 			);
+		}
+
+		/// <summary>
+		/// Countries blacklist
+		/// </summary>
+		[AreaAnonymous]
+		[HttpGet, Route("bannedCountries")]
+		[ProducesResponseType(typeof(string[]), 200)]
+		public async Task<APIResponse> BannedCountries() {
+			var list = await (
+				from a in DbContext.BannedCountry
+				select a.Code
+			).AsNoTracking().ToArrayAsync();
+			return APIResponse.Success(list);
 		}
 	}
 }

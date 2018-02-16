@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefaultItemExcludes>Client/node_modules/**;$(DefaultItemExcludes)</DefaultItemExcludes>
+    <DefaultItemExcludes>Client/node_modules/**;Dashboard/node_modules/**;$(DefaultItemExcludes)</DefaultItemExcludes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
