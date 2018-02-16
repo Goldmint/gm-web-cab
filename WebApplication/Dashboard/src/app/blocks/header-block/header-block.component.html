@@ -1,0 +1,87 @@
+<header class="header">
+  <div class="container">
+    <div class="header__row">
+      <div class="col-auto">
+        <a class="logo" routerLink="">
+          <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <use xlink:href="#path0_fill" fill="currentColor"/>
+            <use xlink:href="#path1_fill" transform="translate(17.05 13.22)" fill="currentColor"/>
+            <defs>
+              <path id="path0_fill" d="M16.018 32C7.194 32 0 24.822 0 15.982S7.194 0 16.018 0c3.72 0 7.335 1.308 10.206 3.642l-1.701 2.05c-2.375-1.98-5.422-3.04-8.505-3.04-7.371 0-13.36 5.976-13.36 13.33 0 7.355 5.989 13.366 13.36 13.366 5.174 0 9.78-2.935 12.013-7.46H17.045v-2.653h14.778l-.567 1.733A15.997 15.997 0 0 1 16.018 32z"/>
+              <path id="path1_fill" d="M14.955 0H0v2.652h14.955V0z"/>
+            </defs>
+          </svg>
+        </a>
+      </div>
+
+      <div class="col mr-auto">
+        <span class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value">{{gold_usd_rate | number:'1.2-2':locale}}</span></span>
+      </div>
+
+      <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
+        <div class="col-auto">
+          <div class="balance" *ngIf="metamaskAccount && goldBalance !== null">
+            <div class="balance__label" [title]="metamaskAccount">{{ 'HEADER.Wallet' | translate }} <div class="balance__metamask">{{ metamaskAccount }}</div></div>
+
+            <div class="balance__item">
+              <svg class="icon" width="18px" height="18px">
+                <use xlink:href="#cur-gold"></use>
+              </svg>
+              <span class="balance__value">
+                {{goldBalance | number:'1.2-2':locale}}
+                {{'OZ'}}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-auto">
+          <div class="auth-info">
+            <div class="language" (mouseenter)="usermenu.show()" (mouseleave)="usermenu.hide()">
+              <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
+                <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
+
+                <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <li role="menuitem">
+                    <a class="dropdown-item" routerLink="account">Account Info</a>
+                  </li>
+                  <li role="menuitem">
+                    <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">Sign out</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-auto">
+          <img *ngIf="usdBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
+
+          <div class="balance" *ngIf="usdBalance !== null">
+            <div class="balance__item">
+              <svg class="icon" width="10px" height="16px">
+                <use xlink:href="#cur-usd"></use>
+              </svg>
+              <span class="balance__value">
+                {{usdBalance | number:'1.2-2':locale}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #loginBlock>
+        <div class="col-auto auth-info">
+          <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
+          <!--a *ngIf="!router.isActive('/signin')" routerLink="/signin" [ngClass]="{'btn btn-primary btn-sm': router.isActive('/signup')}" class="ml-3" [blur]="signupButtonBlur" (click)="signupButtonBlur.emit()">{{ 'HEADER.SignIn' | translate }}</a-->
+        </div>
+      </ng-template>
+
+      <div class="col-auto">
+        <language-switcher></language-switcher>
+      </div>
+    </div>
+
+    <app-navbar></app-navbar>
+  </div>
+</header>

@@ -1,0 +1,145 @@
+<section class="section section--table">
+  <h2 class="section__title">Cards</h2>
+
+  <div class="section__content section__content--clean pt-3">
+    <div class="progress-linear progress-linear--tiny" *ngIf="loading || processing">
+      <div class="container"></div>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <ng-container *ngIf="page === _pages.List">
+        <ng-container *ngIf="cards.list && cards.list.length; else noCardsBlock;">
+          <div class="cards-list">
+            <div class="row cards-list__item mt-2" *ngFor="let card of cards.list"
+                 [ngClass]="{ 'text-muted': card.status == 'initial' || card.status == 'disabled' || card.status == 'confirm' || card.status == 'failed' }">
+              <div class="col number">{{ card.mask }}</div>
+
+              <div class="col-3 status">
+                <ng-container *ngIf="card.status == 'initial'">
+                  <span class="status__new">New</span>
+                </ng-container>
+                <ng-container *ngIf="card.status == 'failed'">
+                  <span class="status__failed">Failed</span>
+                </ng-container>
+                <ng-container *ngIf="card.status == 'disabled'">
+                  <span class="status__disabled">Disabled</span>
+                </ng-container>
+                <ng-container *ngIf="card.status == 'payment'">
+                  <span class="status__payment">Checking...</span>
+                </ng-container>
+                <ng-container *ngIf="card.status == 'confirm'">
+                  <button class="btn btn-primary btn-sm" (click)="navigateToCardStatus(card.cardId)" [blur]="buttonBlur" [disabled]="processing">Confirm</button>
+                </ng-container>
+                <ng-container *ngIf="card.status == 'verification'">
+                  <button class="btn btn-primary btn-sm" (click)="navigateToCardStatus(card.cardId)" [blur]="buttonBlur" [disabled]="processing">Verify</button>
+                </ng-container>
+                <ng-container *ngIf="card.status == 'verified'">
+                  <span class="status__verified">Verified</span>
+                </ng-container>
+              </div>
+
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noCardsBlock>
+          <p class="lead lead--thin">You did not add any card.</p>
+        </ng-template>
+
+        <ng-container *ngIf="user.verifiedL0; else userNotVerifiedBlock;">
+          <button class="btn btn-primary mt-4" [blur]="buttonBlur" [disabled]="processing" (click)="goto(_pages.OnNew)">Add card</button>
+        </ng-container>
+
+        <ng-template #userNotVerifiedBlock>
+          <p class="lead">In order to add credit card you have to confirm your person.</p>
+          <a class="btn btn-primary mt-4" routerLink="/account/verification">Verification</a>
+        </ng-template>
+      </ng-container>
+
+      <ng-container *ngIf="page === _pages.OnNew">
+        <p class="lead">You will be redirected to acquirer page to fill card data.</p>
+
+        <div class="row pt-4">
+          <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="navigateToCardList()">
+              <svg class="icon icon--previous" height="24px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+              <span>Back</span>
+            </button>
+          </div>
+          <div class="col-auto">
+          <!-- <div class="col-auto ml-auto"> -->
+            <button type="button" class="btn btn-primary btn-wide" [disabled]="processing" (click)="addCard()">Proceed</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="page === _pages.OnNeedConfirmation">
+        <p class="lead">You have to enter the same card data one more time. You will be redirected to acquirer page.</p>
+
+        <div class="row pt-4">
+          <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="navigateToCardList()">
+              <svg class="icon icon--previous" height="24px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+              <span>Back</span>
+            </button>
+          </div>
+          <div class="col-auto">
+          <!-- <div class="col-auto ml-auto"> -->
+            <button type="button" class="btn btn-primary btn-wide" [disabled]="processing" (click)="confirmCard(currentCardId)">Confirm card</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="page === _pages.OnNeedVerification">
+        <p class="lead">We have charged test payment. Please check bank statement for exact amount of this payment. In order to verify this card please type this amount below. For example: 1.23</p>
+
+        <div class="row pt-3">
+          <div class="col-4 form-group">
+            <label for="code">Verification code:</label>
+            <input type="text" id="code" class="form-control" [(ngModel)]="verificationCode" noAutoComplete required>
+          </div>
+        </div>
+
+        <div class="row pt-2">
+          <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="navigateToCardList()">
+              <svg class="icon icon--previous" height="24px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+              <span>Back</span>
+            </button>
+          </div>
+          <div class="col-auto">
+          <!-- <div class="col-auto ml-auto"> -->
+            <button type="button" class="btn btn-primary btn-wide" [disabled]="processing" (click)="verifyCard(currentCardId)">Verify card</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="page === _pages.OnVerified">
+        <p class="lead">Card verified and ready to use.</p>
+
+        <div class="row pt-4">
+          <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="goto(_pages.List)">Go to Cards list</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="page === _pages.OnFailure">
+        <p class="lead">Oups! Something went wrong. Card has not been added.</p>
+
+        <div class="row pt-4">
+          <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="navigateToCardList()">Back to Cards list</button>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+  </div>
+</section>

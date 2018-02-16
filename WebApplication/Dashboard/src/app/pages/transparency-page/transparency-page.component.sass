@@ -1,0 +1,59 @@
+@import 'functions'
+@import 'variables'
+
+.file-upload-btn
+  position: relative
+
+  input
+    height: 100%
+    opacity: 0
+    position: absolute
+    width: 100%
+    z-index: -1
+
+.trn-info
+  display: flex
+  font-size: rem(18px)
+  line-height: rem(24px)
+  border-top: 3px solid $color-gold
+  margin-top: rem(35px)
+
+  .transparency-form
+    margin-top: 34px;
+
+  &__block
+    display: flex
+    align-items: center
+    justify-content: center
+    white-space: nowrap
+    min-height: 60px
+    border-top: none
+    border: 2px solid $color-gray-0
+    &:not(:first-child)
+      border-left: none
+
+  &__icon
+    .icon
+      vertical-align: middle
+
+    &--plus
+      margin-right: rem(16px)
+      color: $color-green
+
+    &--minus
+      margin-right: rem(18px)
+      color: $color-red
+
+    &--circ
+      margin-right: rem(14px)
+      color: $color-gold
+
+      .icon
+        vertical-align: rem(-2px)
+
+  &__label
+    font-weight: 500
+    margin-right: rem(5px)
+
+  &__value
+    /* */
