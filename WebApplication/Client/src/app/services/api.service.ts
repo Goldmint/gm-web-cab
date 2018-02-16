@@ -333,7 +333,7 @@ export class APIService {
 
   goldBuyReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
     return this._http
-      .post(`${this._baseUrl}/gold/buyRequest`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
+      .post(`${this._baseUrl}/user/exchange/gold/buy`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -343,7 +343,7 @@ export class APIService {
   goldSellReqest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
     var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
-      .post(`${this._baseUrl}/gold/sellRequest`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .post(`${this._baseUrl}/user/exchange/gold/sell`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),

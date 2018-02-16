@@ -30,7 +30,7 @@ namespace Goldmint.Common {
 			public class JWTSection {
 				public string Secret { get; set; } = "";
 				public string Issuer { get; set; } = "";
-				public string AppAudience { get; set; } = "";
+				public string Audience { get; set; } = "";
 				public long ExpirationSec { get; set; } = 1800;
 			}
 

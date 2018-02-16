@@ -51,9 +51,8 @@
 								</td>
 							</tr>
 							<tr>
-								<td style="padding: 40px 40px 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; border-top-width: 2px; border-top-color: #E9CB6B; border-top-style: solid;">
-									<table>
-
+								<td style="padding: 40px 20px 40px 20px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; border-top-width: 2px; border-top-color: #E9CB6B; border-top-style: solid;">
+									<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 										<tr>
 											<td>
 												Beneficiary name
@@ -107,7 +106,7 @@
 												Amount
 											</td>
 											<td>
-												{{AMOUNT}}
+												<b>{{AMOUNT}}</b>
 											</td>
 										</tr>
 										<tr class="lg">
@@ -115,26 +114,25 @@
 												Reference
 											</td>
 											<td>
-												{{PAYMENT_REFERENCE}}
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<p class="acc">
-													REFERENCE SHOULD BE ENTERED FIRST IN THE NARRATIVE OF THE SENDING BANK'S PAYMENT INSTRUCTIONS, BEFORE ANY OTHER REFERENCES.
-												</p>
-												<p class="acc">
-													PLEASE SEND THE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR (EXCLUDING BANK CHARGES) AND MAKE SURE YOUR PAYMENT DETAILS IS STATED CORRECTLY.
-												</p>
-												<p class="acc">
-													PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SENDER. PLEASE NOTE THAT BANK CHARGES FOR PAYMENT RETURN WILL BE DEDUCTED FROM THE AMOUNT.
-												</p>
-												<p>
-													CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto Capital).
-												</p>
+												<b>{{PAYMENT_REFERENCE}}</b>
 											</td>
 										</tr>
 									</table>
+									
+									<div>
+										<p style="text-align: left; font-family: sans-serif; font-size: 10px; line-height: 140%; color: darkred;">
+											REFERENCE SHOULD BE ENTERED FIRST IN THE NARRATIVE OF THE SENDING BANK'S PAYMENT INSTRUCTIONS, BEFORE ANY OTHER REFERENCES.
+										</p>
+										<p style="text-align: left; font-family: sans-serif; font-size: 10px; line-height: 140%; color: darkred;">
+											PLEASE SEND THE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR (EXCLUDING BANK CHARGES) AND MAKE SURE YOUR PAYMENT DETAILS IS STATED CORRECTLY.
+										</p>
+										<p style="text-align: left; font-family: sans-serif; font-size: 10px; line-height: 140%; color: darkred;">
+											PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SENDER. PLEASE NOTE THAT BANK CHARGES FOR PAYMENT RETURN WILL BE DEDUCTED FROM THE AMOUNT.
+										</p>
+										<p style="text-align: left; font-family: sans-serif; font-size: 10px; line-height: 140%; color: darkgray;">
+											CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto Capital).
+										</p>
+									</div>
 								</td>
 							</tr>
 							<tr>

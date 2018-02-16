@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.API {
 
-	[Route("api/v1/user")]
 	public partial class UserController : BaseController {
 
 		/// <summary>
