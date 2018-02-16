@@ -37,7 +37,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				ValidateIssuer = true,
 				ValidIssuer = appConfig.Auth.JWT.Issuer,
 				ValidateAudience = true,
-				ValidAudiences = new[] { appConfig.Auth.JWT.AppAudience },
+				ValidAudiences = new[] { appConfig.Auth.JWT.Audience },
 				ValidateLifetime = true,
 				ClockSkew = TimeSpan.Zero,
 			};
@@ -99,7 +99,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 			var token = new JwtSecurityToken(
 				issuer: appConfig.Auth.JWT.Issuer,
-				audience: appConfig.Auth.JWT.AppAudience,
+				audience: appConfig.Auth.JWT.Audience,
 				claims: claimIdentity.Claims,
 				signingCredentials: creds,
 				expires: now.AddSeconds(appConfig.Auth.JWT.ExpirationSec)
@@ -137,7 +137,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 			var token = new JwtSecurityToken(
 				issuer: appConfig.Auth.JWT.Issuer,
-				audience: appConfig.Auth.JWT.AppAudience,
+				audience: appConfig.Auth.JWT.Audience,
 				claims: claims,
 				signingCredentials: creds,
 				expires: now.Add(validFor)
