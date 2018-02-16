@@ -1,10 +1,9 @@
 ﻿using Goldmint.Common;
 using Goldmint.DAL.Models;
-using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.SettingsModels;
+using Goldmint.WebApplication.Models.API.v1.User.SettingsModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SettingsController : BaseController {
 
@@ -178,7 +177,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		// ---
 
 		[NonAction]
-		private VerificationView MakeVerificationView(User user) {
+		private VerificationView MakeVerificationView(DAL.Models.Identity.User user) {
 
 			var ret = new VerificationView() {
 

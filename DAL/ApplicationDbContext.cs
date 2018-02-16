@@ -26,6 +26,7 @@ namespace Goldmint.DAL {
 		public DbSet<SellRequest> SellRequest { get; set; }
 		public DbSet<FinancialHistory> FinancialHistory { get; set; }
 		public DbSet<UserOpLog> UserOpLog { get; set; }
+		public DbSet<Transparency> Transparency { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}

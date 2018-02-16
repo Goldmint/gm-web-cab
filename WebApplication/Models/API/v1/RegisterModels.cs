@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Goldmint.WebApplication.Models.API.RegisterModels {
+namespace Goldmint.WebApplication.Models.API.v1.RegisterModels {
 
 	public class RegisterModel : BaseValidableModel {
 

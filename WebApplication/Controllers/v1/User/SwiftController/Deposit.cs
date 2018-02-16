@@ -1,15 +1,15 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.SwiftModels;
+using Goldmint.WebApplication.Models.API.v1.User.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Localization;
-using Goldmint.CoreLogic.Services.Notification.Impl;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SwiftController {
 

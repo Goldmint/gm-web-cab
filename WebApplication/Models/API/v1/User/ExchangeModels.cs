@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Goldmint.WebApplication.Models.API.ExchangeModels {
+namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 
 	public class BuyRequestModel : BaseValidableModel {
 

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Goldmint.WebApplication.Models.API.RestoreModels {
+namespace Goldmint.WebApplication.Models.API.v1.RestoreModels {
 
 	public class RestoreModel : BaseValidableModel {
 

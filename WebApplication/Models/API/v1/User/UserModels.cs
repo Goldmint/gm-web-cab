@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace Goldmint.WebApplication.Models.API.UserModels {
+namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 
 	public class AuthenticateModel : BaseValidableModel {
 

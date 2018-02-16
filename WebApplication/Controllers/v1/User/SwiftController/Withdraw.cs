@@ -1,15 +1,13 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Finance.Fiat;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.SwiftModels;
+using Goldmint.WebApplication.Models.API.v1.User.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SwiftController : BaseController {
 

@@ -91,6 +91,12 @@ namespace Goldmint.Common {
 				public string GMAccountPrivateKey { get; set; } = "";
 				public string FiatContractAddress { get; set; } = "";
 			}
+
+			public IPFSSection IPFS { get; set; } = new IPFSSection();
+			public class IPFSSection {
+
+				public string Url { get; set; } = "";
+			}
 		}
 
 		// ---

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using FluentValidation.Results;
 using FluentValidation;
 
-namespace Goldmint.WebApplication.Models.API.CardModels {
+namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 
 	public class ListView {
 

@@ -3,13 +3,13 @@ using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.RegisterModels;
+using Goldmint.WebApplication.Models.API.v1.RegisterModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1 {
 
 	[Route("api/v1/register")]
 	public class RegisterController : BaseController {

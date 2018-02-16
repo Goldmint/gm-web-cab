@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1 {
 
 	[Route("api/v1/callback")]
 	public class CallbackController : BaseController {

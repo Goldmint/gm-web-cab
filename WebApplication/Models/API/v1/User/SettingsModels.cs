@@ -1,12 +1,7 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation.Results;
 
-namespace Goldmint.WebApplication.Models.API.SettingsModels {
+namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 
 	public class TFAView {
 

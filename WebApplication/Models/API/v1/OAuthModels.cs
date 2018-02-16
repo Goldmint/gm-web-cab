@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Goldmint.WebApplication.Models.API.OAuthModels {
+namespace Goldmint.WebApplication.Models.API.v1.OAuthModels {
 
 	public class RedirectView {
 

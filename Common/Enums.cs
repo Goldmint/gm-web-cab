@@ -55,6 +55,15 @@ namespace Goldmint.Common {
 		/// </summary>
 		Client = 1,
 
+		// 268435456
+
+		// 536870912
+
+		/// <summary>
+		/// Transparency uploader rights
+		/// </summary>
+		TransparencyUploader = 1073741824,
+
 		/// <summary>
 		/// Full access
 		/// </summary>

@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Goldmint.Common;
+using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Core.Policies;
-using Goldmint.WebApplication.Models.API.ExchangeModels;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.Common;
-using Goldmint.DAL.Models;
+using Goldmint.WebApplication.Models.API.v1.User.ExchangeModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Numerics;
+using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class ExchangeController : BaseController {
 		

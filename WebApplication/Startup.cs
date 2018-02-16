@@ -27,12 +27,6 @@ namespace Goldmint.WebApplication {
 			_environment = env;
 			_configuration = configuration;
 
-			var x = Goldmint.CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(System.Numerics.BigInteger.Parse("1"));
-			x = Goldmint.CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(System.Numerics.BigInteger.Parse("100000000000000000"));
-			x = Goldmint.CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(System.Numerics.BigInteger.Parse("1000000000000000000"));
-			x = Goldmint.CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(System.Numerics.BigInteger.Parse("123560000000000000001"));
-
-
 			// config
 			try {
 				var cfgDir = Environment.GetEnvironmentVariable("ASPNETCORE_CONFIGPATH");

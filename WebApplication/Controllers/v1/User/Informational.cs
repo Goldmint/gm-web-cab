@@ -2,14 +2,14 @@
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.UserModels;
+using Goldmint.WebApplication.Models.API.v1.User.UserModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class UserController : BaseController {
 
@@ -39,7 +39,6 @@ namespace Goldmint.WebApplication.Controllers.API {
 		/// <summary>
 		/// Fiat limits
 		/// </summary>
-		// TODO: send additional limits - card d/w onetime limits, swift d/w onetime limits
 		[AreaAuthorized, AccessRights(AccessRights.Client)]
 		[HttpGet, Route("limits")]
 		[ProducesResponseType(typeof(LimitsView), 200)]
@@ -192,8 +191,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				select a
 			);
 
-			var page = await query.PagerAsync(
-				model.Offset, model.Limit,
+			var page = await DalExtensions.PagerAsync(query, model.Offset, model.Limit,
 				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
 			);
 
@@ -246,8 +244,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				select a
 			);
 
-			var page = await query.PagerAsync(
-				model.Offset, model.Limit,
+			var page = await DalExtensions.PagerAsync(query, model.Offset, model.Limit,
 				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
 			);
 

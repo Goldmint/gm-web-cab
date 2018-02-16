@@ -1,19 +1,18 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Notification.Impl;
-using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Core.Tokens;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.UserModels;
+using Goldmint.WebApplication.Models.API.v1.User.UserModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class UserController : BaseController {
 
@@ -107,7 +106,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 				}
 
 				// +1 failed login
-				DbContext.Attach(user);
+				DbContext.Attach<DAL.Models.Identity.User>(user);
 				await UserManager.AccessFailedAsync(user);
 			}
 
@@ -151,7 +150,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		// ---
 
 		[NonAction]
-		private async Task<bool> CreateExternalLogin(User user, ExternalLoginInfo info) {
+		private async Task<bool> CreateExternalLogin(DAL.Models.Identity.User user, ExternalLoginInfo info) {
 			var res = await UserManager.AddLoginAsync(user, info);
 			if (res.Succeeded && await SignInManager.CanSignInAsync(user)) {
 				await SignInManager.SignInAsync(user, isPersistent: false);
@@ -161,7 +160,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		}
 
 		[NonAction]
-		private APIResponse OnSignInResult(Microsoft.AspNetCore.Identity.SignInResult result, User user, bool tfaRequired) {
+		private APIResponse OnSignInResult(Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, bool tfaRequired) {
 			if (result != null) {
 
 				if (result.Succeeded || result.RequiresTwoFactor) {

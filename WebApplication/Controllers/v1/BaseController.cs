@@ -5,10 +5,10 @@ using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
+using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
-using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Models;
 using Goldmint.WebApplication.Services.Cache;
 using Microsoft.AspNetCore.Hosting;
@@ -22,7 +22,7 @@ using NLog;
 using System;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.API {
+namespace Goldmint.WebApplication.Controllers.v1 {
 
 	public abstract class BaseController : Controller {
 
@@ -31,8 +31,8 @@ namespace Goldmint.WebApplication.Controllers.API {
 		protected ILogger Logger { get; private set; }
 		protected ApplicationDbContext DbContext { get; private set; }
 		protected IMutexHolder MutexHolder { get; private set; }
-		protected SignInManager<User> SignInManager { get; private set; }
-		protected UserManager<User> UserManager { get; private set; }
+		protected SignInManager<DAL.Models.Identity.User> SignInManager { get; private set; }
+		protected UserManager<DAL.Models.Identity.User> UserManager { get; private set; }
 		protected IKycProvider KycExternalProvider { get; private set; }
 		protected INotificationQueue EmailQueue { get; private set; }
 		protected ITemplateProvider TemplateProvider { get; private set; }
@@ -41,6 +41,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		protected IEthereumReader EthereumObserver { get; private set; }
 		protected IGoldRateProvider GoldRateProvider { get; private set; }
 		protected CachedGoldRate GoldRateCached { get; private set; }
+		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 
 		protected BaseController() { }
 
@@ -51,8 +52,8 @@ namespace Goldmint.WebApplication.Controllers.API {
 			HostingEnvironment = services.GetRequiredService<IHostingEnvironment>();
 			DbContext = services.GetRequiredService<ApplicationDbContext>();
 			MutexHolder = services.GetRequiredService<IMutexHolder>();
-			SignInManager = services.GetRequiredService<SignInManager<User>>();
-			UserManager = services.GetRequiredService<UserManager<User>>();
+			SignInManager = services.GetRequiredService<SignInManager<DAL.Models.Identity.User>>();
+			UserManager = services.GetRequiredService<UserManager<DAL.Models.Identity.User>>();
 			KycExternalProvider = services.GetRequiredService<IKycProvider>();
 			EmailQueue = services.GetRequiredService<INotificationQueue>();
 			TemplateProvider = services.GetRequiredService<ITemplateProvider>();
@@ -61,6 +62,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
 			GoldRateProvider = services.GetRequiredService<IGoldRateProvider>();
 			GoldRateCached = services.GetRequiredService<CachedGoldRate>();
+			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 		}
 
 		// ---
@@ -109,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.API {
 		}
 
 		[NonAction]
-		protected async Task<User> GetUserFromDb() {
+		protected async Task<DAL.Models.Identity.User> GetUserFromDb() {
 			if (IsUserAuthenticated()) {
 				var name = UserManager.NormalizeKey(HttpContext.User.Identity.Name);
 				return await DbContext.Users

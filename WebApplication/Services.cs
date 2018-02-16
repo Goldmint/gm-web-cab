@@ -11,6 +11,7 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
@@ -27,6 +28,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Goldmint.CoreLogic.Services.OpenStorage.Impl;
 
 namespace Goldmint.WebApplication {
 
@@ -185,6 +187,9 @@ namespace Goldmint.WebApplication {
 #else
 			services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
 #endif
+
+			// open storage
+			services.AddSingleton<IOpenStorageProvider>(fac => new IPFS(_appConfig.Services.IPFS.Url, _loggerFactory));
 
 			return services.BuildServiceProvider();
 		}
