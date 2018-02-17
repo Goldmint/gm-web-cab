@@ -184,26 +184,40 @@ export class APIService {
       );
   }
 
-  getTransparency(offset: number = 0, limit: number = null,
-    sort: string = 'date', order: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
+  addIPFSFile(formData) {
+    return this._http.post('https://ipfs.infura.io:5001/api/v0/add', formData)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
 
-    let options = this.jwt();
-    let params = new HttpParams()/*.set('u',      options.params.get('u'))*/
-      .set('offset', offset.toString())
-      .set('limit', limit ? limit.toString() : '')
-      .set('sort', sort)
-      .set('order', order);
+  getTransparency(offset: number = 0, limit: number = 5,
+    sort: string = 'date', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
+    let params = {
+      offset,
+      limit,
+      sort,
+      ascending: ascending === 'asc'
+    };
+
+    let httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
 
     return this._http
-      //@todo: replace by the real api endpoint
-      .get(`https://gm-cabinet-dev.pashog.net/api-sandbox.php?action=/api/getTransparency`, Object.assign(options, { params: params }))
+      .post(`${this._baseUrl}/commons/transparency`, params, httpOptions)
       .pipe(
-      catchError(this._handleError),
-      tap(response => {
-        console.log('APIService getTransparency response', response);
+        catchError(this._handleError)
+      );
+  }
 
-        return response;
-      })
+  addTransparency(hash: string, amount: number, comment: string) {
+    return this._http
+      .post(`${this._baseUrl}/dashboard/transparency/add`, {hash, amount, comment}, this.jwt())
+      .pipe(
+        catchError(this._handleError)
       );
   }
 

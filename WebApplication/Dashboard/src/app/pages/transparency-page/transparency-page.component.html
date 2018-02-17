@@ -4,14 +4,15 @@
   <div class="page__section">
 
     <div class="trn-info">
-      <form class="w-100 transparency-form" [formGroup]="form" (ngSubmit)="upload()">
+      <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" (ngSubmit)="upload()">
 
         <div class="row align-items-start">
 
           <div class="col-lg-auto pt-4">
             <div class="from-row form-group">
               <label class="file-upload-btn">
-                <input type="file" name="file" (change)="onChangeFile($event)">
+                <input type="file" name="file" accept="image/*" (change)="onChangeFile($event)" #file formControlName="realFile">
+                <input type="hidden" name="hiddenFile" formControlName="file">
                 <span class="btn btn-sm btn-primary btn-block">Document</span>
               </label>
             </div>
@@ -30,7 +31,7 @@
           </div>
 
           <div class="col-lg-auto pb-3 pt-3">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="notSelectedFile || form.invalid">Upload</button>
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || formDir.submitted">Upload</button>
           </div>
 
         </div>
@@ -80,26 +81,7 @@
             </ng-template>
 
             <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-              <div *ngIf="row.type === 'withdraw'; then amountWithdrawBlock else amountDepositBlock"></div>
-
-              <ng-template #amountWithdrawBlock>
-                <svg class="icon icon--fix icon--green" width="8px" height="8px">
-                  <use xlink:href="#amount-plus"></use>
-                </svg>
-              </ng-template>
-
-              <ng-template #amountDepositBlock>
-                <svg class="icon icon--fix icon--red" width="8px" height="2px">
-                  <use xlink:href="#amount-minus"></use>
-                </svg>
-              </ng-template>
-
-              <span>
-                {{ amount?.prefix }}
-                {{ amount.amount | number:'1.2-2':locale }}
-                {{ amount?.suffix }}
-              </span>
-              <!-- <span>{{ amount | currency:row.currency.code:'code':'1.2-2':locale }}</span> -->
+                {{ amount | number:'1.2-2':locale }}
             </ng-template>
           </ngx-datatable-column>
 
@@ -110,19 +92,21 @@
             </ng-template>
 
             <ng-template let-link="value" ngx-datatable-cell-template>
-              <a [href]="link">{{ link }}</a>
+              <div class="link-block">
+                <a [href]="link">{{ link }}</a>
+              </div>
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
+          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
             <ng-template let-column="column" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper">
                 {{ "PAGES.History.Table.Columns.Comment" | translate }}
               </span>
             </ng-template>
 
-            <ng-template let-timestamp="value" ngx-datatable-cell-template>
-              comment
+            <ng-template let-comment="value" ngx-datatable-cell-template>
+              {{ comment }}
             </ng-template>
           </ngx-datatable-column>
 

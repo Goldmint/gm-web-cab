@@ -1,9 +1,12 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef,
+  ViewChild
+} from '@angular/core';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { Page } from '../../models/page';
 import { TransparencySummary, TransparencyRecord } from '../../interfaces';
-import { APIService, UserService } from '../../services';
+import { APIService, UserService, MessageBoxService } from '../../services';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { BigNumber } from 'bignumber.js';
 
@@ -27,15 +30,19 @@ export class TransparencyPageComponent implements OnInit {
   public messages:    any  = {emptyMessage: 'Loading...'};
 
   public form: FormGroup;
-  private notSelectedFile = true;
   private amount = null;
+
+  @ViewChild('file') selectedFile;
+  @ViewChild('formDir') formDir;
 
   constructor(
     private apiService: APIService,
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
-    private formBuilder: FormBuilder) {
+    private formBuilder: FormBuilder,
+    private _messageBox: MessageBoxService
+    ) {
 
     this.page.pageNumber = 0;
     this.page.size = 5;
@@ -44,7 +51,9 @@ export class TransparencyPageComponent implements OnInit {
   ngOnInit() {
     this.form = this.formBuilder.group({
       'amount': ['', Validators.required],
-      'comment': ['', Validators.required]
+      'comment': ['', Validators.required],
+      'file': ['', Validators.required],
+      'realFile': ['']
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -71,9 +80,9 @@ export class TransparencyPageComponent implements OnInit {
     this.apiService.getTransparency(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
-          this.rows = data.data;
+          this.rows = data.data.items;
 
-          this.page.totalElements = data.count;
+          this.page.totalElements = data.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
 
           this.loading = false;
@@ -94,11 +103,43 @@ export class TransparencyPageComponent implements OnInit {
     }
   }
 
-  onChangeFile(e) {
-    e.target.value ? this.notSelectedFile = false : this.notSelectedFile = true;
+  onChangeFile(event) {
+    let file = event.target.files[0];
+    this.form.controls['file'].setValue(file ? file.name : '');
   }
 
   upload() {
+    let fileBrowser = this.selectedFile.nativeElement;
+    if (fileBrowser.files && fileBrowser.files[0]) {
+      this.form.disable();
+
+      const formData = new FormData();
+      formData.append("arg", fileBrowser.files[0]);
+
+      let errorFn = () => {
+        this._messageBox.alert('Something went wrong, transparency has not been added! Sorry :(').subscribe();
+        this.formDir.submitted = false;
+        this.form.enable();
+      };
+
+      this.apiService.addIPFSFile(formData)
+        .subscribe(
+          data => {
+            this.apiService.addTransparency(data['Hash'], this.form.value.amount, this.form.value.comment).subscribe(
+              () => {
+                this._messageBox.alert('Transparency has been added!').subscribe(() => {
+                  this.formDir.submitted = false;
+                  this.form.reset();
+                  this.form.enable();
+                });
+                this.setPage({ offset: this.page.pageNumber });
+              },
+              errorFn
+            );
+          },
+          errorFn
+        )
+    }
   }
 
 }
