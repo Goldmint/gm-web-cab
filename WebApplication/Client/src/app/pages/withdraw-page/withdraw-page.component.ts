@@ -35,6 +35,8 @@ export class WithdrawPageComponent implements OnInit {
   public errors = [];
   public limits: FiatLimits;
   public user: User;
+  public swiftWithdrawChecked:boolean = false;
+  public cardWithdrawChecked:boolean = false;
 
   constructor(
     private _apiService: APIService,
@@ -121,5 +123,17 @@ export class WithdrawPageComponent implements OnInit {
         }
       });
   }
+
+    checkSwiftWithdraw(val:number) {
+        this.swiftWithdrawChecked = val <= this.limits.current.withdraw.minimal
+            && val >= this.limits.paymentMethod.swift.withdraw.min
+            && val <= this.limits.paymentMethod.swift.withdraw.max;
+    }
+
+    checkCardWithdraw(val:number) {
+        this.cardWithdrawChecked = val <= this.limits.current.withdraw.minimal
+            && val >= this.limits.paymentMethod.card.withdraw.min
+            && val <= this.limits.paymentMethod.card.withdraw.max;
+    }
 
 }

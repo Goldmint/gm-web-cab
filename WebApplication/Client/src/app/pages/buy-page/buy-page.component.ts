@@ -24,6 +24,7 @@ export class BuyPageComponent implements OnInit {
   goldUsdRate: number = null;
   estimatedAmount: string;
   usdBalancePercent;
+  public buyAmountChecked: boolean = true;
 
   constructor(
     private _userService: UserService,
@@ -41,24 +42,25 @@ export class BuyPageComponent implements OnInit {
         if (data[1] !== null) this.goldUsdRate = data[1];
 
         if (this.goldUsdRate !== null && this.usdBalance !== null) {
-
-          if (this.toSpendUnset) {
-            this.toSpendUnset = false;
+          if (this.toSpendUnset && data[0] > 0) {
             this.toSpend = this.usdBalance;
+            this.toSpendUnset = false;
+            this.buyAmountCheck(this.toSpend);
           }
 
           if (!this.progress && !this.confirmation) {
             this.estimate(this.toSpend);
-            this._cdRef.detectChanges();
           }
+
+          this._cdRef.detectChanges();
         }
       });
   }
 
   onToSpendChanged(value: number) {
     this.toSpendUnset = false;
-    this.toSpend = value;
     this.estimate(this.toSpend);
+    this.buyAmountCheck(value);
     this._cdRef.detectChanges();
   }
 
@@ -106,5 +108,9 @@ export class BuyPageComponent implements OnInit {
           this._messageBox.alert(err.error.errorDesc);
         }
       });
+  }
+
+  buyAmountCheck(val) {
+    this.buyAmountChecked = val >= 1 && this.usdBalance && val<= this.usdBalance;
   }
 }

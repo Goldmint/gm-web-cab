@@ -494,8 +494,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(res => {
-        console.log(res);
-        console.log(res.data);
         return res;
       })
       );

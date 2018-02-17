@@ -52,8 +52,9 @@ export class DepositPageComponent implements OnInit {
   public countries: Country[];
   public limits: FiatLimits;
   public user: User;
-  public invoiceHtml:string = '';
   public invoiceData:SwiftInvoice;
+  public swiftDepositChecked:boolean = false;
+  public cardDepositChecked:boolean = false;
 
   constructor(
     private _apiService: APIService,
@@ -133,10 +134,6 @@ export class DepositPageComponent implements OnInit {
     }
   }
 
-  proceedTransfer() {
-    console.log('Proceeded!');
-  }
-
   submit() {
     this.processing = true;
     this.buttonBlur.emit();
@@ -193,6 +190,18 @@ export class DepositPageComponent implements OnInit {
       let html = document.getElementById('invoice-wrapper').innerHTML;
     let target = e.target;
     target.href='data:text/html;charset=UTF-8,'+ encodeURIComponent(html);
+  }
+
+  checkSwiftDeposit(val:number) {
+    this.swiftDepositChecked = val <= this.limits.current.deposit.minimal
+        && val >= this.limits.paymentMethod.swift.deposit.min
+        && val <= this.limits.paymentMethod.swift.deposit.max;
+  }
+
+  checkCardDeposit(val:number) {
+    this.cardDepositChecked = val <= this.limits.current.deposit.minimal
+    && val >= this.limits.paymentMethod.card.deposit.min
+    && val <= this.limits.paymentMethod.card.deposit.max;
   }
 }
 

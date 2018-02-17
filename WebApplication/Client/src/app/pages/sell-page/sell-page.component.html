@@ -17,7 +17,16 @@
                   <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control" name="input_toSell" id="input_toSell" min="0" [max]="goldBalance" step="0.1" [value]="toSell" (input)="onToSellChanged($event.target.value)">
+              <input type="number" class="form-control"
+                     name="input_toSell"
+                     id="input_toSell"
+                     min="0"
+                     [max]="goldBalance"
+                     step="0.1"
+                     [value]="toSell"
+                     (input)="onToSellChanged($event.target.value)"
+                     [ngClass]="{'is-invalid': !sellAmountChecked}"
+              >
             </div>
               <div class="percent-btn-cont">
                 <button class="percent-btn" (click)="onSetSellPercent(0.25)">25%</button>
@@ -25,6 +34,9 @@
                 <button class="percent-btn" (click)="onSetSellPercent(0.75)">75%</button>
                 <button class="percent-btn" (click)="onSetSellPercent(1)">100%</button>
               </div>
+            <div class="invalid-feedback" *ngIf="!sellAmountChecked">
+              Invalid gold amount
+            </div>
           </div>
         </div>
 
@@ -46,7 +58,7 @@
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="goldBalance == null || toSell.gt(goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
+          <button class="btn btn-primary btn-block" [disabled]="!sellAmountChecked || goldBalance == null || toSell.gt(goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
             {{ "PAGES.Sell.Buttons.SellNow" | translate }}
           </button>
         </div>

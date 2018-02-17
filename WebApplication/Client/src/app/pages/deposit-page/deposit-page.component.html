@@ -20,7 +20,9 @@
           </div>
           <div class="col form-group text-center">
             <label for="btnPaymentBank">Bank transfer</label>
-            <button class="btn btn-primary btn-block" id="btnPaymentBank" (click)="goto(_pages.BankTransfer)">
+            <button class="btn btn-primary btn-block"
+                    [disabled]="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min"
+                    id="btnPaymentBank" (click)="goto(_pages.BankTransfer)">
               <svg class="icon" width="107px" height="56px">
                 <use xlink:href="#payment-bank"></use>
               </svg>
@@ -99,7 +101,7 @@
                   <span>Account limits</span>
                   <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                     <svg class="icon" width="20px" height="20px">
-                      <use href="#increase"></use>
+                      <use xlink:href="#increase"></use>
                     </svg>
                     <span>Increase</span>
                   </a>
@@ -236,12 +238,13 @@
                   <input type="number" min="0" step="0.01" required
                          class="form-control" id="inputAmount"
                          name="amount" [(ngModel)]="depositModel.amount" #amount="ngModel"
-                         [ngClass]="{'is-invalid': (errors?.Amount || !amount.valid) && (depositForm.submitted || !amount.pristine)}"
+                         [ngClass]="{'is-invalid': (!cardDepositChecked && amount.dirty) || (errors?.Amount || !amount.valid) && (depositForm.submitted || !amount.pristine)}"
                          (ngModelChange)="errors.Amount = false"
+                         (input)="checkCardDeposit(depositModel.amount)"
                          [readonly]="processing">
 
-                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors?.Amount">
-                    {{ errors?.Amount }}
+                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors?.Amount || (!cardDepositChecked && amount.dirty)">
+                    Invalid amount value
                   </div>
                 </div>
                 <div class="form-group col-auto">
@@ -258,7 +261,7 @@
 
           <div class="row align-items-center pt-4">
             <div class="col-auto">
-              <button type="submit" class="btn btn-primary" [disabled]="!agreeCheck">Proceed</button>
+              <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !agreeCheck">Proceed</button>
             </div>
             <div class="col pl-4 pt-2">
               <div class="form-group mb-0">
@@ -318,7 +321,7 @@
 
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Form">
         <form name="transferForm"
-          (ngSubmit)="transferForm.form.valid && submitTransferForm(transferForm.amount)"
+          (ngSubmit)="swiftDepositChecked && transferForm.form.valid && submitTransferForm(transferForm.amount)"
           #transferForm="ngForm"
           novalidate>
           <div class="form-group">
@@ -326,14 +329,17 @@
 
             <input id="transferAmount"
                    type="number"
-                   min="0"
                    step="0.01"
-                   class="form-control"
+                   class="form-control is-invalid"
                    name="amount"
                    required
                    [(ngModel)]="transferForm.amount"
+                   (input)="checkSwiftDeposit(transferForm.amount)"
                    #amount="ngModel"
-                   [ngClass]="{'is-invalid': amount.invalid && (transferForm.submitted || amount.dirty)}">
+                   [ngClass]="{'is-invalid': (amount.dirty && !swiftDepositChecked) || (amount.invalid && (transferForm.submitted || amount.dirty))}">
+            <div class="invalid-feedback" *ngIf="errors?.amount || (amount.dirty && !swiftDepositChecked)">
+              Invalid amount value
+            </div>
           </div>
 
           <div class="form-group">
@@ -355,7 +361,7 @@
           </div>
 
           <button class="btn btn-primary"
-                  [disabled]="!transferForm.bankCountry || !transferForm.amount"
+                  [disabled]="!swiftDepositChecked || !transferForm.bankCountry || !transferForm.amount"
           >Proceed</button>
         </form>
       </ng-container>

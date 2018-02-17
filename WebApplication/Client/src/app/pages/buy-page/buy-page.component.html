@@ -5,7 +5,7 @@
   <h2 class="section__title">{{ "PAGES.Buy.SectionTitle" | translate }}</h2>
 
   <div class="section__content">
-    <form action="#">
+    <form action="#" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
       <div class="row align-items-start">
 
         <div class="col-lg pb-4">
@@ -17,7 +17,14 @@
                   <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control" id="input_toSpend" min="1" [max]="usdBalance" step="1" [value]="toSpend" (input)="onToSpendChanged($event.target.value)">
+              <input type="number" class="form-control" id="input_toSpend" min="1" [max]="usdBalance" step="1"
+                     name="amount"
+                     [value]="toSpend"
+                     [ngClass]="{'is-invalid': !buyAmountChecked}"
+                     (input)="onToSpendChanged($event.target.value || 0)">
+            </div>
+            <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
+              Invalid amount value
             </div>
           </div>
         </div>
@@ -37,7 +44,7 @@
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="progress || confirmation || toSpend > usdBalance || toSpend <= 0" (click)="onBuy()">
+          <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend > usdBalance || toSpend <= 0" (click)="onBuy()">
             {{ "PAGES.Buy.Buttons.BuyNow" | translate }}
           </button>
         </div>

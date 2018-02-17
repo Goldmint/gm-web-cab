@@ -36,6 +36,7 @@ export class SellPageComponent implements OnInit {
   buyMNT_DisableArray = [false, false, false, false];
   buyMNTArray = [10, 1000, 10000];
   discountUSDArray: number[] = [0, 0, 0, 0];
+  public sellAmountChecked: boolean = true;
 
   constructor(
     private _userService: UserService,
@@ -75,6 +76,7 @@ export class SellPageComponent implements OnInit {
         }
 
         if (!this.progress && !this.confirmation) {
+          this.sellAmountCheck(this.toSell);
           this._cdRef.detectChanges();
         }
       });
@@ -84,6 +86,7 @@ export class SellPageComponent implements OnInit {
   onToSellChanged(value:string) {
     this.toSellUnset = false;
     this.toSell = new BigNumber(0);
+    this.sellAmountCheck(value);
     if (value != '') {
       this.toSell = new BigNumber(value);
       this.toSell = this.toSell.decimalPlaces(6, BigNumber.ROUND_DOWN);
@@ -185,5 +188,9 @@ export class SellPageComponent implements OnInit {
           this._messageBox.alert(err.error.errorDesc);
         }
       });
+  }
+
+  sellAmountCheck(val) {
+    this.sellAmountChecked = val <= this.goldBalance;
   }
 }
