@@ -184,26 +184,11 @@ export class APIService {
       );
   }
 
-  getTransparency(offset: number = 0, limit: number = null,
-    sort: string = 'date', order: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
-
-    let options = this.jwt();
-    let params = new HttpParams()/*.set('u',      options.params.get('u'))*/
-      .set('offset', offset.toString())
-      .set('limit', limit ? limit.toString() : '')
-      .set('sort', sort)
-      .set('order', order);
-
+  getTransparency(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
     return this._http
-      //@todo: replace by the real api endpoint
-      .get(`https://gm-cabinet-dev.pashog.net/api-sandbox.php?action=/api/getTransparency`, Object.assign(options, { params: params }))
+      .post(`${this._baseUrl}/commons/transparency`, { offset: offset, limit: limit, sort: sort, ascending: order === 'asc' })
       .pipe(
-      catchError(this._handleError),
-      tap(response => {
-        console.log('APIService getTransparency response', response);
-
-        return response;
-      })
+        catchError(this._handleError)
       );
   }
 
@@ -333,7 +318,7 @@ export class APIService {
 
   goldBuyReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
     return this._http
-      .post(`${this._baseUrl}/gold/buyRequest`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
+      .post(`${this._baseUrl}/user/exchange/gold/buy`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -343,7 +328,7 @@ export class APIService {
   goldSellReqest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
     var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
-      .post(`${this._baseUrl}/gold/sellRequest`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .post(`${this._baseUrl}/user/exchange/gold/sell`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),

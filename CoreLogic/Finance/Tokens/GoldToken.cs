@@ -71,7 +71,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				throw new ArgumentException("Illegal gold price");
 			}
 
-			var min = 1L; // 1 cent
+			var min = 100L; // 100 cents
 			var max = fiatTotalVolumeCents;
 			if (min > max) {
 				min = 0;
@@ -108,7 +108,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				throw new ArgumentException("Illegal gold price");
 			}
 
-			var min = ToWei(0.01M / (pricePerGoldOunceCents / 100M)); // gold amount per 1 cent
+			var min = ToWei(0.5M / (pricePerGoldOunceCents / 100M)); // gold amount per 50 cents
 			var max = goldTotalVolumeWei;
 			if (min > max) {
 				min = 0;

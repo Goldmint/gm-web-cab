@@ -198,6 +198,12 @@ namespace Goldmint.CoreLogic {
 			public FiatOperationsLimits Current { get; internal set; }
 			public FiatOperationsLimits Level0 { get; internal set; }
 			public FiatOperationsLimits Level1 { get; internal set; }
+
+			internal FiatLimitsLevels() {
+				Current = new FiatOperationsLimits();
+				Level0 = new FiatOperationsLimits();
+				Level1 = new FiatOperationsLimits();
+			}
 		}
 
 		/// <summary>
@@ -207,6 +213,11 @@ namespace Goldmint.CoreLogic {
 
 			public FiatLimits Deposit { get; internal set; }
 			public FiatLimits Withdraw { get; internal set; }
+
+			internal FiatOperationsLimits() {
+				Deposit = new FiatLimits();
+				Withdraw = new FiatLimits();
+			}
 		}
 
 		/// <summary>
@@ -219,6 +230,8 @@ namespace Goldmint.CoreLogic {
 
 			public long Minimal => Math.Max(0, Math.Min(Day, Month));
 			public long Maximal => Math.Max(0, Math.Max(Day, Month));
+
+			internal FiatLimits() { }
 		}
 	}
 }

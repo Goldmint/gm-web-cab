@@ -21,6 +21,30 @@ namespace Goldmint.DAL.Migrations
                 .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
                 .HasAnnotation("ProductVersion", "2.0.1-rtm-125");
 
+            modelBuilder.Entity("Goldmint.DAL.Models.BannedCountry", b =>
+                {
+                    b.Property<string>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("code")
+                        .HasMaxLength(3);
+
+                    b.Property<string>("Comment")
+                        .HasColumnName("comment")
+                        .HasMaxLength(128);
+
+                    b.Property<DateTime>("TimeCreated")
+                        .HasColumnName("time_created");
+
+                    b.Property<long>("UserId")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("gm_banned_country");
+                });
+
             modelBuilder.Entity("Goldmint.DAL.Models.BuyRequest", b =>
                 {
                     b.Property<long>("Id")
@@ -848,6 +872,39 @@ namespace Goldmint.DAL.Migrations
                     b.ToTable("gm_swift_payment");
                 });
 
+            modelBuilder.Entity("Goldmint.DAL.Models.Transparency", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("Amount")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnName("comment")
+                        .HasMaxLength(512);
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnName("hash")
+                        .HasMaxLength(128);
+
+                    b.Property<DateTime>("TimeCreated")
+                        .HasColumnName("time_created");
+
+                    b.Property<long>("UserId")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("gm_transparency");
+                });
+
             modelBuilder.Entity("Goldmint.DAL.Models.UserActivity", b =>
                 {
                     b.Property<long>("Id")
@@ -1088,6 +1145,14 @@ namespace Goldmint.DAL.Migrations
                     b.ToTable("gm_withdraw");
                 });
 
+            modelBuilder.Entity("Goldmint.DAL.Models.BannedCountry", b =>
+                {
+                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Goldmint.DAL.Models.BuyRequest", b =>
                 {
                     b.HasOne("Goldmint.DAL.Models.FinancialHistory", "FinancialHistory")
@@ -1217,6 +1282,14 @@ namespace Goldmint.DAL.Migrations
                 {
                     b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
                         .WithMany("SwiftPayment")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Goldmint.DAL.Models.Transparency", b =>
+                {
+                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

@@ -30,7 +30,7 @@ namespace Goldmint.Common {
 			public class JWTSection {
 				public string Secret { get; set; } = "";
 				public string Issuer { get; set; } = "";
-				public string AppAudience { get; set; } = "";
+				public string Audience { get; set; } = "";
 				public long ExpirationSec { get; set; } = 1800;
 			}
 
@@ -90,6 +90,12 @@ namespace Goldmint.Common {
 				public long DefaultGasPriceWei { get; set; } = 0;
 				public string GMAccountPrivateKey { get; set; } = "";
 				public string FiatContractAddress { get; set; } = "";
+			}
+
+			public IPFSSection IPFS { get; set; } = new IPFSSection();
+			public class IPFSSection {
+
+				public string Url { get; set; } = "";
 			}
 		}
 
