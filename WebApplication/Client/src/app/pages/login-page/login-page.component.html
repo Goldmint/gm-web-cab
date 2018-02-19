@@ -11,7 +11,7 @@
         <section class="section section--no-bottom">
           <h2 class="section__title">{{ "PAGES.Login.SectionTitles.Login" | translate }}</h2>
 
-          <div class="section__content pt-4" *ngIf="!_tfaRequired; else tfaFormBlock">
+          <div class="section__content pt-4" *ngIf="!tfaRequired; else tfaFormBlock">
             <form name="loginForm" (ngSubmit)="loginForm.form.valid && login()" #loginForm="ngForm" novalidate>
 
               <div class="form-group">

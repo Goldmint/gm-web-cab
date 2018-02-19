@@ -6,8 +6,6 @@ import 'rxjs/add/operator/finally';
 
 import { APIService, MessageBoxService } from "../../../services";
 
-import * as zxcvbn from 'zxcvbn';
-
 enum Pages {Default, EmailSent, NewPassword}
 
 @Component({
@@ -20,12 +18,11 @@ enum Pages {Default, EmailSent, NewPassword}
 export class PasswordResetPageComponent implements OnInit {
   @ViewChild('captchaRef') captchaRef: reCaptcha;
 
-  private _pages = Pages;
+  public pages = Pages;
   private _token: string;
 
   public passwordResetModel: any = {};
   public newPasswordModel: any = {};
-  public passwordStrength: number;
   public loading = false;
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
@@ -97,14 +94,6 @@ export class PasswordResetPageComponent implements OnInit {
             }
           }
         });
-  }
-
-  onPasswordInput(someVar) {
-    let strength = zxcvbn(someVar.value);
-
-    console.log('strength result', strength);
-
-    this.passwordStrength = strength.score;
   }
 
   changePassword() {

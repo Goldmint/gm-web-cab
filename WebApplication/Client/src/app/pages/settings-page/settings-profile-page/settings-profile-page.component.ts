@@ -16,7 +16,7 @@ export class SettingsProfilePageComponent implements OnInit {
 
   @ViewChild('passwordForm') passwordForm: NgForm;
 
-  private _loading = true;
+  public loading = true;
   private _changingPassword: boolean;
 
   private _user: User;
@@ -39,7 +39,7 @@ export class SettingsProfilePageComponent implements OnInit {
     ).subscribe(res => {
       this._user = res[0];
       this._tfaInfo = res[1].data;
-      this._loading = false;
+      this.loading = false;
       this._cdRef.detectChanges();
     });
   }

@@ -1,4 +1,4 @@
-<ng-container *ngIf="page === _pages.Default">
+<ng-container *ngIf="page === pages.Default">
   <section class="page__section section section--table">
     <h2 class="section__title">{{ "PAGES.Deposit.SectionTitle" | translate }}</h2>
 
@@ -12,7 +12,7 @@
         <div class="row">
           <div class="col form-group text-center">
             <label for="btnPaymentCard">Payment card</label>
-            <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(_pages.CardsList)">
+            <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
               <svg class="icon" width="56px" height="56px">
                 <use xlink:href="#payment-card"></use>
               </svg>
@@ -22,7 +22,7 @@
             <label for="btnPaymentBank">Bank transfer</label>
             <button class="btn btn-primary btn-block"
                     [disabled]="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min"
-                    id="btnPaymentBank" (click)="goto(_pages.BankTransfer)">
+                    id="btnPaymentBank" (click)="goto(pages.BankTransfer)">
               <svg class="icon" width="107px" height="56px">
                 <use xlink:href="#payment-bank"></use>
               </svg>
@@ -204,7 +204,7 @@
   <!--</ng-container>-->
 </ng-container>
 
-<ng-container *ngIf="page === _pages.CardsList">
+<ng-container *ngIf="page === pages.CardsList">
   <section class="page__section section section--table">
     <h2 class="section__title">{{ "PAGES.Deposit.CardsList.SectionTitle" | translate }}</h2>
 
@@ -287,7 +287,7 @@
 </ng-container>
 
 <!-- START: Bank Transfer -->
-<ng-container *ngIf="page === _pages.BankTransfer">
+<ng-container *ngIf="page === pages.BankTransfer">
   <section class="page__section section section--table">
     <div class="section__content pt-4">
 

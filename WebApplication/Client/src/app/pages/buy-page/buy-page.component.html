@@ -48,7 +48,7 @@
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend > usdBalance || toSpend <= 0" (click)="onBuy()">
+          <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend.comparedTo(usdBalance) > 0 || toSpend.comparedTo(0) <= 0" (click)="onBuy()">
             {{ "PAGES.Buy.Buttons.BuyNow" | translate }}
           </button>
         </div>

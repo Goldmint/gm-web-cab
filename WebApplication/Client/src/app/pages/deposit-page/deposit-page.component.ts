@@ -30,7 +30,7 @@ enum BankTransferSteps { Default, Form, PaymentDetails }
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DepositPageComponent implements OnInit {
-  private _pages = Pages;
+  public pages = Pages;
   private _bankTransferSteps = BankTransferSteps;
 
   public page: Pages;

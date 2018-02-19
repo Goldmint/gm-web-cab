@@ -19,7 +19,7 @@ enum Pages { Default, CardsList }
 })
 export class WithdrawPageComponent implements OnInit {
 
-  private _pages = Pages;
+  public pages = Pages;
 
   public page: Pages;
   public loading: boolean = true;

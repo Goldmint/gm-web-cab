@@ -20,7 +20,7 @@ enum Phase {Start, Basic, Finished}
 export class SettingsVerificationPageComponent implements OnInit {
   // @ViewChild("pho", {read: PhoneNumberComponent}) pho: PhoneNumberComponent;
 
-  private _phase = Phase;
+  public _phase = Phase;
 
   public loading = true;
   public processing = false;

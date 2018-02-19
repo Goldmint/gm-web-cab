@@ -198,7 +198,9 @@
         },
         "Password": {
           "required": "Password is required",
-          "minlength": "Should be at least 6 symbols length"
+          "minlength": "Should be at least 6 symbols length",
+          "maxlength": "Should be up to 128 symbols length",
+          "pattern": "Should contain uppercase letters, lowercase letters and digits"
         }
       },
       "Buttons": {

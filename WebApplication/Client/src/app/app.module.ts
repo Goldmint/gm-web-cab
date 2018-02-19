@@ -70,7 +70,7 @@ import { SupportPageComponent } from './pages/support-page/support-page.componen
 import { TransferPageComponent } from './pages/transfer-page/transfer-page.component';
 import { PagerBlockComponent } from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
-// import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
+import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
 import { PasswordResetPageComponent } from './pages/login-page/password-reset-page/password-reset-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-page/register-tfa-page.component';
@@ -156,7 +156,7 @@ export function getGoldmintToken() {
     TransferPageComponent,
     PagerBlockComponent,
     LoginPageComponent,
-    // LoginOntokenPageComponent,
+    LoginOntokenPageComponent,
     PasswordResetPageComponent,
     RegisterPageComponent,
     RegisterTfaPageComponent,

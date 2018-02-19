@@ -15,9 +15,9 @@ export class TransferPageComponent implements OnInit {
   @HostBinding('class') class = 'page';
 
   private _modalRef: BsModalRef;
-  private _amount: BigNumber = new BigNumber(0);
-  private _walletAddressVal: string = null;
-  private _walletAddress: string = null;
+  public amount: BigNumber = new BigNumber(0);
+  public walletAddressVal: string = null;
+  public walletAddress: string = null;
 
   amountUnset: boolean = true;
   goldBalance:BigNumber = null;
@@ -49,11 +49,11 @@ export class TransferPageComponent implements OnInit {
   }
 
   onWalletAddressChanged(value: string) {
-    this._walletAddress = null;
+    this.walletAddress = null;
     this.walletChecked = false;
 
     if (this._ethService.isValidAddress(value)) {
-      this._walletAddress = value;
+      this.walletAddress = value;
       this.walletChecked = true;
     }
     this._cdRef.markForCheck();
@@ -61,19 +61,19 @@ export class TransferPageComponent implements OnInit {
 
   onAmountChanged(value: string) {
     this.amountUnset = false;
-    this._amount = new BigNumber(0);
+    this.amount = new BigNumber(0);
 
     var testVal = value != null && value.length > 0 ? parseFloat(value) : 0;
     if (testVal > 0) {
-      this._amount = new BigNumber(value);
-      this._amount = this._amount.decimalPlaces(6, BigNumber.ROUND_DOWN); 
+      this.amount = new BigNumber(value);
+      this.amount = this.amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
     this.validateAmount();
     this._cdRef.markForCheck();
   }
 
   validateAmount() {
-    this.amountChecked = this.amountUnset || this._amount.gt(0) && this.goldBalance && this._amount.lte(this.goldBalance);
+    this.amountChecked = this.amountUnset || this.amount.gt(0) && this.goldBalance && this.amount.lte(this.goldBalance);
   }
 
   onMetamask() {
@@ -84,14 +84,14 @@ export class TransferPageComponent implements OnInit {
     }
 
     var confText =
-      "Target address: " + this._walletAddress + "<br/>" +
-      "GOLD amount: " + this._amount + " GOLD<br/>"
+      "Target address: " + this.walletAddress + "<br/>" +
+      "GOLD amount: " + this.amount + " GOLD<br/>"
       ;
     this._messageBox.confirm(confText).subscribe(ok => {
       if (ok) {
-        this._ethService.transferGoldToWallet(ethAddress, this._walletAddress, this._amount);
-        this._walletAddressVal = "";
-        this._amount = new BigNumber(0);
+        this._ethService.transferGoldToWallet(ethAddress, this.walletAddress, this.amount);
+        this.walletAddressVal = "";
+        this.amount = new BigNumber(0);
       }
       this._cdRef.markForCheck();
     });

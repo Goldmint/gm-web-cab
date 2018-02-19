@@ -12,7 +12,7 @@ import { APIService } from '../../../services';
 })
 export class RegisterEmailConfirmedPageComponent implements OnInit {
 
-  private processing = true;
+  public processing = true;
   private failed = true;
 
   constructor(
