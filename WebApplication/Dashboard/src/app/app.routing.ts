@@ -5,12 +5,10 @@ import { AuthGuard } from './guards/index';
 
 import { HomePageComponent }     from './pages/home-page/home-page.component';
 import { LimitsPageComponent }   from './pages/limits-page/limits-page.component';
-import { SupportPageComponent }  from './pages/support-page/support-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { PagerBlockComponent }   from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent }         from './pages/login-page/login-page.component';
 // import { LoginOntokenPageComponent }  from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
-import { PasswordResetPageComponent } from './pages/login-page/password-reset-page/password-reset-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-page/register-tfa-page.component';
 import { RegisterSuccessPageComponent } from './pages/register-page/register-success-page/register-success-page.component';
@@ -31,8 +29,6 @@ const appRoutes: Routes = [
 
   { path: 'signin',                  component: LoginPageComponent },
   { path: 'signin/onToken/:token',   component: LoginPageComponent },  // @todo: remove with controller
-  { path: 'signin/restore',          component: PasswordResetPageComponent },
-  { path: 'signin/restore/:token',   component: PasswordResetPageComponent },
   { path: 'signup',                  component: RegisterPageComponent },
   { path: 'signup/success',          component: RegisterSuccessPageComponent },
   { path: 'signup/confirmed/:token', component: RegisterEmailConfirmedPageComponent },
@@ -42,7 +38,6 @@ const appRoutes: Routes = [
   { path: 'signup/2fa/skip',         component: TfaNotActivatedPageComponent },
   { path: 'home',     component: HomePageComponent,     canActivate: [AuthGuard] },
   { path: 'transparency',     component: TransparencyPageComponent,     canActivate: [AuthGuard] },
-  { path: 'support',  component: SupportPageComponent,  canActivate: [AuthGuard] },
   {
     path: 'account',          component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [
@@ -57,13 +52,8 @@ const appRoutes: Routes = [
       {path: 'limits',        component: LimitsPageComponent}
     ]
   },
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'transparency', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent },
-  // {
-  //   path: 'compose',
-  //   component: ComposeMessageComponent,
-  //   outlet: 'popup'
-  // },
 ];
 
 @NgModule({

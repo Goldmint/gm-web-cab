@@ -4,9 +4,7 @@ import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { /*RECAPTCHA_LANGUAGE,*/ RECAPTCHA_SETTINGS,
-  RecaptchaModule
-} from 'ng-recaptcha';
+import { RECAPTCHA_SETTINGS, RecaptchaModule } from 'ng-recaptcha';
 
 /*
   Application main imports
@@ -27,7 +25,6 @@ import { APIHttpInterceptor } from './common/api/api-http.interceptor'
  */
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-// import { TranslatePoHttpLoader } from '@biesbjerg/ngx-translate-po-http-loader';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 registerLocaleData(localeRu);
@@ -44,8 +41,6 @@ import { EqualValidatorDirective } from './directives/equal-validator.directive'
 import { BsDropdownModule, ModalModule, ButtonsModule, TabsModule } from 'ngx-bootstrap';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
-// import { NgxPhoneMaskModule } from 'ngx-phone-mask';
-// import { InternationalPhoneNumberModule } from 'ngx-international-phone-number';
 
 /*
   Blocks
@@ -62,11 +57,9 @@ import { SpriteComponent }      from './common/sprite/sprite.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { SupportPageComponent } from './pages/support-page/support-page.component';
 import { PagerBlockComponent } from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
-// import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
-import { PasswordResetPageComponent } from './pages/login-page/password-reset-page/password-reset-page.component';
+import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-page/register-tfa-page.component';
 import { RegisterSuccessPageComponent } from './pages/register-page/register-success-page/register-success-page.component';
@@ -89,9 +82,6 @@ import {SafePipe} from "./directives/safe.pipe";
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-// export function createTranslateLoader(http: HttpClient) {
-//   return new TranslatePoHttpLoader(http, 'assets/i18n', '.po');
-// }
 
 export function getGoldmintToken() {
 	return localStorage.getItem('gmint_token');
@@ -110,8 +100,6 @@ export function getGoldmintToken() {
     TabsModule.forRoot(),
     NgxDatatableModule,
     NgxQRCodeModule,
-    // NgxPhoneMaskModule,
-    // InternationalPhoneNumberModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {
@@ -129,21 +117,17 @@ export function getGoldmintToken() {
   ],
   declarations: [
     AppComponent,
-
     LanguageSwitcherBlockComponent,
     HeaderBlockComponent,
     NavbarBlockComponent,
     MessageBoxComponent,
     SpriteComponent,
-
     HomePageComponent,
     LimitsPageComponent,
     NotFoundPageComponent,
-    SupportPageComponent,
     PagerBlockComponent,
     LoginPageComponent,
-    // LoginOntokenPageComponent,
-    PasswordResetPageComponent,
+    LoginOntokenPageComponent,
     RegisterPageComponent,
     RegisterTfaPageComponent,
     RegisterSuccessPageComponent,
@@ -179,10 +163,6 @@ export function getGoldmintToken() {
         siteKey: environment.recaptchaSiteKey
       }
     },
-    // {
-    //   provide: RECAPTCHA_LANGUAGE,
-    //   useValue: 'fr'
-    // },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: APIHttpInterceptor,
