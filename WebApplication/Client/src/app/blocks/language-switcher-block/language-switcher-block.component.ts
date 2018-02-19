@@ -32,9 +32,10 @@ export class LanguageSwitcherBlockComponent implements OnInit {
 
     const codes = Object.keys(this.languages);
 
-    let userLanguage = localStorage.getItem('gmint_language')
+    let userLanguage = "en" /* localStorage.getItem('gmint_language')
       ? localStorage.getItem('gmint_language')
-      : translate.getBrowserLang();
+      : translate.getBrowserLang() */
+    ;
 
     userLanguage = userLanguage.match('^(' + codes.join('|') + ')$')
       ? userLanguage

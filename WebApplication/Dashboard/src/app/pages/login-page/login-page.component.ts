@@ -143,7 +143,7 @@ export class LoginPageComponent implements OnInit {
           //  this._router.navigate(['/signup/2fa']);
           //}
           //else {
-            this._router.navigate([this._returnUrl]);
+          this._router.navigate([this._returnUrl]);
           //}
         },
         err => {
@@ -161,15 +161,6 @@ export class LoginPageComponent implements OnInit {
             }
           }
         });
-  }
-
-  public signInWithProvider(provider: string, e?: any) {
-    if (e) e.preventDefault();
-
-    this._userService.loginWithSocial(provider)
-      .subscribe(redirect => {
-        window.location.href = redirect.data.redirect;
-      });
   }
 
   public captchaResolved(captchaResponse: string, loginForm: NgForm) {
