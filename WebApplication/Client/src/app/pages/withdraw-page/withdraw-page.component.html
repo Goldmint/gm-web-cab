@@ -10,7 +10,7 @@
       <ng-template #blockLoaded>
 
         <!-- KYC REQUIRED -->
-        <ng-container *ngIf="!user.verifiedL0">
+        <ng-container *ngIf="!user.verifiedL0; else blockMethods">
 
           <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.KYC.Text' | translate "></p>
 
