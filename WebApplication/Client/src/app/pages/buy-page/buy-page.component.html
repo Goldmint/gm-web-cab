@@ -17,11 +17,14 @@
                   <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control" id="input_toSpend" min="1" [max]="usdBalance" step="1"
+              <input type="number" class="form-control" id="input_toSpend"
+                     min="0"
+                     step="1"
                      name="amount"
-                     [value]="toSpend"
+                     [(ngModel)]="toSpendVal"
+                     (input)="onToSpendChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !buyAmountChecked}"
-                     (input)="onToSpendChanged($event.target.value || 0)">
+                     >
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
               Invalid amount value
@@ -38,7 +41,8 @@
                   <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
-              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount" [value]="estimate_amount > 0 ? estimate_amount : ''">
+              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly
+                     [value]="estimatedAmount">
             </div>
           </div>
         </div>

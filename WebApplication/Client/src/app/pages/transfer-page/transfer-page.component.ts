@@ -16,8 +16,14 @@ export class TransferPageComponent implements OnInit {
 
   private _modalRef: BsModalRef;
   private _amount: BigNumber = new BigNumber(0);
-  private _walletAddressRaw: string = null;
+  private _walletAddressVal: string = null;
   private _walletAddress: string = null;
+
+  amountUnset: boolean = true;
+  goldBalance:BigNumber = null;
+
+  walletChecked:boolean = true;
+  amountChecked: boolean = true;
 
   constructor(
     private _modalService: BsModalService,
@@ -27,6 +33,12 @@ export class TransferPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._ethService.getObservableGoldBalance()
+      .subscribe(val => {
+        this.goldBalance = val;
+        this.validateAmount();
+        this._cdRef.markForCheck();
+      });
   }
 
   modal(template: TemplateRef<any>) {
@@ -38,19 +50,30 @@ export class TransferPageComponent implements OnInit {
 
   onWalletAddressChanged(value: string) {
     this._walletAddress = null;
+    this.walletChecked = false;
+
     if (this._ethService.isValidAddress(value)) {
       this._walletAddress = value;
+      this.walletChecked = true;
     }
-    this._cdRef.detectChanges();
+    this._cdRef.markForCheck();
   }
 
   onAmountChanged(value: string) {
+    this.amountUnset = false;
     this._amount = new BigNumber(0);
-    if (value != '') {
+
+    var testVal = value != null && value.length > 0 ? parseFloat(value) : 0;
+    if (testVal > 0) {
       this._amount = new BigNumber(value);
-      this._amount = this._amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
+      this._amount = this._amount.decimalPlaces(6, BigNumber.ROUND_DOWN); 
     }
-    this._cdRef.detectChanges();
+    this.validateAmount();
+    this._cdRef.markForCheck();
+  }
+
+  validateAmount() {
+    this.amountChecked = this.amountUnset || this._amount.gt(0) && this.goldBalance && this._amount.lte(this.goldBalance);
   }
 
   onMetamask() {
@@ -67,10 +90,10 @@ export class TransferPageComponent implements OnInit {
     this._messageBox.confirm(confText).subscribe(ok => {
       if (ok) {
         this._ethService.transferGoldToWallet(ethAddress, this._walletAddress, this._amount);
-        this._walletAddressRaw = "";
+        this._walletAddressVal = "";
         this._amount = new BigNumber(0);
       }
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
   }
 }

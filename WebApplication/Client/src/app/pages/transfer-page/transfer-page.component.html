@@ -15,7 +15,15 @@
                   <use xlink:href="#etherium"></use>
                 </svg>
               </div>
-              <input type="text" noAutoComplete class="form-control ml-1" id="input_walletAddress" name="wallet-address" [value]="_walletAddressRaw" (input)="onWalletAddressChanged($event.target.value)" placeholder="{{ 'PAGES.Transfer.Placeholders.EtheriumWallet' | translate }}">
+              <input type="text" noAutoComplete class="form-control ml-1" id="input_walletAddress" name="wallet-address"
+                     placeholder="{{ 'PAGES.Transfer.Placeholders.EtheriumWallet' | translate }}"
+                     [value]="_walletAddressVal"
+                     (input)="onWalletAddressChanged($event.target.value)"
+                     [ngClass]="{'is-invalid': !walletChecked}"
+                     >
+            </div>
+            <div class="invalid-feedback invalid-feedback--abs" *ngIf="!walletChecked">
+              Invalid address
             </div>
           </div>
         </div>
@@ -29,13 +37,19 @@
                   <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
-              <input type="number" min="0" step="0.1" class="form-control" id="input_transferAmount" name="transfer-amount" [value]="_amount" (input)="onAmountChanged($event.target.value)">
+              <input type="number" min="0" step="0.1" class="form-control" id="input_transferAmount" name="transfer-amount"
+                     (input)="onAmountChanged($event.target.value)"
+                     [ngClass]="{'is-invalid': !amountChecked}"
+              >
+            </div>
+            <div class="invalid-feedback invalid-feedback--abs" *ngIf="!amountChecked">
+              Invalid amount value
             </div>
           </div>
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="!_amount || _amount.lte(0) || !_walletAddress" (click)="modal(chooseMethodModal)">{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
+          <button class="btn btn-primary btn-block" [disabled]="!_amount || _amount.lte(0) || !_walletAddress || !goldBalance || _amount.gt(goldBalance)" (click)="modal(chooseMethodModal)">{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
         </div>
 
       </div>
