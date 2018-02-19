@@ -20,7 +20,7 @@ export class SettingsTFAPageComponent implements OnInit {
   public loading = true;
   public processing = false;
   public buttonBlur = new EventEmitter<boolean>();
-  public errors = [];
+  public errors: any = [];
 
   constructor(
     private _apiService: APIService,

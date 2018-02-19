@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { FormGroup } from '@angular/forms';
 import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js'
+import { DecimalPipe } from "@angular/common";
 
 @Component({
   selector: 'app-sell-page',
@@ -24,11 +25,12 @@ export class SellPageComponent implements OnInit {
 
   toSellUnset: boolean = true;
   toSell: BigNumber = new BigNumber(0);
+  toSellVal: string = "";
   commission: number = 0;
 
   goldBalance: BigNumber = null;
   mntpBalance: BigNumber = null;
-  goldUsdRate: number = null;
+  goldUsdRate: number = 0;
   estimatedAmount: string = null;
  
   commissionArray: number[] = [3, 2.5, 1.5, 0.75];
@@ -53,7 +55,7 @@ export class SellPageComponent implements OnInit {
 
     this._userService.currentLocale.subscribe(currentLocale => {
       this.locale = currentLocale;
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
 
     Observable.combineLatest(
@@ -66,70 +68,89 @@ export class SellPageComponent implements OnInit {
         if (data[1] !== null) this.goldUsdRate = data[1];
         if (data[2] !== null) this.mntpBalance = data[2];
 
+        // got gold balance first time
         if (this.goldBalance !== null && this.goldBalance.gt(0) && this.toSellUnset) {
           this.toSellUnset = false;
           this.toSell = this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+          this.toSellVal = this.toSell.toString();
         }
 
-        if (this.goldBalance !== null && this.goldUsdRate !== null && this.mntpBalance !== null) {
-          this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
-        }
+        // got all needed data to calculate estimated value
+        this.recalcCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
 
+        // dont update values while user clicks primary button
         if (!this.progress && !this.confirmation) {
-          this.sellAmountCheck(this.toSell);
-          this._cdRef.detectChanges();
+          this._cdRef.markForCheck();
         }
       });
-
   }
 
-  onToSellChanged(value:string) {
+  onToSellChanged(value: string) {
+
     this.toSellUnset = false;
+    var testValue = value != null && value.length > 0 ? new BigNumber(value) : new BigNumber(0);
     this.toSell = new BigNumber(0);
-    this.sellAmountCheck(value);
-    if (value != '') {
+
+    if (testValue.gt(0)) {
       this.toSell = new BigNumber(value);
       this.toSell = this.toSell.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
-    this.getDataCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
-    this._cdRef.detectChanges();
+    this.recalcCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
+    this._cdRef.markForCheck();
   }
 
   onSetSellPercent(percent:number) {
     var goldBalancePercent = new BigNumber(0);
-    if (this.goldBalance != null) goldBalancePercent = new BigNumber(this.goldBalance.times(percent));
-    this.onToSellChanged(goldBalancePercent.toString());
-  }
-
-  getDataCommission(rate: number, gold: BigNumber, mntp: BigNumber) {
-    this.calculationDiscount(mntp);
-    this.calculationData(mntp);
-
-    const amountCents = Math.floor(this.toSell.times(this.goldUsdRate).times(100).toNumber());
-
-    for (let i = 0; i < this.discountUSDArray.length; i++) {
-      const feeCents = Math.floor(this.commissionArray[i] * amountCents / 100);
-
-      this.discountUSDArray[i] = (amountCents - feeCents) / 100;
-      if (this.commissionArray[i] === this.commission) {
-        this.estimatedAmount = this.discountUSDArray[i].toFixed(2);
-      }
+    if (this.goldBalance != null) {
+      goldBalancePercent = new BigNumber(this.goldBalance.times(percent));
     }
+    this.onToSellChanged(goldBalancePercent.toString());
+    this.toSellVal = this.toSell.toString();
+    this._cdRef.markForCheck();
   }
 
-  calculationDiscount(mntp) {
-    if (mntp < this.mntpArray[0]) {
+  recalcCommission(rate: number, goldBalance: BigNumber, mntpBalance: BigNumber) {
+
+    if (rate === 0) return;
+    if (goldBalance == null) goldBalance = new BigNumber(0);
+
+    // current comission
+    var mntpNum = mntpBalance !== null ? mntpBalance.toNumber() : 0;
+    if (mntpNum < this.mntpArray[0]) {
       this.commission = this.commissionArray[0];
-    } else if (mntp >= this.mntpArray[0] && mntp < this.mntpArray[1]) {
+    } else if (mntpNum >= this.mntpArray[0] && mntpNum < this.mntpArray[1]) {
       this.commission = this.commissionArray[1];
-    } else if (mntp >= this.mntpArray[1] && mntp < this.mntpArray[2]) {
+    } else if (mntpNum >= this.mntpArray[1] && mntpNum < this.mntpArray[2]) {
       this.commission = this.commissionArray[2];
     } else {
       this.commission = this.commissionArray[3];
     }
+
+    this.updateDiscountBlockData(mntpNum);
+
+    // get estimated cents (gross)
+    const toConvert = BigNumber.min(this.toSell, goldBalance);
+    const amountCentsGross = Math.floor(toConvert.times(this.goldUsdRate).times(100).toNumber());
+    var amountNet:number = 0;
+
+    // update all fee `levels` including current estimated amount
+    for (let i = 0; i < this.discountUSDArray.length; i++) {
+      const feeCents = Math.floor(this.commissionArray[i] * amountCentsGross / 100);
+      this.discountUSDArray[i] = (amountCentsGross - feeCents) / 100;
+
+      if (this.commissionArray[i] === this.commission) {
+        amountNet = this.discountUSDArray[i];
+        this.estimatedAmount = this.discountUSDArray[i].toFixed(2);
+      }
+    }
+
+    // gold amount bounds and minimum 1 USD estimated
+    if (!this.toSellUnset) {
+      this.sellAmountChecked = this.toSell.gt(0) && this.toSell.lte(goldBalance) && amountNet >= 1;
+    }
   }
 
-  calculationData(mntp) {
+  updateDiscountBlockData(mntp:number) {
     this.buyMNTArray = [10 - mntp, 1000 - mntp, 10000 - mntp];
 
     this.buyMNT_DisableArray[0] = false;
@@ -158,39 +179,41 @@ export class SellPageComponent implements OnInit {
     }
 
     this.progress = true;
-    this._cdRef.detectChanges();
+    this._cdRef.markForCheck();
 
     this._apiService.goldSellReqest(ethAddress, this.toSell)
       .finally(() => {
         this.progress = false;
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       })
       .subscribe(res => {
-        var confText =
-          "GOLD to sell: " + (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) + " GOLD<br/>" +
-          "You will get: $ " + res.data.fiatAmount + " ($ " + res.data.feeAmount + " fee)<br/>" +
-          "GOLD/USD: $ " + res.data.goldRate
-          ;
+          var confText =
+            "GOLD to sell: " +
+              (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
+              " GOLD<br/>" +
+              "You will get: $ " +
+              res.data.fiatAmount +
+              " ($ " +
+              res.data.feeAmount +
+              " fee)<br/>" +
+              "GOLD/USD: $ " +
+              res.data.goldRate;
 
-        this.confirmation = true;
-        this._cdRef.detectChanges();
+          this.confirmation = true;
+          this._cdRef.markForCheck();
 
-        this._messageBox.confirm(confText).subscribe(ok => {
-          this.confirmation = false;
-          if (ok) {
-            this._ethService.sendSellRequest(ethAddress, res.data.payload);
+          this._messageBox.confirm(confText).subscribe(ok => {
+            this.confirmation = false;
+            if (ok) {
+              this._ethService.sendSellRequest(ethAddress, res.data.payload);
+            }
+            this._cdRef.markForCheck();
+          });
+        },
+        err => {
+          if (err.error && err.error.errorCode) {
+            this._messageBox.alert(err.error.errorDesc);
           }
-          this._cdRef.detectChanges();
         });
-      },
-      err => {
-        if (err.error && err.error.errorCode) {
-          this._messageBox.alert(err.error.errorDesc);
-        }
-      });
-  }
-
-  sellAmountCheck(val) {
-    this.sellAmountChecked = val <= this.goldBalance;
   }
 }

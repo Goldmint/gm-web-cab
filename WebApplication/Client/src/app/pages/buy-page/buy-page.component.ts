@@ -18,12 +18,12 @@ export class BuyPageComponent implements OnInit {
   confirmation: boolean = false;
   progress: boolean = false;
   toSpendUnset: boolean = true;
-  toSpend: number = 1;
+  toSpendVal: string = "";
+  toSpend: BigNumber = new BigNumber(0);
 
   usdBalance: number = null;
   goldUsdRate: number = null;
-  estimatedAmount: string;
-  usdBalancePercent;
+  estimatedAmount: string = "";
   public buyAmountChecked: boolean = true;
 
   constructor(
@@ -41,10 +41,14 @@ export class BuyPageComponent implements OnInit {
         if (data[0] !== null) this.usdBalance = data[0];
         if (data[1] !== null) this.goldUsdRate = data[1];
 
+        // required values are provided
         if (this.goldUsdRate !== null && this.usdBalance !== null) {
-          if (this.toSpendUnset && data[0] > 0) {
-            this.toSpend = this.usdBalance;
+
+          // got first time
+          if (this.toSpendUnset && this.usdBalance > 0) {
             this.toSpendUnset = false;
+            this.toSpend = new BigNumber(this.usdBalance);
+            this.toSpendVal = this.toSpend.toString();
             this.buyAmountCheck(this.toSpend);
           }
 
@@ -52,20 +56,29 @@ export class BuyPageComponent implements OnInit {
             this.estimate(this.toSpend);
           }
 
-          this._cdRef.detectChanges();
+          this._cdRef.markForCheck();
         }
       });
   }
 
-  onToSpendChanged(value: number) {
+  onToSpendChanged(value: string) {
     this.toSpendUnset = false;
+
+    this.toSpend = new BigNumber(0);
+    var testVal = this.usdBalance && value && value.length > 0 ? parseFloat(value): 0;
+
+    if (testVal > 0) {
+      this.toSpend = (new BigNumber(testVal)).decimalPlaces(2, BigNumber.ROUND_DOWN);
+    }
+
     this.estimate(this.toSpend);
-    this.buyAmountCheck(value);
-    this._cdRef.detectChanges();
+    this.buyAmountCheck(this.toSpend);
+    this._cdRef.markForCheck();
   }
 
-  estimate(amount: number) {
-    this.estimatedAmount = (new BigNumber(amount)).dividedBy(this.goldUsdRate).toPrecision(18 + 1);
+  estimate(amount: BigNumber) {
+    var toConvert = this.usdBalance ? BigNumber.min(amount, new BigNumber(this.usdBalance)) : new BigNumber(0);
+    this.estimatedAmount = toConvert.dividedBy(this.goldUsdRate).toPrecision(18 + 1);
     this.estimatedAmount = this.estimatedAmount.substr(0, this.estimatedAmount.length - 1);
   }
 
@@ -78,12 +91,12 @@ export class BuyPageComponent implements OnInit {
     }
 
     this.progress = true;
-    this._cdRef.detectChanges();
+    this._cdRef.markForCheck();
 
-    this._apiService.goldBuyReqest(ethAddress, this.toSpend)
+    this._apiService.goldBuyReqest(ethAddress, this.toSpend.toNumber())
       .finally(() => {
         this.progress = false;
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       })
       .subscribe(res => {
         var confText =
@@ -93,14 +106,14 @@ export class BuyPageComponent implements OnInit {
           ;
 
         this.confirmation = true;
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
 
         this._messageBox.confirm(confText).subscribe(ok => {
           this.confirmation = false;
           if (ok) {
             this._ethService.sendBuyRequest(ethAddress, res.data.payload);
           }
-          this._cdRef.detectChanges();
+          this._cdRef.markForCheck();
         });
       },
       err => {
@@ -110,7 +123,7 @@ export class BuyPageComponent implements OnInit {
       });
   }
 
-  buyAmountCheck(val) {
-    this.buyAmountChecked = val >= 1 && this.usdBalance && val<= this.usdBalance;
+  buyAmountCheck(val: BigNumber) {
+    this.buyAmountChecked = val.gte(1) && this.usdBalance && val.lte(this.usdBalance);
   }
 }

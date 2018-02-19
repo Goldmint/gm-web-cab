@@ -17,13 +17,10 @@
                   <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control"
-                     name="input_toSell"
-                     id="input_toSell"
+              <input type="number" class="form-control" name="input_toSell" id="input_toSell"
                      min="0"
-                     [max]="goldBalance"
                      step="0.1"
-                     [value]="toSell"
+                     [(ngModel)]="toSellVal"
                      (input)="onToSellChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !sellAmountChecked}"
               >
@@ -49,7 +46,7 @@
                   <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
-              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount">
+              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [value]="estimatedAmount | number:'1.2-2':locale">
             </div>
             <div class="discount-badge__wrap">
               <span class="discount-badge" [ngClass]="{'discount-badge--gold': commission > 0}"><b>{{ commission }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
@@ -75,16 +72,6 @@
 </section>
 
 
-
-<!--<div class="row">
-  <div class="col-auto">
-    <a href="javascript:void(0)" class="btn btn-primary btn-wide disabled">{{ "PAGES.Sell.Buttons.BuyMore" | translate }}</a>
-  </div>
-  <div class="col-5 form-text disabled">
-    <b>MNTP Balance {{ mntpBalance }}</b>
-    <span>Buy now <b>{{ buyMNT }} MNT</b> and get <b>{{ commissionUSD }} USD</b> discounts</span>
-  </div>
-</div>-->
 
 <div class="row">
   <div class="col form-group text-center buy-mntp-block buy-mntp-block-1">

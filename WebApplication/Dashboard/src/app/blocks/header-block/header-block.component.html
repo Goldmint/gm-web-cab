@@ -9,13 +9,13 @@
             <defs>
               <path id="path0_fill" d="M16.018 32C7.194 32 0 24.822 0 15.982S7.194 0 16.018 0c3.72 0 7.335 1.308 10.206 3.642l-1.701 2.05c-2.375-1.98-5.422-3.04-8.505-3.04-7.371 0-13.36 5.976-13.36 13.33 0 7.355 5.989 13.366 13.36 13.366 5.174 0 9.78-2.935 12.013-7.46H17.045v-2.653h14.778l-.567 1.733A15.997 15.997 0 0 1 16.018 32z"/>
               <path id="path1_fill" d="M14.955 0H0v2.652h14.955V0z"/>
-            </defs>
+            </defs> 
           </svg>
+          <span class="logo--text">Dashboard</span>
         </a>
       </div>
 
       <div class="col mr-auto">
-        <span class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value">{{gold_usd_rate | number:'1.2-2':locale}}</span></span>
       </div>
 
       <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">

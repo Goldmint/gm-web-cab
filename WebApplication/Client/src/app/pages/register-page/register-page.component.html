@@ -16,7 +16,7 @@
 
               <div class="form-group">
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
-                <input type="email" id="inputEmail" required email minlength="5"
+                <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
                        name="email" [(ngModel)]="signupModel.email" #email="ngModel"
                        class="form-control col-7"
                        [ngClass]="{'is-invalid': (errors?.Email || !email.valid) && (signupForm.submitted || !email.pristine)}"
@@ -36,7 +36,7 @@
 
               <div class="form-group">
                 <label for="inputPassword">{{ "PAGES.Register.Labels.Password" | translate }}</label>
-                <input type="password" id="inputPassword" required minlength="6" maxlength="128"
+                <input type="password" id="inputPassword" required minlength="6" maxlength="128" noAutoComplete
                        name="password" [(ngModel)]="signupModel.password" #password="ngModel"
                        class="form-control col-7"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (signupForm.submitted || !password.pristine)}"

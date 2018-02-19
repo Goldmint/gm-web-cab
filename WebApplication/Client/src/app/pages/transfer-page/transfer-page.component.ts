@@ -16,8 +16,14 @@ export class TransferPageComponent implements OnInit {
 
   private _modalRef: BsModalRef;
   public amount: BigNumber = new BigNumber(0);
-  public walletAddressRaw: string = null;
+  public walletAddressVal: string = null;
   public walletAddress: string = null;
+
+  amountUnset: boolean = true;
+  goldBalance:BigNumber = null;
+
+  walletChecked:boolean = true;
+  amountChecked: boolean = true;
 
   constructor(
     private _modalService: BsModalService,
@@ -27,6 +33,12 @@ export class TransferPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._ethService.getObservableGoldBalance()
+      .subscribe(val => {
+        this.goldBalance = val;
+        this.validateAmount();
+        this._cdRef.markForCheck();
+      });
   }
 
   modal(template: TemplateRef<any>) {
@@ -38,19 +50,30 @@ export class TransferPageComponent implements OnInit {
 
   onWalletAddressChanged(value: string) {
     this.walletAddress = null;
+    this.walletChecked = false;
+
     if (this._ethService.isValidAddress(value)) {
       this.walletAddress = value;
+      this.walletChecked = true;
     }
-    this._cdRef.detectChanges();
+    this._cdRef.markForCheck();
   }
 
   onAmountChanged(value: string) {
+    this.amountUnset = false;
     this.amount = new BigNumber(0);
-    if (value != '') {
+
+    var testVal = value != null && value.length > 0 ? parseFloat(value) : 0;
+    if (testVal > 0) {
       this.amount = new BigNumber(value);
       this.amount = this.amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
-    this._cdRef.detectChanges();
+    this.validateAmount();
+    this._cdRef.markForCheck();
+  }
+
+  validateAmount() {
+    this.amountChecked = this.amountUnset || this.amount.gt(0) && this.goldBalance && this.amount.lte(this.goldBalance);
   }
 
   onMetamask() {
@@ -67,10 +90,10 @@ export class TransferPageComponent implements OnInit {
     this._messageBox.confirm(confText).subscribe(ok => {
       if (ok) {
         this._ethService.transferGoldToWallet(ethAddress, this.walletAddress, this.amount);
-        this.walletAddressRaw = "";
+        this.walletAddressVal = "";
         this.amount = new BigNumber(0);
       }
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
   }
 }

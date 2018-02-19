@@ -17,11 +17,14 @@
                   <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control" id="input_toSpend" min="1" [max]="usdBalance" step="1"
+              <input type="number" class="form-control" id="input_toSpend"
+                     min="0"
+                     step="1"
                      name="amount"
-                     [value]="toSpend"
+                     [(ngModel)]="toSpendVal"
+                     (input)="onToSpendChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !buyAmountChecked}"
-                     (input)="onToSpendChanged($event.target.value || 0)">
+                     >
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
               Invalid amount value
@@ -38,13 +41,14 @@
                   <use xlink:href="#cur-gold"></use>
                 </svg>
               </div>
-              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [(ngModel)]="estimatedAmount">
+              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly
+                     [value]="estimatedAmount">
             </div>
           </div>
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend > usdBalance || toSpend <= 0" (click)="onBuy()">
+          <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend.comparedTo(usdBalance) > 0 || toSpend.comparedTo(0) <= 0" (click)="onBuy()">
             {{ "PAGES.Buy.Buttons.BuyNow" | translate }}
           </button>
         </div>
