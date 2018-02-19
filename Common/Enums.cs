@@ -20,6 +20,10 @@ namespace Goldmint.Common {
 		User,
 	}
 
+	public enum JwtAudience {
+		App,
+	}
+
 	public enum JwtArea {
 
 		/// <summary>

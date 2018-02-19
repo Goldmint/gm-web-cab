@@ -28,10 +28,15 @@ namespace Goldmint.Common {
 
 			public JWTSection JWT { get; set; } = new JWTSection();
 			public class JWTSection {
+
 				public string Secret { get; set; } = "";
-				public string Issuer { get; set; } = "";
-				public string Audience { get; set; } = "";
-				public long ExpirationSec { get; set; } = 1800;
+				public AudienceSection[] Audiences { get; set; } = new AudienceSection[0];
+
+				public class AudienceSection {
+					public string Name { get; set; } = "";
+					public string Audience { get; set; } = "";
+					public long ExpirationSec { get; set; } = 1800;
+				}
 			}
 
 			public FacebookSection Facebook { get; set; } = new FacebookSection();
