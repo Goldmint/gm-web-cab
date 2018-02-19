@@ -45,7 +45,7 @@ export class SettingsTFAPageComponent implements OnInit {
   ngOnInit() {
   }
 
-  enableTFA() {
+  toggleTfa() {
     this.buttonBlur.emit();
     this.processing = true;
 

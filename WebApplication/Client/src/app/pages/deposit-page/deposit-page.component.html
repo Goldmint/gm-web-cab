@@ -9,151 +9,191 @@
 
       <ng-template #blockLoaded>
 
-        <div class="row">
-          <div class="col form-group text-center">
-            <label for="btnPaymentCard">Payment card</label>
-            <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
-              <svg class="icon" width="56px" height="56px">
-                <use xlink:href="#payment-card"></use>
+        <!-- KYC REQUIRED -->
+        <ng-container *ngIf="!user.verifiedL0">
+
+          <p class="mb-5" [innerHTML]=" 'PAGES.Deposit.KYC.Text' | translate "></p>
+
+          <div class="row kyc-pros mb-4 pb-2">
+            <div class="col">
+              <svg class="kyc-pros__icon" width="33px" height="44px">
+                <use xlink:href="#verify-secure"></use>
               </svg>
-            </button>
+              <div class="kyc-pros__title">{{ "PAGES.Deposit.KYC.Pros.Secure.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.KYC.Pros.Secure.Text" | translate }}</p>
+            </div>
+            <div class="col">
+              <svg class="kyc-pros__icon" width="28px" height="44px">
+                <use xlink:href="#verify-simple"></use>
+              </svg>
+              <div class="kyc-pros__title">{{ "PAGES.Deposit.KYC.Pros.Simple.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.KYC.Pros.Simple.Text" | translate }}</p>
+            </div>
+            <div class="col">
+              <svg class="kyc-pros__icon" width="36px" height="44px">
+                <use xlink:href="#verify-complaint"></use>
+              </svg>
+              <div class="kyc-pros__title">{{ "PAGES.Deposit.KYC.Pros.Complaint.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.KYC.Pros.Complaint.Text" | translate }}</p>
+            </div>
+            <div class="col-auto pl-4 ml-2 align-self-center pb-3">
+              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Deposit.KYC.Button" | translate }}</a>
+            </div>
           </div>
-          <div class="col form-group text-center">
-            <label for="btnPaymentBank">Bank transfer</label>
-            <button class="btn btn-primary btn-block"
-                    [disabled]="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min"
-                    id="btnPaymentBank" (click)="goto(pages.BankTransfer)">
-              <svg class="icon" width="107px" height="56px">
-                <use xlink:href="#payment-bank"></use>
-              </svg>
-            </button>
+        </ng-container>
+
+        <ng-template #blockMethods>
+
+          <div class="row">
+            <div class="col form-group text-center">
+              <label for="btnPaymentCard">Payment card</label>
+              <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
+                <svg class="icon" width="56px" height="56px">
+                  <use xlink:href="#payment-card"></use>
+                </svg>
+              </button>
+            </div>
+            <div class="col form-group text-center">
+              <label for="btnPaymentBank">Bank transfer</label>
+              <button class="btn btn-primary btn-block"
+                      [disabled]="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min"
+                      id="btnPaymentBank" (click)="goto(pages.BankTransfer)">
+                <svg class="icon" width="107px" height="56px">
+                  <use xlink:href="#payment-bank"></use>
+                </svg>
+              </button>
+            </div>
+            <!-- <div class="col form-group text-center">
+              <label for="btnPaymentCrypto">Crypto capital</label>
+              <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
+                <svg class="icon" width="56px" height="56px">
+                  <use href="#payment-crypto"></use>
+                </svg>
+              </button>
+            </div> -->
           </div>
-          <!-- <div class="col form-group text-center">
-            <label for="btnPaymentCrypto">Crypto capital</label>
-            <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
-              <svg class="icon" width="56px" height="56px">
-                <use href="#payment-crypto"></use>
-              </svg>
-            </button>
-          </div> -->
-        </div>
 
-        <div class="row pb-4 mb-3">
-          <tabset class="col tabs">
-            <tab heading="Daily">
-              <div class="limits-bar">
-                <div class="limits-bar__caption">
-                  <span>Account limits</span>
-                  <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
-                    <svg class="icon" width="20px" height="20px">
-                      <use href="#increase"></use>
-                    </svg>
-                    <span>Increase</span>
-                  </a>
-                </div>
-                <div class="limits-bar__progress progress">
-                  <div class="progress-bar"
-                       [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-6">
-                  <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
-                  <!--<div class="limits-bar__caption">Payment Card</div>-->
-                  <!--<div class="limits-bar__progress progress">-->
-                  <!--<div class="progress-bar"></div>-->
-                  <!--</div>-->
-                  <!--<dl class="limits-bar__list">-->
-                  <!--<dt class="col-auto">Daily limis used:</dt>-->
-                  <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
-                  <!--</dl>-->
-                  <!--</div>-->
-
-                  <div class="limits-bar limits-bar--tiny">
-                    <div class="limits-bar__caption">
-                      <span>Available for payment</span>
-                      <div class="limits-bar__value">{{ limits.current.deposit.day | currency }}</div>
-                    </div>
-                    <div class="limits-bar__progress progress">
-                      <div class="progress-bar" [ngStyle]="{'width': limits.current.deposit.day*100/limits.levels.current.deposit.day + '%'}"></div>
-                    </div>
+          <div class="row pb-4 mb-3">
+            <tabset class="col tabs">
+              <tab heading="Daily">
+                <div class="limits-bar">
+                  <div class="limits-bar__caption">
+                    <span>Account limits</span>
+                    <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                      <svg class="icon" width="20px" height="20px">
+                        <use href="#increase"></use>
+                      </svg>
+                      <span>Increase</span>
+                    </a>
+                  </div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar"
+                         [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
                   </div>
                 </div>
 
-                <div class="col-md-6">
-                  <div class="limits-bar limits-bar--tiny">
-                    <div class="limits-bar__caption">
-                      Limit
-                      <div class="limits-bar__value">{{( limits.levels.current.deposit.day-limits.current.deposit.day) | currency}} of {{limits.levels.current.deposit.day | currency}}</div>
+                <div class="row">
+                  <div class="col-6">
+                    <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                    <!--<div class="limits-bar__caption">Payment Card</div>-->
+                    <!--<div class="limits-bar__progress progress">-->
+                    <!--<div class="progress-bar"></div>-->
+                    <!--</div>-->
+                    <!--<dl class="limits-bar__list">-->
+                    <!--<dt class="col-auto">Daily limis used:</dt>-->
+                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                    <!--</dl>-->
+                    <!--</div>-->
+
+                    <div class="limits-bar limits-bar--tiny">
+                      <div class="limits-bar__caption">
+                        <span>Available for payment</span>
+                        <div class="limits-bar__value">{{ limits.current.deposit.day | currency }}</div>
+                      </div>
+                      <div class="limits-bar__progress progress">
+                        <div class="progress-bar" [ngStyle]="{'width': limits.current.deposit.day*100/limits.levels.current.deposit.day + '%'}"></div>
+                      </div>
                     </div>
-                    <div class="limits-bar__progress progress">
-                      <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.deposit.day - limits.current.deposit.day)*100/limits.levels.current.deposit.day + '%'}"></div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="limits-bar limits-bar--tiny">
+                      <div class="limits-bar__caption">
+                        Limit
+                        <div class="limits-bar__value">{{( limits.levels.current.deposit.day-limits.current.deposit.day) | currency}} of {{limits.levels.current.deposit.day | currency}}</div>
+                      </div>
+                      <div class="limits-bar__progress progress">
+                        <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.deposit.day - limits.current.deposit.day)*100/limits.levels.current.deposit.day + '%'}"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </tab>
+              </tab>
 
-            <tab heading="Monthly">
-              <div class="limits-bar">
-                <div class="limits-bar__caption">
-                  <span>Account limits</span>
-                  <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
-                    <svg class="icon" width="20px" height="20px">
-                      <use xlink:href="#increase"></use>
-                    </svg>
-                    <span>Increase</span>
-                  </a>
+              <tab heading="Monthly">
+                <div class="limits-bar">
+                  <div class="limits-bar__caption">
+                    <span>Account limits</span>
+                    <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                      <svg class="icon" width="20px" height="20px">
+                        <use xlink:href="#increase"></use>
+                      </svg>
+                      <span>Increase</span>
+                    </a>
+                  </div>
+                  <div class="limits-bar__progress progress">
+                    <div class="progress-bar"
+                         [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
+                  </div>
                 </div>
-                <div class="limits-bar__progress progress">
-                  <div class="progress-bar"
-                       [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
-                  <!--<div class="limits-bar__caption">Payment Card</div>-->
-                  <!--<div class="limits-bar__progress progress">-->
-                  <!--<div class="progress-bar"></div>-->
-                  <!--</div>-->
-                  <!--<dl class="limits-bar__list">-->
-                  <!--<dt class="col-auto">Daily limis used:</dt>-->
-                  <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
-                  <!--</dl>-->
-                  <!--</div>-->
+                <div class="row">
+                  <div class="col-md-6">
+                    <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                    <!--<div class="limits-bar__caption">Payment Card</div>-->
+                    <!--<div class="limits-bar__progress progress">-->
+                    <!--<div class="progress-bar"></div>-->
+                    <!--</div>-->
+                    <!--<dl class="limits-bar__list">-->
+                    <!--<dt class="col-auto">Daily limis used:</dt>-->
+                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                    <!--</dl>-->
+                    <!--</div>-->
 
 
-                  <div class="limits-bar limits-bar--tiny">
-                    <div class="limits-bar__caption">
-                      <span>Available for payment</span>
-                      <div class="limits-bar__value">{{ limits.current.deposit.month | currency}}</div>
+                    <div class="limits-bar limits-bar--tiny">
+                      <div class="limits-bar__caption">
+                        <span>Available for payment</span>
+                        <div class="limits-bar__value">{{ limits.current.deposit.month | currency}}</div>
+                      </div>
+                      <div class="limits-bar__progress progress">
+                        <div class="progress-bar" [ngStyle]="{'width': limits.current.deposit.month*100/(limits.levels.current.deposit.month || 1) + '%'}"></div>
+                      </div>
                     </div>
-                    <div class="limits-bar__progress progress">
-                      <div class="progress-bar" [ngStyle]="{'width': limits.current.deposit.month*100/(limits.levels.current.deposit.month || 1) + '%'}"></div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="limits-bar limits-bar--tiny">
+                      <div class="limits-bar__caption">
+                        Limit
+                        <div class="limits-bar__value">{{(limits.levels.current.deposit.month - limits.current.deposit.month) | currency}} of {{ limits.levels.current.deposit.month | currency}}</div>
+                      </div>
+                      <div class="limits-bar__progress progress">
+                        <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.deposit.month - limits.current.deposit.month)*100/(limits.levels.current.deposit.month || 1) + '%'}"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <div class="col-md-6">
-                  <div class="limits-bar limits-bar--tiny">
-                    <div class="limits-bar__caption">
-                      Limit
-                      <div class="limits-bar__value">{{(limits.levels.current.deposit.month - limits.current.deposit.month) | currency}} of {{ limits.levels.current.deposit.month | currency}}</div>
-                    </div>
-                    <div class="limits-bar__progress progress">
-                      <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.deposit.month - limits.current.deposit.month)*100/(limits.levels.current.deposit.month || 1) + '%'}"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </tab>
-          </tabset>
-        </div>
+              </tab>
+            </tabset>
+          </div>
+        </ng-template>
       </ng-template>
     </div>
   </section>
+
+
+
+
 
 
 
@@ -321,9 +361,9 @@
 
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Form">
         <form name="transferForm"
-          (ngSubmit)="swiftDepositChecked && transferForm.form.valid && submitTransferForm(transferForm.amount)"
-          #transferForm="ngForm"
-          novalidate>
+              (ngSubmit)="swiftDepositChecked && transferForm.form.valid && submitTransferForm(transferForm.amount)"
+              #transferForm="ngForm"
+              novalidate>
           <div class="form-group">
             <label for="transferAmount">USD Amount *</label>
 
@@ -361,8 +401,9 @@
           </div>
 
           <button class="btn btn-primary"
-                  [disabled]="!swiftDepositChecked || !transferForm.bankCountry || !transferForm.amount"
-          >Proceed</button>
+                  [disabled]="!swiftDepositChecked || !transferForm.bankCountry || !transferForm.amount">
+            Proceed
+          </button>
         </form>
       </ng-container>
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.PaymentDetails">
@@ -371,9 +412,10 @@
             <div>
               <table width="100%" style="background-color:rgb(27,41,64);color:rgb(255,255,255);">
                 <tr>
-                  <td style="width: 52%; padding: 25px 0;"><img
-                          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAgCAMAAADT9S0cAAABelBMVEUAAAD//wD//4D/qlX/v4D/zGbV1YDb223jxnHmzGbo0XTq1WrtyG3uzGbvz3Dw0mnkyWvmzGbnzm3pyG/qymrrzmzlymrmzG/mzmvpy2npzG3qzWrry2nszGzmzWrnyG3nymvqymrny23qy2vpy2zqy2rqzGzoy2rozGzpymzpy2roy2zoymrpzGzqy2roymzoy2rpzGrqzGvqymvoy2zozGvpymvpy2rpzGvqy2rqy2vpy2vpymvqy2vqzGroymvpymvpy2rpy2vpzGzqy2rpzGvpymvqy2vozGvpy2vpzGvpy2vpy2vqy2vqymvoy2vpy2vpymvoy2zpy2vpymrpy2vpy2vpy2vpy2vqy2vpy2zpy2rpy2vpy2zqy2voy2vpzGrpy2vpy2vpy2vpzGvpy2vpy2vpzGvpy2vpy2zpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2v////CE2bhAAAAfHRSTlMAAQIDBAUGBwkKCwwODxARExQVFxgaHR4fIiMkJygpKiswNkpTVFVZWlxeY2VobG9xc3d5e3x+f4GEhYqMj5CRlpeYmpyfoKepq66wsbKztby9wMHCw8bIycrMztHT1tfa29zd3+Hj5OXm6Orr7O3u8fLz9PX3+Pn6+/z+nKWD0QAAAAFiS0dEfaaxEMkAAAFoSURBVBgZtcFpV1JhGIbRGxUwySTFJg1tsszmrExLzbBSK8sB0NKkoFNAk0JSXT8+lh/OOqf84lrPu7cOonN4Nl/+9rWQmzrXITfST+r4vj84Lnvtk79o8rIL86sfaWqMx2UslQe2RtPa03+jALxNyNRgCbwrbfK1XPjMmEylSrCcVMjRWxFZas/B05jcug9LMbnVW8NLyrEZGJFjh2tstsqxS3BbrmVgUK6tUVbI61yILFRZV8g2IREZaPBSIRvFEFnYZVHOVXkj5/JU5NwMnFHQynrQQ1kYgrsK2iboqiwkdngfU8DGB98fal0y8QiuaV/n4bFs9PygktI+jpRonJaRO5CN6z+R5zAhK9FleBbXP1ozsJWQme4i5HoVknwB1T4ZGijCl+tR+Vouf4LKWZnqXgIKo2ntOXbzHbB5Usai9+o0edmFuVceTT/HD8neiUwd3870KbnROTybL//eLa1OXuzSAfwFetN/gQq3rk0AAAAASUVORK5CYII="
-                          width="120" alt=""></td>
+                  <td style="width: 52%; padding: 25px 0;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAgCAMAAADT9S0cAAABelBMVEUAAAD//wD//4D/qlX/v4D/zGbV1YDb223jxnHmzGbo0XTq1WrtyG3uzGbvz3Dw0mnkyWvmzGbnzm3pyG/qymrrzmzlymrmzG/mzmvpy2npzG3qzWrry2nszGzmzWrnyG3nymvqymrny23qy2vpy2zqy2rqzGzoy2rozGzpymzpy2roy2zoymrpzGzqy2roymzoy2rpzGrqzGvqymvoy2zozGvpymvpy2rpzGvqy2rqy2vpy2vpymvqy2vqzGroymvpymvpy2rpy2vpzGzqy2rpzGvpymvqy2vozGvpy2vpzGvpy2vpy2vqy2vqymvoy2vpy2vpymvoy2zpy2vpymrpy2vpy2vpy2vpy2vqy2vpy2zpy2rpy2vpy2zqy2voy2vpzGrpy2vpy2vpy2vpzGvpy2vpy2vpzGvpy2vpy2zpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2v////CE2bhAAAAfHRSTlMAAQIDBAUGBwkKCwwODxARExQVFxgaHR4fIiMkJygpKiswNkpTVFVZWlxeY2VobG9xc3d5e3x+f4GEhYqMj5CRlpeYmpyfoKepq66wsbKztby9wMHCw8bIycrMztHT1tfa29zd3+Hj5OXm6Orr7O3u8fLz9PX3+Pn6+/z+nKWD0QAAAAFiS0dEfaaxEMkAAAFoSURBVBgZtcFpV1JhGIbRGxUwySTFJg1tsszmrExLzbBSK8sB0NKkoFNAk0JSXT8+lh/OOqf84lrPu7cOonN4Nl/+9rWQmzrXITfST+r4vj84Lnvtk79o8rIL86sfaWqMx2UslQe2RtPa03+jALxNyNRgCbwrbfK1XPjMmEylSrCcVMjRWxFZas/B05jcug9LMbnVW8NLyrEZGJFjh2tstsqxS3BbrmVgUK6tUVbI61yILFRZV8g2IREZaPBSIRvFEFnYZVHOVXkj5/JU5NwMnFHQynrQQ1kYgrsK2iboqiwkdngfU8DGB98fal0y8QiuaV/n4bFs9PygktI+jpRonJaRO5CN6z+R5zAhK9FleBbXP1ozsJWQme4i5HoVknwB1T4ZGijCl+tR+Vouf4LKWZnqXgIKo2ntOXbzHbB5Usai9+o0edmFuVceTT/HD8neiUwd3870KbnROTybL//eLa1OXuzSAfwFetN/gQq3rk0AAAAASUVORK5CYII="
+                         width="120" alt="">
+                  </td>
                   <td><h2 style="font-size:30px">PAYMENT DETAILS</h2></td>
                 </tr>
               </table>
@@ -381,72 +423,82 @@
                 <table width="100%"
                        style="font-weight:bold;margin-bottom:50px;color:rgb(48,56,68);border-collapse:collapse;border-bottom-width:2px;border-bottom-style:solid;border-bottom-color:rgb(247,247,247)">
                   <tbody>
-                  <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Beneficiary name:
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{ invoiceData.benName}}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Beneficiary address:
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{invoiceData.benAddress}}
-                    </td>
-                  </tr>
-                  <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Beneficiary’s bank account number (IBAN):
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{invoiceData.benIban}}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Beneficiary’s Bank name:
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{invoiceData.benBankName}}
-                    </td>
-                  </tr>
-                  <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Beneficiary’s Bank address:
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{invoiceData.benBankAddress}}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Beneficiary bank SWIFT:
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{invoiceData.benSwift}}
-                    </td>
-                  </tr>
-                  <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
-                    <td style="width:340px;padding:20px;font-size:20px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      Reference:
-                    </td>
-                    <td style="width:340px;padding:20px;font-size:20px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                      {{invoiceData.reference}}
-                    </td>
-                  </tr>
+                    <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Beneficiary name:
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{ invoiceData.benName}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Beneficiary address:
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{invoiceData.benAddress}}
+                      </td>
+                    </tr>
+                    <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Beneficiary’s bank account number (IBAN):
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{invoiceData.benIban}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Beneficiary’s Bank name:
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{invoiceData.benBankName}}
+                      </td>
+                    </tr>
+                    <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Beneficiary’s Bank address:
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{invoiceData.benBankAddress}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Beneficiary bank SWIFT:
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{invoiceData.benSwift}}
+                      </td>
+                    </tr>
+                    <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
+                      <td style="width:340px;padding:20px;font-size:20px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        Reference:
+                      </td>
+                      <td style="width:340px;padding:20px;font-size:20px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
+                        {{invoiceData.reference}}
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
-                <div style="color:rgb(223,35,46);font-size:12px;padding:0 45px;"><p>REFERENCE SHOULD BE ENTERED FIRST IN THE
-                  NARRATIVE OF THE SENDING BANK'S PAYMENT INSTRUCTIONS, BEFORE ANY OTHER REFERENCES.</p>
-                  <p>PLEASE SEND THE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR (EXCLUDING BANK CHARGES) AND MAKE SURE YOUR
-                    PAYMENT DETAILS IS STATED CORRECTLY.</p>
-                  <p>PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SENDER. PLEASE NOTE THAT
-                    BANK CHARGES FOR PAYMENT RETURN WILL BE DEDUCTED FROM THE AMOUNT.</p>
-                  <p style="color: #000">CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto
-                    Capital).</p></div>
+                <div style="color:rgb(223,35,46);font-size:12px;padding:0 45px;">
+                  <p>
+                    REFERENCE SHOULD BE ENTERED FIRST IN THE
+                    NARRATIVE OF THE SENDING BANK'S PAYMENT INSTRUCTIONS, BEFORE ANY OTHER REFERENCES.
+                  </p>
+                  <p>
+                    PLEASE SEND THE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR (EXCLUDING BANK CHARGES) AND MAKE SURE YOUR
+                    PAYMENT DETAILS IS STATED CORRECTLY.
+                  </p>
+                  <p>
+                    PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SENDER. PLEASE NOTE THAT
+                    BANK CHARGES FOR PAYMENT RETURN WILL BE DEDUCTED FROM THE AMOUNT.
+                  </p>
+                  <p style="color: #000">
+                    CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto
+                    Capital).
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -9,187 +9,222 @@
 
       <ng-template #blockLoaded>
 
-        <!-- TFA REQUIRED -->
-        <ng-container *ngIf="!tfaInfo.enabled">
+        <!-- KYC REQUIRED -->
+        <ng-container *ngIf="!user.verifiedL0">
 
-          <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.TFA.Text' | translate "></p>
+          <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.KYC.Text' | translate "></p>
 
           <div class="row kyc-pros mb-4 pb-2">
             <div class="col">
               <svg class="kyc-pros__icon" width="33px" height="44px">
                 <use xlink:href="#verify-secure"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Secure.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Secure.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Withdraw.KYC.Pros.Secure.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.KYC.Pros.Secure.Text" | translate }}</p>
             </div>
             <div class="col">
               <svg class="kyc-pros__icon" width="28px" height="44px">
                 <use xlink:href="#verify-simple"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Simple.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Simple.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Withdraw.KYC.Pros.Simple.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.KYC.Pros.Simple.Text" | translate }}</p>
             </div>
             <div class="col">
               <svg class="kyc-pros__icon" width="36px" height="44px">
                 <use xlink:href="#verify-complaint"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Withdraw.KYC.Pros.Complaint.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.KYC.Pros.Complaint.Text" | translate }}</p>
             </div>
             <div class="col-auto pl-4 ml-2 align-self-center pb-3">
-              <a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.TFA.Button" | translate }}</a>
+              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.KYC.Button" | translate }}</a>
             </div>
-          </div>
-
-        </ng-container>
-
-        <!-- WITHDRAWAL METHODS -->
-        <ng-container *ngIf="tfaInfo.enabled">
-          <div class="row">
-            <div class="col form-group text-center">
-              <label for="btnPaymentCard">Payment card</label>
-              <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
-                <svg class="icon" width="56px" height="56px">
-                  <use xlink:href="#payment-card"></use>
-                </svg>
-              </button>
-            </div>
-            <div class="col form-group text-center">
-              <label for="btnPaymentBank" disabled>Bank transfer</label>
-              <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
-                <svg class="icon" width="107px" height="56px">
-                  <use xlink:href="#payment-bank"></use>
-                </svg>
-              </button>
-            </div>
-            <!-- <div class="col form-group text-center">
-              <label for="btnPaymentCrypto">Crypto capital</label>
-              <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
-                <svg class="icon" width="56px" height="56px">
-                  <use href="#payment-crypto"></use>
-                </svg>
-              </button>
-            </div> -->
-
-          </div>
-
-          <div class="row pb-4 mb-3">
-
-            <tabset class="col tabs">
-              <tab heading="Daily">
-                <div class="limits-bar">
-                  <div class="limits-bar__caption">
-                    <span>Account limits</span>
-                    <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
-                      <svg class="icon" width="20px" height="20px">
-                        <use xlink:href="#increase"></use>
-                      </svg>
-                      <span>Increase</span>
-                    </a>
-                  </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar"
-                         [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
-                    <!--<div class="limits-bar__caption">Payment Card</div>-->
-                    <!--<div class="limits-bar__progress progress">-->
-                    <!--<div class="progress-bar"></div>-->
-                    <!--</div>-->
-                    <!--<dl class="limits-bar__list">-->
-                    <!--<dt class="col-auto">Daily limis used:</dt>-->
-                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
-                    <!--</dl>-->
-                    <!--</div>-->
-
-
-                    <div class="limits-bar limits-bar--tiny">
-                      <div class="limits-bar__caption">
-                        <span>Available for payment</span>
-                        <div class="limits-bar__value">{{limits.current.withdraw.day | currency}}</div>
-                      </div>
-                      <div class="limits-bar__progress progress">
-                        <div class="progress-bar" [ngStyle]="{'width': limits.current.withdraw.day*100/limits.levels.current.withdraw.day + '%'}"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <div class="limits-bar limits-bar--tiny">
-                      <div class="limits-bar__caption">
-                        Limit
-                        <div class="limits-bar__value">{{(limits.levels.current.withdraw.day - limits.current.withdraw.day) | currency}} of {{limits.levels.current.withdraw.day | currency}}</div>
-                      </div>
-                      <div class="limits-bar__progress progress">
-                        <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.withdraw.day - limits.current.withdraw.day)*100/limits.levels.current.withdraw.day + '%'}"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </tab>
-
-              <tab heading="Monthly">
-                <div class="limits-bar">
-                  <div class="limits-bar__caption">
-                    <span>Account limits</span>
-                    <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
-                      <svg class="icon" width="20px" height="20px">
-                        <use xlink:href="#increase"></use>
-                      </svg>
-                      <span>Increase</span>
-                    </a>
-                  </div>
-                  <div class="limits-bar__progress progress">
-                    <div class="progress-bar"
-                         [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6">
-                    <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
-                    <!--<div class="limits-bar__caption">Payment Card</div>-->
-                    <!--<div class="limits-bar__progress progress">-->
-                    <!--<div class="progress-bar"></div>-->
-                    <!--</div>-->
-                    <!--<dl class="limits-bar__list">-->
-                    <!--<dt class="col-auto">Daily limis used:</dt>-->
-                    <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
-                    <!--</dl>-->
-                    <!--</div>-->
-
-
-                    <div class="limits-bar limits-bar--tiny">
-                      <div class="limits-bar__caption">
-                        <span>Avialable for payment</span>
-                        <div class="limits-bar__value">{{limits.current.withdraw.month | currency}}</div>
-                      </div>
-                      <div class="limits-bar__progress progress">
-                        <div class="progress-bar" [ngStyle]="{'width': limits.current.withdraw.month*100/(limits.levels.current.withdraw.month || 1) + '%'}"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <div class="limits-bar limits-bar--tiny">
-                      <div class="limits-bar__caption">
-                        Limit
-                        <div class="limits-bar__value">{{(limits.levels.current.withdraw.month - limits.current.withdraw.month) | currency}} of {{limits.levels.current.withdraw.month | currency}}</div>
-                      </div>
-                      <div class="limits-bar__progress progress">
-                        <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.withdraw.month - limits.current.withdraw.month)*100/(limits.levels.current.withdraw.month || 1) + '%'}"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </tab>
-            </tabset>
           </div>
         </ng-container>
 
+        <ng-template #blockMethods>
+
+          <!-- TFA REQUIRED -->
+          <ng-container *ngIf="!tfaInfo.enabled">
+
+            <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.TFA.Text' | translate "></p>
+
+            <div class="row kyc-pros mb-4 pb-2">
+              <div class="col">
+                <svg class="kyc-pros__icon" width="33px" height="44px">
+                  <use xlink:href="#verify-secure"></use>
+                </svg>
+                <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Secure.Title" | translate }}</div>
+                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Secure.Text" | translate }}</p>
+              </div>
+              <div class="col">
+                <svg class="kyc-pros__icon" width="28px" height="44px">
+                  <use xlink:href="#verify-simple"></use>
+                </svg>
+                <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Simple.Title" | translate }}</div>
+                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Simple.Text" | translate }}</p>
+              </div>
+              <div class="col">
+                <svg class="kyc-pros__icon" width="36px" height="44px">
+                  <use xlink:href="#verify-complaint"></use>
+                </svg>
+                <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Title" | translate }}</div>
+                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Text" | translate }}</p>
+              </div>
+              <div class="col-auto pl-4 ml-2 align-self-center pb-3">
+                <a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.TFA.Button" | translate }}</a>
+              </div>
+            </div>
+
+          </ng-container>
+
+          <!-- WITHDRAWAL METHODS -->
+          <ng-container *ngIf="tfaInfo.enabled">
+            <div class="row">
+              <div class="col form-group text-center">
+                <label for="btnPaymentCard">Payment card</label>
+                <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
+                  <svg class="icon" width="56px" height="56px">
+                    <use xlink:href="#payment-card"></use>
+                  </svg>
+                </button>
+              </div>
+              <div class="col form-group text-center">
+                <label for="btnPaymentBank" disabled>Bank transfer</label>
+                <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
+                  <svg class="icon" width="107px" height="56px">
+                    <use xlink:href="#payment-bank"></use>
+                  </svg>
+                </button>
+              </div>
+              <!-- <div class="col form-group text-center">
+                <label for="btnPaymentCrypto">Crypto capital</label>
+                <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
+                  <svg class="icon" width="56px" height="56px">
+                    <use href="#payment-crypto"></use>
+                  </svg>
+                </button>
+              </div> -->
+
+            </div>
+
+            <div class="row pb-4 mb-3">
+
+              <tabset class="col tabs">
+                <tab heading="Daily">
+                  <div class="limits-bar">
+                    <div class="limits-bar__caption">
+                      <span>Account limits</span>
+                      <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                        <svg class="icon" width="20px" height="20px">
+                          <use xlink:href="#increase"></use>
+                        </svg>
+                        <span>Increase</span>
+                      </a>
+                    </div>
+                    <div class="limits-bar__progress progress">
+                      <div class="progress-bar"
+                           [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                      <!--<div class="limits-bar__caption">Payment Card</div>-->
+                      <!--<div class="limits-bar__progress progress">-->
+                      <!--<div class="progress-bar"></div>-->
+                      <!--</div>-->
+                      <!--<dl class="limits-bar__list">-->
+                      <!--<dt class="col-auto">Daily limis used:</dt>-->
+                      <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                      <!--</dl>-->
+                      <!--</div>-->
+
+
+                      <div class="limits-bar limits-bar--tiny">
+                        <div class="limits-bar__caption">
+                          <span>Available for payment</span>
+                          <div class="limits-bar__value">{{limits.current.withdraw.day | currency}}</div>
+                        </div>
+                        <div class="limits-bar__progress progress">
+                          <div class="progress-bar" [ngStyle]="{'width': limits.current.withdraw.day*100/limits.levels.current.withdraw.day + '%'}"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="limits-bar limits-bar--tiny">
+                        <div class="limits-bar__caption">
+                          Limit
+                          <div class="limits-bar__value">{{(limits.levels.current.withdraw.day - limits.current.withdraw.day) | currency}} of {{limits.levels.current.withdraw.day | currency}}</div>
+                        </div>
+                        <div class="limits-bar__progress progress">
+                          <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.withdraw.day - limits.current.withdraw.day)*100/limits.levels.current.withdraw.day + '%'}"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </tab>
+
+                <tab heading="Monthly">
+                  <div class="limits-bar">
+                    <div class="limits-bar__caption">
+                      <span>Account limits</span>
+                      <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
+                        <svg class="icon" width="20px" height="20px">
+                          <use xlink:href="#increase"></use>
+                        </svg>
+                        <span>Increase</span>
+                      </a>
+                    </div>
+                    <div class="limits-bar__progress progress">
+                      <div class="progress-bar"
+                           [ngClass]="{'w-50': user.verifiedL0 && !user.verifiedL1, 'w-100': user.verifiedL0 && user.verifiedL1 }"></div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <!--<div class="limits-bar limits-bar&#45;&#45;tiny">-->
+                      <!--<div class="limits-bar__caption">Payment Card</div>-->
+                      <!--<div class="limits-bar__progress progress">-->
+                      <!--<div class="progress-bar"></div>-->
+                      <!--</div>-->
+                      <!--<dl class="limits-bar__list">-->
+                      <!--<dt class="col-auto">Daily limis used:</dt>-->
+                      <!--<dd class="col">$ 0.00 of $ 300.00</dd>-->
+                      <!--</dl>-->
+                      <!--</div>-->
+
+
+                      <div class="limits-bar limits-bar--tiny">
+                        <div class="limits-bar__caption">
+                          <span>Avialable for payment</span>
+                          <div class="limits-bar__value">{{limits.current.withdraw.month | currency}}</div>
+                        </div>
+                        <div class="limits-bar__progress progress">
+                          <div class="progress-bar" [ngStyle]="{'width': limits.current.withdraw.month*100/(limits.levels.current.withdraw.month || 1) + '%'}"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="limits-bar limits-bar--tiny">
+                        <div class="limits-bar__caption">
+                          Limit
+                          <div class="limits-bar__value">{{(limits.levels.current.withdraw.month - limits.current.withdraw.month) | currency}} of {{limits.levels.current.withdraw.month | currency}}</div>
+                        </div>
+                        <div class="limits-bar__progress progress">
+                          <div class="progress-bar" [ngStyle]="{'width': (limits.levels.current.withdraw.month - limits.current.withdraw.month)*100/(limits.levels.current.withdraw.month || 1) + '%'}"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </tab>
+              </tabset>
+            </div>
+          </ng-container>
+        </ng-template>
       </ng-template>
     </div>
   </section>

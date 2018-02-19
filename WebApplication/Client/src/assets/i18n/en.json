@@ -82,9 +82,8 @@
     "Deposit": {
       "Heading": "Deposit",
       "SectionTitle": "Choose deposit payment method",
-      "TFA": {
-        "SectionTitle": "You need to enable 2FA first",
-        "Text": "<span class=\"lead\">Enable 2FA in a few clicks</span>",
+      "KYC": {
+        "Text": "<span class=\"lead\">We need to confirm your identity</span>",
         "Pros": {
           "Secure": {
             "Title": "Secure",
@@ -99,7 +98,7 @@
             "Text": "Verification procedure is fully compilant with AML and KYC regulations."
           }
         },
-        "Button": "Enable 2FA"
+        "Button": "Start"
       },
       "CardsList": {
         "SectionTitle": "Card details"
@@ -108,6 +107,24 @@
     "Withdraw": {
       "Heading": "Withdraw {{ asset }}",
       "SectionTitle": "Choose withdrawal payment method",
+	  "KYC": {
+        "Text": "<span class=\"lead\">We need to confirm your identity</span>",
+        "Pros": {
+          "Secure": {
+            "Title": "Secure",
+            "Text": "All provided information is encrypted and securely stored."
+          },
+          "Simple": {
+            "Title": "Simple",
+            "Text": "Verification process is very simple and takes not more than 15 minutes."
+          },
+          "Complaint": {
+            "Title": "Complaint",
+            "Text": "Verification procedure is fully compilant with AML and KYC regulations."
+          }
+        },
+        "Button": "Start"
+      },
       "TFA": {
         "SectionTitle": "You need to enable 2FA first",
         "Text": "<span class=\"lead\">Enable 2FA in a few clicks</span>",
@@ -384,16 +401,13 @@
         }
       },
       "TFA": {
-        "IntroSection": {
-          "Title": "Goldmint encourages the use of two-factor authentication",
-          "Content": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provic ed.</p>"
-        },
         "SecretKeySection": {
           "Title": "Two-factor authentication",
           "TitleWidget": {
             "Enabled": "Enabled",
             "Disabled": "Disabled"
           },
+		  "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provic ed.</p>",
           "Text": "<p><b>Please back up your secret key.</b> Reseting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
           "KeyLabel": "Secret key:",
           "CodeLabel": "Authenticator Code",
