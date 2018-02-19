@@ -15,9 +15,9 @@ export class TransferPageComponent implements OnInit {
   @HostBinding('class') class = 'page';
 
   private _modalRef: BsModalRef;
-  private _amount: BigNumber = new BigNumber(0);
-  private _walletAddressRaw: string = null;
-  private _walletAddress: string = null;
+  public amount: BigNumber = new BigNumber(0);
+  public walletAddressRaw: string = null;
+  public walletAddress: string = null;
 
   constructor(
     private _modalService: BsModalService,
@@ -37,18 +37,18 @@ export class TransferPageComponent implements OnInit {
   }
 
   onWalletAddressChanged(value: string) {
-    this._walletAddress = null;
+    this.walletAddress = null;
     if (this._ethService.isValidAddress(value)) {
-      this._walletAddress = value;
+      this.walletAddress = value;
     }
     this._cdRef.detectChanges();
   }
 
   onAmountChanged(value: string) {
-    this._amount = new BigNumber(0);
+    this.amount = new BigNumber(0);
     if (value != '') {
-      this._amount = new BigNumber(value);
-      this._amount = this._amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
+      this.amount = new BigNumber(value);
+      this.amount = this.amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
     this._cdRef.detectChanges();
   }
@@ -61,14 +61,14 @@ export class TransferPageComponent implements OnInit {
     }
 
     var confText =
-      "Target address: " + this._walletAddress + "<br/>" +
-      "GOLD amount: " + this._amount + " GOLD<br/>"
+      "Target address: " + this.walletAddress + "<br/>" +
+      "GOLD amount: " + this.amount + " GOLD<br/>"
       ;
     this._messageBox.confirm(confText).subscribe(ok => {
       if (ok) {
-        this._ethService.transferGoldToWallet(ethAddress, this._walletAddress, this._amount);
-        this._walletAddressRaw = "";
-        this._amount = new BigNumber(0);
+        this._ethService.transferGoldToWallet(ethAddress, this.walletAddress, this.amount);
+        this.walletAddressRaw = "";
+        this.amount = new BigNumber(0);
       }
       this._cdRef.detectChanges();
     });

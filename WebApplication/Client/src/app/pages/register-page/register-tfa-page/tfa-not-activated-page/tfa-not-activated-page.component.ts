@@ -11,7 +11,7 @@ enum Pages {TFANotActivated, TFADisabled};
 })
 export class TfaNotActivatedPageComponent implements OnInit {
 
-  private _pages = Pages;
+  public pages = Pages;
 
   public page: Pages;
 

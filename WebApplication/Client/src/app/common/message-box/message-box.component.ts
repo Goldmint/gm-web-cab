@@ -9,9 +9,9 @@ import { MessageType } from './message-box.enum';
   templateUrl: './message-box.component.html'
 })
 export class MessageBoxComponent {
-  private _types = MessageType;
+  public types = MessageType;
   /*private _*/onClose: Subject<boolean|string|null>;
-  private _promptValue: string;
+  public _promptValue: string;
 
   public id: string;
   public title: string;

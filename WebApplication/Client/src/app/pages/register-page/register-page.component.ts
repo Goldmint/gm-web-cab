@@ -21,7 +21,7 @@ export class RegisterPageComponent implements OnInit {
   public signupModel: any = {};
   public loading = false;
   public submitButtonBlur = new EventEmitter<boolean>();
-  public errors = [];
+  public errors: any = [];
 
   private returnUrl: string;
 

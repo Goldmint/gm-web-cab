@@ -1,4 +1,4 @@
-<div class="page" *ngIf="page === _pages.TFANotActivated">
+<div class="page" *ngIf="page === pages.TFANotActivated">
   <h1 class="page__heading">2FA Not Activated!</h1>
   <!-- <h1 class="page__heading">{{ "PAGES.Home.Heading" | translate }}</h1> -->
 
@@ -17,7 +17,7 @@
 
       <form>
         <button class="btn btn-primary mr-3" routerLink="/signup/tfa">Back</button>
-        <button class="btn btn-primary ml-2" (click)="page = _pages.TFADisabled" [disabled]="!agreeWithSafety || !agreeWithRisks">Next</button>
+        <button class="btn btn-primary ml-2" (click)="page = pages.TFADisabled" [disabled]="!agreeWithSafety || !agreeWithRisks">Next</button>
 
         <div class="mt-4 pt-3">
           <div class="custom-control custom-checkbox mb-3">
@@ -36,7 +36,7 @@
   </div>
 </div>
 
-<div class="page" *ngIf="page === _pages.TFADisabled">
+<div class="page" *ngIf="page === pages.TFADisabled">
   <h1 class="page__heading">Security</h1>
   <!-- <h1 class="page__heading">{{ "PAGES.Home.Heading" | translate }}</h1> -->
 

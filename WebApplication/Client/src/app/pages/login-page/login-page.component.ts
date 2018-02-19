@@ -26,7 +26,7 @@ export class LoginPageComponent implements OnInit {
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
 
-  private _tfaRequired: boolean;
+  public tfaRequired: boolean;
   private _returnUrl: string;
 
   constructor(
@@ -69,7 +69,7 @@ export class LoginPageComponent implements OnInit {
     }
     else {
       this._returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/';
-      this._tfaRequired = !!parseInt(localStorage.getItem('gmint_2fa'), 0);
+      this.tfaRequired = !!parseInt(localStorage.getItem('gmint_2fa'), 0);
     }
   }
 
@@ -85,7 +85,7 @@ export class LoginPageComponent implements OnInit {
       .subscribe(
         res => {
           if (res.data.tfaRequired) {
-            this._tfaRequired = true;
+            this.tfaRequired = true;
           }
           else {
             this._router.navigate([this._returnUrl]);
