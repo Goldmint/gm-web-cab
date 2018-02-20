@@ -17,12 +17,12 @@ export class GoldrateService {
 
     console.log('GoldrateService constructor');
 
-    this.checkBalance();
+    /*this.checkBalance();
     interval(5000)
       .subscribe(time => {
         this.checkBalance();
       })
-      ;
+      ;*/
   }
   
   private checkBalance() {

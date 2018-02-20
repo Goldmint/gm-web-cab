@@ -1,0 +1,94 @@
+<div class="page">
+  <h1 class="page__heading">Countries</h1>
+
+  <div class="page__section">
+    <div class="trn-info">
+      <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" (ngSubmit)="banCountry()">
+
+        <div class="row align-items-start">
+          <div class="col-lg pt-4">
+            <div class="from-row form-group">
+              <select class="form-control" name="select-countries" [(ngModel)]="changeCountryCode" formControlName="country">
+                <option *ngFor="let c of countriesForSelect" value="{{ c.countryShortCode }}">{{ c.countryName }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-lg pt-4">
+            <div class="from-row form-group">
+              <input type="text" class="form-control" placeholder="Comment" formControlName="comment">
+            </div>
+          </div>
+
+          <div class="col-lg-auto pb-3 pt-3">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || formDir.submitted">{{ "PAGES.Countries.Ban" | translate }}</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <section class="section section--table">
+
+      <div class="section__content">
+        <ngx-datatable class="table table--no-footer" #table
+                       [rows]="rows"
+                       [columnMode]="'force'"
+                       [sorts]="sorts"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="page.totalElements"
+                       [offset]="page.pageNumber"
+                       [limit]="page.size"
+                       [externalSorting]="true"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages"
+                       (sort)="onSort($event)">
+
+          <ngx-datatable-column prop="name" [draggable]="false" [resizeable]="false" [sortable]="true">
+            <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Countries.Table.Country" | translate }}
+              </span>
+            </ng-template>
+
+            <ng-template let-name="value" ngx-datatable-cell-template>
+              {{ name }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <!--<ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">-->
+            <!--<ng-template let-column="column" ngx-datatable-header-template>-->
+              <!--<span class="datatable-header-cell-wrapper">-->
+                <!--{{ "PAGES.Countries.Table.Comment" | translate }}-->
+              <!--</span>-->
+            <!--</ng-template>-->
+
+            <!--<ng-template let-comment="value" let-row="row" ngx-datatable-cell-template>-->
+              <!--{{ comment }}-->
+            <!--</ng-template>-->
+          <!--</ngx-datatable-column>-->
+
+          <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="200">
+            <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Countries.Table.Ban" | translate }}
+              </span>
+            </ng-template>
+
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <button type="submit" class="btn btn-sm btn-primary btn-block" (click)="unbanCountry(row.code)">{{ "PAGES.Countries.Table.Cancel" | translate }}</button>
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+
+      </div>
+    </section>
+
+  </div>
+</div>

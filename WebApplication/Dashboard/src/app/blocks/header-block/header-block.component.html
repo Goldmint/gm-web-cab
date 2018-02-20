@@ -54,20 +54,6 @@
           </div>
         </div>
 
-        <div class="col-auto">
-          <img *ngIf="usdBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
-
-          <div class="balance" *ngIf="usdBalance !== null">
-            <div class="balance__item">
-              <svg class="icon" width="10px" height="16px">
-                <use xlink:href="#cur-usd"></use>
-              </svg>
-              <span class="balance__value">
-                {{usdBalance | number:'1.2-2':locale}}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <ng-template #loginBlock>

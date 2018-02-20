@@ -24,6 +24,7 @@ import { SettingsCardsPageComponent }        from './pages/settings-page/setting
 import { SettingsSocialPageComponent }       from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent }     from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
+import { CountriesPageComponent } from "./pages/countries-page/countries-page.component";
 
 const appRoutes: Routes = [
 
@@ -38,6 +39,7 @@ const appRoutes: Routes = [
   { path: 'signup/2fa/skip',         component: TfaNotActivatedPageComponent },
   { path: 'home',     component: HomePageComponent,     canActivate: [AuthGuard] },
   { path: 'transparency',     component: TransparencyPageComponent,     canActivate: [AuthGuard] },
+  { path: 'countries',     component: CountriesPageComponent,     canActivate: [AuthGuard] },
   {
     path: 'account',          component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [
