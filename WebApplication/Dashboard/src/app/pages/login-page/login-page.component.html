@@ -68,10 +68,6 @@
                 <button class="btn btn-primary" [blur]="buttonBlur" [disabled]="(loginForm.pristine && !loginForm.form.valid) || !loginModel.recaptcha || loading">{{ "PAGES.Login.Buttons.LogIn" | translate }}</button>
                 <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
               </div>
-              <div class="col form-text form-text--small pl-4">
-                <a routerLink="/signup" class="link link--bolder">Register new account</a>
-                <a routerLink="./restore" class="link link--bolder">Forgot your password?</a>
-              </div>
             </div>
 
           </form>

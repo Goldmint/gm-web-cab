@@ -13,6 +13,7 @@ import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';
 import { AppDefaultLanguage } from '../app.languages';
 import { ReplaySubject } from "rxjs/ReplaySubject";
+import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,7 @@ export class UserService {
 
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
+  public canShowNav$ = new Subject;
 
   constructor(
     private _router: Router,
@@ -87,7 +89,7 @@ export class UserService {
       tap(
         (res: APIResponse<AuthResponse>) => {
           console.info('User login result', res);
-
+          this.canShowNav(true);
           this._processLoginResponse(res);
         },
         err => {
@@ -95,6 +97,10 @@ export class UserService {
         }
       )
       );
+  }
+
+  canShowNav(flag: boolean) {
+    this.canShowNav$.next(flag);
   }
 
   loginWithSocial(provider: string) {
@@ -130,8 +136,8 @@ export class UserService {
 
     this._user.next({} as User);
     this._apiService.userLogout();
-
-    this._router.navigate(['/transparency']);
+    this.canShowNav(false);
+    this._router.navigate(['/signin']);
   }
 
   register(username: string, password: string, recaptcha: string) {

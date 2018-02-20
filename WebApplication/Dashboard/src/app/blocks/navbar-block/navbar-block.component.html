@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar" *ngIf="canShowNav">
   <ul class="nav nav-pills nav-justified">
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/transparency">{{ "HEADER.Menu.Transparency" | translate }}</a>
