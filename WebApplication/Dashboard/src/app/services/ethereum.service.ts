@@ -49,7 +49,7 @@ export class EthereumService {
       this.updateUsdBalance(this._userId);
     });
 
-    interval(500)
+    /*interval(500)
       .subscribe(time => {
         this.checkWeb3();
       })
@@ -59,7 +59,7 @@ export class EthereumService {
       .subscribe(time => {
         this.checkBalance();
       })
-      ;
+      ;*/
   }
 
   private checkWeb3() {
