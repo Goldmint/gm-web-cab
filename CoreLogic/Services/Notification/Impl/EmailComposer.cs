@@ -36,7 +36,7 @@ namespace Goldmint.CoreLogic.Services.Notification.Impl {
 		// ---
 
 		public EmailComposer Initiator(string ip, string agent, DateTime time) {
-			var timeFmt = time.ToString("U") + " UTC";
+			var timeFmt = time.ToString("G") + " UTC";
 			ReplaceBodyTag("INITIATOR", $"<small><b>IP:</b> {ip} <br><br><b>Agent:</b> {agent} <br><br><b>Time:</b> {timeFmt}</small>");
 			return this;
 		}

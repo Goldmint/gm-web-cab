@@ -22,8 +22,8 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 			v.CascadeMode = CascadeMode.Continue;
 
 			v.RuleFor(_ => _.Code)
-				.Length(2)
-				.WithMessage("Invalid code")
+				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2)
+				.WithMessage("Invalid country code")
 			;
 
 			v.RuleFor(_ => _.Comment)
@@ -38,5 +38,32 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 	}
 
 	public class BanView {
+	}
+
+	// ---
+
+	public class UnbanModel : BaseValidableModel {
+
+		/// <summary>
+		/// Country code (alpha-2)
+		/// </summary>
+		[Required]
+		public string Code { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<UnbanModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.Code)
+				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2)
+				.WithMessage("Invalid country code")
+				;
+
+			return v.Validate(this);
+
+		}
+	}
+
+	public class UnbanView {
 	}
 }
