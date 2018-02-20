@@ -74,5 +74,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return Ok();
 		}
 
+		/// <summary>
+		/// Callback from SignRequest service
+		/// </summary>
+		[AreaAnonymous]
+		[HttpPost, Route("signrequest")]
+		[ApiExplorerSettings(IgnoreApi = true)]
+		public IActionResult SignRequest() {
+			return Ok();
+		}
 	}
 }

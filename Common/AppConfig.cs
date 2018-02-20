@@ -102,6 +102,23 @@ namespace Goldmint.Common {
 
 				public string Url { get; set; } = "";
 			}
+
+			public SignRequestSection SignRequest { get; set; } = new SignRequestSection();
+			public class SignRequestSection {
+
+				public string Url { get; set; } = "";
+				public string Auth64 { get; set; } = "";
+				public string SenderEmail { get; set; } = "";
+				public string CallbackSecret { get; set; } = "";
+				public TemplateSection[] Templates { get; set; } = new TemplateSection[0];
+
+				public class TemplateSection {
+
+					public string Name { get; set; }
+					public string Filename { get; set; }
+					public string Template { get; set; }
+				}
+			}
 		}
 
 		// ---

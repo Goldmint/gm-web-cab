@@ -547,4 +547,12 @@ namespace Goldmint.Common {
 		/// </summary>
 		Cancelled
 	}
+
+	public enum SignedDocumentType {
+
+		/// <summary>
+		/// Primary agreement
+		/// </summary>
+		Agreement = 1,
+	}
 }

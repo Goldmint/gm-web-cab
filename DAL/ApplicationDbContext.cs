@@ -28,6 +28,7 @@ namespace Goldmint.DAL {
 		public DbSet<UserOpLog> UserOpLog { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<BannedCountry> BannedCountry { get; set; }
+		public DbSet<SignedDocument> SignedDocument { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}

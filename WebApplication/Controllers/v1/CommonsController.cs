@@ -84,7 +84,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		public async Task<APIResponse> BannedCountries() {
 			var list = await (
 				from a in DbContext.BannedCountry
-				select a.Code
+				select a.Code.ToUpper()
 			).AsNoTracking().ToArrayAsync();
 			return APIResponse.Success(list);
 		}

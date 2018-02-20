@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_settings")]
-	public class Settings : IConcurrentUpdate {
+	public class Settings : BaseEntity, IConcurrentUpdate {
 
-		[Key, Column("key"), MaxLength(64), Required]
+		[Column("key"), MaxLength(64), Required]
 		public string Key { get; set; }
 
 		[Column("value"), MaxLength(1024)]

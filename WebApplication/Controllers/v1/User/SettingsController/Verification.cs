@@ -60,7 +60,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					PhoneNumber = phoneFormatted,
 					Country = regionInfo.EnglishName,
-					CountryCode = regionInfo.TwoLetterISORegionName,
+					CountryCode = regionInfo.TwoLetterISORegionName.ToUpper(),
 					State = model.State,
 					City = model.City,
 					PostalCode = model.PostalCode,

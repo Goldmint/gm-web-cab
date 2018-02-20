@@ -6,9 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_banned_country")]
-	public class BannedCountry {
+	public class BannedCountry : BaseEntity {
 
-		[Key, Column("code"), MaxLength(3), Required]
+		[Column("code"), MaxLength(3), Required]
 		public string Code { get; set; }
 
 		[Column("comment"), MaxLength(128)]
