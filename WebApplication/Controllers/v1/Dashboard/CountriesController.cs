@@ -6,7 +6,9 @@ using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
@@ -16,7 +18,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Add contry to black list
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.CountriesControl)]
+		[AreaAuthorized, AccessRights(AccessRights.CountriesWriteAccess)]
 		[HttpPost, Route("ban")]
 		[ProducesResponseType(typeof(BanView), 200)]
 		public async Task<APIResponse> Ban([FromBody] BanModel model) {
@@ -30,16 +32,51 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			DbContext.BannedCountry.Add(
 				new BannedCountry() {
-					Code = model.Code,
+					Code = model.Code.ToLower(),
 					UserId = user.Id,
 					Comment = model.Comment,
 					TimeCreated = DateTime.UtcNow,
 				}
 			);
-			await DbContext.SaveChangesAsync();
+
+			try {
+				await DbContext.SaveChangesAsync();
+			}
+			catch (Exception e) {
+				// actually have to catch 'duplicate'-exception here
+			}
 
 			return APIResponse.Success(
 				new BanView() { }
+			);
+		}
+
+		/// <summary>
+		/// Remove contry from black list
+		/// </summary>
+		[AreaAuthorized, AccessRights(AccessRights.CountriesWriteAccess)]
+		[HttpPost, Route("unban")]
+		[ProducesResponseType(typeof(UnbanView), 200)]
+		public async Task<APIResponse> Unban([FromBody] UnbanModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var country = await (
+				from c in DbContext.BannedCountry
+				where String.Equals(c.Code, model.Code, StringComparison.CurrentCultureIgnoreCase)
+				select c
+			).FirstOrDefaultAsync();
+
+			if (country != null) {
+				DbContext.BannedCountry.Remove(country);
+				await DbContext.SaveChangesAsync();
+			}
+
+			return APIResponse.Success(
+				new UnbanView() { }
 			);
 		}
 	}

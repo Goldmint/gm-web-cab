@@ -59,17 +59,22 @@ namespace Goldmint.Common {
 		/// </summary>
 		Client = 1,
 
+		/// <summary>
+		/// Dashboard general access rights
+		/// </summary>
+		DashboardReadAccess = 2,
+
 		// 268435456
 
 		/// <summary>
-		/// Countries write access
+		/// Countries tab write access
 		/// </summary>
-		CountriesControl = 536870912,
+		CountriesWriteAccess = 536870912,
 
 		/// <summary>
 		/// Transparency uploader rights
 		/// </summary>
-		TransparencyUploader = 1073741824,
+		TransparencyWriteAccess = 1073741824,
 
 		/// <summary>
 		/// Full access
