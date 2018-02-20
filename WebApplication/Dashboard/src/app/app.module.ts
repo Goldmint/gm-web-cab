@@ -75,6 +75,7 @@ import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards
 import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
+import { CountriesPageComponent } from './pages/countries-page/countries-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import {SafePipe} from "./directives/safe.pipe";
 
@@ -147,6 +148,7 @@ export function getGoldmintToken() {
     TransparencyPageComponent,
     NoautocompleteDirective,
     SafePipe,
+    CountriesPageComponent,
   ],
   exports: [],
   providers: [

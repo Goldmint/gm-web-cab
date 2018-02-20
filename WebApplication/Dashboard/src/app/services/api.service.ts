@@ -134,6 +134,34 @@ export class APIService {
       );
   }
 
+  getCountriesBlacklist() {
+    return this._http
+      .get(`${this._baseUrl}/commons/bannedCountries`)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  getCountriesLocalList() {
+    return this._http.get('../../assets/data/countries.json');
+  }
+
+  banCountry(code: string, comment: string) {
+    return this._http
+      .post(`${this._baseUrl}/dashboard/countries/ban`, {code, comment}, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  unbanCountry(code: string) {
+    return this._http
+      .post(`${this._baseUrl}/dashboard/countries/unban`, {code}, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   getProfile(): Observable<APIResponse<User>> {
     return this._http
       .get(`${this._baseUrl}/user/profile`, this.jwt())

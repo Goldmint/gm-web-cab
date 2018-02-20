@@ -27,6 +27,15 @@
     "Copyright": "GoldMint, PTE, LTD © {{year}}"
   },
   "PAGES": {
+    "Countries": {
+      "Ban": "Ban",
+      "Table": {
+        "Country": "Country",
+        "Comment": "Comment",
+        "Ban": "Ban",
+        "Cancel": "Unban"
+      }
+    },
     "Home": {
       "Heading": "Do You want to buy or sell gold cryptoassets?",
       "Or": "or",
