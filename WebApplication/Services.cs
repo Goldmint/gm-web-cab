@@ -29,6 +29,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Goldmint.CoreLogic.Services.OpenStorage.Impl;
+using Goldmint.CoreLogic.Services.SignedDoc;
+using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 
 namespace Goldmint.WebApplication {
 
@@ -189,7 +191,20 @@ namespace Goldmint.WebApplication {
 #endif
 
 			// open storage
-			services.AddSingleton<IOpenStorageProvider>(fac => new IPFS(_appConfig.Services.IPFS.Url, _loggerFactory));
+			services.AddSingleton<IOpenStorageProvider>(fac => 
+				new IPFS(_appConfig.Services.IPFS.Url, _loggerFactory)
+			);
+
+			// docs signing
+			services.AddSingleton<IDocSigningProvider>(fac => 
+				new SignRequest(
+					baseUrl: _appConfig.Services.SignRequest.Url,
+					authString: _appConfig.Services.SignRequest.Auth,
+					senderEmail: _appConfig.Services.SignRequest.SenderEmail,
+					senderEmailName: "GoldMint",
+					logFactory: _loggerFactory
+				)
+			);
 
 			return services.BuildServiceProvider();
 		}

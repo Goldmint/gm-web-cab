@@ -107,7 +107,7 @@ namespace Goldmint.Common {
 			public class SignRequestSection {
 
 				public string Url { get; set; } = "";
-				public string Auth64 { get; set; } = "";
+				public string Auth { get; set; } = "";
 				public string SenderEmail { get; set; } = "";
 				public string CallbackSecret { get; set; } = "";
 				public TemplateSection[] Templates { get; set; } = new TemplateSection[0];

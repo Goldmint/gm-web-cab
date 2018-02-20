@@ -11,14 +11,15 @@ namespace Goldmint.Common.WebRequest {
 
 	public sealed partial class Request : IDisposable {
 
-		private static readonly TimeSpan _timeout10 = TimeSpan.FromSeconds(10);
-		private static readonly TimeSpan _timeout30 = TimeSpan.FromSeconds(30);
+		private static readonly TimeSpan Timeout10 = TimeSpan.FromSeconds(10);
+		private static readonly TimeSpan Timeout30 = TimeSpan.FromSeconds(30);
 
 		private HttpContent _body;
 		private string _query;
 		private AuthenticationHeaderValue _auth;
 		private List<MediaTypeWithQualityHeaderValue> _hdrAccept;
-		private Func<Result, Task> _callback;
+		private Func<Result, Task> _callbackFnc;
+		private Action<Result> _callbackAct;
 		private ILogger _logger;
 
 		public Request(ILogger logger) {
@@ -33,7 +34,7 @@ namespace Goldmint.Common.WebRequest {
 
 		private void Dispose(bool disposing) {
 			if (disposing) {
-				if (_body != null) _body.Dispose();
+				_body?.Dispose();
 			}
 		}
 
@@ -57,6 +58,11 @@ namespace Goldmint.Common.WebRequest {
 			return this;
 		}
 
+		public Request AuthToken(string token) {
+			_auth = new AuthenticationHeaderValue("Token", token);
+			return this;
+		}
+
 		public Request Accept(MediaTypeWithQualityHeaderValue accept) {
 			_hdrAccept.Add(accept);
 			return this;
@@ -68,21 +74,28 @@ namespace Goldmint.Common.WebRequest {
 		}
 
 		public Request OnResult(Func<Result, Task> cbk) {
-			_callback = cbk;
+			_callbackFnc = cbk;
+			_callbackAct = null;
+			return this;
+		}
+
+		public Request OnResult(Action<Result> cbk) {
+			_callbackAct = cbk;
+			_callbackFnc = null;
 			return this;
 		}
 
 		// ---
 
 		public async Task<bool> SendGet(string url, TimeSpan? timeout = null) {
-			return await send(false, url, timeout ?? _timeout10);
+			return await Send(false, url, timeout ?? Timeout10);
 		}
 
 		public async Task<bool> SendPost(string url, TimeSpan? timeout = null) {
-			return await send(true, url, timeout ?? _timeout30);
+			return await Send(true, url, timeout ?? Timeout30);
 		}
 
-		private async Task<bool> send(bool post, string url, TimeSpan timeout) {
+		private async Task<bool> Send(bool post, string url, TimeSpan timeout) {
 
 			var urlb = new UriBuilder(url);
 			urlb.Query = _query;
@@ -104,12 +117,14 @@ namespace Goldmint.Common.WebRequest {
 
 					if (post) {
 						using (var res = new Result(await client.PostAsync(url, _body))) {
-							if (_callback != null) await _callback(res);
+							if (_callbackFnc != null) await _callbackFnc(res);
+							_callbackAct?.Invoke(res);
 						}
 					}
 					else {
 						using (var res = new Result(await client.GetAsync(url))) {
-							if (_callback != null) await _callback(res);
+							if (_callbackFnc != null) await _callbackFnc(res);
+							_callbackAct?.Invoke(res);
 						}
 					}
 				} catch (Exception e) {

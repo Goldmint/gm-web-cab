@@ -83,7 +83,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				new BannedCountry() {
 					Code = model.Code.ToUpper(),
 					UserId = user.Id,
-					Comment = model.Comment,
+					Comment = model.Comment ?? "",
 					TimeCreated = DateTime.UtcNow,
 				}
 			);

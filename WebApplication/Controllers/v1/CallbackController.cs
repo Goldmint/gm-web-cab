@@ -78,9 +78,43 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// Callback from SignRequest service
 		/// </summary>
 		[AreaAnonymous]
-		[HttpPost, Route("signrequest")]
+		[HttpPost, Route("signrequest/{secret}")]
 		[ApiExplorerSettings(IgnoreApi = true)]
-		public IActionResult SignRequest() {
+		public async Task<IActionResult> SignRequest(string secret) {
+
+			if (secret == AppConfig.Services.SignRequest.CallbackSecret) {
+
+				var check = await DocSigningProvider.OnServiceCallback(HttpContext.Request);
+
+				if (check.OverallStatus != CoreLogic.Services.SignedDoc.OverallStatus.Failed) {
+
+					// TODO: update signed doc record
+
+					/*
+					var ticket = await DbContext.KycShuftiProTicket
+							.Include(tickt => tickt.User)
+							.ThenInclude(user => user.UserVerification)
+							.FirstAsync(tickt => tickt.ReferenceId == check.TicketId)
+						;
+
+					if (ticket?.User?.UserVerification != null) {
+						var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.UserVerified;
+
+						ticket.IsVerified = userVerified;
+						ticket.CallbackStatusCode = check.ServiceStatus;
+						ticket.CallbackMessage = check.ServiceMessage;
+						ticket.TimeResponded = DateTime.UtcNow;
+
+						if (userVerified) {
+							ticket.User.UserVerification.KycShuftiProTicket = ticket;
+						}
+
+						await DbContext.SaveChangesAsync();
+					}
+					*/
+				}
+
+			}
 			return Ok();
 		}
 	}

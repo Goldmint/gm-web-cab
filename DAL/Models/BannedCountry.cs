@@ -11,7 +11,7 @@ namespace Goldmint.DAL.Models {
 		[Column("code"), MaxLength(3), Required]
 		public string Code { get; set; }
 
-		[Column("comment"), MaxLength(128)]
+		[Column("comment"), MaxLength(128), Required]
 		public string Comment { get; set; }
 
 		[Column("user_id"), Required]

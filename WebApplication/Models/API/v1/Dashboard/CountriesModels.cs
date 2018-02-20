@@ -59,9 +59,8 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 		public string Code { get; set; }
 
 		/// <summary>
-		/// Comment /.{0,128}/
+		/// Comment /.{0,128}/, optional
 		/// </summary>
-		[Required]
 		public string Comment { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -74,7 +73,6 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 			;
 
 			v.RuleFor(_ => _.Comment)
-				.NotNull()
 				.MaximumLength(128)
 				.WithMessage("Invalid comment")
 			;

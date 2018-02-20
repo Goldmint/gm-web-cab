@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.SignedDoc;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -42,6 +43,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected IGoldRateProvider GoldRateProvider { get; private set; }
 		protected CachedGoldRate GoldRateCached { get; private set; }
 		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
+		protected IDocSigningProvider DocSigningProvider { get; private set; }
 
 		protected BaseController() { }
 
@@ -63,6 +65,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			GoldRateProvider = services.GetRequiredService<IGoldRateProvider>();
 			GoldRateCached = services.GetRequiredService<CachedGoldRate>();
 			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
+			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
 		}
 
 		// ---

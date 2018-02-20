@@ -11,20 +11,20 @@ namespace Goldmint.CoreLogic.Services.OpenStorage.Impl {
 
 	public class IPFS : IOpenStorageProvider {
 
-		private string BaseUrl;
-		private ILogger Logger;
+		private readonly string _baseUrl;
+		private readonly ILogger _logger;
 
 		public IPFS(string baseUrl, LogFactory logFactory) {
-			BaseUrl = baseUrl.Trim('/');
-			Logger = logFactory.GetLoggerFor(this);
+			_baseUrl = baseUrl.Trim('/');
+			_logger = logFactory.GetLoggerFor(this);
 		}
 
 		public async Task<string> UploadFile(Stream fileStream, string filename) {
 
-			var url = BaseUrl + "/add";
+			var url = _baseUrl + "/add";
 			var dict = new Dictionary<string, string>();
 
-			using (var req = new Request(Logger)) {
+			using (var req = new Request(_logger)) {
 				await req
 					.AcceptJson()
 					//.BodyJsonRpc($"services.goldrate.{currency.ToString().ToLower()}", null)
