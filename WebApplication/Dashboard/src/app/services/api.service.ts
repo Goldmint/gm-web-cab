@@ -21,9 +21,7 @@ import {
 
 import { KYCProfile } from '../models/kyc-profile';
 // import { MessageBoxService as MessageBox } from './message-box.service';
-
 import { environment } from '../../environments/environment';
-import { filter } from "rxjs/operator/filter";
 
 
 @Injectable()
@@ -157,6 +155,40 @@ export class APIService {
   unbanCountry(code: string) {
     return this._http
       .post(`${this._baseUrl}/dashboard/countries/unban`, {code}, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  getUsersList(filter: string, offset: number = 0, limit: number = 5,
+                  sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
+    let params = {filter, offset, limit, sort, ascending: ascending === 'asc'};
+
+    let httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/users/list`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  getOplog(id: number, filter: string, offset: number = 0, limit: number = 5,
+               sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
+    let params = {id, filter, offset, limit, sort, ascending: ascending === 'asc'};
+
+    let httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/users/oplog`, params, httpOptions)
       .pipe(
         catchError(this._handleError)
       );

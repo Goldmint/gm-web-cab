@@ -78,6 +78,8 @@ import { TransparencyPageComponent } from './pages/transparency-page/transparenc
 import { CountriesPageComponent } from './pages/countries-page/countries-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import {SafePipe} from "./directives/safe.pipe";
+import { UsersPageComponent } from './pages/users-page/users-page.component';
+import { OplogPageComponent } from './pages/users-page/oplog-page/oplog-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -149,6 +151,8 @@ export function getGoldmintToken() {
     NoautocompleteDirective,
     SafePipe,
     CountriesPageComponent,
+    UsersPageComponent,
+    OplogPageComponent,
   ],
   exports: [],
   providers: [

@@ -36,6 +36,38 @@
         "Cancel": "Unban"
       }
     },
+    "Users": {
+      "Users": "Users",
+      "Table": {
+        "ID": "ID",
+        "UserName": "User name",
+        "Name": "Name",
+        "Click": "Show"
+      },
+      "Modal": {
+        "AccountInfo": {
+          "Title": "Account Info",
+          "UserName": "User name",
+          "Name": "Name",
+          "Registered": "Registered"
+        },
+        "OplogInfo": {
+          "Title": "OPLOG",
+          "Time": "Time",
+          "Action": "Action",
+          "Status": "Status",
+          "Status1": "Pending",
+          "Status2": "Success",
+          "Status3": "Failed",
+          "ShowSubItems": "Sub-steps"
+        },
+        "Buttons": {
+          "Button_1": "OPLOG",
+          "Button_2": "Access Rights",
+          "Button_3": "Close"
+        }
+      }
+    },
     "Home": {
       "Heading": "Do You want to buy or sell gold cryptoassets?",
       "Or": "or",
