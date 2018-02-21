@@ -3,13 +3,11 @@ import { NgForm } from '@angular/forms';
 // import { PhoneNumberComponent } from 'ngx-international-phone-number';
 import 'rxjs/add/operator/finally';
 
-import { APIResponse, Country, Region, KYCStart } from '../../../interfaces';
+import { APIResponse, Country, Region, KYCStart, KYCAgreementResend } from '../../../interfaces';
 import { APIService, MessageBoxService } from '../../../services';
 import { KYCProfile } from '../../../models/kyc-profile';
 
 import * as countries from '../../../../assets/data/countries.json';
-import Kycagreementresend = require("../../../interfaces/kyc-agreement-resend");
-import KYCAgreementResend = Kycagreementresend.KYCAgreementResend;
 
 enum Phase { Start, Basic, Agreement, KYC, Finished }
 
