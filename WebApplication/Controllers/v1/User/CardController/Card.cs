@@ -109,7 +109,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				SenderPhone = user.UserVerification.PhoneNumber,
 				SenderIP = agent.IpObject,
 
-				SenderAddressCountry = new System.Globalization.RegionInfo(user.UserVerification.CountryCode),
+				SenderAddressCountry = user.UserVerification.CountryCode,
 				SenderAddressState = user.UserVerification.State,
 				SenderAddressCity = user.UserVerification.City,
 				SenderAddressStreet = user.UserVerification.Street,
@@ -227,7 +227,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				RecipientPhone = user.UserVerification.PhoneNumber,
 				RecipientIP = agent.IpObject,
 
-				RecipientAddressCountry = new System.Globalization.RegionInfo(user.UserVerification.CountryCode),
+				RecipientAddressCountry = user.UserVerification.CountryCode,
 				RecipientAddressState = user.UserVerification.State,
 				RecipientAddressCity = user.UserVerification.City,
 				RecipientAddressStreet = user.UserVerification.Street,

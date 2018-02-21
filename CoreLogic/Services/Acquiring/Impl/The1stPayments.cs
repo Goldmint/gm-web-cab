@@ -50,7 +50,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 					v.RuleFor(_ => _.SenderPhone).Length(5, 25).Must(ValidationRules.BeValidPhone);
 					v.RuleFor(_ => _.SenderIP).NotNull();
 
-					v.RuleFor(_ => _.SenderAddressCountry).NotNull();
+					v.RuleFor(_ => _.SenderAddressCountry).NotNull().Must(ValidationRules.BeValidCountryCodeAlpha2);
 					v.RuleFor(_ => _.SenderAddressState).Length(2, 20);
 					v.RuleFor(_ => _.SenderAddressCity).Length(2, 25);
 					v.RuleFor(_ => _.SenderAddressStreet).Length(2, 50);
@@ -73,7 +73,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 					.Set("phone", data.SenderPhone)
 					.Set("user_ip", data.SenderIP.MapToIPv4().ToString())
 
-					.Set("country", data.SenderAddressCountry.TwoLetterISORegionName.ToLower())
+					.Set("country", data.SenderAddressCountry)
 					.Set("state", data.SenderAddressState)
 					.Set("city", data.SenderAddressCity)
 					.Set("street", data.SenderAddressStreet)
@@ -224,7 +224,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 					v.RuleFor(_ => _.RecipientPhone).Length(5, 25).Must(ValidationRules.BeValidPhone);
 					v.RuleFor(_ => _.RecipientIP).NotNull();
 
-					v.RuleFor(_ => _.RecipientAddressCountry).NotNull();
+					v.RuleFor(_ => _.RecipientAddressCountry).NotNull().Must(ValidationRules.BeValidCountryCodeAlpha2);
 					v.RuleFor(_ => _.RecipientAddressState).Length(2, 20);
 					v.RuleFor(_ => _.RecipientAddressCity).Length(2, 25);
 					v.RuleFor(_ => _.RecipientAddressStreet).Length(2, 30); // visa = 30, mc = 35, general = 50
@@ -247,7 +247,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 					.Set("phone", data.RecipientPhone)
 					.Set("user_ip", data.RecipientIP.MapToIPv4().ToString())
 
-					.Set("country", data.RecipientAddressCountry.TwoLetterISORegionName.ToLower())
+					.Set("country", data.RecipientAddressCountry)
 					.Set("state", data.RecipientAddressState)
 					.Set("city", data.RecipientAddressCity)
 					.Set("street", data.RecipientAddressStreet)
@@ -400,7 +400,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 					v.RuleFor(_ => _.SenderIP).NotNull();
 					v.RuleFor(_ => _.SenderName).Length(2, 25); // visa = 25, mc = 30, general = 100
 
-					v.RuleFor(_ => _.SenderAddressCountry).NotNull();
+					v.RuleFor(_ => _.SenderAddressCountry).NotNull().Must(ValidationRules.BeValidCountryCodeAlpha2);
 					v.RuleFor(_ => _.SenderAddressState).Length(2, 20);
 					v.RuleFor(_ => _.SenderAddressCity).Length(2, 25);
 					v.RuleFor(_ => _.SenderAddressStreet).Length(2, 30); // visa = 30, mc = 35, general = 50
@@ -427,7 +427,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 					.Set("user_ip", data.SenderIP.MapToIPv4().ToString())
 					.Set("name_on_card", data.SenderName)
 
-					.Set("country", data.SenderAddressCountry.TwoLetterISORegionName.ToLower())
+					.Set("country", data.SenderAddressCountry)
 					.Set("state", data.SenderAddressState)
 					.Set("city", data.SenderAddressCity)
 					.Set("street", data.SenderAddressStreet)
@@ -743,386 +743,6 @@ namespace Goldmint.CoreLogic.Services.Acquiring.Impl {
 				ProviderMessage = result.FormatProviderMessage(),
 			};
 		}
-
-		// ---
-
-		/*
-
-
-		public async Task<ReceivePaymentResult> ReceivePaymentWithRedirect(ReceivePayment data) {
-
-			var svcRaw = "";
-
-			try {
-				new ReceivePaymentDataValidator().ValidateAndThrow(data);
-
-				var returnUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(
-					_opts.UserReturnUrl,
-					new Dictionary<string, string>() {
-						{ "tid", "ZZZZZZZ" },
-					}
-				);
-
-				var fields = new Parameters()
-					.Set("rs", "GM01")
-					.Set("merchant_transaction_id", data.TransactionId)
-					.Set("user_ip", data.SenderIP.MapToIPv4().ToString())
-					.Set("description", data.Purpose)
-					.Set("amount", data.AmountCents.ToString())
-					.Set("currency", data.Currency.ToString())
-					.Set("name_on_card", data.SenderName)
-					.Set("street", data.SenderAddressStreet)
-					.Set("zip", data.SenderAddressZip)
-					.Set("city", data.SenderAddressCity)
-					.Set("country", data.SenderAddressCountry.TwoLetterISORegionName.ToLower())
-					.Set("state", data.SenderAddressState)
-					.Set("email", data.SenderEmail)
-					.Set("phone", data.SenderPhone)
-					.Set("customer_id", data.CustomerId)
-					.Set("custom_return_url", returnUrl)
-				;
-
-				// save card
-				if (data.UseOnlySavedCard) {
-					fields.Set("check_saved_card", "1");
-				}
-
-				// bank statement additional data
-				if (!string.IsNullOrWhiteSpace(data.DynamicDescriptor)) {
-					fields.Set("merchant_referring_name", data.DynamicDescriptor);
-				}
-
-				await SendRequest(
-					"init",
-					fields,
-					(status, raw) => {
-						svcRaw = raw;
-
-						if (status != HttpStatusCode.OK) {
-							throw new Exception("Http status is not 200");
-						}
-						if (string.IsNullOrWhiteSpace(raw)) {
-							throw new Exception("Result is empty");
-						}
-					}
-				);
-
-				if (!svcRaw.StartsWith("OK")) {
-					throw new Exception("Service status is not OK");
-				}
-
-				var rawPairs = new Dictionary<string, string>();
-				Array.ForEach(svcRaw.Split('~'), x => {
-					var pair = x.Split(':', 2);
-					if (pair.ElementAtOrDefault(0) != null) {
-						rawPairs.Add(pair.ElementAtOrDefault(0), pair.ElementAtOrDefault(1));
-					}
-				});
-
-				var svcTransactionId = rawPairs.GetValueOrDefault("OK");
-				var svcRedirect = rawPairs.GetValueOrDefault("RedirectOnsite");
-
-				if (string.IsNullOrWhiteSpace(svcTransactionId)) {
-					throw new Exception("Service transaction id is empty");
-				}
-				if (string.IsNullOrWhiteSpace(svcRedirect)) {
-					throw new Exception("Redirect is empty");
-				}
-
-				return new ReceivePaymentResult() {
-					Redirect = svcRedirect,
-					GWTransactionId = svcTransactionId,
-				};
-
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction. Response: `{0}`", svcRaw);
-				throw e;
-			}
-		}
-
-		
-
-		public async Task<SendPaymentResult> SendPayment(SendPayment data) {
-
-			var svcRaw = "";
-
-			try {
-				new SendPaymentDataValidator().ValidateAndThrow(data);
-
-				var returnUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(
-					_opts.UserReturnUrl,
-					new Dictionary<string, string>() {
-						{ "tid", "ZZZZZZZ" },
-					}
-				);
-
-				var fields = new Parameters()
-					.Set("rs", "GM01")
-					.Set("merchant_transaction_id", data.TransactionId)
-					.Set("user_ip", data.ClientIP.MapToIPv4().ToString())
-					.Set("description", data.Purpose)
-					.Set("amount", data.AmountCents.ToString())
-					.Set("currency", data.Currency.ToString())
-					.Set("name_on_card", data.Cardholder)
-					.Set("street", data.AddressStreet)
-					.Set("zip", data.AddressPostalCode)
-					.Set("city", data.AddressCity)
-					.Set("country", data.AddressCountry.TwoLetterISORegionName.ToLower())
-					.Set("state", data.AddressState)
-					.Set("email", data.ClientEmail)
-					.Set("phone", data.ClientPhone)
-					.Set("customer_id", data.CustomerId)
-					.Set("custom_return_url", returnUrl)
-				;
-
-				// save card
-				if (data.UseOnlySavedCard) {
-					fields.Set("check_saved_card", "1");
-				}
-
-				await SendRequest(
-					"init_credit",
-					fields,
-					(status, raw) => {
-						svcRaw = raw;
-
-						if (status != HttpStatusCode.OK) {
-							throw new Exception("Http status is not 200");
-						}
-						if (string.IsNullOrWhiteSpace(raw)) {
-							throw new Exception("Result is empty");
-						}
-					}
-				);
-
-				if (!svcRaw.StartsWith("OK")) {
-					throw new Exception("Service status is not OK");
-				}
-
-				var rawPairs = new Dictionary<string, string>();
-				Array.ForEach(svcRaw.Split('~'), x => {
-					var pair = x.Split(':', 2);
-					if (pair.ElementAtOrDefault(0) != null) {
-						rawPairs.Add(pair.ElementAtOrDefault(0), pair.ElementAtOrDefault(1));
-					}
-				});
-
-				var svcTransactionId = rawPairs.GetValueOrDefault("OK");
-				var svcRedirect = rawPairs.GetValueOrDefault("RedirectOnsite");
-
-				if (string.IsNullOrWhiteSpace(svcTransactionId)) {
-					throw new Exception("Service transaction id is empty");
-				}
-				if (string.IsNullOrWhiteSpace(svcRedirect)) {
-					throw new Exception("Redirect is empty");
-				}
-
-				return new SendPaymentResult() {
-					Redirect = svcRedirect,
-					GWTransactionId = svcTransactionId,
-				};
-
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction. Response: `{0}`", svcRaw);
-				throw e;
-			}
-		}
-
-		public async Task<DeprecatedCheckTransactionResult> CheckTransaction(CheckTransaction data) {
-			var svcRaw = "";
-
-			new CheckTransactionDataValidator().ValidateAndThrow(data);
-
-			try {
-				var fields = new Parameters()
-					.Set("request_type", "transaction_status")
-					.Set("f_extended", "100")
-				;
-
-				if (data.GWTransactionId != null) {
-					fields.Set("init_transaction_id", data.GWTransactionId);
-				}
-				else {
-					fields.Set("merchant_transaction_id", data.TransactionId);
-				}
-
-				await SendRequest(
-					"status_request",
-					fields,
-					(status, raw) => {
-						svcRaw = raw;
-
-						if (status != HttpStatusCode.OK) {
-							throw new Exception("Http status is not 200");
-						}
-						if (string.IsNullOrWhiteSpace(raw)) {
-							throw new Exception("Result is empty");
-						}
-					}
-				);
-
-				var retStatus = DeprecatedCheckTransactionResult.StatusEnum.Pending;
-				var retProviderStatus = "";
-				var retProviderMessage = "";
-				var retMerchantTransactionId = (string)null;
-				var retGWTransactionId = (string)null;
-				var retClientInfo = (DeprecatedCheckTransactionResult.ClientInfoData)null;
-
-				// error
-				if (svcRaw.StartsWith("ERROR")) {
-					if (svcRaw.Contains("Unknown merchant transaction ID")) {
-						retStatus = DeprecatedCheckTransactionResult.StatusEnum.NotFound;
-					}
-					else {
-						throw new Exception("Got response error");
-					}
-				}
-				// found
-				else {
-
-					var rawPairs = ParseResponse(svcRaw);
-
-					var svcCheckResult = Json.Parse<DeprecatedSvcTransactionCheckResult>(Json.Stringify(rawPairs));
-					if (svcCheckResult?.Status == null) {
-						throw new Exception("Failed to parse status");
-					}
-
-					// format service status
-					{
-						TransactionStatusId statusId;
-						if (Enum.TryParse(svcCheckResult.StatusID, out statusId)) {
-							switch (statusId) {
-
-								case TransactionStatusId.Success:
-								case TransactionStatusId.RefundSuccess:
-								case TransactionStatusId.AmountHoldOK:
-								case TransactionStatusId.DMSCancelledOK:
-								case TransactionStatusId.CreditSuccess:
-								case TransactionStatusId.CardDataStoreSMSSuccess:
-								case TransactionStatusId.CardDataStoreCRDSuccess:
-								case TransactionStatusId.CardDataStoreP2PSuccess:
-								case TransactionStatusId.P2PSuccess:
-									retStatus = DeprecatedCheckTransactionResult.StatusEnum.Success;
-									break;
-
-
-								case TransactionStatusId.Expired:
-								case TransactionStatusId.AmountHoldFailed:
-								case TransactionStatusId.SMSChargeFailed:
-								case TransactionStatusId.DMSChargeFailed:
-								case TransactionStatusId.HoldExpired:
-								case TransactionStatusId.RefundFailed:
-								case TransactionStatusId.DMSCancelFailed:
-								case TransactionStatusId.CreditFailed:
-								case TransactionStatusId.P2PFailed:
-								case TransactionStatusId.CardDataStoreP2PFailed:
-								case TransactionStatusId.CardDataStoreSMSFailed:
-								case TransactionStatusId.CardDataStoreCRDFailed:
-								case TransactionStatusId.InitializationCancelled:
-								case TransactionStatusId.InitializationAutoCancelled:
-									retStatus = DeprecatedCheckTransactionResult.StatusEnum.Failed;
-									break;
-
-								default:
-								case TransactionStatusId.Initialized:
-								case TransactionStatusId.SentToProcessor:
-								case TransactionStatusId.RefundPending:
-								case TransactionStatusId.CardholderEntersCardData:
-								case TransactionStatusId.Reversed:
-									break;
-							}
-						}
-
-						retProviderStatus = string.Format(
-							"{0};{1}",
-							string.IsNullOrWhiteSpace(svcCheckResult.Status) ? "-" : svcCheckResult.Status,
-							string.IsNullOrWhiteSpace(svcCheckResult.StatusID) ? "-" : svcCheckResult.StatusID
-						);
-
-						retProviderMessage = (""
-							+ (svcCheckResult.ResultCodeString ?? "") + "; "
-							+ (svcCheckResult.ExtendedErrorCode ?? "") + "; "
-							+ (svcCheckResult.ProcessorError ?? "") + "; "
-						).Trim(';', ' ');
-					}
-
-					// ok
-					if (retStatus == DeprecatedCheckTransactionResult.StatusEnum.Success) {
-						retStatus = DeprecatedCheckTransactionResult.StatusEnum.Success;
-
-						retClientInfo = new DeprecatedCheckTransactionResult.ClientInfoData() {
-							CardHolder = svcCheckResult.NameOnCard,
-							CardCountry = svcCheckResult.CardIssuerCountry.ToUpperInvariant(),
-							CardMasked = svcCheckResult.CardMasked,
-						};
-					}
-					// fail
-					else if (retStatus == DeprecatedCheckTransactionResult.StatusEnum.Failed) {
-						retStatus = DeprecatedCheckTransactionResult.StatusEnum.Failed;
-					}
-
-					retMerchantTransactionId = svcCheckResult.MerchantID;
-					retGWTransactionId = svcCheckResult.ID;
-				}
-
-				return new DeprecatedCheckTransactionResult() {
-					TransactionId = retMerchantTransactionId,
-					GWTransactionId = retGWTransactionId,
-					Status = retStatus,
-					ProviderStatus = retProviderStatus,
-					ProviderMessage = retProviderMessage,
-					ClientInfo = retClientInfo,
-				};
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to get transaction status. Response: `{0}`", svcRaw);
-				throw e;
-			}
-		}
-
-		public async Task<VerifyCardResult> VerifyCard(VerifyCard data) {
-			var svcRaw = "";
-
-			new VerifyCardDataValidator().ValidateAndThrow(data);
-
-			try {
-				var fields = new Parameters()
-					.Set("init_transaction_id", data.RefGWTransactionId)
-					.Set("customer_id", data.CustomerId)
-				;
-
-				await SendRequest(
-					"verify_card",
-					fields,
-					(status, raw) => {
-						svcRaw = raw;
-
-						if (status != HttpStatusCode.OK) {
-							throw new Exception("Http status is not 200");
-						}
-						if (string.IsNullOrWhiteSpace(raw)) {
-							throw new Exception("Result is empty");
-						}
-					}
-				);
-
-				var success = svcRaw.StartsWith("Card is verified");
-
-				// for double verification on the same card raw contains: "Card is already verified"
-
-				return new VerifyCardResult() {
-					Success = success,
-				};
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to verify card. Response: `{0}`", svcRaw);
-				throw e;
-			}
-		}
-
-		*/
 
 		// ---
 

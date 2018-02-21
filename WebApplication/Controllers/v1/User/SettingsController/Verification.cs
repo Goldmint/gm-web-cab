@@ -46,8 +46,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				// format phone number
 				var phoneFormatted = Common.TextFormatter.NormalizePhoneNumber(model.PhoneNumber);
-				// get region info
-				var regionInfo = new RegionInfo(model.Country);
 				// dob
 				var dob = DateTime.ParseExact(model.Dob, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
@@ -59,8 +57,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					DoB = dob,
 
 					PhoneNumber = phoneFormatted,
-					Country = regionInfo.EnglishName,
-					CountryCode = regionInfo.TwoLetterISORegionName.ToUpper(),
+					Country = Common.Countries.GetNameByAlpha2(model.Country),
+					CountryCode = model.Country.ToUpper(),
 					State = model.State,
 					City = model.City,
 					PostalCode = model.PostalCode,

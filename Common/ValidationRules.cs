@@ -73,10 +73,7 @@ namespace Goldmint.Common {
 
 		public static bool BeValidCountryCodeAlpha2(string x) {
 			if (x != null && x.Length == 2) {
-				try {
-					new RegionInfo(x);
-					return true;
-				} catch { }
+				return Countries.IsValidAlpha2(x);
 			}
 			return false;
 		}

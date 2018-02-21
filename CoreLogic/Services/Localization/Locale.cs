@@ -4,7 +4,6 @@ using System.Text;
 
 namespace Goldmint.CoreLogic.Services.Localization {
 
-	// TODO: replace with RegionInfo?
 	public sealed class Locale {
 
 		public static readonly Locale EN = new Locale() { Code = "en", Native = "English"};

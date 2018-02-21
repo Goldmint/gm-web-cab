@@ -48,7 +48,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					Id = i.Id,
 					Code = i.Code.ToUpper(),
 					Comment = i.Comment,
-					Name = (new RegionInfo(i.Code)).EnglishName,
+					Name = Common.Countries.GetNameByAlpha2(i.Code),
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
 				}
 			;

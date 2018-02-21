@@ -19,7 +19,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring {
 		public string SenderPhone;
 		public IPAddress SenderIP;
 
-		public RegionInfo SenderAddressCountry;
+		public string SenderAddressCountry;
 		public string SenderAddressState;
 		public string SenderAddressCity;
 		public string SenderAddressStreet;
@@ -50,7 +50,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring {
 		public string RecipientPhone;
 		public IPAddress RecipientIP;
 
-		public RegionInfo RecipientAddressCountry;
+		public string RecipientAddressCountry;
 		public string RecipientAddressState;
 		public string RecipientAddressCity;
 		public string RecipientAddressStreet;
@@ -85,7 +85,7 @@ namespace Goldmint.CoreLogic.Services.Acquiring {
 		public string SenderPhone;
 		public IPAddress SenderIP;
 
-		public RegionInfo SenderAddressCountry;
+		public string SenderAddressCountry;
 		public string SenderAddressState;
 		public string SenderAddressCity;
 		public string SenderAddressStreet;
