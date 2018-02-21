@@ -182,4 +182,43 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public OplogViewItem[] Steps { get; set; }
 
 	}
+
+	// ---
+
+	public class RightsModel : BaseValidableModel {
+
+		/// <summary>
+		/// User ID
+		/// </summary>
+		[Required]
+		public long Id { get; set; }
+
+		/// <summary>
+		/// New mask
+		/// </summary>
+		[Required]
+		public long Mask { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<RightsModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.Id)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid id")
+				;
+
+			v.RuleFor(_ => _.Mask)
+				.GreaterThanOrEqualTo(0)
+				.LessThan(((long)AccessRights.Owner) << 1)
+				.WithMessage("Invalid rights mask")
+				;
+
+			return v.Validate(this);
+
+		}
+	}
+
+	public class RightsView {
+	}
 }

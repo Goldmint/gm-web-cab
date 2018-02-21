@@ -212,5 +212,41 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				}
 			);
 		}
+
+		/// <summary>
+		/// Set access rights
+		/// </summary>
+		[AreaAuthorized, AccessRights(AccessRights.Owner)]
+		[HttpPost, Route("rights")]
+		[ProducesResponseType(typeof(RightsView), 200)]
+		public async Task<APIResponse> Rights([FromBody] RightsModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var account = await (
+					from a in DbContext.Users
+					where a.Id == model.Id
+					select a
+				)
+				.AsNoTracking()
+				.FirstOrDefaultAsync()
+			;
+
+			if (account == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
+			}
+
+			account.AccessRights = model.Mask;
+			DbContext.Update(account);
+			await DbContext.SaveChangesAsync();
+			
+			return APIResponse.Success(
+				new RightsView() {
+				}
+			);
+		}
 	}
 }
