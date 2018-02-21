@@ -25,6 +25,7 @@ import { SettingsSocialPageComponent }       from './pages/settings-page/setting
 import { SettingsActivityPageComponent }     from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { CountriesPageComponent } from "./pages/countries-page/countries-page.component";
+import {UsersPageComponent} from "./pages/users-page/users-page.component";
 
 const appRoutes: Routes = [
 
@@ -40,6 +41,7 @@ const appRoutes: Routes = [
   { path: 'home',     component: HomePageComponent,     canActivate: [AuthGuard] },
   { path: 'transparency',     component: TransparencyPageComponent,     canActivate: [AuthGuard] },
   { path: 'countries',     component: CountriesPageComponent,     canActivate: [AuthGuard] },
+  { path: 'users',     component: UsersPageComponent,     canActivate: [AuthGuard] },
   {
     path: 'account',          component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [
