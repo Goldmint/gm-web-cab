@@ -7,6 +7,7 @@ export * from './gold-rate';
 export * from './tfa-info';
 export * from './kyc-status';
 export * from './kyc-start';
+export * from './kyc-agreement-resend';
 export * from './country';
 export * from './region';
 export * from './transparency-summary';

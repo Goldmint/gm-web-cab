@@ -70,8 +70,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					TimeUserChanged = DateTime.UtcNow,
 				};
 
-				DbContext.Add(user.UserVerification);
+				DbContext.UserVerification.Add(user.UserVerification);
 				await DbContext.SaveChangesAsync();
+
+				// send agreement
+				await Core.UserAccount.ResendVerificationPrimaryAgreement(
+					services: HttpContext.RequestServices,
+					user: user,
+					email: user.Email
+				);
 			}
 
 			return APIResponse.Success(MakeVerificationView(user));
@@ -102,7 +109,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				UserId = user.Id,
 				ReferenceId = Guid.NewGuid().ToString("N"),
 				Method = "",
-				
+
 				FirstName = user.UserVerification.FirstName,
 				LastName = user.UserVerification.LastName,
 				DoB = user.UserVerification.DoB.Value,
@@ -174,6 +181,54 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.BadRequest(nameof(model.TicketId), "Ticket not found");
 		}
 
+		/// <summary>
+		/// Resend primary agreement to sign
+		/// </summary>
+		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[HttpGet, Route("verification/resendAgreement")]
+		[ProducesResponseType(typeof(VerificationResendAgreementView), 200)]
+		public async Task<APIResponse> VerificationResendAgreement() {
+
+			var user = await GetUserFromDb();
+
+			// form must be filled
+			if (user.UserVerification?.FirstName == null || user.UserVerification?.LastName == null) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
+			var limitMinutes = 30d;
+			var sent = false;
+			var nextDate = (long?)null;
+
+			// document is not signed
+			if (user.UserVerification?.SignedAgreementId == null) {
+
+				DbContext.Entry(user.UserVerification).Reference(_ => _.LastAgreement).Load();
+
+				// limit
+				if (user.UserVerification.LastAgreement != null && (DateTime.UtcNow - user.UserVerification.LastAgreement.TimeCreated).TotalMinutes < limitMinutes) {
+					nextDate = 
+						((DateTimeOffset)user.UserVerification.LastAgreement.TimeCreated.AddMinutes(limitMinutes))
+						.ToUnixTimeSeconds();
+				}
+				// can send
+				else {
+					sent = await Core.UserAccount.ResendVerificationPrimaryAgreement(
+						services: HttpContext.RequestServices,
+						user: user,
+						email: user.Email
+					);
+				}
+			}
+
+			return APIResponse.Success(
+				new VerificationResendAgreementView() {
+					Resent = sent,
+					AvailableDate = nextDate,
+				}
+			);
+		}
+
 		// ---
 
 		[NonAction]
@@ -181,8 +236,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var ret = new VerificationView() {
 
-				HasVerificationL0 = CoreLogic.UserAccount.IsUserVerifiedL0(user),
-				HasVerificationL1 = CoreLogic.UserAccount.IsUserVerifiedL1(user),
+				IsFormFilled = user.UserVerification?.FirstName != null && user.UserVerification?.LastName != null,
+				IsAgreementSigned = user.UserVerification?.SignedAgreementId != null,
+				IsKYCFinished = user.UserVerification?.KycShuftiProTicketId != null,
 
 				FirstName = user.UserVerification?.FirstName ?? "",
 				MiddleName = user.UserVerification?.MiddleName ?? "",

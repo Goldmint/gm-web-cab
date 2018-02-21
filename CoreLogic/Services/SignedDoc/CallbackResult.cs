@@ -9,8 +9,9 @@
 	}
 
 	public enum OverallStatus {
+		Pending,
 		Signed,
-		Rejected,
-		Failed
+		Declined,
+		Error
 	}
 }

@@ -33,7 +33,7 @@ namespace Goldmint.WebApplication {
 				})
 				.UseLibuv()
 				.UseStartup<Startup>()
-				//.UseUrls("http://*:6666")
+				.UseUrls("http://*:8000")
 				.Build()
 			;
 		}

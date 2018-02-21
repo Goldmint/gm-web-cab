@@ -25,11 +25,18 @@ namespace Goldmint.CoreLogic {
 		}
 
 		public static bool IsUserVerifiedL0(User user) {
-			return (user?.UserVerification?.FirstName?.Length ?? 0) > 0 && (user?.UserVerification?.LastName?.Length ?? 0) > 0;
+			return 
+				(user?.UserVerification?.FirstName?.Length ?? 0) > 0 && 
+				(user?.UserVerification?.LastName?.Length ?? 0) > 0 &&
+				(user?.UserVerification?.SignedAgreementId != null)
+			;
 		}
 
 		public static bool IsUserVerifiedL1(User user) {
-			return user?.UserVerification?.KycShuftiProTicketId != null;
+			return 
+				IsUserVerifiedL0(user) &&
+				user?.UserVerification?.KycShuftiProTicketId != null
+			;
 		}
 
 		public static Task<FiatLimitsLevels> GetFiatLimits(IServiceProvider services, FiatCurrency currency, User user) {

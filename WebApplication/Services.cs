@@ -51,13 +51,14 @@ namespace Goldmint.WebApplication {
 				services.AddSwaggerGen(opts => {
 					opts.SwaggerDoc("api", new Swashbuckle.AspNetCore.Swagger.Info() {
 						Title = "API",
-						Version = "v1",
+						Version = "latest",
 					});
 					opts.CustomSchemaIds((type) => type.FullName);
 					opts.IncludeXmlComments(System.IO.Path.Combine(Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationBasePath, "Goldmint.WebApplication.xml"));
 					opts.OperationFilter<Core.Swagger.JWTHeaderParameter>();
 					opts.OperationFilter<Core.Swagger.DefaultErrorResponse>();
 					opts.DocumentFilter<Core.Swagger.EnumDescription>();
+					opts.TagActionsBy(Core.Swagger.TagSelector);
 				});
 			}
 
@@ -196,15 +197,19 @@ namespace Goldmint.WebApplication {
 			);
 
 			// docs signing
-			services.AddSingleton<IDocSigningProvider>(fac => 
-				new SignRequest(
+			services.AddSingleton<IDocSigningProvider>(fac => {
+				var srv = new SignRequest(
 					baseUrl: _appConfig.Services.SignRequest.Url,
 					authString: _appConfig.Services.SignRequest.Auth,
 					senderEmail: _appConfig.Services.SignRequest.SenderEmail,
 					senderEmailName: "GoldMint",
 					logFactory: _loggerFactory
-				)
-			);
+				);
+				foreach (var t in _appConfig.Services.SignRequest.Templates) { 
+					srv.AddTemplate(t.Name, t.Filename, t.Template);
+				}
+				return srv;
+			});
 
 			return services.BuildServiceProvider();
 		}

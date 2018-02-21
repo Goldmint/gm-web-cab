@@ -55,18 +55,24 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 	// ---
 
 	public class VerificationView : VerificationEditModel {
-
+		
 		/// <summary>
-		/// Level 0 verification is completed (form filled)
+		/// Form filled
 		/// </summary>
 		[Required]
-		public bool HasVerificationL0 { get; set; }
+		public bool IsFormFilled { get; set; }
+		
+		/// <summary>
+		/// Agreement signed
+		/// </summary>
+		[Required]
+		public bool IsAgreementSigned { get; set; }
 
 		/// <summary>
 		/// Level 1 verification is completed (kyc done)
 		/// </summary>
 		[Required]
-		public bool HasVerificationL1 { get; set; }
+		public bool IsKYCFinished { get; set; }
 
 	}
 
@@ -281,6 +287,23 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		/// </summary>
 		[Required]
 		public bool Verified { get; set; }
+
+	}
+
+	// ---
+
+	public class VerificationResendAgreementView {
+
+		/// <summary>
+		/// Agreement succesfully resent
+		/// </summary>
+		[Required]
+		public bool Resent { get; set; }
+
+		/// <summary>
+		/// Next date sending available (unix), optional
+		/// </summary>
+		public long? AvailableDate { get; set; }
 
 	}
 

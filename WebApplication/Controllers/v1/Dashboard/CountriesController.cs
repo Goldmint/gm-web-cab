@@ -91,7 +91,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			try {
 				await DbContext.SaveChangesAsync();
 			}
-			catch (Exception e) {
+			catch {
 				// actually have to catch 'duplicate'-exception here
 			}
 

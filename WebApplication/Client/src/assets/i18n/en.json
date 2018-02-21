@@ -316,6 +316,15 @@
             "Upgrade": "Upgrade Verification"
           }
         },
+		"AgreementSection": {
+          "Title": "GoldMint agreement",
+          "Text": "Complete basic verification by signing GoldMint agreement. Agreement has been sent to your primary email address. <br><br>If you did not receive message in 30 minutes please click button below.",
+		  "ResendLimited": "Resending has limited frequency. Please be patient and wait for email message.",
+		  "ResendFinished": "Agreement has been resent.",
+          "Buttons": {
+            "Resend": "Resend Agreement"
+          }
+        },
         "FinishedSection": {
           "Title": "Advanced verification",
           "Text": "<span class=\"lead\">Congratulations! Identity verification successfully finished!</span>"

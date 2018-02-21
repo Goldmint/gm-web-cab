@@ -8,8 +8,10 @@ import { APIService, MessageBoxService } from '../../../services';
 import { KYCProfile } from '../../../models/kyc-profile';
 
 import * as countries from '../../../../assets/data/countries.json';
+import Kycagreementresend = require("../../../interfaces/kyc-agreement-resend");
+import KYCAgreementResend = Kycagreementresend.KYCAgreementResend;
 
-enum Phase {Start, Basic, Finished}
+enum Phase { Start, Basic, Agreement, KYC, Finished }
 
 @Component({
   selector: 'app-settings-verification-page',
@@ -25,7 +27,6 @@ export class SettingsVerificationPageComponent implements OnInit {
   public loading = true;
   public processing = false;
   public repeat = Array;
-  public buttonBlur = new EventEmitter<boolean>();
 
   public phase: Phase;
   public countries: Country[];
@@ -33,8 +34,10 @@ export class SettingsVerificationPageComponent implements OnInit {
   public errors = [];
 
   public kycProfile = new KYCProfile();
-  public dateOfBirth: { day: number, month: number, year: number|'' };
+  public dateOfBirth: { day: number, month: number, year: number | '' };
   public minBirthYear = 1999;
+
+  public agreementResend: KYCAgreementResend = null;
 
   constructor(
     private _apiService: APIService,
@@ -42,7 +45,7 @@ export class SettingsVerificationPageComponent implements OnInit {
     private _messageBox: MessageBoxService) {
 
     this.dateOfBirth = { day: 1, month: 1, year: '' };
-    this.countries = <Country[]><any> countries;
+    this.countries = <Country[]><any>countries;
 
     this.phase = Phase.Start;
 
@@ -52,38 +55,49 @@ export class SettingsVerificationPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        (res: APIResponse<KYCProfile>) => {
-          this.kycProfile = res.data;
+      (res: APIResponse<KYCProfile>) => {
+        this.kycProfile = res.data;
 
-          if (this.kycProfile.dob) {
-            this.dateOfBirth = {
-              day:   this.kycProfile.dob.getDate(),
-              month: this.kycProfile.dob.getMonth() + 1,
-              year:  this.kycProfile.dob.getFullYear()
-            };
-          }
+        if (this.kycProfile.dob) {
+          this.dateOfBirth = {
+            day: this.kycProfile.dob.getDate(),
+            month: this.kycProfile.dob.getMonth() + 1,
+            year: this.kycProfile.dob.getFullYear()
+          };
+        }
 
-          this.onCountrySelect(false);
+        this.onCountrySelect(false);
 
-          this.phase = this.kycProfile.hasVerificationL1
-            ? Phase.Finished
-            : this.kycProfile.hasVerificationL0
-              ? Phase.Basic
-              : Phase.Start;
-        },
-        err => {});
+        this.onPhaseUpdate();
+      },
+      err => { });
   }
 
   ngOnInit() {
   }
 
+  onPhaseUpdate() {
+    if (!this.kycProfile.isFormFilled) {
+      this.phase = Phase.Start;
+    }
+    else if (!this.kycProfile.isAgreementSigned) {
+      this.phase = Phase.Agreement;
+    }
+    else if (!this.kycProfile.isKYCFinished) {
+      this.phase = Phase.KYC;
+    }
+    else {
+      this.phase = Phase.Finished;
+    }
+    this._cdRef.markForCheck();
+  }
+
   setVerificationPhase(phase: Phase) {
-    this.buttonBlur.emit();
     this.phase = phase;
   }
 
   onCountrySelect(reset: boolean = true) {
-    const country = <Country> this.countries.find(country => country.countryShortCode === this.kycProfile.country);
+    const country = <Country>this.countries.find(country => country.countryShortCode === this.kycProfile.country);
 
     if (reset) this.kycProfile.state = null;
 
@@ -93,12 +107,20 @@ export class SettingsVerificationPageComponent implements OnInit {
   }
 
   submit(kycForm?: NgForm) {
-    if (this.kycProfile.hasVerificationL0 === true) {
-      this.startKYCVerification();
-    }
-    else if (kycForm) {
+
+    if (this.phase == Phase.Basic && kycForm) {
       this.submitBasicInformation(kycForm);
     }
+
+    if (this.phase == Phase.Agreement) {
+      this.resendAgreement();
+    }
+
+    if (this.phase == Phase.KYC) {
+      this.startKYCVerification();
+    }
+
+    console.log("SUBMIT");
   }
 
   submitBasicInformation(kycForm: NgForm) {
@@ -114,24 +136,25 @@ export class SettingsVerificationPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        (res: APIResponse<KYCProfile>) => {
-          this.kycProfile = res.data;
-        },
-        err => {
-          if (err.error.errorCode) {
-            switch (err.error.errorCode) {
-              case 100: // InvalidParameter
-                for (let i = err.error.data.length - 1; i >= 0; i--) {
-                  this.errors[err.error.data[i].field] = err.error.data[i].desc;
-                }
-                break;
+      (res: APIResponse<KYCProfile>) => {
+        this.kycProfile = res.data;
+        this.onPhaseUpdate();
+      },
+      err => {
+        if (err.error.errorCode) {
+          switch (err.error.errorCode) {
+            case 100: // InvalidParameter
+              for (let i = err.error.data.length - 1; i >= 0; i--) {
+                this.errors[err.error.data[i].field] = err.error.data[i].desc;
+              }
+              break;
 
-              default:
-                this._messageBox.alert(err.error.errorDesk);
-                break;
-            }
+            default:
+              this._messageBox.alert(err.error.errorDesk);
+              break;
           }
-        });
+        }
+      });
   }
 
   startKYCVerification() {
@@ -143,16 +166,32 @@ export class SettingsVerificationPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        (res: APIResponse<KYCStart>) => {
-          this._messageBox.confirm('You\'ll be redirected to the verification service.')
-            .subscribe(confirmed => {
-              if (confirmed) {
-                localStorage.setItem('gmint_kycTicket', String(res.data.ticketId));
-                window.location.href = res.data.redirect;
-              }
-            });
+      (res: APIResponse<KYCStart>) => {
+        this._messageBox.confirm('You\'ll be redirected to the verification service.')
+          .subscribe(confirmed => {
+            if (confirmed) {
+              localStorage.setItem('gmint_kycTicket', String(res.data.ticketId));
+              window.location.href = res.data.redirect;
+            }
+          });
+      },
+      err => { });
+  }
+
+  resendAgreement() {
+    this.processing = true;
+
+    this._apiService.resendKYCAgreement()
+      .finally(() => {
+        this.processing = false;
+        this._cdRef.detectChanges();
+      })
+      .subscribe(
+        res => {
+          this.agreementResend = res.data;
         },
-        err => {});
+        err => { }
+      );
   }
 
 }

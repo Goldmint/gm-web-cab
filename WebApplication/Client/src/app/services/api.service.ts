@@ -12,7 +12,7 @@ import {
   User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
   GoldRate, TFAInfo, KYCStart, KYCStatus, TransparencyRecord, FiatLimits,
   CardsList,
-  GoldBuyResponse, GoldSellResponse
+  GoldBuyResponse, GoldSellResponse, KYCAgreementResend
 } from '../interfaces';
 import {
   APIResponse, APIPagedResponse, AuthResponse, RegistrationResponse, CardAddResponse,
@@ -408,6 +408,15 @@ export class APIService {
 
         return response;
       })
+      );
+  }
+
+  resendKYCAgreement(): Observable<APIResponse<KYCAgreementResend>> {
+    return this._http
+      .get(`${this._baseUrl}/user/settings/verification/resendAgreement`, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
       );
   }
 

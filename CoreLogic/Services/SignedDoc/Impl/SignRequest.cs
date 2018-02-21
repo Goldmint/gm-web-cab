@@ -7,6 +7,7 @@ using Goldmint.Common;
 using Goldmint.Common.WebRequest;
 using Microsoft.AspNetCore.Http;
 using NLog;
+using System.IO;
 
 namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 
@@ -37,11 +38,11 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 			});
 		}
 
-		public async Task<bool> SendAgreementRequest(string refId, string name, string email, DateTime date) {
+		public async Task<bool> SendPrimaryAgreementRequest(string refId, string name, string email, DateTime date) {
 
-			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.Agreement.ToString());
+			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.PrimaryAgreement.ToString());
 			if (template == null) {
-				_logger.Error($"Template not found for {nameof(SendAgreementRequest)}");
+				_logger.Error($"Template not found for {nameof(SendPrimaryAgreementRequest)}");
 				return false;
 			}
 
@@ -68,7 +69,9 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 					.AuthToken(_authString)
 					.BodyJson( Json.Stringify(jsonRequest) )
 					.OnResult((res) => {
-						if (res.GetHttpStatus() == System.Net.HttpStatusCode.OK) {
+						var status = res.GetHttpStatus();
+						//var jsonStr = res.ToRawString();
+						if (status == System.Net.HttpStatusCode.OK || status == System.Net.HttpStatusCode.Created) {
 							success = true;
 						}
 					})
@@ -79,13 +82,58 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 			return success;
 		}
 
-		public Task<CallbackResult> OnServiceCallback(HttpRequest content) {
+		public async Task<CallbackResult> OnServiceCallback(HttpRequest request) {
 
-			// TODO: check result and signature
+			var ret = new CallbackResult() {
+				OverallStatus = OverallStatus.Pending,
+			};
 
-			return Task.FromResult(new CallbackResult() {
-				OverallStatus = OverallStatus.Failed
-			});
+			try {
+				var data = new CallbackJsonData();
+
+				var raw = "";
+				using (var reader = new StreamReader(request.Body)) {
+					raw = await reader.ReadToEndAsync();
+				}
+
+				if (!Json.ParseInto(raw, data) || data.event_hash == null || data.document?.external_id == null) {
+					throw new Exception("Failed to parse response");
+				}
+
+				if (!CheckCallbackSignature(data, _authString)) {
+					throw new Exception("Invalid signature");
+				}
+
+				ret.ReferenceId = data.document.external_id;
+				
+				// ok
+				if (data.status == "ok" && data.event_type == "signed") {
+					ret.OverallStatus = OverallStatus.Signed;
+				}
+
+				// failed / declined
+				if (data.status == "error" || data.event_type == "declined" || data.event_type == "cancelled") {
+					ret.OverallStatus = OverallStatus.Declined;
+				}
+
+				ret.ServiceStatus = data.status;
+				ret.ServiceMessage = data.event_type;
+
+				_logger?.Info($"Callback status '{data.status}', event '{data.event_type}' for ref {data.document.external_id}");
+			}
+			catch (Exception e) {
+				ret.OverallStatus = OverallStatus.Error;
+				_logger?.Info(e, "Callback failure");
+			}
+
+			return ret;
+		}
+
+		private bool CheckCallbackSignature(CallbackJsonData data, string tokenUsed) {
+			if (string.IsNullOrWhiteSpace(data?.event_hash)) return false;
+			// TODO: signature source doesnt contain some document ID
+			var chk = (data?.event_time ?? "") + (data?.event_type ?? "");
+			return Common.Hash.HMACSHA256(chk, tokenUsed) == data.event_hash;
 		}
 
 		// ---
@@ -94,6 +142,24 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 			public string Name { get; set; }
 			public string Filename { get; set; }
 			public string TemplateUrl { get; set; }
+		}
+
+		internal class CallbackJsonData {
+
+			public DocumentSection document { get; set; }
+			public string event_hash { get; set; }
+			public string event_time { get; set; }
+			public string event_type { get; set; }
+			public string status { get; set; }
+			public string uuid { get; set; }
+
+			// ---
+
+			public class DocumentSection {
+
+				public string external_id { get; set; }
+				public string uuid { get; set; }
+			}
 		}
 	}
 }

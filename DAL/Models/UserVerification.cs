@@ -50,5 +50,15 @@ namespace Goldmint.DAL.Models {
 		public long? KycShuftiProTicketId { get; set; }
 		[ForeignKey(nameof(KycShuftiProTicketId))]
 		public virtual KycShuftiProTicket KycShuftiProTicket { get; set; }
+
+		[Column("last_agreement_id")]
+		public long? LastAgreementId { get; set; }
+		[ForeignKey(nameof(LastAgreementId))]
+		public virtual SignedDocument LastAgreement { get; set; }
+
+		[Column("signed_agreement_id")]
+		public long? SignedAgreementId { get; set; }
+		[ForeignKey(nameof(SignedAgreementId))]
+		public virtual SignedDocument SignedAgreement { get; set; }
 	}
 }

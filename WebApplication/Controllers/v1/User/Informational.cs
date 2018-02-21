@@ -149,9 +149,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 
 			// user challenges
+			// TODO: move to challenges subsystem
 			var challenges = new List<string>();
-			if (!user.UserOptions.InitialTFAQuest) challenges.Add("2fa");
-			if (!user.UserOptions.PrimaryAgreementRead) challenges.Add("agreement");
+			if (!user.UserOptions.InitialTFAQuest && !user.TwoFactorEnabled) challenges.Add("2fa");
 
 			return APIResponse.Success(
 				new ProfileView() {

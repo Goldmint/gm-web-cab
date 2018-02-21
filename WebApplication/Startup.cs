@@ -115,7 +115,7 @@ namespace Goldmint.WebApplication {
 				app.UseSwagger(opts => {
 				});
 				app.UseSwaggerUI(opts => {
-					opts.SwaggerEndpoint("/swagger/api/swagger.json", "API v1");
+					opts.SwaggerEndpoint("/swagger/api/swagger.json", "API");
 				});
 			}
 

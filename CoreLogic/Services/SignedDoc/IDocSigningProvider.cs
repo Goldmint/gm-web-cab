@@ -9,7 +9,7 @@ namespace Goldmint.CoreLogic.Services.SignedDoc {
 
 	public interface IDocSigningProvider {
 
-		Task<bool> SendAgreementRequest(string refId, string name, string email, DateTime date);
+		Task<bool> SendPrimaryAgreementRequest(string refId, string name, string email, DateTime date);
 		Task<CallbackResult> OnServiceCallback(HttpRequest content);
 	}
 }

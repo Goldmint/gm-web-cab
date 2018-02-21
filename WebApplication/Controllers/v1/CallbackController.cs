@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
+using Goldmint.Common;
+using Goldmint.CoreLogic.Services.SignedDoc;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -85,33 +87,34 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (secret == AppConfig.Services.SignRequest.CallbackSecret) {
 
 				var check = await DocSigningProvider.OnServiceCallback(HttpContext.Request);
+				if (check.OverallStatus == OverallStatus.Signed || check.OverallStatus == OverallStatus.Declined) {
 
-				if (check.OverallStatus != CoreLogic.Services.SignedDoc.OverallStatus.Failed) {
+					var doc = await DbContext.SignedDocument
+						.Include(_ => _.User)
+							.ThenInclude(_ => _.UserVerification)
+						.AsNoTracking()
+						.FirstOrDefaultAsync(_ => _.ReferenceId == check.ReferenceId)
+					;
+					if (doc != null) {
+						
+						doc.IsSigned = check.OverallStatus == OverallStatus.Signed;
+						doc.CallbackEvent = check.ServiceMessage;
+						doc.CallbackStatus = check.ServiceStatus;
+						doc.TimeCompleted = DateTime.UtcNow;
 
-					// TODO: update signed doc record
-
-					/*
-					var ticket = await DbContext.KycShuftiProTicket
-							.Include(tickt => tickt.User)
-							.ThenInclude(user => user.UserVerification)
-							.FirstAsync(tickt => tickt.ReferenceId == check.TicketId)
-						;
-
-					if (ticket?.User?.UserVerification != null) {
-						var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.UserVerified;
-
-						ticket.IsVerified = userVerified;
-						ticket.CallbackStatusCode = check.ServiceStatus;
-						ticket.CallbackMessage = check.ServiceMessage;
-						ticket.TimeResponded = DateTime.UtcNow;
-
-						if (userVerified) {
-							ticket.User.UserVerification.KycShuftiProTicket = ticket;
+						// special case
+						if (
+							doc.Type == SignedDocumentType.PrimaryAgreement && 
+						    doc.IsSigned && 
+						    (doc.User?.UserVerification?.LastAgreementId ?? 0) == doc.Id
+						) {
+							doc.User.UserVerification.SignedAgreementId = doc.Id;
+							DbContext.Update(doc.User.UserVerification);
 						}
 
+						DbContext.Update(doc);
 						await DbContext.SaveChangesAsync();
 					}
-					*/
 				}
 
 			}

@@ -553,6 +553,6 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Primary agreement
 		/// </summary>
-		Agreement = 1,
+		PrimaryAgreement = 1,
 	}
 }

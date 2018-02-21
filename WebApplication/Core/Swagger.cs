@@ -1,4 +1,5 @@
 ﻿using Goldmint.WebApplication.Core.Response;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -7,6 +8,10 @@ using System.Collections.Generic;
 namespace Goldmint.WebApplication.Core {
 
 	public static class Swagger {
+
+		public static string TagSelector(ApiDescription api) {
+			return api.RelativePath.Substring(4, api.RelativePath.LastIndexOf('/') - 4);
+		}
 
 		public class JWTHeaderParameter : IOperationFilter {
 

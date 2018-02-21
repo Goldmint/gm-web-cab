@@ -8,18 +8,19 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using Goldmint.CoreLogic.Services.SignedDoc;
+using Goldmint.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Core {
 
 	public static class UserAccount {
 
-		public sealed class CreateUserAccountResult {
-
-			public User User { get; set; }
-			public bool IsEmailExists { get; set; }
-			public bool IsUsernameExists { get; set; }
-		}
-
+		
+		/// <summary>
+		/// New user account
+		/// </summary>
 		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null, bool emailConfirmed = false) {
 
 			var logger = services.GetLoggerFor(typeof(UserAccount));
@@ -46,8 +47,6 @@ namespace Goldmint.WebApplication.Core {
 					AccessRights = 0,
 
 					UserOptions = new DAL.Models.UserOptions() {
-						InitialTFAQuest = false,
-						PrimaryAgreementRead = false,
 					},
 
 					TimeRegistered = DateTime.UtcNow,
@@ -95,14 +94,71 @@ namespace Goldmint.WebApplication.Core {
 			return ret;
 		}
 
-		// ---
-
+		/// <summary>
+		/// Random access stamp
+		/// </summary>
 		public static string GenerateAccessStamp() {
 			return SecureRandom.GetString09azAZ(64);
 		}
-		
+
+		/// <summary>
+		/// Reset current agreement and resend to specified email address
+		/// </summary>
+		public static async Task<bool> ResendVerificationPrimaryAgreement(IServiceProvider services, User user, string email) {
+
+			if (user == null) {
+				throw new ArgumentException("User is null");
+			}
+			if (user.UserVerification == null) {
+				throw new ArgumentException("User verification not included");
+			}
+			if (user.UserVerification.FirstName == null || user.UserVerification.LastName == null) {
+				throw new ArgumentException("User has no first/last name");
+			}
+
+			// ---
+
+			var logger = services.GetLoggerFor(typeof(UserAccount));
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var appConfig = services.GetRequiredService<AppConfig>();
+			var docService = services.GetRequiredService<IDocSigningProvider>();
+
+			// create new request
+			var request = new SignedDocument() {
+				Type = SignedDocumentType.PrimaryAgreement,
+				IsSigned = false,
+				ReferenceId = Guid.NewGuid().ToString("N"),
+				TimeCreated = DateTime.UtcNow,
+				UserId = user.Id,
+				Secret = appConfig.Services.SignRequest.Auth,
+			};
+
+			// add/save
+			dbContext.SignedDocument.Add(request);
+			await dbContext.SaveChangesAsync();
+
+			// set new unverified agreement 
+			user.UserVerification.SignedAgreementId = null;
+			user.UserVerification.LastAgreementId = request.Id;
+			dbContext.Update(user.UserVerification);
+			await dbContext.SaveChangesAsync();
+
+			return await docService.SendPrimaryAgreementRequest(
+				refId: request.ReferenceId,
+				name: user.UserVerification.FirstName + " " + user.UserVerification.LastName,
+				email: email,
+				date: DateTime.UtcNow
+			); ;
+		}
+
 		// ---
 
+		public sealed class CreateUserAccountResult {
+
+			public User User { get; set; }
+			public bool IsEmailExists { get; set; }
+			public bool IsUsernameExists { get; set; }
+		}
 
 		/// <summary>
 		/// Custom user manager class
