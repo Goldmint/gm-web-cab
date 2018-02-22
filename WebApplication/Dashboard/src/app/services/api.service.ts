@@ -194,6 +194,38 @@ export class APIService {
       );
   }
 
+  getUsersAccountInfo(id): Observable<APIResponse<TransparencyRecord[]>> {
+    let params = {id};
+
+    let httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/users/account`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+
+  }
+
+  setUserAccessRight(id: number, mask: number): Observable<APIResponse<TransparencyRecord[]>> {
+
+    let httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/users/rights`, {id, mask}, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   getProfile(): Observable<APIResponse<User>> {
     return this._http
       .get(`${this._baseUrl}/user/profile`, this.jwt())

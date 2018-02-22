@@ -44,27 +44,32 @@
         "Name": "Name",
         "Click": "Show"
       },
-      "Modal": {
-        "AccountInfo": {
-          "Title": "Account Info",
-          "UserName": "User name",
-          "Name": "Name",
-          "Registered": "Registered"
-        },
-        "OplogInfo": {
-          "Title": "OPLOG",
-          "Time": "Time",
-          "Action": "Action",
-          "Status": "Status",
-          "Status1": "Pending",
-          "Status2": "Success",
-          "Status3": "Failed",
-          "ShowSubItems": "Sub-steps"
-        },
+      "User": {
+        "Title": "Account info",
         "Buttons": {
-          "Button_1": "OPLOG",
-          "Button_2": "Access Rights",
-          "Button_3": "Close"
+          "Back": "Back",
+          "AccessRights": "Access Rights",
+          "OpLog": "Oplog"
+        }
+      },
+      "OpLog": {
+        "Title": "OPLOG",
+        "Time": "Time",
+        "Action": "Action",
+        "Status": "Status",
+        "Status1": "Pending",
+        "Status2": "Success",
+        "Status3": "Failed",
+        "ShowSubItems": "Sub-steps",
+        "Buttons": {
+          "Back": "Back"
+        }
+      },
+      "AccessRights": {
+        "Title": "Access Rights",
+        "Buttons": {
+          "Back": "Back",
+          "Save": "Save"
         }
       }
     },

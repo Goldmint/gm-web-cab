@@ -1,19 +1,17 @@
-import {ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ViewEncapsulation} from '@angular/core';
-import {APIService, UserService} from "../../../services";
+import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {TransparencyRecord, TransparencySummary} from "../../../interfaces";
-import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {Page} from "../../../models/page";
+import {APIService, UserService} from "../../../services";
+import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {Subscription} from "rxjs/Subscription";
-import {ActivatedRoute} from "@angular/router";
 
 @Component({
-  selector: 'app-oplog-page',
-  templateUrl: './oplog-page.component.html',
-  styleUrls: ['./oplog-page.component.sass'],
+  selector: 'app-users-list-page',
+  templateUrl: './users-list-page.component.html',
+  styleUrls: ['./users-list-page.component.sass'],
   encapsulation: ViewEncapsulation.None
 })
-export class OplogPageComponent implements OnInit, OnDestroy {
+export class UsersListPageComponent implements OnInit {
 
   public locale: string;
   public loading: boolean;
@@ -22,17 +20,14 @@ export class OplogPageComponent implements OnInit, OnDestroy {
   public summary: TransparencySummary;
 
   public rows:  Array<TransparencyRecord> = [];
-  public subRows:  Array<TransparencyRecord> = [];
-  public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
+  public sorts: Array<any> = [{prop: 'id', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No Data'};
 
   public form: FormGroup;
 
   public currentUser = {};
+
   private filterValue = '';
-  public sub1: Subscription;
-  public isSubStepsShowing: boolean = false;
-  public userId;
 
   @ViewChild('formDir') formDir;
 
@@ -41,8 +36,7 @@ export class OplogPageComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute
+    private formBuilder: FormBuilder
   ) {
 
     this.page.pageNumber = 0;
@@ -50,7 +44,6 @@ export class OplogPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
     this.form = this.formBuilder.group({
       'filter': ['', Validators.required]
     });
@@ -63,24 +56,20 @@ export class OplogPageComponent implements OnInit, OnDestroy {
       this.locale = currentLocale;
     });
 
-    this.sub1 = this.route.params.subscribe(params => {
-      this.userId = params.id;
-      this.setPage({offset: 0});
-    });
-
+    this.setPage({ offset: 0 }, this.filterValue);
   }
 
   onSort(event) {
     this.sorts = event.sorts;
-    this.setPage({ offset: 0 });
+    this.setPage({ offset: 0 }, this.filterValue);
   }
 
-  setPage(pageInfo) {
+  setPage(pageInfo, filter) {
     this.loading = true;
     this.cdRef.detectChanges();
     this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getOplog(this.userId, this.filterValue, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getUsersList(filter, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
           this.rows = data.data.items;
@@ -98,24 +87,8 @@ export class OplogPageComponent implements OnInit, OnDestroy {
         });
   }
 
-  oplogFilter() {
+  userFilter() {
     this.filterValue = this.form.controls.filter.value;
-    this.setPage({ offset: 0 });
+    this.setPage({ offset: 0 }, this.filterValue);
   }
-
-  closeSubSteps() {
-    this.isSubStepsShowing = false;
-  }
-
-  showSubItems(row) {
-    this.subRows = [row];
-    this.subRows.push.apply(this.subRows, row.steps);
-    this.isSubStepsShowing = true;
-    this.cdRef.detectChanges();
-  }
-
-  ngOnDestroy() {
-    this.sub1 && this.sub1.unsubscribe();
-  }
-
 }
