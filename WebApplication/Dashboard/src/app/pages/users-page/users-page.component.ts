@@ -1,17 +1,18 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {APIService, MessageBoxService, UserService} from "../../services";
+import {ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {APIService, UserService} from "../../services";
 import {TransparencyRecord, TransparencySummary} from "../../interfaces";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {Page} from "../../models/page";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import 'rxjs/add/operator/debounceTime';
+import {Subscription} from "rxjs/Subscription";
 
 @Component({
   selector: 'app-users-page',
   templateUrl: './users-page.component.html',
   styleUrls: ['./users-page.component.sass']
 })
-export class UsersPageComponent implements OnInit {
+export class UsersPageComponent implements OnInit, OnDestroy {
 
   public locale: string;
   public loading: boolean;
@@ -25,6 +26,7 @@ export class UsersPageComponent implements OnInit {
 
   public form: FormGroup;
 
+  public sub1: Subscription;
   public showModal = false;
   public showAccountInfo = false;
   public currentUser = {};
@@ -38,8 +40,7 @@ export class UsersPageComponent implements OnInit {
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
-    private formBuilder: FormBuilder,
-    private _messageBox: MessageBoxService
+    private formBuilder: FormBuilder
   ) {
 
     this.page.pageNumber = 0;
@@ -60,7 +61,7 @@ export class UsersPageComponent implements OnInit {
     });
 
     this.setPage({ offset: 0 }, this.filterValue);
-    this.userService.oplotCloseModal$.subscribe(() => {
+    this.sub1 = this.userService.oplotCloseModal$.subscribe(() => {
       this.showAccountInfo = true;
       this.cdRef.detectChanges();
     });
@@ -117,6 +118,10 @@ export class UsersPageComponent implements OnInit {
   close() {
     this.showModal = false;
     this.showAccountInfo = false;
+  }
+
+  ngOnDestroy() {
+    this.sub1 && this.sub1.unsubscribe();
   }
 
 }
