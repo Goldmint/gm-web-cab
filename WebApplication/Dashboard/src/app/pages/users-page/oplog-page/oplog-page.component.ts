@@ -68,16 +68,16 @@ export class OplogPageComponent implements OnInit, OnDestroy {
 
   onSort(event) {
     this.sorts = event.sorts;
-    this.setPage({ offset: 0 }, this.filterValue);
+    this.setPage({ offset: 0 });
   }
 
-  setPage(pageInfo, filter = '') {
+  setPage(pageInfo) {
     this.showOplog = true;
     this.loading = true;
     this.cdRef.detectChanges();
     this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getOplog(this.currentUser['id'], filter, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getOplog(this.currentUser['id'], this.filterValue, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
           this.rows = data.data.items;
@@ -97,7 +97,7 @@ export class OplogPageComponent implements OnInit, OnDestroy {
 
   oplogFilter() {
     this.filterValue = this.form.controls.filter.value;
-    this.setPage({ offset: 0 }, this.filterValue);
+    this.setPage({ offset: 0 });
   }
 
   close() {
