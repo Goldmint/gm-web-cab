@@ -12,14 +12,15 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace Goldmint.WebApplication.Controllers.v1.User {
+namespace Goldmint.WebApplication.Controllers.v1 {
 
-	public partial class UserController : BaseController {
+	[Route("api/v1/auth")]
+	public class AuthController : BaseController {
 
 		/// <summary>
 		/// Sign in with username/email and password
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("authenticate")]
 		[ProducesResponseType(typeof(AuthenticateView), 200)]
 		public async Task<APIResponse> Authenticate([FromBody] AuthenticateModel model) {
@@ -44,9 +45,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await UserManager.FindByNameAsync(model.Username) ?? await UserManager.FindByEmailAsync(model.Username);
 			if (user != null) { // || !await SignInManager.CanSignInAsync(user)) {
 
+				// get audience
+				JwtAudience audience = JwtAudience.App;
+				if (!string.IsNullOrWhiteSpace(model.Audience)) {
+					if (Enum.TryParse(model.Audience, true, out JwtAudience aud)) {
+						audience = aud;
+					}
+				}
+
 				var sres = OnSignInResult(
-					await SignInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true),
-					user,
+					result: await SignInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true),
+					audience: audience,
+					user: user,
 					tfaRequired: user.TwoFactorEnabled
 				);
 				if (sres != null) {
@@ -82,7 +92,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Complete two factor auth
 		/// </summary>
-		[AreaTFA]
+		[RequireJWTArea(JwtArea.TFA)]
 		[HttpPost, Route("tfa")]
 		[ProducesResponseType(typeof(AuthenticateView), 200)]
 		public async Task<APIResponse> Tfa([FromBody] TfaModel model) {
@@ -90,6 +100,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(errFields);
+			}
+
+			var audience = GetCurrentAudience();
+			if (audience == null) {
+				return APIResponse.BadRequest(APIErrorCode.Unauthorized);
 			}
 
 			var user = await GetUserFromDb();
@@ -102,7 +117,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				// by code
 				if (GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
-					return OnSignInResult(Microsoft.AspNetCore.Identity.SignInResult.Success, user, false);
+					return OnSignInResult(
+						result: Microsoft.AspNetCore.Identity.SignInResult.Success, 
+						user: user, 
+						audience: audience.Value,
+						tfaRequired: false
+					);
 				}
 
 				// +1 failed login
@@ -116,40 +136,44 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Access token exchange
 		/// </summary>
-		[AreaAuthorized]
+		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("refresh")]
 		[ProducesResponseType(typeof(RefreshView), 200)]
 		public async Task<APIResponse> Refresh() {
 
 			var user = await GetUserFromDb();
 
-			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
-			await DbContext.SaveChangesAsync();
+			var audience = GetCurrentAudience();
+			if (audience == null) {
+				return APIResponse.BadRequest(APIErrorCode.Unauthorized);
+			}
 
 			return APIResponse.Success(
 				new RefreshView() {
-					Token = JWT.CreateAuthToken(AppConfig, user, JwtArea.Authorized),
+					Token = JWT.CreateAuthToken(
+						appConfig: AppConfig, 
+						user: user, 
+						audience: audience.Value,
+						area: JwtArea.Authorized,
+						rightsMask: GetCurrentRights()
+					),
 				}
 			);
 		}
 
 		/// <summary>
-		/// Invalidate current access token
+		/// Sign out
 		/// </summary>
-		[AreaAuthorized]
+		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("signout")]
 		public async Task<APIResponse> SignOut() {
 			var user = await GetUserFromDb();
-
-			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
-			await DbContext.SaveChangesAsync();
-
 			return APIResponse.Success();
 		}
 
 		// ---
 
-		[NonAction]
+		/*[NonAction]
 		private async Task<bool> CreateExternalLogin(DAL.Models.Identity.User user, ExternalLoginInfo info) {
 			var res = await UserManager.AddLoginAsync(user, info);
 			if (res.Succeeded && await SignInManager.CanSignInAsync(user)) {
@@ -157,19 +181,29 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return true;
 			}
 			return false;
-		}
+		}*/
 
 		[NonAction]
-		private APIResponse OnSignInResult(Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, bool tfaRequired) {
+		private APIResponse OnSignInResult(Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, JwtAudience audience, bool tfaRequired) {
 			if (result != null) {
 
 				if (result.Succeeded || result.RequiresTwoFactor) {
+
+					// denied
+					var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(audience, user);
+					if (accessRightsMask == null) return null;
 
 					// tfa token
 					if (tfaRequired || result.RequiresTwoFactor) {
 						return APIResponse.Success(
 							new AuthenticateView() {
-								Token = JWT.CreateAuthToken(AppConfig, user, JwtArea.TFA),
+								Token = JWT.CreateAuthToken(
+									appConfig: AppConfig, 
+									user: user, 
+									audience: audience,
+									area: JwtArea.TFA,
+									rightsMask: accessRightsMask.Value
+								),
 								TfaRequired = true,
 							}
 						);
@@ -178,7 +212,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// auth token
 					return APIResponse.Success(
 						new AuthenticateView() {
-							Token = JWT.CreateAuthToken(AppConfig, user, JwtArea.Authorized),
+							Token = JWT.CreateAuthToken(
+								appConfig: AppConfig, 
+								user: user, 
+								audience: audience,
+								area: JwtArea.Authorized,
+								rightsMask: accessRightsMask.Value
+							),
 							TfaRequired = false,
 						}
 					);

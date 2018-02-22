@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using Goldmint.CoreLogic.Services.OpenStorage.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.SignedDoc.Impl;
@@ -115,16 +116,35 @@ namespace Goldmint.WebApplication {
 			// authorization
 			services.AddAuthorization(opts => {
 
-				// area
-				opts.AddPolicy(Core.Policies.Policy.AccessTFAArea, policy => policy.AddRequirements(new Core.Policies.RequireAreaToken(JwtArea.TFA)));
-				opts.AddPolicy(Core.Policies.Policy.AccessAuthorizedArea, policy => policy.AddRequirements(new Core.Policies.RequireAreaToken(JwtArea.Authorized)));
+				// jwt audience
+				foreach (var v in (JwtAudience[]) Enum.GetValues(typeof(JwtAudience))) {
+					var audSett = _appConfig.Auth.JWT.Audiences.FirstOrDefault(_ => _.Audience == v.ToString());
+					if (audSett != null) {
+						opts.AddPolicy(
+							Core.Policies.Policy.JWTAudienceTemplate + v.ToString(),
+							policy => policy.AddRequirements(new Core.Policies.RequireJWTAudience(v))
+						);
+					}
+				}
 
-				// access level
-				foreach (var ar in Enum.GetValues(typeof(AccessRights)) as AccessRights[]) {
-					opts.AddPolicy(Core.Policies.Policy.HasAccessRightsTemplate + ar.ToString(), policy => policy.AddRequirements(new Core.Policies.RequireAccessRights(ar)));
+				// jwt area
+				foreach (var v in (JwtArea[]) Enum.GetValues(typeof(JwtArea))) {
+					opts.AddPolicy(
+						Core.Policies.Policy.JWTAreaTemplate + v.ToString(),
+						policy => policy.AddRequirements(new Core.Policies.RequireJWTArea(v))
+					);
+				}
+
+				// access rights
+				foreach (var ar in (AccessRights[]) Enum.GetValues(typeof(AccessRights))) {
+					opts.AddPolicy(
+						Core.Policies.Policy.AccessRightsTemplate + ar.ToString(), 
+						policy => policy.AddRequirements(new Core.Policies.RequireAccessRights(ar))
+					);
 				}
 			});
-			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireAreaToken.Handler>();
+			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireJWTAudience.Handler>();
+			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireJWTArea.Handler>();
 			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireAccessRights.Handler>();
 			services.AddScoped<GoogleProvider>();
 

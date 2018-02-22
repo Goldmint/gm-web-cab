@@ -17,7 +17,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Buying request
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/buy")]
 		[ProducesResponseType(typeof(BuyRequestView), 200)]
 		public async Task<APIResponse> BuyRequest([FromBody] BuyRequestModel model) {

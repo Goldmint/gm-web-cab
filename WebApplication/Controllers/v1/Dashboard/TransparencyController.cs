@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Add new transparency record
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.TransparencyWriteAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.TransparencyWriteAccess)]
 		[HttpPost, Route("add")]
 		[ProducesResponseType(typeof(AddView), 200)]
 		public async Task<APIResponse> Add([FromBody] AddModel model) {

@@ -33,7 +33,6 @@ namespace Goldmint.Common {
 				public AudienceSection[] Audiences { get; set; } = new AudienceSection[0];
 
 				public class AudienceSection {
-					public string Name { get; set; } = "";
 					public string Audience { get; set; } = "";
 					public long ExpirationSec { get; set; } = 1800;
 				}
@@ -95,6 +94,7 @@ namespace Goldmint.Common {
 				public long DefaultGasPriceWei { get; set; } = 0;
 				public string GMAccountPrivateKey { get; set; } = "";
 				public string FiatContractAddress { get; set; } = "";
+				public string FiatContractABI { get; set; } = "";
 			}
 
 			public IPFSSection IPFS { get; set; } = new IPFSSection();

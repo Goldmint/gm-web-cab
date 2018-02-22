@@ -42,7 +42,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			if (currency == FiatCurrency.USD) {
 				var web3 = new Web3(JsonRpcClient);
 				var contract = web3.Eth.GetContract(
-					"[{\"constant\":true,\"inputs\":[{\"name\":\"_userId\",\"type\":\"string\"}],\"name\":\"getUserFiatBalance\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+					FiatContractABI,
 					FiatContractAddress
 				);
 
@@ -63,11 +63,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			var web3 = new Web3(JsonRpcClient);
 			var contract = web3.Eth.GetContract(
-				"[{\"constant\":true,\"inputs\":[{\"name\":\"_userId\",\"type\":\"string\"}],\"name\":\"getUserGoldBalance\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+				FiatContractABI,
 				FiatContractAddress
 			);
 
-			var func = contract.GetFunction("getUserGoldBalance");
+			var func = contract.GetFunction("getUserHotGoldBalance");
 			var funcRet = await func.CallAsync<BigInteger>(userId);
 
 			return funcRet;
@@ -114,7 +114,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(JsonRpcClient);
 
 			var contract = web3.Eth.GetContract(
-					"[{\"constant\":true,\"inputs\":[],\"name\":\"getRequestsCount\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+					FiatContractABI,
 					FiatContractAddress
 				);
 			var func = contract.GetFunction("getRequestsCount");
@@ -126,7 +126,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(JsonRpcClient);
 
 			var contract = web3.Eth.GetContract(
-				"[{\"constant\":true,\"inputs\":[{\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"getRequest\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"bool\"},{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+				FiatContractABI,
 				FiatContractAddress
 			);
 			var func = contract.GetFunction("getRequest");

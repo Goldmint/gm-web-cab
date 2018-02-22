@@ -17,7 +17,6 @@ namespace Goldmint.WebApplication.Core {
 
 	public static class UserAccount {
 
-		
 		/// <summary>
 		/// New user account
 		/// </summary>
@@ -43,6 +42,7 @@ namespace Goldmint.WebApplication.Core {
 					UserName = email,
 					Email = email,
 					TFASecret = tfaSecret,
+					JWTSalt = GenerateJWTSalt(),
 					EmailConfirmed = emailConfirmed,
 					AccessRights = 0,
 
@@ -67,7 +67,7 @@ namespace Goldmint.WebApplication.Core {
 
 						newUser.UserName = name;
 						newUser.NormalizedUserName = name.ToUpperInvariant();
-						newUser.AccessStampWeb = GenerateAccessStamp();
+						newUser.JWTSalt = GenerateJWTSalt();
 						newUser.AccessRights = (long)AccessRights.Client;
 
 						await dbContext.SaveChangesAsync();
@@ -95,9 +95,36 @@ namespace Goldmint.WebApplication.Core {
 		}
 
 		/// <summary>
+		/// Get proper access rights mask depending on audience and user settings
+		/// </summary>
+		public static long? ResolveAccessRightsMask(JwtAudience audience, User user) {
+			var rights = (long)user.AccessRights;
+			var defaultUserMaxRights = 0L | (long)AccessRights.Client;
+
+			if (audience == JwtAudience.App) {
+				// max rights are default user rights
+				return user.AccessRights & defaultUserMaxRights;
+			}
+			else if (audience == JwtAudience.Dashboard) {
+
+				// tfa must be enabled
+				if (!user.TwoFactorEnabled) return null;
+
+				// exclude client rights
+				rights = (rights - defaultUserMaxRights);
+
+				// has any of dashboard access rights - ok
+				if (rights > 0) {
+					return rights;
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Random access stamp
 		/// </summary>
-		public static string GenerateAccessStamp() {
+		public static string GenerateJWTSalt() {
 			return SecureRandom.GetString09azAZ(64);
 		}
 

@@ -21,7 +21,16 @@ namespace Goldmint.Common {
 	}
 
 	public enum JwtAudience {
-		App,
+
+		/// <summary>
+		/// App access
+		/// </summary>
+		App = 1,
+
+		/// <summary>
+		/// Dashboard access
+		/// </summary>
+		Dashboard,
 	}
 
 	public enum JwtArea {
@@ -29,7 +38,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Authorized area
 		/// </summary>
-		Authorized,
+		Authorized = 1,
 
 		/// <summary>
 		/// Two factor auth area
@@ -39,7 +48,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// OAuth area
 		/// </summary>
-		Oauth,
+		OAuth,
 
 		/// <summary>
 		/// User registration
@@ -55,31 +64,29 @@ namespace Goldmint.Common {
 	public enum AccessRights : long {
 		
 		/// <summary>
-		/// Cabinet client
+		/// App client
 		/// </summary>
-		Client = 1,
+		Client = 0x1L,
 
 		/// <summary>
-		/// Dashboard general access rights
+		/// Dashboard: general access, read access
 		/// </summary>
-		DashboardReadAccess = 2,
-
-		// 268435456
+		DashboardReadAccess = 0x2L,
 
 		/// <summary>
-		/// Countries tab write access
+		/// Dashboard: countries tab write access
 		/// </summary>
-		CountriesWriteAccess = 536870912,
+		CountriesWriteAccess = 0x20000000L,
 
 		/// <summary>
-		/// Transparency uploader rights
+		/// Dashboard: transparency tab write access
 		/// </summary>
-		TransparencyWriteAccess = 1073741824,
+		TransparencyWriteAccess = 0x40000000L,
 
 		/// <summary>
-		/// Full access
+		/// Critical functions access
 		/// </summary>
-		Owner = 2147483648,
+		Owner = 0x80000000L,
 	}
 
 	public enum BlockchainTransactionStatus {

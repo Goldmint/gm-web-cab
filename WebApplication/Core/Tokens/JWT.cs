@@ -17,23 +17,21 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 	public static class JWT {
 
+		public const string Issuer = "app.goldmint.io";
+
 		public const string GMAreaField = "gm_area";
 		public const string GMIdField = "gm_id";
 		public const string GMSecurityStampField = "gm_sstamp";
-		public const string GMRightsField = "gm_role";
+		public const string GMRightsField = "gm_rights";
 
 		// ---
-
-		public static AppConfig.AuthSection.JWTSection.AudienceSection GetAudienceSettings(AppConfig appConfig, JwtAudience audience) {
-			return (from a in appConfig.Auth.JWT.Audiences where a.Name == audience.ToString().ToLower() select a).FirstOrDefault();
-		}
 
 		/// <summary>
 		/// Default token validation parameters
 		/// </summary>
 		public static TokenValidationParameters ValidationParameters(AppConfig appConfig) {
 
-			var auds = (from a in appConfig.Auth.JWT.Audiences select a.Audience).ToArray();
+			var auds = (from a in appConfig.Auth.JWT.Audiences select a.Audience.ToLower()).ToArray();
 
 			return new TokenValidationParameters() {
 				NameClaimType = GMIdField,
@@ -41,7 +39,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = CreateJwtKey(appConfig),
 				ValidateIssuer = true,
-				ValidIssuer = "goldmint.io",
+				ValidIssuer = Issuer,
 				ValidateAudience = true,
 				ValidAudiences = auds,
 				ValidateLifetime = true,
@@ -53,7 +51,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// Unique JWT subject
 		/// </summary>
 		private static string UniqueId(string salt) {
-			return Hash.SHA256(Guid.NewGuid().ToString() + salt);
+			return Hash.SHA256(Guid.NewGuid().ToString("N") + salt);
 		}
 
 		/// <summary>
@@ -63,8 +61,13 @@ namespace Goldmint.WebApplication.Core.Tokens {
 			return Hash.SHA256(Hash.SHA256(input));
 		}
 
-		// ---
-
+		/// <summary>
+		/// Audience settings
+		/// </summary>
+		private static AppConfig.AuthSection.JWTSection.AudienceSection GetAudienceSettings(AppConfig appConfig, JwtAudience audience) {
+			return (from a in appConfig.Auth.JWT.Audiences where a.Audience == audience.ToString() select a).FirstOrDefault();
+		}
+		
 		/// <summary>
 		/// Make a secure key from main secret phrase
 		/// </summary>
@@ -76,12 +79,12 @@ namespace Goldmint.WebApplication.Core.Tokens {
 			);
 		}
 
+		// ---
+
 		/// <summary>
 		/// Make a token for specified user with specified state
 		/// </summary>
-		public static string CreateAuthToken(AppConfig appConfig, /*JwtAudience audience, */User user, JwtArea area) {
-			var audience = JwtAudience.App;
-
+		public static string CreateAuthToken(AppConfig appConfig, JwtAudience audience, JwtArea area, User user, long rightsMask) {
 			var now = DateTime.UtcNow;
 			var uniqueness = UniqueId(appConfig.Auth.JWT.Secret);
 			var audienceSett = GetAudienceSettings(appConfig, audience);
@@ -94,10 +97,10 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
 				
 				// gm fields
-				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.AccessStampWeb)),
+				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.JWTSalt)),
 				new Claim(GMIdField, user.UserName),
-				new Claim(GMRightsField, ((long)user.AccessRights).ToString()),
-				new Claim(GMAreaField, area.ToString().ToLowerInvariant()),
+				new Claim(GMRightsField, rightsMask.ToString()),
+				new Claim(GMAreaField, area.ToString().ToLower()),
 			};
 
 			var claimIdentity = new ClaimsIdentity(
@@ -108,8 +111,8 @@ namespace Goldmint.WebApplication.Core.Tokens {
 			var creds = new SigningCredentials(CreateJwtKey(appConfig), SecurityAlgorithms.HmacSha256);
 
 			var token = new JwtSecurityToken(
-				issuer: "goldmint.io",
-				audience: audienceSett.Audience,
+				issuer: Issuer,
+				audience: audienceSett.Audience.ToLower(),
 				claims: claimIdentity.Claims,
 				signingCredentials: creds,
 				expires: now.AddSeconds(audienceSett.ExpirationSec)
@@ -121,8 +124,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// <summary>
 		/// Make a security token
 		/// </summary>
-		public static string CreateSecurityToken(AppConfig appConfig, /*JwtAudience audience,*/ string id, string securityStamp, JwtArea area, TimeSpan validFor, IEnumerable<Claim> optClaims = null) {
-			var audience = JwtAudience.App;
+		public static string CreateSecurityToken(AppConfig appConfig, JwtAudience audience, JwtArea area, string entityId, string securityStamp, TimeSpan validFor, IEnumerable<Claim> optClaims = null) {
 
 			var now = DateTime.UtcNow;
 			var uniqueness = UniqueId(appConfig.Auth.JWT.Secret);
@@ -136,9 +138,9 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
 				
 				// gm fields
-				new Claim(GMIdField, id),
+				new Claim(GMIdField, entityId),
 				new Claim(GMSecurityStampField, ObtainSecurityStamp(securityStamp)),
-				new Claim(GMAreaField, area.ToString().ToLowerInvariant()),
+				new Claim(GMAreaField, area.ToString().ToLower()),
 			};
 
 			if (optClaims != null) {
@@ -148,8 +150,8 @@ namespace Goldmint.WebApplication.Core.Tokens {
 			var creds = new SigningCredentials(CreateJwtKey(appConfig), SecurityAlgorithms.HmacSha256);
 
 			var token = new JwtSecurityToken(
-				issuer: "goldmint.io",
-				audience: audienceSett.Audience,
+				issuer: Issuer,
+				audience: audienceSett.Audience.ToLower(),
 				claims: claims,
 				signingCredentials: creds,
 				expires: now.Add(validFor)
@@ -171,18 +173,17 @@ namespace Goldmint.WebApplication.Core.Tokens {
 					return Task.CompletedTask;
 				},
 
-				/*OnMessageReceived = async (ctx) => {
-					//var resp = Core.APIResponse.BadRequest(Core.APIErrorCode.Unauthorized);
-					//await resp.WriteResponse(ctx.HttpContext).ConfigureAwait(false);
-				},*/
-
 				OnTokenValidated = async (ctx) => {
 					var token = ctx.SecurityToken as JwtSecurityToken;
 					try {
 
+						if (token == null) {
+							throw new Exception("JWT is null");
+						}
+
 						// get passed username and stamp
-						var userName = token.Claims.FirstOrDefault((c) => c.Type == GMIdField).Value;
-						var userStamp = token.Claims.FirstOrDefault((c) => c.Type == GMSecurityStampField).Value;
+						var userName = token.Claims.FirstOrDefault((c) => c.Type == GMIdField)?.Value;
+						var userStamp = token.Claims.FirstOrDefault((c) => c.Type == GMSecurityStampField)?.Value;
 						if (userName == null) {
 							throw new Exception("JWT doesnt contain username");
 						}
@@ -192,7 +193,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 						var sstamp = await (
 							from u in dbContext.Users
 							where u.UserName == userName
-							select ObtainSecurityStamp(u.AccessStampWeb)
+							select ObtainSecurityStamp(u.JWTSalt)
 						)
 							.AsNoTracking()
 							.FirstOrDefaultAsync()
@@ -208,27 +209,17 @@ namespace Goldmint.WebApplication.Core.Tokens {
 					catch (Exception e) {
 						ctx.Fail(e);
 					}
-				},
-
-				/*OnAuthenticationFailed = async (ctx) => {
-					var resp = APIResponse.BadRequest(APIErrorCode.Unauthorized);
-					await resp.WriteResponse(ctx.HttpContext).ConfigureAwait(false);
-					ctx.NoResult();
-				},*/
+				}
 			};
 		}
 
-		// ---
-
-		public static async Task<bool> IsValid(AppConfig appConfig, string jwtToken, JwtArea expectedArea, Func<JwtSecurityToken, string, Task<string>> validStamp) {
+		public static async Task<bool> IsValid(AppConfig appConfig, string jwtToken, JwtAudience? expectedAudience, JwtArea? expectedArea, Func<JwtSecurityToken, string, Task<string>> validStamp) {
 			try {
 
+				// base validation
 				JwtSecurityToken token = null;
 				{
-					SecurityToken validatedToken = null;
-					JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-					new JwtSecurityTokenHandler().ValidateToken(jwtToken, ValidationParameters(appConfig), out validatedToken);
-
+					new JwtSecurityTokenHandler().ValidateToken(jwtToken, ValidationParameters(appConfig), out var validatedToken);
 					token = validatedToken as JwtSecurityToken;
 					if (token == null) {
 						return false;
@@ -236,15 +227,25 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				}
 
 				// check id
-				var id = token.Claims.FirstOrDefault(_ => _.Type == GMIdField).Value;
+				var id = token.Claims.FirstOrDefault(_ => _.Type == GMIdField)?.Value;
 				if (string.IsNullOrWhiteSpace(id)) {
 					return false;
 				}
 
+				// check audience
+				if (expectedAudience != null) {
+					var aud = token.Claims.FirstOrDefault(_ => _.Type == "aud")?.Value;
+					if (aud != expectedArea.ToString().ToLowerInvariant()) {
+						return false;
+					}
+				}
+
 				// check area
-				var area = token.Claims.FirstOrDefault(_ => _.Type == GMAreaField).Value;
-				if (area != expectedArea.ToString().ToLowerInvariant()) {
-					return false;
+				if (expectedArea != null) {
+					var area = token.Claims.FirstOrDefault(_ => _.Type == GMAreaField)?.Value;
+					if (area != expectedArea.ToString().ToLowerInvariant()) {
+						return false;
+					}
 				}
 
 				// check security stamp
@@ -254,7 +255,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 						return false;
 					}
 
-					var sstamp = token.Claims.FirstOrDefault((c) => c.Type == GMSecurityStampField).Value;
+					var sstamp = token.Claims.FirstOrDefault((c) => c.Type == GMSecurityStampField)?.Value;
 					if (sstamp != ObtainSecurityStamp(valid)) {
 						return false;
 					}

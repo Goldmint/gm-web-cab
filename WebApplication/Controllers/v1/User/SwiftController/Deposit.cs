@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Create swift deposit request
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("deposit")]
 		[ProducesResponseType(typeof(DepositView), 200)]
 		public async Task<APIResponse> Deposit([FromBody] DepositModel model) {

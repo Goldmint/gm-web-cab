@@ -7,6 +7,7 @@ using Goldmint.WebApplication.Models.API.v1.User.SettingsModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Goldmint.Common;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -15,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Change password
 		/// </summary>
-		[AreaAuthorized]
+		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("changePassword")]
 		[ProducesResponseType(typeof(ChangePasswordView), 200)]
 		public async Task<APIResponse> ChangePassword([FromBody] ChangePasswordModel model) {

@@ -6,42 +6,40 @@ namespace Goldmint.WebApplication.Core.Policies {
 	public static class Policy {
 
 		/// <summary>
-		/// Has access to 2fa area
+		/// Audience constraint
 		/// </summary>
-		public const string AccessTFAArea = "PolicyAreaTfa";
+		public const string JWTAudienceTemplate = "PolicyJWTAudience_";
 
 		/// <summary>
-		/// Has access to authorized area
+		/// Area constraint
 		/// </summary>
-		public const string AccessAuthorizedArea = "PolicyAreaAuthorized";
+		public const string JWTAreaTemplate = "PolicyJWTArea_";
 
 		/// <summary>
-		/// Has access rights
+		/// Access rights constraint
 		/// </summary>
-		public const string HasAccessRightsTemplate = "PolicyAccessRights_";
+		public const string AccessRightsTemplate = "PolicyAccessRights_";
 	}
 
 	// ---
 
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public class AreaAnonymousAttribute : AllowAnonymousAttribute {
-		public AreaAnonymousAttribute() : base() { }
+	public class AnonymousAccessAttribute : Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute {
+		public AnonymousAccessAttribute() : base() { }
+	}
+
+	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+	public class RequireJWTAudienceAttribute : AuthorizeAttribute {
+		public RequireJWTAudienceAttribute(Common.JwtAudience aud) : base(Policies.Policy.JWTAudienceTemplate + aud.ToString()) { }
 	}
 
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public class AreaAuthorizedAttribute : AuthorizeAttribute {
-		public AreaAuthorizedAttribute() : base(Policies.Policy.AccessAuthorizedArea) { }
+	public class RequireJWTAreaAttribute : AuthorizeAttribute {
+		public RequireJWTAreaAttribute(Common.JwtArea area) : base(Policies.Policy.JWTAreaTemplate + area.ToString()) { }
 	}
 
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public class AreaTFAAttribute : AuthorizeAttribute {
-		public AreaTFAAttribute() : base(Policies.Policy.AccessTFAArea) { }
-	}
-
-	// ---
-
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
-	public class AccessRightsAttribute : AuthorizeAttribute {
-		public AccessRightsAttribute(Common.AccessRights rights) : base(Policies.Policy.HasAccessRightsTemplate + rights.ToString()) { }
+	public class RequireAccessRightsAttribute : AuthorizeAttribute {
+		public RequireAccessRightsAttribute(Common.AccessRights rights) : base(Policies.Policy.AccessRightsTemplate + rights.ToString()) { }
 	}
 }
