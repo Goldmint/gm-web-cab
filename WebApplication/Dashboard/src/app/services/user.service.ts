@@ -24,8 +24,7 @@ export class UserService {
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
   public canShowNav$ = new Subject();
-  public oplogTransferData$ = new Subject();
-  public oplotCloseModal$ = new Subject();
+  public usersTransferData$ = new Subject();
 
   constructor(
     private _router: Router,
@@ -105,12 +104,8 @@ export class UserService {
     this.canShowNav$.next(flag);
   }
 
-  oplogTransferData(data: any) {
-    this.oplogTransferData$.next(data);
-  }
-
-  oplotCloseModal(flag: boolean) {
-    this.oplotCloseModal$.next(flag);
+  usersTransferData(data: any) {
+    this.usersTransferData$.next(data);
   }
 
   loginWithSocial(provider: string) {

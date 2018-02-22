@@ -1,0 +1,18 @@
+<div>
+  <div class="text-center mb-3 mt-3 users-title">{{ "PAGES.Users.AccessRights.Title" | translate }}</div>
+  <table class="table">
+    <tbody>
+    <tr *ngFor="let a of accessRights">
+      <td>
+        <input type="checkbox" [(ngModel)]="a.c">
+      </td>
+      <td>{{ a.title }}</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="message-box__footer">
+    <button type="button" class="btn btn-primary btn-sm mx-1" (click)="save()">{{ "PAGES.Users.AccessRights.Buttons.Save" | translate }}</button>
+    <a [routerLink]="['/users/' + userId]" class="btn btn-primary btn-sm mx-1">{{ "PAGES.Users.AccessRights.Buttons.Back" | translate }}</a>
+  </div>
+</div>

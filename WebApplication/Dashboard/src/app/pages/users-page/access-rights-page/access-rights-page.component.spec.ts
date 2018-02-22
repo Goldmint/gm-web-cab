@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SettingsTFAPageComponent } from './settings-tfa-page.component';
+import { AccessRightsPageComponent } from './access-rights-page.component';
 
-describe('SettingsTFAPageComponent', () => {
-  let component: SettingsTFAPageComponent;
-  let fixture: ComponentFixture<SettingsTFAPageComponent>;
+describe('AccessRightsPageComponent', () => {
+  let component: AccessRightsPageComponent;
+  let fixture: ComponentFixture<AccessRightsPageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SettingsTFAPageComponent ]
+      declarations: [ AccessRightsPageComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SettingsTFAPageComponent);
+    fixture = TestBed.createComponent(AccessRightsPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

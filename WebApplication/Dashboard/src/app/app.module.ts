@@ -67,19 +67,15 @@ import { RegisterEmailTakenPageComponent } from './pages/register-page/register-
 import { RegisterEmailConfirmedPageComponent } from './pages/register-page/register-email-confirmed-page/register-email-confirmed-page.component';
 import { TfaNotActivatedPageComponent } from './pages/register-page/register-tfa-page/tfa-not-activated-page/tfa-not-activated-page.component';
 import { TfaEnablePageComponent } from './pages/register-page/register-tfa-page/tfa-enable-page/tfa-enable-page.component';
-import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
-import { SettingsProfilePageComponent } from './pages/settings-page/settings-profile-page/settings-profile-page.component';
-import { SettingsVerificationPageComponent } from './pages/settings-page/settings-verification-page/settings-verification-page.component';
-import { SettingsTFAPageComponent } from './pages/settings-page/settings-tfa-page/settings-tfa-page.component';
-import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards-page/settings-cards-page.component';
-import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
-import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { CountriesPageComponent } from './pages/countries-page/countries-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import {SafePipe} from "./directives/safe.pipe";
 import { UsersPageComponent } from './pages/users-page/users-page.component';
 import { OplogPageComponent } from './pages/users-page/oplog-page/oplog-page.component';
+import { AccessRightsPageComponent } from './pages/users-page/access-rights-page/access-rights-page.component';
+import { UserPageComponent } from './pages/users-page/user-page/user-page.component';
+import { UsersListPageComponent } from './pages/users-page/users-list-page/users-list-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -138,13 +134,6 @@ export function getGoldmintToken() {
     RegisterEmailConfirmedPageComponent,
     TfaNotActivatedPageComponent,
     TfaEnablePageComponent,
-    SettingsPageComponent,
-    SettingsProfilePageComponent,
-    SettingsVerificationPageComponent,
-    SettingsTFAPageComponent,
-    SettingsCardsPageComponent,
-    SettingsSocialPageComponent,
-    SettingsActivityPageComponent,
     BlurDirective,
     EqualValidatorDirective,
     TransparencyPageComponent,
@@ -153,6 +142,9 @@ export function getGoldmintToken() {
     CountriesPageComponent,
     UsersPageComponent,
     OplogPageComponent,
+    AccessRightsPageComponent,
+    UserPageComponent,
+    UsersListPageComponent,
   ],
   exports: [],
   providers: [

@@ -4,9 +4,7 @@ import { RouterModule, Routes, CanActivate } from '@angular/router';
 import { AuthGuard } from './guards/index';
 
 import { HomePageComponent }     from './pages/home-page/home-page.component';
-import { LimitsPageComponent }   from './pages/limits-page/limits-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { PagerBlockComponent }   from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent }         from './pages/login-page/login-page.component';
 // import { LoginOntokenPageComponent }  from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
@@ -16,16 +14,13 @@ import { RegisterEmailTakenPageComponent } from './pages/register-page/register-
 import { RegisterEmailConfirmedPageComponent } from './pages/register-page/register-email-confirmed-page/register-email-confirmed-page.component';
 import { TfaEnablePageComponent }       from './pages/register-page/register-tfa-page/tfa-enable-page/tfa-enable-page.component';
 import { TfaNotActivatedPageComponent } from './pages/register-page/register-tfa-page/tfa-not-activated-page/tfa-not-activated-page.component';
-import { SettingsPageComponent }             from './pages/settings-page/settings-page.component';
-import { SettingsProfilePageComponent }      from './pages/settings-page/settings-profile-page/settings-profile-page.component';
-import { SettingsVerificationPageComponent } from './pages/settings-page/settings-verification-page/settings-verification-page.component';
-import { SettingsTFAPageComponent }          from './pages/settings-page/settings-tfa-page/settings-tfa-page.component';
-import { SettingsCardsPageComponent }        from './pages/settings-page/settings-cards-page/settings-cards-page.component';
-import { SettingsSocialPageComponent }       from './pages/settings-page/settings-social-page/settings-social-page.component';
-import { SettingsActivityPageComponent }     from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { CountriesPageComponent } from "./pages/countries-page/countries-page.component";
 import {UsersPageComponent} from "./pages/users-page/users-page.component";
+import {UsersListPageComponent} from "./pages/users-page/users-list-page/users-list-page.component";
+import {UserPageComponent} from "./pages/users-page/user-page/user-page.component";
+import {OplogPageComponent} from "./pages/users-page/oplog-page/oplog-page.component";
+import {AccessRightsPageComponent} from "./pages/users-page/access-rights-page/access-rights-page.component";
 
 const appRoutes: Routes = [
 
@@ -41,19 +36,12 @@ const appRoutes: Routes = [
   { path: 'home',     component: HomePageComponent,     canActivate: [AuthGuard] },
   { path: 'transparency',     component: TransparencyPageComponent,     canActivate: [AuthGuard] },
   { path: 'countries',     component: CountriesPageComponent,     canActivate: [AuthGuard] },
-  { path: 'users',     component: UsersPageComponent,     canActivate: [AuthGuard] },
-  {
-    path: 'account',          component: SettingsPageComponent, canActivate: [AuthGuard],
+  { path: 'users',     component: UsersPageComponent,     canActivate: [AuthGuard],
     children: [
-      {path: '', redirectTo: 'profile', pathMatch: 'full'},
-      {path: 'profile',       component: SettingsProfilePageComponent},
-      {path: 'verification',  component: SettingsVerificationPageComponent},
-      {path: '2fa',           component: SettingsTFAPageComponent},
-      {path: 'cards',         component: SettingsCardsPageComponent},
-      {path: 'cards/:cardId', component: SettingsCardsPageComponent},
-      {path: 'social',        component: SettingsSocialPageComponent},
-      {path: 'activity',      component: SettingsActivityPageComponent},
-      {path: 'limits',        component: LimitsPageComponent}
+      {path: '', component: UsersListPageComponent},
+      {path: ':id', component: UserPageComponent},
+      {path: ':id/oplog', component: OplogPageComponent},
+      {path: ':id/access', component: AccessRightsPageComponent}
     ]
   },
   { path: '', redirectTo: 'transparency', pathMatch: 'full' },
