@@ -211,7 +211,7 @@ export class APIService {
 
   }
 
-  setUserAccessRight(id: number, mask: number): Observable<APIResponse<TransparencyRecord[]>> {
+  setUserAccessRight(id: number, mask): Observable<APIResponse<TransparencyRecord[]>> {
 
     let httpOptions = {
       headers: new HttpHeaders({
