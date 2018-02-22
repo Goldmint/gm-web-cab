@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.CoreLogic.Services.SignedDoc;
 
@@ -111,6 +112,28 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		protected bool IsUserAuthenticated() {
 			return HttpContext.User?.Identity.IsAuthenticated ?? false;
+		}
+
+		[NonAction]
+		protected JwtAudience? GetCurrentAudience() {
+			var audStr = HttpContext.User.Claims.FirstOrDefault(_ => _.Type == "aud")?.Value;
+			if (audStr != null) {
+				if (Enum.TryParse(audStr, true, out JwtAudience aud)) {
+					return aud;
+				}
+			}
+			return null;
+		}
+
+		[NonAction]
+		protected long GetCurrentRights() {
+			var rightsStr = HttpContext.User.Claims.FirstOrDefault(_ => _.Type == Core.Tokens.JWT.GMRightsField)?.Value;
+			if (rightsStr != null) {
+				if (long.TryParse(rightsStr, out long rights)) {
+					return rights;
+				}
+			}
+			return 0;
 		}
 
 		[NonAction]

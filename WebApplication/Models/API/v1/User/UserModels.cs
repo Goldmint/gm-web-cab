@@ -24,6 +24,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		[Required]
 		public string Captcha { get; set; }
 
+		/// <summary>
+		/// Valid audience or null
+		/// </summary>
+		public string Audience { get; set; }
+
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {

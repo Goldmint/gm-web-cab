@@ -39,7 +39,7 @@ export class APIService {
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {
     console.log('APIService userLogin', arguments);
 
-    return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/user/authenticate`, { username: username, password: password, captcha: captcha })
+    return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/auth/authenticate`, { username: username, password: password, captcha: captcha, audience: "app" })
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -53,7 +53,7 @@ export class APIService {
 
   userRefreshToken(): Observable<string> {
     return this._http
-      .get(`${this._baseUrl}/user/refresh`, this.jwt())
+      .get(`${this._baseUrl}/auth/refresh`, this.jwt())
       .catch(this._handleError)
       .map(x => x.data.token)
       ;
@@ -61,7 +61,7 @@ export class APIService {
 
   userLogout() {
     return this._http
-      .get(`${this._baseUrl}/user/signout`, this.jwt())
+      .get(`${this._baseUrl}/auth/signout`, this.jwt())
       .retry(3)
       .pipe(
       catchError(this._handleError),
@@ -365,7 +365,7 @@ export class APIService {
 
   exchangeTFAToken(code: number): Observable<APIResponse<AuthResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/tfa`, { code: code }, this.jwt())
+      .post(`${this._baseUrl}/auth/tfa`, { code: code }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),

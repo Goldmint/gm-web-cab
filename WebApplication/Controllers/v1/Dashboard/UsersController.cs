@@ -19,7 +19,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Users list
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.DashboardReadAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("list")]
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List([FromBody] ListModel model) {
@@ -77,7 +77,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// User account info
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.DashboardReadAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("account")]
 		[ProducesResponseType(typeof(AccountView), 200)]
 		public async Task<APIResponse> Account([FromBody] AccountModel model) {
@@ -134,7 +134,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// User's oplog
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.DashboardReadAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("oplog")]
 		[ProducesResponseType(typeof(OplogView), 200)]
 		public async Task<APIResponse> Oplog([FromBody] OplogModel model) {
@@ -216,7 +216,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Set access rights
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Owner)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
 		[HttpPost, Route("rights")]
 		[ProducesResponseType(typeof(RightsView), 200)]
 		public async Task<APIResponse> Rights([FromBody] RightsModel model) {

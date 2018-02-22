@@ -24,9 +24,10 @@ namespace Goldmint.WebApplication.Services.OAuth.Impl {
 
 			var state = Core.Tokens.JWT.CreateSecurityToken(
 				appConfig: _appConfig, 
-				id: userId?.ToString() ?? Guid.NewGuid().ToString("N"), 
+				entityId: userId?.ToString() ?? Guid.NewGuid().ToString("N"), 
 				securityStamp: "",
-				area: JwtArea.Oauth,
+				audience: JwtAudience.App,
+				area: JwtArea.OAuth,
 				validFor: TimeSpan.FromMinutes(5),
 				optClaims: new[] { new System.Security.Claims.Claim("google", "true") }
 			);
@@ -51,7 +52,13 @@ namespace Goldmint.WebApplication.Services.OAuth.Impl {
 				throw new ArgumentException("Empty oauth code");
 			}
 
-			if (! await Core.Tokens.JWT.IsValid(_appConfig, oauthState, JwtArea.Oauth, (jwt, id) => Task.FromResult("") )) {
+			if (! await Core.Tokens.JWT.IsValid(
+				appConfig: _appConfig,
+				jwtToken: oauthState,
+				expectedAudience: JwtAudience.App,
+				expectedArea: JwtArea.OAuth, 
+				validStamp: (jwt, id) => Task.FromResult("") )
+			) {
 				throw new ArgumentException("Invalid oauth state");
 			}
 

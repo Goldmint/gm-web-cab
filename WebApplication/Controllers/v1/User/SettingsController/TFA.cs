@@ -7,6 +7,7 @@ using Goldmint.WebApplication.Models.API.v1.User.SettingsModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Goldmint.Common;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -15,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Get TFA status
 		/// </summary>
-		[AreaAuthorized]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("tfa/view")]
 		[ProducesResponseType(typeof(TFAView), 200)]
 		public async Task<APIResponse> TFAView() {
@@ -26,7 +27,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Set TFA status
 		/// </summary>
-		[AreaAuthorized]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("tfa/edit")]
 		[ProducesResponseType(typeof(TFAView), 200)]
 		public async Task<APIResponse> TFAEdit([FromBody] TFAEditModel model) {

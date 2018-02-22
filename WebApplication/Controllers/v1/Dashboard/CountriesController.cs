@@ -20,7 +20,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Countries black list
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.DashboardReadAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("list")]
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> BannedCountries([FromBody] ListModel model) {
@@ -67,7 +67,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Add contry to black list
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.CountriesWriteAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.CountriesWriteAccess)]
 		[HttpPost, Route("ban")]
 		[ProducesResponseType(typeof(BanView), 200)]
 		public async Task<APIResponse> Ban([FromBody] BanModel model) {
@@ -103,7 +103,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Remove contry from black list
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.CountriesWriteAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.CountriesWriteAccess)]
 		[HttpPost, Route("unban")]
 		[ProducesResponseType(typeof(UnbanView), 200)]
 		public async Task<APIResponse> Unban([FromBody] UnbanModel model) {

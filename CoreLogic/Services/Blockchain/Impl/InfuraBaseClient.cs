@@ -13,6 +13,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		protected Nethereum.JsonRpc.Client.IClient JsonRpcClient { get; private set; }
 
 		protected string FiatContractAddress { get; private set; }
+		protected string FiatContractABI { get; private set; }
 		protected string GoldTokenContractAddress { get; private set; }
 		protected string MntpTokenContractAddress { get; private set; }
 
@@ -22,6 +23,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			Logger = logFactory.GetLoggerFor(this);
 
 			FiatContractAddress = appConfig.Services.Infura.FiatContractAddress;
+			FiatContractABI = appConfig.Services.Infura.FiatContractABI;
 
 			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Infura.EthereumNetUrl));
 
@@ -30,7 +32,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 				var web3 = new Web3(JsonRpcClient);
 				var contract = web3.Eth.GetContract(
-					"[{\"constant\":true,\"inputs\":[],\"name\":\"goldToken\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"mntpToken\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+					FiatContractABI,
 					FiatContractAddress
 				);
 

@@ -17,7 +17,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Price per gold ounce
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpGet, Route("goldRate")]
 		[ProducesResponseType(typeof(GoldRateView), 200)]
 		public async Task<APIResponse> GoldRate() {
@@ -31,7 +31,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Transparency
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("transparency")]
 		[ProducesResponseType(typeof(TransparencyView), 200)]
 		public async Task<APIResponse> Transparency([FromBody] TransparencyModel model) {
@@ -78,7 +78,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Countries blacklist
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpGet, Route("bannedCountries")]
 		[ProducesResponseType(typeof(string[]), 200)]
 		public async Task<APIResponse> BannedCountries() {

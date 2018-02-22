@@ -1,4 +1,4 @@
-﻿using Goldmint.WebApplication.Core.Policies;
+﻿ using Goldmint.WebApplication.Core.Policies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,7 +14,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Redirect via GET request
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[HttpGet, Route("redirect", Name = "CallbackRedirect")]
 		public IActionResult RedirectGet(string to) {
@@ -28,7 +28,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Redirect via POST request
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[HttpPost, Route("redirect", Name = "CallbackRedirect")]
 		public IActionResult RedirectPost(string to) {
@@ -42,7 +42,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Callback from ShuftiPro service. This is not user redirect url
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("shuftipro", Name = "CallbackShuftiPro")]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task<IActionResult> ShuftiPro() {
@@ -79,7 +79,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Callback from SignRequest service
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("signrequest/{secret}")]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task<IActionResult> SignRequest(string secret) {

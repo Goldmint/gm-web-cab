@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Create redirect
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpGet, Route("google")]
 		[ProducesResponseType(typeof(RedirectView), 200)]
 		public async Task<APIResponse> Google() {
@@ -41,7 +41,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// On callback
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpGet, Route("googleCallback", Name = "OAuthGoogleCallback")]
 		[ProducesResponseType(302)]
 		[ApiExplorerSettings(IgnoreApi = true)]
@@ -74,6 +74,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		public async Task<RedirectResult> ProcessOAuthCallback(LoginProvider provider, UserInfo userInfo) {
 
+			var audience = JwtAudience.App;
+
 			// find user with this ext login
 			var user = await UserManager.FindByLoginAsync(provider.ToString(), userInfo.Id);
 
@@ -85,7 +87,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				// try to sign in
 				var signResult = await SignInManager.CanSignInAsync(user);
 
-				if (signResult) {
+				var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(audience, user);
+
+				if (signResult && accessRightsMask != null) {
 
 					// notification
 					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn))
@@ -106,7 +110,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 					// tfa required
 					if (user.TwoFactorEnabled) {
-						var tokenForTFA = JWT.CreateAuthToken(AppConfig, user, JwtArea.TFA);
+						var tokenForTFA = JWT.CreateAuthToken(
+							appConfig: AppConfig,
+							user: user,
+							audience: JwtAudience.App,
+							area: JwtArea.TFA,
+							rightsMask: accessRightsMask.Value
+						);
 
 						return Redirect(
 							this.MakeLink(fragment: AppConfig.AppRoutes.OAuthTFAPage.Replace(":token", tokenForTFA))
@@ -114,7 +124,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// ok
-					var token = JWT.CreateAuthToken(AppConfig, user, JwtArea.Authorized);
+					var token = JWT.CreateAuthToken(
+						appConfig: AppConfig, 
+						user: user, 
+						audience: JwtAudience.App,
+						area: JwtArea.Authorized,
+						rightsMask: accessRightsMask.Value
+					);
 					return Redirect(
 						this.MakeLink(fragment: AppConfig.AppRoutes.OAuthAuthorized.Replace(":token", token))
 					);
@@ -136,11 +152,20 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					// user created and external login attached
 					if (await CreateExternalLogin(cuaResult.User, provider, userInfo)) {
 
-						// ok
-						var token = JWT.CreateAuthToken(AppConfig, cuaResult.User, JwtArea.Authorized);
-						return Redirect(
-							this.MakeLink(fragment: AppConfig.AppRoutes.OAuthAuthorized.Replace(":token", token))
-						);
+						var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(audience, cuaResult.User);
+						if (accessRightsMask != null) {
+							// ok
+							var token = JWT.CreateAuthToken(
+								appConfig: AppConfig,
+								user: cuaResult.User,
+								audience: JwtAudience.App,
+								area: JwtArea.Authorized,
+								rightsMask: accessRightsMask.Value
+							);
+							return Redirect(
+								this.MakeLink(fragment: AppConfig.AppRoutes.OAuthAuthorized.Replace(":token", token))
+							);
+						}
 					}
 
 					// failed

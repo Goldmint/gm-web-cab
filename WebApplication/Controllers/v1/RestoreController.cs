@@ -18,7 +18,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Start password restoration flow
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("password")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> Password([FromBody] RestoreModel model) {
@@ -46,9 +46,10 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			// confirmation token
 			var token = Core.Tokens.JWT.CreateSecurityToken(
 				appConfig: AppConfig,
-				id: user.UserName,
-				securityStamp: user.AccessStampWeb,
+				entityId: user.UserName,
+				audience: JwtAudience.App,
 				area: Common.JwtArea.RestorePassword,
+				securityStamp: "",
 				validFor: TimeSpan.FromHours(24)
 			);
 
@@ -77,7 +78,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// New password
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("newPassword")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> NewPassword([FromBody] NewPasswordModel model) {
@@ -92,12 +93,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			// check token
 			if (!await Core.Tokens.JWT.IsValid(
-				AppConfig,
-				model.Token,
-				Common.JwtArea.RestorePassword,
-				async (jwt, id) => {
+				appConfig: AppConfig,
+				jwtToken: model.Token,
+				expectedAudience: JwtAudience.App,
+				expectedArea: JwtArea.RestorePassword,
+				validStamp: async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
-					return user?.AccessStampWeb;
+					return "";
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
@@ -106,7 +108,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			await UserManager.RemovePasswordAsync(user);
 			await UserManager.AddPasswordAsync(user, model.Password);
 
-			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
+			user.JWTSalt = Core.UserAccount.GenerateJWTSalt();
 			await DbContext.SaveChangesAsync();
 
 			// posteffect

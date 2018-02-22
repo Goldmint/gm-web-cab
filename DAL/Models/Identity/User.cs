@@ -61,8 +61,8 @@ namespace Goldmint.DAL.Models.Identity {
 
 		// ---
 
-		[Column("access_stamp_web"), MaxLength(64)]
-		public string AccessStampWeb { get; set; }
+		[Column("jwt_salt"), MaxLength(64), Required]
+		public string JWTSalt { get; set; }
 
 		[Column("access_rights"), Required]
 		public long AccessRights { get; set; }

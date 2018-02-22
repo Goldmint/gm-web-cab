@@ -40,7 +40,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 				var contract = web3.Eth.GetContract(
-					"[{\"constant\":false,\"inputs\":[{\"name\":\"_userId\",\"type\":\"string\"},{\"name\":\"_amountCents\",\"type\":\"int256\"}],\"name\":\"addFiatTransaction\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+					FiatContractABI,
 					FiatContractAddress
 				);
 				var func = contract.GetFunction("addFiatTransaction");
@@ -74,7 +74,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 				var contract = web3.Eth.GetContract(
-					"[{\"constant\":false,\"inputs\":[{\"name\":\"_index\",\"type\":\"uint256\"},{\"name\":\"_amountCents\",\"type\":\"uint256\"},{\"name\":\"_centsPerGold\",\"type\":\"uint256\"}],\"name\":\"processRequest\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+					FiatContractABI,
 					FiatContractAddress
 				);
 				var func = contract.GetFunction("processRequest");
@@ -96,7 +96,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
-				"[{\"constant\":false,\"inputs\":[{\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"cancelRequest\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+				FiatContractABI,
 				FiatContractAddress
 			);
 			var func = contract.GetFunction("cancelRequest");

@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Fiat and gold balance on this user account
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("balance")]
 		[ProducesResponseType(typeof(BalanceView), 200)]
 		public async Task<APIResponse> Balance([FromBody] BalanceModel model) {
@@ -39,7 +39,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Fiat limits
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("limits")]
 		[ProducesResponseType(typeof(LimitsView), 200)]
 		public async Task<APIResponse> Limits() {
@@ -141,7 +141,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Profile info
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("profile")]
 		[ProducesResponseType(typeof(ProfileView), 200)]
 		public async Task<APIResponse> Profile() {
@@ -169,7 +169,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// User activity
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("activity")]
 		[ProducesResponseType(typeof(ActivityView), 200)]
 		public async Task<APIResponse> Activity([FromBody] ActivityModel model) {
@@ -219,7 +219,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Fiat history
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("fiat/history")]
 		[ProducesResponseType(typeof(FiatHistoryView), 200)]
 		public async Task<APIResponse> FiatHistory([FromBody] FiatHistoryModel model) {

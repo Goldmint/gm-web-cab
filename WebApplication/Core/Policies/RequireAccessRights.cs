@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using System.Linq;
+using Goldmint.WebApplication.Core.Tokens;
 
 namespace Goldmint.WebApplication.Core.Policies {
 
@@ -17,16 +18,17 @@ namespace Goldmint.WebApplication.Core.Policies {
 
 			protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RequireAccessRights requirement) {
 
-				var rightsStr = context.User.Claims.Where(c => c.Type == Tokens.JWT.GMRightsField).FirstOrDefault()?.Value ?? "0";
+				var rightsStr = context.User.Claims.FirstOrDefault(c => c.Type == JWT.GMRightsField)?.Value ?? "0";
 
-				long rights = 0;
-				if (long.TryParse(rightsStr, out rights)) {
+				if (long.TryParse(rightsStr, out var rights)) {
 					var req = (long)requirement._rights;
 					if ((rights & req) == req) {
 						context.Succeed(requirement);
+						return Task.CompletedTask;
 					}
 				}
 
+				context.Fail();
 				return Task.CompletedTask;
 			}
 		}

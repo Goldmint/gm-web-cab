@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Goldmint.Common;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -17,7 +18,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Start registration flow with email and password
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("register")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> Register([FromBody] RegisterModel model) {
@@ -43,10 +44,11 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				// confirmation token
 				var token = Core.Tokens.JWT.CreateSecurityToken(
 					appConfig: AppConfig,
-					id: result.User.UserName,
-					securityStamp: result.User.AccessStampWeb,
+					entityId: result.User.UserName,
+					audience: JwtAudience.App,
+					securityStamp: result.User.JWTSalt,
 					area: Common.JwtArea.Registration, 
-					validFor: TimeSpan.FromDays(90)
+					validFor: TimeSpan.FromDays(3)
 				);
 
 				var callbackUrl = this.MakeLink(fragment: AppConfig.AppRoutes.SignUpConfirmation.Replace(":token", token));
@@ -71,7 +73,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Email confirmation while registration
 		/// </summary>
-		[AreaAnonymous]
+		[AnonymousAccess]
 		[HttpPost, Route("confirm")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
@@ -86,19 +88,20 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			// check token
 			if (! await Core.Tokens.JWT.IsValid(
-				AppConfig, 
-				model.Token, 
-				Common.JwtArea.Registration,
-				async (jwt, id) => {
+				appConfig: AppConfig, 
+				jwtToken: model.Token, 
+				expectedAudience: JwtAudience.App,
+				expectedArea: Common.JwtArea.Registration,
+				validStamp: async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
-					return user?.AccessStampWeb;
+					return user?.JWTSalt;
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
 			user.EmailConfirmed = true;
-			user.AccessStampWeb = Core.UserAccount.GenerateAccessStamp();
+			user.JWTSalt = Core.UserAccount.GenerateJWTSalt();
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success();

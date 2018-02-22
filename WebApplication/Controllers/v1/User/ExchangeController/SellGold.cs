@@ -13,11 +13,11 @@ using System.Threading.Tasks;
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class ExchangeController : BaseController {
-		
+
 		/// <summary>
 		/// Selling request
 		/// </summary>
-		[AreaAuthorized, AccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/sell")]
 		[ProducesResponseType(typeof(SellRequestView), 200)]
 		public async Task<APIResponse> SellRequest([FromBody] SellRequestModel model) {
