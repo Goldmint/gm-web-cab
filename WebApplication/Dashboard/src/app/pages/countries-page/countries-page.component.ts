@@ -16,12 +16,9 @@ export class CountriesPageComponent implements OnInit {
   public page = new Page();
 
   public rows:  Array<any> = [];
-  public sorts: Array<any> = [{prop: 'name', dir: 'asc'}];
+  public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'Loading...'};
 
-  private countriesByCode = {};
-  private countriesList = [];
-  private blockedCountries = [];
   public countriesForSelect = [];
   public changeCountryCode: string;
 
@@ -40,7 +37,6 @@ export class CountriesPageComponent implements OnInit {
 
     this.page.pageNumber = 0;
     this.page.size = 5;
-    this.page.totalPages = 1;
   }
 
   ngOnInit() {
@@ -49,15 +45,6 @@ export class CountriesPageComponent implements OnInit {
       'comment': [''],
     });
 
-    this.apiService.getCountriesLocalList().subscribe((localList: any[]) => {
-      this.countriesList = localList.sort((item1, item2) =>
-        item1.countryName < item2.countryName ? -1 : (item1.countryName > item2.countryName ? 1 : 0)
-      );
-      localList.forEach(item => this.countriesByCode[item.countryShortCode] = item.countryName);
-    });
-
-    this.loadBannedCountries();
-
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.messages.emptyMessage = event.translations.NoData;
     });
@@ -65,77 +52,85 @@ export class CountriesPageComponent implements OnInit {
     this.userService.currentLocale.subscribe(currentLocale => {
       this.locale = currentLocale;
     });
+
+    this.setPage({offset: 0});
+    this.loadCountiesFoSelect();
   }
 
   onSort(event) {
     this.sorts = event.sorts;
-    this.sortCountries();
+    this.setPage({ offset: 0 });
+  }
+
+  setPage(pageInfo) {
+    this.loading = true;
+    this.cdRef.detectChanges();
+    this.page.pageNumber = pageInfo.offset;
+
+    this.apiService.getBannedCountries(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+      .subscribe((data) => {
+        this.rows = data.data.items;
+
+        this.page.totalElements = data.data.total;
+        this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
+
+        this.loading = false;
+        this.cdRef.detectChanges();
+
+        const tableTitle = document.getElementById('pageSectionTitle');
+        if (tableTitle && tableTitle.getBoundingClientRect().top < 0) {
+          tableTitle.scrollIntoView();
+        }
+      });
   }
 
   loadCountiesFoSelect() {
-    this.countriesForSelect = this.countriesList.filter(item => this.blockedCountries.indexOf(item.countryShortCode) < 0);
+    this.apiService.getCountriesLocalList().subscribe((localList: any[]) => {
+      this.countriesForSelect = localList.sort((item1, item2) =>
+        item1.countryName < item2.countryName ? -1 : (item1.countryName > item2.countryName ? 1 : 0)
+      );
 
-    this.form.patchValue({
-      country: this.countriesForSelect[0].countryShortCode
-    });
-  }
-
-  loadBannedCountries() {
-    this.loading = true;
-
-    this.apiService.getCountriesBlacklist().subscribe((list) => {
-      this.blockedCountries = [];
-      this.rows = list.data.map(item => {
-        item = item.toUpperCase();
-
-        this.blockedCountries.push(item);
-
-        return {
-            code: item,
-            name: this.countriesByCode[item],
-        }
+      this.form.patchValue({
+        country: this.countriesForSelect[0].countryShortCode
       });
-
-      this.loadCountiesFoSelect();
-
-      this.page.totalElements = this.page.size = list.data.length;
-      this.loading = false;
-      this.sortCountries();
     });
-  }
-
-  sortCountries() {
-    this.rows = this.rows.sort((item1, item2) => {
-      item1 = item1[this.sorts[0].prop];
-      item2 = item2[this.sorts[0].prop];
-
-      return (item1 < item2 ? -1 : (item1 > item2 ? 1 : 0)) * (this.sorts[0].dir === 'asc' ? 1 : -1);
-    });
-
-    this.cdRef.detectChanges();
   }
 
   banCountry() {
+    this.loading = true;
     this.form.disable();
+    this.cdRef.detectChanges();
 
     const comment = this.form.controls.comment.value;
     this.apiService.banCountry(this.changeCountryCode, comment).subscribe(() => {
-      this.loadBannedCountries();
+      this.setPage({ offset: 0 });
 
       this.formDir.submitted = false;
       this.form.reset();
+      this.form.patchValue({
+        country: this.countriesForSelect[0].countryShortCode
+      });
       this.form.enable();
     }, () => {
       this._messageBox.alert('Something went wrong, country has not been banned! Sorry :(').subscribe(() => {
         this.formDir.submitted = false;
         this.form.enable();
+        this.loading = false;
+        this.cdRef.detectChanges();
       });
     });
   }
 
   unbanCountry(code) {
-    this.apiService.unbanCountry(code).subscribe(this.loadBannedCountries.bind(this), () => {
-      this._messageBox.alert('Something went wrong, country has not been unbanned! Sorry :(').subscribe();
+    this.loading = true;
+    this.cdRef.detectChanges();
+
+    this.apiService.unbanCountry(code).subscribe(this.setPage.bind(this, { offset: 0 }), () => {
+      this._messageBox.alert('Something went wrong, country has not been unbanned! Sorry :(').subscribe(() =>
+      {
+        this.loading = false;
+        this.cdRef.detectChanges();
+      });
     });
   }
 

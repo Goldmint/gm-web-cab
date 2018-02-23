@@ -20,8 +20,10 @@
       "Ban": "Ban",
       "Table": {
         "Country": "Country",
+        "CountryCode": "Code",
+        "Date": "Date",
         "Comment": "Comment",
-        "Ban": "Ban",
+        "Ban": "Actions",
         "Cancel": "Unban"
       }
     },

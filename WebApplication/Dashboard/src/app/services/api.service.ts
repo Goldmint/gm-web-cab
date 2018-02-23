@@ -53,13 +53,22 @@ export class APIService {
       );
   }
 
-  getCountriesBlacklist() {
+  getBannedCountries(offset: number = 0, limit: number = 5,
+                     sort: string = 'date', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
+    let params = {offset, limit, sort, ascending: ascending === 'asc'};
+
+    let httpOptions = {
+      headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      })
+    };
+
     return this._http
-      .get(`${this._baseUrl}/commons/bannedCountries`)
+      .post(`${this._baseUrl}/dashboard/countries/list`, params, httpOptions)
       .pipe(
         catchError(this._handleError)
       );
-  }
+  };
 
   getCountriesLocalList() {
     return this._http.get('../../assets/data/countries.json');

@@ -49,7 +49,31 @@
                        [messages]="messages"
                        (sort)="onSort($event)">
 
-          <ngx-datatable-column prop="name" [draggable]="false" [resizeable]="false" [sortable]="true">
+          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [sortable]="true">
+            <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Countries.Table.Date" | translate }}
+              </span>
+            </ng-template>
+
+            <ng-template let-timestamp="value" ngx-datatable-cell-template>
+              {{ timestamp * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="code" [draggable]="false" [resizeable]="false" [sortable]="true">
+            <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Countries.Table.CountryCode" | translate }}
+              </span>
+            </ng-template>
+
+            <ng-template let-name="value" ngx-datatable-cell-template>
+              {{ name }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="name" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper">
                 {{ "PAGES.Countries.Table.Country" | translate }}
@@ -61,17 +85,17 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <!--<ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">-->
-            <!--<ng-template let-column="column" ngx-datatable-header-template>-->
-              <!--<span class="datatable-header-cell-wrapper">-->
-                <!--{{ "PAGES.Countries.Table.Comment" | translate }}-->
-              <!--</span>-->
-            <!--</ng-template>-->
+          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Countries.Table.Comment" | translate }}
+              </span>
+            </ng-template>
 
-            <!--<ng-template let-comment="value" let-row="row" ngx-datatable-cell-template>-->
-              <!--{{ comment }}-->
-            <!--</ng-template>-->
-          <!--</ngx-datatable-column>-->
+            <ng-template let-comment="value" let-row="row" ngx-datatable-cell-template>
+              {{ comment }}
+            </ng-template>
+          </ngx-datatable-column>
 
           <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="200">
             <ng-template let-column="column" ngx-datatable-header-template>
@@ -86,6 +110,23 @@
           </ngx-datatable-column>
 
         </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+              <svg class="icon icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+              <svg class="icon icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
 
       </div>
     </section>
