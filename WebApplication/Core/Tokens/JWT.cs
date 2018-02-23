@@ -235,7 +235,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				// check audience
 				if (expectedAudience != null) {
 					var aud = token.Claims.FirstOrDefault(_ => _.Type == "aud")?.Value;
-					if (aud != expectedArea.ToString().ToLowerInvariant()) {
+					if (aud != expectedAudience.ToString().ToLowerInvariant()) {
 						return false;
 					}
 				}
