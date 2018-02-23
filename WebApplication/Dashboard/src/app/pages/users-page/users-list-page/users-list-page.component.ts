@@ -46,7 +46,7 @@ export class UsersListPageComponent implements OnInit {
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
+      this.messages.emptyMessage = event.translations.NoData;
     });
 
     this.userService.currentLocale.subscribe(currentLocale => {
