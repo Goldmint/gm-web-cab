@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LimitsPageComponent } from './limits-page.component';
+import { SettingsPageComponent } from './settings-page.component';
 
-describe('LimitsPageComponent', () => {
-  let component: LimitsPageComponent;
-  let fixture: ComponentFixture<LimitsPageComponent>;
+describe('SettingsPageComponent', () => {
+  let component: SettingsPageComponent;
+  let fixture: ComponentFixture<SettingsPageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LimitsPageComponent ]
+      declarations: [ SettingsPageComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LimitsPageComponent);
+    fixture = TestBed.createComponent(SettingsPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

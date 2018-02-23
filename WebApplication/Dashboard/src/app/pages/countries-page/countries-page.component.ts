@@ -1,7 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {APIService, MessageBoxService, UserService} from "../../services";
 import {Page} from "../../models/page";
-import {TransparencyRecord, TransparencySummary} from "../../interfaces";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
@@ -16,9 +15,7 @@ export class CountriesPageComponent implements OnInit {
   public loading: boolean;
   public page = new Page();
 
-  public summary: TransparencySummary;
-
-  public rows:  Array<TransparencyRecord> = [];
+  public rows:  Array<any> = [];
   public sorts: Array<any> = [{prop: 'name', dir: 'asc'}];
   public messages:    any  = {emptyMessage: 'Loading...'};
 
