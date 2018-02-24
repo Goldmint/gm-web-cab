@@ -39,6 +39,8 @@ export class SellPageComponent implements OnInit {
   buyMNTArray = [10, 1000, 10000];
   discountUSDArray: number[] = [0, 0, 0, 0];
   public sellAmountChecked: boolean = true;
+  public ethAddress: string = '';
+  public selectedWallet = 0;
 
   constructor(
     private _userService: UserService,
@@ -83,6 +85,13 @@ export class SellPageComponent implements OnInit {
           this._cdRef.markForCheck();
         }
       });
+
+    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+      if (!this.ethAddress) {
+        this.selectedWallet = 0;
+      }
+    });
   }
 
   onToSellChanged(value: string) {
@@ -171,24 +180,18 @@ export class SellPageComponent implements OnInit {
   }
 
   onSell() {
-    var ethAddress = this._ethService.getEthAddress();
-
-    if (ethAddress == null) {
-      this._messageBox.alert('Enable metamask first');
-      return;
-    }
-
     this.progress = true;
     this._cdRef.markForCheck();
 
-    this._apiService.goldSellReqest(ethAddress, this.toSell)
-      .finally(() => {
-        this.progress = false;
-        this._cdRef.markForCheck();
-      })
-      .subscribe(res => {
-          var confText =
-            "GOLD to sell: " +
+    if (this.selectedWallet == 0) {
+      this._apiService.goldSellHwReqest(this.toSell)
+        .finally(() => {
+          this.progress = false;
+          this._cdRef.markForCheck();
+        })
+        .subscribe(res => {
+            const confText =
+              "GOLD to sell: " +
               (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
               " GOLD<br/>" +
               "You will get: $ " +
@@ -199,21 +202,64 @@ export class SellPageComponent implements OnInit {
               "GOLD/USD: $ " +
               res.data.goldRate;
 
-          this.confirmation = true;
-          this._cdRef.markForCheck();
-
-          this._messageBox.confirm(confText).subscribe(ok => {
-            this.confirmation = false;
-            if (ok) {
-              this._ethService.sendSellRequest(ethAddress, res.data.payload);
-            }
+            this.confirmation = true;
             this._cdRef.markForCheck();
+            console.log(res);
+            this._messageBox.confirm(confText).subscribe(ok => {
+              this.confirmation = false;
+              if (ok) {
+                this._apiService.confirmHwReqest(false, res.data.requestId).subscribe((data) => {
+                  console.log(data);
+                },
+                err => {
+                  if (err.error && err.error.errorCode) {
+                    this._messageBox.alert(err.error.errorDesc);
+                  }
+                });
+              }
+              this._cdRef.markForCheck();
+            });
+          },
+          err => {
+            if (err.error && err.error.errorCode) {
+              this._messageBox.alert(err.error.errorDesc);
+            }
           });
-        },
-        err => {
-          if (err.error && err.error.errorCode) {
-            this._messageBox.alert(err.error.errorDesc);
-          }
-        });
+    } else {
+      this._apiService.goldSellReqest(this.ethAddress, this.toSell)
+        .finally(() => {
+          this.progress = false;
+          this._cdRef.markForCheck();
+        })
+        .subscribe(res => {
+            var confText =
+              "GOLD to sell: " +
+              (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
+              " GOLD<br/>" +
+              "You will get: $ " +
+              res.data.fiatAmount +
+              " ($ " +
+              res.data.feeAmount +
+              " fee)<br/>" +
+              "GOLD/USD: $ " +
+              res.data.goldRate;
+
+            this.confirmation = true;
+            this._cdRef.markForCheck();
+
+            this._messageBox.confirm(confText).subscribe(ok => {
+              this.confirmation = false;
+              if (ok) {
+                this._ethService.sendSellRequest(this.ethAddress, res.data.payload);
+              }
+              this._cdRef.markForCheck();
+            });
+          },
+          err => {
+            if (err.error && err.error.errorCode) {
+              this._messageBox.alert(err.error.errorDesc);
+            }
+          });
+    }
   }
 }
