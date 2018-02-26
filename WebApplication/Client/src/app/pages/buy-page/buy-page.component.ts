@@ -95,7 +95,7 @@ export class BuyPageComponent implements OnInit {
     this._cdRef.markForCheck();
 
     if (this.selectedWallet == 0) {
-      this._apiService.goldBuyHwReqest(this.toSpend)
+      this._apiService.goldBuyHwReqest(this.toSpend.toNumber())
         .finally(() => {
           this.progress = false;
           this._cdRef.markForCheck();
@@ -110,12 +110,12 @@ export class BuyPageComponent implements OnInit {
 
             this.confirmation = true;
             this._cdRef.markForCheck();
-            console.log(res);
+
             this._messageBox.confirm(confText).subscribe(ok => {
               this.confirmation = false;
               if (ok) {
-                this._apiService.confirmHwReqest(true, res.data.requestId).subscribe((data) => {
-                  console.log(data);
+                this._apiService.confirmHwReqest(true, res.data.requestId).subscribe(() => {
+                  this._messageBox.alert('Confirmed!');
                 },
                 err => {
                   if (err.error && err.error.errorCode) {
