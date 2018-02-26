@@ -47,6 +47,8 @@ export class TransferPageComponent implements OnInit {
       this.ethAddress = ethAddr;
       if (!this.ethAddress) {
         this.selectedWallet = 0;
+      } else {
+        this.selectedWallet = 1;
       }
     });
   }

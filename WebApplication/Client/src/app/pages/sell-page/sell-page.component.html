@@ -17,7 +17,7 @@
                   <use xlink:href="#payment-card"></use>
                 </svg>
               </div>
-              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet">
+              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet" (change)="onSetSellPercent(1)">
                 <option value="0">Hot wallet</option>
                 <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
               </select>
@@ -72,7 +72,7 @@
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="!sellAmountChecked || goldBalance == null || toSell.gt(goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
+          <button class="btn btn-primary btn-block" [disabled]="!sellAmountChecked || (selectedWallet == 0 ? hotGoldBalance : goldBalance) == null || toSell.gt(selectedWallet == 0 ? hotGoldBalance : goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
             {{ "PAGES.Sell.Buttons.SellNow" | translate }}
           </button>
         </div>

@@ -28,7 +28,8 @@ export class SellPageComponent implements OnInit {
   toSellVal: string = "";
   commission: number = 0;
 
-  goldBalance: BigNumber = null;
+  goldBalance: BigNumber = new BigNumber(0);
+  hotGoldBalance: BigNumber = new BigNumber(0);
   mntpBalance: BigNumber = null;
   goldUsdRate: number = 0;
   estimatedAmount: string = null;
@@ -63,22 +64,25 @@ export class SellPageComponent implements OnInit {
     Observable.combineLatest(
       this._ethService.getObservableGoldBalance(),
       this._goldrateService.getObservableRate(),
-      this._ethService.getObservableMntpBalance()
+      this._ethService.getObservableMntpBalance(),
+      this._ethService.getObservableHotGoldBalance(),
     )
       .subscribe((data) => {
         if (data[0] !== null) this.goldBalance = data[0];
         if (data[1] !== null) this.goldUsdRate = data[1];
         if (data[2] !== null) this.mntpBalance = data[2];
+        if (data[3] !== null) this.hotGoldBalance = data[3];
 
         // got gold balance first time
-        if (this.goldBalance !== null && this.goldBalance.gt(0) && this.toSellUnset) {
+        let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
+        if (goldBalance !== null && goldBalance.gt(0) && this.toSellUnset) {
           this.toSellUnset = false;
-          this.toSell = this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+          this.toSell = goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
           this.toSellVal = this.toSell.toString();
         }
 
         // got all needed data to calculate estimated value
-        this.recalcCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
+        this.recalcCommission(this.goldUsdRate, this.mntpBalance);
 
         // dont update values while user clicks primary button
         if (!this.progress && !this.confirmation) {
@@ -90,6 +94,8 @@ export class SellPageComponent implements OnInit {
       this.ethAddress = ethAddr;
       if (!this.ethAddress) {
         this.selectedWallet = 0;
+      } else {
+        this.selectedWallet = 1;
       }
     });
   }
@@ -104,21 +110,25 @@ export class SellPageComponent implements OnInit {
       this.toSell = new BigNumber(value);
       this.toSell = this.toSell.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
-    this.recalcCommission(this.goldUsdRate, this.goldBalance, this.mntpBalance);
+    this.recalcCommission(this.goldUsdRate, this.mntpBalance);
     this._cdRef.markForCheck();
   }
 
   onSetSellPercent(percent:number) {
     var goldBalancePercent = new BigNumber(0);
-    if (this.goldBalance != null) {
-      goldBalancePercent = new BigNumber(this.goldBalance.times(percent));
+
+    let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
+    if (goldBalance != null) {
+      goldBalancePercent = new BigNumber(goldBalance.times(percent));
     }
     this.onToSellChanged(goldBalancePercent.toString());
     this.toSellVal = this.toSell.toString();
     this._cdRef.markForCheck();
   }
 
-  recalcCommission(rate: number, goldBalance: BigNumber, mntpBalance: BigNumber) {
+  recalcCommission(rate: number, mntpBalance: BigNumber) {
+
+    let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
 
     if (rate === 0) return;
     if (goldBalance == null) goldBalance = new BigNumber(0);
@@ -184,7 +194,7 @@ export class SellPageComponent implements OnInit {
     this._cdRef.markForCheck();
 
     if (this.selectedWallet == 0) {
-      this._apiService.goldSellHwReqest(this.toSell)
+      this._apiService.goldSellHwReqest(this.toSell.toNumber())
         .finally(() => {
           this.progress = false;
           this._cdRef.markForCheck();
@@ -204,12 +214,12 @@ export class SellPageComponent implements OnInit {
 
             this.confirmation = true;
             this._cdRef.markForCheck();
-            console.log(res);
+
             this._messageBox.confirm(confText).subscribe(ok => {
               this.confirmation = false;
               if (ok) {
-                this._apiService.confirmHwReqest(false, res.data.requestId).subscribe((data) => {
-                  console.log(data);
+                this._apiService.confirmHwReqest(false, res.data.requestId).subscribe(() => {
+                    this._messageBox.alert('Confirmed!');
                 },
                 err => {
                   if (err.error && err.error.errorCode) {
