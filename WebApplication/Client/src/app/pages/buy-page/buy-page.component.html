@@ -65,7 +65,7 @@
         </div>
 
         <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block"  (click)="onBuy()">
+          <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend.gt(usdBalance) || toSpend.lte(0)" (click)="onBuy()">
             {{ "PAGES.Buy.Buttons.BuyNow" | translate }}
           </button>
         </div>
