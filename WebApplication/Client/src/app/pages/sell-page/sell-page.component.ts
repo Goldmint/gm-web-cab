@@ -2,12 +2,8 @@ import {
   Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding
 } from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
-import * as Web3 from 'web3';
-import { Subscription } from 'rxjs/Subscription';
-import { FormGroup } from '@angular/forms';
 import { Observable } from "rxjs/Observable";
-import { BigNumber } from 'bignumber.js'
-import { DecimalPipe } from "@angular/common";
+import { BigNumber } from 'bignumber.js';
 
 @Component({
   selector: 'app-sell-page',
@@ -23,13 +19,13 @@ export class SellPageComponent implements OnInit {
   progress: boolean = false;
   confirmation: boolean = false;
 
-  toSellUnset: boolean = true;
+  isBalancesLoaded: boolean = false;
   toSell: BigNumber = new BigNumber(0);
   toSellVal: string = "";
   commission: number = 0;
 
-  goldBalance: BigNumber = new BigNumber(0);
-  hotGoldBalance: BigNumber = new BigNumber(0);
+  goldBalance: BigNumber = null;
+  hotGoldBalance: BigNumber = null;
   mntpBalance: BigNumber = null;
   goldUsdRate: number = 0;
   estimatedAmount: string = null;
@@ -53,9 +49,6 @@ export class SellPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
-    this.toSellUnset = true;
-
     this._userService.currentLocale.subscribe(currentLocale => {
       this.locale = currentLocale;
       this._cdRef.markForCheck();
@@ -63,46 +56,67 @@ export class SellPageComponent implements OnInit {
 
     Observable.combineLatest(
       this._ethService.getObservableGoldBalance(),
-      this._goldrateService.getObservableRate(),
-      this._ethService.getObservableMntpBalance(),
-      this._ethService.getObservableHotGoldBalance(),
+      this._ethService.getObservableMntpBalance()
     )
       .subscribe((data) => {
-        if (data[0] !== null) this.goldBalance = data[0];
-        if (data[1] !== null) this.goldUsdRate = data[1];
-        if (data[2] !== null) this.mntpBalance = data[2];
-        if (data[3] !== null) this.hotGoldBalance = data[3];
-
-        // got gold balance first time
-        let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
-        if (goldBalance !== null && goldBalance.gt(0) && this.toSellUnset) {
-          this.toSellUnset = false;
-          this.toSell = goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
-          this.toSellVal = this.toSell.toString();
-        }
-
-        // got all needed data to calculate estimated value
-        this.recalcCommission(this.goldUsdRate, this.mntpBalance);
-
-        // dont update values while user clicks primary button
-        if (!this.progress && !this.confirmation) {
-          this._cdRef.markForCheck();
+        if (data[0] !== null && (this.goldBalance === null || !this.goldBalance.eq(data[0]))
+          && data[1] !== null && (this.mntpBalance === null || !this.mntpBalance.eq(data[0]))
+        ) {
+          this.goldBalance = data[0];
+          this.mntpBalance = data[1];
+          this.setGoldBalance();
         }
       });
 
+    this._ethService.getObservableHotGoldBalance().subscribe(data => {
+        if (data !== null && (this.hotGoldBalance === null || !this.hotGoldBalance.eq(data))) {
+          this.hotGoldBalance = data;
+          this.setGoldBalance();
+        }
+      });
+
+    this._goldrateService.getObservableRate().subscribe(rate => {
+      if (rate > 0 && rate !== this.goldUsdRate) {
+        this.goldUsdRate = rate;
+        this.recalcCommission();
+      }
+    });
+
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.ethAddress = ethAddr;
-      if (!this.ethAddress) {
-        this.selectedWallet = 0;
-      } else {
-        this.selectedWallet = 1;
-      }
+      this.selectedWallet = this.ethAddress ? 1 : 0;
+
+      this.isBalancesLoaded = false;
+      this.setGoldBalance();
     });
   }
 
-  onToSellChanged(value: string) {
+  setGoldBalance(percent: number = 1) {
+    let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
 
-    this.toSellUnset = false;
+    if (!goldBalance) {
+      return;
+    }
+
+    goldBalance = new BigNumber(goldBalance.times(percent));
+
+    // got gold balance first time
+    this.isBalancesLoaded = true;
+    if (goldBalance.gt(0)) {
+      this.toSell = goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+      this.toSellVal = this.toSell.toString();
+    }
+
+    // got all needed data to calculate estimated value
+    this.recalcCommission();
+
+    // dont update values while user clicks primary button
+    if (!this.progress && !this.confirmation) {
+      this._cdRef.markForCheck();
+    }
+  }
+
+  onToSellChanged(value: string) {
     var testValue = value != null && value.length > 0 ? new BigNumber(value) : new BigNumber(0);
     this.toSell = new BigNumber(0);
 
@@ -110,31 +124,20 @@ export class SellPageComponent implements OnInit {
       this.toSell = new BigNumber(value);
       this.toSell = this.toSell.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
-    this.recalcCommission(this.goldUsdRate, this.mntpBalance);
+    this.recalcCommission();
     this._cdRef.markForCheck();
   }
 
-  onSetSellPercent(percent:number) {
-    var goldBalancePercent = new BigNumber(0);
-
-    let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
-    if (goldBalance != null) {
-      goldBalancePercent = new BigNumber(goldBalance.times(percent));
+  recalcCommission() {
+    if (!this.goldUsdRate) {
+      return;
     }
-    this.onToSellChanged(goldBalancePercent.toString());
-    this.toSellVal = this.toSell.toString();
-    this._cdRef.markForCheck();
-  }
-
-  recalcCommission(rate: number, mntpBalance: BigNumber) {
 
     let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
-
-    if (rate === 0) return;
-    if (goldBalance == null) goldBalance = new BigNumber(0);
+    goldBalance === null && (goldBalance = new BigNumber(0));
 
     // current comission
-    var mntpNum = mntpBalance !== null ? mntpBalance.toNumber() : 0;
+    var mntpNum = this.mntpBalance !== null ? this.mntpBalance.toNumber() : 0;
     if (mntpNum < this.mntpArray[0]) {
       this.commission = this.commissionArray[0];
     } else if (mntpNum >= this.mntpArray[0] && mntpNum < this.mntpArray[1]) {
@@ -164,9 +167,9 @@ export class SellPageComponent implements OnInit {
     }
 
     // gold amount bounds and minimum 1 USD estimated
-    if (!this.toSellUnset) {
-      this.sellAmountChecked = this.toSell.gt(0) && this.toSell.lte(goldBalance) && amountNet >= 1;
-    }
+    this.sellAmountChecked = !this.isBalancesLoaded || (this.toSell.gt(0) && this.toSell.lte(goldBalance) && amountNet >= 1);
+
+    this._cdRef.markForCheck();
   }
 
   updateDiscountBlockData(mntp:number) {
@@ -219,12 +222,13 @@ export class SellPageComponent implements OnInit {
               this.confirmation = false;
               if (ok) {
                 this._apiService.confirmHwReqest(false, res.data.requestId).subscribe(() => {
-                    this._messageBox.alert('Confirmed!');
+                    this._messageBox.alert('Your request is in progress now!');
                 },
                 err => {
-                  if (err.error && err.error.errorCode) {
-                    this._messageBox.alert(err.error.errorDesc);
-                  }
+                  err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1010
+                    ? 'You have exceeded request frequency (One request for 30 minutes). Please try later'
+                    : err.error.errorDesc
+                  )
                 });
               }
               this._cdRef.markForCheck();

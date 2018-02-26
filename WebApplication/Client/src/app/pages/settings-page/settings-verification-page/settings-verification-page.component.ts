@@ -37,6 +37,8 @@ export class SettingsVerificationPageComponent implements OnInit {
 
   public agreementResend: KYCAgreementResend = null;
 
+  private selectedCountry;
+
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
@@ -100,7 +102,17 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (reset) this.kycProfile.state = null;
 
     if (country != null) {
+      this.selectedCountry = country;
       this.regions = country.regions;
+      this.kycProfile.phoneNumber = country['phoneCode'];
+    }
+  }
+
+  onPhoneNumberChanged(event) {
+    event.target.value = event.target.value.replace(/(?!^\+)[^\d]/g, '');
+
+    if (this.kycProfile.phoneNumber.indexOf(this.selectedCountry.phoneCode)) {
+      event.target.value = this.selectedCountry.phoneCode;
     }
   }
 

@@ -17,7 +17,7 @@
                   <use xlink:href="#payment-card"></use>
                 </svg>
               </div>
-              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet" (change)="onSetSellPercent(1)">
+              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet" (change)="setGoldBalance(1)">
                 <option value="0">Hot wallet</option>
                 <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
               </select>
@@ -43,10 +43,10 @@
               >
             </div>
               <div class="percent-btn-cont">
-                <button class="percent-btn" (click)="onSetSellPercent(0.25)">25%</button>
-                <button class="percent-btn" (click)="onSetSellPercent(0.5)">50%</button>
-                <button class="percent-btn" (click)="onSetSellPercent(0.75)">75%</button>
-                <button class="percent-btn" (click)="onSetSellPercent(1)">100%</button>
+                <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
+                <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
+                <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
+                <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
               </div>
             <div class="invalid-feedback" *ngIf="!sellAmountChecked">
               Invalid gold amount
