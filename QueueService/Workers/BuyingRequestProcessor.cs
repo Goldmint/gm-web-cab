@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common;
 
 namespace Goldmint.QueueService.Workers {
 
@@ -32,9 +33,10 @@ namespace Goldmint.QueueService.Workers {
 			var rows = await (
 				from r in _dbContext.BuyRequest
 				where 
-				(r.Status == Common.ExchangeRequestStatus.Processing || r.Status == Common.ExchangeRequestStatus.BlockchainConfirm) &&
+				(r.Type == ExchangeRequestType.EthRequest || r.Type == ExchangeRequestType.HWRequest ) &&
+				(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
-				select new { Id = r.Id }
+				select new { Type = r.Type, Id = r.Id }
 			)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -44,7 +46,12 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
-				await CoreLogic.Finance.Tokens.GoldToken.ProcessBuyingRequest(_services, row.Id);
+				if (row.Type == ExchangeRequestType.HWRequest) {
+					await CoreLogic.Finance.Tokens.GoldToken.ProcessHWBuyingRequest(_services, row.Id);
+				}
+				if (row.Type == ExchangeRequestType.EthRequest) {
+					await CoreLogic.Finance.Tokens.GoldToken.ProcessEthBuyingRequest(_services, row.Id);
+				}
 			}
 		}
 	}

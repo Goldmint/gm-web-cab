@@ -257,11 +257,5 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 	}
 
 	public class HWConfirmView {
-
-		/// <summary>
-		/// Eth transaction to track
-		/// </summary>
-		[Required]
-		public string EthTransaction { get; set; }
 	}
 }

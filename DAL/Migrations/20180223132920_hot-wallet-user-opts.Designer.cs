@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180223132920_hot-wallet-user-opts")]
+    partial class hotwalletuseropts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,9 +111,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<DateTime?>("TimeRequested")
                         .HasColumnName("time_requested");
-
-                    b.Property<int>("Type")
-                        .HasColumnName("type");
 
                     b.Property<long>("UserId")
                         .HasColumnName("user_id");
@@ -764,9 +762,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<DateTime?>("TimeRequested")
                         .HasColumnName("time_requested");
-
-                    b.Property<int>("Type")
-                        .HasColumnName("type");
 
                     b.Property<long>("UserId")
                         .HasColumnName("user_id");

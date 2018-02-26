@@ -79,6 +79,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// request
 			var sellRequest = new SellRequest() {
 				User = user,
+				Type = ExchangeRequestType.EthRequest,
 				Status = ExchangeRequestStatus.Initial,
 				Currency = currency,
 				FiatAmountCents = estimated.ResultGrossCents,
@@ -186,6 +187,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// request
 			var sellRequest = new SellRequest() {
 				User = user,
+				Type = ExchangeRequestType.HWRequest,
 				Status = ExchangeRequestStatus.Initial,
 				Currency = currency,
 				FiatAmountCents = estimated.ResultGrossCents,

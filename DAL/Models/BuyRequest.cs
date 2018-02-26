@@ -8,6 +8,9 @@ namespace Goldmint.DAL.Models {
 	[Table("gm_buy_request")]
 	public class BuyRequest : BaseFinancialHistoryEntity, IConcurrentUpdate {
 
+		[Column("type"), Required]
+		public ExchangeRequestType Type { get; set; }
+
 		[Column("status"), Required]
 		public ExchangeRequestStatus Status { get; set; }
 

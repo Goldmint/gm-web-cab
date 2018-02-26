@@ -54,7 +54,7 @@ namespace Goldmint.QueueService.Workers {
 					var success = false;
 
 					if (data.IsBuyRequest) {
-						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareBuyingExchangeRequest(
+						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareEthBuyingRequest(
 							services: _services,
 							userId: userId,
 							payload: data.Payload,
@@ -62,7 +62,7 @@ namespace Goldmint.QueueService.Workers {
 							requestIndex: data.RequestIndex
 						);
 					} else {
-						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareSellingExchangeRequest(
+						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareEthSellingRequest(
 							services: _services,
 							userId: userId,
 							payload: data.Payload,

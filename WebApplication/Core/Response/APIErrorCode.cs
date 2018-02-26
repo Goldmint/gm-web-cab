@@ -76,6 +76,11 @@
 		/// TFA must be enabled
 		/// </summary>
 		AccountTFADisabled = 1009,
+
+		/// <summary>
+		/// Hot wallet operation limit (ex: frequency limit)
+		/// </summary>
+		AccountHWOperationLimit = 1010,
 	}
 
 	public static class APIErrorCodeExtensions {

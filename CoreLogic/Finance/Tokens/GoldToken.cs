@@ -175,10 +175,12 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			};
 		}
 
+		// ---
+
 		/// <summary>
 		/// Mark request as prepared for processing
 		/// </summary>
-		public static async Task<bool> PrepareBuyingExchangeRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
+		public static async Task<bool> PrepareEthBuyingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
 
 			long payloadId = 0;
 			if (!long.TryParse(payload, out payloadId) || payloadId <= 0) {
@@ -197,7 +199,12 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			var query =
 				from r in dbContext.BuyRequest
-				where r.Id == payloadId && r.UserId == userId && r.Status == ExchangeRequestStatus.Initial && r.Address == address
+				where 
+					r.Type == ExchangeRequestType.EthRequest &&
+					r.Id == payloadId && 
+					r.UserId == userId && 
+					r.Status == ExchangeRequestStatus.Initial && 
+					r.Address == address
 				select r
 			;
 
@@ -208,7 +215,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.BuyRequest, payloadId)
+				.Mutex(MutexEntity.EthBuyRequest, payloadId)
 			;
 
 			return await mutexBuilder.LockAsync<bool>(async (ok) => {
@@ -249,7 +256,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Mark request as prepared for processing
 		/// </summary>
-		public static async Task<bool> PrepareSellingExchangeRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
+		public static async Task<bool> PrepareEthSellingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
 
 			long payloadId = 0;
 			if (!long.TryParse(payload, out payloadId) || payloadId <= 0) {
@@ -268,7 +275,12 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			var query =
 				from r in dbContext.SellRequest
-				where r.Id == payloadId && r.UserId == userId && r.Status == ExchangeRequestStatus.Initial && r.Address == address
+				where
+					r.Type == ExchangeRequestType.EthRequest &&
+					r.Id == payloadId && 
+					r.UserId == userId && 
+					r.Status == ExchangeRequestStatus.Initial && 
+					r.Address == address
 				select r
 			;
 
@@ -279,7 +291,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.SellRequest, payloadId)
+				.Mutex(MutexEntity.EthSellRequest, payloadId)
 			;
 
 			return await mutexBuilder.LockAsync<bool>(async (ok) => {
@@ -320,7 +332,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Process request on blockchain and check it
 		/// </summary>
-		public static async Task<bool> ProcessBuyingRequest(IServiceProvider services, long requestId) {
+		public static async Task<bool> ProcessEthBuyingRequest(IServiceProvider services, long requestId) {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -332,7 +344,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.BuyRequest, requestId)
+				.Mutex(MutexEntity.EthBuyRequest, requestId)
 			;
 
 			return await mutexBuilder.LockAsync(async (ok) => {
@@ -341,8 +353,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					var request = await (
 						from r in dbContext.BuyRequest
 						where
-						r.Id == requestId &&
-						(r.Status == Common.ExchangeRequestStatus.Processing || r.Status == Common.ExchangeRequestStatus.BlockchainConfirm)
+							r.Type == ExchangeRequestType.EthRequest &&
+							r.Id == requestId &&
+							(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.FinancialHistory)
@@ -458,7 +471,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					} catch (Exception e) {
 						logger.Error(e, $"Failed to process buying request #{request.Id}");
 					} finally {
-						dbContext.Detach(request);
+						dbContext.Detach(request.FinancialHistory, request);
 					}
 				}
 
@@ -469,7 +482,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Post blockchain transaction for request
 		/// </summary>
-		public static async Task<bool> ProcessSellingRequest(IServiceProvider services, long requestId) {
+		public static async Task<bool> ProcessEthSellingRequest(IServiceProvider services, long requestId) {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -481,7 +494,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.SellRequest, requestId)
+				.Mutex(MutexEntity.EthSellRequest, requestId)
 			;
 
 			return await mutexBuilder.LockAsync(async (ok) => {
@@ -491,7 +504,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						from r in dbContext.SellRequest
 						where
 						r.Id == requestId &&
-						(r.Status == Common.ExchangeRequestStatus.Processing || r.Status == Common.ExchangeRequestStatus.BlockchainConfirm)
+						r.Type == ExchangeRequestType.EthRequest &&
+						(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.FinancialHistory)
@@ -610,7 +624,307 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						logger.Error(e, $"Failed to process selling request #{request.Id}");
 					}
 					finally {
-						dbContext.Detach(request);
+						dbContext.Detach(request.FinancialHistory, request);
+					}
+				}
+
+				return false;
+			});
+		}
+
+		// ---
+		/// <summary>
+		/// Process request on blockchain and check it
+		/// </summary>
+		public static async Task<bool> ProcessHWBuyingRequest(IServiceProvider services, long requestId) {
+
+			var logger = services.GetLoggerFor(typeof(GoldToken));
+			var appConfig = services.GetRequiredService<AppConfig>();
+			var mutexHolder = services.GetRequiredService<IMutexHolder>();
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
+			var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+
+			var mutexBuilder =
+				new MutexBuilder(mutexHolder)
+				.Mutex(MutexEntity.HWBuyRequest, requestId)
+			;
+
+			return await mutexBuilder.LockAsync(async (ok) => {
+				if (ok) {
+
+					var request = await (
+						from r in dbContext.BuyRequest
+						where
+							r.Type == ExchangeRequestType.HWRequest &&
+							r.Id == requestId &&
+							(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm)
+						select r
+					)
+						.Include(_ => _.User)
+						.Include(_ => _.FinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
+					;
+
+					if (request == null) {
+						return false;
+					}
+
+					try {
+
+						// set next check time
+						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeRequested ?? request.TimeCreated, TimeSpan.FromSeconds(10), 4);
+
+						// initiate blockchain transaction
+						if (request.Status == ExchangeRequestStatus.Processing) {
+
+							// update status to prevent double spending
+							request.Status = ExchangeRequestStatus.BlockchainInit;
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
+							}
+							catch { }
+
+							var adjust = await AdjustExchangeGoldRate(
+								services: services,
+								buying: true,
+								currency: request.Currency,
+								fixedGoldRateCents: request.FixedRateCents
+							);
+
+							// cancelled
+							if (adjust.Abort) {
+
+								request.Status = ExchangeRequestStatus.Cancelled;
+								await dbContext.SaveChangesAsync();
+
+								try {
+									await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has been cancelled. Possibly due to significant gold rate change");
+								}
+								catch { }
+
+								return false;
+							}
+
+							// save actual rate
+							request.ActualRateCents = adjust.GoldRateCents;
+
+							// save eth transaction
+							request.EthTransactionId = await ethereumWriter.ProcessHotWalletExchangeRequest(
+								userId: request.User.UserName,
+								isBuying: true,
+								currency: request.Currency,
+								amountCents: request.FiatAmountCents,
+								centsPerGoldToken: adjust.GoldRateCents
+							);
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
+							}
+							catch { }
+
+							// set new status
+							request.Status = ExchangeRequestStatus.BlockchainConfirm;
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
+							}
+							catch { }
+
+							return true;
+						}
+
+						if (request.Status == ExchangeRequestStatus.BlockchainConfirm) {
+
+							var result = await ethereumReader.CheckTransaction(request.EthTransactionId);
+
+							// final
+							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
+
+								var success = result == BlockchainTransactionStatus.Success;
+								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
+								request.TimeCompleted = DateTime.UtcNow;
+
+								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+
+								await dbContext.SaveChangesAsync();
+
+								try {
+									if (request.Status == ExchangeRequestStatus.Success) {
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
+									}
+									if (request.Status == ExchangeRequestStatus.Failed) {
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
+									}
+								}
+								catch { }
+							}
+
+							return request.Status == ExchangeRequestStatus.Success;
+						}
+
+					}
+					catch (Exception e) {
+						logger.Error(e, $"Failed to process buying request #{request.Id}");
+					}
+					finally {
+						dbContext.Detach(request.User, request.FinancialHistory, request);
+					}
+				}
+
+				return false;
+			});
+		}
+
+		/// <summary>
+		/// Post blockchain transaction for request
+		/// </summary>
+		public static async Task<bool> ProcessHWSellingRequest(IServiceProvider services, long requestId) {
+
+			var logger = services.GetLoggerFor(typeof(GoldToken));
+			var appConfig = services.GetRequiredService<AppConfig>();
+			var mutexHolder = services.GetRequiredService<IMutexHolder>();
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
+			var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+
+			var mutexBuilder =
+				new MutexBuilder(mutexHolder)
+				.Mutex(MutexEntity.HWSellRequest, requestId)
+			;
+
+			return await mutexBuilder.LockAsync(async (ok) => {
+				if (ok) {
+
+					var request = await (
+						from r in dbContext.SellRequest
+						where
+						r.Id == requestId &&
+						r.Type == ExchangeRequestType.HWRequest &&
+						(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm)
+						select r
+					)
+						.Include(_ => _.User)
+						.Include(_ => _.FinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
+					;
+
+					if (request == null) {
+						return false;
+					}
+
+					try {
+
+						// set next check time
+						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeRequested ?? request.TimeCreated, TimeSpan.FromSeconds(10), 4);
+
+						// initiate blockchain transaction
+						if (request.Status == ExchangeRequestStatus.Processing) {
+
+							// update status to prevent double spending
+							request.Status = ExchangeRequestStatus.BlockchainInit;
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
+							}
+							catch { }
+
+							var adjust = await AdjustExchangeGoldRate(
+								services: services,
+								buying: false,
+								currency: request.Currency,
+								fixedGoldRateCents: request.FixedRateCents
+							);
+
+							// cancelled
+							if (adjust.Abort) {
+
+								request.Status = ExchangeRequestStatus.Cancelled;
+								await dbContext.SaveChangesAsync();
+
+								try {
+									await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has been cancelled. Possibly due to significant gold rate change");
+								}
+								catch { }
+
+								return false;
+							}
+
+							// save actual rate
+							request.ActualRateCents = adjust.GoldRateCents;
+
+							// save eth transaction
+							request.EthTransactionId = await ethereumWriter.ProcessHotWalletExchangeRequest(
+								userId: request.User.UserName,
+								isBuying: false,
+								currency: request.Currency,
+								amountCents: request.FiatAmountCents,
+								centsPerGoldToken: adjust.GoldRateCents
+							);
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
+							}
+							catch { }
+
+							// set new status
+							request.Status = ExchangeRequestStatus.BlockchainConfirm;
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
+							}
+							catch { }
+
+							return true;
+						}
+
+						if (request.Status == ExchangeRequestStatus.BlockchainConfirm) {
+
+							var result = await ethereumReader.CheckTransaction(request.EthTransactionId);
+
+							// final
+							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
+
+								var success = result == BlockchainTransactionStatus.Success;
+
+								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
+								request.TimeCompleted = DateTime.UtcNow;
+
+								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+
+								await dbContext.SaveChangesAsync();
+
+								try {
+									if (request.Status == ExchangeRequestStatus.Success) {
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
+									}
+									if (request.Status == ExchangeRequestStatus.Failed) {
+										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
+									}
+								}
+								catch { }
+							}
+
+							return request.Status == ExchangeRequestStatus.Success;
+						}
+
+					}
+					catch (Exception e) {
+						logger.Error(e, $"Failed to process hw selling request #{request.Id}");
+					}
+					finally {
+						dbContext.Detach(request.User, request.FinancialHistory, request);
 					}
 				}
 

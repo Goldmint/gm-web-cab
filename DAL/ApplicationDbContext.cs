@@ -54,7 +54,9 @@ namespace Goldmint.DAL {
 
 		public void Detach(params object[] entities) {
 			foreach (var v in entities) {
-				this.Entry(v).State = EntityState.Detached;
+				if (v != null) {
+					this.Entry(v).State = EntityState.Detached;
+				}
 			}
 		}
 
