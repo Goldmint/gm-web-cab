@@ -134,7 +134,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		public double Usd { get; set; }
 
 		/// <summary>
-		/// Gold token amount in wei
+		/// Hot wallet GOLD token amount in wei
 		/// </summary>
 		[Required]
 		public string Gold { get; set; }

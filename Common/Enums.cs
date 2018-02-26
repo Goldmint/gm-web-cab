@@ -7,19 +7,6 @@ namespace Goldmint.Common {
 		Google = 1,
 	}
 
-	public enum JwtEntity {
-
-		/// <summary>
-		/// Security token
-		/// </summary>
-		Security,
-
-		/// <summary>
-		/// Token issued to user
-		/// </summary>
-		User,
-	}
-
 	public enum JwtAudience {
 
 		/// <summary>
@@ -183,12 +170,32 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Lock should be set while changing buying request state
 		/// </summary>
-		BuyRequest,
+		EthBuyRequest,
 
 		/// <summary>
 		/// Lock should be set while changing selling request state
 		/// </summary>
-		SellRequest,
+		EthSellRequest,
+
+		/// <summary>
+		/// Hot wallet operation initiation mutex
+		/// </summary>
+		HWOperation,
+
+		/// <summary>
+		/// Lock should be set while buying gold to hot wallet
+		/// </summary>
+		HWBuyRequest,
+
+		/// <summary>
+		/// Lock should be set while selling gold from hot wallet
+		/// </summary>
+		HWSellRequest,
+
+		/// <summary>
+		/// Lock should be set while transferring gold from hot wallet
+		/// </summary>
+		HWTransferRequest,
 	}
 
 	public enum FiatCurrency {
@@ -431,6 +438,19 @@ namespace Goldmint.Common {
 		/// Final failure
 		/// </summary>
 		Failed,
+	}
+
+	public enum ExchangeRequestType {
+
+		/// <summary>
+		/// Hot wallet queue
+		/// </summary>
+		HWRequest = 1,
+
+		/// <summary>
+		/// Ethereum requests queue
+		/// </summary>
+		EthRequest,
 	}
 
 	public enum ExchangeRequestStatus {

@@ -17,7 +17,13 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// </summary>
 		/// <returns>Transaction ID</returns>
 		Task<string> ProcessExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken);
-		
+
+		/// <summary>
+		/// Process hot wallet exchange request
+		/// </summary>
+		/// <returns>Transaction ID</returns>
+		Task<string> ProcessHotWalletExchangeRequest(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken);
+
 		/// <summary>
 		/// Cancel exchange request by it's index
 		/// </summary>

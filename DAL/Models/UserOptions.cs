@@ -15,6 +15,15 @@ namespace Goldmint.DAL.Models {
 		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 
+		[Column("hw_buying_stamp")]
+		public DateTime? HotWalletBuyingLastTime { get; set; }
+
+		[Column("hw_selling_stamp")]
+		public DateTime? HotWalletSellingLastTime { get; set; }
+
+		[Column("hw_transfer_stamp")]
+		public DateTime? HotWalletTransferLastTime { get; set; }
+
 		// ---
 
 		public void OnConcurrencyStampRegen() {

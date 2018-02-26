@@ -24,6 +24,7 @@ namespace Goldmint.DAL {
 		public DbSet<UserActivity> UserActivity { get; set; }
 		public DbSet<BuyRequest> BuyRequest { get; set; }
 		public DbSet<SellRequest> SellRequest { get; set; }
+		public DbSet<TransferRequest> TransferRequest { get; set; }
 		public DbSet<FinancialHistory> FinancialHistory { get; set; }
 		public DbSet<UserOpLog> UserOpLog { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
@@ -54,7 +55,9 @@ namespace Goldmint.DAL {
 
 		public void Detach(params object[] entities) {
 			foreach (var v in entities) {
-				this.Entry(v).State = EntityState.Detached;
+				if (v != null) {
+					this.Entry(v).State = EntityState.Detached;
+				}
 			}
 		}
 

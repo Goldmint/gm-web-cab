@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180226104203_how-wallet-exchange-request")]
+    partial class howwalletexchangerequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -937,59 +938,6 @@ namespace Goldmint.DAL.Migrations
                     b.ToTable("gm_swift_payment");
                 });
 
-            modelBuilder.Entity("Goldmint.DAL.Models.TransferRequest", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnName("address")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("AmountWei")
-                        .IsRequired()
-                        .HasColumnName("amount_wei")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnName("concurrency_stamp")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("DeskTicketId")
-                        .IsRequired()
-                        .HasColumnName("desk_ticket_id")
-                        .HasMaxLength(32);
-
-                    b.Property<string>("EthTransactionId")
-                        .HasColumnName("eth_transaction_id")
-                        .HasMaxLength(66);
-
-                    b.Property<int>("Status")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime?>("TimeCompleted")
-                        .HasColumnName("time_completed");
-
-                    b.Property<DateTime>("TimeCreated")
-                        .HasColumnName("time_created");
-
-                    b.Property<DateTime>("TimeNextCheck")
-                        .HasColumnName("time_next_check");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("gm_transfer_request");
-                });
-
             modelBuilder.Entity("Goldmint.DAL.Models.Transparency", b =>
                 {
                     b.Property<long>("Id")
@@ -1424,14 +1372,6 @@ namespace Goldmint.DAL.Migrations
                 {
                     b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
                         .WithMany("SwiftPayment")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Goldmint.DAL.Models.TransferRequest", b =>
-                {
-                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

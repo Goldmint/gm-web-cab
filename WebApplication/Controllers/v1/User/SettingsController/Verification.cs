@@ -128,7 +128,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			};
 			var callbackURL = Url.Link("CallbackShuftiPro", new { });
 			var userTempRedirectURL = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
-			var kycRedirect = await KycExternalProvider.GetRedirect(kycUser, ticket.ReferenceId, model.Redirect, callbackURL);
+			var kycRedirect = await KycExternalProvider.GetRedirect(kycUser, ticket.ReferenceId, userTempRedirectURL, callbackURL);
 
 			Logger.Trace($"{user.UserName} got kyc redirect to {kycRedirect} with callback to {callbackURL} and middle redirect to {userTempRedirectURL}");
 

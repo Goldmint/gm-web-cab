@@ -8,14 +8,14 @@ using Goldmint.Common;
 
 namespace Goldmint.QueueService.Workers {
 
-	public class BuyingRequestProcessor : BaseWorker {
+	public class TransferRequestProcessor : BaseWorker {
 
 		private int _rowsPerRound;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
 		
-		public BuyingRequestProcessor(int rowsPerRound) {
+		public TransferRequestProcessor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 		}
 
@@ -31,12 +31,11 @@ namespace Goldmint.QueueService.Workers {
 			var nowTime = DateTime.UtcNow;
 
 			var rows = await (
-				from r in _dbContext.BuyRequest
+				from r in _dbContext.TransferRequest
 				where 
-				(r.Type == ExchangeRequestType.EthRequest || r.Type == ExchangeRequestType.HWRequest ) &&
 				(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
-				select new { Type = r.Type, Id = r.Id }
+				select new { Id = r.Id }
 			)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -46,12 +45,7 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
-				if (row.Type == ExchangeRequestType.HWRequest) {
-					await CoreLogic.Finance.Tokens.GoldToken.ProcessHWBuyingRequest(_services, row.Id);
-				}
-				if (row.Type == ExchangeRequestType.EthRequest) {
-					await CoreLogic.Finance.Tokens.GoldToken.ProcessEthBuyingRequest(_services, row.Id);
-				}
+				await CoreLogic.Finance.Tokens.GoldToken.ProcessHWTransferRequest(_services, row.Id);
 			}
 		}
 	}
