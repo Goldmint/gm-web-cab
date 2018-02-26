@@ -26,6 +26,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   metamaskAccount: string = null;
   goldBalance: number|null = null;
+  hotGoldBalance: number|null = null;
   usdBalance: number|null = null;
 
   constructor(
@@ -66,6 +67,13 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this._ethService.getObservableGoldBalance().subscribe(bal => {
       if (bal != null) this.goldBalance = parseFloat(bal.toPrecision(3));
       this._cdRef.detectChanges();
+    });
+
+    this._ethService.getObservableHotGoldBalance().subscribe(bal => {
+      if (bal != null) {
+        this.hotGoldBalance = parseFloat(bal.toPrecision(3));
+        this._cdRef.detectChanges();
+      }
     });
 
     this._ethService.getObservableUsdBalance().subscribe(bal => {

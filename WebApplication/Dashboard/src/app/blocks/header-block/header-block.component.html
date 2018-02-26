@@ -20,22 +20,6 @@
 
       <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
         <div class="col-auto">
-          <div class="balance" *ngIf="metamaskAccount && goldBalance !== null">
-            <div class="balance__label" [title]="metamaskAccount">{{ 'HEADER.Wallet' | translate }} <div class="balance__metamask">{{ metamaskAccount }}</div></div>
-
-            <div class="balance__item">
-              <svg class="icon" width="18px" height="18px">
-                <use xlink:href="#cur-gold"></use>
-              </svg>
-              <span class="balance__value">
-                {{goldBalance | number:'1.2-2':locale}}
-                {{'OZ'}}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-auto">
           <div class="auth-info">
             <div class="language" (mouseenter)="usermenu.show()" (mouseleave)="usermenu.hide()">
               <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">

@@ -5,7 +5,7 @@ import {
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { Page } from '../../models/page';
-import { TransparencySummary, TransparencyRecord } from '../../interfaces';
+import { TransparencyRecord } from '../../interfaces';
 import { APIService, UserService, MessageBoxService } from '../../services';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { BigNumber } from 'bignumber.js';
@@ -22,8 +22,6 @@ export class TransparencyPageComponent implements OnInit {
   public locale: string;
   public loading: boolean;
   public page = new Page();
-
-  public summary: TransparencySummary;
 
   public rows:  Array<TransparencyRecord> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
@@ -57,7 +55,7 @@ export class TransparencyPageComponent implements OnInit {
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
+      this.messages.emptyMessage = event.translations.NoData;
     });
 
     this.userService.currentLocale.subscribe(currentLocale => {

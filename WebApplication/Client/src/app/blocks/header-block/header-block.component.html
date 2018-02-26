@@ -55,9 +55,20 @@
         </div>
 
         <div class="col-auto">
+
           <img *ngIf="usdBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
 
           <div class="balance" *ngIf="usdBalance !== null">
+            <div class="balance__item">
+              <svg class="icon" width="18px" height="18px">
+                <use xlink:href="#cur-gold"></use>
+              </svg>
+              <span class="balance__value">
+                {{hotGoldBalance | number:'1.2-2':locale}}
+                {{'OZ'}}
+              </span>
+            </div>
+
             <div class="balance__item">
               <svg class="icon" width="10px" height="16px">
                 <use xlink:href="#cur-usd"></use>

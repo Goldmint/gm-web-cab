@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { Router } from '@angular/router';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -17,7 +16,7 @@ import { AppRouting } from './app.routing';
   Guards and Services
  */
 import { AuthGuard } from './guards';
-import { MessageBoxService, APIService, UserService, EthereumService, GoldrateService } from './services';
+import { MessageBoxService, APIService, UserService } from './services';
 import { APIHttpInterceptor } from './common/api/api-http.interceptor'
 
 /*
@@ -54,19 +53,9 @@ import { SpriteComponent }      from './common/sprite/sprite.component';
 /*
   Pages
  */
-import { HomePageComponent } from './pages/home-page/home-page.component';
-import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { PagerBlockComponent } from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
-import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
-import { RegisterPageComponent } from './pages/register-page/register-page.component';
-import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-page/register-tfa-page.component';
-import { RegisterSuccessPageComponent } from './pages/register-page/register-success-page/register-success-page.component';
-import { RegisterEmailTakenPageComponent } from './pages/register-page/register-email-taken-page/register-email-taken-page.component';
-import { RegisterEmailConfirmedPageComponent } from './pages/register-page/register-email-confirmed-page/register-email-confirmed-page.component';
-import { TfaNotActivatedPageComponent } from './pages/register-page/register-tfa-page/tfa-not-activated-page/tfa-not-activated-page.component';
-import { TfaEnablePageComponent } from './pages/register-page/register-tfa-page/tfa-enable-page/tfa-enable-page.component';
+import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { CountriesPageComponent } from './pages/countries-page/countries-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
@@ -76,6 +65,7 @@ import { OplogPageComponent } from './pages/users-page/oplog-page/oplog-page.com
 import { AccessRightsPageComponent } from './pages/users-page/access-rights-page/access-rights-page.component';
 import { UserPageComponent } from './pages/users-page/user-page/user-page.component';
 import { UsersListPageComponent } from './pages/users-page/users-list-page/users-list-page.component';
+import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -121,19 +111,10 @@ export function getGoldmintToken() {
     NavbarBlockComponent,
     MessageBoxComponent,
     SpriteComponent,
-    HomePageComponent,
-    LimitsPageComponent,
     NotFoundPageComponent,
-    PagerBlockComponent,
     LoginPageComponent,
-    LoginOntokenPageComponent,
-    RegisterPageComponent,
-    RegisterTfaPageComponent,
-    RegisterSuccessPageComponent,
-    RegisterEmailTakenPageComponent,
-    RegisterEmailConfirmedPageComponent,
-    TfaNotActivatedPageComponent,
-    TfaEnablePageComponent,
+    SettingsPageComponent,
+    SettingsProfilePageComponent,
     BlurDirective,
     EqualValidatorDirective,
     TransparencyPageComponent,
@@ -153,8 +134,6 @@ export function getGoldmintToken() {
     MessageBoxService,
     APIService,
     UserService,
-    EthereumService,
-    GoldrateService,
     {
       provide: RECAPTCHA_SETTINGS,
       useValue: {

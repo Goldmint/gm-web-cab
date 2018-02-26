@@ -1,4 +1,4 @@
-import { Injectable/*, ChangeDetectorRef*/ } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -7,8 +7,8 @@ import { Observable } from 'rxjs/Observable';
 import { zip } from 'rxjs/observable/zip';
 import { tap, shareReplay } from 'rxjs/operators';
 import { interval } from "rxjs/observable/interval";
-import { User, OAuthRedirectResponse } from '../interfaces';
-import { APIResponse, AuthResponse, RegistrationResponse } from '../interfaces/api-response';
+import { User } from '../interfaces';
+import { APIResponse, AuthResponse } from '../interfaces/api-response';
 import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';
 import { AppDefaultLanguage } from '../app.languages';
@@ -24,7 +24,6 @@ export class UserService {
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
   public canShowNav$ = new Subject();
-  public usersTransferData$ = new Subject();
 
   constructor(
     private _router: Router,
@@ -82,8 +81,6 @@ export class UserService {
     console.groupEnd();
   }
 
-  // ---
-
   login(username: string, password: string, recaptcha: string) {
     return this._apiService.userLogin(username, password, recaptcha)
       .pipe(
@@ -102,18 +99,6 @@ export class UserService {
 
   canShowNav(flag: boolean) {
     this.canShowNav$.next(flag);
-  }
-
-  usersTransferData(data: any) {
-    this.usersTransferData$.next(data);
-  }
-
-  loginWithSocial(provider: string) {
-    switch (provider) {
-      case 'google':
-        return this._apiService.getGoogleOAuthUrl();
-    }
-    throw new Error("Unknown provider");
   }
 
   proceedTFA(code: number) {
@@ -144,36 +129,6 @@ export class UserService {
     this.canShowNav(false);
     this._router.navigate(['/signin']);
   }
-
-  register(username: string, password: string, recaptcha: string) {
-    return this._apiService.userRegister(username, password, recaptcha)
-      .pipe(
-      tap(
-        (res: APIResponse<RegistrationResponse>) => {
-          console.info('User register result', res);
-
-          if (res.errorCode) {
-            this._messageBox.alert(res.errorDesc);
-          }
-        },
-        err => {
-          console.warn('User register error', err);
-        }
-      )
-      );
-  }
-
-  /*
-  public updateUser(newUser: User) {
-    this._user.next(Object.assign(this._user.getValue(), newUser));
-  }
-
-  public setBalance(balance: Balance) {
-    let user = this._user.getValue();
-        user.balance = balance;
-
-    this._user.next(user);
-  }*/
 
   public setLocale(locale: string) {
     this._locale.next(locale);

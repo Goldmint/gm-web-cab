@@ -33,6 +33,8 @@ export class EthereumService {
   private _obsUsdBalance: Observable<number> = this._obsUsdBalanceSubject.asObservable();
   private _obsMntpBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsMntpBalance: Observable<BigNumber> = this._obsMntpBalanceSubject.asObservable();
+  private _obsHotGoldBalanceSubject = new BehaviorSubject<BigNumber>(null);
+  private _obsHotGoldBalance: Observable<BigNumber> = this._obsHotGoldBalanceSubject.asObservable();
 
   constructor(
     private _userService: UserService,
@@ -46,7 +48,9 @@ export class EthereumService {
       } else {
         this._userId = null;
       }
+
       this.updateUsdBalance(this._userId);
+      this.checkHotBalance();
     });
 
     interval(500)
@@ -58,6 +62,7 @@ export class EthereumService {
     interval(7500)
       .subscribe(time => {
         this.checkBalance();
+        this.checkHotBalance();
       })
       ;
   }
@@ -89,14 +94,13 @@ export class EthereumService {
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
     }
-    // check via api
-    else if (this._userId != null) {
-      this._apiService.getUserBalance()
-        .subscribe(res => {
-          this._obsUsdBalanceSubject.next(res.data.usd);
-          // can get private gold balance here: res.data.gold - string in wei
-        });
-    }
+  }
+
+  private checkHotBalance() {
+    this._userId != null && this._apiService.getUserBalance().subscribe(res => {
+      this._obsHotGoldBalanceSubject.next(new BigNumber(res.data.gold));
+      this._lastAddress == null && this._obsUsdBalanceSubject.next(res.data.usd);
+    });
   }
 
   private emitAddress(ethAddress: string) {
@@ -158,6 +162,10 @@ export class EthereumService {
 
   public getObservableGoldBalance(): Observable<BigNumber> {
     return this._obsGoldBalance;
+  }
+
+  public getObservableHotGoldBalance(): Observable<BigNumber> {
+    return this._obsHotGoldBalance;
   }
 
   public getObservableMntpBalance(): Observable<BigNumber> {

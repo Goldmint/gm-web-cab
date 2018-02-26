@@ -25,6 +25,9 @@ export class TransferPageComponent implements OnInit {
   walletChecked:boolean = true;
   amountChecked: boolean = true;
 
+  public ethAddress: string = '';
+  public selectedWallet = 0;
+
   constructor(
     private _modalService: BsModalService,
     private _ethService: EthereumService,
@@ -39,6 +42,13 @@ export class TransferPageComponent implements OnInit {
         this.validateAmount();
         this._cdRef.markForCheck();
       });
+
+    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+      if (!this.ethAddress) {
+        this.selectedWallet = 0;
+      }
+    });
   }
 
   modal(template: TemplateRef<any>) {

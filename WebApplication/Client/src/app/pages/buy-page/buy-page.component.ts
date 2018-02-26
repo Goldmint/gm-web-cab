@@ -25,6 +25,8 @@ export class BuyPageComponent implements OnInit {
   goldUsdRate: number = null;
   estimatedAmount: string = "";
   public buyAmountChecked: boolean = true;
+  public ethAddress: string = '';
+  public selectedWallet = 0;
 
   constructor(
     private _userService: UserService,
@@ -59,6 +61,13 @@ export class BuyPageComponent implements OnInit {
           this._cdRef.markForCheck();
         }
       });
+
+    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+      if (!this.ethAddress) {
+        this.selectedWallet = 0;
+      }
+    });
   }
 
   onToSpendChanged(value: string) {
@@ -83,44 +92,76 @@ export class BuyPageComponent implements OnInit {
   }
 
   onBuy() {
-
-    var ethAddress = this._ethService.getEthAddress();
-    if (ethAddress == null) {
-      this._messageBox.alert('Enable metamask first');
-      return;
-    }
-
     this.progress = true;
     this._cdRef.markForCheck();
 
-    this._apiService.goldBuyReqest(ethAddress, this.toSpend.toNumber())
-      .finally(() => {
-        this.progress = false;
-        this._cdRef.markForCheck();
-      })
-      .subscribe(res => {
-        var confText =
-          "USD to spend: " + this.toSpend + "<br/>" +
-          "You will get: " + (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) + " GOLD<br/>" +
-          "GOLD/USD: $ " + res.data.goldRate
-          ;
-
-        this.confirmation = true;
-        this._cdRef.markForCheck();
-
-        this._messageBox.confirm(confText).subscribe(ok => {
-          this.confirmation = false;
-          if (ok) {
-            this._ethService.sendBuyRequest(ethAddress, res.data.payload);
-          }
+    if (this.selectedWallet == 0) {
+      this._apiService.goldBuyHwReqest(this.toSpend)
+        .finally(() => {
+          this.progress = false;
           this._cdRef.markForCheck();
-        });
-      },
-      err => {
-        if (err.error && err.error.errorCode) {
-          this._messageBox.alert(err.error.errorDesc);
-        }
-      });
+        })
+        .subscribe(res => {
+            const confText =
+              "GOLD to buy: " +
+              (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
+              " GOLD<br/>" +
+              "GOLD/USD: $ " +
+              res.data.goldRate;
+
+            this.confirmation = true;
+            this._cdRef.markForCheck();
+            console.log(res);
+            this._messageBox.confirm(confText).subscribe(ok => {
+              this.confirmation = false;
+              if (ok) {
+                this._apiService.confirmHwReqest(true, res.data.requestId).subscribe((data) => {
+                  console.log(data);
+                },
+                err => {
+                  if (err.error && err.error.errorCode) {
+                    this._messageBox.alert(err.error.errorDesc);
+                  }
+                });
+              }
+              this._cdRef.markForCheck();
+            });
+          },
+          err => {
+            if (err.error && err.error.errorCode) {
+              this._messageBox.alert(err.error.errorDesc);
+            }
+          });
+    } else {
+      this._apiService.goldBuyReqest(this.ethAddress, this.toSpend.toNumber())
+        .finally(() => {
+          this.progress = false;
+          this._cdRef.markForCheck();
+        })
+        .subscribe(res => {
+            var confText =
+              "USD to spend: " + this.toSpend + "<br/>" +
+              "You will get: " + (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) + " GOLD<br/>" +
+              "GOLD/USD: $ " + res.data.goldRate
+            ;
+
+            this.confirmation = true;
+            this._cdRef.markForCheck();
+
+            this._messageBox.confirm(confText).subscribe(ok => {
+              this.confirmation = false;
+              if (ok) {
+                this._ethService.sendBuyRequest(this.ethAddress, res.data.payload);
+              }
+              this._cdRef.markForCheck();
+            });
+          },
+          err => {
+            if (err.error && err.error.errorCode) {
+              this._messageBox.alert(err.error.errorDesc);
+            }
+          });
+    }
   }
 
   buyAmountCheck(val: BigNumber) {

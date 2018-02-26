@@ -24,6 +24,8 @@ import { KYCProfile } from '../models/kyc-profile';
 
 import { environment } from '../../environments/environment';
 import { filter } from "rxjs/operator/filter";
+import {GoldHwSellResponse} from "../interfaces/api-response/gold-hw-sell";
+import {GoldHwBuyResponse} from "../interfaces/api-response/gold-hw-buy";
 
 
 @Injectable()
@@ -333,6 +335,35 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
     );
+  }
+
+  goldSellHwReqest(amountGold: BigNumber): Observable<APIResponse<GoldHwSellResponse>> {
+    var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    return this._http
+      .post(`${this._baseUrl}/user/exchange/gold/hw/sell`, { amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  goldBuyHwReqest(amountGold: BigNumber): Observable<APIResponse<GoldHwBuyResponse>> {
+    var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    return this._http
+      .post(`${this._baseUrl}/user/exchange/gold/hw/buy`, { amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  confirmHwReqest(isBuying: boolean, requestId: number) {
+    return this._http
+      .post(`${this._baseUrl}/user/exchange/gold/hw/confirm`, { isBuying, requestId }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
   }
 
   getTFAInfo(): Observable<APIResponse<TFAInfo>> {

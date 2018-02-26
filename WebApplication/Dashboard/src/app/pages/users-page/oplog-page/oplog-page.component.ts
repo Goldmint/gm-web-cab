@@ -1,6 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ViewEncapsulation} from '@angular/core';
 import {APIService, UserService} from "../../../services";
-import {TransparencyRecord, TransparencySummary} from "../../../interfaces";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {Page} from "../../../models/page";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
@@ -19,10 +18,8 @@ export class OplogPageComponent implements OnInit, OnDestroy {
   public loading: boolean;
   public page = new Page();
 
-  public summary: TransparencySummary;
-
-  public rows:  Array<TransparencyRecord> = [];
-  public subRows:  Array<TransparencyRecord> = [];
+  public rows:  Array<any> = [];
+  public subRows:  Array<any> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No Data'};
 
@@ -56,7 +53,7 @@ export class OplogPageComponent implements OnInit, OnDestroy {
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
+      this.messages.emptyMessage = event.translations.NoData;
     });
 
     this.userService.currentLocale.subscribe(currentLocale => {

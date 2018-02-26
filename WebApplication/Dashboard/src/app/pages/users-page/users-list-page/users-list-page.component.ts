@@ -1,5 +1,4 @@
 import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {TransparencyRecord, TransparencySummary} from "../../../interfaces";
 import {Page} from "../../../models/page";
 import {APIService, UserService} from "../../../services";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
@@ -17,9 +16,7 @@ export class UsersListPageComponent implements OnInit {
   public loading: boolean;
   public page = new Page();
 
-  public summary: TransparencySummary;
-
-  public rows:  Array<TransparencyRecord> = [];
+  public rows:  Array<any> = [];
   public sorts: Array<any> = [{prop: 'id', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No Data'};
 
@@ -49,7 +46,7 @@ export class UsersListPageComponent implements OnInit {
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
+      this.messages.emptyMessage = event.translations.NoData;
     });
 
     this.userService.currentLocale.subscribe(currentLocale => {
