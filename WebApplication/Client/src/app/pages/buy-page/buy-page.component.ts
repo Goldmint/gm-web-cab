@@ -21,8 +21,8 @@ export class BuyPageComponent implements OnInit {
   toSpendVal: string = "";
   toSpend: BigNumber = new BigNumber(0);
 
-  usdBalance: number = null;
-  goldUsdRate: number = null;
+  usdBalance: number = 0;
+  goldUsdRate: number = 0;
   estimatedAmount: string = "";
   public buyAmountChecked: boolean = true;
   public ethAddress: string = '';
@@ -43,29 +43,28 @@ export class BuyPageComponent implements OnInit {
         if (data[0] !== null) this.usdBalance = data[0];
         if (data[1] !== null) this.goldUsdRate = data[1];
 
-        // required values are provided
-        if (this.goldUsdRate !== null && this.usdBalance !== null) {
-
-          // got first time
-          if (this.toSpendUnset && this.usdBalance > 0) {
-            this.toSpendUnset = false;
-            this.toSpend = new BigNumber(this.usdBalance);
-            this.toSpendVal = this.toSpend.toString();
-            this.buyAmountCheck(this.toSpend);
-          }
-
-          if (!this.progress && !this.confirmation) {
-            this.estimate(this.toSpend);
-          }
-
-          this._cdRef.markForCheck();
+        // got first time
+        if (this.toSpendUnset && this.usdBalance > 0) {
+          this.toSpendUnset = false;
+          this.toSpend = new BigNumber(this.usdBalance);
+          this.toSpendVal = this.toSpend.toString();
+          this.buyAmountCheck(this.toSpend);
         }
+
+        if (!this.progress && !this.confirmation) {
+          this.estimate(this.toSpend);
+        }
+
+        this._cdRef.markForCheck();
+
       });
 
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.ethAddress = ethAddr;
       if (!this.ethAddress) {
         this.selectedWallet = 0;
+      } else {
+        this.selectedWallet = 1;
       }
     });
   }
