@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Goldmint.QueueService {
 
@@ -74,7 +75,12 @@ namespace Goldmint.QueueService {
 			if (Mode.HasFlag(WorkingMode.Worker)) {
 
 				// mail sender
-				services.AddSingleton<IEmailSender, MailGunSender>();
+				if (!_environment.IsDevelopment()) {
+					services.AddSingleton<IEmailSender, MailGunSender>();
+				}
+				else {
+					services.AddSingleton<IEmailSender, NullEmailSender>();
+				}
 
 				// rates
 				services.AddSingleton<IGoldRateProvider>(new LocalGoldRateProvider());

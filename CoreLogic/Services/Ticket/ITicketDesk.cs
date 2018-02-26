@@ -17,6 +17,7 @@ namespace Goldmint.CoreLogic.Services.Ticket {
 		Task<string> NewSwiftWithdraw(User user, FiatCurrency currency, long amount);
 		Task<string> NewGoldBuying(User user, string ethAddressOrNull, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents);
 		Task<string> NewGoldSelling(User user, string ethAddressOrNull, FiatCurrency currency, BigInteger goldAmount, long rate, BigInteger mntpBalance, long estimatedFiatAmount, long feeCents);
-		
+		Task<string> NewGoldTransfer(User user, string ethAddress, BigInteger goldAmount);
+
 	}
 }
