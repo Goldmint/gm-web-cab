@@ -374,6 +374,14 @@ export class APIService {
       );
   }
 
+  getBannedCountries() {
+    return this._http
+      .get(`${this._baseUrl}/commons/bannedCountries`)
+      .pipe(
+        catchError(this._handleError)
+      );
+  };
+
   getTFAInfo(): Observable<APIResponse<TFAInfo>> {
     return this._http
       .get(`${this._baseUrl}/user/settings/tfa/view`, this.jwt())
