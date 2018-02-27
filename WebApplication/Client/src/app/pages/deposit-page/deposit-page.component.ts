@@ -7,10 +7,6 @@ import {
   EventEmitter
 } from '@angular/core';
 
-import { CurrencyPipe } from '@angular/common';
-
-// import { TabsetComponent } from 'ngx-bootstrap';
-
 import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits, SwiftInvoice } from '../../interfaces';
 import { APIService, MessageBoxService } from '../../services';
 
@@ -80,6 +76,11 @@ export class DepositPageComponent implements OnInit {
       this.loading = false;
       this._cdRef.markForCheck();
     });
+
+    this._apiService.getBannedCountries().subscribe((list) => {
+      this.countries = this.countries.filter(item => list.data.indexOf(item.countryShortCode) < 0);
+      this._cdRef.markForCheck();
+    })
   }
 
   goto(page: Pages) {

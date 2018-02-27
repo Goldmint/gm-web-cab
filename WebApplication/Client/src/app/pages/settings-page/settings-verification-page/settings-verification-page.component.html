@@ -351,7 +351,7 @@
             <div class="form-group">
               <label for="inputStreet">{{ "PAGES.Settings.KYC.FormSection.Labels.Street" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputStreet" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputStreet" required pattern="[\w \'\`\-\.]*"
                        name="street" [(ngModel)]="kycProfile.street" #street="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.Street || !street.valid) && (kycForm.submitted || !street.pristine)}"
@@ -470,12 +470,12 @@
             <div class="form-group">
               <label for="inputPhoneNumber">{{ "PAGES.Settings.KYC.FormSection.Labels.Phone" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputPhoneNumber" required
+                <input type="tel" id="inputPhoneNumber" required
                        name="phoneNumber" [(ngModel)]="kycProfile.phoneNumber" #phoneNumber="ngModel"
-                       class="form-control"
+                       class="form-control" (input)="onPhoneNumberChanged($event)"
                        [ngClass]="{'is-invalid': (errors?.PhoneNumber || !phoneNumber.valid) && (kycForm.submitted || !phoneNumber.pristine)}"
                        (ngModelChange)="errors.PhoneNumber = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing">
+                       [readonly]="kycProfile.isFormFilled === true || processing" [disabled]="!kycProfile.country">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -493,7 +493,7 @@
 
         <div class="row mt-2 mb-4 pr-4" *ngIf="!kycProfile.isFormFilled">
           <div class="form-group col-6 mb-2">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="processing" [disabled]="processing">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="kycForm.form.invalid || kycForm.form.untouched">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}
               <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
             </button>

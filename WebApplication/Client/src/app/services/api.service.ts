@@ -26,6 +26,7 @@ import { environment } from '../../environments/environment';
 import { filter } from "rxjs/operator/filter";
 import {GoldHwSellResponse} from "../interfaces/api-response/gold-hw-sell";
 import {GoldHwBuyResponse} from "../interfaces/api-response/gold-hw-buy";
+import {GoldHwTransferResponse} from "../interfaces/api-response/gold-hw-transfer";
 
 
 @Injectable()
@@ -318,7 +319,7 @@ export class APIService {
       );
   }
 
-  goldBuyReqest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
+  goldBuyRequest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/buy`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
       .pipe(
@@ -327,7 +328,7 @@ export class APIService {
     );
   }
 
-  goldSellReqest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
+  goldSellRequest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
     var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/sell`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
@@ -337,7 +338,7 @@ export class APIService {
     );
   }
 
-  goldSellHwReqest(amount: number): Observable<APIResponse<GoldHwSellResponse>> {
+  goldSellHwRequest(amount: number): Observable<APIResponse<GoldHwSellResponse>> {
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/hw/sell`, { amount }, this.jwt())
       .pipe(
@@ -346,7 +347,7 @@ export class APIService {
       );
   }
 
-  goldBuyHwReqest(amount: number): Observable<APIResponse<GoldHwBuyResponse>> {
+  goldBuyHwRequest(amount: number): Observable<APIResponse<GoldHwBuyResponse>> {
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/hw/buy`, { amount }, this.jwt())
       .pipe(
@@ -355,7 +356,16 @@ export class APIService {
       );
   }
 
-  confirmHwReqest(isBuying: boolean, requestId: number) {
+  goldTransferHwRequest(ethAddress: string, amount: string): Observable<APIResponse<GoldHwTransferResponse>> {
+    return this._http
+      .post(`${this._baseUrl}/user/exchange/gold/hw/transfer`, { ethAddress, amount }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  confirmHwRequest(isBuying: boolean, requestId: number) {
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/hw/confirm`, { isBuying, requestId }, this.jwt())
       .pipe(
@@ -363,6 +373,14 @@ export class APIService {
         shareReplay(),
       );
   }
+
+  getBannedCountries() {
+    return this._http
+      .get(`${this._baseUrl}/commons/bannedCountries`)
+      .pipe(
+        catchError(this._handleError)
+      );
+  };
 
   getTFAInfo(): Observable<APIResponse<TFAInfo>> {
     return this._http
