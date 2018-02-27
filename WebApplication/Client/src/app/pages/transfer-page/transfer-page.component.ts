@@ -3,6 +3,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { MessageBoxService, EthereumService } from "../../services/index";
 import { BigNumber } from 'bignumber.js'
+import {Observable} from "rxjs/Observable";
+import {APIService} from "../../services";
 
 @Component({
   selector: 'app-transfer-page',
@@ -20,10 +22,14 @@ export class TransferPageComponent implements OnInit {
   public walletAddress: string = null;
 
   amountUnset: boolean = true;
-  goldBalance:BigNumber = null;
+  goldBalance: BigNumber = null;
+  goldHotBalance: BigNumber = null;
+  goldMetamaskBalance: BigNumber = null;
 
   walletChecked:boolean = true;
   amountChecked: boolean = true;
+
+  public amountValue: number;
 
   public ethAddress: string = '';
   public selectedWallet = 0;
@@ -32,32 +38,45 @@ export class TransferPageComponent implements OnInit {
     private _modalService: BsModalService,
     private _ethService: EthereumService,
     private _messageBox: MessageBoxService,
+    private _apiService: APIService,
     private _cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    this._ethService.getObservableGoldBalance()
-      .subscribe(val => {
-        this.goldBalance = val;
-        this.validateAmount();
-        this._cdRef.markForCheck();
-      });
-
-    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
-      this.ethAddress = ethAddr;
-      if (!this.ethAddress) {
-        this.selectedWallet = 0;
-      } else {
-        this.selectedWallet = 1;
+    Observable.combineLatest(
+      this._ethService.getObservableHotGoldBalance(),
+      this._ethService.getObservableGoldBalance(),
+      this._ethService.getObservableEthAddress()
+    ).subscribe(data => {
+      if (this.ethAddress !== data[2]) {
+        this.ethAddress = data[2];
+        this.selectedWallet = this.ethAddress ? 1 : 0;
       }
+
+      this.goldHotBalance = data[0];
+      this.goldMetamaskBalance = data[1];
+      this.goldBalance = this.selectedWallet == 0 ? data[0] : data[1];
+
+      this.validateAmount();
+      this._cdRef.markForCheck();
     });
+
+  }
+
+  onChangeWallet() {
+    this.goldBalance  = this.selectedWallet == 0 ?  this.goldHotBalance : this.goldMetamaskBalance;
+    this.validateAmount();
   }
 
   modal(template: TemplateRef<any>) {
-    if (this._modalRef) {
-      this._modalRef.hide();
+    if (this.selectedWallet == 1) {
+      if (this._modalRef) {
+        this._modalRef.hide();
+      }
+      this._modalRef = this._modalService.show(template, { class: 'modal-lg' });
+    } else {
+      this.onHotWallet();
     }
-    this._modalRef = this._modalService.show(template, { class: 'modal-lg' });
   }
 
   onWalletAddressChanged(value: string) {
@@ -89,23 +108,41 @@ export class TransferPageComponent implements OnInit {
   }
 
   onMetamask() {
-    var ethAddress = this._ethService.getEthAddress();
-    if (ethAddress == null) {
-      this._messageBox.alert('Enable metamask first');
-      return;
-    }
+      var confText =
+        "Target address: " + this.walletAddress + "<br/>" +
+        "GOLD amount: " + this.amount + " GOLD<br/>"
+      ;
+      this._messageBox.confirm(confText).subscribe(ok => {
+        if (ok) {
+          this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, this.amount);
+          this.walletAddressVal = "";
+          this.amount = new BigNumber(0);
+          this.amountValue = null;
+        }
+        this._cdRef.markForCheck();
+      });
+  }
 
+  onHotWallet() {
     var confText =
       "Target address: " + this.walletAddress + "<br/>" +
-      "GOLD amount: " + this.amount + " GOLD<br/>"
-      ;
+      "GOLD amount: " + this.amount + " GOLD<br/>";
+
     this._messageBox.confirm(confText).subscribe(ok => {
-      if (ok) {
-        this._ethService.transferGoldToWallet(ethAddress, this.walletAddress, this.amount);
-        this.walletAddressVal = "";
-        this.amount = new BigNumber(0);
+      if(ok) {
+        this._apiService.goldTransferHwRequest(this.walletAddress, this.amount.toString())
+          .subscribe(() => {
+            this._messageBox.alert('Your request is in progress now!');
+            this.walletAddressVal = "";
+            this.amount = new BigNumber(0);
+            this.amountValue = null;
+          }, err => {
+          err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1010
+            ? 'You have exceeded request frequency (One request for 30 minutes). Please try later'
+            : err.error.errorDesc)
+          })
       }
-      this._cdRef.markForCheck();
     });
   }
+
 }

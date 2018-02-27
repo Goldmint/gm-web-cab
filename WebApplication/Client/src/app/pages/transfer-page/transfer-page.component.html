@@ -15,7 +15,7 @@
                   <use xlink:href="#payment-card"></use>
                 </svg>
               </div>
-              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet">
+              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet" (change)="onChangeWallet()">
                 <option value="0">Hot wallet</option>
                 <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
               </select>
@@ -57,6 +57,7 @@
               <input type="number" min="0" step="0.1" class="form-control" id="input_transferAmount" name="transfer-amount"
                      (input)="onAmountChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !amountChecked}"
+                     [value]="amountValue"
               >
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!amountChecked">

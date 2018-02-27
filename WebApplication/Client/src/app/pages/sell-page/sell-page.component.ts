@@ -197,7 +197,7 @@ export class SellPageComponent implements OnInit {
     this._cdRef.markForCheck();
 
     if (this.selectedWallet == 0) {
-      this._apiService.goldSellHwReqest(this.toSell.toNumber())
+      this._apiService.goldSellHwRequest(this.toSell.toNumber())
         .finally(() => {
           this.progress = false;
           this._cdRef.markForCheck();
@@ -221,7 +221,7 @@ export class SellPageComponent implements OnInit {
             this._messageBox.confirm(confText).subscribe(ok => {
               this.confirmation = false;
               if (ok) {
-                this._apiService.confirmHwReqest(false, res.data.requestId).subscribe(() => {
+                this._apiService.confirmHwRequest(false, res.data.requestId).subscribe(() => {
                     this._messageBox.alert('Your request is in progress now!');
                 },
                 err => {
@@ -240,7 +240,7 @@ export class SellPageComponent implements OnInit {
             }
           });
     } else {
-      this._apiService.goldSellReqest(this.ethAddress, this.toSell)
+      this._apiService.goldSellRequest(this.ethAddress, this.toSell)
         .finally(() => {
           this.progress = false;
           this._cdRef.markForCheck();
