@@ -87,7 +87,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				// try to sign in
 				var signResult = await SignInManager.CanSignInAsync(user);
 
-				var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(audience, user);
+				var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, user);
 
 				if (signResult && accessRightsMask != null) {
 
@@ -152,7 +152,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					// user created and external login attached
 					if (await CreateExternalLogin(cuaResult.User, provider, userInfo)) {
 
-						var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(audience, cuaResult.User);
+						var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, cuaResult.User);
 						if (accessRightsMask != null) {
 							// ok
 							var token = JWT.CreateAuthToken(

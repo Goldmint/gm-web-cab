@@ -11,6 +11,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 	public class InfuraReader : InfuraBaseClient, IEthereumReader {
 
+		private const int TransactionMinConfirmationsCount = 3;
+
 		public InfuraReader(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 		}
 
@@ -21,16 +23,28 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			}
 
 			var web3 = new Web3(JsonRpcClient);
-			var txinfo = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionId);
-			
+			var txinfo = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionId);
+
 			if (txinfo != null) {
-				if (txinfo.BlockNumber.HexValue != null) {
-					return BlockchainTransactionStatus.Success;
+
+				var lastBlockNum = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+				var threshold = BigInteger.One * TransactionMinConfirmationsCount;
+
+				if (
+					txinfo.BlockNumber.HexValue != null && // got into block
+					lastBlockNum.Value - txinfo.BlockNumber.Value >= threshold // wait for number of confirmation
+				) {
+					// check status
+					if ((txinfo.Status?.Value ?? BigInteger.Zero) == BigInteger.One) {
+						return BlockchainTransactionStatus.Success;
+					}
+					return BlockchainTransactionStatus.Failed;
 				}
 				return BlockchainTransactionStatus.Pending;
 			}
 
-			return BlockchainTransactionStatus.NotFound;
+			// assume it is pending
+			return BlockchainTransactionStatus.Pending;
 		}
 
 		public async Task<long> GetUserFiatBalance(string userId, FiatCurrency currency) {

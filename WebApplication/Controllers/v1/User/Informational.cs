@@ -31,6 +31,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new BalanceView() {
 					Usd = await EthereumObserver.GetUserFiatBalance(user.UserName, FiatCurrency.USD) / 100d,
+					// TODO: move function to frontend (username is known)
 					Gold = (await EthereumObserver.GetUserGoldBalance(user.UserName)).ToString(),
 				}
 			);

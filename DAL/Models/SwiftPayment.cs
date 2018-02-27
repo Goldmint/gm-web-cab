@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.DAL.Models.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -43,6 +44,11 @@ namespace Goldmint.DAL.Models {
 
 		[Column("support_comment"), MaxLength(512)]
 		public string SupportComment { get; set; }
+
+		[Column("support_user_id")]
+		public long? SupportUserId { get; set; }
+		[ForeignKey(nameof(SupportUserId))]
+		public virtual User SupportUser { get; set; }
 
 		[Column("desk_ticket_id"), MaxLength(32), Required]
 		public string DeskTicketId { get; set; }
