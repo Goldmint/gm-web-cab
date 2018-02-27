@@ -61,9 +61,14 @@ namespace Goldmint.Common {
 		DashboardReadAccess = 0x2L,
 
 		/// <summary>
-		/// Dashboard: swift tabs write access
+		/// Dashboard: swift tab write access
 		/// </summary>
-		SwiftWriteAccess = 0x10000000L,
+		SwiftDepositWriteAccess = 0x8000000L,
+
+		/// <summary>
+		/// Dashboard: swift tab write access
+		/// </summary>
+		SwiftWithdrawWriteAccess = 0x10000000L,
 
 		/// <summary>
 		/// Dashboard: countries tab write access

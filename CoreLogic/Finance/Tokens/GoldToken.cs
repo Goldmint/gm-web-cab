@@ -1007,14 +1007,11 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							}
 
 							// save eth transaction
-							// TODO: call proper function
-							request.EthTransactionId = "0xb8f58f785622e002bf6b5ba8f2b2f77eedab13698f3db46d8a3ed8b5f2bbe1fb"; /*await ethereumWriter.ProcessHotWalletExchangeRequest(
-								userId: request.User.UserName,
-								isBuying: false,
-								currency: request.Currency,
-								amountCents: request.FiatAmountCents,
-								centsPerGoldToken: adjust.GoldRateCents
-							);*/
+							request.EthTransactionId = await ethereumWriter.TransferGoldFromHotWallet(
+								toAddress: request.DestinationAddress,
+								amount: amount,
+								userId: request.User.UserName
+							);
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Goldmint.Common;
 using System.ComponentModel.DataAnnotations;
 
 namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
@@ -128,4 +129,122 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 			public string Country { get; set; }
 		}
 	}
+
+	// ---
+
+	public class RefuseDepositModel : BaseValidableModel {
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long Id { get; set; }
+
+		/// <summary>
+		/// Support comment, requried
+		/// </summary>
+		[Required]
+		public string Comment { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<RefuseDepositModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.Id)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid id")
+				;
+
+			v.RuleFor(_ => _.Comment)
+				.NotEmpty()
+				.WithMessage("Invalid comment")
+				;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class RefuseDepositView {
+	}
+
+	// ---
+
+	public class RefuseWithdrawModel : BaseValidableModel {
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long Id { get; set; }
+
+		/// <summary>
+		/// Support comment, requried
+		/// </summary>
+		[Required]
+		public string Comment { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<RefuseWithdrawModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.Id)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid id")
+				;
+
+			v.RuleFor(_ => _.Comment)
+				.NotEmpty()
+				.WithMessage("Invalid comment")
+				;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class RefuseWithdrawView {
+	}
+
+	// ---
+
+	public class AcceptDepositModel : BaseValidableModel {
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long Id { get; set; }
+
+		/// <summary>
+		/// Amount
+		/// </summary>
+		[Required]
+		public double Amount { get; set; }
+
+		/// <summary>
+		/// Support comment, optional
+		/// </summary>
+		public string Comment { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<AcceptDepositModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.Id)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid id")
+				;
+
+			v.RuleFor(_ => _.Amount)
+				.GreaterThan(0)
+				.WithMessage("Invalid amount")
+				;
+
+			return v.Validate(this);
+
+		}
+	}
+
+	public class AcceptDepositView {
+	}
+
 }

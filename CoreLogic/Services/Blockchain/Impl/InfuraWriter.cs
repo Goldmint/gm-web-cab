@@ -143,5 +143,34 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			throw new NotImplementedException("Currency not implemented");
 		}
+
+		public async Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount) {
+
+			if (string.IsNullOrWhiteSpace(userId)) {
+				throw new ArgumentException("Invalid user id");
+			}
+			if (amount <= 0) {
+				throw new ArgumentException("Amount is equal to 0");
+			}
+			if (ValidationRules.BeValidEthereumAddress(toAddress)) {
+				throw new ArgumentException("Invalid gold token price");
+			}
+
+			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
+			var contract = web3.Eth.GetContract(
+				FiatContractABI,
+				FiatContractAddress
+			);
+			var func = contract.GetFunction("transferGoldFromHotWallet");
+
+			return await func.SendTransactionAsync(
+				_gmAccount.Address,
+				_defaultGas,
+				new HexBigInteger(0),
+				toAddress, amount, userId
+			);
+		}
 	}
 }

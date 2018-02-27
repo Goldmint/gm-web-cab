@@ -24,9 +24,13 @@
 		/// </summary>
 		InvalidParameter = 100,
 
+		/// <summary>
+		/// Ownership lost / data has not been modified / somebody else modified data first
+		/// </summary>
+		OwnershipLost = 101,
 
 		/* [1000..1999] Account errors */
-		
+
 		/// <summary>
 		/// Account locked (automatic lockout)
 		/// </summary>

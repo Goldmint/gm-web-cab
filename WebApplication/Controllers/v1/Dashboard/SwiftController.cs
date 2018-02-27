@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
@@ -87,71 +89,129 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			);
 
 		}
-/*
+
 		/// <summary>
-		/// Add contry to black list
+		/// Refuse deposit by request ID
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.CountriesWriteAccess)]
-		[HttpPost, Route("ban")]
-		[ProducesResponseType(typeof(BanView), 200)]
-		public async Task<APIResponse> Ban([FromBody] BanModel model) {
-			
-			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
-			}
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftDepositWriteAccess)]
+		[HttpPost, Route("refuseDeposit")]
+		[ProducesResponseType(typeof(RefuseDepositView), 200)]
+		public async Task<APIResponse> RefuseDeposit([FromBody] RefuseDepositModel model) {
 
 			var user = await GetUserFromDb();
 
-			DbContext.BannedCountry.Add(
-				new BannedCountry() {
-					Code = model.Code.ToUpper(),
-					UserId = user.Id,
-					Comment = model.Comment ?? "",
-					TimeCreated = DateTime.UtcNow,
-				}
-			);
+			// get request
+			var request =
+				await (
+					from p in DbContext.SwiftPayment
+					where
+						p.Id == model.Id &&
+						p.Type == SwiftPaymentType.Deposit
+					select p
+				)
+				.AsTracking()
+				.FirstOrDefaultAsync()
+			;
+
+			if (request == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
+			}
+
+			if (!await FinalizeRequest(user.Id, request, false, model.Comment)) {
+				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
+			}
 
 			try {
-				await DbContext.SaveChangesAsync();
+				await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT deposit refused by support team ({user.UserName})");
 			}
 			catch {
-				// actually have to catch 'duplicate'-exception here
 			}
 
 			return APIResponse.Success(
-				new BanView() { }
+				new RefuseDepositView() {
+				}
 			);
 		}
 
 		/// <summary>
-		/// Remove contry from black list
+		/// Perform deposit by request ID
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.CountriesWriteAccess)]
-		[HttpPost, Route("unban")]
-		[ProducesResponseType(typeof(UnbanView), 200)]
-		public async Task<APIResponse> Unban([FromBody] UnbanModel model) {
+		/*[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftDepositWriteAccess)]
+		[HttpPost, Route("acceptDeposit")]
+		[ProducesResponseType(typeof(AcceptDepositView), 200)]
+		public async Task<APIResponse> AcceptDeposit([FromBody] AcceptDepositModel model) {
+			
+			return APIResponse.Success(
+				new AcceptDepositView() {
+				}
+			);
 
-			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
+		}*/
+
+		/// <summary>
+		/// Refuse withdrawal request by ID
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftWithdrawWriteAccess)]
+		[HttpPost, Route("refuseWithdraw")]
+		[ProducesResponseType(typeof(RefuseWithdrawView), 200)]
+		public async Task<APIResponse> RefuseWithdraw([FromBody] RefuseWithdrawModel model) {
+
+			var user = await GetUserFromDb();
+
+			// get request
+			var request =
+					await (
+							from p in DbContext.SwiftPayment
+							where
+								p.Id == model.Id &&
+								p.Type == SwiftPaymentType.Withdraw
+							select p
+						)
+						.AsTracking()
+						.FirstOrDefaultAsync()
+				;
+
+			if (request == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
 			}
 
-			var country = await (
-				from c in DbContext.BannedCountry
-				where String.Equals(c.Code, model.Code, StringComparison.CurrentCultureIgnoreCase)
-				select c
-			).FirstOrDefaultAsync();
+			if (!await FinalizeRequest(user.Id, request, false, model.Comment)) {
+				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
+			}
 
-			if (country != null) {
-				DbContext.BannedCountry.Remove(country);
-				await DbContext.SaveChangesAsync();
+			try {
+				await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT withdraw refused by support team ({user.UserName})");
+			}
+			catch {
 			}
 
 			return APIResponse.Success(
-				new UnbanView() { }
+				new RefuseWithdrawView() {
+				}
 			);
 		}
-*/
+
+		// ---
+
+		/// <summary>
+		/// Set final status and support user ID, then check for ownership. Return reloaded entity or null
+		/// </summary>
+		private async Task<bool> FinalizeRequest(long userId, SwiftPayment request, bool success, string comment) {
+
+			if (request.Status != SwiftPaymentStatus.Pending) {
+				return false;
+			}
+
+			request.Status = success? SwiftPaymentStatus.Success: SwiftPaymentStatus.Cancelled;
+			request.SupportUserId = userId;
+			request.SupportComment = (comment ?? "").LimitLength(512);
+			request.TimeCompleted = DateTime.UtcNow;
+			await DbContext.SaveChangesAsync();
+
+			var stamp = request.ConcurrencyStamp;
+			await DbContext.Entry(request).ReloadAsync();
+
+			return userId == (request.SupportUserId ?? 0) && request.ConcurrencyStamp == stamp;
+		}
 	}
 }
