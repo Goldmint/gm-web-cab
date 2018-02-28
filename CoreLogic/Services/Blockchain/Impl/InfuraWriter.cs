@@ -149,11 +149,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			if (string.IsNullOrWhiteSpace(userId)) {
 				throw new ArgumentException("Invalid user id");
 			}
-			if (amount <= 0) {
+			if (amount < 1) {
 				throw new ArgumentException("Amount is equal to 0");
 			}
-			if (ValidationRules.BeValidEthereumAddress(toAddress)) {
-				throw new ArgumentException("Invalid gold token price");
+			if (!ValidationRules.BeValidEthereumAddress(toAddress)) {
+				throw new ArgumentException("Invalid eth address");
 			}
 
 			var web3 = new Web3(_gmAccount, JsonRpcClient);

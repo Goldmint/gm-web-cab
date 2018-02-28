@@ -94,13 +94,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// add and save
 			DbContext.SellRequest.Add(sellRequest);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(sellRequest);
 
 			// update comment
 			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputUsed)} GOLD";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
-
+	
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,
@@ -165,6 +163,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
+			// check rate
+			var opLastTime = user.UserOptions.HotWalletSellingLastTime;
+			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
+				// failed
+				return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+			}
+
 			var ticket = await TicketDesk.NewGoldSelling(user, null, currency, estimated.InputUsed, goldRate, mntpBalance, estimated.ResultNetCents, estimated.ResultFeeCents);
 
 			// history
@@ -202,13 +207,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// add and save
 			DbContext.SellRequest.Add(sellRequest);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(sellRequest);
 
 			// update comment
 			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputUsed)} GOLD";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
-
+	
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,

@@ -395,7 +395,6 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 				// save
 				await DbContext.SaveChangesAsync();
-				DbContext.Detach(finHistory);
 
 				try {
 					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"SWIFT deposit accepted by support team ({supportUser.UserName})");
@@ -404,6 +403,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				}
 
 				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
+
+				DbContext.DetachEverything();
 
 				// try
 				var queryResult = await DepositQueue.StartDepositWithSwift(

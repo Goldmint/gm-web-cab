@@ -17,6 +17,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	[Route("api/v1/user/exchange")]
 	public partial class ExchangeController : BaseController {
 
+		// TODO: move to app settings constants
+		private static readonly TimeSpan HWOperationTimeLimit = TimeSpan.FromMinutes(30);
+
 		/// <summary>
 		/// Confirm buying/selling request (hot wallet)
 		/// </summary>
@@ -87,8 +90,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					}
 
 					// check rate
-					// TODO: move to app settings constants
-					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < TimeSpan.FromMinutes(30)) {
+					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 						// failed
 						return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
 					}
@@ -173,8 +175,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					var opLastTime = user.UserOptions.HotWalletTransferLastTime;
 
 					// check rate
-					// TODO: move to app settings constants
-					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < TimeSpan.FromMinutes(30)) {
+					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 						// failed
 						return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
 					}

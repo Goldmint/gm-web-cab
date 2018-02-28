@@ -85,9 +85,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// update
 			request.PaymentReference = $"D-{user.UserName}-{request.Id}";
 			finHistory.Comment = $"Swift deposit request #{request.Id} ({request.PaymentReference})";
-
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(request, finHistory);
 
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
