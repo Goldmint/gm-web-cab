@@ -188,7 +188,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					var request = new TransferRequest() {
 						User = user,
 						Status = ExchangeRequestStatus.Processing,
-						Address = model.EthAddress,
+						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
 						DeskTicketId = ticket,
 						TimeCreated = DateTime.UtcNow,

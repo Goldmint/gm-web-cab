@@ -54,6 +54,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				}
 
 				var sres = OnSignInResult(
+					services: HttpContext.RequestServices,
 					result: await SignInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true),
 					audience: audience,
 					user: user,
@@ -118,6 +119,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				// by code
 				if (GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
 					return OnSignInResult(
+						services: HttpContext.RequestServices,
 						result: Microsoft.AspNetCore.Identity.SignInResult.Success, 
 						user: user, 
 						audience: audience.Value,
@@ -184,13 +186,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		}*/
 
 		[NonAction]
-		private APIResponse OnSignInResult(Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, JwtAudience audience, bool tfaRequired) {
+		private APIResponse OnSignInResult(IServiceProvider services, Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, JwtAudience audience, bool tfaRequired) {
 			if (result != null) {
 
 				if (result.Succeeded || result.RequiresTwoFactor) {
 
 					// denied
-					var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(audience, user);
+					var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(services, audience, user);
 					if (accessRightsMask == null) return null;
 
 					// tfa token

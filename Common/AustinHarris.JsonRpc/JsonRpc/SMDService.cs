@@ -74,7 +74,6 @@ namespace AustinHarris.JsonRpc
         /// <param name="defaultValues"></param>
         public SMDService(string transport, string envelope, Dictionary<string, Type> parameters, Dictionary<string, object> defaultValues, Delegate dele)
         {
-            // TODO: Complete member initialization
             this.dele = dele;
             this.transport = transport;
             this.envelope = envelope;

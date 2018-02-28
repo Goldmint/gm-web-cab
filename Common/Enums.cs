@@ -61,6 +61,16 @@ namespace Goldmint.Common {
 		DashboardReadAccess = 0x2L,
 
 		/// <summary>
+		/// Dashboard: swift tab write access
+		/// </summary>
+		SwiftDepositWriteAccess = 0x8000000L,
+
+		/// <summary>
+		/// Dashboard: swift tab write access
+		/// </summary>
+		SwiftWithdrawWriteAccess = 0x10000000L,
+
+		/// <summary>
 		/// Dashboard: countries tab write access
 		/// </summary>
 		CountriesWriteAccess = 0x20000000L,
@@ -92,11 +102,6 @@ namespace Goldmint.Common {
 		/// Transaction cancelled or failed
 		/// </summary>
 		Failed,
-
-		/// <summary>
-		/// Not found on blockchain
-		/// </summary>
-		NotFound,
 	}
 
 	public enum FiatEnqueueStatus {
@@ -333,14 +338,9 @@ namespace Goldmint.Common {
 	public enum SwiftPaymentStatus {
 
 		/// <summary>
-		/// Initial state
-		/// </summary>
-		Initial = 1,
-
-		/// <summary>
 		/// Awaiting payment
 		/// </summary>
-		Pending,
+		Pending = 1,
 
 		/// <summary>
 		/// Completed

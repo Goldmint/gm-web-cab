@@ -62,31 +62,31 @@ namespace Goldmint.DAL {
 		}
 
 		public override int SaveChanges() {
-			updateConcurrencyStamps();
+			UpdateConcurrencyStamps();
 			return base.SaveChanges();
 		}
 
 		public override int SaveChanges(bool acceptAllChangesOnSuccess) {
-			updateConcurrencyStamps();
+			UpdateConcurrencyStamps();
 			return base.SaveChanges(acceptAllChangesOnSuccess);
 		}
 
 		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken)) {
-			updateConcurrencyStamps();
+			UpdateConcurrencyStamps();
 			return base.SaveChangesAsync(cancellationToken);
 		}
 
 		public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken)) {
-			updateConcurrencyStamps();
+			UpdateConcurrencyStamps();
 			return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
 		}
 
-		private void updateConcurrencyStamps() {
+		private void UpdateConcurrencyStamps() {
 
 			var entries = ChangeTracker.Entries();
 			foreach (var e in entries) {
-				if ((e.State == EntityState.Added || e.State == EntityState.Modified) && e.Entity is IConcurrentUpdate) {
-					(e.Entity as IConcurrentUpdate).OnConcurrencyStampRegen();
+				if ((e.State == EntityState.Added || e.State == EntityState.Modified)) {
+					(e.Entity as IConcurrentUpdate)?.OnConcurrencyStampRegen();
 				}
 			}
 		}

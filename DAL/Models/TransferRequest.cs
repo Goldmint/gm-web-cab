@@ -12,7 +12,7 @@ namespace Goldmint.DAL.Models {
 		public ExchangeRequestStatus Status { get; set; }
 
 		[Column("address"), MaxLength(64), Required]
-		public string Address { get; set; }
+		public string DestinationAddress { get; set; }
 
 		[Column("amount_wei"), MaxLength(64), Required]
 		public string AmountWei { get; set; }

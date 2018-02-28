@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.DAL.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Core {
@@ -97,7 +98,9 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Get proper access rights mask depending on audience and user settings
 		/// </summary>
-		public static long? ResolveAccessRightsMask(JwtAudience audience, User user) {
+		public static long? ResolveAccessRightsMask(IServiceProvider services, JwtAudience audience, User user) {
+			var environment = services.GetRequiredService<IHostingEnvironment>();
+
 			var rights = (long)user.AccessRights;
 			var defaultUserMaxRights = 0L | (long)AccessRights.Client;
 
@@ -107,8 +110,10 @@ namespace Goldmint.WebApplication.Core {
 			}
 			else if (audience == JwtAudience.Dashboard) {
 
-				// tfa must be enabled
-				if (!user.TwoFactorEnabled) return null;
+				// tfa must be enabled (prod only)
+				if (environment.IsProduction()) {
+					if (!user.TwoFactorEnabled) return null;
+				}
 
 				// exclude client rights
 				rights = (rights - defaultUserMaxRights);
