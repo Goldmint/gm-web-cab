@@ -20,18 +20,32 @@
 
       <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
         <div class="col-auto">
-          <div class="balance" *ngIf="metamaskAccount && goldBalance !== null">
-            <div class="balance__label" [title]="metamaskAccount">{{ 'HEADER.Wallet' | translate }} <div class="balance__metamask">{{ metamaskAccount }}</div></div>
+          <div class="auth-info">
+            <div class="language" (mouseenter)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
+              <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
+                <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">Wallet: {{ activeWallet?.name }}</a>
 
-            <div class="balance__item">
-              <svg class="icon" width="18px" height="18px">
-                <use xlink:href="#cur-gold"></use>
-              </svg>
-              <span class="balance__value">
-                {{goldBalance | number:'1.2-2':locale}}
-                {{'OZ'}}
-              </span>
+                <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <li role="menuitem" *ngFor="let item of wallets">
+                    <a class="dropdown-item" (click)="onWalletSwitch(item)" href="javascript:void(0)">{{ item.name }}</a>
+                  </li>
+                </ul>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div class="col-auto">
+          <img *ngIf="usdBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
+
+          <div class="balance" *ngIf="usdBalance !== null">
+            <svg class="icon" width="18px" height="18px">
+              <use xlink:href="#cur-gold"></use>
+            </svg>
+            <span class="balance__value">
+              {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-2':locale}}
+              {{'OZ'}}
+            </span>
           </div>
         </div>
 
@@ -55,30 +69,18 @@
         </div>
 
         <div class="col-auto">
-
           <img *ngIf="usdBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
 
           <div class="balance" *ngIf="usdBalance !== null">
-            <div class="balance__item">
-              <svg class="icon" width="18px" height="18px">
-                <use xlink:href="#cur-gold"></use>
-              </svg>
-              <span class="balance__value">
-                {{hotGoldBalance | number:'1.2-2':locale}}
-                {{'OZ'}}
-              </span>
-            </div>
-
-            <div class="balance__item">
-              <svg class="icon" width="10px" height="16px">
-                <use xlink:href="#cur-usd"></use>
-              </svg>
-              <span class="balance__value">
-                {{usdBalance | number:'1.2-2':locale}}
-              </span>
-            </div>
+            <svg class="icon" width="10px" height="16px">
+              <use xlink:href="#cur-usd"></use>
+            </svg>
+            <span class="balance__value">
+              {{usdBalance | number:'1.2-2':locale}}
+            </span>
           </div>
         </div>
+
       </div>
 
       <ng-template #loginBlock>

@@ -197,7 +197,7 @@ export class SellPageComponent implements OnInit {
     this._cdRef.markForCheck();
 
     if (this.selectedWallet == 0) {
-      this._apiService.goldSellHwRequest(this.toSell.toNumber())
+      this._apiService.goldSellHwRequest(this.toSell)
         .finally(() => {
           this.progress = false;
           this._cdRef.markForCheck();
