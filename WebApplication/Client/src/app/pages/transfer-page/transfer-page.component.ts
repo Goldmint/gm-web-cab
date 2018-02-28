@@ -130,7 +130,7 @@ export class TransferPageComponent implements OnInit {
 
     this._messageBox.confirm(confText).subscribe(ok => {
       if(ok) {
-        this._apiService.goldTransferHwRequest(this.walletAddress, this.amount.toString())
+        this._apiService.goldTransferHwRequest(this.walletAddress, this.amount)
           .subscribe(() => {
             this._messageBox.alert('Your request is in progress now!');
             this.walletAddressVal = "";

@@ -1,12 +1,6 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
-import { zip } from 'rxjs/observable/zip';
-import { BigNumber } from "bignumber.js"
-// import { takeUntil } from 'rxjs/operators';
-
-// import * as Web3 from 'web3';
-
+import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { User } from '../../interfaces';
-import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
+import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 
 @Component({
   selector: 'app-header',
@@ -15,14 +9,17 @@ import { UserService, APIService, MessageBoxService, EthereumService, GoldrateSe
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderBlockComponent implements OnInit, OnDestroy {
-
-  // private ngUnsubscribe: Subject<void> = new Subject<void>();
+export class HeaderBlockComponent implements OnInit {
 
   public gold_usd_rate: number;
   public user: User;
   public locale: string;
-  public signupButtonBlur = new EventEmitter<boolean>();
+  public wallets = [
+    {id: 'hot', name: 'HOT WALLET'},
+    {id: 'metamask', name: 'METAMASK'},
+  ];
+  public activeWallet: Object = this.wallets[0];
+
 
   metamaskAccount: string = null;
   goldBalance: string|null = null;
@@ -37,10 +34,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService
   ) {
   }
-
-  // ngOnChanges() {
-  //   console.log('ngOnChanges');
-  // }
 
   ngOnInit() {
 
@@ -61,6 +54,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.metamaskAccount = ethAddr;
+      !this.metamaskAccount && this.activeWallet['id'] === 'metamask' && (this.activeWallet = this.wallets[0]);
       this._cdRef.detectChanges();
     });
 
@@ -82,43 +76,16 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this.usdBalance = bal;
       this._cdRef.detectChanges();
     });
-
-    /*if (window.hasOwnProperty('web3')) {
-      this._web3 = new Web3(window['web3'].currentProvider);
-      this.metamaskAccount = this._web3.eth.accounts.length ? this._web3.eth.accounts[0] : undefined;
-
-      console.log('MetaMask accounts: ', this._web3.eth.accounts);
-    } else {
-      // this._messageBox.alert('You need to get a web3 browser. Or install <a href="https://metamask.io">MetaMask</a> to continue.');
-      console.info('You need to get a web3 browser. Or install <a href="https://metamask.io">MetaMask</a> to continue.');
-    }*/
   }
 
-  // ngDoCheck() {
-  //   console.log('ngDoCheck');
-  // }
+  onWalletSwitch(wallet) {
+    if (wallet.id === 'metamask' && !this.metamaskAccount) {
+      this._messageBox.alert('What is Metamask?');
+      return;
+    }
 
-  // ngAfterContentInit() {
-  //   console.log('ngAfterContentInit');
-  // }
-
-  // ngAfterContentChecked() {
-  //   console.log('ngAfterContentChecked');
-  // }
-
-  // ngAfterViewInit() {
-  //   console.log('ngAfterViewInit');
-  // }
-
-  // ngAfterViewChecked() {
-  //   console.log('ngAfterViewChecked');
-  // }
-
-  ngOnDestroy() {
-    // console.log('ngOnDestroy');
-
-    // this.ngUnsubscribe.next();
-    // this.ngUnsubscribe.complete();
+    this.activeWallet = wallet;
+    this._cdRef.detectChanges();
   }
 
   private logout(e) {

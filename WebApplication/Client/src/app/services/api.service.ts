@@ -338,9 +338,10 @@ export class APIService {
     );
   }
 
-  goldSellHwRequest(amount: number): Observable<APIResponse<GoldHwSellResponse>> {
+  goldSellHwRequest(amount: BigNumber): Observable<APIResponse<GoldHwSellResponse>> {
+    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/hw/sell`, { amount }, this.jwt())
+      .post(`${this._baseUrl}/user/exchange/gold/hw/sell`, { amount: wei.toString() }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay(),
@@ -356,9 +357,10 @@ export class APIService {
       );
   }
 
-  goldTransferHwRequest(ethAddress: string, amount: string): Observable<APIResponse<GoldHwTransferResponse>> {
+  goldTransferHwRequest(ethAddress: string, amount: BigNumber): Observable<APIResponse<GoldHwTransferResponse>> {
+    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/hw/transfer`, { ethAddress, amount }, this.jwt())
+      .post(`${this._baseUrl}/user/exchange/gold/hw/transfer`, { ethAddress, amount: wei.toString() }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay(),
