@@ -149,7 +149,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							try {
 								dbContext.Deposit.Add(deposit);
 								await dbContext.SaveChangesAsync();
-								dbContext.Detach(deposit);
 							}
 							catch (Exception e) {
 								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Failed, "DB failed while deposit enqueue");
@@ -226,7 +225,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							deposit.Status = DepositStatus.BlockchainInit;
 							dbContext.Update(deposit);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(deposit);
 
 							try {
 								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
@@ -246,7 +244,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							deposit.Status = DepositStatus.BlockchainConfirm;
 							dbContext.Update(deposit);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(deposit);
 
 							// update ticket safely
 							try {
@@ -280,7 +277,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							dbContext.Update(deposit);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(deposit, deposit.FinancialHistory);
 
 							try {
 								if (deposit.Status == DepositStatus.Success) {

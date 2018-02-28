@@ -101,7 +101,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						requestBuying.Status = ExchangeRequestStatus.Processing;
 						requestBuying.TimeRequested = DateTime.UtcNow;
 						requestBuying.TimeNextCheck = DateTime.UtcNow;
-						DbContext.Update(requestBuying);
 
 						user.UserOptions.HotWalletBuyingLastTime = DateTime.UtcNow;
 					}
@@ -112,12 +111,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						requestSelling.Status = ExchangeRequestStatus.Processing;
 						requestSelling.TimeRequested = DateTime.UtcNow;
 						requestSelling.TimeNextCheck = DateTime.UtcNow;
-						DbContext.Update(requestSelling);
 
 						user.UserOptions.HotWalletSellingLastTime = DateTime.UtcNow;
 					}
 
-					DbContext.Update(user.UserOptions);
 					await DbContext.SaveChangesAsync();
 
 					try {
@@ -158,7 +155,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 			var goldBalance = await EthereumObserver.GetUserGoldBalance(user.UserName);
 
-			if (amountWei < 1 || amountWei > goldBalance || amountWei.ToString().Length <= 64) {
+			if (amountWei < 1 || amountWei > goldBalance || amountWei.ToString().Length > 64) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -198,7 +195,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// add and save
 					DbContext.TransferRequest.Add(request);
 					await DbContext.SaveChangesAsync();
-					DbContext.Detach(request);
 
 					await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Pending, $"Transfer request id is #{request.Id}");
 
@@ -213,8 +209,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					);
 
 					user.UserOptions.HotWalletTransferLastTime = DateTime.UtcNow;
-
-					DbContext.Update(user.UserOptions);
 					await DbContext.SaveChangesAsync();
 
 					return APIResponse.Success(

@@ -81,7 +81,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							try {
 								dbContext.Withdraw.Add(withdraw);
 								await dbContext.SaveChangesAsync();
-								dbContext.Detach(withdraw);
 							}
 							catch (Exception e) {
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Failed, "DB failed while withdraw enqueue");
@@ -158,7 +157,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							withdraw.Status = WithdrawStatus.BlockchainInit;
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(withdraw);
 
 							try {
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
@@ -180,7 +178,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// save
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(withdraw);
 
 							try {
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
@@ -254,7 +251,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(withdraw, withdraw.FinancialHistory);
 						}
 					}
 					catch (Exception e) {
@@ -307,7 +303,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 			dbContext.Update(payment);
 			await dbContext.SaveChangesAsync();
-			dbContext.Detach(payment);
 
 			return payment;
 		}

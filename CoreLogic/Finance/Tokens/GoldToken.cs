@@ -245,9 +245,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					catch (Exception e) {
 						logger.Error(e, $"Failed to mark buying request #{request.Id} for processing");
 					}
-					finally {
-						dbContext.Detach(request);
-					}
 				}
 				return false;
 			});
@@ -320,9 +317,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to mark selling request #{request.Id} for processing");
-					}
-					finally {
-						dbContext.Detach(request);
 					}
 				}
 				return false;
@@ -471,9 +465,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process buying request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.FinancialHistory, request);
 					}
 				}
 
@@ -625,9 +616,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process selling request #{request.Id}");
 					}
-					finally {
-						dbContext.Detach(request.FinancialHistory, request);
-					}
 				}
 
 				return false;
@@ -776,9 +764,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process buying request #{request.Id}");
 					}
-					finally {
-						dbContext.Detach(request.User, request.FinancialHistory, request);
-					}
 				}
 
 				return false;
@@ -926,9 +911,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process hw selling request #{request.Id}");
 					}
-					finally {
-						dbContext.Detach(request.User, request.FinancialHistory, request);
-					}
 				}
 
 				return false;
@@ -1061,9 +1043,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process hw transferring request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.User, request);
 					}
 				}
 

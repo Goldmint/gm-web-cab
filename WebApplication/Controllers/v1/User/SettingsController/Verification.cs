@@ -97,7 +97,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 
-			// check level 0 verirfication
+			// check level 0 verification
 			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user) || CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}

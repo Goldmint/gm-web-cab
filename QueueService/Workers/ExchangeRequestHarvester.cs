@@ -1,11 +1,8 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Finance.Fiat;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.DAL;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -50,6 +47,8 @@ namespace Goldmint.QueueService.Workers {
 
 				// is pending
 				if (data.IsPending) {
+
+					_dbContext.DetachEverything();
 
 					var success = false;
 

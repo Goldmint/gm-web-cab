@@ -38,7 +38,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 			
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -79,13 +79,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// save
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(payment, finHistory);
 
 			// update comment
 			finHistory.Comment = $"Deposit payment #{payment.Id} from {card.CardMask}";
-			DbContext.Update(finHistory);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
+			DbContext.DetachEverything();
 
 			// try
 			var queryResult = await DepositQueue.StartDepositWithCard(

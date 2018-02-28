@@ -16,7 +16,7 @@ namespace Goldmint.QueueService.Workers {
 
 	public class NotificationSender : BaseWorker {
 
-		private int _rowsPerRound;
+		private readonly int _rowsPerRound;
 
 		private ApplicationDbContext _dbContext;
 		private IServiceProvider _services;
@@ -40,6 +40,9 @@ namespace Goldmint.QueueService.Workers {
 
 		protected override async Task Loop() {
 
+			_dbContext.DetachEverything();
+
+			// get notifications
 			var rows = await (
 				from n in _dbContext.Notification
 				where n.TimeToSend <= DateTime.UtcNow
@@ -80,7 +83,6 @@ namespace Goldmint.QueueService.Workers {
 
 						// save changes on
 						await _dbContext.SaveChangesAsync();
-						_dbContext.Detach(r);
 					}
 				});
 			}

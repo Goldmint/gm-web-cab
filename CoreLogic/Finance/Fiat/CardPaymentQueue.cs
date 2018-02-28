@@ -220,10 +220,11 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						p.Status == CardPaymentStatus.Pending
 						select p
 					)
-					.Include(p => p.Card)
-					.Include(p => p.User).ThenInclude(u => u.UserVerification)
-					.AsNoTracking()
-					.FirstOrDefaultAsync();
+						.Include(p => p.Card)
+						.Include(p => p.User).ThenInclude(u => u.UserVerification)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
 
 					// not found
 					if (payment == null) {
@@ -279,7 +280,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					// update payment
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					// now is final
 					if (finalized) {
@@ -296,7 +296,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// set next step
 							if (cardHolder != null &&
 								cardMask != null &&
-								UserAccount.IsUserVerifiedL0(payment.User) &&
+								UserAccount.IsUserVerifiedL1(payment.User) &&
 								cardHolder.Contains(payment.User.UserVerification.FirstName) &&
 								cardHolder.Contains(payment.User.UserVerification.LastName)
 							) {
@@ -366,12 +366,8 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						// update card state
 						dbContext.Update(card);
 						await dbContext.SaveChangesAsync();
-						dbContext.Detach(card, payment);
 
 						if (verificationPaymentEnqueued != null) {
-							// saved, dont track instance
-							dbContext.Detach(verificationPaymentEnqueued);
-
 							ret.VerificationPaymentId = verificationPaymentEnqueued.Id;
 
 							try {
@@ -419,11 +415,12 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						where p.Id == paymentId && p.Type == CardPaymentType.Verification && p.Status == CardPaymentStatus.Pending
 						select p
 					)
-					.Include(p => p.Card)
-					.Include(p => p.User)
-					.ThenInclude(u => u.UserVerification)
-					.AsNoTracking()
-					.FirstOrDefaultAsync();
+						.Include(p => p.Card)
+						.Include(p => p.User)
+						.ThenInclude(u => u.UserVerification)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
 
 					// not found
 					if (payment == null) {
@@ -440,7 +437,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					payment.Status = CardPaymentStatus.Charging;
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					// charge
 					ChargeResult result = null;
@@ -517,16 +513,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						throw e;
 					}
 
-					// dont track
-					dbContext.Detach(payment.Card, payment);
-
 					// update ticket
 					try {
 						if (refundEnqueued != null) {
-
-							// saved, dont track
-							dbContext.Detach(refundEnqueued);
-
 							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Refund #{refundEnqueued.Id} enqueued");
 						}
 					}
@@ -588,7 +577,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					payment.Status = CardPaymentStatus.Charging;
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					// charge
 					string resultGWTID = null;
@@ -631,7 +619,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					return payment.Status == CardPaymentStatus.Success;
 				}

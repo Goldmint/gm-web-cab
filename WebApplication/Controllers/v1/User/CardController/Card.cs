@@ -65,7 +65,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -83,7 +83,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				TimeCreated = DateTime.UtcNow,
 			};
 			DbContext.Card.Add(card);
-			DbContext.SaveChanges();
+			await DbContext.SaveChangesAsync();
 
 			// replace card id in redirect
 			model.Redirect = model.Redirect?.Replace(":cardId", card.Id.ToString(), StringComparison.InvariantCultureIgnoreCase);
@@ -124,8 +124,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// save transaction
 			card.GWInitialDepositCardTransactionId = paymentResult.GWTransactionId;
-			DbContext.Update(card);
-			DbContext.SaveChanges();
+			await DbContext.SaveChangesAsync();
 
 			// make ticket
 			var ticketId = await TicketDesk.NewCardVerification(user, card);
@@ -139,8 +138,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				deskTicketId: ticketId
 			);
 			DbContext.CardPayment.Add(payment);
-			DbContext.SaveChanges();
-			DbContext.Detach(payment);
+			await DbContext.SaveChangesAsync();
 
 			try {
 				await TicketDesk.UpdateTicket(ticketId, UserOpLogStatus.Pending, $"Payment for first step is #{payment.Id}");
@@ -171,7 +169,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -242,8 +240,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// update card
 			card.GWInitialWithdrawCardTransactionId = paymentResult.GWTransactionId;
-			DbContext.Update(card);
-			DbContext.SaveChanges();
+			await DbContext.SaveChangesAsync();
 
 			// enqueue payment
 			var payment = CardPaymentQueue.CreateCardDataInputPayment(
@@ -254,8 +251,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				deskTicketId: prevPayment.DeskTicketId
 			);
 			DbContext.CardPayment.Add(payment);
-			DbContext.SaveChanges();
-			DbContext.Detach(payment);
+			await DbContext.SaveChangesAsync();
 
 			try {
 				await TicketDesk.UpdateTicket(prevPayment.DeskTicketId, UserOpLogStatus.Pending, $"Payment for second step is {payment.Id}");
@@ -285,7 +281,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -346,7 +342,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 

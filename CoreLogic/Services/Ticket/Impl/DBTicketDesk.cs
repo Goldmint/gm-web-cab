@@ -33,7 +33,7 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 			};
 			_dbContext.UserOpLog.Add(op);
 			await _dbContext.SaveChangesAsync();
-			_dbContext.Detach(op);
+			_dbContext.Entry(op).State = EntityState.Detached;
 			return op.Id.ToString();
 		}
 		

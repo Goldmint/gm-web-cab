@@ -10,7 +10,7 @@ namespace Goldmint.QueueService.Workers {
 
 	public class TransferRequestProcessor : BaseWorker {
 
-		private int _rowsPerRound;
+		private readonly int _rowsPerRound;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
@@ -27,6 +27,8 @@ namespace Goldmint.QueueService.Workers {
 		}
 
 		protected override async Task Loop() {
+
+			_dbContext.DetachEverything();
 
 			var nowTime = DateTime.UtcNow;
 

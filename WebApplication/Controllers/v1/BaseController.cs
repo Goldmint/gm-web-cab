@@ -144,6 +144,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					.Include(user => user.UserOptions)
 					.Include(user => user.UserVerification)
 					.Include(user => user.Card)
+					.AsTracking()
 					.FirstAsync(user => user.NormalizedUserName == name)
 				;
 			}
