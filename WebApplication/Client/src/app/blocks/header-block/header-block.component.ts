@@ -25,8 +25,8 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public signupButtonBlur = new EventEmitter<boolean>();
 
   metamaskAccount: string = null;
-  goldBalance: number|null = null;
-  hotGoldBalance: number|null = null;
+  goldBalance: string|null = null;
+  hotGoldBalance: string|null = null;
   usdBalance: number|null = null;
 
   constructor(
@@ -65,13 +65,15 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     });
 
     this._ethService.getObservableGoldBalance().subscribe(bal => {
-      if (bal != null) this.goldBalance = parseFloat(bal.toPrecision(3));
-      this._cdRef.detectChanges();
+      if (bal != null) {
+        this.goldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
+        this._cdRef.detectChanges();
+      }
     });
 
     this._ethService.getObservableHotGoldBalance().subscribe(bal => {
       if (bal != null) {
-        this.hotGoldBalance = parseFloat(bal.toPrecision(3));
+        this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
         this._cdRef.detectChanges();
       }
     });

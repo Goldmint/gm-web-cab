@@ -17,6 +17,7 @@ enum Pages {Default, EmailSent, NewPassword}
 })
 export class PasswordResetPageComponent implements OnInit {
   @ViewChild('captchaRef') captchaRef: reCaptcha;
+  @ViewChild('newPassword') password
 
   public pages = Pages;
   private _token: string;
@@ -27,6 +28,7 @@ export class PasswordResetPageComponent implements OnInit {
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
   public page: Pages;
+  public isPasswordWeak = false;
 
   constructor(
     private router: Router,
@@ -54,6 +56,12 @@ export class PasswordResetPageComponent implements OnInit {
     if (isDevMode()) {
       this.passwordResetModel.recaptcha = "devmode";
     }
+
+    this.password && this.password.valueChanges
+      .debounceTime(500)
+      .subscribe(() => {
+        this.testPassword();
+      });
   }
 
   captchaResolved(captchaResponse: string) {
@@ -94,6 +102,21 @@ export class PasswordResetPageComponent implements OnInit {
             }
           }
         });
+  }
+
+  testPassword() {
+    if (this.newPasswordModel.password) {
+      this.apiService.testPassword(this.newPasswordModel.password)
+        .subscribe((data) => {
+            this.isPasswordWeak = true;
+            this.cdRef.detectChanges();
+          },
+          (err) => {
+            this.isPasswordWeak = false;
+            this.cdRef.detectChanges();
+          }
+        );
+    }
   }
 
   changePassword() {

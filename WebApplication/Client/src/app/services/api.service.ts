@@ -382,6 +382,11 @@ export class APIService {
       );
   };
 
+  testPassword(pass) {
+    return this._http
+      .get(`https://api.pwnedpasswords.com/pwnedpassword/${pass}`)
+  }
+
   getTFAInfo(): Observable<APIResponse<TFAInfo>> {
     return this._http
       .get(`${this._baseUrl}/user/settings/tfa/view`, this.jwt())

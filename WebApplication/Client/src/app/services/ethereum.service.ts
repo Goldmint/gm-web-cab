@@ -103,7 +103,7 @@ export class EthereumService {
 
   private checkHotBalance() {
     this._userId != null && this._apiService.getUserBalance().subscribe(res => {
-      this._obsHotGoldBalanceSubject.next(new BigNumber(res.data.gold));
+      this._obsHotGoldBalanceSubject.next(new BigNumber(res.data.gold).div(new BigNumber(10).pow(18)));
       this._lastAddress == null && this._obsUsdBalanceSubject.next(res.data.usd);
     });
   }

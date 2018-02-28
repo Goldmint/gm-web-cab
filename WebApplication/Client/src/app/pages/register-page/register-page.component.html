@@ -13,7 +13,6 @@
 
           <div class="section__content pt-4">
             <form name="signupForm" (ngSubmit)="signupForm.form.valid && register()" #signupForm="ngForm" novalidate>
-
               <div class="form-group">
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
@@ -41,7 +40,8 @@
                        class="form-control col-7"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (signupForm.submitted || !password.pristine)}"
                        (ngModelChange)="errors.Password = false"
-                       [readonly]="loading">
+                       [readonly]="loading || passwordChecking"
+                       (input)="onPasswordChanged()">
 
                 <div class="invalid-feedback" *ngIf="password.errors?.required">
                   {{ "PAGES.Register.Errors.Password.required" | translate }}
@@ -55,6 +55,12 @@
                 <div class="invalid-feedback" *ngIf="errors?.Password">
                   {{ errors?.Password }}
                 </div>
+                <div class="invalid-feedback" *ngIf="password.errors?.weak">
+                  {{ "PAGES.Register.Errors.Password.weak" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="passwordChecking">
+                  {{ "PAGES.Register.Errors.Password.weakChecking" | translate }}
+                </div>
               </div>
 
               <div class="form-group mb-3 pt-3">
@@ -67,11 +73,11 @@
 
               <div class="form-group row pt-3">
                 <div class="col-auto">
-                  <button class="btn btn-primary" [blur]="submitButtonBlur" [disabled]="(signupForm.pristine && !signupForm.form.valid) || !signupModel.recaptcha || loading">{{ "PAGES.Register.Buttons.Register" | translate }}</button>
-                  <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+                  <button class="btn btn-primary" [blur]="submitButtonBlur" [disabled]="(!signupForm.valid) || !signupModel.recaptcha || loading || passwordChanged">{{ "PAGES.Register.Buttons.Register" | translate }}</button>
+                  <img *ngIf="loading || passwordChecking" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
                 <div class="col form-text form-text--small pl-4">
-                  <a routerLink="/signin" class="link link--bolder">Already own an account? Sign in</a>
+                  <a routerLink="/signin" class="link link--bolder">{{ "PAGES.Register.Links" | translate }}</a>
                 </div>
               </div>
 

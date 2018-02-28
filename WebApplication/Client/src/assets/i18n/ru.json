@@ -7,6 +7,8 @@
       "Sell": "Продать",
       "Buy": "Купить",
       "Transfer": "Перевод активов",
+      "Finance": "Финансы",
+
       "History": "История",
       "Limits": "Лимиты аккаунта",
       "Support": "Поддержка"
@@ -19,7 +21,7 @@
       "Terms": "Условия использования",
       "Privacy": "Конфиденциальность",
       "KYCPolicy": "KYC политика",
-      "FAQ": "FAQ"
+      "HelpCenter": "Помощь"
     },
     "Copyright": "ООО GoldMint © {{year}}"
   },
@@ -81,6 +83,43 @@
       "Buttons": {
         "LogIn": "Войти",
         "LogInViaSocial": "Войти через {{ provider }}"
+      },
+      "Links": {
+        "RegisterAccount": "Зарегестрировать новый аккаунт",
+        "ForgotPassword": "Забыли пароль?"
+      }
+    },
+    "ResetPassword": {
+      "Heading": {
+        "Reset": "Сбросить пароль",
+        "Recovery": {
+          "FirstLine": "Email для восстановления",
+          "SecondLine": "пароля отправлен"
+        },
+        "Change": "Изменить пароль"
+      },
+      "Labels": {
+        "Reset": "Сброс",
+        "EnterEmail": "Введите ваш Email",
+        "Recovery": "Восстановление",
+        "Provide": "Введите новый пароль для аккаунта",
+        "NewPass": "Новый пароль",
+        "ConfirmPass": "Повторите пароль"
+      },
+      "Text": {
+        "Reset": "Для сброса пароля, введите адрес электронной почты, который вы используете для входа в GOLDMINT.IO. Это может быть ваш адрес электронной почты; адрес электронной почты, который вы используете для входа в социальные сети; либо любой адрес электронной почты, связанный с вашей учетной записью.",
+        "Recovery": {
+          "FirstLine": "На Вашу электронную почту было отправлено письмо, содержащее ссылку для восстановления пароля. Вы сможете сбросить свой текущий пароль, перейдя по ссылке в течение следующих 24 часов. Для этого, нажмите на кнопку в Вашем письме.",
+          "SecondLine": "Если Вы не видите сообщение в электронной почте, обязательно проверьте папку со спамом."
+        }
+      },
+      "Errors": {
+        "Email": "Это обязательное поле",
+        "RepeatPass": "Повторите пароль"
+      },
+      "Buttons": {
+        "Submit": "Отправить",
+        "Back": "Вернуться на сайт"
       }
     },
     "Register": {
@@ -103,12 +142,233 @@
         },
         "Password": {
           "required": "Это обязательное поле",
-          "minlength": "Пароль должен быть не короче 6 символов"
+          "minlength": "Пароль должен быть не короче 6 символов",
+          "maxlength": "Пароль должен быть не длинее 128 символов",
+          "pattern": "Пароль должен содержать заглавные буквы, строчные буквы и цифры",
+          "weak": "Пароль слишком слабый",
+          "weakChecking": "Проверка пароля..."
         }
       },
       "Buttons": {
         "Register": "Регистрация",
         "RegisterViaSocial": "Войти через {{ provider }}"
+      },
+      "Links": "Уже есть аккаунт? Войти"
+    },
+    "Settings": {
+      "Heading": "Account Info",
+      "Menu": {
+        "Profile": "Profile",
+        "Verification": "KYC Verification",
+        "TFA": "Two-Factor Authentication",
+        "Cards": "Cards",
+        "SocialNetworks": "Social Networks",
+        "AccountActivity": "Account Activity",
+        "AccountLimits": "Account Limits"
+      },
+      "Profile": {
+        "UserIdSection": {
+          "Title": "UserID"
+        },
+        "EmailSection": {
+          "Title": "Email",
+          "Labels": {
+            "PrimaryEmail": "Primary Email Address"
+          },
+          "Buttons": {
+            "Confirm": "Confirm"
+          },
+          "Errors": {
+            "Email": {
+              "required": "Email is required",
+              "email": "Should be a valid email"
+            }
+          }
+        },
+        "PasswordSection": {
+          "Title": "Change Password",
+          "Texts": {
+            "Changed": "Password successfully changed"
+          },
+          "Labels": {
+            "CurrentPassword": "Current Password",
+            "NewPassword": "New Password",
+            "NewPasswordRepeat": "Repeat New Password"
+          },
+          "Buttons": {
+            "ChangePassword": "Change password"
+          },
+          "Errors": {
+            "CurrentPassword": {
+              "invalid": "Invalid password specified"
+            },
+            "NewPassword": {
+              "required": "New password is required",
+              "minlength": "Should be at least 6 symbols length"
+            },
+            "NewPasswordRepeat": {
+              "required": "Повторите новый пароль",
+              "equal": "Пароли не совпадают"
+            }
+          }
+        }
+      },
+      "KYC": {
+        "AccountType": {
+          "Label": "Account type:",
+          "Types": {
+            "Verified": "Verified",
+            "VerifiedPlus": "Verified+"
+          }
+        },
+        "DefaultSection": {
+          "Title": "Identity verification",
+          "Text": "Complete verification to withdraw fiat funds and unlock account opportinities",
+          "Note": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
+          "UpgradeText": "<span class=\"lead\">Complete verification to withdraw fiat funds and unlock account opportinities</span>",
+          "UpgradeNote": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
+          "Buttons": {
+            "Start": "Start Verification",
+            "Upgrade": "Upgrade Verification"
+          }
+        },
+        "AgreementSection": {
+          "Title": "GoldMint agreement",
+          "Text": "Complete basic verification by signing GoldMint agreement. Agreement has been sent to your primary email address. <br><br>If you did not receive message in 30 minutes please click button below.",
+          "ResendLimited": "Resending has limited frequency. Please be patient and wait for email message.",
+          "ResendFinished": "Agreement has been resent.",
+          "Buttons": {
+            "Resend": "Resend Agreement"
+          }
+        },
+        "FinishedSection": {
+          "Title": "Advanced verification",
+          "Text": "<span class=\"lead\">Congratulations! Identity verification successfully finished!</span>"
+        },
+        "WarningSection": {
+          "Title": "Warning about deposits",
+          "Text": "Unverified accounts cannot withdraw from Goldmint. Please see this <a href=\"#\">link</a> for more information."
+        },
+        "FormSection": {
+          "Title": "Basic Information",
+          "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it axists on your government identification.",
+          "UpgradeAccountText": "<b>UPGRADE ACCOUNT.</b> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur vel eos perspiciatis aliquid officia labore expedita ipsam sequi totam magnam aspernatur libero quia, itaque eveniet pariatur omnis molestias, suscipit corporis.",
+          "RequiredFields": "Required fields",
+          "Labels": {
+            "FirstName": "First Name",
+            "MiddleName": "Middle Name",
+            "LastName": "Last Name",
+            "BirthMonth": "Birth Month",
+            "BirthDay": "Birth Day",
+            "BirthYear": "Birth Year",
+            "Country": "Country",
+            "State": "State or province",
+            "City": "City",
+            "PostalCode": "Postal or ZIP code",
+            "Street": "Street Address",
+            "Apartment": "Apartment or unit",
+            "Passport": "Passport number (optional)",
+            "Phone": "Phone number"
+          },
+          "Placeholders": {
+            "ChooseCountry": "Choose your Country",
+            "ChooseState": "Choose your State",
+            "ChooseBirthYear": "Choose your Birth Year..."
+          },
+          "Errors": {
+            "FirstName": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "MiddleName": {
+              "pattern": "Only latin characters allowed"
+            },
+            "LastName": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "BirthMonth": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "BirthDay": {
+              "required": "This field is required"
+            },
+            "BirthYear": {
+              "required": "This field is required"
+            },
+            "Country": {
+              "required": "This field is required"
+            },
+            "Street": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "City": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "State": {
+              "required": "This field is required",
+              "pattern": "Only latin characters allowed"
+            },
+            "PostalCode": {
+              "required": "This field is required",
+              "pattern": "Only numbers allowed"
+            },
+            "PhoneNumber": {
+              "required": "This field is required"
+            }
+          },
+          "Buttons": {
+            "Submit": "Submit"
+          }
+        }
+      },
+      "TFA": {
+        "SecretKeySection": {
+          "Title": "Two-factor authentication",
+          "TitleWidget": {
+            "Enabled": "Enabled",
+            "Disabled": "Disabled"
+          },
+          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provic ed.</p>",
+          "Text": "<p><b>Please back up your secret key.</b> Reseting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
+          "KeyLabel": "Secret key:",
+          "CodeLabel": "Authenticator Code",
+          "CodeHelpText": "Input your 6-digit authenticatoe code",
+          "Errors": {
+            "pattern": "Only 6-digits numeric code is allowed"
+          },
+          "Buttons": {
+            "Enable": "Enable 2FA",
+            "Disable": "Disable 2FA"
+          }
+        }
+      },
+      "Social": {
+        "NetworksSection": {
+          "Title": "Social Networks",
+          "Text": "You can sign in into app.goldmint.io with your Social Network account",
+          "Buttons": {
+            "Connect": "Connect",
+            "Connected": "Connected"
+          }
+        }
+      },
+      "Activity": {
+        "SectionTitle": "Account activity events",
+        "TitleWidget": {
+          "Label": "Date"
+        },
+        "ActivityTypes": {
+          "auth": "Authentication",
+          "password": "User password",
+          "settings": "Settings",
+          "deposit": "Deposit",
+          "withdraw": "Withdraw",
+          "exchange": "Assets exchange"
+        }
       }
     }
   },
