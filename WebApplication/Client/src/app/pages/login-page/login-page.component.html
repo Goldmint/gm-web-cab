@@ -74,8 +74,8 @@
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
                 <div class="col form-text form-text--small pl-4">
-                  <a routerLink="/signup" class="link link--bolder">Register new account</a>
-                  <a routerLink="./restore" class="link link--bolder">Forgot your password?</a>
+                  <a routerLink="/signup" class="link link--bolder">{{ "PAGES.Login.Links.RegisterAccount" | translate }}</a>
+                  <a routerLink="./restore" class="link link--bolder">{{ "PAGES.Login.Links.ForgotPassword" | translate }}</a>
                 </div>
               </div>
 

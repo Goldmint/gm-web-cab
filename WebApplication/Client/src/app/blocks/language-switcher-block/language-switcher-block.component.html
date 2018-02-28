@@ -4,14 +4,14 @@
   <div dropdown position="bottom right" class="language__select" #dropdown="bs-dropdown">
     <a dropdownToggle class="text-uppercase">{{translate.currentLang}}</a>
 
-    <!--<ul *dropdownMenu class="dropdown-menu" role="menu" title="">-->
-      <!--<li role="menuitem" *ngFor="let lang of translate.getLangs()">-->
-        <!--<div class="dropdown-item" [title]="languages[lang].name" (click)="translate.use(lang)">-->
-          <!--<img [src]="'assets/img/flags/' + languages[lang].icon" width="16" height="12" class="language__icon" [alt]="lang">-->
-          <!--{{ languages[lang].name }}-->
-        <!--</div>-->
-      <!--</li>-->
-    <!--</ul>-->
+    <ul *dropdownMenu class="dropdown-menu" role="menu" title="">
+      <li role="menuitem" *ngFor="let lang of translate.getLangs()">
+        <div class="dropdown-item" [title]="languages[lang].name" (click)="translate.use(lang)">
+          <img [src]="'assets/img/flags/' + languages[lang].icon" width="16" height="12" class="language__icon" [alt]="lang">
+          {{ languages[lang].name }}
+        </div>
+      </li>
+    </ul>
   </div>
 </div>
 

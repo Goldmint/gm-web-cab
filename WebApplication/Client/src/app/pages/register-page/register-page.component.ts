@@ -3,9 +3,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { RecaptchaComponent as reCaptcha } from 'ng-recaptcha';
 import 'rxjs/add/operator/finally';
+import 'rxjs/add/operator/debounceTime';
 
 import { APIService, UserService } from '../../services';
 import { MessageBoxService } from '../../services/message-box.service';
+import {FormControl} from "@angular/forms";
 
 @Component({
   selector: 'app-register-page',
@@ -17,13 +19,18 @@ import { MessageBoxService } from '../../services/message-box.service';
 export class RegisterPageComponent implements OnInit {
   @HostBinding('class') class = 'page page--auth';
   @ViewChild('captchaRef') captchaRef: reCaptcha;
+  @ViewChild('signupForm') signupForm;
 
   public signupModel: any = {};
   public loading = false;
+  public passwordChecking = false;
   public submitButtonBlur = new EventEmitter<boolean>();
   public errors: any = [];
+  public passwordChanged = false;
 
   private returnUrl: string;
+
+  @ViewChild('password') password
 
   constructor(
     private route: ActivatedRoute,
@@ -46,6 +53,39 @@ export class RegisterPageComponent implements OnInit {
     else {
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     }
+
+    this.password.valueChanges
+      .debounceTime(500)
+      .subscribe(() => {
+        if (this.signupModel.password && !this.signupForm.controls.password.errors) {
+          this.passwordChecking = true;
+          this.cdRef.detectChanges();
+          this.testPassword();
+        }
+      });
+  }
+
+  onPasswordChanged() {
+    if (this.signupModel.password && !this.signupForm.controls.password.errors) {
+      this.passwordChanged = true;
+      this.cdRef.detectChanges();
+    }
+  }
+
+  testPassword() {
+    this.apiService.testPassword(this.signupModel.password)
+      .finally(() => {
+        this.passwordChecking = this.passwordChanged = false;
+        this.cdRef.detectChanges();
+      })
+      .subscribe((data) => {
+        this.signupForm.controls.password.setErrors({'weak': true});
+          this.cdRef.detectChanges();
+        },
+        (err) => {
+          this.signupForm.controls.password.setErrors(null);
+          this.cdRef.detectChanges();
+        });
   }
 
   public register() {

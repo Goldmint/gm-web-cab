@@ -192,6 +192,43 @@
       "Buttons": {
         "LogIn": "Sign in",
         "LogInViaSocial": "Sign in via {{ provider }}"
+      },
+      "Links": {
+        "RegisterAccount": "Register new account",
+        "ForgotPassword": "Forgot your password?"
+      }
+    },
+    "ResetPassword": {
+      "Heading": {
+        "Reset": "Reset password",
+        "Recovery": {
+          "FirstLine": "Password recovery",
+          "SecondLine": "email sent"
+        },
+        "Change": "Change password"
+      },
+      "Labels": {
+        "Reset": "Reset",
+        "EnterEmail": "Enter Your Email Address",
+        "Recovery": "Recovery",
+        "Provide": "Provide a new password for your account",
+        "NewPass": "New password",
+        "ConfirmPass": "Confirm password"
+      },
+      "Text": {
+        "Reset": "To reset your password, enter the email address you use to sign in to GOLDMINT.IO. It can be your email address, an email address you use with one of the social networks, or any email address associated with your account.",
+        "Recovery": {
+          "FirstLine": "We've sent you an email containing a password recovery link. You will be able to reset your password by clicking the link within the next 24 hours. Please click on the button in your email.",
+          "SecondLine": "If you don't see the email, be sure to check the spam folder."
+        }
+      },
+      "Errors": {
+        "Email": "Email is required",
+        "RepeatPass": "Repeat new password, please"
+      },
+      "Buttons": {
+        "Submit": "Submit",
+        "Back": "Back to the site"
       }
     },
     "Register": {
@@ -217,13 +254,16 @@
           "required": "Password is required",
           "minlength": "Should be at least 6 symbols length",
           "maxlength": "Should be up to 128 symbols length",
-          "pattern": "Should contain uppercase letters, lowercase letters and digits"
+          "pattern": "Should contain uppercase letters, lowercase letters and digits",
+          "weak": "Password is too weak",
+          "weakChecking": "Checking password..."
         }
       },
       "Buttons": {
         "Register": "Register",
         "RegisterViaSocial": "Sign in via {{ provider }}"
       },
+      "Links": "Already own an account? Sign in",
       "SuccessPage":  {
         "Title": "Registered",
         "Content": "We have sent you confirmation email. Please check your email and follow confirmation link."
