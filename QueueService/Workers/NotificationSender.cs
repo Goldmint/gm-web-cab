@@ -56,7 +56,7 @@ namespace Goldmint.QueueService.Workers {
 				var mutexBuilder = new MutexBuilder(_mutexHolder)
 					.Mutex(Common.MutexEntity.NotificationSend, r.Id)
 				;
-				await mutexBuilder.LockAsync(async (ok) => {
+				await mutexBuilder.CriticalSection(async (ok) => {
 					if (ok) {
 
 						// deserialize

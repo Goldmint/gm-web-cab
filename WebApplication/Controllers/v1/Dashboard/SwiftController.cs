@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Globalization;
+using Goldmint.CoreLogic.Finance.Fiat;
+using Goldmint.CoreLogic.Services.Mutex.Impl;
+using Goldmint.DAL.Migrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -27,7 +30,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List([FromBody] ListModel model) {
 
-			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<SwiftPayment, object>>>() {
+			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<SwiftRequest, object>>>() {
 				{ "id",   _ => _.Id },
 				{ "type",   _ => _.Type },
 				{ "status",   _ => _.Status },
@@ -39,7 +42,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var query = DbContext.SwiftPayment.AsQueryable();
+			var query = DbContext.SwiftRequest.AsQueryable();
 			// exclude completed
 			if (model.ExcludeCompleted) {
 				query = query.Where(_ => _.Status == SwiftPaymentStatus.Pending);
@@ -90,6 +93,128 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 		}
 
+		// ---
+
+		/// <summary>
+		/// Acquire lock on request
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftDepositWriteAccess)]
+		[HttpPost, Route("lockDeposit")]
+		[ProducesResponseType(typeof(LockDepositView), 200)]
+		public async Task<APIResponse> LockDeposit([FromBody] LockModel model) {
+
+			var supportUser = await GetUserFromDb();
+			var currency = FiatCurrency.USD;
+
+			// get request
+			var request = await (
+					from p in DbContext.SwiftRequest
+					where
+						p.Id == model.Id &&
+						p.Type == SwiftPaymentType.Deposit
+					select p
+				)
+				.Include(_ => _.User)
+				.AsNoTracking()
+				.FirstOrDefaultAsync()
+			;
+
+			if (request == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
+			}
+
+			// get lock
+			var mutex = GetMutexBuilder(supportUser, request);
+			if (!await mutex.TryEnter()) {
+				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
+			}
+
+			// get limits
+			var limits = await CoreLogic.UserAccount.GetCurrentFiatDepositLimit(HttpContext.RequestServices, currency, request.User);
+
+			return APIResponse.Success(
+				new LockDepositView() {
+					User = new LockDepositView.UserData() {
+						Username = request.User.UserName,
+						FiatLimits = new LockDepositView.UserData.PeriodLimitItem() {
+							Minimal = limits.Minimal,
+							Day = limits.Day,
+							Month = limits.Month,
+						}
+					},
+					BankInfo = new LockDepositView.BankInfoData() {
+						Name = request.BenName,
+						Address = request.BenAddress,
+						BankName = request.BenBankName,
+						BankAddress = request.BenBankAddress,
+						Iban = request.BenIban,
+						Swift = request.BenSwift,
+					},
+				}
+			);
+		}
+
+		/// <summary>
+		/// Acquire lock on request
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftWithdrawWriteAccess)]
+		[HttpPost, Route("lockWithdraw")]
+		[ProducesResponseType(typeof(LockWithdrawView), 200)]
+		public async Task<APIResponse> LockWithdraw([FromBody] LockModel model) {
+
+			var supportUser = await GetUserFromDb();
+			var currency = FiatCurrency.USD;
+
+			// get request
+			var request = await (
+					from p in DbContext.SwiftRequest
+					where
+						p.Id == model.Id &&
+						p.Type == SwiftPaymentType.Withdraw
+					select p
+				)
+				.Include(_ => _.User)
+				.AsNoTracking()
+				.FirstOrDefaultAsync()
+			;
+
+			if (request == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
+			}
+
+			// get lock
+			var mutex = GetMutexBuilder(supportUser, request);
+			if (!await mutex.TryEnter()) {
+				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
+			}
+
+			// get limits
+			var limits = await CoreLogic.UserAccount.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, currency, request.User);
+
+			return APIResponse.Success(
+				new LockWithdrawView() {
+					User = new LockDepositView.UserData() {
+						Username = request.User.UserName,
+						FiatLimits = new LockDepositView.UserData.PeriodLimitItem() {
+							Minimal = limits.Minimal,
+							Day = limits.Day,
+							Month = limits.Month,
+						}
+					},
+					BankInfo = new LockDepositView.BankInfoData() {
+						Name = request.BenName,
+						Address = request.BenAddress,
+						BankName = request.BenBankName,
+						BankAddress = request.BenBankAddress,
+						Iban = request.BenIban,
+						Swift = request.BenSwift,
+					},
+				}
+			);
+		}
+
+		// ---
+
 		/// <summary>
 		/// Refuse deposit by request ID
 		/// </summary>
@@ -98,12 +223,11 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		[ProducesResponseType(typeof(RefuseDepositView), 200)]
 		public async Task<APIResponse> RefuseDeposit([FromBody] RefuseDepositModel model) {
 
-			var user = await GetUserFromDb();
+			var supportUser = await GetUserFromDb();
 
 			// get request
-			var request =
-				await (
-					from p in DbContext.SwiftPayment
+			var request = await (
+					from p in DbContext.SwiftRequest
 					where
 						p.Id == model.Id &&
 						p.Type == SwiftPaymentType.Deposit
@@ -117,36 +241,32 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
 			}
 
-			if (!await FinalizeRequest(user.Id, request, false, model.Comment)) {
+			// get lock
+			var mutex = GetMutexBuilder(supportUser, request);
+			if (request.Status != SwiftPaymentStatus.Pending || !await mutex.TryLeave()) {
 				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 			}
 
-			try {
-				await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT deposit refused by support team ({user.UserName})");
-			}
-			catch {
-			}
+			return await mutex.CriticalSection(async (ok) => {
 
-			return APIResponse.Success(
-				new RefuseDepositView() {
+				if (!ok) {
+					return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 				}
-			);
-		}
 
-		/// <summary>
-		/// Perform deposit by request ID
-		/// </summary>
-		/*[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftDepositWriteAccess)]
-		[HttpPost, Route("acceptDeposit")]
-		[ProducesResponseType(typeof(AcceptDepositView), 200)]
-		public async Task<APIResponse> AcceptDeposit([FromBody] AcceptDepositModel model) {
+				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
 			
-			return APIResponse.Success(
-				new AcceptDepositView() {
+				try {
+					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT deposit refused by support team ({supportUser.UserName})");
 				}
-			);
+				catch {
+				}
 
-		}*/
+				return APIResponse.Success(
+					new RefuseDepositView() {
+					}
+				);
+			});
+		}
 
 		/// <summary>
 		/// Refuse withdrawal request by ID
@@ -156,62 +276,175 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		[ProducesResponseType(typeof(RefuseWithdrawView), 200)]
 		public async Task<APIResponse> RefuseWithdraw([FromBody] RefuseWithdrawModel model) {
 
-			var user = await GetUserFromDb();
+			var supportUser = await GetUserFromDb();
 
 			// get request
-			var request =
-					await (
-							from p in DbContext.SwiftPayment
-							where
-								p.Id == model.Id &&
-								p.Type == SwiftPaymentType.Withdraw
-							select p
-						)
-						.AsTracking()
-						.FirstOrDefaultAsync()
-				;
+			var request = await (
+					from p in DbContext.SwiftRequest
+					where
+						p.Id == model.Id &&
+						p.Type == SwiftPaymentType.Withdraw
+					select p
+				)
+				.AsTracking()
+				.FirstOrDefaultAsync()
+			;
 
 			if (request == null) {
 				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
 			}
 
-			if (!await FinalizeRequest(user.Id, request, false, model.Comment)) {
+			// get lock
+			var mutex = GetMutexBuilder(supportUser, request);
+			if (request.Status != SwiftPaymentStatus.Pending || !await mutex.TryLeave()) {
 				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 			}
 
-			try {
-				await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT withdraw refused by support team ({user.UserName})");
-			}
-			catch {
-			}
+			return await mutex.CriticalSection(async (ok) => {
 
-			return APIResponse.Success(
-				new RefuseWithdrawView() {
+				if (!ok) {
+					return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 				}
-			);
+
+				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
+
+				try {
+					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT withdraw refused by support team ({supportUser.UserName})");
+				}
+				catch {
+				}
+
+				return APIResponse.Success(
+					new RefuseWithdrawView() {
+					}
+				);
+			});
 		}
 
 		// ---
 
 		/// <summary>
-		/// Set final status and support user ID, then check for ownership. Return reloaded entity or null
+		/// Accept deposit by request ID
 		/// </summary>
-		private async Task<bool> FinalizeRequest(long userId, SwiftPayment request, bool success, string comment) {
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.SwiftDepositWriteAccess)]
+		[HttpPost, Route("acceptDeposit")]
+		[ProducesResponseType(typeof(AcceptDepositView), 200)]
+		public async Task<APIResponse> AcceptDeposit([FromBody] AcceptDepositModel model) {
 
-			if (request.Status != SwiftPaymentStatus.Pending) {
-				return false;
+			// round cents
+			var transCurrency = FiatCurrency.USD;
+			var amountCents = (long)Math.Floor(model.Amount * 100d);
+			model.Amount = amountCents / 100d;
+
+			if (amountCents < AppConfig.Constants.CardPaymentData.DepositMin || amountCents > AppConfig.Constants.CardPaymentData.DepositMax) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
+			// ---
+
+			var supportUser = await GetUserFromDb();
+
+			// get request
+			var request = await (
+					from p in DbContext.SwiftRequest
+					where
+						p.Id == model.Id &&
+						p.Type == SwiftPaymentType.Deposit
+					select p
+				)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification)
+				.AsTracking()
+				.FirstOrDefaultAsync()
+			;
+
+			if (request == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
+			}
+
+			// check verification
+			var user = request.User;
+			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
+			// get lock
+			var mutex = GetMutexBuilder(supportUser, request);
+			if (request.Status != SwiftPaymentStatus.Pending || !await mutex.TryLeave()) {
+				return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
+			}
+
+			return await mutex.CriticalSection(async (ok) => {
+
+				if (!ok) {
+					return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
+				}
+
+				// fin history
+				var finHistory = new DAL.Models.FinancialHistory() {
+					Type = FinancialHistoryType.Deposit,
+					AmountCents = amountCents,
+					FeeCents = 0,
+					Currency = transCurrency,
+					DeskTicketId = request.DeskTicketId,
+					Status = FinancialHistoryStatus.Pending,
+					TimeCreated = DateTime.UtcNow,
+					User = user,
+					Comment = $"Deposit SWIFT payment {request.PaymentReference}",
+				};
+				DbContext.FinancialHistory.Add(finHistory);
+
+				// save
+				await DbContext.SaveChangesAsync();
+				DbContext.Detach(finHistory);
+
+				try {
+					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"SWIFT deposit accepted by support team ({supportUser.UserName})");
+				}
+				catch {
+				}
+
+				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
+
+				// try
+				var queryResult = await DepositQueue.StartDepositWithSwift(
+					services: HttpContext.RequestServices,
+					request: request,
+					financialHistory: finHistory
+				);
+
+				switch (queryResult.Status) {
+
+					case FiatEnqueueStatus.Success:
+						return APIResponse.Success(
+							new RefuseDepositView() {
+							}
+						);
+
+					case FiatEnqueueStatus.Limit:
+						return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
+
+					default:
+						return APIResponse.GeneralInternalFailure();
+				}
+			});
+		}
+
+		// ---
+
+		private MutexBuilder GetMutexBuilder(DAL.Models.Identity.User user, SwiftRequest request) {
+			return new MutexBuilder(MutexHolder)
+				.Mutex(MutexEntity.SupportSwiftRequestProc, request.Id)
+				.LockerUser(user.Id)
+				.Timeout(TimeSpan.FromMinutes(30))
+			;
+		}
+
+		private async Task FinalizeRequest(long userId, SwiftRequest request, bool success, string comment) {
 			request.Status = success? SwiftPaymentStatus.Success: SwiftPaymentStatus.Cancelled;
 			request.SupportUserId = userId;
 			request.SupportComment = (comment ?? "").LimitLength(512);
 			request.TimeCompleted = DateTime.UtcNow;
 			await DbContext.SaveChangesAsync();
-
-			var stamp = request.ConcurrencyStamp;
-			await DbContext.Entry(request).ReloadAsync();
-
-			return userId == (request.SupportUserId ?? 0) && request.ConcurrencyStamp == stamp;
 		}
 	}
 }

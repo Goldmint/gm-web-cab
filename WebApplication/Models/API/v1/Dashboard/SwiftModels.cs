@@ -59,7 +59,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		public string PaymentReference { get; set; }
 
 		/// <summary>
-		/// User (initiator) info
+		/// User-initiator data
 		/// </summary>
 		[Required]
 		public UserData User { get; set; }
@@ -104,6 +104,84 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 			/// </summary>
 			public string Comment { get; set; }
 		}
+	}
+
+	// ---
+
+	public class LockModel : BaseValidableModel {
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long Id { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<LockModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.Id)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid id")
+				;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class LockDepositView {
+		
+		/// <summary>
+		/// User-initiator data
+		/// </summary>
+		[Required]
+		public UserData User { get; set; }
+
+		/// <summary>
+		/// Bank info
+		/// </summary>
+		[Required]
+		public BankInfoData BankInfo { get; set; }
+
+		// ---
+
+		public class UserData {
+
+			/// <summary>
+			/// Username (u000000)
+			/// </summary>
+			[Required]
+			public string Username { get; set; }
+
+			/// <summary>
+			/// Fiat limits
+			/// </summary>
+			[Required]
+			public PeriodLimitItem FiatLimits { get; set; }
+
+			// ---
+
+			public class PeriodLimitItem {
+
+				/// <summary>
+				/// Current limit (this-day-limit actually)
+				/// </summary>
+				[Required]
+				public double Minimal { get; set; }
+
+				/// <summary>
+				/// This day limit
+				/// </summary>
+				[Required]
+				public double Day { get; set; }
+
+				/// <summary>
+				/// This month limit
+				/// </summary>
+				[Required]
+				public double Month { get; set; }
+			}
+		}
 
 		public class BankInfoData {
 
@@ -124,10 +202,10 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 
 			[Required]
 			public string Swift { get; set; }
-
-			[Required]
-			public string Country { get; set; }
 		}
+	}
+
+	public class LockWithdrawView : LockDepositView {
 	}
 
 	// ---

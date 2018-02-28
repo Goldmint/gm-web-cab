@@ -208,7 +208,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				VerificationPaymentId = null,
 			};
 
-			return await mutexBuilder.LockAsync<ProcessPendingCardDataInputPaymentResult>(async (ok) => {
+			return await mutexBuilder.CriticalSection<ProcessPendingCardDataInputPaymentResult>(async (ok) => {
 				if (ok) {
 
 					// get payment from db
@@ -410,7 +410,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				RefundPaymentId = null,
 			};
 
-			return await mutexBuilder.LockAsync<ProcessVerificationPaymentResult>(async (ok) => {
+			return await mutexBuilder.CriticalSection<ProcessVerificationPaymentResult>(async (ok) => {
 				if (ok) {
 
 					// get payment from db
@@ -554,7 +554,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.CardPaymentCheck, paymentId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 					// get payment from db
 					var payment = await (

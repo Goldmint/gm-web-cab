@@ -218,7 +218,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthBuyRequest, payloadId)
 			;
 
-			return await mutexBuilder.LockAsync<bool>(async (ok) => {
+			return await mutexBuilder.CriticalSection<bool>(async (ok) => {
 				if (ok) {
 
 					// get again
@@ -294,7 +294,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthSellRequest, payloadId)
 			;
 
-			return await mutexBuilder.LockAsync<bool>(async (ok) => {
+			return await mutexBuilder.CriticalSection<bool>(async (ok) => {
 				if (ok) {
 
 					// get again
@@ -347,7 +347,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthBuyRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -499,7 +499,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthSellRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -654,7 +654,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.HWBuyRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -803,7 +803,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.HWSellRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -953,7 +953,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.HWTransferRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (

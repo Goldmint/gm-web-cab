@@ -68,7 +68,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.WithdrawEnqueue, user.Id)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// get limit
@@ -139,7 +139,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.WithdrawCheck, withdraw.Id)
 			;
 
-			await mutexBuilder.LockAsync(async (ok) => {
+			await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// oups, finalized already

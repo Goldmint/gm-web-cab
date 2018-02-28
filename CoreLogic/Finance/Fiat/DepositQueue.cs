@@ -83,6 +83,42 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		}
 
 		/// <summary>
+		/// Attempt to start deposit
+		/// </summary>
+		public static async Task<DepositResult> StartDepositWithSwift(IServiceProvider services, SwiftRequest request, FinancialHistory financialHistory) {
+
+			if (request.Type != SwiftPaymentType.Deposit) throw new ArgumentException("Incorrect payment type");
+			if (request.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
+			if (request.User == null) throw new ArgumentException("User not included");
+
+			var logger = services.GetLoggerFor(typeof(DepositQueue));
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+
+			return await StartDeposit(services, request.User, request.Currency, request.AmountCents, async () => {
+
+				try {
+					await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Deposit of {request.AmountCents} cents, SWIFT request #{request.Id}");
+				}
+				catch { }
+
+				return new Deposit() {
+					User = request.User,
+					Status = DepositStatus.Initial,
+					Currency = request.Currency,
+					AmountCents = request.AmountCents,
+					RefFinancialHistoryId = financialHistory.Id,
+					Source = DepositSource.SwiftRequest,
+					SourceId = request.Id,
+					DeskTicketId = request.DeskTicketId,
+					TimeCreated = DateTime.UtcNow,
+					TimeNextCheck = DateTime.UtcNow,
+				};
+			});
+		}
+
+
+		/// <summary>
 		/// Attempt to enqueue deposit
 		/// </summary>
 		public static async Task<DepositResult> StartDeposit(IServiceProvider services, User user, FiatCurrency currency, long amountCents, Func<Task<Deposit>> onSuccess) {
@@ -100,7 +136,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.DepositEnqueue, user.Id)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// get limit
@@ -171,7 +207,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.DepositCheck, deposit.Id)
 			;
 
-			await mutexBuilder.LockAsync(async (ok) => {
+			await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// oups, deposit is finalized already

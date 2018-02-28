@@ -54,7 +54,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var ticket = await TicketDesk.NewSwiftWithdraw(user, transCurrency, amountCents);
 
 			// make payment
-			var request = new DAL.Models.SwiftPayment() {
+			var request = new DAL.Models.SwiftRequest() {
 				Type = SwiftPaymentType.Withdraw,
 				Status = SwiftPaymentStatus.Pending,
 				Currency = transCurrency,
@@ -70,7 +70,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				TimeCreated = DateTime.UtcNow,
 				UserId = user.Id,
 			};
-			DbContext.SwiftPayment.Add(request);
+			DbContext.SwiftRequest.Add(request);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
@@ -90,8 +90,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update
-			request.PaymentReference = $"Order number: {request.Id}";
-			finHistory.Comment = $"Swift withdraw request #{request.Id}";
+			request.PaymentReference = $"W-{user.UserName}-{request.Id}";
+			finHistory.Comment = $"Swift withdraw request #{request.Id} ({request.PaymentReference})";
 
 			await DbContext.SaveChangesAsync();
 			DbContext.Detach(request, finHistory);
@@ -101,7 +101,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				services: HttpContext.RequestServices,
 				user: user,
 				type: Common.UserActivityType.Swift,
-				comment: $"Swift withdraw #{request.Id} ({TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested",
+				comment: $"Swift withdraw of {TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested ({request.PaymentReference})",
 				ip: agent.Ip,
 				agent: agent.Agent
 			);

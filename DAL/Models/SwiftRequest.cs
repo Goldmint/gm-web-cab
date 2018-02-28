@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_swift_payment")]
-	public class SwiftPayment : BaseUserEntity, IConcurrentUpdate {
+	[Table("gm_swift_request")]
+	public class SwiftRequest : BaseUserEntity, IConcurrentUpdate {
 
 		[Column("type"), Required]
 		public SwiftPaymentType Type { get; set; }

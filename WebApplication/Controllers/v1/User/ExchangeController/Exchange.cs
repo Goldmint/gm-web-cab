@@ -41,7 +41,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			;
 
 			// get into mutex
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					BuyRequest requestBuying = null;
@@ -170,7 +170,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			;
 
 			// get into mutex
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var opLastTime = user.UserOptions.HotWalletTransferLastTime;

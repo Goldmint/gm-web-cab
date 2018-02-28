@@ -201,6 +201,11 @@ namespace Goldmint.Common {
 		/// Lock should be set while transferring gold from hot wallet
 		/// </summary>
 		HWTransferRequest,
+
+		/// <summary>
+		/// Support team should lock SWIFT request record before it could be processed
+		/// </summary>
+		SupportSwiftRequestProc,
 	}
 
 	public enum FiatCurrency {
@@ -363,7 +368,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Deposit comes from bank transaction
 		/// </summary>
-		Swift,
+		SwiftRequest,
 	}
 
 	public enum DepositStatus {
