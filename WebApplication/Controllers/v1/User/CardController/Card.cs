@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -65,7 +66,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -83,7 +84,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				TimeCreated = DateTime.UtcNow,
 			};
 			DbContext.Card.Add(card);
-			DbContext.SaveChanges();
+			await DbContext.SaveChangesAsync();
 
 			// replace card id in redirect
 			model.Redirect = model.Redirect?.Replace(":cardId", card.Id.ToString(), StringComparison.InvariantCultureIgnoreCase);
@@ -124,8 +125,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// save transaction
 			card.GWInitialDepositCardTransactionId = paymentResult.GWTransactionId;
-			DbContext.Update(card);
-			DbContext.SaveChanges();
+			await DbContext.SaveChangesAsync();
 
 			// make ticket
 			var ticketId = await TicketDesk.NewCardVerification(user, card);
@@ -139,8 +139,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				deskTicketId: ticketId
 			);
 			DbContext.CardPayment.Add(payment);
-			DbContext.SaveChanges();
-			DbContext.Detach(payment);
+			await DbContext.SaveChangesAsync();
 
 			try {
 				await TicketDesk.UpdateTicket(ticketId, UserOpLogStatus.Pending, $"Payment for first step is #{payment.Id}");
@@ -171,7 +170,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -242,8 +241,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// update card
 			card.GWInitialWithdrawCardTransactionId = paymentResult.GWTransactionId;
-			DbContext.Update(card);
-			DbContext.SaveChanges();
+			await DbContext.SaveChangesAsync();
 
 			// enqueue payment
 			var payment = CardPaymentQueue.CreateCardDataInputPayment(
@@ -254,8 +252,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				deskTicketId: prevPayment.DeskTicketId
 			);
 			DbContext.CardPayment.Add(payment);
-			DbContext.SaveChanges();
-			DbContext.Detach(payment);
+			await DbContext.SaveChangesAsync();
 
 			try {
 				await TicketDesk.UpdateTicket(prevPayment.DeskTicketId, UserOpLogStatus.Pending, $"Payment for second step is {payment.Id}");
@@ -285,7 +282,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -346,7 +343,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -391,11 +388,26 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				// check payment + update card status
 				if (payment.Status == Common.CardPaymentStatus.Pending) {
-					var presult = await CardPaymentQueue.ProcessPendingCardDataInputPayment(HttpContext.RequestServices, payment.Id);
 
-					// just charged - try to check payment
-					if (presult.VerificationPaymentId != null) {
-						await CardPaymentQueue.ProcessVerificationPayment(HttpContext.RequestServices, presult.VerificationPaymentId.Value);
+					// own scope
+					using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
+
+						var presult = await CardPaymentQueue.ProcessPendingCardDataInputPayment(
+							scopedServices.ServiceProvider, 
+							payment.Id
+						);
+
+						// own scope
+						using (var scopedServices2 = HttpContext.RequestServices.CreateScope()) {
+
+							// just charged - try to check payment
+							if (presult.VerificationPaymentId != null) {
+								await CardPaymentQueue.ProcessVerificationPayment(
+									scopedServices2.ServiceProvider,
+									presult.VerificationPaymentId.Value
+								);
+							}
+						}
 					}
 				}
 
@@ -408,6 +420,53 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Status = GetCardStatus(card),
 				}
 			);
+		}
+
+		/// <summary>
+		/// Remove card by ID
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[HttpPost, Route("remove")]
+		[ProducesResponseType(typeof(RemoveView), 200)]
+		public async Task<APIResponse> Remove([FromBody] RemoveModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var user = await GetUserFromDb();
+			var agent = GetUserAgentInfo();
+
+			// get the card
+			var card = user.Card.FirstOrDefault(
+				c => c.Id == model.CardId &&
+				c.State == CardState.Verified
+			);
+
+			if (card != null) {
+
+				card.State = CardState.Deleted;
+
+				if (await DbContext.SaveChangesAsync() > 0) {
+
+					// activity
+					await CoreLogic.UserAccount.SaveActivity(
+						services: HttpContext.RequestServices,
+						user: user,
+						type: Common.UserActivityType.CreditCard,
+						comment: $"Card {card.CardMask} removed",
+						ip: agent.Ip,
+						agent: agent.Agent
+					);
+				}
+
+				return APIResponse.Success(
+					new RemoveView()
+				);
+			}
+
+			return APIResponse.BadRequest(nameof(model.CardId), "Invalid ID");
 		}
 
 		// ---

@@ -10,7 +10,7 @@ namespace Goldmint.QueueService.Workers {
 
 	public class WithdrawUpdater : BaseWorker {
 
-		private int _rowsPerRound;
+		private readonly int _rowsPerRound;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
@@ -28,6 +28,8 @@ namespace Goldmint.QueueService.Workers {
 
 		protected override async Task Loop() {
 
+			_dbContext.DetachEverything();
+
 			// get withdrawal
 			var nowTime = DateTime.UtcNow;
 			var rows = await (
@@ -37,7 +39,7 @@ namespace Goldmint.QueueService.Workers {
 				d.TimeNextCheck <= nowTime
 				select d
 			)
-				.Include(_ => _.FinancialHistory)
+				.Include(_ => _.RefFinancialHistory)
 				.Include(_ => _.User)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -48,9 +50,6 @@ namespace Goldmint.QueueService.Workers {
 
 			foreach (var row in rows) {
 				await WithdrawQueue.ProcessWithdraw(_services, row);
-
-				// dont track anymore
-				_dbContext.Detach(row.FinancialHistory, row.User, row);
 			}
 		}
 	}

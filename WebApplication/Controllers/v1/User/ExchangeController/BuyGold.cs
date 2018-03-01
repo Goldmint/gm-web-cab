@@ -36,6 +36,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var currency = FiatCurrency.USD;
 			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressMntpBalance(model.EthAddress);
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
@@ -60,10 +67,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.GoldBuying,
+				Type = FinancialHistoryType.GoldBuy,
 				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -93,12 +99,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// add and save
 			DbContext.BuyRequest.Add(buyRequest);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(buyRequest);
 
 			// update comment
 			finHistory.Comment = $"Buying order #{buyRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold)} GOLD";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
 
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
@@ -141,6 +145,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var currency = FiatCurrency.USD;
 			var mntpBalance = BigInteger.Zero;
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
@@ -161,14 +172,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
 			}
 
+			// check rate
+			var opLastTime = user.UserOptions.HotWalletBuyingLastTime;
+			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
+				// failed
+				return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+			}
+
 			var ticket = await TicketDesk.NewGoldBuying(user, null, currency, amountCents, goldRate, mntpBalance, estimated.ResultGold, estimated.ResultFeeCents);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.GoldBuying,
+				Type = FinancialHistoryType.GoldBuy,
 				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -198,12 +215,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// add and save
 			DbContext.BuyRequest.Add(buyRequest);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(buyRequest);
 
 			// update comment
 			finHistory.Comment = $"Buying order #{buyRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.ResultGold)} GOLD";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
 
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(

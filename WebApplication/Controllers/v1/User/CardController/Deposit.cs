@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -26,7 +27,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// round cents
+			var user = await GetUserFromDb();
+			var agent = GetUserAgentInfo();
+
+			// ---
+
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+			// ---
+
 			var transCurrency = FiatCurrency.USD;
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
@@ -34,11 +45,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (amountCents < AppConfig.Constants.CardPaymentData.DepositMin || amountCents > AppConfig.Constants.CardPaymentData.DepositMax) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
-
-			var user = await GetUserFromDb();
-			var agent = GetUserAgentInfo();
 			
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -68,7 +76,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.Deposit,
 				AmountCents = amountCents,
 				FeeCents = 0,
-				Currency = transCurrency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -79,45 +86,69 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// save
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(payment, finHistory);
 
 			// update comment
 			finHistory.Comment = $"Deposit payment #{payment.Id} from {card.CardMask}";
-			DbContext.Update(finHistory);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
 
-			// try
-			var queryResult = await DepositQueue.StartDepositWithCard(
-				services: HttpContext.RequestServices,
-				payment: payment,
-				financialHistory: finHistory
-			);
+			// own scope
+			using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
 
-			switch (queryResult.Status) {
+				// try
+				var queryResult = await DepositQueue.StartDepositWithCard(
+					services: scopedServices.ServiceProvider,
+					payment: payment,
+					financialHistoryId: finHistory.Id
+				);
 
-				case FiatEnqueueStatus.Success:
+				// failed
+				if (queryResult.Status != FiatEnqueueStatus.Success) {
+					DbContext.FinancialHistory.Remove(finHistory);
 
-					// activity
-					await CoreLogic.UserAccount.SaveActivity(
-						services: HttpContext.RequestServices,
-						user: user,
-						type: Common.UserActivityType.CreditCard,
-						comment: $"Deposit payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card {card.CardMask}) initiated",
-						ip: agent.Ip,
-						agent: agent.Agent
-					);
+					payment.Status = CardPaymentStatus.Cancelled;
+					payment.ProviderStatus = "Cancelled";
+					payment.ProviderMessage = $"Failed due to {queryResult.Status.ToString()}";
+					payment.TimeCompleted = DateTime.UtcNow;
 
-					return APIResponse.Success(
-						new DepositView() {
-						}
-					);
+					await DbContext.SaveChangesAsync();
 
-				case FiatEnqueueStatus.Limit:
-					return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
+					try {
+						await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Failed, payment.ProviderMessage);
+					}
+					catch {
+					}
 
-				default:
-					return APIResponse.BadRequest(APIErrorCode.AccountCardDepositFail, "Failed to charge deposit. Make sure you have enough money and card is valid, otherwise contact support");
+					if (queryResult.Error != null) {
+						Logger.Error(queryResult.Error, $"Deposit #{payment.Id} attempt failed");
+					}
+				}
+
+				switch (queryResult.Status) {
+
+					case FiatEnqueueStatus.Success:
+
+						// activity
+						await CoreLogic.UserAccount.SaveActivity(
+							services: scopedServices.ServiceProvider,
+							user: user,
+							type: Common.UserActivityType.CreditCard,
+							comment:
+							$"Deposit payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card {card.CardMask}) initiated",
+							ip: agent.Ip,
+							agent: agent.Agent
+						);
+
+						return APIResponse.Success(
+							new DepositView() {
+							}
+						);
+
+					case FiatEnqueueStatus.Limit:
+						return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
+
+					default:
+						return APIResponse.BadRequest(APIErrorCode.AccountCardDepositFail, "Failed to charge deposit. Make sure you have enough money and card is valid, otherwise contact support");
+				}
 			}
 		}
 	}

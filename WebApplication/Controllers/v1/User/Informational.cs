@@ -13,6 +13,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class UserController : BaseController {
 
+		// TODO: get rid of method. Frontend has everything needed
 		/// <summary>
 		/// Fiat and gold balance on this user account
 		/// </summary>
@@ -31,7 +32,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new BalanceView() {
 					Usd = await EthereumObserver.GetUserFiatBalance(user.UserName, FiatCurrency.USD) / 100d,
-					// TODO: move function to frontend (username is known)
 					Gold = (await EthereumObserver.GetUserGoldBalance(user.UserName)).ToString(),
 				}
 			);
@@ -245,7 +245,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				select a
 			);
 
-			var page = await DalExtensions.PagerAsync(query, model.Offset, model.Limit,
+			var page = await query.PagerAsync(
+				model.Offset, model.Limit,
 				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
 			);
 
@@ -253,9 +254,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				from i in page.Selected
 				select new FiatHistoryViewItem() {
 					Type = i.Type.ToString().ToLower(),
+					Status = (int)i.Status,
 					Comment = i.Comment,
-					Amount = FiatHistoryViewItem.AmountStruct.Create(i.AmountCents, i.Currency),
-					Fee = i.FeeCents > 0 ? FiatHistoryViewItem.AmountStruct.Create(i.FeeCents, i.Currency) : null,
+					EthTxId = i.RelEthTransactionId,
+					Amount = i.AmountCents / 100d,
+					Fee = i.FeeCents > 0 ? (i.FeeCents / 100d) : (double?)null,
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
 				}
 			;

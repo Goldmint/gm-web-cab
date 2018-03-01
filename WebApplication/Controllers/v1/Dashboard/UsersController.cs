@@ -231,7 +231,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					where a.Id == model.Id
 					select a
 				)
-				.AsNoTracking()
+				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
 
@@ -240,7 +240,6 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			}
 
 			account.AccessRights = model.Mask;
-			DbContext.Update(account);
 			await DbContext.SaveChangesAsync();
 			
 			return APIResponse.Success(

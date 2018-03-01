@@ -37,7 +37,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// user
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user)) {
+			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 			if (!user.TwoFactorEnabled) {
@@ -54,7 +54,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var ticket = await TicketDesk.NewSwiftWithdraw(user, transCurrency, amountCents);
 
 			// make payment
-			var request = new DAL.Models.SwiftPayment() {
+			var request = new DAL.Models.SwiftRequest() {
 				Type = SwiftPaymentType.Withdraw,
 				Status = SwiftPaymentStatus.Pending,
 				Currency = transCurrency,
@@ -70,16 +70,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				TimeCreated = DateTime.UtcNow,
 				UserId = user.Id,
 			};
-			DbContext.SwiftPayment.Add(request);
+			DbContext.SwiftRequest.Add(request);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
 				Type = FinancialHistoryType.Withdraw,
 				AmountCents = amountCents,
 				FeeCents = 0,
-				Currency = transCurrency,
 				DeskTicketId = ticket,
-				Status = FinancialHistoryStatus.Pending,
+				Status = FinancialHistoryStatus.Success,
 				TimeCreated = DateTime.UtcNow,
 				UserId = user.Id,
 				Comment = "", // see below
@@ -90,18 +89,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update
-			request.PaymentReference = $"Order number: {request.Id}";
-			finHistory.Comment = $"Swift withdraw request #{request.Id}";
-
+			request.PaymentReference = $"W-{user.UserName}-{request.Id}";
+			finHistory.Comment = $"Swift withdraw request #{request.Id} ({request.PaymentReference})";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(request, finHistory);
 
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,
 				user: user,
 				type: Common.UserActivityType.Swift,
-				comment: $"Swift withdraw #{request.Id} ({TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested",
+				comment: $"Swift withdraw of {TextFormatter.FormatAmount(request.AmountCents, transCurrency)} requested ({request.PaymentReference})",
 				ip: agent.Ip,
 				agent: agent.Agent
 			);

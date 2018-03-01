@@ -15,41 +15,48 @@ namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 		public MutexBuilder(IMutexHolder holder) {
 			_holder = holder;
 			_timeout = TimeSpan.FromMinutes(10);
-			_locker = Guid.NewGuid().ToString("N");
+			LockerGuid();
 		}
 
-		public MutexBuilder Mutex(string mutex) {
-			_mutex = mutex;
-			return this;
-		}
-
-		public MutexBuilder Mutex(MutexEntity entity, string id) {
-			_mutex = string.Format("{0}_{1}", entity.ToString(), id);
-			return this;
-		}
-
-		public MutexBuilder Mutex(MutexEntity entity, int id) {
-			_mutex = string.Format("{0}_{1}", entity.ToString(), id);
-			return this;
-		}
-
+		/// <summary>
+		/// Set name: somemutex_f00ba0
+		/// </summary>
 		public MutexBuilder Mutex(MutexEntity entity, long id) {
-			_mutex = string.Format("{0}_{1}", entity.ToString(), id);
+			_mutex = string.Format("{0}_{1}", entity.ToString(), id.ToString("X"));
 			return this;
 		}
 
+		/// <summary>
+		/// Set custom timeout
+		/// </summary>
 		public MutexBuilder Timeout(TimeSpan timeout) {
+			if (timeout.TotalSeconds < 5) throw new ArgumentException("Timeout must be at least 5 second");
 			_timeout = timeout;
 			return this;
 		}
 
-		public MutexBuilder Timeout(int seconds) {
-			_timeout = TimeSpan.FromSeconds(seconds);
+		/// <summary>
+		/// Set user locker
+		/// </summary>
+		public MutexBuilder LockerUser(long userId) {
+			if (userId < 1) throw new ArgumentException("User ID must be valid user ID");
+			_locker = "user_" + userId.ToString("X");
 			return this;
 		}
 
-		public async Task LockAsync(Action<bool> callback) {
-			validate();
+		/// <summary>
+		/// Set random unique locker (default locker)
+		/// </summary>
+		public MutexBuilder LockerGuid() {
+			_locker = Guid.NewGuid().ToString("N");
+			return this;
+		}
+
+		/// <summary>
+		/// Lock, execute callback, unlock
+		/// </summary>
+		public async Task CriticalSection(Action<bool> callback) {
+			Validate();
 
 			var result = await _holder.SetMutexAsync(_mutex, _locker, _timeout);
 
@@ -66,8 +73,11 @@ namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 			callback(false);
 		}
 
-		public async Task LockAsync(Func<bool, Task> callback) {
-			validate();
+		/// <summary>
+		/// Lock, execute callback, unlock
+		/// </summary>
+		public async Task CriticalSection(Func<bool, Task> callback) {
+			Validate();
 
 			var result = await _holder.SetMutexAsync(_mutex, _locker, _timeout);
 
@@ -84,8 +94,11 @@ namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 			await callback(false);
 		}
 
-		public async Task<T> LockAsync<T>(Func<bool, Task<T>> callback) {
-			validate();
+		/// <summary>
+		/// Lock, execute callback, unlock
+		/// </summary>
+		public async Task<T> CriticalSection<T>(Func<bool, Task<T>> callback) {
+			Validate();
 
 			var result = await _holder.SetMutexAsync(_mutex, _locker, _timeout);
 
@@ -101,9 +114,33 @@ namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 			return await callback(false);
 		}
 
+		/// <summary>
+		/// Try enter lock
+		/// </summary>
+		public async Task<bool> TryEnter() {
+			Validate();
+			return await _holder.SetMutexAsync(_mutex, _locker, _timeout);
+		}
+
+		/// <summary>
+		/// Try leave lock
+		/// </summary>
+		public async Task<bool> TryLeave() {
+			Validate();
+			return await _holder.UnsetMutexAsync(_mutex, _locker);
+		}
+
+		/// <summary>
+		/// Try re-enter lock
+		/// </summary>
+		public async Task<bool> TryReenter() {
+			Validate();
+			return await TryLeave() && await TryEnter(); // must be atomic actually
+		}
+
 		// ---
 
-		private void validate() {
+		private void Validate() {
 			_mutex = _mutex?.ToLower().Trim('_', ' ');
 			_locker = _locker?.ToLower().Trim('_', ' ');
 
@@ -114,7 +151,7 @@ namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 
 			public Validator() {
 				RuleFor(x => x._mutex).Length(1, 64);
-				RuleFor(x => x._locker).Length(1, 64);
+				RuleFor(x => x._locker).Length(1, 32);
 				RuleFor(x => x._timeout).NotNull().Must(x => x.TotalSeconds > 0d);
 			}
 		}

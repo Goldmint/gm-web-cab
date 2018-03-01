@@ -208,7 +208,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				VerificationPaymentId = null,
 			};
 
-			return await mutexBuilder.LockAsync<ProcessPendingCardDataInputPaymentResult>(async (ok) => {
+			return await mutexBuilder.CriticalSection<ProcessPendingCardDataInputPaymentResult>(async (ok) => {
 				if (ok) {
 
 					// get payment from db
@@ -220,10 +220,11 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						p.Status == CardPaymentStatus.Pending
 						select p
 					)
-					.Include(p => p.Card)
-					.Include(p => p.User).ThenInclude(u => u.UserVerification)
-					.AsNoTracking()
-					.FirstOrDefaultAsync();
+						.Include(p => p.Card)
+						.Include(p => p.User).ThenInclude(u => u.UserVerification)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
 
 					// not found
 					if (payment == null) {
@@ -279,7 +280,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					// update payment
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					// now is final
 					if (finalized) {
@@ -296,7 +296,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// set next step
 							if (cardHolder != null &&
 								cardMask != null &&
-								UserAccount.IsUserVerifiedL0(payment.User) &&
+								UserAccount.IsUserVerifiedL1(payment.User) &&
 								cardHolder.Contains(payment.User.UserVerification.FirstName) &&
 								cardHolder.Contains(payment.User.UserVerification.LastName)
 							) {
@@ -366,12 +366,8 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						// update card state
 						dbContext.Update(card);
 						await dbContext.SaveChangesAsync();
-						dbContext.Detach(card, payment);
 
 						if (verificationPaymentEnqueued != null) {
-							// saved, dont track instance
-							dbContext.Detach(verificationPaymentEnqueued);
-
 							ret.VerificationPaymentId = verificationPaymentEnqueued.Id;
 
 							try {
@@ -410,7 +406,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				RefundPaymentId = null,
 			};
 
-			return await mutexBuilder.LockAsync<ProcessVerificationPaymentResult>(async (ok) => {
+			return await mutexBuilder.CriticalSection<ProcessVerificationPaymentResult>(async (ok) => {
 				if (ok) {
 
 					// get payment from db
@@ -419,11 +415,12 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						where p.Id == paymentId && p.Type == CardPaymentType.Verification && p.Status == CardPaymentStatus.Pending
 						select p
 					)
-					.Include(p => p.Card)
-					.Include(p => p.User)
-					.ThenInclude(u => u.UserVerification)
-					.AsNoTracking()
-					.FirstOrDefaultAsync();
+						.Include(p => p.Card)
+						.Include(p => p.User)
+						.ThenInclude(u => u.UserVerification)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
 
 					// not found
 					if (payment == null) {
@@ -440,7 +437,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					payment.Status = CardPaymentStatus.Charging;
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					// charge
 					ChargeResult result = null;
@@ -517,16 +513,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						throw e;
 					}
 
-					// dont track
-					dbContext.Detach(payment.Card, payment);
-
 					// update ticket
 					try {
 						if (refundEnqueued != null) {
-
-							// saved, dont track
-							dbContext.Detach(refundEnqueued);
-
 							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Refund #{refundEnqueued.Id} enqueued");
 						}
 					}
@@ -554,7 +543,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.CardPaymentCheck, paymentId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 					// get payment from db
 					var payment = await (
@@ -588,7 +577,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					payment.Status = CardPaymentStatus.Charging;
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					// charge
 					string resultGWTID = null;
@@ -609,8 +597,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Refunded successfully");
 						}
 						else {
-							await ticketDesk.NewManualSupportTicket($"Card verification payment #{payment.Id} has not been refunded and requires manual processing due to failure");
-							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Refund failed. Passed to support team");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, $"Card verification refund #{payment.Id} failed and requires manual processing");
 						}
 					}
 					catch { }
@@ -631,7 +618,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					dbContext.Update(payment);
 					await dbContext.SaveChangesAsync();
-					dbContext.Detach(payment);
 
 					return payment.Status == CardPaymentStatus.Success;
 				}

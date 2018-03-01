@@ -7,6 +7,7 @@ using Goldmint.WebApplication.Models.API.v1.User.ExchangeModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -29,6 +30,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
+
+			// ---
+
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
 
 			// ---
 
@@ -61,10 +69,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.GoldSelling,
+				Type = FinancialHistoryType.GoldSell,
 				AmountCents = estimated.ResultGrossCents,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -94,13 +101,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// add and save
 			DbContext.SellRequest.Add(sellRequest);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(sellRequest);
 
 			// update comment
 			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputUsed)} GOLD";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
-
+	
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,
@@ -140,6 +145,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var amountWei = BigInteger.Zero;
 			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
@@ -165,14 +177,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
+			// check rate
+			var opLastTime = user.UserOptions.HotWalletSellingLastTime;
+			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
+				// failed
+				return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+			}
+
 			var ticket = await TicketDesk.NewGoldSelling(user, null, currency, estimated.InputUsed, goldRate, mntpBalance, estimated.ResultNetCents, estimated.ResultFeeCents);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.GoldSelling,
+				Type = FinancialHistoryType.GoldSell,
 				AmountCents = estimated.ResultGrossCents,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -202,13 +220,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// add and save
 			DbContext.SellRequest.Add(sellRequest);
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(sellRequest);
 
 			// update comment
 			finHistory.Comment = $"Selling order #{sellRequest.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(estimated.InputUsed)} GOLD";
 			await DbContext.SaveChangesAsync();
-			DbContext.Detach(finHistory);
-
+	
 			// activity
 			await CoreLogic.UserAccount.SaveActivity(
 				services: HttpContext.RequestServices,

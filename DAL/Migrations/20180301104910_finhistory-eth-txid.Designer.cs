@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180301104910_finhistory-eth-txid")]
+    partial class finhistoryethtxid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -335,6 +336,9 @@ namespace Goldmint.DAL.Migrations
                         .HasColumnName("concurrency_stamp")
                         .HasMaxLength(64);
 
+                    b.Property<int>("Currency")
+                        .HasColumnName("currency");
+
                     b.Property<string>("DeskTicketId")
                         .IsRequired()
                         .HasColumnName("desk_ticket_id")
@@ -345,7 +349,7 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<string>("RelEthTransactionId")
                         .HasColumnName("rel_eth_transaction_id")
-                        .HasMaxLength(66);
+                        .HasMaxLength(64);
 
                     b.Property<int>("Status")
                         .HasColumnName("status");
@@ -974,9 +978,6 @@ namespace Goldmint.DAL.Migrations
                         .HasColumnName("eth_transaction_id")
                         .HasMaxLength(66);
 
-                    b.Property<long>("RefFinancialHistoryId")
-                        .HasColumnName("ref_fin_history");
-
                     b.Property<int>("Status")
                         .HasColumnName("status");
 
@@ -993,8 +994,6 @@ namespace Goldmint.DAL.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RefFinancialHistoryId");
 
                     b.HasIndex("UserId");
 
@@ -1300,7 +1299,7 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.BuyRequest", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "RefFinancialHistory")
+                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "FinancialHistory")
                         .WithMany()
                         .HasForeignKey("RefFinancialHistoryId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -1338,7 +1337,7 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.Deposit", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "RefFinancialHistory")
+                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "FinancialHistory")
                         .WithMany()
                         .HasForeignKey("RefFinancialHistoryId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -1412,7 +1411,7 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.SellRequest", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "RefFinancialHistory")
+                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "FinancialHistory")
                         .WithMany()
                         .HasForeignKey("RefFinancialHistoryId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -1445,11 +1444,6 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.TransferRequest", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "RefFinancialHistory")
-                        .WithMany()
-                        .HasForeignKey("RefFinancialHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -1514,7 +1508,7 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.Withdraw", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "RefFinancialHistory")
+                    b.HasOne("Goldmint.DAL.Models.FinancialHistory", "FinancialHistory")
                         .WithMany()
                         .HasForeignKey("RefFinancialHistoryId")
                         .OnDelete(DeleteBehavior.Cascade);

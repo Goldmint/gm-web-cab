@@ -17,6 +17,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	[Route("api/v1/user/exchange")]
 	public partial class ExchangeController : BaseController {
 
+		// TODO: move to app settings constants
+		private static readonly TimeSpan HWOperationTimeLimit = TimeSpan.FromMinutes(30);
+
 		/// <summary>
 		/// Confirm buying/selling request (hot wallet)
 		/// </summary>
@@ -41,7 +44,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			;
 
 			// get into mutex
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					BuyRequest requestBuying = null;
@@ -87,8 +90,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					}
 
 					// check rate
-					// TODO: move to app settings constants
-					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < TimeSpan.FromMinutes(30)) {
+					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 						// failed
 						return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
 					}
@@ -101,7 +103,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						requestBuying.Status = ExchangeRequestStatus.Processing;
 						requestBuying.TimeRequested = DateTime.UtcNow;
 						requestBuying.TimeNextCheck = DateTime.UtcNow;
-						DbContext.Update(requestBuying);
 
 						user.UserOptions.HotWalletBuyingLastTime = DateTime.UtcNow;
 					}
@@ -112,12 +113,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						requestSelling.Status = ExchangeRequestStatus.Processing;
 						requestSelling.TimeRequested = DateTime.UtcNow;
 						requestSelling.TimeNextCheck = DateTime.UtcNow;
-						DbContext.Update(requestSelling);
 
 						user.UserOptions.HotWalletSellingLastTime = DateTime.UtcNow;
 					}
 
-					DbContext.Update(user.UserOptions);
 					await DbContext.SaveChangesAsync();
 
 					try {
@@ -152,13 +151,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
+			// ---
+
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var amountWei = BigInteger.Zero;
 			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 			var goldBalance = await EthereumObserver.GetUserGoldBalance(user.UserName);
 
-			if (amountWei < 1 || amountWei > goldBalance || amountWei.ToString().Length <= 64) {
+			if (amountWei < 1 || amountWei > goldBalance || amountWei.ToString().Length > 64) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -170,19 +178,34 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			;
 
 			// get into mutex
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var opLastTime = user.UserOptions.HotWalletTransferLastTime;
 
 					// check rate
-					// TODO: move to app settings constants
-					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < TimeSpan.FromMinutes(30)) {
+					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 						// failed
 						return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
 					}
 
 					var ticket = await TicketDesk.NewGoldTransfer(user, model.EthAddress, amountWei);
+
+					// history
+					var finHistory = new DAL.Models.FinancialHistory() {
+						Type = FinancialHistoryType.HWTransfer,
+						AmountCents = (long)(CoreLogic.Finance.Tokens.GoldToken.FromWei(amountWei) * 100),
+						FeeCents = 0,
+						DeskTicketId = ticket,
+						Status = FinancialHistoryStatus.Pending,
+						TimeCreated = DateTime.UtcNow,
+						User = user,
+						Comment = "" // see below
+					};
+
+					// save
+					DbContext.FinancialHistory.Add(finHistory);
+					await DbContext.SaveChangesAsync();
 
 					// request
 					var request = new TransferRequest() {
@@ -191,30 +214,36 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
 						DeskTicketId = ticket,
+						RefFinancialHistory = finHistory,
 						TimeCreated = DateTime.UtcNow,
 						TimeNextCheck = DateTime.UtcNow,
 					};
 
-					// add and save
+					// save
 					DbContext.TransferRequest.Add(request);
 					await DbContext.SaveChangesAsync();
-					DbContext.Detach(request);
 
-					await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Pending, $"Transfer request id is #{request.Id}");
+					// update comment
+					finHistory.Comment = $"Transfer order #{request.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei)} GOLD from hot wallet to {TextFormatter.MaskEthereumAddress(model.EthAddress)}";
+					await DbContext.SaveChangesAsync();
+
+					try {
+						await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Pending, $"Transfer request ID is #{request.Id}");
+					}
+					catch {
+					}
 
 					// activity
 					await CoreLogic.UserAccount.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.Exchange,
-						comment: $"GOLD transfer request #{request.Id} ({ CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei) } oz) to {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
+						comment: $"GOLD transfer request #{request.Id} ({ CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei) } oz) from HW to {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
 						ip: agent.Ip,
 						agent: agent.Agent
 					);
 
 					user.UserOptions.HotWalletTransferLastTime = DateTime.UtcNow;
-
-					DbContext.Update(user.UserOptions);
 					await DbContext.SaveChangesAsync();
 
 					return APIResponse.Success(

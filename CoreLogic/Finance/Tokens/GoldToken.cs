@@ -218,7 +218,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthBuyRequest, payloadId)
 			;
 
-			return await mutexBuilder.LockAsync<bool>(async (ok) => {
+			return await mutexBuilder.CriticalSection<bool>(async (ok) => {
 				if (ok) {
 
 					// get again
@@ -244,9 +244,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to mark buying request #{request.Id} for processing");
-					}
-					finally {
-						dbContext.Detach(request);
 					}
 				}
 				return false;
@@ -294,7 +291,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthSellRequest, payloadId)
 			;
 
-			return await mutexBuilder.LockAsync<bool>(async (ok) => {
+			return await mutexBuilder.CriticalSection<bool>(async (ok) => {
 				if (ok) {
 
 					// get again
@@ -321,9 +318,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					catch (Exception e) {
 						logger.Error(e, $"Failed to mark selling request #{request.Id} for processing");
 					}
-					finally {
-						dbContext.Detach(request);
-					}
 				}
 				return false;
 			});
@@ -347,7 +341,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthBuyRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -358,7 +352,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
-						.Include(_ => _.FinancialHistory)
+						.Include(_ => _.RefFinancialHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -420,6 +414,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -449,8 +444,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
-								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -471,9 +466,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process buying request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.FinancialHistory, request);
 					}
 				}
 
@@ -499,7 +491,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.EthSellRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -510,7 +502,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
-						.Include(_ => _.FinancialHistory)
+						.Include(_ => _.RefFinancialHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -572,6 +564,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -602,8 +595,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
-								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -624,9 +617,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process selling request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.FinancialHistory, request);
 					}
 				}
 
@@ -654,7 +644,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.HWBuyRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -666,7 +656,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.FinancialHistory)
+						.Include(_ => _.RefFinancialHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -724,6 +714,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -753,8 +744,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
-								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -775,9 +766,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process buying request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.User, request.FinancialHistory, request);
 					}
 				}
 
@@ -803,7 +791,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.HWSellRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -815,7 +803,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.FinancialHistory)
+						.Include(_ => _.RefFinancialHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -873,6 +861,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -903,8 +892,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
-								request.FinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -925,9 +914,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process hw selling request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.User, request.FinancialHistory, request);
 					}
 				}
 
@@ -953,7 +939,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				.Mutex(MutexEntity.HWTransferRequest, requestId)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					var request = await (
@@ -964,6 +950,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						select r
 					)
 						.Include(_ => _.User)
+						.Include(_ => _.RefFinancialHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -1012,6 +999,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amount: amount,
 								userId: request.User.UserName
 							);
+							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -1042,6 +1030,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? ExchangeRequestStatus.Success : ExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
+
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -1061,9 +1052,6 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process hw transferring request #{request.Id}");
-					}
-					finally {
-						dbContext.Detach(request.User, request);
 					}
 				}
 

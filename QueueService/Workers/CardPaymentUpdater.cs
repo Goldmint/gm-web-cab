@@ -10,7 +10,7 @@ namespace Goldmint.QueueService.Workers {
 
 	public class CardPaymentUpdater : BaseWorker {
 
-		private int _rowsPerRound;
+		private readonly int _rowsPerRound;
 
 		private ApplicationDbContext _dbContext;
 		private IServiceProvider _services;
@@ -28,6 +28,8 @@ namespace Goldmint.QueueService.Workers {
 
 		protected override async Task Loop() {
 
+			_dbContext.DetachEverything();
+
 			// get pending payments
 			var nowTime = DateTime.UtcNow;
 			var rows = await (
@@ -38,14 +40,15 @@ namespace Goldmint.QueueService.Workers {
 				&& (p.Type == Common.CardPaymentType.Verification || p.Type == Common.CardPaymentType.Refund)
 				select new { Id = p.Id, Type = p.Type }
 			)
-			.AsNoTracking()
-			.Take(_rowsPerRound)
-			.ToArrayAsync(CancellationToken)
+				.AsNoTracking()
+				.Take(_rowsPerRound)
+				.ToListAsync(CancellationToken)
 			;
 
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
+
 				if (row.Type == Common.CardPaymentType.Verification) {
 					await CardPaymentQueue.ProcessVerificationPayment(_services, row.Id);
 				}

@@ -201,6 +201,11 @@ namespace Goldmint.Common {
 		/// Lock should be set while transferring gold from hot wallet
 		/// </summary>
 		HWTransferRequest,
+
+		/// <summary>
+		/// Support team should lock SWIFT request record before it could be processed
+		/// </summary>
+		SupportSwiftRequestProc,
 	}
 
 	public enum FiatCurrency {
@@ -320,6 +325,11 @@ namespace Goldmint.Common {
 		/// Final failure, finalized
 		/// </summary>
 		Failed,
+
+		/// <summary>
+		/// Cancelled
+		/// </summary>
+		Cancelled,
 	}
 
 	public enum SwiftPaymentType {
@@ -363,7 +373,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Deposit comes from bank transaction
 		/// </summary>
-		Swift,
+		SwiftRequest,
+
+		/// <summary>
+		/// Deposit comes from failed withdrawal
+		/// </summary>
+		FailedWithdraw,
 	}
 
 	public enum DepositStatus {
@@ -549,12 +564,17 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Gold bought
 		/// </summary>
-		GoldBuying,
+		GoldBuy,
 
 		/// <summary>
 		/// Gold sold
 		/// </summary>
-		GoldSelling
+		GoldSell,
+
+		/// <summary>
+		/// Transferring gold from HW
+		/// </summary>
+		HWTransfer,
 	}
 
 	public enum FinancialHistoryStatus {

@@ -142,11 +142,11 @@ namespace Goldmint.WebApplication.Core.Response {
 		/// <summary>
 		/// 500: General server failure without any payload
 		/// </summary>
-		public static APIResponse GeneralInternalFailure(Exception e, bool showError) {
+		public static APIResponse GeneralInternalFailure(Exception e = null, bool showError = false) {
 			return new APIResponse(HttpStatusCode.InternalServerError, new Response() {
 				ErrorCode = APIErrorCode.InternalServerError,
 				ErrorDesc = APIErrorCode.InternalServerError.ToDescription("Unexpected service failure. Please retry later"),
-				Data = showError ? e : new object(),
+				Data = showError && e != null ? e : new object(),
 			});
 		}
 	}

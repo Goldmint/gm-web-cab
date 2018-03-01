@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_transfer_request")]
-	public class TransferRequest : BaseUserEntity, IConcurrentUpdate {
+	public class TransferRequest : BaseFinancialHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
 		public ExchangeRequestStatus Status { get; set; }

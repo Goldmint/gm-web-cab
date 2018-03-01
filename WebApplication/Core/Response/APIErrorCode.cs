@@ -85,6 +85,11 @@
 		/// Hot wallet operation limit (ex: frequency limit)
 		/// </summary>
 		AccountHWOperationLimit = 1010,
+
+		/// <summary>
+		/// User has pending operation. One of: buying, selling, deposit, withdraw, transfer, etc.
+		/// </summary>
+		AccountPendingBlockchainOperation = 1012,
 	}
 
 	public static class APIErrorCodeExtensions {

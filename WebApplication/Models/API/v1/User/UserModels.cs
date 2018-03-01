@@ -350,27 +350,38 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	public class FiatHistoryViewItem {
 
 		/// <summary>
-		/// Type: deposit, withdraw, etc
+		/// Type: deposit, withdraw, goldbuy, goldsell, hwtransfer
 		/// </summary>
 		[Required]
 		public string Type { get; set; }
+		
+		/// <summary>
+		/// Status: 1 - pending, 2 - successful, 3 - cancelled
+		/// </summary>
+		[Required]
+		public int Status { get; set; }
 
 		/// <summary>
 		/// Comment
 		/// </summary>
 		[Required]
 		public string Comment { get; set; }
+		
+		/// <summary>
+		/// Ethereum transaction ID to track, optional
+		/// </summary>
+		public string EthTxId { get; set; }
 
 		/// <summary>
-		/// Amount data
+		/// Amount
 		/// </summary>
 		[Required]
-		public AmountStruct Amount { get; set; }
+		public double Amount { get; set; }
 
 		/// <summary>
-		/// Fee data, optional
+		/// Fee, optional
 		/// </summary>
-		public AmountStruct Fee { get; set; }
+		public double? Fee { get; set; }
 
 		/// <summary>
 		/// Unixtime
@@ -385,23 +396,8 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 			[Required]
 			public double Amount { get; set; }
 
-			/// <summary>
-			/// Optional prefix
-			/// </summary>
-			public string Prefix { get; set; }
-			
-			/// <summary>
-			/// Optional suffix
-			/// </summary>
-			public string Suffix { get; set; }
-
-			public static AmountStruct Create(long cents, Common.FiatCurrency currency) {
-				return new AmountStruct() {
-					Amount = cents / 100d,
-					Prefix = "",
-					Suffix = " " + currency.ToString().ToUpper(),
-				};
-			}
+			[Required]
+			public string Currency { get; set; }
 		}
 	}
 }

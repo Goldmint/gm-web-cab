@@ -1,10 +1,12 @@
-﻿using Goldmint.DAL.Models;
+﻿using System.Collections.Generic;
+using Goldmint.DAL.Models;
 using Goldmint.DAL.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Goldmint.DAL {
 
@@ -17,7 +19,7 @@ namespace Goldmint.DAL {
 		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<Card> Card { get; set; }
 		public DbSet<CardPayment> CardPayment { get; set; }
-		public DbSet<SwiftPayment> SwiftPayment { get; set; }
+		public DbSet<SwiftRequest> SwiftRequest { get; set; }
 		public DbSet<Deposit> Deposit { get; set; }
 		public DbSet<Withdraw> Withdraw { get; set; }
 		public DbSet<Notification> Notification { get; set; }
@@ -53,14 +55,21 @@ namespace Goldmint.DAL {
 
 		// ---
 
-		public void Detach(params object[] entities) {
-			foreach (var v in entities) {
-				if (v != null) {
-					this.Entry(v).State = EntityState.Detached;
-				}
+		/*public void Detach(object entity) {
+			this.Entry(entity).State = EntityState.Detached;
+		}*/
+
+		public void DetachEverything() {
+			var entries = this.ChangeTracker
+				.Entries()
+				.Where(e => e.State != EntityState.Detached)
+				.ToList()
+			;
+			foreach (var v in entries) {
+				this.Entry(v.Entity).State = EntityState.Detached;
 			}
 		}
-
+		
 		public override int SaveChanges() {
 			UpdateConcurrencyStamps();
 			return base.SaveChanges();
@@ -90,6 +99,7 @@ namespace Goldmint.DAL {
 				}
 			}
 		}
+
 
 		// ---
 

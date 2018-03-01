@@ -50,8 +50,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			user.TwoFactorEnabled = model.Enable;
 			user.UserOptions.InitialTFAQuest = true;
 
-			//DbContext.Update(user.UserOptions);
-			DbContext.Update(user);
 			await DbContext.SaveChangesAsync();
 
 			// notify

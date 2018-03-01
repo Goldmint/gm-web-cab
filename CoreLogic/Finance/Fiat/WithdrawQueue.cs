@@ -20,7 +20,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Attempt to start deposit
 		/// </summary>
-		public static async Task<WithdrawResult> StartWithdrawWithCard(IServiceProvider services, CardPayment payment, FinancialHistory financialHistory) {
+		public static async Task<WithdrawResult> StartWithdrawWithCard(IServiceProvider services, CardPayment payment, long financialHistoryId) {
 
 			if (payment.Type != CardPaymentType.Withdraw) throw new ArgumentException("Incorrect payment type");
 			if (payment.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
@@ -32,22 +32,20 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			var cardAcquirer = services.GetRequiredService<ICardAcquirer>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
 
-			return await StartWithdraw(services, payment.User, payment.Currency, payment.AmountCents, () => {
-				return Task.FromResult(
-					new Withdraw() {
-						User = payment.User,
-						Status = WithdrawStatus.Initial,
-						Currency = payment.Currency,
-						AmountCents = payment.AmountCents,
-						RefFinancialHistoryId = financialHistory.Id,
-						Destination = WithdrawDestination.CreditCard,
-						DestinationId = payment.Id,
-						DeskTicketId = payment.DeskTicketId,
-						TimeCreated = DateTime.UtcNow,
-						TimeNextCheck = DateTime.UtcNow,
-					}
-				);
-			});
+			return await StartWithdraw(services, payment.User, payment.Currency, payment.AmountCents, () => Task.FromResult(
+				new Withdraw() {
+					UserId = payment.UserId,
+					Status = WithdrawStatus.Initial,
+					Currency = payment.Currency,
+					AmountCents = payment.AmountCents,
+					RefFinancialHistoryId = financialHistoryId,
+					Destination = WithdrawDestination.CreditCard,
+					DestinationId = payment.Id,
+					DeskTicketId = payment.DeskTicketId,
+					TimeCreated = DateTime.UtcNow,
+					TimeNextCheck = DateTime.UtcNow,
+				}
+			));
 		}
 
 		/// <summary>
@@ -68,7 +66,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.WithdrawEnqueue, user.Id)
 			;
 
-			return await mutexBuilder.LockAsync(async (ok) => {
+			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// get limit
@@ -81,7 +79,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							try {
 								dbContext.Withdraw.Add(withdraw);
 								await dbContext.SaveChangesAsync();
-								dbContext.Detach(withdraw);
 							}
 							catch (Exception e) {
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Failed, "DB failed while withdraw enqueue");
@@ -124,7 +121,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		public static async Task ProcessWithdraw(IServiceProvider services, Withdraw withdraw) {
 
 			if (withdraw.User == null) throw new ArgumentException("User not included");
-			if (withdraw.FinancialHistory == null) throw new ArgumentException("Financial history not included");
+			if (withdraw.RefFinancialHistory == null) throw new ArgumentException("Financial history not included");
 
 			var logger = services.GetLoggerFor(typeof(WithdrawQueue));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -139,7 +136,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				.Mutex(MutexEntity.WithdrawCheck, withdraw.Id)
 			;
 
-			await mutexBuilder.LockAsync(async (ok) => {
+			await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// oups, finalized already
@@ -158,7 +155,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							withdraw.Status = WithdrawStatus.BlockchainInit;
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(withdraw);
 
 							try {
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction init");
@@ -166,21 +162,26 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							catch { }
 
 							// launch transaction
-							var txid = await ethereumWriter.ChangeUserFiatBalance(withdraw.User.UserName, withdraw.Currency, -1 * withdraw.AmountCents);
-							withdraw.EthTransactionId = txid;
+							var ethTransactionId = await ethereumWriter.ChangeUserFiatBalance(
+								userId: withdraw.User.UserName, 
+								currency: withdraw.Currency,
+								amountCents: -1 * withdraw.AmountCents
+							);
 
 							try {
-								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {txid}");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {ethTransactionId}");
 							}
 							catch { }
 
 							// set new status
+							withdraw.EthTransactionId = ethTransactionId;
+							withdraw.RefFinancialHistory.RelEthTransactionId = withdraw.EthTransactionId;
 							withdraw.Status = WithdrawStatus.BlockchainConfirm;
 
 							// save
+							dbContext.Update(withdraw.RefFinancialHistory);
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(withdraw);
 
 							try {
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
@@ -207,9 +208,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								withdraw.Status = success ? WithdrawStatus.Success : WithdrawStatus.Failed;
 								withdraw.TimeCompleted = DateTime.UtcNow;
 
-								withdraw.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
-								withdraw.FinancialHistory.TimeCompleted = withdraw.TimeCompleted;
-								dbContext.Update(withdraw.FinancialHistory);
+								withdraw.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								withdraw.RefFinancialHistory.TimeCompleted = withdraw.TimeCompleted;
+								dbContext.Update(withdraw.RefFinancialHistory);
 							}
 
 							// finalize
@@ -217,33 +218,68 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Withdraw has been saved on blockchain");
 
-								bool sendToSupport = true;
-
 								// pay to card
 								if (withdraw.Destination == WithdrawDestination.CreditCard) {
 									try {
 										var wdrPayment = await SendCardWithdraw(services, withdraw);
 
+#if DEBUG
+										wdrPayment.Status = CardPaymentStatus.Failed;
+#endif
+
 										if (wdrPayment.Status == CardPaymentStatus.Success) {
-											sendToSupport = false;
 											try {
 												await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Completed, $"Withdraw completed with credit card payment #{wdrPayment.Id}");
 											}
 											catch { }
+										}
+										else {
+											try {
+												await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Withdrawal card payment #{wdrPayment.Id} failed. Reverting blockchain withdrawal");
+											}
+											catch { }
+
+											// fin history
+											var finHistory = new DAL.Models.FinancialHistory() {
+												Type = FinancialHistoryType.Deposit,
+												AmountCents = withdraw.AmountCents,
+												FeeCents = 0,
+												DeskTicketId = withdraw.DeskTicketId,
+												Status = FinancialHistoryStatus.Pending,
+												TimeCreated = DateTime.UtcNow,
+												UserId = withdraw.UserId,
+												Comment = $"Reverting failed withdrawal payment #{withdraw.DestinationId}",
+											};
+											dbContext.FinancialHistory.Add(finHistory);
+
+											// save
+											dbContext.Update(withdraw);
+											await dbContext.SaveChangesAsync();
+
+											// enqueue deposit
+											var res = await DepositQueue.StartDepositFromFailedWithdraw(
+												services: services,
+												withdraw: withdraw,
+												financialHistoryId: finHistory.Id
+											);
+
+											// failed
+											if (res.Status != FiatEnqueueStatus.Success) {
+												dbContext.FinancialHistory.Remove(finHistory);
+												await dbContext.SaveChangesAsync();
+
+												try {
+													await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Failed, $"Failed to enqueue deposit");
+												}
+												catch {
+												}
+											}
 										}
 									}
 									catch (Exception e) {
 										logger?.Error(e, $"Failed to complete credit card withdraw #{withdraw.Id}");
 									}
 								}
-
-								try {
-									if (sendToSupport) {
-										await ticketDesk.NewManualSupportTicket($"Card withdraw #{withdraw.Id} requires manual processing due to failure");
-										await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, "Passed to support team");
-									}
-								}
-								catch { }
 							}
 							if (withdraw.Status == WithdrawStatus.Failed) {
 								try {
@@ -254,7 +290,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
-							dbContext.Detach(withdraw, withdraw.FinancialHistory);
 						}
 					}
 					catch (Exception e) {
@@ -307,7 +342,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 			dbContext.Update(payment);
 			await dbContext.SaveChangesAsync();
-			dbContext.Detach(payment);
 
 			return payment;
 		}
