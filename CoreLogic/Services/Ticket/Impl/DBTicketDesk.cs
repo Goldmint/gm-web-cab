@@ -48,12 +48,13 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 					where s.Id == id
 					select s
 				)
-					.AsNoTracking()
+					.AsTracking()
 					.FirstAsync()
 				;
 				if (op != null) {
-					_dbContext.Entry(op).State = EntityState.Detached;
+					op.Status = status; // will be saved in the following f-n
 					await CreateTicket(op.UserId, message, id, status);
+					_dbContext.Entry(op).State = EntityState.Detached;
 				}
 			}
 		}

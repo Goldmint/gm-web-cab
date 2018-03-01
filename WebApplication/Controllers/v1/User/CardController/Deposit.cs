@@ -27,7 +27,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// round cents
+			var user = await GetUserFromDb();
+			var agent = GetUserAgentInfo();
+
+			// ---
+
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+			// ---
+
 			var transCurrency = FiatCurrency.USD;
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
@@ -35,9 +45,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (amountCents < AppConfig.Constants.CardPaymentData.DepositMin || amountCents > AppConfig.Constants.CardPaymentData.DepositMax) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
-
-			var user = await GetUserFromDb();
-			var agent = GetUserAgentInfo();
 			
 			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
@@ -69,7 +76,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.Deposit,
 				AmountCents = amountCents,
 				FeeCents = 0,
-				Currency = transCurrency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -92,8 +98,30 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				var queryResult = await DepositQueue.StartDepositWithCard(
 					services: scopedServices.ServiceProvider,
 					payment: payment,
-					financialHistory: finHistory
+					financialHistoryId: finHistory.Id
 				);
+
+				// failed
+				if (queryResult.Status != FiatEnqueueStatus.Success) {
+					DbContext.FinancialHistory.Remove(finHistory);
+
+					payment.Status = CardPaymentStatus.Cancelled;
+					payment.ProviderStatus = "Cancelled";
+					payment.ProviderMessage = $"Failed due to {queryResult.Status.ToString()}";
+					payment.TimeCompleted = DateTime.UtcNow;
+
+					await DbContext.SaveChangesAsync();
+
+					try {
+						await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Failed, payment.ProviderMessage);
+					}
+					catch {
+					}
+
+					if (queryResult.Error != null) {
+						Logger.Error(queryResult.Error, $"Deposit #{payment.Id} attempt failed");
+					}
+				}
 
 				switch (queryResult.Status) {
 

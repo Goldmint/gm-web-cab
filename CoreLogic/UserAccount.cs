@@ -39,6 +39,9 @@ namespace Goldmint.CoreLogic {
 			;
 		}
 
+		/// <summary>
+		/// Fiat limits by level plus specified user's level
+		/// </summary>
 		public static Task<FiatLimitsLevels> GetFiatLimits(IServiceProvider services, FiatCurrency currency, User user) {
 
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -116,7 +119,7 @@ namespace Goldmint.CoreLogic {
 				d.Currency == currency &&
 				d.TimeCreated >= startDateMonth &&
 				d.Status != DepositStatus.Failed // get all pending or successful deposits
-				select d
+				select new { AmountCents = d.AmountCents, TimeCreated = d.TimeCreated }
 			).AsNoTracking().ToListAsync();
 
 			var amountMonth = 0L;
@@ -156,7 +159,7 @@ namespace Goldmint.CoreLogic {
 				d.Currency == currency &&
 				d.TimeCreated >= startDateMonth &&
 				d.Status != WithdrawStatus.Failed // get all pending or successful
-				select d
+				select new { AmountCents = d.AmountCents, TimeCreated = d.TimeCreated }
 			)
 				.AsNoTracking()
 				.ToListAsync()
@@ -193,6 +196,19 @@ namespace Goldmint.CoreLogic {
 
 			dbContext.Add(activity);
 			await dbContext.SaveChangesAsync();
+		}
+
+		/// <summary>
+		/// Check for pending operations
+		/// </summary>
+		public static async Task<bool> HasPendingBlockchainOps(IServiceProvider services, User user) {
+
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+
+			return await dbContext.FinancialHistory.Where(_ =>
+				_.UserId == user.Id &&
+				_.Status == FinancialHistoryStatus.Pending
+			).CountAsync() > 0;
 		}
 
 		// ---

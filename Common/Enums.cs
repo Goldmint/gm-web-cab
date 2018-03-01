@@ -325,6 +325,11 @@ namespace Goldmint.Common {
 		/// Final failure, finalized
 		/// </summary>
 		Failed,
+
+		/// <summary>
+		/// Cancelled
+		/// </summary>
+		Cancelled,
 	}
 
 	public enum SwiftPaymentType {
@@ -369,6 +374,11 @@ namespace Goldmint.Common {
 		/// Deposit comes from bank transaction
 		/// </summary>
 		SwiftRequest,
+
+		/// <summary>
+		/// Deposit comes from failed withdrawal
+		/// </summary>
+		FailedWithdraw,
 	}
 
 	public enum DepositStatus {
@@ -559,7 +569,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Gold sold
 		/// </summary>
-		GoldSell
+		GoldSell,
+
+		/// <summary>
+		/// Transferring gold from HW
+		/// </summary>
+		HWTransfer,
 	}
 
 	public enum FinancialHistoryStatus {

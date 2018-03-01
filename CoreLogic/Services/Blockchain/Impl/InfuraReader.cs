@@ -11,7 +11,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 	public class InfuraReader : InfuraBaseClient, IEthereumReader {
 
-		private const int TransactionMinConfirmationsCount = 3;
+		private const int TransactionMinConfirmationsCount = 2;
 
 		public InfuraReader(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 		}

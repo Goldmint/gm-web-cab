@@ -36,6 +36,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var currency = FiatCurrency.USD;
 			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressMntpBalance(model.EthAddress);
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
@@ -63,7 +70,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.GoldBuy,
 				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -139,6 +145,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var currency = FiatCurrency.USD;
 			var mntpBalance = BigInteger.Zero;
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
@@ -173,7 +186,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.GoldBuy,
 				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,

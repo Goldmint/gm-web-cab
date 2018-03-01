@@ -77,9 +77,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.Withdraw,
 				AmountCents = amountCents,
 				FeeCents = 0,
-				Currency = transCurrency,
 				DeskTicketId = ticket,
-				Status = FinancialHistoryStatus.Pending,
+				Status = FinancialHistoryStatus.Success,
 				TimeCreated = DateTime.UtcNow,
 				UserId = user.Id,
 				Comment = "", // see below

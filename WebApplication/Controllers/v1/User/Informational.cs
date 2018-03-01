@@ -257,8 +257,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Status = (int)i.Status,
 					Comment = i.Comment,
 					EthTxId = i.RelEthTransactionId,
-					Amount = FiatHistoryViewItem.AmountStruct.Create(i.AmountCents, i.Currency),
-					Fee = i.FeeCents > 0 ? FiatHistoryViewItem.AmountStruct.Create(i.FeeCents, i.Currency) : null,
+					Amount = i.AmountCents / 100d,
+					Fee = i.FeeCents > 0 ? (i.FeeCents / 100d) : (double?)null,
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
 				}
 			;

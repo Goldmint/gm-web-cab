@@ -9,7 +9,7 @@ namespace Goldmint.DAL.Models {
 		public long RefFinancialHistoryId { get; set; }
 
 		[ForeignKey(nameof(RefFinancialHistoryId))]
-		public virtual FinancialHistory FinancialHistory { get; set; }
+		public virtual FinancialHistory RefFinancialHistory { get; set; }
 
 	}
 }

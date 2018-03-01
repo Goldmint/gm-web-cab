@@ -333,7 +333,6 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		public async Task<APIResponse> AcceptDeposit([FromBody] AcceptDepositModel model) {
 
 			// round cents
-			var transCurrency = FiatCurrency.USD;
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
 
@@ -385,9 +384,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					Type = FinancialHistoryType.Deposit,
 					AmountCents = amountCents,
 					FeeCents = 0,
-					Currency = transCurrency,
 					DeskTicketId = request.DeskTicketId,
-					Status = FinancialHistoryStatus.Pending,
+					Status = FinancialHistoryStatus.Success,
 					TimeCreated = DateTime.UtcNow,
 					User = user,
 					Comment = $"Deposit SWIFT payment {request.PaymentReference}",
@@ -412,7 +410,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					var queryResult = await DepositQueue.StartDepositWithSwift(
 						services: scopedServices.ServiceProvider,
 						request: request,
-						financialHistory: finHistory
+						financialHistoryId: finHistory.Id
 					);
 
 					switch (queryResult.Status) {

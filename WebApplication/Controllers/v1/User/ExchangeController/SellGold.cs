@@ -7,6 +7,7 @@ using Goldmint.WebApplication.Models.API.v1.User.ExchangeModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -29,6 +30,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
+
+			// ---
+
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
 
 			// ---
 
@@ -64,7 +72,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.GoldSell,
 				AmountCents = estimated.ResultGrossCents,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
@@ -138,6 +145,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var amountWei = BigInteger.Zero;
 			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
@@ -177,7 +191,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Type = FinancialHistoryType.GoldSell,
 				AmountCents = estimated.ResultGrossCents,
 				FeeCents = estimated.ResultFeeCents,
-				Currency = currency,
 				DeskTicketId = ticket,
 				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,

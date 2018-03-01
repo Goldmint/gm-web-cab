@@ -597,8 +597,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Refunded successfully");
 						}
 						else {
-							await ticketDesk.NewManualSupportTicket($"Card verification payment #{payment.Id} has not been refunded and requires manual processing due to failure");
-							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Refund failed. Passed to support team");
+							await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, $"Card verification refund #{payment.Id} failed and requires manual processing");
 						}
 					}
 					catch { }

@@ -39,7 +39,7 @@ namespace Goldmint.QueueService.Workers {
 				d.TimeNextCheck <= nowTime
 				select d
 			)
-				.Include(_ => _.FinancialHistory)
+				.Include(_ => _.RefFinancialHistory)
 				.Include(_ => _.User)
 				.AsNoTracking()
 				.Take(_rowsPerRound)

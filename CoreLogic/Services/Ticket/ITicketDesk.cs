@@ -9,7 +9,6 @@ namespace Goldmint.CoreLogic.Services.Ticket {
 	public interface ITicketDesk {
 
 		Task UpdateTicket(string ticketId, UserOpLogStatus status, string message);
-		Task NewManualSupportTicket(string message);
 		Task<string> NewCardVerification(User user, Card card);
 		Task<string> NewCardDeposit(User user, Card card, FiatCurrency currency, long amount);
 		Task<string> NewSwiftDeposit(User user, FiatCurrency currency, long amount);

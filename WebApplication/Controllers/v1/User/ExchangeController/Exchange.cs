@@ -151,6 +151,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
+			// ---
+
+			// check pending operations
+			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
+
 			var amountWei = BigInteger.Zero;
 			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
@@ -182,6 +191,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					var ticket = await TicketDesk.NewGoldTransfer(user, model.EthAddress, amountWei);
 
+					// history
+					var finHistory = new DAL.Models.FinancialHistory() {
+						Type = FinancialHistoryType.HWTransfer,
+						AmountCents = (long)(CoreLogic.Finance.Tokens.GoldToken.FromWei(amountWei) * 100),
+						FeeCents = 0,
+						DeskTicketId = ticket,
+						Status = FinancialHistoryStatus.Pending,
+						TimeCreated = DateTime.UtcNow,
+						User = user,
+						Comment = "" // see below
+					};
+
+					// save
+					DbContext.FinancialHistory.Add(finHistory);
+					await DbContext.SaveChangesAsync();
+
 					// request
 					var request = new TransferRequest() {
 						User = user,
@@ -189,22 +214,31 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
 						DeskTicketId = ticket,
+						RefFinancialHistory = finHistory,
 						TimeCreated = DateTime.UtcNow,
 						TimeNextCheck = DateTime.UtcNow,
 					};
 
-					// add and save
+					// save
 					DbContext.TransferRequest.Add(request);
 					await DbContext.SaveChangesAsync();
 
-					await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Pending, $"Transfer request id is #{request.Id}");
+					// update comment
+					finHistory.Comment = $"Transfer order #{request.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei)} GOLD from hot wallet to {TextFormatter.MaskEthereumAddress(model.EthAddress)}";
+					await DbContext.SaveChangesAsync();
+
+					try {
+						await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Pending, $"Transfer request ID is #{request.Id}");
+					}
+					catch {
+					}
 
 					// activity
 					await CoreLogic.UserAccount.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.Exchange,
-						comment: $"GOLD transfer request #{request.Id} ({ CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei) } oz) to {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
+						comment: $"GOLD transfer request #{request.Id} ({ CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei) } oz) from HW to {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
 						ip: agent.Ip,
 						agent: agent.Agent
 					);

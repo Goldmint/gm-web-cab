@@ -34,9 +34,15 @@ namespace Goldmint.Common {
 			if (x == null || !x.StartsWith("+")) {
 				return false;
 			}
-			var plib = PhoneNumberUtil.GetInstance();
-			var numberObj = plib.Parse(x, RegionCode.ZZ);
-			return plib.IsValidNumber(numberObj);
+
+			try {
+				var plib = PhoneNumberUtil.GetInstance();
+				var numberObj = plib.Parse(x, RegionCode.ZZ);
+				return plib.IsValidNumber(numberObj);
+			}
+			catch {
+				return false;
+			}
 		}
 
 		public static bool BeValidPassword(string x) {
