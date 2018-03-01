@@ -1,4 +1,7 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter,
+  ViewChild
+} from '@angular/core';
 import { TabsetComponent } from 'ngx-bootstrap';
 import { CurrencyPipe } from '@angular/common';
 import { Observable } from "rxjs/Observable";
@@ -8,7 +11,7 @@ import { APIService, MessageBoxService } from '../../services';
 import { UserService } from "../../services/user.service";
 import { User } from "../../interfaces/user";
 
-enum Pages { Default, CardsList }
+enum Pages { Default, CardsList, CardsListSuccess }
 
 @Component({
   selector: 'app-withdraw-page',
@@ -18,6 +21,8 @@ enum Pages { Default, CardsList }
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WithdrawPageComponent implements OnInit {
+
+  @ViewChild('depositForm') depositForm;
 
   public pages = Pages;
 
@@ -37,6 +42,9 @@ export class WithdrawPageComponent implements OnInit {
   public user: User;
   public swiftWithdrawChecked:boolean = false;
   public cardWithdrawChecked:boolean = false;
+
+  public minAmount: number;
+  public maxAmount: number;
 
   constructor(
     private _apiService: APIService,
@@ -59,6 +67,8 @@ export class WithdrawPageComponent implements OnInit {
       this.user = res[2];
 
       this.loading = false;
+      this.minAmount = this.limits.paymentMethod.card.deposit.min;
+      this.maxAmount = this.limits.current.withdraw.minimal;
       this._cdRef.markForCheck();
     });
   }
@@ -101,7 +111,9 @@ export class WithdrawPageComponent implements OnInit {
       })
       .subscribe(
       res => {
-        this._messageBox.alert('Your request is being processed');
+        this.depositForm.reset();
+        this.page = this.pages.CardsListSuccess;
+        this._cdRef.detectChanges();
       },
       err => {
         if (err.error && err.error.errorCode) {

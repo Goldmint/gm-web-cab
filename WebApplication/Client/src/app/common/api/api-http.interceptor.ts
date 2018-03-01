@@ -3,6 +3,7 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/c
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/observable/throw'
 import 'rxjs/add/operator/catch';
+import { environment } from '../../../environments/environment';
 
 import { MessageBoxService } from '../../services/message-box.service';
 
@@ -31,7 +32,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
     else {
       return next.handle(req)
         .catch((error, caught) => {
-          if (error.status === 404) {
+          if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
             this._messageBox.alert('Goldmint server does not respond. Please try again in few minutes.', 'Connection error');
           }
 

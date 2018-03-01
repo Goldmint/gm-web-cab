@@ -1,9 +1,11 @@
 import {
-  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding, OnDestroy
 } from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js';
+import {Subscription} from "rxjs/Subscription";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-sell-page',
@@ -12,7 +14,7 @@ import { BigNumber } from 'bignumber.js';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SellPageComponent implements OnInit {
+export class SellPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   locale: string;
@@ -39,13 +41,16 @@ export class SellPageComponent implements OnInit {
   public ethAddress: string = '';
   public selectedWallet = 0;
 
+  private sub1: Subscription;
+
   constructor(
     private _userService: UserService,
     private _apiService: APIService,
     private _messageBox: MessageBoxService,
     private _ethService: EthereumService,
     private _goldrateService: GoldrateService,
-    private _cdRef: ChangeDetectorRef
+    private _cdRef: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -84,10 +89,18 @@ export class SellPageComponent implements OnInit {
 
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.ethAddress = ethAddr;
-      this.selectedWallet = this.ethAddress ? 1 : 0;
-
+      if (!this.ethAddress) {
+        this.selectedWallet = 0;
+      }
       this.isBalancesLoaded = false;
       this.setGoldBalance();
+    });
+
+    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
+
+    this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
+      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
+      this._cdRef.markForCheck();
     });
   }
 
@@ -223,6 +236,7 @@ export class SellPageComponent implements OnInit {
               if (ok) {
                 this._apiService.confirmHwRequest(false, res.data.requestId).subscribe(() => {
                     this._messageBox.alert('Your request is in progress now!');
+                    // this.router.navigate(['/finance/history']);
                 },
                 err => {
                   err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1010
@@ -276,4 +290,9 @@ export class SellPageComponent implements OnInit {
           });
     }
   }
+
+  ngOnDestroy() {
+    this.sub1 && this.sub1.unsubscribe();
+  }
+
 }

@@ -27,8 +27,9 @@ export class EthereumService {
   private _userId: string | null;
 
   private _contractFiat: any;
-  private _contractGold: any;
+  public _contractGold: any;
   private _contractMntp: any;
+  private _totalGoldBalances = {issued: null, burnt: null};
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -40,6 +41,8 @@ export class EthereumService {
   private _obsMntpBalance: Observable<BigNumber> = this._obsMntpBalanceSubject.asObservable();
   private _obsHotGoldBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsHotGoldBalance: Observable<BigNumber> = this._obsHotGoldBalanceSubject.asObservable();
+  private _obsTotalGoldBalancesSubject = new BehaviorSubject<Object>(null);
+  private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
 
   constructor(
     private _userService: UserService,
@@ -68,6 +71,7 @@ export class EthereumService {
       .subscribe(time => {
         this.checkBalance();
         this.checkHotBalance();
+        this.updateTotalGoldBalances();
       })
       ;
   }
@@ -79,6 +83,7 @@ export class EthereumService {
         this._contractFiat = this._web3.eth.contract(JSON.parse(EthFiatContractABI)).at(EthFiatContractAddress);
         this._contractGold = this._web3.eth.contract(JSON.parse(EthGoldContractABI)).at(EthGoldContractAddress);
         this._contractMntp = this._web3.eth.contract(JSON.parse(EthMntpContractABI)).at(EthMntpContractAddress);
+        this.updateTotalGoldBalances();
       } else {
         this._web3 = null;
       }
@@ -92,6 +97,23 @@ export class EthereumService {
     }
   }
 
+  private updateTotalGoldBalances() {
+    if (this._contractGold) {
+      this._contractGold.getTotalBurnt((err, res) => {
+        if (!this._totalGoldBalances.burnt || !this._totalGoldBalances.burnt.eq(res)) {
+          this._totalGoldBalances.burnt = res;
+          this._totalGoldBalances.issued && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
+        }
+      });
+      this._contractGold.getTotalIssued((err, res) => {
+        if (!this._totalGoldBalances.issued || !this._totalGoldBalances.issued.eq(res)) {
+          this._totalGoldBalances.issued = res;
+          this._totalGoldBalances.burnt && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
+        }
+      });
+    }
+  }
+
   private checkBalance() {
     // check via eth
     if (this._lastAddress != null) {
@@ -102,9 +124,8 @@ export class EthereumService {
   }
 
   private checkHotBalance() {
-    this._userId != null && this._apiService.getUserBalance().subscribe(res => {
-      this._obsHotGoldBalanceSubject.next(new BigNumber(res.data.gold).div(new BigNumber(10).pow(18)));
-      this._lastAddress == null && this._obsUsdBalanceSubject.next(res.data.usd);
+    this._userId != null && this._contractFiat && this._contractFiat.getUserHotGoldBalance(this._userId, (err, res) => {
+      this._obsHotGoldBalanceSubject.next(res.div(new BigNumber(10).pow(18)));
     });
   }
 
@@ -175,6 +196,10 @@ export class EthereumService {
 
   public getObservableMntpBalance(): Observable<BigNumber> {
     return this._obsMntpBalance;
+  }
+
+  public getObservableTotalGoldBalances(): Observable<Object> {
+    return this._obsTotalGoldBalances;
   }
 
   // ---

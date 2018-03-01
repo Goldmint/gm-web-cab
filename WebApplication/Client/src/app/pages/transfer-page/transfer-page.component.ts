@@ -1,10 +1,14 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, HostBinding, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, HostBinding, TemplateRef, ChangeDetectorRef,
+  OnDestroy
+} from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { MessageBoxService, EthereumService } from "../../services/index";
 import { BigNumber } from 'bignumber.js'
 import {Observable} from "rxjs/Observable";
-import {APIService} from "../../services";
+import {APIService, UserService} from "../../services";
+import {Subscription} from "rxjs/Subscription";
 
 @Component({
   selector: 'app-transfer-page',
@@ -13,7 +17,7 @@ import {APIService} from "../../services";
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransferPageComponent implements OnInit {
+export class TransferPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   private _modalRef: BsModalRef;
@@ -30,15 +34,17 @@ export class TransferPageComponent implements OnInit {
   amountChecked: boolean = true;
 
   public amountValue: number;
-
   public ethAddress: string = '';
   public selectedWallet = 0;
+
+  private sub1: Subscription;
 
   constructor(
     private _modalService: BsModalService,
     private _ethService: EthereumService,
     private _messageBox: MessageBoxService,
     private _apiService: APIService,
+    private _userService: UserService,
     private _cdRef: ChangeDetectorRef
   ) { }
 
@@ -50,7 +56,9 @@ export class TransferPageComponent implements OnInit {
     ).subscribe(data => {
       if (this.ethAddress !== data[2]) {
         this.ethAddress = data[2];
-        this.selectedWallet = this.ethAddress ? 1 : 0;
+        if (!this.ethAddress) {
+          this.selectedWallet = 0;
+        }
       }
 
       this.goldHotBalance = data[0];
@@ -58,6 +66,13 @@ export class TransferPageComponent implements OnInit {
       this.goldBalance = this.selectedWallet == 0 ? data[0] : data[1];
 
       this.validateAmount();
+      this._cdRef.markForCheck();
+    });
+
+    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
+
+    this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
+      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
       this._cdRef.markForCheck();
     });
 
@@ -143,6 +158,10 @@ export class TransferPageComponent implements OnInit {
           })
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.sub1 && this.sub1.unsubscribe();
   }
 
 }

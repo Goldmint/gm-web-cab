@@ -14,7 +14,7 @@
                  [ngClass]="{ 'text-muted': card.status == 'initial' || card.status == 'disabled' || card.status == 'confirm' || card.status == 'failed' }">
               <div class="col number">{{ card.mask }}</div>
 
-              <div class="col-3 status">
+              <div class="col-6 status text-right">
                 <ng-container *ngIf="card.status == 'initial'">
                   <span class="status__new">New</span>
                 </ng-container>
@@ -38,6 +38,10 @@
                 </ng-container>
               </div>
 
+              <div class="col text-right">
+                <button class="btn btn-sm btn-primary" (click)="removeCard(card)" [disabled]="processing">Remove</button>
+              </div>
+
             </div>
           </div>
         </ng-container>
@@ -46,7 +50,7 @@
           <p class="lead lead--thin">You did not add any card.</p>
         </ng-template>
 
-        <ng-container *ngIf="user.verifiedL0; else userNotVerifiedBlock;">
+        <ng-container *ngIf="user.verifiedL1; else userNotVerifiedBlock;">
           <button class="btn btn-primary mt-4" [blur]="buttonBlur" [disabled]="processing" (click)="goto(_pages.OnNew)">Add card</button>
         </ng-container>
 

@@ -160,8 +160,10 @@
         "EmptyMessage": "No data"
       },
       "Types": {
-        "Withdraw": "Withdraw",
-        "Deposit": "Deposit"
+        "withdraw": "Withdraw",
+        "deposit": "Deposit",
+        "goldbuy": "Gold buying",
+        "goldsell": "Gold selling"
       }
     },
     "Login": {
@@ -376,6 +378,7 @@
         "FormSection": {
           "Title": "Basic Information",
           "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it axists on your government identification.",
+          "Important": "<b>IMPORTANT:</b> once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
           "UpgradeAccountText": "<b>UPGRADE ACCOUNT.</b> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur vel eos perspiciatis aliquid officia labore expedita ipsam sequi totam magnam aspernatur libero quia, itaque eveniet pariatur omnis molestias, suscipit corporis.",
           "RequiredFields": "Required fields",
           "Labels": {
@@ -441,7 +444,8 @@
               "pattern": "Only numbers allowed"
             },
             "PhoneNumber": {
-              "required": "This field is required"
+              "required": "This field is required",
+              "pattern": "Invalid number format"
             }
           },
           "Buttons": {
@@ -491,7 +495,8 @@
           "settings": "Settings",
           "deposit": "Deposit",
           "withdraw": "Withdraw",
-          "exchange": "Assets exchange"
+          "exchange": "Assets exchange",
+          "creditcard": "Credit card"
         }
       }
     },

@@ -36,7 +36,6 @@ export class HeaderBlockComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this._goldrateService.getObservableRate().subscribe(data => {
       this.gold_usd_rate = data;
       this._cdRef.detectChanges();
@@ -76,15 +75,18 @@ export class HeaderBlockComponent implements OnInit {
       this.usdBalance = bal;
       this._cdRef.detectChanges();
     });
+
+    this._userService.currentWallet = this.activeWallet;
   }
 
   onWalletSwitch(wallet) {
     if (wallet.id === 'metamask' && !this.metamaskAccount) {
-      this._messageBox.alert('What is Metamask?');
+      this._messageBox.alert(`MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Get <a href="https://metamask.io" target="_blank">Metamask</a>`,'What is Metamask?');
       return;
     }
 
-    this.activeWallet = wallet;
+    this._userService.currentWallet = this.activeWallet = wallet;
+    this._userService.onWalletSwitch(wallet);
     this._cdRef.detectChanges();
   }
 

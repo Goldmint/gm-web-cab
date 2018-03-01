@@ -51,20 +51,6 @@
           </ng-template>
 
           <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-            <div *ngIf="row.type === 'withdraw'; then amountWithdrawBlock else amountDepositBlock"></div>
-
-            <ng-template #amountWithdrawBlock>
-              <svg class="icon icon--fix icon--green" width="8px" height="8px">
-                <use xlink:href="#amount-plus"></use>
-              </svg>
-            </ng-template>
-
-            <ng-template #amountDepositBlock>
-              <svg class="icon icon--fix icon--red" width="8px" height="2px">
-                <use xlink:href="#amount-minus"></use>
-              </svg>
-            </ng-template>
-
             <span>
               {{ amount?.prefix }}
               {{ amount.amount | number:'1.2-2':locale }}
@@ -97,7 +83,7 @@
             </ng-template>
 
             <span class="text-uppercase">
-              {{ (type.toLowerCase() === 'withdraw' ? "PAGES.History.Types.Withdraw" : "PAGES.History.Types.Deposit") | translate }}
+              {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
             </span>
           </ng-template>
         </ngx-datatable-column>

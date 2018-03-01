@@ -94,6 +94,29 @@ export class SettingsCardsPageComponent implements OnInit {
       err => { });
   }
 
+  removeCard(card) {
+    const confText = 'Remove the card?'
+    this._messageBox.confirm(confText).subscribe(ok => {
+      if (ok) {
+        this.processing = true;
+        const id = this.cards.list.indexOf(card);
+        id >= 0 && this.cards.list.splice(id, 1);
+        this._apiService.removeFiatCard(card.cardId).subscribe(() => {
+          const id = this.cards.list.indexOf(card);
+          id >= 0 && this.cards.list.splice(id, 1);
+
+          this._messageBox.alert('Your card has been removed');
+          this.processing = false;
+        }, err => {
+          this._messageBox.alert('error');
+          this.processing = false;
+          }
+        );
+      }
+    });
+    this._cdRef.detectChanges();
+  }
+
   proceedCardAdditionFlow(cardId: number) {
     this.processing = true;
     this.currentCardId = cardId;

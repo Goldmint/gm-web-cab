@@ -156,6 +156,7 @@
     <div class="section__content kyc pt-2">
 
       <p [innerHTML]="'PAGES.Settings.KYC.FormSection.NewAccountText' | translate" *ngIf="!kycProfile.isFormFilled"></p>
+      <p [innerHTML]="'PAGES.Settings.KYC.FormSection.Important' | translate" *ngIf="!kycProfile.isFormFilled"></p>
 
       <p class="kyc-required" *ngIf="!kycProfile.isFormFilled"><span>*</span> {{ "PAGES.Settings.KYC.FormSection.RequiredFields" | translate }}</p>
 
@@ -475,13 +476,18 @@
                        class="form-control" (input)="onPhoneNumberChanged($event)"
                        [ngClass]="{'is-invalid': (errors?.PhoneNumber || !phoneNumber.valid) && (kycForm.submitted || !phoneNumber.pristine)}"
                        (ngModelChange)="errors.PhoneNumber = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing" [disabled]="!kycProfile.country">
+                       [readonly]="kycProfile.isFormFilled === true || processing" [disabled]="!kycProfile.country"
+                       pattern="^\+\d{8,}$"
+                >
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
 
                 <div class="invalid-feedback" *ngIf="phoneNumber.errors?.required">
                   {{ "PAGES.Settings.KYC.FormSection.Errors.PhoneNumber.required" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="phoneNumber.errors?.pattern">
+                  {{ "PAGES.Settings.KYC.FormSection.Errors.PhoneNumber.pattern" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="errors?.PhoneNumber">
                   {{ errors?.PhoneNumber }}

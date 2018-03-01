@@ -10,24 +10,7 @@
 
         <div class="col-12 pb-4">
           <div class="from-row form-group">
-            <label for="input_toSpend">Wallet</label>
-            <div class="d-flex align-items-center">
-              <div class="form-currency">
-                <svg class="icon" width="30px" height="30px" >
-                  <use xlink:href="#payment-card"></use>
-                </svg>
-              </div>
-              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet">
-                <option value="0">Hot wallet</option>
-                <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 pb-4">
-          <div class="from-row form-group">
-            <label for="input_toSpend">To Spend</label>
+            <label for="input_toSpend">Spend</label>
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--usd">
                 <svg class="icon">
@@ -41,10 +24,27 @@
                      [(ngModel)]="toSpendVal"
                      (input)="onToSpendChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !buyAmountChecked}"
-                     >
+              >
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
               Invalid amount value
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 pb-4">
+          <div class="from-row form-group">
+            <label for="input_toSpend">To wallet</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency">
+                <svg class="icon" width="30px" height="30px" >
+                  <use xlink:href="#payment-card"></use>
+                </svg>
+              </div>
+              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet">
+                <option value="0">Hot wallet</option>
+                <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
+              </select>
             </div>
           </div>
         </div>

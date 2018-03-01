@@ -13,7 +13,7 @@ import { BigNumber } from 'bignumber.js'
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'page' }
 })
-export class BuyPageComponent implements OnInit {
+export class BuyPageComponent implements OnInit, OnDestroy {
 
   confirmation: boolean = false;
   progress: boolean = false;
@@ -27,6 +27,8 @@ export class BuyPageComponent implements OnInit {
   public buyAmountChecked: boolean = true;
   public ethAddress: string = '';
   public selectedWallet = 0;
+
+  private sub1: Subscription;
 
   constructor(
     private _userService: UserService,
@@ -63,9 +65,14 @@ export class BuyPageComponent implements OnInit {
       this.ethAddress = ethAddr;
       if (!this.ethAddress) {
         this.selectedWallet = 0;
-      } else {
-        this.selectedWallet = 1;
       }
+    });
+
+    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
+
+    this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
+      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
+      this._cdRef.markForCheck();
     });
   }
 
@@ -166,5 +173,9 @@ export class BuyPageComponent implements OnInit {
 
   buyAmountCheck(val: BigNumber) {
     this.buyAmountChecked = val.gte(1) && this.usdBalance && val.lte(this.usdBalance);
+  }
+
+  ngOnDestroy() {
+    this.sub1 && this.sub1.unsubscribe();
   }
 }

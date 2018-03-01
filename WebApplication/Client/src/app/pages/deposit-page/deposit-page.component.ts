@@ -4,7 +4,7 @@ import {
   ViewEncapsulation,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  EventEmitter
+  EventEmitter, ViewChild
 } from '@angular/core';
 
 import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits, SwiftInvoice } from '../../interfaces';
@@ -15,7 +15,7 @@ import { User } from "../../interfaces/user";
 import { UserService } from "../../services/user.service";
 import { Observable } from "rxjs/Observable";
 
-enum Pages { Default, CardsList, BankTransfer }
+enum Pages { Default, CardsList, BankTransfer, CardsListSuccess }
 enum BankTransferSteps { Default, Form, PaymentDetails }
 
 @Component({
@@ -26,6 +26,8 @@ enum BankTransferSteps { Default, Form, PaymentDetails }
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DepositPageComponent implements OnInit {
+  @ViewChild('depositForm') depositForm;
+
   public pages = Pages;
   private _bankTransferSteps = BankTransferSteps;
 
@@ -52,6 +54,9 @@ export class DepositPageComponent implements OnInit {
   public swiftDepositChecked:boolean = false;
   public cardDepositChecked:boolean = false;
 
+  public minAmount: number;
+  public maxAmount: number;
+
   constructor(
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
@@ -74,6 +79,8 @@ export class DepositPageComponent implements OnInit {
       this.user = res[2];
 
       this.loading = false;
+      this.minAmount = this.limits.paymentMethod.card.deposit.min;
+      this.maxAmount = this.limits.current.deposit.minimal;
       this._cdRef.markForCheck();
     });
 
@@ -145,8 +152,11 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-      (/* res */) => this._messageBox.alert('Your request is being processed'), // TODO: Maybe will be better to use pipes from RxJS
-      err => {
+      () => { // TODO: Maybe will be better to use pipes from RxJS
+        this.depositForm.reset();
+        this.page = this.pages.CardsListSuccess;
+        this._cdRef.detectChanges();
+      }, err => {
         if (err.error && err.error.errorCode) {
           switch (err.error.errorCode) {
             case 100: // InvalidParameter

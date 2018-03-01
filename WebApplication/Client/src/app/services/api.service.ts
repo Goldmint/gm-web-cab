@@ -251,6 +251,14 @@ export class APIService {
       );
   }
 
+  removeFiatCard(cardId: number): Observable<APIResponse<CardAddResponse>> {
+    return this._http
+      .post(`${this._baseUrl}/user/fiat/card/remove`, { cardId }, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   getFiatCardStatus(cardId: number): Observable<APIResponse<CardStatusResponse>> {
     return this._http
       .post(`${this._baseUrl}/user/fiat/card/status`, { cardId: cardId }, this.jwt())

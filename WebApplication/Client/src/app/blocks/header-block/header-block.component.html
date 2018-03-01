@@ -19,7 +19,7 @@
       </div>
 
       <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
-        <div class="col-auto">
+        <div class="col-auto pr-1">
           <div class="auth-info">
             <div class="language" (mouseenter)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
               <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
@@ -49,6 +49,8 @@
           </div>
         </div>
 
+        <div>|</div>
+
         <div class="col-auto">
           <div class="auth-info">
             <div class="language" (mouseenter)="usermenu.show()" (mouseleave)="usermenu.hide()">
@@ -76,7 +78,7 @@
               <use xlink:href="#cur-usd"></use>
             </svg>
             <span class="balance__value">
-              {{usdBalance | number:'1.2-2':locale}}
+              <span class="fiat" routerLink="/finance">{{usdBalance | number:'1.2-2':locale}}</span>
             </span>
           </div>
         </div>

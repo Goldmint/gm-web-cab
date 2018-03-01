@@ -148,6 +148,7 @@ export class SettingsVerificationPageComponent implements OnInit {
       .subscribe(
       (res: APIResponse<KYCProfile>) => {
         this.kycProfile = res.data;
+        // this.startKYCVerification();
         this.onPhaseUpdate();
       },
       err => {

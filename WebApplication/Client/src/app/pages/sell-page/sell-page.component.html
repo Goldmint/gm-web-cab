@@ -10,24 +10,7 @@
 
         <div class="col-12 pb-4">
           <div class="from-row form-group">
-            <label>Wallet</label>
-            <div class="d-flex align-items-center">
-              <div class="form-currency">
-                <svg class="icon" width="30px" height="30px" >
-                  <use xlink:href="#payment-card"></use>
-                </svg>
-              </div>
-              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet" (change)="setGoldBalance(1)">
-                <option value="0">Hot wallet</option>
-                <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 pb-4">
-          <div class="from-row form-group">
-            <label for="input_toSell">To Sell</label>
+            <label for="input_toSell">Amount</label>
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--gold">
                 <svg class="icon">
@@ -50,6 +33,23 @@
               </div>
             <div class="invalid-feedback" *ngIf="!sellAmountChecked">
               Invalid gold amount
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 pb-4">
+          <div class="from-row form-group">
+            <label>From wallet</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency">
+                <svg class="icon" width="30px" height="30px" >
+                  <use xlink:href="#payment-card"></use>
+                </svg>
+              </div>
+              <select class="form-control" name="select-wallet" [(ngModel)]="selectedWallet" (change)="setGoldBalance(1)">
+                <option value="0">Hot wallet</option>
+                <option value="1" *ngIf="ethAddress">{{ ethAddress }}</option>
+              </select>
             </div>
           </div>
         </div>

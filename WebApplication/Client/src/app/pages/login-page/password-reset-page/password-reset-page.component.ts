@@ -1,4 +1,7 @@
-import { Component, OnInit, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, isDevMode } from '@angular/core';
+import {
+  Component, OnInit, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild,
+  isDevMode, AfterViewInit
+} from '@angular/core';
 import { Router, ActivatedRoute } from "@angular/router";
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { RecaptchaComponent as reCaptcha } from 'ng-recaptcha';
@@ -15,7 +18,7 @@ enum Pages {Default, EmailSent, NewPassword}
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PasswordResetPageComponent implements OnInit {
+export class PasswordResetPageComponent implements OnInit, AfterViewInit {
   @ViewChild('captchaRef') captchaRef: reCaptcha;
   @ViewChild('newPassword') password
 
@@ -52,16 +55,18 @@ export class PasswordResetPageComponent implements OnInit {
       );
   }
 
-  ngOnInit() {
-    if (isDevMode()) {
-      this.passwordResetModel.recaptcha = "devmode";
-    }
-
+  ngAfterViewInit() {
     this.password && this.password.valueChanges
       .debounceTime(500)
       .subscribe(() => {
         this.testPassword();
       });
+  }
+
+  ngOnInit() {
+    if (isDevMode()) {
+      this.passwordResetModel.recaptcha = "devmode";
+    }
   }
 
   captchaResolved(captchaResponse: string) {

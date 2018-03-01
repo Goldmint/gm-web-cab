@@ -13,6 +13,7 @@ import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';
 import { AppDefaultLanguage } from '../app.languages';
 import { ReplaySubject } from "rxjs/ReplaySubject";
+import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,9 @@ export class UserService {
 
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
+
+  public onWalletSwitch$ = new Subject();
+  public currentWallet;
 
   constructor(
     private _router: Router,
@@ -150,6 +154,10 @@ export class UserService {
         }
       )
       );
+  }
+
+  onWalletSwitch(wallet) {
+    this.onWalletSwitch$.next(wallet);
   }
 
   /*
