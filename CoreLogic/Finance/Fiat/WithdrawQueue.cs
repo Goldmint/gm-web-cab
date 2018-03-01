@@ -164,18 +164,24 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							catch { }
 
 							// launch transaction
-							var txid = await ethereumWriter.ChangeUserFiatBalance(withdraw.User.UserName, withdraw.Currency, -1 * withdraw.AmountCents);
-							withdraw.EthTransactionId = txid;
+							var ethTransactionId = await ethereumWriter.ChangeUserFiatBalance(
+								userId: withdraw.User.UserName, 
+								currency: withdraw.Currency,
+								amountCents: -1 * withdraw.AmountCents
+							);
 
 							try {
-								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {txid}");
+								await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {ethTransactionId}");
 							}
 							catch { }
 
 							// set new status
+							withdraw.EthTransactionId = ethTransactionId;
+							withdraw.FinancialHistory.RelEthTransactionId = withdraw.EthTransactionId;
 							withdraw.Status = WithdrawStatus.BlockchainConfirm;
 
 							// save
+							dbContext.Update(withdraw.FinancialHistory);
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
 

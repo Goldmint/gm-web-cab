@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -87,39 +88,43 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// update comment
 			finHistory.Comment = $"Withdrawal payment #{payment.Id} to {card.CardMask}";
 			await DbContext.SaveChangesAsync();
-			DbContext.DetachEverything();
 
-			// try
-			var queryResult = await WithdrawQueue.StartWithdrawWithCard(
-				services: HttpContext.RequestServices,
-				payment: payment,
-				financialHistory: finHistory
-			);
+			// own scope
+			using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
 
-			switch (queryResult.Status) {
+				// try
+				var queryResult = await WithdrawQueue.StartWithdrawWithCard(
+					services: scopedServices.ServiceProvider,
+					payment: payment,
+					financialHistory: finHistory
+				);
 
-				case FiatEnqueueStatus.Success:
+				switch (queryResult.Status) {
 
-					// activity
-					await CoreLogic.UserAccount.SaveActivity(
-						services: HttpContext.RequestServices,
-						user: user,
-						type: Common.UserActivityType.CreditCard,
-						comment: $"Withdrawal payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card ) initiated",
-						ip: agent.Ip,
-						agent: agent.Agent
-					);
+					case FiatEnqueueStatus.Success:
 
-					return APIResponse.Success(
-						new WithdrawView() {
-						}
-					);
+						// activity
+						await CoreLogic.UserAccount.SaveActivity(
+							services: scopedServices.ServiceProvider,
+							user: user,
+							type: Common.UserActivityType.CreditCard,
+							comment:
+							$"Withdrawal payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card ) initiated",
+							ip: agent.Ip,
+							agent: agent.Agent
+						);
 
-				case FiatEnqueueStatus.Limit:
-					return APIResponse.BadRequest(APIErrorCode.AccountWithdrawLimit);
+						return APIResponse.Success(
+							new WithdrawView() {
+							}
+						);
 
-				default:
-					return APIResponse.BadRequest(APIErrorCode.AccountCardWithdrawFail, "Failed to make withdraw. Make sure card is valid, otherwise contact support");
+					case FiatEnqueueStatus.Limit:
+						return APIResponse.BadRequest(APIErrorCode.AccountWithdrawLimit);
+
+					default:
+						return APIResponse.BadRequest(APIErrorCode.AccountCardWithdrawFail, "Failed to make withdraw. Make sure card is valid, otherwise contact support");
+				}
 			}
 		}
 	}

@@ -350,16 +350,27 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	public class FiatHistoryViewItem {
 
 		/// <summary>
-		/// Type: deposit, withdraw, etc
+		/// Type: deposit, withdraw, goldbuy, goldsell
 		/// </summary>
 		[Required]
 		public string Type { get; set; }
+		
+		/// <summary>
+		/// Status: 1 - pending, 2 - successful, 3 - cancelled
+		/// </summary>
+		[Required]
+		public int Status { get; set; }
 
 		/// <summary>
 		/// Comment
 		/// </summary>
 		[Required]
 		public string Comment { get; set; }
+		
+		/// <summary>
+		/// Ethereum transaction ID to track, optional
+		/// </summary>
+		public string EthTxId { get; set; }
 
 		/// <summary>
 		/// Amount data

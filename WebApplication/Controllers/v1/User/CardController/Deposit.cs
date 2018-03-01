@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -83,39 +84,43 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// update comment
 			finHistory.Comment = $"Deposit payment #{payment.Id} from {card.CardMask}";
 			await DbContext.SaveChangesAsync();
-			DbContext.DetachEverything();
 
-			// try
-			var queryResult = await DepositQueue.StartDepositWithCard(
-				services: HttpContext.RequestServices,
-				payment: payment,
-				financialHistory: finHistory
-			);
+			// own scope
+			using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
 
-			switch (queryResult.Status) {
+				// try
+				var queryResult = await DepositQueue.StartDepositWithCard(
+					services: scopedServices.ServiceProvider,
+					payment: payment,
+					financialHistory: finHistory
+				);
 
-				case FiatEnqueueStatus.Success:
+				switch (queryResult.Status) {
 
-					// activity
-					await CoreLogic.UserAccount.SaveActivity(
-						services: HttpContext.RequestServices,
-						user: user,
-						type: Common.UserActivityType.CreditCard,
-						comment: $"Deposit payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card {card.CardMask}) initiated",
-						ip: agent.Ip,
-						agent: agent.Agent
-					);
+					case FiatEnqueueStatus.Success:
 
-					return APIResponse.Success(
-						new DepositView() {
-						}
-					);
+						// activity
+						await CoreLogic.UserAccount.SaveActivity(
+							services: scopedServices.ServiceProvider,
+							user: user,
+							type: Common.UserActivityType.CreditCard,
+							comment:
+							$"Deposit payment #{payment.Id} ({TextFormatter.FormatAmount(payment.AmountCents, transCurrency)}, card {card.CardMask}) initiated",
+							ip: agent.Ip,
+							agent: agent.Agent
+						);
 
-				case FiatEnqueueStatus.Limit:
-					return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
+						return APIResponse.Success(
+							new DepositView() {
+							}
+						);
 
-				default:
-					return APIResponse.BadRequest(APIErrorCode.AccountCardDepositFail, "Failed to charge deposit. Make sure you have enough money and card is valid, otherwise contact support");
+					case FiatEnqueueStatus.Limit:
+						return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
+
+					default:
+						return APIResponse.BadRequest(APIErrorCode.AccountCardDepositFail, "Failed to charge deposit. Make sure you have enough money and card is valid, otherwise contact support");
+				}
 			}
 		}
 	}

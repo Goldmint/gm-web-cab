@@ -61,7 +61,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.GoldSelling,
+				Type = FinancialHistoryType.GoldSell,
 				AmountCents = estimated.ResultGrossCents,
 				FeeCents = estimated.ResultFeeCents,
 				Currency = currency,
@@ -174,7 +174,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.GoldSelling,
+				Type = FinancialHistoryType.GoldSell,
 				AmountCents = estimated.ResultGrossCents,
 				FeeCents = estimated.ResultFeeCents,
 				Currency = currency,

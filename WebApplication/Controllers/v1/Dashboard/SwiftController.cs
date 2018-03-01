@@ -16,6 +16,7 @@ using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.DAL.Migrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
@@ -404,28 +405,30 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
 
-				DbContext.DetachEverything();
+				// own scope
+				using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
 
-				// try
-				var queryResult = await DepositQueue.StartDepositWithSwift(
-					services: HttpContext.RequestServices,
-					request: request,
-					financialHistory: finHistory
-				);
+					// try
+					var queryResult = await DepositQueue.StartDepositWithSwift(
+						services: scopedServices.ServiceProvider,
+						request: request,
+						financialHistory: finHistory
+					);
 
-				switch (queryResult.Status) {
+					switch (queryResult.Status) {
 
-					case FiatEnqueueStatus.Success:
-						return APIResponse.Success(
-							new RefuseDepositView() {
-							}
-						);
+						case FiatEnqueueStatus.Success:
+							return APIResponse.Success(
+								new RefuseDepositView() {
+								}
+							);
 
-					case FiatEnqueueStatus.Limit:
-						return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
+						case FiatEnqueueStatus.Limit:
+							return APIResponse.BadRequest(APIErrorCode.AccountDepositLimit);
 
-					default:
-						return APIResponse.GeneralInternalFailure();
+						default:
+							return APIResponse.GeneralInternalFailure();
+					}
 				}
 			});
 		}

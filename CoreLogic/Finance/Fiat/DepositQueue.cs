@@ -232,17 +232,23 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							catch { }
 
 							// launch transaction
-							var txid = await ethereumWriter.ChangeUserFiatBalance(deposit.User.UserName, deposit.Currency, deposit.AmountCents);
-							deposit.EthTransactionId = txid;
+							var ethTransactionId = await ethereumWriter.ChangeUserFiatBalance(
+								userId: deposit.User.UserName, 
+								currency: deposit.Currency, 
+								amountCents: deposit.AmountCents
+							);
 
 							try {
-								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {txid}");
+								await ticketDesk.UpdateTicket(deposit.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {ethTransactionId}");
 							}
 							catch { }
 
 							// set new status
+							deposit.EthTransactionId = ethTransactionId;
+							deposit.FinancialHistory.RelEthTransactionId = deposit.EthTransactionId;
 							deposit.Status = DepositStatus.BlockchainConfirm;
 							dbContext.Update(deposit);
+							dbContext.Update(deposit.FinancialHistory);
 							await dbContext.SaveChangesAsync();
 
 							// update ticket safely
@@ -272,6 +278,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 								deposit.FinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
 								deposit.FinancialHistory.TimeCompleted = deposit.TimeCompleted;
+								
 								dbContext.Update(deposit.FinancialHistory);
 							}
 

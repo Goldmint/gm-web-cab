@@ -34,6 +34,7 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 			_dbContext.UserOpLog.Add(op);
 			await _dbContext.SaveChangesAsync();
 			_dbContext.Entry(op).State = EntityState.Detached;
+
 			return op.Id.ToString();
 		}
 		
@@ -41,8 +42,17 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 
 		public async Task UpdateTicket(string ticketId, UserOpLogStatus status, string message) {
 			if (ticketId != null && long.TryParse(ticketId, out long id)) {
-				var op = await (from s in _dbContext.UserOpLog where s.Id == id select s).FirstAsync();
+
+				var op = await (
+					from s in _dbContext.UserOpLog
+					where s.Id == id
+					select s
+				)
+					.AsNoTracking()
+					.FirstAsync()
+				;
 				if (op != null) {
+					_dbContext.Entry(op).State = EntityState.Detached;
 					await CreateTicket(op.UserId, message, id, status);
 				}
 			}

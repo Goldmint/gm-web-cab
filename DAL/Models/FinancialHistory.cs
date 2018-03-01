@@ -28,6 +28,9 @@ namespace Goldmint.DAL.Models {
 		[Column("comment"), MaxLength(512), Required]
 		public string Comment { get; set; }
 
+		[Column("rel_eth_transaction_id"), MaxLength(64)]
+		public string RelEthTransactionId { get; set; }
+
 		[Column("desk_ticket_id"), MaxLength(32), Required]
 		public string DeskTicketId { get; set; }
 

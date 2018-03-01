@@ -270,4 +270,31 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 
 	public class WithdrawView {
 	}
+
+	// ---
+
+	public class RemoveModel : BaseValidableModel {
+
+		/// <summary>
+		/// Card ID
+		/// </summary>
+		[Required]
+		public long CardId { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<RemoveModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.CardId)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid ID")
+				;
+
+			return v.Validate(this);
+
+		}
+	}
+
+	public class RemoveView {
+	}
 }

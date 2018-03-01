@@ -55,6 +55,10 @@ namespace Goldmint.DAL {
 
 		// ---
 
+		/*public void Detach(object entity) {
+			this.Entry(entity).State = EntityState.Detached;
+		}*/
+
 		public void DetachEverything() {
 			var entries = this.ChangeTracker
 				.Entries()

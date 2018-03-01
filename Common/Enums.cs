@@ -554,12 +554,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Gold bought
 		/// </summary>
-		GoldBuying,
+		GoldBuy,
 
 		/// <summary>
 		/// Gold sold
 		/// </summary>
-		GoldSelling
+		GoldSell
 	}
 
 	public enum FinancialHistoryStatus {

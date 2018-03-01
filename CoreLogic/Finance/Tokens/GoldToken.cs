@@ -414,6 +414,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.FinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -563,6 +564,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.FinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -712,6 +714,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.FinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -858,6 +861,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
+							request.FinancialHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
