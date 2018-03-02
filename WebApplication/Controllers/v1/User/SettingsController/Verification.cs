@@ -72,11 +72,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DbContext.UserVerification.Add(user.UserVerification);
 				await DbContext.SaveChangesAsync();
 
+				var redirect = this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage);
+
 				// send agreement
 				await Core.UserAccount.ResendVerificationPrimaryAgreement(
 					services: HttpContext.RequestServices,
 					user: user,
-					email: user.Email
+					email: user.Email,
+					redirectUrl: redirect
 				);
 			}
 
@@ -212,10 +215,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				}
 				// can send
 				else {
+
+					var redirect = this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage);
+
 					sent = await Core.UserAccount.ResendVerificationPrimaryAgreement(
 						services: HttpContext.RequestServices,
 						user: user,
-						email: user.Email
+						email: user.Email,
+						redirectUrl: redirect
 					);
 				}
 			}

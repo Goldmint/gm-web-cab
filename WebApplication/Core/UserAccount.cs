@@ -136,7 +136,7 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Reset current agreement and resend to specified email address
 		/// </summary>
-		public static async Task<bool> ResendVerificationPrimaryAgreement(IServiceProvider services, User user, string email) {
+		public static async Task<bool> ResendVerificationPrimaryAgreement(IServiceProvider services, User user, string email, string redirectUrl) {
 
 			if (user == null) {
 				throw new ArgumentException("User is null");
@@ -177,9 +177,11 @@ namespace Goldmint.WebApplication.Core {
 
 			return await docService.SendPrimaryAgreementRequest(
 				refId: request.ReferenceId,
-				name: user.UserVerification.FirstName + " " + user.UserVerification.LastName,
+				firstName: user.UserVerification.FirstName,
+				lastName: user.UserVerification.LastName,
 				email: email,
-				date: DateTime.UtcNow
+				date: DateTime.UtcNow,
+				redirectUrl: redirectUrl
 			); ;
 		}
 

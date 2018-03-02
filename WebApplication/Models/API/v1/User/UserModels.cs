@@ -388,16 +388,5 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		/// </summary>
 		[Required]
 		public long Date { get; set; }
-
-		// ---
-
-		public class AmountStruct {
-
-			[Required]
-			public double Amount { get; set; }
-
-			[Required]
-			public string Currency { get; set; }
-		}
 	}
 }

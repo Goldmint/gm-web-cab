@@ -14,6 +14,7 @@ namespace Goldmint.Common {
 		public AppRoutesSection AppRoutes { get; set; } = new AppRoutesSection();
 		public class AppRoutesSection {
 
+			public string VerificationPage { get; set; } = "";
 			public string SignUpConfirmation { get; set; } = "";
 			public string PasswordRestoration { get; set; } = "";
 			public string EmailTaken { get; set; } = "";

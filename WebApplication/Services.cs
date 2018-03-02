@@ -219,10 +219,12 @@ namespace Goldmint.WebApplication {
 			// docs signing
 			services.AddSingleton<IDocSigningProvider>(fac => {
 				var srv = new SignRequest(
-					baseUrl: _appConfig.Services.SignRequest.Url,
-					authString: _appConfig.Services.SignRequest.Auth,
-					senderEmail: _appConfig.Services.SignRequest.SenderEmail,
-					senderEmailName: "GoldMint",
+					opts: new SignRequest.Options() { 
+						BaseUrl = _appConfig.Services.SignRequest.Url,
+						AuthString = _appConfig.Services.SignRequest.Auth,
+						SenderEmail = _appConfig.Services.SignRequest.SenderEmail,
+						SenderEmailName = "GoldMint",
+					},
 					logFactory: _loggerFactory
 				);
 				foreach (var t in _appConfig.Services.SignRequest.Templates) { 
