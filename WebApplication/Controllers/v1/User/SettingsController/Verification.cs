@@ -133,6 +133,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.KycShuftiProTicket.AddAsync(ticket);
 			await DbContext.SaveChangesAsync();
 
+			// set last ticket
+			user.UserVerification.KycLastTicket = ticket;
+			await DbContext.SaveChangesAsync();
+
 			// new redirect
 			var kycUser = new CoreLogic.Services.KYC.UserData() {
 				FirstName = ticket.FirstName,
@@ -141,7 +145,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DoB = ticket.DoB,
 				PhoneNumber = ticket.PhoneNumber,
 			};
-			var callbackURL = Url.Link($"CallbackShuftiPro/{AppConfig.Services.ShuftiPro.CallbackSecret}", new { });
+			var callbackURL = Url.Link("CallbackShuftiPro", new { secret = AppConfig.Services.ShuftiPro.CallbackSecret });
 			var userTempRedirectURL = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
 
 			var kycRedirect = await KycExternalProvider.GetRedirect(
@@ -263,11 +267,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// last ticket is not verified and within allowed period
 			var kycPending = false;
-			if (user.UserVerification?.KycLastTicket != null) {
+			if (user.UserVerification?.KycLastTicket != null && user.UserVerification?.KycVerifiedTicketId == null) {
 				kycPending =
 					!user.UserVerification.KycLastTicket.IsVerified &&
-					user.UserVerification.KycLastTicket.TimeResponded != null &&
-					(DateTime.UtcNow - user.UserVerification.KycLastTicket.TimeResponded.Value) < AllowedPeriodBetweenKYCRequests
+					(DateTime.UtcNow - user.UserVerification.KycLastTicket.TimeCreated) < AllowedPeriodBetweenKYCRequests
 				;
 			}
 

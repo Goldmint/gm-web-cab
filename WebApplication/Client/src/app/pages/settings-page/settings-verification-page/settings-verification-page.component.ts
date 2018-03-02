@@ -9,7 +9,7 @@ import { KYCProfile } from '../../../models/kyc-profile';
 
 import * as countries from '../../../../assets/data/countries.json';
 
-enum Phase { Start, Basic, Agreement, KYC, Finished }
+enum Phase { Start, Basic, Agreement, KYCPending, KYC, Finished }
 
 @Component({
   selector: 'app-settings-verification-page',
@@ -82,6 +82,9 @@ export class SettingsVerificationPageComponent implements OnInit {
     }
     else if (!this.kycProfile.isAgreementSigned) {
       this.phase = Phase.Agreement;
+    }
+    else if (this.kycProfile.isKYCPending) {
+      this.phase = Phase.KYCPending;
     }
     else if (!this.kycProfile.isKYCFinished) {
       this.phase = Phase.KYC;

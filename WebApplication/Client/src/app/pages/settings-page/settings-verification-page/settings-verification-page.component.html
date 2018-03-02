@@ -54,7 +54,7 @@
   </section>
 </ng-container>
 
-<ng-container *ngIf="phase === _phase.Basic || phase === _phase.KYC || phase == _phase.Agreement || phase === _phase.Finished">
+<ng-container *ngIf="phase === _phase.Basic || phase === _phase.KYCPending || phase === _phase.KYC || phase === _phase.Agreement || phase === _phase.Finished">
 
   <!--KYC START BUTTON-->
   <section class="section section--warning section--no-bottom" *ngIf="phase === _phase.KYC">
@@ -74,6 +74,22 @@
           <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
         </button>
       </div>
+    </div>
+  </section>
+
+  <!--KYC IN PROGRESS-->
+  <section class="section section--no-bottom" *ngIf="phase === _phase.KYCPending">
+    <h2 class="section__title">
+      <span>KYC verification</span>
+    </h2>
+
+    <div class="section__content kyc pt-2">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <!-- @todo: clarify texts and layout -->
+      <p class="pt-2 mb-2">KYC verification still in progress. Please come back later</p>
     </div>
   </section>
 
@@ -116,7 +132,7 @@
 
       <div class="text-center">
 
-        
+
         <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()" *ngIf="agreementResend === null; else blockResent">
           {{ "PAGES.Settings.KYC.AgreementSection.Buttons.Resend" | translate }}
           <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
@@ -485,8 +501,7 @@
                        [ngClass]="{'is-invalid': (errors?.PhoneNumber || !phoneNumber.valid) && (kycForm.submitted || !phoneNumber.pristine)}"
                        (ngModelChange)="errors.PhoneNumber = false"
                        [readonly]="kycProfile.isFormFilled === true || processing" [disabled]="!kycProfile.country"
-                       pattern="^\+\d{8,}$"
-                >
+                       pattern="^\+\d{8,}$">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
