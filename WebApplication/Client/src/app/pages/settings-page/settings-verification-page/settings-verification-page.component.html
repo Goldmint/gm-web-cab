@@ -167,6 +167,7 @@
               <label for="inputFirstName">{{ "PAGES.Settings.KYC.FormSection.Labels.FirstName" | translate }}</label>
               <div class="kyc-required">
                 <input type="text" id="inputFirstName" required pattern="[A-Za-z \'\`\-\.]*"
+                       minlength="2" maxlength="32"
                        name="firstName" [(ngModel)]="kycProfile.firstName" #firstName="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.FirstName || !firstName.valid) && (kycForm.submitted || !firstName.pristine)}"
@@ -181,6 +182,9 @@
                 </div>
                 <div class="invalid-feedback" *ngIf="firstName.errors?.pattern">
                   {{ "PAGES.Settings.KYC.FormSection.Errors.FirstName.pattern" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="firstName.errors?.minlength">
+                  {{ "PAGES.Settings.KYC.FormSection.Errors.FirstName.minLength" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="errors?.FirstName">
                   {{ errors?.FirstName }}
@@ -209,6 +213,7 @@
               <label for="inputLastName">{{ "PAGES.Settings.KYC.FormSection.Labels.LastName" | translate }}</label>
               <div class="kyc-required">
                 <input type="text" id="inputLastName" required pattern="[A-Za-z \'\`\-\.]*"
+                       minlength="2" maxlength="32"
                        name="lastName" [(ngModel)]="kycProfile.lastName" #lastName="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.LastName || !lastName.valid) && (kycForm.submitted || !lastName.pristine)}"
@@ -223,6 +228,9 @@
                 </div>
                 <div class="invalid-feedback" *ngIf="lastName.errors?.pattern">
                   {{ "PAGES.Settings.KYC.FormSection.Errors.LastName.pattern" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="lastName.errors?.minlength">
+                  {{ "PAGES.Settings.KYC.FormSection.Errors.LastName.minLength" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="errors?.LastName">
                   {{ errors?.LastName }}

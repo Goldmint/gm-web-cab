@@ -77,6 +77,7 @@ export class HeaderBlockComponent implements OnInit {
     });
 
     this._userService.currentWallet = this.activeWallet;
+    this._cdRef.detectChanges();
   }
 
   onWalletSwitch(wallet) {
@@ -87,6 +88,11 @@ export class HeaderBlockComponent implements OnInit {
 
     this._userService.currentWallet = this.activeWallet = wallet;
     this._userService.onWalletSwitch(wallet);
+    this._cdRef.detectChanges();
+  }
+
+  showGoldRateInfo() {
+    this._messageBox.alert(`${this.gold_usd_rate}`);
     this._cdRef.detectChanges();
   }
 

@@ -37,12 +37,21 @@
     },
     "Sell": {
       "Heading": "Sell GOLD cryptoassets",
+      "Labels": {
+        "Amount": "Amount",
+        "Estimate": "Estimates Amount *",
+        "Buy": "Buy now",
+        "Get": "and get"
+      },
       "SectionTitle": "Instant Sell",
       "Discount": "Fee",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
       "Buttons": {
         "SellNow": "Sell now",
         "BuyMore": "Buy more"
+      },
+      "Errors": {
+        "Invalid": "Invalid gold amount"
       }
     },
     "Buy": {
@@ -55,6 +64,13 @@
         "BuyNow": "Buy now",
         "Deposit": "Deposit",
         "BuyMore": "Buy more"
+      },
+      "Message": {
+        "Progress": "Your request is in progress now!"
+      },
+      "Errors": {
+        "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
+        "Pending": "Account pending blockchain Operation"
       }
     },
     "Transfer": {
@@ -193,7 +209,8 @@
       },
       "Buttons": {
         "LogIn": "Sign in",
-        "LogInViaSocial": "Sign in via {{ provider }}"
+        "LogInViaSocial": "Sign in via {{ provider }}",
+        "Back": "Back"
       },
       "Links": {
         "RegisterAccount": "Register new account",
@@ -405,14 +422,16 @@
           "Errors": {
             "FirstName": {
               "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "pattern": "Only latin characters allowed",
+              "minLength": "Name should be at least 2 symbols length"
             },
             "MiddleName": {
               "pattern": "Only latin characters allowed"
             },
             "LastName": {
               "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "pattern": "Only latin characters allowed",
+              "minLength": "Name should be at least 2 symbols length"
             },
             "BirthMonth": {
               "required": "This field is required",

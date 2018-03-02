@@ -34,7 +34,24 @@
       }
     },
     "Sell": {
-      "Discount": "Комиссия"
+      "Heading": "Sell GOLD cryptoassets",
+      "Labels": {
+        "Amount": "Количество",
+        "Estimate": "Сумма *",
+        "Buy": "Купить сейчас",
+        "Get": "и получить"
+      },
+      "SectionTitle": "Instant Sell",
+      "Discount": "Комиссия",
+      "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
+      "Buttons": {
+        "SellNow": "Продать",
+        "BuyMore": "Купить"
+      },
+      "Errors": {
+        "Invalid": "Недопустимое количество золота"
+      }
+
     },
     "Buy": {
       "Buttons": {
@@ -70,7 +87,8 @@
       },
       "Labels": {
         "Username": "Email или логин",
-        "Password": "Пароль"
+        "Password": "Пароль",
+        "TFACode": "Код двухфакторной аутентификации"
       },
       "Errors": {
         "Username": {
@@ -78,11 +96,15 @@
         },
         "Password": {
           "required": "Это обязательное поле"
+        },
+        "TFACode": {
+          "pattern": "Допускается только 6-ти значный цифровой код"
         }
       },
       "Buttons": {
         "LogIn": "Войти",
-        "LogInViaSocial": "Войти через {{ provider }}"
+        "LogInViaSocial": "Войти через {{ provider }}",
+        "Back": "Назад"
       },
       "Links": {
         "RegisterAccount": "Зарегестрировать новый аккаунт",

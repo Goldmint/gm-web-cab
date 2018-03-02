@@ -135,7 +135,7 @@ export class UserService {
     this._user.next({} as User);
     this._apiService.userLogout();
 
-    this._router.navigate(['/home']);
+    this._router.navigate(['/signin']);
   }
 
   register(username: string, password: string, recaptcha: string) {

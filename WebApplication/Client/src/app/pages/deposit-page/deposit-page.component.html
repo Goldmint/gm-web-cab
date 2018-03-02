@@ -282,10 +282,10 @@
                   <div class="invalid-feedback" *ngIf="errors?.Amount || (!cardDepositChecked && amount.dirty)">
                     Invalid amount value
                   </div>
-                  <div class="invalid-feedback" *ngIf="depositModel.amount < minAmount">
+                  <div class="invalid-feedback" *ngIf="depositModel.amount < minAmount && !cardDepositChecked">
                     Minimal amount value  is {{ minAmount | currency }}
                   </div>
-                  <div class="invalid-feedback" *ngIf="depositModel.amount > maxAmount">
+                  <div class="invalid-feedback" *ngIf="depositModel.amount > maxAmount && !cardDepositChecked">
                     Maximum amount value  is {{ maxAmount | currency }}
                   </div>
                 </div>

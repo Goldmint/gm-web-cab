@@ -31,7 +31,6 @@ export class TransparencyPageComponent implements OnInit {
     public translate: TranslateService,
     private _ethService: EthereumService ) {
 
-    //@todo: call api method
     this.summary = {
       issued:      {"amount": 0, "suffix": " GOLD"},
       burnt:       {"amount": 0, "suffix": " GOLD"},
