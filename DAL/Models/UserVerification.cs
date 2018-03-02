@@ -46,10 +46,15 @@ namespace Goldmint.DAL.Models {
 		[Column("time_user_changed")]
 		public DateTime? TimeUserChanged { get; set; }
 
-		[Column("kyc_shuftipro_ticket_id")]
-		public long? KycShuftiProTicketId { get; set; }
-		[ForeignKey(nameof(KycShuftiProTicketId))]
-		public virtual KycShuftiProTicket KycShuftiProTicket { get; set; }
+		[Column("verified_kyc_ticket_id")]
+		public long? KycVerifiedTicketId { get; set; }
+		[ForeignKey(nameof(KycVerifiedTicketId))]
+		public virtual KycTicket KycVerifiedTicket { get; set; }
+
+		[Column("last_kyc_ticket_id")]
+		public long? KycLastTicketId { get; set; }
+		[ForeignKey(nameof(KycLastTicketId))]
+		public virtual KycTicket KycLastTicket { get; set; }
 
 		[Column("last_agreement_id")]
 		public long? LastAgreementId { get; set; }

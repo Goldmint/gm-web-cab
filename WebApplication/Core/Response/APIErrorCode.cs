@@ -90,6 +90,11 @@
 		/// User has pending operation. One of: buying, selling, deposit, withdraw, transfer, etc.
 		/// </summary>
 		AccountPendingBlockchainOperation = 1012,
+
+		/// <summary>
+		/// User should wait before next attempt
+		/// </summary>
+		AccountKycTimelimit = 1013,
 	}
 
 	public static class APIErrorCodeExtensions {

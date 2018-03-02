@@ -16,6 +16,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SettingsController : BaseController {
 
+		// TODO: move to app settings
+		private static readonly TimeSpan AllowedPeriodBetweenKYCRequests = TimeSpan.FromMinutes(30);
+
 		/// <summary>
 		/// Verification data
 		/// </summary>
@@ -24,7 +27,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationView() {
 			var user = await GetUserFromDb();
-			return APIResponse.Success(MakeVerificationView(user));
+			return APIResponse.Success(await MakeVerificationView(user));
 		}
 
 		/// <summary>
@@ -83,7 +86,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				);
 			}
 
-			return APIResponse.Success(MakeVerificationView(user));
+			return APIResponse.Success(await MakeVerificationView(user));
 		}
 
 		/// <summary>
@@ -101,13 +104,21 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 
-			// check level 0 verification
+			// check level 0 verification && NOT level 1 verification
 			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user) || CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			// net kyc ticket
-			var ticket = new KycShuftiProTicket() {
+			// check previous verification attempt
+			var vv = await MakeVerificationView(user);
+			if (vv.IsKYCPending) {
+				return APIResponse.BadRequest(APIErrorCode.AccountKycTimelimit);
+			}
+
+			// ---
+
+			// new kyc ticket
+			var ticket = new KycTicket() {
 				UserId = user.Id,
 				ReferenceId = Guid.NewGuid().ToString("N"),
 				Method = "",
@@ -130,9 +141,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DoB = ticket.DoB,
 				PhoneNumber = ticket.PhoneNumber,
 			};
-			var callbackURL = Url.Link("CallbackShuftiPro", new { });
+			var callbackURL = Url.Link($"CallbackShuftiPro/{AppConfig.Services.ShuftiPro.CallbackSecret}", new { });
 			var userTempRedirectURL = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
-			var kycRedirect = await KycExternalProvider.GetRedirect(kycUser, ticket.ReferenceId, userTempRedirectURL, callbackURL);
+
+			var kycRedirect = await KycExternalProvider.GetRedirect(
+				kycUser, 
+				ticket.ReferenceId, 
+				userTempRedirectURL, 
+				callbackURL
+			);
 
 			Logger.Trace($"{user.UserName} got kyc redirect to {kycRedirect} with callback to {callbackURL} and middle redirect to {userTempRedirectURL}");
 
@@ -141,7 +158,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Redirect = kycRedirect,
 			});
 		}
-
+		/*
 		/// <summary>
 		/// KYC verification status
 		/// </summary>
@@ -182,6 +199,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			return APIResponse.BadRequest(nameof(model.TicketId), "Ticket not found");
 		}
+		*/
 
 		/// <summary>
 		/// Resend primary agreement to sign
@@ -238,13 +256,27 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		// ---
 
 		[NonAction]
-		private VerificationView MakeVerificationView(DAL.Models.Identity.User user) {
+		private async Task<VerificationView> MakeVerificationView(DAL.Models.Identity.User user) {
+
+			await DbContext.Entry(user.UserVerification).Reference(_ => _.KycLastTicket).LoadAsync();
+			// await DbContext.Entry(user.UserVerification).Reference(_ => _.KycVerifiedTicket).LoadAsync();
+
+			// last ticket is not verified and within allowed period
+			var kycPending = false;
+			if (user.UserVerification?.KycLastTicket != null) {
+				kycPending =
+					!user.UserVerification.KycLastTicket.IsVerified &&
+					user.UserVerification.KycLastTicket.TimeResponded != null &&
+					(DateTime.UtcNow - user.UserVerification.KycLastTicket.TimeResponded.Value) < AllowedPeriodBetweenKYCRequests
+				;
+			}
 
 			var ret = new VerificationView() {
 
 				IsFormFilled = user.UserVerification?.FirstName != null && user.UserVerification?.LastName != null,
 				IsAgreementSigned = user.UserVerification?.SignedAgreementId != null,
-				IsKYCFinished = user.UserVerification?.KycShuftiProTicketId != null,
+				IsKYCFinished = user.UserVerification?.KycVerifiedTicketId != null,
+				IsKYCPending = kycPending,
 
 				FirstName = user.UserVerification?.FirstName ?? "",
 				MiddleName = user.UserVerification?.MiddleName ?? "",

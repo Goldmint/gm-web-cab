@@ -78,6 +78,7 @@ namespace Goldmint.Common {
 
 				public string ClientId { get; set; } = "";
 				public string ClientSecret { get; set; } = "";
+				public string CallbackSecret { get; set; } = "";
 			}
 
 			public The1stPaymentsSection The1stPayments { get; set; } = new The1stPaymentsSection();

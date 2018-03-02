@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_kyc_shuftipro_ticket")]
-	public class KycShuftiProTicket : BaseUserEntity {
+	public class KycTicket : BaseUserEntity {
 
 		[Column("reference_id"), Required, MaxLength(32)]
 		public string ReferenceId { get; set; }
@@ -41,6 +41,6 @@ namespace Goldmint.DAL.Models {
 		public DateTime TimeCreated { get; set; }
 
 		[Column("time_responed")]
-		public DateTime TimeResponded { get; set; }
+		public DateTime? TimeResponded { get; set; }
 	}
 }

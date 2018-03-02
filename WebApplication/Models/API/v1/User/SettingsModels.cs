@@ -74,6 +74,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		[Required]
 		public bool IsKYCFinished { get; set; }
 
+		/// <summary>
+		/// Previous verification attempt is still in progress
+		/// </summary>
+		[Required]
+		public bool IsKYCPending { get; set; }
 	}
 
 	public class VerificationEditModel : BaseValidableModel {
@@ -256,7 +261,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 	}
 
 	// ---
-
+	/*
 	public class VerificationKycStatusModel : BaseValidableModel {
 
 		/// <summary>
@@ -289,7 +294,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		public bool Verified { get; set; }
 
 	}
-
+	*/
 	// ---
 
 	public class VerificationResendAgreementView {
@@ -304,7 +309,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		/// Next date sending available (unix), optional
 		/// </summary>
 		public long? AvailableDate { get; set; }
-
+		
 	}
 
 	// ---

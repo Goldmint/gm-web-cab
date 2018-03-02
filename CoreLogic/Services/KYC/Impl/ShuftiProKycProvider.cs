@@ -71,7 +71,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 				.Set("last_name", user.LastName)
 				.Set("country", user.CountryCode)
 				.Set("dob", user.DoB.ToString("yyyy-MM-dd"))
-				.Set("phone_number", "+" + user.PhoneNumber.TrimStart('+'))
+				.Set("phone_number", "+" + user.PhoneNumber.Trim('+'))
 				.Set("callback_url", callbackUrl)
 				.Set("redirect_url", userRedirectUrl)
 			;

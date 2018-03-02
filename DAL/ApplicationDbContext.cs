@@ -14,7 +14,7 @@ namespace Goldmint.DAL {
 
 		public DbSet<Settings> Settings { get; set; }
 		public DbSet<UserOptions> UserOptions { get; set; }
-		public DbSet<KycShuftiProTicket> KycShuftiProTicket { get; set; }
+		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
 		public DbSet<UserVerification> UserVerification { get; set; }
 		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<Card> Card { get; set; }

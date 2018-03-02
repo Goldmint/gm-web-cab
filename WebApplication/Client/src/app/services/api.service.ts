@@ -481,7 +481,7 @@ export class APIService {
         shareReplay(),
       );
   }
-
+  /*
   getKYCVerificationStatus(ticketId: number): Observable<APIResponse<KYCStatus>> {
     return this._http
       .post(`${this._baseUrl}/user/settings/verification/kycStatus`, { ticketId: ticketId }, this.jwt())
@@ -495,7 +495,7 @@ export class APIService {
       })
       );
   }
-
+  */
   updateKYCProfile(kycProfile: KYCProfile): Observable<APIResponse<KYCProfile>> {
     let profile: any = kycProfile;
 

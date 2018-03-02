@@ -35,7 +35,7 @@ namespace Goldmint.CoreLogic {
 		public static bool IsUserVerifiedL1(User user) {
 			return 
 				IsUserVerifiedL0(user) &&
-				user?.UserVerification?.KycShuftiProTicketId != null
+				user?.UserVerification?.KycVerifiedTicketId != null
 			;
 		}
 
