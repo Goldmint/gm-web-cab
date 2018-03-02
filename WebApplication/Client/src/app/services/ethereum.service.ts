@@ -77,8 +77,13 @@ export class EthereumService {
   }
 
   private checkWeb3() {
-    if (window.hasOwnProperty('web3') && !this._web3) {
-      this._web3 = new Web3(window['web3'].currentProvider);
+
+    if (!this._web3) {
+      this._web3 = new Web3(window.hasOwnProperty('web3')
+        ? window['web3'].currentProvider
+        : new Web3.providers.HttpProvider('https://rinkeby.infura.io/ErpvjHXqcahfBLahHPfh')
+      );
+
       if (this._web3.eth) {
         this._contractFiat = this._web3.eth.contract(JSON.parse(EthFiatContractABI)).at(EthFiatContractAddress);
         this._contractGold = this._web3.eth.contract(JSON.parse(EthGoldContractABI)).at(EthGoldContractAddress);
@@ -115,8 +120,8 @@ export class EthereumService {
   }
 
   private checkBalance() {
-    // check via eth
     if (this._lastAddress != null) {
+      // check via eth
       this.updateUsdBalance(this._userId);
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);

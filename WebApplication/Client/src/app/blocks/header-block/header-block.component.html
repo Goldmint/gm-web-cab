@@ -15,7 +15,7 @@
       </div>
 
       <div class="col mr-auto">
-        <span class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value">{{gold_usd_rate | number:'1.2-2':locale}}</span></span>
+        <span class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value" (click)="showGoldRateInfo()">{{gold_usd_rate | number:'1.2-2':locale}}</span></span>
       </div>
 
       <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
@@ -36,9 +36,9 @@
         </div>
 
         <div class="col-auto">
-          <img *ngIf="usdBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
+          <img *ngIf="usdBalance === null || hotGoldBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
 
-          <div class="balance" *ngIf="usdBalance !== null">
+          <div class="balance" *ngIf="usdBalance !== null && hotGoldBalance !== null">
             <svg class="icon" width="18px" height="18px">
               <use xlink:href="#cur-gold"></use>
             </svg>

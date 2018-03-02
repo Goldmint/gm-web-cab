@@ -135,9 +135,11 @@ export class BuyPageComponent implements OnInit, OnDestroy {
             });
           },
           err => {
-            if (err.error && err.error.errorCode) {
-              this._messageBox.alert(err.error.errorDesc);
-            }
+            err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1012
+              ? 'Your previously blockchain operation is still pending'
+              : err.error.errorDesc
+            )
+
           });
     } else {
       this._apiService.goldBuyRequest(this.ethAddress, this.toSpend.toNumber())

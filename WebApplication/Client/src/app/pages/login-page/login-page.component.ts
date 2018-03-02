@@ -56,8 +56,8 @@ export class LoginPageComponent implements OnInit {
       if (currentUser && currentUser.hasOwnProperty('challenges')) {
         console.log('currentUser.challenges', currentUser, currentUser.challenges);
 
-        if (currentUser.challenges.indexOf('2fa') > -1 && !parseInt(sessionStorage.getItem('gmint_uc_2fa'), 0)) {
-          sessionStorage.setItem('gmint_uc_2fa', '1');
+        if (currentUser.challenges.indexOf('2fa') > -1 && (!sessionStorage || !parseInt(sessionStorage.getItem('gmint_uc_2fa'), 0))) {
+          sessionStorage && sessionStorage.setItem('gmint_uc_2fa', '1');
 
           this._router.navigate(['/signup/2fa']);
         }
@@ -69,7 +69,7 @@ export class LoginPageComponent implements OnInit {
     }
     else {
       this._returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/';
-      this.tfaRequired = !!parseInt(localStorage.getItem('gmint_2fa'), 0);
+      this.tfaRequired = !localStorage || !!parseInt(localStorage.getItem('gmint_2fa'), 0);
     }
   }
 
@@ -111,6 +111,7 @@ export class LoginPageComponent implements OnInit {
               case 1001: // AccountLocked
                 this._translate.get('ERRORS.Login.AccountLocked').subscribe(phrase => {
                   this._messageBox.alert(phrase);
+                  this.resetStorage();
                 });
                 break;
 
@@ -177,6 +178,20 @@ export class LoginPageComponent implements OnInit {
 
     this.errors['Captcha'] = false;
     this.loginModel.recaptcha = captchaResponse;
+  }
+
+  private resetStorage() {
+    try { // Safari in incognito mode doesn't have storage objects
+      localStorage.removeItem('gmint_token');
+      localStorage.removeItem('gmint_2fa');
+      sessionStorage.removeItem('gmint_uc_2fa');
+    } catch(e) {}
+  }
+
+  public back() {
+    this.resetStorage();
+    this.tfaRequired = false;
+    this._cdRef.detectChanges();
   }
 
 }

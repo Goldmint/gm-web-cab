@@ -104,7 +104,9 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (country != null) {
       this.selectedCountry = country;
       this.regions = country.regions;
-      this.kycProfile.phoneNumber = country['phoneCode'];
+      if (!this.kycProfile.isFormFilled) {
+        this.kycProfile.phoneNumber = country['phoneCode'];
+      }
     }
   }
 

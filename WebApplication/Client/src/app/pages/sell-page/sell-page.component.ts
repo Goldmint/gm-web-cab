@@ -97,20 +97,23 @@ export class SellPageComponent implements OnInit, OnDestroy {
     });
 
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-
+    this.setGoldBalance(1);
     this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
-      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
+      if (wallet['id'] === 'hot') {
+        this.selectedWallet = 0;
+      } else {
+        this.selectedWallet = 1;
+      }
+      this.setGoldBalance(1);
       this._cdRef.markForCheck();
     });
   }
 
   setGoldBalance(percent: number = 1) {
     let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
-
     if (!goldBalance) {
       return;
     }
-
     goldBalance = new BigNumber(goldBalance.times(percent));
 
     // got gold balance first time
@@ -118,6 +121,8 @@ export class SellPageComponent implements OnInit, OnDestroy {
     if (goldBalance.gt(0)) {
       this.toSell = goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
       this.toSellVal = this.toSell.toString();
+    } else {
+      this.toSellVal = '0';
     }
 
     // got all needed data to calculate estimated value
