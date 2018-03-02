@@ -109,7 +109,7 @@ export class UserService {
     throw new Error("Unknown provider");
   }
 
-  proceedTFA(code: number) {
+  proceedTFA(code: string) {
     return this._apiService.exchangeTFAToken(code)
       .pipe(
       tap(

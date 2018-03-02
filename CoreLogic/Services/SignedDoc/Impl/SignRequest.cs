@@ -21,11 +21,11 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 		private readonly ILogger _logger;
 		private readonly IList<TemplateDesc> _templates;
 
-		public SignRequest(string baseUrl, string authString, string senderEmail, string senderEmailName, LogFactory logFactory) {
-			_baseUrl = baseUrl.TrimEnd('/');
-			_authString = authString;
-			_senderEmail = senderEmail;
-			_senderEmailName = senderEmailName;
+		public SignRequest(Options opts, LogFactory logFactory) {
+			_baseUrl = opts.BaseUrl.TrimEnd('/');
+			_authString = opts.AuthString;
+			_senderEmail = opts.SenderEmail;
+			_senderEmailName = opts.SenderEmailName;
 			_logger = logFactory.GetLoggerFor(this);
 			_templates = new List<TemplateDesc>();
 		}
@@ -38,13 +38,15 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 			});
 		}
 
-		public async Task<bool> SendPrimaryAgreementRequest(string refId, string name, string email, DateTime date) {
+		public async Task<bool> SendPrimaryAgreementRequest(string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
 
-			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.PrimaryAgreement.ToString());
+			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.GoldmintTOS.ToString());
 			if (template == null) {
 				_logger.Error($"Template not found for {nameof(SendPrimaryAgreementRequest)}");
 				return false;
 			}
+
+			var fullName = firstName + " " + lastName;
 
 			var jsonRequest = new {
 				template = template.TemplateUrl,
@@ -53,10 +55,15 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 				//message = emailMessage,
 				external_id = refId,
 				name = template.Filename,
-				signers = new[] { new { email = email } },
+				signers = new[] { new {
+					email = email,
+					first_name = firstName,
+					last_name = lastName,
+					redirect_url = redirectUrl,
+				} },
 				prefill_tags = new[] {
 					new { external_id = "field_date", text = (string)null, date_value = date.ToString("yyyy-MM-dd") },
-					new { external_id = "field_client_name", text = name, date_value = (string)null },
+					new { external_id = "field_client_name", text = fullName, date_value = (string)null },
 				},
 			};
 
@@ -137,6 +144,14 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 		}
 
 		// ---
+
+		public class Options {
+
+			public string BaseUrl { get; set; }
+			public string AuthString { get; set; }
+			public string SenderEmail { get; set; }
+			public string SenderEmailName { get; set; }
+		}
 
 		private class TemplateDesc {
 			public string Name { get; set; }

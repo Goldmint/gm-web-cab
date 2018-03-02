@@ -411,7 +411,7 @@ export class APIService {
       );
   }
 
-  verifyTFACode(code: number, enable: boolean): Observable<APIResponse<TFAInfo>> {
+  verifyTFACode(code: string, enable: boolean): Observable<APIResponse<TFAInfo>> {
     return this._http
       .post(`${this._baseUrl}/user/settings/tfa/edit`, { enable: enable, code: code }, this.jwt())
       .pipe(
@@ -425,7 +425,7 @@ export class APIService {
       );
   }
 
-  exchangeTFAToken(code: number): Observable<APIResponse<AuthResponse>> {
+  exchangeTFAToken(code: string): Observable<APIResponse<AuthResponse>> {
     return this._http
       .post(`${this._baseUrl}/auth/tfa`, { code: code }, this.jwt())
       .pipe(

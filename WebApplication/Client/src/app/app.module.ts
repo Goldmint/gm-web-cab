@@ -77,8 +77,6 @@ import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-pag
 import { RegisterSuccessPageComponent } from './pages/register-page/register-success-page/register-success-page.component';
 import { RegisterEmailTakenPageComponent } from './pages/register-page/register-email-taken-page/register-email-taken-page.component';
 import { RegisterEmailConfirmedPageComponent } from './pages/register-page/register-email-confirmed-page/register-email-confirmed-page.component';
-import { TfaNotActivatedPageComponent } from './pages/register-page/register-tfa-page/tfa-not-activated-page/tfa-not-activated-page.component';
-import { TfaEnablePageComponent } from './pages/register-page/register-tfa-page/tfa-enable-page/tfa-enable-page.component';
 import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
 import { SettingsProfilePageComponent } from './pages/settings-page/settings-profile-page/settings-profile-page.component';
 import { SettingsVerificationPageComponent } from './pages/settings-page/settings-verification-page/settings-verification-page.component';
@@ -163,8 +161,6 @@ export function getGoldmintToken() {
     RegisterSuccessPageComponent,
     RegisterEmailTakenPageComponent,
     RegisterEmailConfirmedPageComponent,
-    TfaNotActivatedPageComponent,
-    TfaEnablePageComponent,
     SettingsPageComponent,
     SettingsProfilePageComponent,
     SettingsVerificationPageComponent,

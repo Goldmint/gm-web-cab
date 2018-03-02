@@ -600,6 +600,11 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Primary agreement
 		/// </summary>
-		PrimaryAgreement = 1,
+		GoldmintTOS = 1,
+
+		/// <summary>
+		/// Data processing agreement
+		/// </summary>
+		GoldmintDPA,
 	}
 }

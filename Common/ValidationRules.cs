@@ -13,7 +13,7 @@ namespace Goldmint.Common {
 		public const int PasswordMaxLength = 128;
 
 		public static readonly Regex RexUsernameChars = new Regex("^u[0-9]+$");
-		public static readonly Regex RexNameChars = new Regex("^[a-zA-Z]+$");
+		public static readonly Regex RexNameChars = new Regex("^[a-zA-Z]{2,32}$");
 		public static readonly Regex RexTFAToken = new Regex("^[0-9]{6}$");
 		public static readonly Regex RexLatinAndPuncts = new Regex(@"^[a-zA-Z0-9]+[a-zA-Z0-9 \-\,\.\(\)]*$");
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");

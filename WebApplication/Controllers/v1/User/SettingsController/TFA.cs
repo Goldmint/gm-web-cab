@@ -40,20 +40,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// check
-			if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
-				return APIResponse.BadRequest(nameof(model.Code), "Invalid 2fa code");
+			var makeChange = user.TwoFactorEnabled != model.Enable;
+
+			if (makeChange) {
+				if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
+					return APIResponse.BadRequest(nameof(model.Code), "Invalid 2fa code");
+				}
+				user.TwoFactorEnabled = model.Enable;
 			}
 
-			var sendNoti = user.TwoFactorEnabled != model.Enable;
-
-			user.TwoFactorEnabled = model.Enable;
 			user.UserOptions.InitialTFAQuest = true;
-
 			await DbContext.SaveChangesAsync();
 
 			// notify
-			if (sendNoti) {
+			if (makeChange) {
 				if (model.Enable) {
 					
 					// notification

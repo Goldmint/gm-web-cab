@@ -216,7 +216,7 @@ export class APIService {
       );
   }
 
-  exchangeTFAToken(code: number): Observable<APIResponse<AuthResponse>> {
+  exchangeTFAToken(code: string): Observable<APIResponse<AuthResponse>> {
     return this._http
       .post(`${this._baseUrl}/auth/tfa`, { code: code }, this.jwt())
       .pipe(

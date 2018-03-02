@@ -104,7 +104,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 						// special case
 						if (
-							doc.Type == SignedDocumentType.PrimaryAgreement && 
+							doc.Type == SignedDocumentType.GoldmintTOS && 
 						    doc.IsSigned && 
 						    (doc.User?.UserVerification?.LastAgreementId ?? 0) == doc.Id
 						) {
