@@ -145,7 +145,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DoB = ticket.DoB,
 				PhoneNumber = ticket.PhoneNumber,
 			};
-			var callbackURL = Url.Link("CallbackShuftiPro", new { secret = AppConfig.Services.ShuftiPro.CallbackSecret });
+			var callbackURL = Url.Link("CallbackShuftiPro", new { /*secret = AppConfig.Services.ShuftiPro.CallbackSecret*/ });
 			var userTempRedirectURL = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
 
 			var kycRedirect = await KycExternalProvider.GetRedirect(
@@ -269,7 +269,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var kycPending = false;
 			if (user.UserVerification?.KycLastTicket != null && user.UserVerification?.KycVerifiedTicketId == null) {
 				kycPending =
-					!user.UserVerification.KycLastTicket.IsVerified &&
+					user.UserVerification.KycLastTicket.TimeResponded == null &&
 					(DateTime.UtcNow - user.UserVerification.KycLastTicket.TimeCreated) < AllowedPeriodBetweenKYCRequests
 				;
 			}

@@ -43,11 +43,11 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// Callback from ShuftiPro service. This is not user redirect url
 		/// </summary>
 		[AnonymousAccess]
-		[HttpPost, Route("shuftipro/{secret}", Name = "CallbackShuftiPro")]
+		[HttpPost, Route("shuftipro", Name = "CallbackShuftiPro")]
 		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task<IActionResult> ShuftiPro(string secret) {
+		public async Task<IActionResult> ShuftiPro() {
 
-			if (secret == AppConfig.Services.ShuftiPro.CallbackSecret) {
+			//if (secret == AppConfig.Services.ShuftiPro.CallbackSecret) {
 				var check = await KycExternalProvider.OnServiceCallback(HttpContext.Request);
 
 				if (check.OverallStatus != CoreLogic.Services.KYC.VerificationStatus.Fail) {
@@ -73,7 +73,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						await DbContext.SaveChangesAsync();
 					}
 				}
-			}
+			//}
 
 			return Ok();
 		}

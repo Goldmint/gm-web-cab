@@ -13,8 +13,8 @@ enum Page {Default, KeepDisabled };
 })
 export class RegisterTfaPageComponent implements OnInit {
 
-  private page: Page;
-  private pages = Page;
+  public page: Page;
+  public pages = Page;
 
   constructor(
     private router: Router,
