@@ -79,18 +79,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 	public class VerificationEditModel : BaseValidableModel {
 
 		/// <summary>
-		/// First name /[a-zA-Z]{1,64}/
+		/// First name /[a-zA-Z]{2,32}/
 		/// </summary>
 		[Required]
 		public string FirstName { get; set; }
 
 		/// <summary>
-		/// Middle name or null
+		/// Middle name /[a-zA-Z]{2,32}/ or null
 		/// </summary>
 		public string MiddleName { get; set; }
 
 		/// <summary>
-		/// Last name /[a-zA-Z]{1,64}/
+		/// Last name /[a-zA-Z]{2,32}/
 		/// </summary>
 		[Required]
 		public string LastName { get; set; }

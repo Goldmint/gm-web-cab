@@ -157,7 +157,7 @@ namespace Goldmint.WebApplication.Core {
 
 			// create new request
 			var request = new SignedDocument() {
-				Type = SignedDocumentType.PrimaryAgreement,
+				Type = SignedDocumentType.GoldmintTOS,
 				IsSigned = false,
 				ReferenceId = Guid.NewGuid().ToString("N"),
 				TimeCreated = DateTime.UtcNow,

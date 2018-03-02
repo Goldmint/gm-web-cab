@@ -40,7 +40,7 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 
 		public async Task<bool> SendPrimaryAgreementRequest(string refId, string name, string email, DateTime date) {
 
-			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.PrimaryAgreement.ToString());
+			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.GoldmintTOS.ToString());
 			if (template == null) {
 				_logger.Error($"Template not found for {nameof(SendPrimaryAgreementRequest)}");
 				return false;
