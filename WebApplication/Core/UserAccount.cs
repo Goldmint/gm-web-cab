@@ -110,10 +110,8 @@ namespace Goldmint.WebApplication.Core {
 			}
 			else if (audience == JwtAudience.Dashboard) {
 
-				// tfa must be enabled (prod only)
-				if (environment.IsProduction()) {
-					if (!user.TwoFactorEnabled) return null;
-				}
+				// tfa must be enabled
+				if (!user.TwoFactorEnabled) return null;
 
 				// exclude client rights
 				rights = (rights - defaultUserMaxRights);

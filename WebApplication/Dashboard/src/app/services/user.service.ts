@@ -101,7 +101,7 @@ export class UserService {
     this.canShowNav$.next(flag);
   }
 
-  proceedTFA(code: number) {
+  proceedTFA(code: string) {
     return this._apiService.exchangeTFAToken(code)
       .pipe(
       tap(

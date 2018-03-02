@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from "@angular/router";
+import { APIService } from "../../../services";
 
-enum Page {Default, Enable2FA, NotActivated, Disabled};
+enum Page {Default, KeepDisabled };
 
 @Component({
   selector: 'app-register-tfa-page',
@@ -11,9 +13,13 @@ enum Page {Default, Enable2FA, NotActivated, Disabled};
 })
 export class RegisterTfaPageComponent implements OnInit {
 
-  public page: Page;
+  private page: Page;
+  private pages = Page;
 
-  constructor() {
+  constructor(
+    private router: Router,
+    private apiService: APIService
+    ) {
     this.page = Page.Default;
   }
 
@@ -22,6 +28,11 @@ export class RegisterTfaPageComponent implements OnInit {
 
   setPage(page: Page) {
     this.page = page;
+  }
+
+  keepDisabled() {
+    this.apiService.verifyTFACode("000000", false).subscribe();
+    this.router.navigate([ "/" ]);
   }
 
 }
