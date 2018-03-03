@@ -3,7 +3,7 @@ import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { Page } from '../../models/page';
 import { HistoryRecord } from '../../interfaces';
-import { UserService, APIService } from '../../services';
+import {UserService, APIService, EthereumService} from '../../services';
 
 @Component({
   selector: 'app-history-page',
@@ -19,13 +19,14 @@ export class HistoryPageComponent implements OnInit {
 
   public rows:  Array<HistoryRecord> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
-  public messages:    any  = {emptyMessage: 'Loading...'};
+  public messages:    any  = {emptyMessage: 'No data'};
 
   constructor(
     private userService: UserService,
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
-    public translate: TranslateService) {
+    public translate: TranslateService,
+    private _ethService: EthereumService,) {
 
     this.page.pageNumber = 0;
     this.page.size = 10;
@@ -41,6 +42,9 @@ export class HistoryPageComponent implements OnInit {
     });
 
     this.setPage({ offset: 0 });
+    this._ethService.getObservableUsdBalance().subscribe(() => {
+      this.setPage({ offset: this.page.pageNumber });
+    });
   }
 
   onSort(event) {
@@ -59,7 +63,6 @@ export class HistoryPageComponent implements OnInit {
 
           this.page.totalElements = res.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
-
           this.loading = false;
           this.cdRef.detectChanges();
 

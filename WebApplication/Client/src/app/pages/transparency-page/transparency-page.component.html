@@ -90,7 +90,7 @@
             </ng-template>
 
             <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-              {{ amount | number:'1.2-2':locale }} USD
+              {{ amount | number:'1.2-2':locale }} OZ
             </ng-template>
           </ngx-datatable-column>
 
@@ -114,6 +114,10 @@
             </ng-template>
           </ngx-datatable-column>
         </ngx-datatable>
+
+        <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+          <div class="container"></div>
+        </div>
 
         <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
           <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">

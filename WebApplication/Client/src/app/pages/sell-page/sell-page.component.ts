@@ -240,23 +240,13 @@ export class SellPageComponent implements OnInit, OnDestroy {
               this.confirmation = false;
               if (ok) {
                 this._apiService.confirmHwRequest(false, res.data.requestId).subscribe(() => {
-                    this._messageBox.alert('Your request is in progress now!');
-                    // this.router.navigate(['/finance/history']);
-                },
-                err => {
-                  err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1010
-                    ? 'You have exceeded request frequency (One request for 30 minutes). Please try later'
-                    : err.error.errorDesc
-                  )
+                    this._messageBox.alert('Your request is in progress now!').subscribe(() => {
+                    this.router.navigate(['/finance/history']);
+                  });
                 });
               }
               this._cdRef.markForCheck();
             });
-          },
-          err => {
-            if (err.error && err.error.errorCode) {
-              this._messageBox.alert(err.error.errorDesc);
-            }
           });
     } else {
       this._apiService.goldSellRequest(this.ethAddress, this.toSell)
@@ -287,11 +277,6 @@ export class SellPageComponent implements OnInit, OnDestroy {
               }
               this._cdRef.markForCheck();
             });
-          },
-          err => {
-            if (err.error && err.error.errorCode) {
-              this._messageBox.alert(err.error.errorDesc);
-            }
           });
     }
   }

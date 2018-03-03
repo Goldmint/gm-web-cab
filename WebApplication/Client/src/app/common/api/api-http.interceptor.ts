@@ -35,7 +35,14 @@ export class APIHttpInterceptor implements HttpInterceptor {
           if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
             this._messageBox.alert('Goldmint server does not respond. Please try again in few minutes.', 'Connection error');
           }
-
+          if (error.error.errorCode === 1010) {
+            this._messageBox.alert('You have exceeded request frequency (One request for 30 minutes). Please try later');
+          }
+          else if (error.error.errorCode === 1012) {
+            this._messageBox.alert('Your previously blockchain operation is still pending');
+          } else {
+            this._messageBox.alert(`Sorry, somethings went wrong (error code ${error.error.errorCode})`);
+          }
           return Observable.throw(error);
         }) as any;
     }

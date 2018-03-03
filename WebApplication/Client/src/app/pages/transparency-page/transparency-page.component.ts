@@ -22,7 +22,7 @@ export class TransparencyPageComponent implements OnInit {
 
   public rows:  Array<TransparencyRecord> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
-  public messages:    any  = {emptyMessage: 'Loading...'};
+  public messages:    any  = {emptyMessage: 'No data'};
 
   constructor(
     private apiService: APIService,

@@ -15,8 +15,8 @@ export class HeaderBlockComponent implements OnInit {
   public user: User;
   public locale: string;
   public wallets = [
-    {id: 'hot', name: 'HOT WALLET'},
-    {id: 'metamask', name: 'METAMASK'},
+    {id: 'hot', name: 'HOT WALLET', account: ''},
+    {id: 'metamask', name: 'METAMASK', account: ''},
   ];
   public activeWallet: Object = this.wallets[0];
 
@@ -56,6 +56,10 @@ export class HeaderBlockComponent implements OnInit {
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.metamaskAccount = ethAddr;
       !this.metamaskAccount && this.activeWallet['id'] === 'metamask' && (this.activeWallet = this.wallets[0]);
+      this.showShortAccount();
+      this.wallets.forEach(item => {
+        item.account = item.id === 'metamask' ? this.shortAdr : '';
+      });
       this._cdRef.detectChanges();
     });
 
@@ -91,12 +95,12 @@ export class HeaderBlockComponent implements OnInit {
     this._userService.currentWallet = this.activeWallet = wallet;
     this._userService.onWalletSwitch(wallet);
 
-    if (this.metamaskAccount && this.activeWallet['id'] === 'metamask') {
-      this.shortAdr = this.metamaskAccount.slice(0, 5) + '...';
-    } else {
-      this.shortAdr = '';
-    }
+    this.showShortAccount();
     this._cdRef.detectChanges();
+  }
+
+  showShortAccount() {
+    this.shortAdr = this.metamaskAccount ? ' (' + this.metamaskAccount.slice(0, 5) + ')...' : '';
   }
 
   showGoldRateInfo() {

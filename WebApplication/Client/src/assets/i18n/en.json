@@ -173,7 +173,13 @@
           "Balance": "Balance",
           "Type": "Type",
           "Fee": "Fee",
+          "Status": "Status",
           "Comment": "Comment"
+        },
+        "Status": {
+          "1": "In progress",
+          "2": "Success",
+          "3": "Rejected"
         },
         "EmptyMessage": "No data"
       },

@@ -4,6 +4,7 @@ import { GoldBuyResponse } from '../../interfaces'
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js'
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-buy-page',
@@ -36,7 +37,8 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _ethService: EthereumService,
     private _goldrateService: GoldrateService,
-    private _cdRef: ChangeDetectorRef
+    private _cdRef: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -122,24 +124,13 @@ export class BuyPageComponent implements OnInit, OnDestroy {
               this.confirmation = false;
               if (ok) {
                 this._apiService.confirmHwRequest(true, res.data.requestId).subscribe(() => {
-                  this._messageBox.alert('Your request is in progress now!');
-                },
-                err => {
-                  err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1010
-                    ? 'You have exceeded request frequency (One request for 30 minutes). Please try later'
-                    : err.error.errorDesc
-                  )
+                  this._messageBox.alert('Your request is in progress now!').subscribe(() => {
+                    this.router.navigate(['/finance/history']);
+                  });
                 });
               }
               this._cdRef.markForCheck();
             });
-          },
-          err => {
-            err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1012
-              ? 'Your previously blockchain operation is still pending'
-              : err.error.errorDesc
-            )
-
           });
     } else {
       this._apiService.goldBuyRequest(this.ethAddress, this.toSpend.toNumber())
@@ -164,11 +155,6 @@ export class BuyPageComponent implements OnInit, OnDestroy {
               }
               this._cdRef.markForCheck();
             });
-          },
-          err => {
-            if (err.error && err.error.errorCode) {
-              this._messageBox.alert(err.error.errorDesc);
-            }
           });
     }
   }

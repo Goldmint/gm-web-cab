@@ -52,11 +52,8 @@
 
           <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
             <span>
-              {{ amount?.prefix }}
-              {{ amount.amount | number:'1.2-2':locale }}
-              {{ amount?.suffix }}
+              {{ amount | number:'1.2-2':locale }}
             </span>
-            <!-- <span>{{ amount | currency:row.currency.code:'code':'1.2-2':locale }}</span> -->
           </ng-template>
         </ngx-datatable-column>
 
@@ -67,24 +64,25 @@
             </span>
           </ng-template>
 
-          <ng-template let-type="value" ngx-datatable-cell-template>
-            <div *ngIf="type === 'withdraw'; then typeWithdrawBlock else typeDepositBlock"></div>
-
-            <ng-template #typeWithdrawBlock>
+          <ng-template let-type="value" ngx-datatable-cell-template let-row="row">
+            <span *ngIf="type === 'withdraw' && row.status !== 1">
               <svg class="icon icon--fix icon--gold" width="16px" height="15px">
                 <use xlink:href="#withdraw"></use>
               </svg>
-            </ng-template>
+            </span>
 
-            <ng-template #typeDepositBlock>
+            <span *ngIf="(type === 'deposit' || type === 'goldsell' || type === 'goldbuy') && row.status !== 1">
               <svg class="icon icon--fix icon--gold" width="16px" height="15px">
                 <use xlink:href="#deposit"></use>
               </svg>
-            </ng-template>
+            </span>
+
+            <img *ngIf="row.status === 1" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
 
             <span class="text-uppercase">
               {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
             </span>
+
           </ng-template>
         </ngx-datatable-column>
 
@@ -96,15 +94,25 @@
           </ng-template>
 
           <ng-template let-fee="value" let-row="row" ngx-datatable-cell-template>
-            <span *ngIf="fee.amount && fee.amount > 0; else noFeeBlock">
+            <span *ngIf="fee && fee > 0; else noFeeBlock">
               {{ fee?.prefix }}
-              {{ fee.amount | number:'1.0-2':locale }}
+              {{ fee | number:'1.0-2':locale }}
               {{ fee?.suffix }}
               <!-- {{ fee | currency:row.currency.code:'symbol':'1.2-2':locale }} -->
             </span>
 
             <ng-template #noFeeBlock> - </ng-template>
           </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="status" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template ngx-datatable-header-template>
+          {{ "PAGES.History.Table.Columns.Status" | translate }}
+        </ng-template>
+
+        <ng-template let-status="value" ngx-datatable-cell-template>
+           {{"PAGES.History.Table.Status." + status | translate }}
+        </ng-template>
         </ngx-datatable-column>
 
         <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">

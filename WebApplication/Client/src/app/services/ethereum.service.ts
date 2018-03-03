@@ -30,6 +30,7 @@ export class EthereumService {
   private _contractMntp: any;
   private _totalGoldBalances = {issued: null, burnt: null};
   private _contactsInitted: boolean = false;
+  private _currentUsdBalance: number = null;
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -136,8 +137,10 @@ export class EthereumService {
       this._obsUsdBalanceSubject.next(null);
     } else {
       this._contractFiat.getUserFiatBalance(this._userId, (err, res) => {
-        res = res.toString();
-        this._obsUsdBalanceSubject.next(res / 100.0);
+        console.warn('usd balance', res.toString());
+
+        let balance = res.toString() / 100;
+        balance !== this._currentUsdBalance && this._obsUsdBalanceSubject.next(this._currentUsdBalance = balance);
       });
     }
   }

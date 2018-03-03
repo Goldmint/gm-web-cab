@@ -151,11 +151,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
             this.walletAddressVal = "";
             this.amount = new BigNumber(0);
             this.amountValue = null;
-          }, err => {
-          err.error && err.error.errorCode && this._messageBox.alert(err.error.errorCode == 1010
-            ? 'You have exceeded request frequency (One request for 30 minutes). Please try later'
-            : err.error.errorDesc)
-          })
+          });
       }
     });
   }
