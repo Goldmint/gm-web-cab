@@ -34,7 +34,7 @@
       }
     },
     "Sell": {
-      "Heading": "Sell GOLD cryptoassets",
+      "Heading": "Продать GOLD криптоактивы",
       "Labels": {
         "Amount": "Количество",
         "Estimate": "Сумма *",
@@ -49,17 +49,51 @@
         "BuyMore": "Купить"
       },
       "Errors": {
-        "Invalid": "Недопустимое количество золота"
+        "Invalid": "Недопустимое количество gold"
       }
-
     },
     "Buy": {
+      "Heading": "Продать GOLD криптоактивы",
+      "SectionTitle": "Instant Buy",
+      "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
+      "DepositDesc": "Для покупок создайте депозит в валюте fiat в своем аккаунте",
+      "Labels": {
+        "Spend": "Потратить",
+        "Estimate": "Сумма *"
+      },
       "Buttons": {
+        "BuyNow": "Купить",
         "Deposit": "Депозит"
+      },
+      "Message": {
+        "Progress": "Your request is in progress now!"
+      },
+      "Errors": {
+        "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
+        "Pending": "Your previously blockchain operation is still pending",
+        "Invalid": "Недопустимое количество"
       }
     },
     "Transfer": {
-      "Note": "*Далеко-далеко за словесными горами в стране, гласных и согласных живут рыбные тексты."
+      "Heading": "Transfer gold cryptoassets",
+      "Labels": {
+        "TransferToWallet": "Кошелек",
+        "Amount": "Сумма"
+      },
+      "Placeholders": {
+        "EtheriumWallet": "Etherium кошелек"
+      },
+      "Buttons": {
+        "Send": "Отправить"
+      }
+    },
+    "Finance": {
+      "Heading": "Финансы",
+      "Menu": {
+        "Deposit": "Внести",
+        "Withdraw": "Вывести",
+        "History": "История"
+      }
     },
     "History": {
       "Heading": "История",

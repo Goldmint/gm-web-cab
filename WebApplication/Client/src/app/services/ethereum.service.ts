@@ -4,7 +4,6 @@ import { interval } from "rxjs/observable/interval";
 import * as Web3 from "web3";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { UserService } from "./user.service";
-import { APIService } from "./api.service";
 import { BigNumber } from 'bignumber.js'
 
 // main contract
@@ -30,6 +29,7 @@ export class EthereumService {
   public _contractGold: any;
   private _contractMntp: any;
   private _totalGoldBalances = {issued: null, burnt: null};
+  private _contactsInitted: boolean = false;
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -45,35 +45,17 @@ export class EthereumService {
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
 
   constructor(
-    private _userService: UserService,
-    private _apiService: APIService
+    private _userService: UserService
   ) {
     console.log('EthereumService constructor');
 
     this._userService.currentUser.subscribe(currentUser => {
-      if (currentUser != null && currentUser.id) {
-        this._userId = currentUser.id;
-      } else {
-        this._userId = null;
-      }
-
-      this.updateUsdBalance(this._userId);
-      this.checkHotBalance();
+      this._userId = currentUser != null && currentUser.id ? currentUser.id : null;
     });
 
-    interval(500)
-      .subscribe(time => {
-        this.checkWeb3();
-      })
-      ;
+    interval(500).subscribe(this.checkWeb3.bind(this));
 
-    interval(7500)
-      .subscribe(time => {
-        this.checkBalance();
-        this.checkHotBalance();
-        this.updateTotalGoldBalances();
-      })
-      ;
+    interval(7500).subscribe(this.checkBalance.bind(this));
   }
 
   private checkWeb3() {
@@ -88,10 +70,14 @@ export class EthereumService {
         this._contractFiat = this._web3.eth.contract(JSON.parse(EthFiatContractABI)).at(EthFiatContractAddress);
         this._contractGold = this._web3.eth.contract(JSON.parse(EthGoldContractABI)).at(EthGoldContractAddress);
         this._contractMntp = this._web3.eth.contract(JSON.parse(EthMntpContractABI)).at(EthMntpContractAddress);
-        this.updateTotalGoldBalances();
       } else {
         this._web3 = null;
       }
+    }
+
+    if (!this._contactsInitted && this._userId) {
+      this._contactsInitted = true;
+      this.checkBalance();
     }
 
     var addr = this._web3 && this._web3.eth && this._web3.eth.accounts.length ? this._web3.eth.accounts[0] : null;
@@ -122,10 +108,13 @@ export class EthereumService {
   private checkBalance() {
     if (this._lastAddress != null) {
       // check via eth
-      this.updateUsdBalance(this._userId);
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
     }
+
+    this.updateUsdBalance();
+    this.checkHotBalance();
+    this.updateTotalGoldBalances();
   }
 
   private checkHotBalance() {
@@ -142,11 +131,11 @@ export class EthereumService {
     this.checkBalance();
   }
 
-  private updateUsdBalance(userId: string | null) {
-    if (userId == null || this._contractFiat == null) {
+  private updateUsdBalance() {
+    if (this._userId == null || this._contractFiat == null) {
       this._obsUsdBalanceSubject.next(null);
     } else {
-      this._contractFiat.getUserFiatBalance(userId, (err, res) => {
+      this._contractFiat.getUserFiatBalance(this._userId, (err, res) => {
         res = res.toString();
         this._obsUsdBalanceSubject.next(res / 100.0);
       });

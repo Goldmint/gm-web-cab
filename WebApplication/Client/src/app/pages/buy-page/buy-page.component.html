@@ -10,7 +10,7 @@
 
         <div class="col-12 pb-4">
           <div class="from-row form-group">
-            <label for="input_toSpend">Spend</label>
+            <label for="input_toSpend">{{ "PAGES.Buy.Labels.Spend" | translate }}</label>
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--usd">
                 <svg class="icon">
@@ -27,14 +27,14 @@
               >
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
-              Invalid amount value
+              {{ "PAGES.Buy.Errors.Invalid" | translate }}
             </div>
           </div>
         </div>
 
         <div class="col-12 pb-4">
           <div class="from-row form-group">
-            <label for="input_EstimateAmount">Estimates Amount *</label>
+            <label for="input_EstimateAmount">{{ "PAGES.Buy.Labels.Estimate" | translate }}</label>
             <div class="d-flex align-items-center">
               <div class="form-currency form-currency--gold">
                 <svg class="icon">

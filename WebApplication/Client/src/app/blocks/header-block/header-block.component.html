@@ -23,7 +23,7 @@
           <div class="auth-info">
             <div class="language" (mouseenter)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
               <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
-                <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">Wallet: {{ activeWallet?.name }}</a>
+                <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">Wallet: {{ activeWallet?.name }} {{ shortAdr }}</a>
 
                 <ul *dropdownMenu class="dropdown-menu" role="menu">
                   <li role="menuitem" *ngFor="let item of wallets">
@@ -36,9 +36,9 @@
         </div>
 
         <div class="col-auto">
-          <img *ngIf="usdBalance === null || hotGoldBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
+          <img *ngIf="hotGoldBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
 
-          <div class="balance" *ngIf="usdBalance !== null && hotGoldBalance !== null">
+          <div class="balance" *ngIf="hotGoldBalance !== null">
             <svg class="icon" width="18px" height="18px">
               <use xlink:href="#cur-gold"></use>
             </svg>
