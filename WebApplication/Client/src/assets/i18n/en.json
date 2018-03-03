@@ -57,34 +57,36 @@
     "Buy": {
       "Heading": "Buy GOLD cryptoassets",
       "SectionTitle": "Instant Buy",
-      "SectionTitleValue": "{{ asset }}",
-      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
+      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
 	  "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
+      "Labels": {
+        "Spend": "Spend",
+        "Estimate": "Estimates Amount *"
+      },
       "Buttons": {
         "BuyNow": "Buy now",
-        "Deposit": "Deposit",
-        "BuyMore": "Buy more"
+        "Deposit": "Deposit"
       },
       "Message": {
         "Progress": "Your request is in progress now!"
       },
       "Errors": {
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
-        "Pending": "Account pending blockchain Operation"
+        "Pending": "Your previously blockchain operation is still pending",
+        "Invalid": "Invalid amount"
       }
     },
     "Transfer": {
       "Heading": "Transfer gold cryptoassets",
-      "Note": "*Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet nam minus consequuntur voluptas dolore inventore nemo!",
       "Labels": {
-        "TransferToWallet": "Transfer to wallet"
+        "TransferToWallet": "Transfer to wallet",
+        "Amount": "Amount"
       },
       "Placeholders": {
         "EtheriumWallet": "Etherium wallet"
       },
       "Buttons": {
-        "Send": "Send",
-        "BuyMore": "Buy more"
+        "Send": "Send"
       }
     },
     "Finance": {

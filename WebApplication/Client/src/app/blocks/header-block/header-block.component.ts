@@ -25,6 +25,8 @@ export class HeaderBlockComponent implements OnInit {
   goldBalance: string|null = null;
   hotGoldBalance: string|null = null;
   usdBalance: number|null = null;
+  shortAdr: string;
+
 
   constructor(
     private _ethService: EthereumService,
@@ -88,6 +90,12 @@ export class HeaderBlockComponent implements OnInit {
 
     this._userService.currentWallet = this.activeWallet = wallet;
     this._userService.onWalletSwitch(wallet);
+
+    if (this.metamaskAccount && this.activeWallet['id'] === 'metamask') {
+      this.shortAdr = this.metamaskAccount.slice(0, 5) + '...';
+    } else {
+      this.shortAdr = '';
+    }
     this._cdRef.detectChanges();
   }
 
