@@ -11,6 +11,7 @@ using Goldmint.WebApplication.Models.API.v1.User.ExchangeModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -154,7 +155,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			// check pending operations
-			if (await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
