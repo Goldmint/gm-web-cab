@@ -9,6 +9,7 @@ import { BigNumber } from 'bignumber.js'
 import {Observable} from "rxjs/Observable";
 import {APIService, UserService} from "../../services";
 import {Subscription} from "rxjs/Subscription";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-transfer-page',
@@ -45,7 +46,8 @@ export class TransferPageComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _apiService: APIService,
     private _userService: UserService,
-    private _cdRef: ChangeDetectorRef
+    private _cdRef: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -147,10 +149,12 @@ export class TransferPageComponent implements OnInit, OnDestroy {
       if(ok) {
         this._apiService.goldTransferHwRequest(this.walletAddress, this.amount)
           .subscribe(() => {
-            this._messageBox.alert('Your request is in progress now!');
-            this.walletAddressVal = "";
-            this.amount = new BigNumber(0);
-            this.amountValue = null;
+            this._messageBox.alert('Your request is in progress now!').subscribe(() => {
+              this.walletAddressVal = "";
+              this.amount = new BigNumber(0);
+              this.amountValue = null;
+              this.router.navigate(['/finance/history']);
+            });
           });
       }
     });
