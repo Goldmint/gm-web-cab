@@ -21,12 +21,15 @@ const EthMntpContractABI = '[{"constant":true,"inputs":[],"name":"creator","outp
 @Injectable()
 export class EthereumService {
 
-  private _web3: Web3;
+  private _web3Infura: Web3 = null;
+  private _web3Metamask: Web3 = null;
   private _lastAddress: string | null;
   private _userId: string | null;
 
-  private _contractFiat: any;
+  private _contractFiatInfura: any;
+  private _contractFiatMetamask: any;
   public _contractGold: any;
+  public _contractHotGold: any;
   private _contractMntp: any;
   private _totalGoldBalances = {issued: null, burnt: null};
   private _contactsInitted: boolean = false;
@@ -61,18 +64,26 @@ export class EthereumService {
 
   private checkWeb3() {
 
-    if (!this._web3) {
-      this._web3 = new Web3(window.hasOwnProperty('web3')
-        ? window['web3'].currentProvider
-        : new Web3.providers.HttpProvider('https://rinkeby.infura.io/ErpvjHXqcahfBLahHPfh')
-      );
+    if (!this._web3Infura) {
+      this._web3Infura = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/ErpvjHXqcahfBLahHPfh'));
 
-      if (this._web3.eth) {
-        this._contractFiat = this._web3.eth.contract(JSON.parse(EthFiatContractABI)).at(EthFiatContractAddress);
-        this._contractGold = this._web3.eth.contract(JSON.parse(EthGoldContractABI)).at(EthGoldContractAddress);
-        this._contractMntp = this._web3.eth.contract(JSON.parse(EthMntpContractABI)).at(EthMntpContractAddress);
+        if (this._web3Infura.eth) {
+          this._contractFiatInfura = this._web3Infura.eth.contract(JSON.parse(EthFiatContractABI)).at(EthFiatContractAddress);
+          this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(EthGoldContractABI)).at(EthGoldContractAddress);
+        } else {
+          this._web3Infura = null;
+        }
+    }
+
+    if (!this._web3Metamask && window.hasOwnProperty('web3')) {
+      this._web3Metamask = new Web3(window['web3'].currentProvider);
+
+      if (this._web3Metamask.eth) {
+        this._contractFiatMetamask = this._web3Metamask.eth.contract(JSON.parse(EthFiatContractABI)).at(EthFiatContractAddress);
+        this._contractGold = this._web3Metamask.eth.contract(JSON.parse(EthGoldContractABI)).at(EthGoldContractAddress);
+        this._contractMntp = this._web3Metamask.eth.contract(JSON.parse(EthMntpContractABI)).at(EthMntpContractAddress);
       } else {
-        this._web3 = null;
+        this._web3Metamask = null;
       }
     }
 
@@ -81,7 +92,8 @@ export class EthereumService {
       this.checkBalance();
     }
 
-    var addr = this._web3 && this._web3.eth && this._web3.eth.accounts.length ? this._web3.eth.accounts[0] : null;
+    var addr = this._web3Metamask && this._web3Metamask.eth && this._web3Metamask.eth.accounts.length
+      ? this._web3Metamask.eth.accounts[0] : null;
     if (this._lastAddress != addr) {
       this._lastAddress = addr;
       console.log("EthereumService: new eth address (MM): " + addr);
@@ -90,14 +102,14 @@ export class EthereumService {
   }
 
   private updateTotalGoldBalances() {
-    if (this._contractGold) {
-      this._contractGold.getTotalBurnt((err, res) => {
+    if (this._contractHotGold) {
+      this._contractHotGold.getTotalBurnt((err, res) => {
         if (!this._totalGoldBalances.burnt || !this._totalGoldBalances.burnt.eq(res)) {
           this._totalGoldBalances.burnt = res;
           this._totalGoldBalances.issued && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
         }
       });
-      this._contractGold.getTotalIssued((err, res) => {
+      this._contractHotGold.getTotalIssued((err, res) => {
         if (!this._totalGoldBalances.issued || !this._totalGoldBalances.issued.eq(res)) {
           this._totalGoldBalances.issued = res;
           this._totalGoldBalances.burnt && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
@@ -119,26 +131,23 @@ export class EthereumService {
   }
 
   private checkHotBalance() {
-    this._userId != null && this._contractFiat && this._contractFiat.getUserHotGoldBalance(this._userId, (err, res) => {
+    this._userId != null && this._contractFiatInfura && this._contractFiatInfura.getUserHotGoldBalance(this._userId, (err, res) => {
       this._obsHotGoldBalanceSubject.next(res.div(new BigNumber(10).pow(18)));
     });
   }
 
   private emitAddress(ethAddress: string) {
     this._obsEthAddressSubject.next(ethAddress);
-    this._obsUsdBalanceSubject.next(null);
     this._obsGoldBalanceSubject.next(null);
     this._obsMntpBalanceSubject.next(null);
     this.checkBalance();
   }
 
   private updateUsdBalance() {
-    if (this._userId == null || this._contractFiat == null) {
+    if (this._userId == null || this._contractFiatInfura == null) {
       this._obsUsdBalanceSubject.next(null);
     } else {
-      this._contractFiat.getUserFiatBalance(this._userId, (err, res) => {
-        console.warn('usd balance', res.toString());
-
+      this._contractFiatInfura.getUserFiatBalance(this._userId, (err, res) => {
         let balance = res.toString() / 100;
         balance !== this._currentUsdBalance && this._obsUsdBalanceSubject.next(this._currentUsdBalance = balance);
       });
@@ -202,13 +211,13 @@ export class EthereumService {
   // ---
 
   public sendBuyRequest(fromAddr: string, payload: any[]) {
-    if (this._contractFiat == null) return;
-    this._contractFiat.addBuyTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
+    if (this._contractFiatMetamask == null) return;
+    this._contractFiatMetamask.addBuyTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
   }
 
   public sendSellRequest(fromAddr: string, payload: any[]) {
-    if (this._contractFiat == null) return;
-    this._contractFiat.addSellTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
+    if (this._contractFiatMetamask == null) return;
+    this._contractFiatMetamask.addSellTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
   }
 
   public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
