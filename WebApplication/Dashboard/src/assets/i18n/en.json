@@ -16,6 +16,14 @@
     }
   },
   "PAGES": {
+    "Transparency": {
+      "Table": {
+        "Date": "Date",
+        "Amount": "Amount",
+        "URL": "URL",
+        "Comment": "Comment"
+      }
+    },
     "Countries": {
       "Ban": "Ban",
       "Table": {

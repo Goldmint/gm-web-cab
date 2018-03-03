@@ -63,7 +63,7 @@
           <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
-                {{ "PAGES.History.Table.Columns.Date" | translate }}
+                {{ "PAGES.Transparency.Table.Date" | translate }}
               </span>
             </ng-template>
 
@@ -76,7 +76,7 @@
           <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="160">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
-                {{ "PAGES.History.Table.Columns.Amount" | translate }}
+                {{ "PAGES.Transparency.Table.Amount" | translate }}
               </span>
             </ng-template>
 
@@ -87,7 +87,7 @@
 
           <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [width]="450">
             <ng-template ngx-datatable-header-template>
-              URL
+              {{ "PAGES.Transparency.Table.URL" | translate }}
               <!-- {{ "PAGES.History.Table.Columns.Comment" | translate }} -->
             </ng-template>
 
@@ -101,7 +101,7 @@
           <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
             <ng-template let-column="column" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper">
-                {{ "PAGES.History.Table.Columns.Comment" | translate }}
+                {{ "PAGES.Transparency.Table.Comment" | translate }}
               </span>
             </ng-template>
 
