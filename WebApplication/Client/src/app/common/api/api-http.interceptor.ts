@@ -6,13 +6,17 @@ import 'rxjs/add/operator/catch';
 import { environment } from '../../../environments/environment';
 
 import { MessageBoxService } from '../../services/message-box.service';
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
 export class APIHttpInterceptor implements HttpInterceptor {
 
   private _isOnline: boolean;
 
-  constructor(private _messageBox: MessageBoxService) {
+  constructor(
+    private _messageBox: MessageBoxService,
+    private _translate: TranslateService,
+  ) {
     Observable.merge(
       Observable.of(navigator.onLine),
       Observable.fromEvent(window, 'online').map(()  => true),
@@ -32,17 +36,22 @@ export class APIHttpInterceptor implements HttpInterceptor {
     else {
       return next.handle(req)
         .catch((error, caught) => {
+          let translateKey  = null,
+              ignoredErrors = [100, 1000];
+
           if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
-            this._messageBox.alert('Goldmint server does not respond. Please try again in few minutes.', 'Connection error');
-          }
-          if (error.error.errorCode === 1010) {
-            this._messageBox.alert('You have exceeded request frequency (One request for 30 minutes). Please try later');
-          }
-          else if (error.error.errorCode === 1012) {
-            this._messageBox.alert('Your previously blockchain operation is still pending');
+            translateKey = 'notFound';
           } else {
-            this._messageBox.alert(`Sorry, somethings went wrong (error code ${error.error.errorCode})`);
+            let errorCode = parseInt(error.error.errorCode, 10);
+            ignoredErrors.indexOf(errorCode) < 0 && (translateKey = errorCode);
           }
+
+          translateKey && this._translate.get('APIErrors.' + translateKey, error.error).subscribe(phrase => {
+            this._messageBox.alert(phrase === 'APIErrors.' + translateKey
+              ? this._translate.instant('APIErrors.default', error.error) : phrase
+            );
+          });
+
           return Observable.throw(error);
         }) as any;
     }

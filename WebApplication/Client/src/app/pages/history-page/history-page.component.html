@@ -71,7 +71,7 @@
               </svg>
             </span>
 
-            <span *ngIf="(type === 'deposit' || type === 'goldsell' || type === 'goldbuy') && row.status !== 1">
+            <span *ngIf="(type === 'deposit' || type === 'goldsell' || type === 'goldbuy' || type === 'hwtransfer') && row.status !== 1">
               <svg class="icon icon--fix icon--gold" width="16px" height="15px">
                 <use xlink:href="#deposit"></use>
               </svg>
@@ -120,8 +120,11 @@
             {{ "PAGES.History.Table.Columns.Comment" | translate }}
           </ng-template>
 
-          <ng-template let-comment="value" ngx-datatable-cell-template>
+          <ng-template let-comment="value" ngx-datatable-cell-template let-row="row">
             {{ comment }}
+            <div *ngIf="row.ethTxId">
+              <a href="{{ etherscanLink + row.ethTxId }}" target="_blank">link</a>
+            </div>
           </ng-template>
         </ngx-datatable-column>
 

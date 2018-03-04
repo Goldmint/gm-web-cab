@@ -108,22 +108,22 @@ export class LoginPageComponent implements OnInit {
                 });
                 break;
 
-              case 1001: // AccountLocked
-                this._translate.get('ERRORS.Login.AccountLocked').subscribe(phrase => {
-                  this._messageBox.alert(phrase);
-                  this.resetStorage();
-                });
-                break;
-
-              case 1002: // AccountEmailNotConfirmed
-                this._translate.get('ERRORS.Login.AccountEmailNotConfirmed').subscribe(phrase => {
-                  this._messageBox.alert(phrase);
-                });
-                break;
-
-              default:
-                this._messageBox.alert(err.error.errorDesc);
-                break;
+              // case 1001: // AccountLocked
+              //   this._translate.get('ERRORS.Login.AccountLocked').subscribe(phrase => {
+              //     this._messageBox.alert(phrase);
+              //     this.resetStorage();
+              //   });
+              //   break;
+              //
+              // case 1002: // AccountEmailNotConfirmed
+              //   this._translate.get('ERRORS.Login.AccountEmailNotConfirmed').subscribe(phrase => {
+              //     this._messageBox.alert(phrase);
+              //   });
+              //   break;
+              //
+              // default:
+              //   this._messageBox.alert(err.error.errorDesc);
+              //   break;
             }
           }
         });

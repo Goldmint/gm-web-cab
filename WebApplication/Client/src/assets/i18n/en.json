@@ -187,7 +187,8 @@
         "withdraw": "Withdraw",
         "deposit": "Deposit",
         "goldbuy": "Gold buying",
-        "goldsell": "Gold selling"
+        "goldsell": "Gold selling",
+        "hwtransfer": "Transfer"
       }
     },
     "Login": {
@@ -545,6 +546,17 @@
     },
     "TFA": {
       "InvalidCode": "Invalid code"
+    }
+  },
+  "APIErrors": {
+    "1001": "Too many unsuccessful attempts. Account is locked, try to sign in later",
+    "1002": "Your email address is not confirmed yet",
+    "1010": "You have exceeded request frequency (One request for 30 minutes). Please try later",
+    "1012": "Your previously blockchain operation is still pending",
+    "default": "Sorry, somethings went wrong (error code {{ errorCode }})",
+    "notFound": {
+      "title": "Connection error",
+      "message": "Goldmint server does not respond. Please try again in few minutes."
     }
   }
 }

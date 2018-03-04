@@ -2,8 +2,6 @@ import {
   Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter,
   ViewChild
 } from '@angular/core';
-import { TabsetComponent } from 'ngx-bootstrap';
-import { CurrencyPipe } from '@angular/common';
 import { Observable } from "rxjs/Observable";
 
 import { TFAInfo, CardsList, CardsListItem, FiatLimits } from '../../interfaces';
@@ -136,16 +134,16 @@ export class WithdrawPageComponent implements OnInit {
       });
   }
 
-    checkSwiftWithdraw(val:number) {
-        this.swiftWithdrawChecked = val <= this.limits.current.withdraw.minimal
-            && val >= this.limits.paymentMethod.swift.withdraw.min
-            && val <= this.limits.paymentMethod.swift.withdraw.max;
-    }
+  checkSwiftWithdraw(val:number) {
+    this.swiftWithdrawChecked = val <= this.limits.current.withdraw.minimal
+      && val >= this.limits.paymentMethod.swift.withdraw.min
+      && val <= this.limits.paymentMethod.swift.withdraw.max;
+  }
 
-    checkCardWithdraw(val:number) {
-        this.cardWithdrawChecked = val <= this.limits.current.withdraw.minimal
-            && val >= this.limits.paymentMethod.card.withdraw.min
-            && val <= this.limits.paymentMethod.card.withdraw.max;
-    }
+  checkCardWithdraw(val:number) {
+    this.cardWithdrawChecked = val <= this.limits.current.withdraw.minimal
+      && val >= this.limits.paymentMethod.card.withdraw.min
+      && val <= this.limits.paymentMethod.card.withdraw.max;
+  }
 
 }

@@ -1,6 +1,10 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef,
+  OnDestroy
+} from '@angular/core';
 import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
+import {Subject} from "rxjs/Subject";
 
 @Component({
   selector: 'app-header',
@@ -9,7 +13,7 @@ import { UserService, MessageBoxService, EthereumService, GoldrateService } from
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderBlockComponent implements OnInit {
+export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   public gold_usd_rate: number;
   public user: User;
@@ -20,12 +24,12 @@ export class HeaderBlockComponent implements OnInit {
   ];
   public activeWallet: Object = this.wallets[0];
 
-
-  metamaskAccount: string = null;
-  goldBalance: string|null = null;
-  hotGoldBalance: string|null = null;
-  usdBalance: number|null = null;
-  shortAdr: string;
+  public metamaskAccount: string = null;
+  public goldBalance: string|null = null;
+  public hotGoldBalance: string|null = null;
+  public usdBalance: number|null = null;
+  public shortAdr: string;
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
 
   constructor(
@@ -38,22 +42,22 @@ export class HeaderBlockComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._goldrateService.getObservableRate().subscribe(data => {
+    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
       this.gold_usd_rate = data;
       this._cdRef.detectChanges();
     });
 
-    this._userService.currentUser.subscribe(currentUser => {
+    this._userService.currentUser.takeUntil(this.destroy$).subscribe(currentUser => {
       this.user = currentUser;
       this._cdRef.detectChanges();
     });
 
-    this._userService.currentLocale.subscribe(currentLocale => {
+    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
       this._cdRef.detectChanges();
     });
 
-    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
+    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.metamaskAccount = ethAddr;
       !this.metamaskAccount && this.activeWallet['id'] === 'metamask' && (this.activeWallet = this.wallets[0]);
       this.showShortAccount();
@@ -63,21 +67,21 @@ export class HeaderBlockComponent implements OnInit {
       this._cdRef.detectChanges();
     });
 
-    this._ethService.getObservableGoldBalance().subscribe(bal => {
+    this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
       if (bal != null) {
         this.goldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
         this._cdRef.detectChanges();
       }
     });
 
-    this._ethService.getObservableHotGoldBalance().subscribe(bal => {
+    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
       if (bal != null) {
         this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
         this._cdRef.detectChanges();
       }
     });
 
-    this._ethService.getObservableUsdBalance().subscribe(bal => {
+    this._ethService.getObservableUsdBalance().takeUntil(this.destroy$).subscribe(bal => {
       this.usdBalance = bal;
       this._cdRef.detectChanges();
     });
@@ -122,6 +126,10 @@ export class HeaderBlockComponent implements OnInit {
 
   public isLoggedIn() {
     return this._userService.isAuthenticated();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
   }
 
 }

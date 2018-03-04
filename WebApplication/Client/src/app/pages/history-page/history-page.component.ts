@@ -1,9 +1,14 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef,
+  OnDestroy
+} from '@angular/core';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
-
 import { Page } from '../../models/page';
 import { HistoryRecord } from '../../interfaces';
 import {UserService, APIService, EthereumService} from '../../services';
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
+
 
 @Component({
   selector: 'app-history-page',
@@ -12,7 +17,7 @@ import {UserService, APIService, EthereumService} from '../../services';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HistoryPageComponent implements OnInit {
+export class HistoryPageComponent implements OnInit, OnDestroy {
   public locale: string;
   public loading: boolean = true;
   public page = new Page();
@@ -20,13 +25,16 @@ export class HistoryPageComponent implements OnInit {
   public rows:  Array<HistoryRecord> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No data'};
+  public etherscanLink: string = 'https://rinkeby.etherscan.io/tx/';
+  private destroy$: Subject<boolean> = new Subject<boolean>();
+  interval;
 
   constructor(
     private userService: UserService,
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
-    private _ethService: EthereumService,) {
+    private _ethService: EthereumService) {
 
     this.page.pageNumber = 0;
     this.page.size = 10;
@@ -37,14 +45,11 @@ export class HistoryPageComponent implements OnInit {
       this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
     });
 
-    this.userService.currentLocale.subscribe(currentLocale => {
+    this.userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
     });
 
     this.setPage({ offset: 0 });
-    this._ethService.getObservableUsdBalance().subscribe(() => {
-      this.setPage({ offset: this.page.pageNumber });
-    });
   }
 
   onSort(event) {
@@ -59,11 +64,15 @@ export class HistoryPageComponent implements OnInit {
     this.apiService.getHistory(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         res => {
+          this.interval && this.interval.unsubscribe();
           this.rows = res.data.items;
 
           this.page.totalElements = res.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
           this.loading = false;
+          this.interval = Observable.interval(30000).subscribe(() => {
+            this.setPage({ offset: this.page.pageNumber });
+          });
           this.cdRef.detectChanges();
 
           const tableTitle = document.getElementById('pageSectionTitle');
@@ -71,6 +80,11 @@ export class HistoryPageComponent implements OnInit {
             tableTitle.scrollIntoView();
           }
         });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.interval && this.interval.unsubscribe();
   }
 
 }
