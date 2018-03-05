@@ -101,8 +101,16 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			user.EmailConfirmed = true;
-			user.JWTSalt = Core.UserAccount.GenerateJWTSalt();
+			user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
 			await DbContext.SaveChangesAsync();
+
+			// send dpa
+			await Core.UserAccount.ResendUserDpaDocument(
+				services: HttpContext.RequestServices,
+				user: user,
+				email: user.Email,
+				redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+			);
 
 			return APIResponse.Success();
 		}

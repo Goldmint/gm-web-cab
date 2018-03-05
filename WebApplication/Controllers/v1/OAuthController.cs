@@ -91,6 +91,30 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 				if (signResult && accessRightsMask != null) {
 
+					// get options for DPA check
+					await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
+
+					// DPA is unsigned
+					if (!CoreLogic.UserAccount.HasSignedDpa(user)) {
+						
+						// has not been sent previously
+						if (user.UserOptions != null) {
+							await DbContext.Entry(user.UserOptions).Reference(_ => _.DPADocument).LoadAsync();
+							if (user.UserOptions.DPADocument == null) {
+								await Core.UserAccount.ResendUserDpaDocument(
+									services: HttpContext.RequestServices,
+									user: user,
+									email: user.Email,
+									redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+								);
+							}
+						}
+
+						return Redirect(
+							this.MakeLink(fragment: AppConfig.AppRoutes.DpaRequired)
+						);
+					}
+
 					// notification
 					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn))
 						.ReplaceBodyTag("IP", agent.Ip)
@@ -119,7 +143,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						);
 
 						return Redirect(
-							this.MakeLink(fragment: AppConfig.AppRoutes.OAuthTFAPage.Replace(":token", tokenForTFA))
+							this.MakeLink(fragment: AppConfig.AppRoutes.OAuthTfaPage.Replace(":token", tokenForTFA))
 						);
 					}
 
@@ -154,6 +178,22 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 						var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, cuaResult.User);
 						if (accessRightsMask != null) {
+
+							// send dpa
+							await Core.UserAccount.ResendUserDpaDocument(
+								services: HttpContext.RequestServices,
+								user: cuaResult.User,
+								email: cuaResult.User.Email,
+								redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+							);
+
+							// DPA is unsigned
+							if (!CoreLogic.UserAccount.HasSignedDpa(cuaResult.User)) {
+								return Redirect(
+									this.MakeLink(fragment: AppConfig.AppRoutes.DpaRequired)
+								);
+							}
+
 							// ok
 							var token = JWT.CreateAuthToken(
 								appConfig: AppConfig,

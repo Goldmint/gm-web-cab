@@ -108,6 +108,10 @@ export class LoginPageComponent implements OnInit {
                 });
                 break;
 
+              case 1011: // AccountDpaNotSigned
+                this._router.navigate(['/signin/dpa/required']);
+                break;
+
               // case 1001: // AccountLocked
               //   this._translate.get('ERRORS.Login.AccountLocked').subscribe(phrase => {
               //     this._messageBox.alert(phrase);

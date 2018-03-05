@@ -93,7 +93,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// check rate
 					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 						// failed
-						return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+						return APIResponse.BadRequest(APIErrorCode.RateLimit);
 					}
 
 					// mark request for processing
@@ -132,7 +132,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				}
 
 				// failed
-				return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			});
 		}
 
@@ -187,7 +187,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// check rate
 					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 						// failed
-						return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+						return APIResponse.BadRequest(APIErrorCode.RateLimit);
 					}
 
 					var ticket = await TicketDesk.NewGoldTransfer(user, model.EthAddress, amountWei);
@@ -253,7 +253,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				}
 
 				// failed
-				return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			});
 		}
 

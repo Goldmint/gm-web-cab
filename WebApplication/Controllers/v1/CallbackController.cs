@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Threading.Tasks;
+ using System.Linq;
+ using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.CoreLogic.Services.SignedDoc;
 
@@ -42,31 +43,37 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Callback from ShuftiPro service. This is not user redirect url
 		/// </summary>
+		// TODO: implement callback secret
 		[AnonymousAccess]
 		[HttpPost, Route("shuftipro", Name = "CallbackShuftiPro")]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task<IActionResult> ShuftiPro() {
 
 			//if (secret == AppConfig.Services.ShuftiPro.CallbackSecret) {
+
 				var check = await KycExternalProvider.OnServiceCallback(HttpContext.Request);
+				if (check.IsFinalStatus) {
 
-				if (check.OverallStatus != CoreLogic.Services.KYC.VerificationStatus.Fail) {
+					var ticket = await (
+						from t in DbContext.KycShuftiProTicket
+						where t.ReferenceId == check.TicketId && t.TimeResponded == null
+						select t
+					)
+						.Include(tickt => tickt.User)
+						.ThenInclude(user => user.UserVerification)
+						.FirstOrDefaultAsync()
+					;
 
-					var ticket = await DbContext.KycShuftiProTicket
-							.Include(tickt => tickt.User)
-							.ThenInclude(user => user.UserVerification)
-							.FirstAsync(tickt => tickt.ReferenceId == check.TicketId)
-						;
-
-					if (ticket?.User?.UserVerification != null) {
-						var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.UserVerified;
+					if (ticket != null) {
+						var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.Verified;
 
 						ticket.IsVerified = userVerified;
 						ticket.CallbackStatusCode = check.ServiceStatus;
 						ticket.CallbackMessage = check.ServiceMessage;
 						ticket.TimeResponded = DateTime.UtcNow;
-
-						if (userVerified) {
+						
+						// verified
+						if (ticket.User?.UserVerification != null && userVerified) {
 							ticket.User.UserVerification.KycVerifiedTicket = ticket;
 						}
 

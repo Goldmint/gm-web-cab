@@ -78,7 +78,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				var redirect = this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage);
 
 				// send agreement
-				await Core.UserAccount.ResendVerificationPrimaryAgreement(
+				await Core.UserAccount.ResendUserTosDocument(
 					services: HttpContext.RequestServices,
 					user: user,
 					email: user.Email,
@@ -105,14 +105,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 
 			// check level 0 verification && NOT level 1 verification
-			if (!CoreLogic.UserAccount.IsUserVerifiedL0(user) || CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
+			if (!CoreLogic.UserAccount.IsVerifiedL0(user) || CoreLogic.UserAccount.IsVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
 			// check previous verification attempt
-			var vv = await MakeVerificationView(user);
-			if (vv.IsKYCPending) {
-				return APIResponse.BadRequest(APIErrorCode.AccountKycTimelimit);
+			var status = await MakeVerificationView(user);
+			if (status.IsKYCPending) {
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
 			// ---
@@ -240,7 +240,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					var redirect = this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage);
 
-					sent = await Core.UserAccount.ResendVerificationPrimaryAgreement(
+					sent = await Core.UserAccount.ResendUserTosDocument(
 						services: HttpContext.RequestServices,
 						user: user,
 						email: user.Email,

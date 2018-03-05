@@ -47,7 +47,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 			
-			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
+			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 

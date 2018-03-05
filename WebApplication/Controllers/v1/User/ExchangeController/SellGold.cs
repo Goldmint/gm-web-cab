@@ -182,7 +182,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var opLastTime = user.UserOptions.HotWalletSellingLastTime;
 			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
 				// failed
-				return APIResponse.BadRequest(APIErrorCode.AccountHWOperationLimit);
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
 			var ticket = await TicketDesk.NewGoldSelling(user, null, currency, estimated.InputUsed, goldRate, mntpBalance, estimated.ResultNetCents, estimated.ResultFeeCents);

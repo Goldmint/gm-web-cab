@@ -43,7 +43,7 @@ namespace Goldmint.WebApplication.Core {
 					UserName = email,
 					Email = email,
 					TFASecret = tfaSecret,
-					JWTSalt = GenerateJWTSalt(),
+					JWTSalt = GenerateJwtSalt(),
 					EmailConfirmed = emailConfirmed,
 					AccessRights = 0,
 
@@ -68,7 +68,7 @@ namespace Goldmint.WebApplication.Core {
 
 						newUser.UserName = name;
 						newUser.NormalizedUserName = name.ToUpperInvariant();
-						newUser.JWTSalt = GenerateJWTSalt();
+						newUser.JWTSalt = GenerateJwtSalt();
 						newUser.AccessRights = (long)AccessRights.Client;
 
 						await dbContext.SaveChangesAsync();
@@ -127,14 +127,62 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Random access stamp
 		/// </summary>
-		public static string GenerateJWTSalt() {
+		public static string GenerateJwtSalt() {
 			return SecureRandom.GetString09azAZ(64);
+		}
+
+		/// <summary>
+		/// Reset DPA state and resend it to the specified email address
+		/// </summary>
+		public static async Task<bool> ResendUserDpaDocument(IServiceProvider services, User user, string email, string redirectUrl) {
+
+			if (user == null) {
+				throw new ArgumentException("User is null");
+			}
+			if (user.UserOptions == null) {
+				throw new ArgumentException("User options not included");
+			}
+
+			// ---
+
+			var logger = services.GetLoggerFor(typeof(UserAccount));
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var appConfig = services.GetRequiredService<AppConfig>();
+			var docService = services.GetRequiredService<IDocSigningProvider>();
+
+			// create new request
+			var request = new SignedDocument() {
+				Type = SignedDocumentType.GoldmintDPA,
+				IsSigned = false,
+				ReferenceId = Guid.NewGuid().ToString("N"),
+				TimeCreated = DateTime.UtcNow,
+				UserId = user.Id,
+				Secret = appConfig.Services.SignRequest.Auth,
+			};
+
+			// add/save
+			dbContext.SignedDocument.Add(request);
+			await dbContext.SaveChangesAsync();
+
+			// set new unverified agreement 
+			user.UserOptions.DPADocumentId = request.Id;
+			dbContext.Update(user.UserOptions);
+			await dbContext.SaveChangesAsync();
+
+			return await docService.SendDpaRequest(
+				refId: request.ReferenceId,
+				firstName: "", // user.UserVerification.FirstName,
+				lastName: "", // user.UserVerification.LastName,
+				email: email,
+				date: DateTime.UtcNow,
+				redirectUrl: redirectUrl
+			); ;
 		}
 
 		/// <summary>
 		/// Reset current agreement and resend to specified email address
 		/// </summary>
-		public static async Task<bool> ResendVerificationPrimaryAgreement(IServiceProvider services, User user, string email, string redirectUrl) {
+		public static async Task<bool> ResendUserTosDocument(IServiceProvider services, User user, string email, string redirectUrl) {
 
 			if (user == null) {
 				throw new ArgumentException("User is null");

@@ -39,7 +39,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// user
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
-			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
+			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 

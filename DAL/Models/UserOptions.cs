@@ -12,8 +12,10 @@ namespace Goldmint.DAL.Models {
 		[Column("init_tfa_quest")]
 		public bool InitialTFAQuest { get; set; }
 
-		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
-		public string ConcurrencyStamp { get; set; }
+		[Column("dpa_document_id")]
+		public long? DPADocumentId { get; set; }
+		[ForeignKey(nameof(DPADocumentId))]
+		public virtual SignedDocument DPADocument { get; set; }
 
 		[Column("hw_buying_stamp")]
 		public DateTime? HotWalletBuyingLastTime { get; set; }
@@ -23,6 +25,9 @@ namespace Goldmint.DAL.Models {
 
 		[Column("hw_transfer_stamp")]
 		public DateTime? HotWalletTransferLastTime { get; set; }
+
+		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
+		public string ConcurrencyStamp { get; set; }
 
 		// ---
 

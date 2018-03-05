@@ -6,5 +6,8 @@
 		public string TicketId { get; set; }
 		public string ServiceStatus { get; set; }
 		public string ServiceMessage { get; set; }
+
+		public bool IsFinalStatus =>
+			OverallStatus == VerificationStatus.Verified || OverallStatus == VerificationStatus.NotVerified;
 	}
 }

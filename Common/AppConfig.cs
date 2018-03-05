@@ -18,8 +18,10 @@ namespace Goldmint.Common {
 			public string SignUpConfirmation { get; set; } = "";
 			public string PasswordRestoration { get; set; } = "";
 			public string EmailTaken { get; set; } = "";
-			public string OAuthTFAPage { get; set; } = "";
+			public string OAuthTfaPage { get; set; } = "";
 			public string OAuthAuthorized { get; set; } = "";
+			public string DpaRequired { get; set; } = "";
+			public string DpaSigned { get; set; } = "";
 		}
 
 		// ---

@@ -29,6 +29,11 @@
 		/// </summary>
 		OwnershipLost = 101,
 
+		/// <summary>
+		/// Operation has rate limit; wait before next attempt
+		/// </summary>
+		RateLimit = 102,
+
 		/* [1000..1999] Account errors */
 
 		/// <summary>
@@ -82,19 +87,14 @@
 		AccountTFADisabled = 1009,
 
 		/// <summary>
-		/// Hot wallet operation limit (ex: frequency limit)
-		/// </summary>
-		AccountHWOperationLimit = 1010,
-
-		/// <summary>
 		/// User has pending operation. One of: buying, selling, deposit, withdraw, transfer, etc.
 		/// </summary>
-		AccountPendingBlockchainOperation = 1012,
-
+		AccountPendingBlockchainOperation = 1010,
+		
 		/// <summary>
-		/// User should wait before next attempt
+		/// DPA is not signed
 		/// </summary>
-		AccountKycTimelimit = 1013,
+		AccountDpaNotSigned = 1011,
 	}
 
 	public static class APIErrorCodeExtensions {

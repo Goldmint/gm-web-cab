@@ -12,19 +12,11 @@ namespace Goldmint.CoreLogic {
 
 	public static class UserAccount {
 
-		/// <summary>
-		/// User ID to long value: "u0001" => 1L, "2" => 2L
-		/// </summary>
-		public static long ExtractId(string data) {
-			var ret = 0L;
-			if (!string.IsNullOrWhiteSpace(data) && (data[0] == 'u' || char.IsDigit(data[0]))) {
-				var digits = string.Join("", data.Where(char.IsDigit).Select(c => c.ToString()).ToArray()).TrimStart('0');
-				long.TryParse(digits, out ret);
-			}
-			return ret;
+		public static bool HasSignedDpa(this User user) {
+			return user?.UserOptions?.DPADocument?.IsSigned ?? false;
 		}
 
-		public static bool IsUserVerifiedL0(User user) {
+		public static bool IsVerifiedL0(this User user) {
 			return 
 				(user?.UserVerification?.FirstName?.Length ?? 0) > 0 && 
 				(user?.UserVerification?.LastName?.Length ?? 0) > 0 &&
@@ -32,12 +24,14 @@ namespace Goldmint.CoreLogic {
 			;
 		}
 
-		public static bool IsUserVerifiedL1(User user) {
+		public static bool IsVerifiedL1(this User user) {
 			return 
-				IsUserVerifiedL0(user) &&
+				IsVerifiedL0(user) &&
 				user?.UserVerification?.KycVerifiedTicketId != null
 			;
 		}
+
+		// ---
 
 		/// <summary>
 		/// Fiat limits by level plus specified user's level
@@ -81,10 +75,10 @@ namespace Goldmint.CoreLogic {
 			}
 
 			// level 0
-			if (IsUserVerifiedL0(user)) current = level0;
+			if (IsVerifiedL0(user)) current = level0;
 
 			// level 1
-			if (IsUserVerifiedL1(user)) current = level1;
+			if (IsVerifiedL1(user)) current = level1;
 
 			return Task.FromResult(
 				new FiatLimitsLevels() {
@@ -209,6 +203,18 @@ namespace Goldmint.CoreLogic {
 				_.UserId == user.Id &&
 				_.Status == FinancialHistoryStatus.Pending
 			).CountAsync() > 0;
+		}
+
+		/// <summary>
+		/// User ID to long value: "u0001" => 1L, "2" => 2L
+		/// </summary>
+		public static long ExtractId(string data) {
+			var ret = 0L;
+			if (!string.IsNullOrWhiteSpace(data) && (data[0] == 'u' || char.IsDigit(data[0]))) {
+				var digits = string.Join("", data.Where(char.IsDigit).Select(c => c.ToString()).ToArray()).TrimStart('0');
+				long.TryParse(digits, out ret);
+			}
+			return ret;
 		}
 
 		// ---
