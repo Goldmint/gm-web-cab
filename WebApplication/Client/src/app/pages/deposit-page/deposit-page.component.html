@@ -46,7 +46,7 @@
 
           <div class="row">
             <div class="col form-group text-center">
-              <label for="btnPaymentCard">Payment card</label>
+              <label for="btnPaymentCard">{{ "PAGES.Deposit.Method.Card" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-card"></use>
@@ -54,7 +54,7 @@
               </button>
             </div>
             <div class="col form-group text-center">
-              <label for="btnPaymentBank">Bank transfer</label>
+              <label for="btnPaymentBank">{{ "PAGES.Deposit.Method.Transfer" | translate }}</label>
               <button class="btn btn-primary btn-block"
                       [disabled]="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min"
                       id="btnPaymentBank" (click)="goto(pages.BankTransfer)">
@@ -76,15 +76,15 @@
 
           <div class="row pb-4 mb-3">
             <tabset class="col tabs">
-              <tab heading="Daily">
+              <tab heading='{{ "PAGES.Deposit.Table.Menu.Daily" | translate }}'>
                 <div class="limits-bar">
                   <div class="limits-bar__caption">
-                    <span>Account limits</span>
+                    <span>{{ "PAGES.Deposit.Table.Heading" | translate }}</span>
                     <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                       <svg class="icon" width="20px" height="20px">
                         <use xlink:href="#increase"></use>
                       </svg>
-                      <span>Increase</span>
+                      <span>{{ "PAGES.Deposit.Table.Increase" | translate }}</span>
                     </a>
                   </div>
                   <div class="limits-bar__progress progress">
@@ -97,7 +97,7 @@
                   <div class="col-6">
                     <div class="limits-bar">
                       <div class="limits-bar__caption">
-                        <span>Available for payment</span>
+                        <span>{{ "PAGES.Deposit.Table.Available" | translate }}</span>
                         <div class="limits-bar__value">{{ limits.current.deposit.day | currency }}</div>
                       </div>
                     </div>
@@ -106,7 +106,7 @@
                   <div class="col-md-6">
                     <div class="limits-bar">
                       <div class="limits-bar__caption">
-                        Limit
+                        {{ "PAGES.Deposit.Table.Limit" | translate }}
                         <div class="limits-bar__value">{{( limits.levels.current.deposit.day-limits.current.deposit.day) | currency}} of {{limits.levels.current.deposit.day | currency}}</div>
                       </div>
                     </div>
@@ -123,15 +123,15 @@
                 </div>
               </tab>
 
-              <tab heading="Monthly">
+              <tab heading='{{ "PAGES.Deposit.Table.Menu.Daily" | translate }}'>
                 <div class="limits-bar">
                   <div class="limits-bar__caption">
-                    <span>Account limits</span>
+                    <span>{{ "PAGES.Deposit.Table.Heading" | translate }}</span>
                     <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                       <svg class="icon" width="20px" height="20px">
                         <use xlink:href="#increase"></use>
                       </svg>
-                      <span>Increase</span>limits-bar
+                      <span>{{ "PAGES.Deposit.Table.Increase" | translate }}</span> limits-bar
                     </a>
                   </div>
                   <div class="limits-bar__progress progress">
@@ -143,7 +143,7 @@
                   <div class="col-md-6">
                     <div class="limits-bar">
                       <div class="limits-bar__caption">
-                        <span>Available for payment</span>
+                        <span>{{ "PAGES.Deposit.Table.Available" | translate }}</span>
                         <div class="limits-bar__value">{{ limits.current.deposit.month | currency}}</div>
                       </div>
                     </div>
@@ -152,7 +152,7 @@
                   <div class="col-md-6">
                     <div class="limits-bar">
                       <div class="limits-bar__caption">
-                        Limit
+                        {{ "PAGES.Deposit.Table.Limit" | translate }}
                         <div class="limits-bar__value">{{(limits.levels.current.deposit.month - limits.current.deposit.month) | currency}} of {{ limits.levels.current.deposit.month | currency}}</div>
                       </div>
                     </div>

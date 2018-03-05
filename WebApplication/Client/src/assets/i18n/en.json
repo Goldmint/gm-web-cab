@@ -118,6 +118,27 @@
         },
         "Button": "Start"
       },
+      "Method": {
+        "Card": "Payment card",
+        "Transfer": "Bank transfer"
+      },
+      "Table": {
+        "Menu": {
+          "Daily": "Daily",
+          "Monthly": "Monthly"
+        },
+        "Heading": "Account limits",
+        "Available": "Available for payment",
+        "Limit": "Limit",
+        "Increase": "Increase"
+      },
+      "BankTransfer": {
+        "Label": "Are you ready?",
+        "Checkbox": "I have double-checked all the risks",
+        "Buttons": {
+          "Continue": "Continue"
+        }
+      },
       "CardsList": {
         "SectionTitle": "Card details"
       }
@@ -175,11 +196,6 @@
           "Fee": "Fee",
           "Status": "Status",
           "Comment": "Comment"
-        },
-        "Status": {
-          "1": "In progress",
-          "2": "Success",
-          "3": "Rejected"
         },
         "EmptyMessage": "No data"
       },
