@@ -186,7 +186,7 @@ namespace Goldmint.CoreLogic {
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
 			var activity = new DAL.Models.UserActivity() {
-				User = user,
+				UserId = user.Id,
 				Ip = ip,
 				Agent = agent.LimitLength(128),
 				Type = type.ToString().ToLowerInvariant(),

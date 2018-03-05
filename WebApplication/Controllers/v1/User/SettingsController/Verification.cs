@@ -262,8 +262,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[NonAction]
 		private async Task<VerificationView> MakeVerificationView(DAL.Models.Identity.User user) {
 
-			await DbContext.Entry(user.UserVerification).Reference(_ => _.KycLastTicket).LoadAsync();
-			// await DbContext.Entry(user.UserVerification).Reference(_ => _.KycVerifiedTicket).LoadAsync();
+			if (user.UserVerification != null) {
+				await DbContext.Entry(user.UserVerification).Reference(_ => _.KycLastTicket).LoadAsync();
+				// await DbContext.Entry(user.UserVerification).Reference(_ => _.KycVerifiedTicket).LoadAsync();
+			}
 
 			// last ticket is not verified and within allowed period
 			var kycPending = false;
