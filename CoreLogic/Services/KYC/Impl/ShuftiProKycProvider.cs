@@ -104,7 +104,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 
 		public async Task<CallbackResult> OnServiceCallback(HttpRequest request) {
 			var ret = new CallbackResult() {
-				OverallStatus = VerificationStatus.Fail,
+				OverallStatus = VerificationStatus.Pending,
 			};
 
 			try {
@@ -124,25 +124,22 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 					throw new Exception("Invalid signature");
 				}
 
-				if (result.status_code == "SP1") {
-					ret.OverallStatus = VerificationStatus.UserVerified;
-				}
-				else {
-					ret.OverallStatus = VerificationStatus.UserNotVerified;
+				var finalStatus =
+					result.status_code == "SP0" || // verified
+					result.status_code == "SP1" // not verified
+				;
 
-					// "status_code":"SP26","message":"User has been landed on verification page\n"
-					// "status_code":"SP0","message":"Not Verified"
+				if (finalStatus) {
+					ret.OverallStatus = result.status_code == "SP1"? VerificationStatus.Verified: VerificationStatus.NotVerified;
+					ret.TicketId = result.reference;
+					ret.ServiceStatus = result.status_code;
+					ret.ServiceMessage = result.message;
 				}
-
-				ret.TicketId = result.reference;
-				ret.ServiceStatus = result.status_code;
-				ret.ServiceMessage = result.message;
 
 				_logger?.Info("Callback code {0} for ref {1}: {2}", result.status_code, result.reference, result.message);
 
 			} catch (Exception e) {
 				ret.OverallStatus = VerificationStatus.Fail;
-
 				_logger?.Info(e, "Callback failure");
 			}
 

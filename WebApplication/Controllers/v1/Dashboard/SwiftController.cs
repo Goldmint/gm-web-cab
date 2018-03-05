@@ -363,7 +363,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			// check verification
 			var user = request.User;
-			if (!CoreLogic.UserAccount.IsUserVerifiedL1(user)) {
+			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 

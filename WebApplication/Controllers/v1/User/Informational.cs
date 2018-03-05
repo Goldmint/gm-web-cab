@@ -13,6 +13,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class UserController : BaseController {
 
+		/*
 		// TODO: get rid of method. Frontend has everything needed
 		/// <summary>
 		/// Fiat and gold balance on this user account
@@ -35,7 +36,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Gold = (await EthereumObserver.GetUserGoldBalance(user.UserName)).ToString(),
 				}
 			);
-		}
+		}*/
 
 		/// <summary>
 		/// Fiat limits
@@ -157,11 +158,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new ProfileView() {
 					Id = user.UserName,
-					Name = CoreLogic.UserAccount.IsUserVerifiedL0(user) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
+					Name = CoreLogic.UserAccount.IsVerifiedL0(user) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
 					Email = user.Email ?? "",
+					DpaSigned = user.UserOptions.DPADocument?.IsSigned ?? false,
 					TfaEnabled = user.TwoFactorEnabled,
-					VerifiedL0 = CoreLogic.UserAccount.IsUserVerifiedL0(user),
-					VerifiedL1 = CoreLogic.UserAccount.IsUserVerifiedL1(user),
+					VerifiedL0 = CoreLogic.UserAccount.IsVerifiedL0(user),
+					VerifiedL1 = CoreLogic.UserAccount.IsVerifiedL1(user),
 					Challenges = challenges.ToArray(),
 				}
 			);
@@ -230,6 +232,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				{ "amount", _ => _.AmountCents },
 				{ "type",   _ => _.Type },
 				{ "fee",    _ => _.FeeCents },
+				{ "status", _ => _.Status }
 			};
 
 			// validate

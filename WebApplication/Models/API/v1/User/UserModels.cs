@@ -114,7 +114,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	}
 
 	// ---
-
+	/*
 	public class BalanceModel : BaseValidableModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -139,7 +139,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		[Required]
 		public string Gold { get; set; }
 	}
-
+	*/
 	// ---
 
 	public class LimitsView {
@@ -260,6 +260,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		/// </summary>
 		[Required]
 		public string Email { get; set; }
+
+		/// <summary>
+		/// Has DPA signed
+		/// </summary>
+		[Required]
+		public bool DpaSigned { get; set; }
 
 		/// <summary>
 		/// TFA enabled for this user

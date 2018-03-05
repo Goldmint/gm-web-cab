@@ -3,6 +3,22 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 
+	public class DpaStatusView {
+
+		/// <summary>
+		/// DPA is signed
+		/// </summary>
+		[Required]
+		public bool IsSigned { get; set; }
+
+		/// <summary>
+		/// DPA could be resent
+		/// </summary>
+		[Required]
+		public bool CanResend { get; set; }
+	}
+
+	// ---
 	public class TFAView {
 
 		/// <summary>

@@ -37,7 +37,11 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return next.handle(req)
         .catch((error, caught) => {
           let translateKey  = null,
-              ignoredErrors = [100, 1000];
+              ignoredErrors = [
+				100, 	// InvalidParameter
+				1000,	// AccountNotFound
+				1011,	// AccountDpaNotSigned
+			];
 
           if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
             translateKey = 'notFound';

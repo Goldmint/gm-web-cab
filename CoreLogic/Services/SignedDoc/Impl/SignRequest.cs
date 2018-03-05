@@ -38,6 +38,58 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 			});
 		}
 
+		public async Task<bool> SendDpaRequest(string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
+
+			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.GoldmintDPA.ToString());
+			if (template == null) {
+				_logger.Error($"Template not found for {nameof(SendPrimaryAgreementRequest)}");
+				return false;
+			}
+
+			// var fullName = firstName + " " + lastName;
+
+			var jsonRequest = new {
+				template = template.TemplateUrl,
+				from_email = _senderEmail,
+				from_email_name = _senderEmailName,
+				//message = emailMessage,
+				external_id = refId,
+				name = template.Filename,
+				signers = new[] { new {
+					email = email,
+					// first_name = firstName,
+					// last_name = lastName,
+					redirect_url = redirectUrl,
+				} },
+				prefill_tags = new[] {
+					new { external_id = "field_date", text = (string)null, date_value = date.ToString("yyyy-MM-dd") },
+					// new { external_id = "field_client_name", text = fullName, date_value = (string)null },
+				},
+			};
+
+			var success = false;
+			var url = _baseUrl + "/signrequest-quick-create/";
+
+			using (var req = new Request(_logger)) {
+				await req
+					.AcceptJson()
+					.AuthToken(_authString)
+					.BodyJson( Json.Stringify(jsonRequest) )
+					.OnResult((res) => {
+						var status = res.GetHttpStatus();
+						//var jsonStr = res.ToRawString();
+						if (status == System.Net.HttpStatusCode.OK || status == System.Net.HttpStatusCode.Created) {
+							success = true;
+						}
+					})
+					.SendPost(url, TimeSpan.FromSeconds(120))
+				;
+			}
+
+			return success;
+		}
+
+
 		public async Task<bool> SendPrimaryAgreementRequest(string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
 
 			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.GoldmintTOS.ToString());

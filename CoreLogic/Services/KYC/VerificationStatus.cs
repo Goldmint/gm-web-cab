@@ -1,8 +1,9 @@
 ﻿namespace Goldmint.CoreLogic.Services.KYC {
 
 	public enum VerificationStatus {
-		UserVerified,
-		UserNotVerified,
+		Pending,
+		Verified,
+		NotVerified,
 		Fail
 	}
 }

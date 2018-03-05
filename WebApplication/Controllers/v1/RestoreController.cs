@@ -108,7 +108,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			await UserManager.RemovePasswordAsync(user);
 			await UserManager.AddPasswordAsync(user, model.Password);
 
-			user.JWTSalt = Core.UserAccount.GenerateJWTSalt();
+			user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
 			await DbContext.SaveChangesAsync();
 
 			// posteffect

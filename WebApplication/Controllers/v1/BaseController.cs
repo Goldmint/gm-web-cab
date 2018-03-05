@@ -141,9 +141,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (IsUserAuthenticated()) {
 				var name = UserManager.NormalizeKey(HttpContext.User.Identity.Name);
 				return await DbContext.Users
-					.Include(user => user.UserOptions)
-					.Include(user => user.UserVerification)
-					.Include(user => user.Card)
+					.Include(_ => _.UserOptions).ThenInclude(_ => _.DPADocument)
+					.Include(_ => _.UserVerification)
+					.Include(_ => _.Card)
 					.AsTracking()
 					.FirstAsync(user => user.NormalizedUserName == name)
 				;

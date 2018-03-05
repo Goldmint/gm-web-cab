@@ -53,7 +53,21 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 				}
 
-				var sres = OnSignInResult(
+				// dpa has not been sent previously
+				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
+				if (user.UserOptions != null) {
+					await DbContext.Entry(user.UserOptions).Reference(_ => _.DPADocument).LoadAsync();
+					if (user.UserOptions.DPADocument == null) {
+						await Core.UserAccount.ResendUserDpaDocument(
+							services: HttpContext.RequestServices,
+							user: user,
+							email: user.Email,
+							redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+						);
+					}
+				}
+
+				var sres = OnSignInResultCheck(
 					services: HttpContext.RequestServices,
 					result: await SignInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true),
 					audience: audience,
@@ -118,7 +132,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 				// by code
 				if (GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
-					return OnSignInResult(
+					return OnSignInResultCheck(
 						services: HttpContext.RequestServices,
 						result: Microsoft.AspNetCore.Identity.SignInResult.Success, 
 						user: user, 
@@ -175,18 +189,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 		// ---
 
-		/*[NonAction]
-		private async Task<bool> CreateExternalLogin(DAL.Models.Identity.User user, ExternalLoginInfo info) {
-			var res = await UserManager.AddLoginAsync(user, info);
-			if (res.Succeeded && await SignInManager.CanSignInAsync(user)) {
-				await SignInManager.SignInAsync(user, isPersistent: false);
-				return true;
-			}
-			return false;
-		}*/
-
 		[NonAction]
-		private APIResponse OnSignInResult(IServiceProvider services, Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, JwtAudience audience, bool tfaRequired) {
+		private APIResponse OnSignInResultCheck(IServiceProvider services, Microsoft.AspNetCore.Identity.SignInResult result, DAL.Models.Identity.User user, JwtAudience audience, bool tfaRequired) {
 			if (result != null) {
 
 				if (result.Succeeded || result.RequiresTwoFactor) {
@@ -194,6 +198,11 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					// denied
 					var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(services, audience, user);
 					if (accessRightsMask == null) return null;
+
+					// DPA is unsigned
+					if (!CoreLogic.UserAccount.HasSignedDpa(user)) {
+						return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
+					}
 
 					// tfa token
 					if (tfaRequired || result.RequiresTwoFactor) {
