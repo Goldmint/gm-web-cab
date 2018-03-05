@@ -54,13 +54,13 @@
               {{ amount | number:'1.2-2':locale }}
 
               <span *ngIf="row.type === 'hwtransfer'; else usdIcon">
-                <svg class="icon" width="15" height="15">
+                <svg class="icon-gold-color" width="15" height="15">
                   <use xlink:href="#cur-gold"></use>
                 </svg>
               </span>
 
               <ng-template #usdIcon>
-                <svg class="icon" width="15" height="15">
+                <svg class="icon-gold-color" width="15" height="15">
                   <use xlink:href="#cur-usd"></use>
                 </svg>
               </ng-template>
@@ -108,7 +108,7 @@
           <ng-template let-fee="value" let-row="row" ngx-datatable-cell-template>
             <span *ngIf="fee && fee > 0; else noFeeBlock">
               {{ fee | number:'1.0-2':locale }}
-              <svg class="icon" width="15" height="15">
+              <svg class="icon-gold-color" width="15" height="15">
                 <use xlink:href="#cur-usd"></use>
               </svg>
             </span>
