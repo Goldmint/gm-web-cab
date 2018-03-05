@@ -138,8 +138,8 @@ export class UserService {
     this._router.navigate(['/signin']);
   }
 
-  register(username: string, password: string, recaptcha: string) {
-    return this._apiService.userRegister(username, password, recaptcha)
+  register(username: string, password: string, recaptcha: string, agreed: boolean) {
+    return this._apiService.userRegister(username, password, recaptcha, agreed)
       .pipe(
       tap(
         (res: APIResponse<RegistrationResponse>) => {

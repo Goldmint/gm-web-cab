@@ -27,6 +27,8 @@ export class RegisterPageComponent implements OnInit {
   public submitButtonBlur = new EventEmitter<boolean>();
   public errors: any = [];
   public passwordChanged = false;
+  public isShow = false;
+  public agreeCheck = false;
 
   private returnUrl: string;
 
@@ -88,11 +90,23 @@ export class RegisterPageComponent implements OnInit {
         });
   }
 
+  hideModal(show) {
+    this.isShow = show;
+  }
+
+  modalConfirm(ok) {
+    if (ok) {
+      this.register();
+    } else {
+      this.hideModal(false);
+    }
+    this.agreeCheck = false;
+  }
+
   public register() {
     this.loading = true;
     this.submitButtonBlur.emit();
-
-    this.userService.register(this.signupModel.email, this.signupModel.password, this.signupModel.recaptcha)
+    this.userService.register(this.signupModel.email, this.signupModel.password, this.signupModel.recaptcha, this.agreeCheck)
       .finally(() => {
         this.loading = false;
         this.cdRef.detectChanges();

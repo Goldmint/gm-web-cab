@@ -12,7 +12,7 @@
           <h2 class="section__title">{{ "PAGES.Register.SectionTitles.Register" | translate }}</h2>
 
           <div class="section__content pt-4">
-            <form name="signupForm" (ngSubmit)="signupForm.form.valid && register()" #signupForm="ngForm" novalidate>
+            <form name="signupForm" (ngSubmit)="signupForm.form.valid && hideModal(true)" #signupForm="ngForm" novalidate>
               <div class="form-group">
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
@@ -128,6 +128,35 @@
 
           </div>
         </section>
+      </div>
+    </div>
+
+    <div class="modal " role="dialog" tabindex="-1" [ngClass]="{'showRegModal': isShow, 'fade': isShow, 'show': isShow}">
+      <div role="document" class="modal-dialog message-box">
+        <div class="modal-content">
+
+          <div class="message-box__header">
+            <h4 class="modal-title pull-left">GoldMint.io</h4>
+            <button class="message-box__close" type="button" (click)="hideModal(false)">
+              <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#close"></use>
+              </svg>
+            </button>
+          </div>
+
+          <div class="message-box__body">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
+              <label class="custom-control-label custom-control-label-reg" for="agreeCheck">Hereby I grant the company GoldMint PTE LTD the right to keep and handle my personal data.</label>
+            </div>
+          </div>
+
+          <div class="message-box__footer">
+            <button class="btn btn-primary btn-sm mx-1" type="button" (click)="modalConfirm(true)" [disabled]="!agreeCheck">OK</button>
+            <button class="btn btn-primary btn-sm mx-1" type="button" (click)="modalConfirm(false)">Cancel</button>
+          </div>
+
+        </div>
       </div>
     </div>
 

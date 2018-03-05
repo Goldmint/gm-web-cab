@@ -72,10 +72,10 @@ export class APIService {
       );
   }
 
-  userRegister(email: string, password: string, captcha: string): Observable<APIResponse<RegistrationResponse>> {
+  userRegister(email: string, password: string, captcha: string, agreed: boolean): Observable<APIResponse<RegistrationResponse>> {
     console.log('APIService userRegister', arguments);
 
-    return this._http.post<APIResponse<RegistrationResponse>>(`${this._baseUrl}/register/register`, { email: email, password: password, captcha: captcha })
+    return this._http.post<APIResponse<RegistrationResponse>>(`${this._baseUrl}/register/register`, { email: email, password: password, captcha: captcha, agreed: agreed })
       .pipe(
       catchError(this._handleError),
       shareReplay(),
