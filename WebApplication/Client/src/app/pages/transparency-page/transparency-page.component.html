@@ -1,5 +1,5 @@
 <div class="page">
-  <h1 class="page__heading">Transparency</h1>
+  <h1 class="page__heading">{{ "PAGES.Transparency.Heading" | translate }}</h1>
 
   <div class="page__section">
 
@@ -10,7 +10,7 @@
             <use xlink:href="#amount-plus"></use>
           </svg>
         </div>
-        <div class="trn-info__label">Total issued:</div>
+        <div class="trn-info__label">{{ "PAGES.Transparency.Issued" | translate }}</div>
         <div class="trn-info__value">
           {{ summary.issued?.prefix }}
           {{ summary.issued.amount }}
@@ -24,7 +24,7 @@
             <use xlink:href="#amount-minus"></use>
           </svg>
         </div>
-        <div class="trn-info__label">Total burnt:</div>
+        <div class="trn-info__label">{{ "PAGES.Transparency.Burnt" | translate }}</div>
         <div class="trn-info__value">
           {{ summary.burnt?.prefix }}
           {{ summary.burnt.amount }}
@@ -38,7 +38,7 @@
             <use xlink:href="#circulation"></use>
           </svg>
         </div>
-        <div class="trn-info__label">Total in circulation:</div>
+        <div class="trn-info__label">{{ "PAGES.Transparency.Circulation" | translate }}</div>
         <div class="trn-info__value">
           {{ summary.circulation?.prefix }}
           {{ summary.circulation.amount }}
@@ -48,7 +48,7 @@
     </div>
 
     <section class="section section--table">
-      <h2 class="section__title" id="pageSectionTitle">Transactions</h2>
+      <h2 class="section__title" id="pageSectionTitle">{{ "PAGES.Transparency.Table.Heading" | translate }}</h2>
 
       <div class="section__content">
         <ngx-datatable class="table table--no-footer" #table
@@ -72,12 +72,11 @@
           <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
-                {{ "PAGES.History.Table.Columns.Date" | translate }}
+               {{ "PAGES.Transparency.Table.TableCell.Date" | translate }}
               </span>
             </ng-template>
 
             <ng-template let-timestamp="value" ngx-datatable-cell-template>
-              <!-- {{ timestamp * 1000 | date:'yyyy-MM-dd HH:mm:ss' }} -->
               {{ timestamp * 1000 | date:'short':'':locale }}
             </ng-template>
           </ngx-datatable-column>
@@ -85,7 +84,7 @@
           <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="160">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
-                {{ "PAGES.History.Table.Columns.Amount" | translate }}
+                {{ "PAGES.Transparency.Table.TableCell.Amount" | translate }}
               </span>
             </ng-template>
 
@@ -96,17 +95,17 @@
 
           <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
             <ng-template ngx-datatable-header-template>
-              Document
+              {{ "PAGES.Transparency.Table.TableCell.Document" | translate }}
             </ng-template>
 
             <ng-template let-link="value" ngx-datatable-cell-template>
-              <a [href]="link">Link</a>
+              <a [href]="link">{{ "PAGES.Transparency.Link" | translate }}</a>
             </ng-template>
           </ngx-datatable-column>
 
           <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template ngx-datatable-header-template>
-              Comment
+              {{ "PAGES.Transparency.Table.TableCell.Comment" | translate }}
             </ng-template>
 
             <ng-template let-link="value" ngx-datatable-cell-template>

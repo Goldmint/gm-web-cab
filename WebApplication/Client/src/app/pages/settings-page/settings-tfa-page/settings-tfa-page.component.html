@@ -30,7 +30,7 @@
     <section class="section tfa section--no-bottom">
 
       <h2 class="section__title">
-        <span>1. Backup secret key</span>
+        <span>{{ "PAGES.Settings.TFA.SecretKeySection.Steps.One" | translate }}</span>
       </h2>
 
       <div class="section__content pt-2">
@@ -43,7 +43,7 @@
     <section class="section tfa section--no-bottom">
 
       <h2 class="section__title">
-        <span>2. Install application</span>
+        <span>{{ "PAGES.Settings.TFA.SecretKeySection.Steps.Two" | translate }}</span>
       </h2>
 
       <div class="section__content pt-2">
@@ -56,7 +56,7 @@
     <section class="section tfa section--no-bottom">
 
       <h2 class="section__title">
-        <span>3. Scan QR-code</span>
+        <span>{{ "PAGES.Settings.TFA.SecretKeySection.Steps.Three" | translate }}</span>
       </h2>
 
       <div class="section__content pt-2">
@@ -72,7 +72,7 @@
     <section class="section tfa">
 
       <h2 class="section__title">
-        <span>4. Type current code</span>
+        <span>{{ "PAGES.Settings.TFA.SecretKeySection.Steps.Four" | translate }}</span>
       </h2>
 
       <div class="section__content">
@@ -127,8 +127,8 @@
         <form name="codeForm" (ngSubmit)="codeForm.form.valid && toggleTfa()" #codeForm="ngForm" novalidate>
           <div class="form-group">
 
-            <label for="inputCode">{{ "PAGES.Settings.TFA.SecretKeySection.CodeLabel" | translate }}</label>
-            <input type="text" noAutoComplete id="inputCode" name="code" class="form-control" required
+            <label for="inputCodeTwo">{{ "PAGES.Settings.TFA.SecretKeySection.CodeLabel" | translate }}</label>
+            <input type="text" noAutoComplete id="inputCodeTwo" name="code" class="form-control" required
                    maxlength="6" pattern="[0-9]{6,6}"
                    [(ngModel)]="tfaModel.code" #code="ngModel"
                    [ngClass]="{'is-invalid': (errors?.Code || !code.valid) && (codeForm.submitted || !code.pristine)}"

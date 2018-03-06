@@ -1,8 +1,5 @@
-<!-- <div class="page"> -->
-  <!-- <h1 class="page__heading">ACCOUNTS LIMITS</h1> -->
-
   <section class="page__section section section--no-bottom">
-    <h2 class="section__title">Get an overview of your account opportunities</h2>
+    <h2 class="section__title">{{ "PAGES.Settings.Limits.Heading" | translate }}</h2>
 
     <div class="section__content">
       <div class="progress-linear progress-linear--tiny" *ngIf="loading">
@@ -14,10 +11,10 @@
           <div class="col-auto btn-group">
             <label class="btn btn-primary btn-sm active"
                    name="limitsSwitchModel.type"
-                   [(ngModel)]="limitsSwitchModel.type" btnRadio="deposit">Deposit</label>
+                   [(ngModel)]="limitsSwitchModel.type" btnRadio="deposit">{{ "PAGES.Settings.Limits.Buttons.Deposit" | translate }}</label>
             <label class="btn btn-primary btn-sm"
                    name="limitsSwitchModel.type"
-                   [(ngModel)]="limitsSwitchModel.type" btnRadio="withdraw">Withdraw</label>
+                   [(ngModel)]="limitsSwitchModel.type" btnRadio="withdraw">{{ "PAGES.Settings.Limits.Buttons.Withdraw" | translate }}</label>
           </div>
 
           <div class="col-auto btn-group ml-auto">
@@ -33,71 +30,44 @@
         <div class="limits account-types">
           <div class="row">
             <div class="col limits__col limits__col--fixed">
-              <div class="limits__col-caption">Account types</div>
+              <div class="limits__col-caption">{{ "PAGES.Settings.Limits.AccountTypes.Heading" | translate }}</div>
             </div>
 
             <div class="col limits__col account-type" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
-              <div class="account-type__name">Basic</div>
+              <div class="account-type__name">{{ "PAGES.Settings.Limits.AccountTypes.Labels.Basic" | translate }}</div>
               <div class="account-type__icon">
                 <svg class="icon" width="66px" height="54px">
                   <use xlink:href="#account-basic"></use>
                 </svg>
               </div>
-              <p class="account-type__desc">Buy and sale Bitcoins in a few clicks using your Visa or Master Card.</p>
+              <p class="account-type__desc">{{ "PAGES.Settings.Limits.AccountTypes.Text.Basic" | translate }}</p>
               <div class="account-type__footer">
-                <div class="account-type__selected" *ngIf="user.verifiedL0 && !user.verifiedL1">Your account<br> type</div>
+                <div class="account-type__selected" *ngIf="user.verifiedL0 && !user.verifiedL1">{{ "PAGES.Settings.Limits.AccountTypes.AccountType" | translate }}</div>
               </div>
             </div>
 
             <div class="col limits__col account-type" [ngClass]="{'limits__col--active': user.verifiedL0 && user.verifiedL1}">
-              <div class="account-type__name">Verified</div>
+              <div class="account-type__name">{{ "PAGES.Settings.Limits.AccountTypes.Labels.Verified" | translate }}</div>
               <div class="account-type__icon">
                 <svg class="icon" width="61px" height="58px">
                   <use xlink:href="#account-verified"></use>
                 </svg>
               </div>
-              <p class="account-type__desc">Extend your limits and enable more payment options by verifying your identity.</p>
+              <p class="account-type__desc">{{ "PAGES.Settings.Limits.AccountTypes.Text.Verified" | translate }}</p>
               <div class="account-type__footer">
-                <div class="account-type__selected" *ngIf="user.verifiedL0 && user.verifiedL1">Your account<br> type</div>
+                <div class="account-type__selected" *ngIf="user.verifiedL0 && user.verifiedL1">{{ "PAGES.Settings.Limits.AccountTypes.AccountType" | translate }}</div>
               </div>
             </div>
-
-            <!-- <div class="col limits__col account-type">
-              <div class="account-type__name">Verified Plus</div>
-              <div class="account-type__icon">
-                <svg class="icon" width="67px" height="58px">
-                  <use href="#account-verified-plus"></use>
-                </svg>
-              </div>
-              <p class="account-type__desc">Get priority limits and and extended limits for your account with hight turnover.</p>
-              <div class="account-type__footer">
-                <a href="javascript:void(0)" class="btn btn-primary">Request</a>
-              </div>
-            </div> -->
-
-            <!-- <div class="col limits__col account-type">
-              <div class="account-type__name">Corporate</div>
-              <div class="account-type__icon">
-                <svg class="icon" width="53px" height="58px">
-                  <use href="#account-corporate"></use>
-                </svg>
-              </div>
-              <p class="account-type__desc">Use a corporate account for your enterprise and enjoy custom conditions.</p>
-              <div class="account-type__footer">
-                <a href="javascript:void(0)" class="btn btn-primary">Request</a>
-              </div>
-            </div> -->
           </div>
         </div>
 
         <div class="limits">
-          <h3 class="limits__title">TOTAL ACCOUNT LIMITS</h3>
-          <p class="limits__desc">{{ limitsSwitchModel.type }}, {{ limitsSwitchModel.currency }}</p>
-
+          <h3 class="limits__title">{{ "PAGES.Settings.Limits.TotalLimits.Heading" | translate }}</h3>
+          <p class="limits__desc">{{ ('PAGES.Settings.Limits.TotalLimits.SubTitle.' + limitsSwitchModel.type) | translate }} {{ limitsSwitchModel.currency }}</p>
           <div class="row">
             <div class="col limits__col limits__col--rows limits__col--fixed">
-              <div class="limits__row limits__col-caption">Daily</div>
-              <div class="limits__row limits__col-caption">Monthly</div>
+              <div class="limits__row limits__col-caption">{{ "PAGES.Settings.Limits.TotalLimits.Labels.Daily" | translate }}</div>
+              <div class="limits__row limits__col-caption">{{ "PAGES.Settings.Limits.TotalLimits.Labels.Monthly" | translate }}</div>
             </div>
             <div class="col limits__col limits__col--rows" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <div class="limits__row">{{ limits.levels.l0[limitsSwitchModel.type].day }}</div>
@@ -107,28 +77,23 @@
               <div class="limits__row">{{ limits.levels.l1[limitsSwitchModel.type].day }}</div>
               <div class="limits__row">{{ limits.levels.l1[limitsSwitchModel.type].month }}</div>
             </div>
-            <!-- <div class="col limits__col limits__col--rows">
-              <div class="limits__row">Unlimited</div>
-            </div> -->
-            <!-- <div class="col limits__col limits__col--rows">
-              <div class="limits__row">Unlimited</div>
-            </div> -->
           </div>
         </div>
 
         <div class="limits">
-          <h3 class="limits__title">PAYMENT METHODS LIMITS</h3>
-          <p class="limits__subtitle">Please note that each payment method has It’s own limits, BUT cumulative amount of payment method limits should not exceed total amount limits of your account type</p>
+          <h3 class="limits__title">{{ "PAGES.Settings.Limits.PaymentLimits.Heading" | translate }}</h3>
+          <p class="limits__subtitle">{{ "PAGES.Settings.Limits.PaymentLimits.Text" | translate }}</p>
 
           <div class="row">
             <div class="col limits__col limits__col--fixed">
-              <div class="limits__col-caption">Payment card</div>
+              <div class="limits__col-caption">{{ "PAGES.Settings.Limits.PaymentLimits.Labels.PaymentCard" | translate }}</div>
               <div class="limits__col-icon">
                 <svg class="icon" width="70px" height="58px">
                   <use xlink:href="#payment-card"></use>
                 </svg>
               </div>
-              <div class="limits__col-note"><b>Commission:</b> 3,5% + 0.25</div>
+              <div class="limits__col-note">
+                <b>{{ "PAGES.Settings.Limits.PaymentLimits.Labels.Commission" | translate }}:</b> 3,5% + 0.25</div>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <svg class="icon icon--green" width="23px" height="18px">
@@ -140,27 +105,19 @@
                 <use xlink:href="#ok"></use>
               </svg>
             </div>
-            <!-- <div class="col limits__col">
-              <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
-              </svg>
-            </div> -->
-            <!-- <div class="col limits__col">
-              <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
-              </svg>
-            </div> -->
           </div>
 
           <div class="row">
             <div class="col limits__col limits__col--fixed">
-              <div class="limits__col-caption">Bank transfer</div>
+              <div class="limits__col-caption">{{ "PAGES.Settings.Limits.PaymentLimits.Labels.BankTransfer" | translate }}</div>
               <div class="limits__col-icon">
                 <svg class="icon" width="134px" height="62px">
                   <use xlink:href="#payment-bank"></use>
                 </svg>
               </div>
-              <div class="limits__col-note"><b>Commission:</b> No commission</div>
+              <div class="limits__col-note">
+                <b>{{ "PAGES.Settings.Limits.PaymentLimits.Labels.Commission" | translate }}:</b>
+                {{ "PAGES.Settings.Limits.PaymentLimits.Labels.NoCommission" | translate }}</div>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <svg class="icon icon--red" width="17px" height="17px">
@@ -172,27 +129,18 @@
                 <use xlink:href="#ok"></use>
               </svg>
             </div>
-            <!-- <div class="col limits__col">
-              <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
-              </svg>
-            </div> -->
-            <!-- <div class="col limits__col">
-              <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
-              </svg>
-            </div> -->
           </div>
 
           <div class="row">
             <div class="col limits__col limits__col--fixed">
-              <div class="limits__col-caption">Crypto capital</div>
+              <div class="limits__col-caption">{{ "PAGES.Settings.Limits.PaymentLimits.Labels.CryptoCapital" | translate }}</div>
               <div class="limits__col-icon">
                 <svg class="icon" width="70px" height="70px">
                   <use xlink:href="#payment-crypto"></use>
                 </svg>
               </div>
-              <div class="limits__col-note"><b>Commission:</b> No commission</div>
+              <div class="limits__col-note"><b>{{ "PAGES.Settings.Limits.PaymentLimits.Labels.Commission" | translate }}:</b>
+                {{ "PAGES.Settings.Limits.PaymentLimits.Labels.NoCommission" | translate }}</div>
             </div>
             <div class="col limits__col" [ngClass]="{'limits__col--active': user.verifiedL0 && !user.verifiedL1}">
               <svg class="icon icon--red" width="17px" height="17px">
@@ -204,16 +152,6 @@
                 <use xlink:href="#ok"></use>
               </svg>
             </div>
-            <!-- <div class="col limits__col">
-              <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
-              </svg>
-            </div> -->
-            <!-- <div class="col limits__col">
-              <svg class="icon icon--green" width="23px" height="18px">
-                <use href="#ok"></use>
-              </svg>
-            </div> -->
           </div>
         </div>
       </ng-container>

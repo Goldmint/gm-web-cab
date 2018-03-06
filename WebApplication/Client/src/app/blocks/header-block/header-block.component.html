@@ -24,7 +24,7 @@
             <div class="language" (mouseenter)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
               <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
                 <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">
-                  Wallet: {{ activeWallet?.name }} {{ activeWallet.id === 'metamask' ? shortAdr : '' }}</a>
+                  {{ 'HEADER.Wallet' | translate }}: {{ activeWallet?.name }} {{ activeWallet.id === 'metamask' ? shortAdr : '' }}</a>
 
                 <ul *dropdownMenu class="dropdown-menu" role="menu">
                   <li role="menuitem" *ngFor="let item of wallets">
@@ -60,10 +60,10 @@
 
                 <ul *dropdownMenu class="dropdown-menu" role="menu">
                   <li role="menuitem">
-                    <a class="dropdown-item" routerLink="account">Account Info</a>
+                    <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
                   </li>
                   <li role="menuitem">
-                    <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">Sign out</a>
+                    <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">{{ 'HEADER.SignOut' | translate }}</a>
                   </li>
                 </ul>
               </div>

@@ -6,7 +6,7 @@
 
       <div class="section__title-widget" *ngIf="!loading">
         <div class="lead icon--red">
-          Not verified
+          {{ "PAGES.Settings.KYC.DefaultSection.StatusText" | translate }}
         </div>
       </div>
     </h2>
@@ -31,22 +31,22 @@
             <svg class="kyc-pros__icon" width="33px" height="44px">
               <use xlink:href="#verify-secure"></use>
             </svg>
-            <div class="kyc-pros__title">Secure</div>
-            <p class="kyc-pros__desc">All provided information is encrypted and securely stored.</p>
+            <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+            <p class="kyc-pros__desc">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
           </div>
           <div class="col px-5">
             <svg class="kyc-pros__icon" width="28px" height="44px">
               <use xlink:href="#verify-simple"></use>
             </svg>
-            <div class="kyc-pros__title">Simple</div>
-            <p class="kyc-pros__desc">Verification process is very simple and takes not more than 15 minutes.</p>
+            <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+            <p class="kyc-pros__desc">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
           </div>
           <div class="col pl-4">
             <svg class="kyc-pros__icon" width="36px" height="44px">
               <use xlink:href="#verify-complaint"></use>
             </svg>
-            <div class="kyc-pros__title">Complaint</div>
-            <p class="kyc-pros__desc">Verification procedure is fully compilant with AML and KYC regulations.</p>
+            <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+            <p class="kyc-pros__desc">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
           </div>
         </div>
       </ng-container>
@@ -70,7 +70,7 @@
 
       <div class="text-center">
         <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
-          Get advanced verification
+          {{ "PAGES.Settings.KYC.DefaultSection.Buttons.GetAdvancedVer" | translate }}
           <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
         </button>
       </div>
@@ -80,7 +80,7 @@
   <!--KYC IN PROGRESS-->
   <section class="section section--no-bottom" *ngIf="phase === _phase.KYCPending">
     <h2 class="section__title">
-      <span>KYC verification</span>
+      <span>{{ "PAGES.Settings.KYC.DefaultSection.Labels.KYCVer" | translate }}</span>
     </h2>
 
     <div class="section__content kyc pt-2">
@@ -100,7 +100,7 @@
 
       <div class="section__title-widget">
         <div class="lead icon--green">
-          Advanced verification completed
+          {{ "PAGES.Settings.KYC.FinishedSection.StatusText" | translate }}
         </div>
       </div>
     </h2>
@@ -122,7 +122,7 @@
 
       <div class="section__title-widget">
         <div class="lead icon--red">
-          Not signed
+          {{ "PAGES.Settings.KYC.DefaultSection.Labels.NotSigned" | translate }}
         </div>
       </div>
     </h2>
@@ -158,12 +158,12 @@
 
       <div class="section__title-widget">
         <div class="lead icon--green" *ngIf="kycProfile.isFormFilled; else noBasicVerificationBlock">
-          Basic information filled
+          {{ "PAGES.Settings.KYC.FormSection.StatusText" | translate }}
         </div>
 
         <ng-template #noBasicVerificationBlock>
           <div class="lead icon--red">
-            Not verified
+            {{ "PAGES.Settings.KYC.DefaultSection.Labels.NotVerified" | translate }}
           </div>
         </ng-template>
       </div>
@@ -266,18 +266,18 @@
                         (ngModelChange)="errors.BirthMonth = false"
                         [disabled]="kycProfile.isFormFilled === true || processing">
 
-                  <option value="1">January</option>
-                  <option value="2">February</option>
-                  <option value="3">March</option>
-                  <option value="4">April</option>
-                  <option value="5">May</option>
-                  <option value="6">June</option>
-                  <option value="7">July</option>
-                  <option value="8">August</option>
-                  <option value="9">September</option>
-                  <option value="10">October</option>
-                  <option value="11">November</option>
-                  <option value="12">December</option>
+                  <option value="1">{{ "PAGES.Settings.KYC.FormSection.Month.January" | translate }}</option>
+                  <option value="2">{{ "PAGES.Settings.KYC.FormSection.Month.February" | translate }}</option>
+                  <option value="3">{{ "PAGES.Settings.KYC.FormSection.Month.March" | translate }}</option>
+                  <option value="4">{{ "PAGES.Settings.KYC.FormSection.Month.April" | translate }}</option>
+                  <option value="5">{{ "PAGES.Settings.KYC.FormSection.Month.May" | translate }}</option>
+                  <option value="6">{{ "PAGES.Settings.KYC.FormSection.Month.June" | translate }}</option>
+                  <option value="7">{{ "PAGES.Settings.KYC.FormSection.Month.July" | translate }}</option>
+                  <option value="8">{{ "PAGES.Settings.KYC.FormSection.Month.August" | translate }}</option>
+                  <option value="9">{{ "PAGES.Settings.KYC.FormSection.Month.September" | translate }}</option>
+                  <option value="10">{{ "PAGES.Settings.KYC.FormSection.Month.October" | translate }}</option>
+                  <option value="11">{{ "PAGES.Settings.KYC.FormSection.Month.November" | translate }}</option>
+                  <option value="12">{{ "PAGES.Settings.KYC.FormSection.Month.December" | translate }}</option>
                 </select>
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>

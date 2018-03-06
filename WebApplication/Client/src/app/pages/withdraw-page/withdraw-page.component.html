@@ -12,32 +12,32 @@
         <!-- KYC REQUIRED -->
         <ng-container *ngIf="!user.verifiedL1; else blockMethods">
 
-          <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.KYC.Text' | translate "></p>
+          <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
 
           <div class="row kyc-pros mb-4 pb-2">
             <div class="col">
               <svg class="kyc-pros__icon" width="33px" height="44px">
                 <use xlink:href="#verify-secure"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Withdraw.KYC.Pros.Secure.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.KYC.Pros.Secure.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
             </div>
             <div class="col">
               <svg class="kyc-pros__icon" width="28px" height="44px">
                 <use xlink:href="#verify-simple"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Withdraw.KYC.Pros.Simple.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.KYC.Pros.Simple.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
             </div>
             <div class="col">
               <svg class="kyc-pros__icon" width="36px" height="44px">
                 <use xlink:href="#verify-complaint"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Withdraw.KYC.Pros.Complaint.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.KYC.Pros.Complaint.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
             </div>
             <div class="col-auto pl-4 ml-2 align-self-center pb-3">
-              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.KYC.Button" | translate }}</a>
+              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
             </div>
           </div>
         </ng-container>
@@ -54,22 +54,22 @@
                 <svg class="kyc-pros__icon" width="33px" height="44px">
                   <use xlink:href="#verify-secure"></use>
                 </svg>
-                <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Secure.Title" | translate }}</div>
-                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Secure.Text" | translate }}</p>
+                <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
               </div>
               <div class="col">
                 <svg class="kyc-pros__icon" width="28px" height="44px">
                   <use xlink:href="#verify-simple"></use>
                 </svg>
-                <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Simple.Title" | translate }}</div>
-                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Simple.Text" | translate }}</p>
+                <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
               </div>
               <div class="col">
                 <svg class="kyc-pros__icon" width="36px" height="44px">
                   <use xlink:href="#verify-complaint"></use>
                 </svg>
-                <div class="kyc-pros__title">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Title" | translate }}</div>
-                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Withdraw.TFA.Pros.Complaint.Text" | translate }}</p>
+                <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
               </div>
               <div class="col-auto pl-4 ml-2 align-self-center pb-3">
                 <a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.TFA.Button" | translate }}</a>
@@ -82,7 +82,7 @@
           <ng-container *ngIf="tfaInfo.enabled">
             <div class="row">
               <div class="col form-group text-center">
-                <label for="btnPaymentCard">Payment card</label>
+                <label for="btnPaymentCard">{{ "PAGES.Withdraw.Method.Card" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-card"></use>
@@ -90,36 +90,27 @@
                 </button>
               </div>
               <div class="col form-group text-center">
-                <label for="btnPaymentBank" disabled>Bank transfer</label>
+                <label for="btnPaymentBank" disabled>{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
                   <svg class="icon" width="107px" height="56px">
                     <use xlink:href="#payment-bank"></use>
                   </svg>
                 </button>
               </div>
-              <!-- <div class="col form-group text-center">
-                <label for="btnPaymentCrypto">Crypto capital</label>
-                <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
-                  <svg class="icon" width="56px" height="56px">
-                    <use href="#payment-crypto"></use>
-                  </svg>
-                </button>
-              </div> -->
-
             </div>
 
             <div class="row pb-4 mb-3">
 
               <tabset class="col tabs">
-                <tab heading="Daily">
+                <tab heading='{{ "PAGES.Withdraw.Table.Menu.Daily" | translate }}'>
                   <div class="limits-bar">
                     <div class="limits-bar__caption">
-                      <span>Account limits</span>
+                      <span>{{ "PAGES.Withdraw.Table.Heading" | translate }}</span>
                       <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                         <svg class="icon" width="20px" height="20px">
                           <use xlink:href="#increase"></use>
                         </svg>
-                        <span>Increase</span>
+                        <span>{{ "PAGES.Withdraw.Table.Increase" | translate }}</span>
                       </a>
                     </div>
                     <div class="limits-bar__progress progress">
@@ -131,7 +122,7 @@
                     <div class="col-md-6">
                       <div class="limits-bar">
                         <div class="limits-bar__caption">
-                          <span>Available for payment</span>
+                          <span>{{ "PAGES.Withdraw.Table.Available" | translate }}</span>
                           <div class="limits-bar__value">{{limits.current.withdraw.day | currency}}</div>
                         </div>
                       </div>
@@ -140,7 +131,7 @@
                     <div class="col-md-6">
                       <div class="limits-bar">
                         <div class="limits-bar__caption">
-                          Limit
+                          {{ "PAGES.Withdraw.Table.Limit" | translate }}
                           <div class="limits-bar__value">{{(limits.levels.current.withdraw.day - limits.current.withdraw.day) | currency}} of {{limits.levels.current.withdraw.day | currency}}</div>
                         </div>
                       </div>
@@ -157,15 +148,15 @@
                   </div>
                 </tab>
 
-                <tab heading="Monthly">
+                <tab heading='{{ "PAGES.Withdraw.Table.Menu.Monthly" | translate }}'>
                   <div class="limits-bar">
                     <div class="limits-bar__caption">
-                      <span>Account limits</span>
+                      <span>{{ "PAGES.Withdraw.Table.Heading" | translate }}</span>
                       <a routerLink="/account/verification" class="limits-bar__increase" *ngIf="limitsIncrease">
                         <svg class="icon" width="20px" height="20px">
                           <use xlink:href="#increase"></use>
                         </svg>
-                        <span>Increase</span>
+                        <span>{{ "PAGES.Withdraw.Table.Increase" | translate }}</span>
                       </a>
                     </div>
                     <div class="limits-bar__progress progress">
@@ -178,7 +169,7 @@
                     <div class="col-md-6">
                       <div class="limits-bar">
                         <div class="limits-bar__caption">
-                          <span>Available for payment</span>
+                          <span>{{ "PAGES.Withdraw.Table.Available" | translate }}</span>
                           <div class="limits-bar__value">{{limits.current.withdraw.month | currency}}</div>
                         </div>
                       </div>
@@ -187,7 +178,7 @@
                     <div class="col-md-6">
                       <div class="limits-bar">
                         <div class="limits-bar__caption">
-                          Limit
+                          {{ "PAGES.Withdraw.Table.Limit" | translate }}
                           <div class="limits-bar__value">{{(limits.levels.current.withdraw.month - limits.current.withdraw.month) | currency}} of {{limits.levels.current.withdraw.month | currency}}</div>
                         </div>
                       </div>
@@ -215,7 +206,7 @@
 
 <ng-container *ngIf="page === pages.CardsList">
   <section class="page__section section section--table">
-    <h2 class="section__title">{{ "PAGES.Deposit.CardsList.SectionTitle" | translate }}</h2>
+    <h2 class="section__title">{{ "PAGES.Withdraw.CardsList.SectionTitle" | translate }}</h2>
 
     <div class="section__content pt-4">
       <div class="progress-linear progress-linear--tiny" *ngIf="loading">
@@ -227,7 +218,7 @@
           <div class="row">
             <div class="col-12">
               <div class="form-group">
-                <label for="selectCard">Select a card:</label>
+                <label for="selectCard">{{ "PAGES.Withdraw.PaymentCard.Labels.SelectCard" | translate }}</label>
                 <div class="d-flex align-items-center">
                   <div class="form-currency">
                     <svg class="icon" width="30px" height="30px" >
@@ -249,7 +240,7 @@
 
               <div class="form-row align-items-end">
                 <div class="form-group col-12">
-                  <label for="inputAmount">Amount:</label>
+                  <label for="inputAmount">{{ "PAGES.Withdraw.PaymentCard.Labels.Amount" | translate }}</label>
                   <div class="d-flex align-items-center">
                     <div class="form-currency form-currency--usd">
                       <svg class="icon" width="30">
@@ -265,13 +256,13 @@
                            [readonly]="processing">
                   </div>
                   <div class="invalid-feedback" *ngIf="errors?.Amount || (amount.dirty && !cardWithdrawChecked)">
-                    Invalid amount value
+                    {{ "PAGES.Withdraw.PaymentCard.Errors.Invalid" | translate }}
                   </div>
                   <div class="invalid-feedback" *ngIf="depositModel.amount < minAmount">
-                    Minimal amount value  is {{ minAmount | currency }}
+                    {{ "PAGES.Withdraw.PaymentCard.Errors.Minimal" | translate }} {{ minAmount | currency }}
                   </div>
                   <div class="invalid-feedback" *ngIf="depositModel.amount > maxAmount">
-                    Maximum amount value  is {{ maxAmount | currency }}
+                    {{ "PAGES.Withdraw.PaymentCard.Errors.Maximum" | translate }} {{ maxAmount | currency }}
                   </div>
                 </div>
               </div>
@@ -281,7 +272,10 @@
           <div class="row pt-4">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="processing">
-              <label class="custom-control-label" for="agreeCheck">I am agree with <a href="#" target="_blank">Very Important Document</a></label>
+              <label class="custom-control-label" for="agreeCheck">{{ "PAGES.Withdraw.PaymentCard.Text.Agree" | translate }}
+                <a href="#" target="_blank">
+                  {{ "PAGES.Withdraw.PaymentCard.Text.Document" | translate }}
+                </a></label>
             </div>
           </div>
 
@@ -295,7 +289,7 @@
       <ng-template #noCardsBlock>
         <div class="row">
           <div class="col">
-            <a routerLink="/account/cards" class="btn btn-primary">Add a card</a>
+            <a routerLink="/account/cards" class="btn btn-primary">{{ "PAGES.Withdraw.Buttons.AddCard" | translate }}</a>
           </div>
         </div>
       </ng-template>
@@ -305,9 +299,9 @@
 
 <ng-container *ngIf="page === pages.CardsListSuccess">
   <section class="page__section section section--table">
-    <h2 class="section__title">Your request is being processed</h2>
+    <h2 class="section__title">{{ "PAGES.Withdraw.CardsList.Processed" | translate }}</h2>
     <div class="pt-4">
-      <button type="submit" (click)="page = pages.CardsList" class="btn btn-primary">Done</button>
+      <button type="submit" (click)="page = pages.CardsList" class="btn btn-primary">{{ "PAGES.Withdraw.Buttons.Done" | translate }}</button>
     </div>
   </section>
 </ng-container>

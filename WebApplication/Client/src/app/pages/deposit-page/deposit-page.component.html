@@ -12,32 +12,32 @@
         <!-- KYC REQUIRED -->
         <ng-container *ngIf="!user.verifiedL1; else blockMethods">
 
-          <p class="mb-5" [innerHTML]=" 'PAGES.Deposit.KYC.Text' | translate "></p>
+          <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
 
           <div class="row kyc-pros mb-4 pb-2">
             <div class="col">
               <svg class="kyc-pros__icon" width="33px" height="44px">
                 <use xlink:href="#verify-secure"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Deposit.KYC.Pros.Secure.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.KYC.Pros.Secure.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
             </div>
             <div class="col">
               <svg class="kyc-pros__icon" width="28px" height="44px">
                 <use xlink:href="#verify-simple"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Deposit.KYC.Pros.Simple.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.KYC.Pros.Simple.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
             </div>
             <div class="col">
               <svg class="kyc-pros__icon" width="36px" height="44px">
                 <use xlink:href="#verify-complaint"></use>
               </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Deposit.KYC.Pros.Complaint.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Deposit.KYC.Pros.Complaint.Text" | translate }}</p>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
             </div>
             <div class="col-auto pl-4 ml-2 align-self-center pb-3">
-              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Deposit.KYC.Button" | translate }}</a>
+              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Deposit.Buttons.Start" | translate }}</a>
             </div>
           </div>
         </ng-container>
@@ -64,14 +64,6 @@
               </button>
               <div class="text-left pt-1 blocked-notification" *ngIf="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min">Your available for payment limit is less than minimally bank transfer sum ({{ limits.paymentMethod.swift.deposit.min | currency }})</div>
             </div>
-            <!-- <div class="col form-group text-center">
-              <label for="btnPaymentCrypto">Crypto capital</label>
-              <button class="btn btn-primary btn-block" id="btnPaymentCrypto">
-                <svg class="icon" width="56px" height="56px">
-                  <use href="#payment-crypto"></use>
-                </svg>
-              </button>
-            </div> -->
           </div>
 
           <div class="row pb-4 mb-3">
@@ -123,7 +115,7 @@
                 </div>
               </tab>
 
-              <tab heading='{{ "PAGES.Deposit.Table.Menu.Daily" | translate }}'>
+              <tab heading='{{ "PAGES.Deposit.Table.Menu.Monthly" | translate }}'>
                 <div class="limits-bar">
                   <div class="limits-bar__caption">
                     <span>{{ "PAGES.Deposit.Table.Heading" | translate }}</span>
@@ -131,7 +123,7 @@
                       <svg class="icon" width="20px" height="20px">
                         <use xlink:href="#increase"></use>
                       </svg>
-                      <span>{{ "PAGES.Deposit.Table.Increase" | translate }}</span> limits-bar
+                      <span>{{ "PAGES.Deposit.Table.Increase" | translate }}</span>
                     </a>
                   </div>
                   <div class="limits-bar__progress progress">
@@ -174,58 +166,6 @@
       </ng-template>
     </div>
   </section>
-
-
-
-
-
-
-
-  <!--<ng-container *ngIf="!loading">-->
-    <!--<section class="section section&#45;&#45;warning" *ngIf="!tfaInfo.enabled; else tfaEnabled">-->
-      <!--<h2 class="section__title section__title&#45;&#45;warning">-->
-        <!--<svg class="icon" width="18px" height="16px">-->
-          <!--<use xlink:href="#warning"></use>-->
-        <!--</svg>-->
-        <!--{{ "PAGES.Deposit.TFA.SectionTitle" | translate }}-->
-      <!--</h2>-->
-
-      <!--<div class="section__content section__content&#45;&#45;clean pt-2">-->
-        <!--<p class="mb-5" [innerHTML]=" 'PAGES.Deposit.TFA.Text' | translate "></p>-->
-
-        <!--<div class="row kyc-pros mb-4 pb-2">-->
-          <!--<div class="col">-->
-            <!--<svg class="kyc-pros__icon" width="33px" height="44px">-->
-              <!--<use xlink:href="#verify-secure"></use>-->
-            <!--</svg>-->
-            <!--<div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Secure.Title" | translate }}</div>-->
-            <!--<p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Deposit.TFA.Pros.Secure.Text" | translate }}</p>-->
-          <!--</div>-->
-          <!--<div class="col">-->
-            <!--<svg class="kyc-pros__icon" width="28px" height="44px">-->
-              <!--<use xlink:href="#verify-simple"></use>-->
-            <!--</svg>-->
-            <!--<div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Simple.Title" | translate }}</div>-->
-            <!--<p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Deposit.TFA.Pros.Simple.Text" | translate }}</p>-->
-          <!--</div>-->
-          <!--<div class="col">-->
-            <!--<svg class="kyc-pros__icon" width="36px" height="44px">-->
-              <!--<use xlink:href="#verify-complaint"></use>-->
-            <!--</svg>-->
-            <!--<div class="kyc-pros__title">{{ "PAGES.Deposit.TFA.Pros.Complaint.Title" | translate }}</div>-->
-            <!--<p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Deposit.TFA.Pros.Complaint.Text" | translate }}</p>-->
-          <!--</div>-->
-          <!--<div class="col-auto pl-4 ml-2 align-self-center pb-3">-->
-            <!--<a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Deposit.TFA.Button" | translate }}</a>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</section>-->
-
-    <!--<ng-template #tfaEnabled>-->
-
-    <!--</ng-template>-->
-  <!--</ng-container>-->
 </ng-container>
 
 <ng-container *ngIf="page === pages.CardsList">
@@ -242,7 +182,7 @@
           <div class="row">
             <div class="col-12">
               <div class="form-group">
-                <label for="selectCard">Select a card:</label>
+                <label for="selectCard">{{ "PAGES.Deposit.PaymentCard.Labels.SelectCard" | translate }}</label>
                 <div class="d-flex align-items-center">
                   <div class="form-currency">
                     <svg class="icon" width="30px" height="30px" >
@@ -264,7 +204,7 @@
 
               <div class="form-row align-items-end">
                 <div class="form-group col-12">
-                  <label for="inputAmount">Amount:</label>
+                  <label for="inputAmount">{{ "PAGES.Deposit.PaymentCard.Labels.Amount" | translate }}</label>
                   <div class="d-flex align-items-center">
                     <div class="form-currency form-currency--usd">
                       <svg class="icon" width="30">
@@ -280,13 +220,13 @@
                            [readonly]="processing">
                   </div>
                   <div class="invalid-feedback" *ngIf="errors?.Amount || (!cardDepositChecked && amount.dirty)">
-                    Invalid amount value
+                    {{ "PAGES.Deposit.PaymentCard.Errors.Invalid" | translate }}
                   </div>
                   <div class="invalid-feedback" *ngIf="depositModel.amount < minAmount && !cardDepositChecked">
-                    Minimal amount value  is {{ minAmount | currency }}
+                    {{ "PAGES.Deposit.PaymentCard.Errors.Minimal" | translate }} {{ minAmount | currency }}
                   </div>
                   <div class="invalid-feedback" *ngIf="depositModel.amount > maxAmount && !cardDepositChecked">
-                    Maximum amount value  is {{ maxAmount | currency }}
+                    {{ "PAGES.Deposit.PaymentCard.Errors.Maximum" | translate }} {{ maxAmount | currency }}
                   </div>
                 </div>
               </div>
@@ -296,11 +236,16 @@
           <div class="row pt-4">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="processing">
-              <label class="custom-control-label" for="agreeCheck">I am agree with <a href="#" target="_blank">Very Important Document</a></label>
+              <label class="custom-control-label" for="agreeCheck">{{ "PAGES.Deposit.PaymentCard.Text.Agree" | translate }}
+                <a href="#" target="_blank">
+                  {{ "PAGES.Deposit.PaymentCard.Text.Document" | translate }}
+                </a></label>
             </div>
           </div>
           <div class="row pt-4 align-items-center">
-            <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !agreeCheck || processing">Proceed</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !agreeCheck || processing">
+              {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
+            </button>
             <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </form>
@@ -309,7 +254,7 @@
       <ng-template #noCardsBlock>
         <div class="row">
           <div class="col">
-            <a routerLink="/account/cards" class="btn btn-primary">Add a card</a>
+            <a routerLink="/account/cards" class="btn btn-primary">{{ "PAGES.Deposit.Buttons.AddCard" | translate }}</a>
           </div>
         </div>
       </ng-template>
@@ -319,9 +264,9 @@
 
 <ng-container *ngIf="page === pages.CardsListSuccess">
   <section class="page__section section section--table">
-    <h2 class="section__title">Your request is being processed</h2>
+    <h2 class="section__title">{{ "PAGES.Deposit.CardsList.Processed" | translate }}</h2>
     <div class="pt-4">
-      <button type="submit" (click)="page = pages.CardsList" class="btn btn-primary">Done</button>
+      <button type="submit" (click)="page = pages.CardsList" class="btn btn-primary">{{ "PAGES.Deposit.Buttons.Done" | translate }}</button>
     </div>
   </section>
 </ng-container>
@@ -331,10 +276,8 @@
   <section class="page__section section section--table">
     <div class="section__content pt-4">
 
-      <!-- TODO: Можно переделать на ngSwitch-->
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Default">
-        Are you ready?
-
+        {{ "PAGES.Deposit.BankTransfer.Labels.Ready" | translate }}
         <div class="form-group pt-4">
           <div class="custom-control custom-checkbox">
             <input type="checkbox"
@@ -343,7 +286,7 @@
                    name="riskChecked"
                    [(ngModel)]="riskChecked">
 
-            <label class="custom-control-label" for="riskChecked">I have double-checked all the risks</label>
+            <label class="custom-control-label" for="riskChecked">{{ "PAGES.Deposit.BankTransfer.Checkbox" | translate }}</label>
           </div>
         </div>
 
@@ -353,7 +296,7 @@
                     class="btn btn-primary"
                     [disabled]="!riskChecked"
                     (click)="nextStep(_bankTransferSteps.Form)">
-              Continue
+              {{ "PAGES.Deposit.Buttons.Continue" | translate }}
             </button>
           </div>
         </div>
@@ -365,7 +308,7 @@
               #transferForm="ngForm"
               novalidate>
           <div class="form-group">
-            <label for="transferAmount">USD Amount *</label>
+            <label for="transferAmount">{{ "PAGES.Deposit.BankTransfer.Labels.USDAmount" | translate }}</label>
 
             <input id="transferAmount"
                    type="number"
@@ -378,12 +321,12 @@
                    #amount="ngModel"
                    [ngClass]="{'is-invalid': (amount.dirty && !swiftDepositChecked) || (amount.invalid && (transferForm.submitted || amount.dirty))}">
             <div class="invalid-feedback" *ngIf="errors?.amount || (amount.dirty && !swiftDepositChecked)">
-              Invalid amount value
+              {{ "PAGES.Deposit.Errors.Invalid" | translate }}
             </div>
           </div>
 
           <div class="form-group">
-            <label for="selectBankCountry">Choose your bank country</label>
+            <label for="selectBankCountry">{{ "PAGES.Deposit.BankTransfer.Labels.Country" | translate }}</label>
 
             <select id="selectBankCountry"
                     class="custom-select"
@@ -402,10 +345,11 @@
 
           <button class="btn btn-primary"
                   [disabled]="!swiftDepositChecked || !transferForm.bankCountry || !transferForm.amount">
-            Proceed
+            {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
           </button>
         </form>
       </ng-container>
+
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.PaymentDetails">
         <div *ngIf="invoiceData && invoiceData.reference" id="invoice-wrapper" class="invoice-wrapper">
           <div style="font-family:Helvetica,'Helvetica Neue',Arial,sans-serif;width:760px;background-color:rgb(255,255,255);padding:0px 70px 70px;margin:10px auto;font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px">
@@ -507,8 +451,8 @@
         <div class="invoice-actions-container">
           <a href="#" (click)="downloadInvoice($event)"
              [ngClass]="{'disabled-a': !invoiceData}"
-             download="invoice.html" class="btn btn-primary">download</a>
-          <button class="btn btn-primary" (click)="printInvoice()" [disabled]="!invoiceData">print</button>
+             download="invoice.html" class="btn btn-primary">{{ "PAGES.Deposit.Buttons.Download" | translate }}</a>
+          <button class="btn btn-primary" (click)="printInvoice()" [disabled]="!invoiceData">{{ "PAGES.Deposit.Buttons.Print" | translate }}</button>
         </div>
       </ng-container>
     </div>

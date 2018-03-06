@@ -8,6 +8,9 @@
     "Wallet": "Wallet:",
     "SignIn": "Sign in",
     "SignUp": "Sign up",
+    "SignOut": "Sign out",
+    "AccountInfo": "Account Info",
+    "Wallet": "Wallet",
     "Menu": {
       "Sell": "Sell Gold",
       "Buy": "Buy Gold",
@@ -45,7 +48,7 @@
       },
       "SectionTitle": "Instant Sell",
       "Discount": "Fee",
-      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price untill all BTC is sold",
+      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
       "Buttons": {
         "SellNow": "Sell now",
         "BuyMore": "Buy more"
@@ -95,11 +98,7 @@
         "Deposit": "Deposit",
         "Withdraw": "Withdraw",
         "History": "History"
-      }
-    },
-    "Deposit": {
-      "Heading": "Deposit",
-      "SectionTitle": "Choose deposit payment method",
+      },
       "KYC": {
         "Text": "<span class=\"lead\">We need to confirm your identity</span>",
         "Pros": {
@@ -113,10 +112,75 @@
           },
           "Complaint": {
             "Title": "Complaint",
-            "Text": "Verification procedure is fully compilant with AML and KYC regulations."
+            "Text": "Verification procedure is fully compliant with AML and KYC regulations."
           }
+        }
+      }
+    },
+    "Deposit": {
+      "Heading": "Deposit",
+      "SectionTitle": "Choose deposit payment method",
+      "Method": {
+        "Card": "Payment card",
+        "Transfer": "Bank transfer"
+      },
+      "Table": {
+        "Menu": {
+          "Daily": "Daily",
+          "Monthly": "Monthly"
         },
-        "Button": "Start"
+        "Heading": "Account limits",
+        "Available": "Available for payment",
+        "Limit": "Limit",
+        "Increase": "Increase"
+      },
+      "PaymentCard": {
+        "Labels": {
+          "SelectCard": "Select a card:",
+          "Amount": "Amount:"
+        },
+        "Text": {
+          "Agree": "I am agree with",
+          "Document": "Very Important Document"
+        },
+        "Errors": {
+          "Invalid": "Invalid amount value",
+          "Minimal": "Minimal amount value is",
+          "Maximum": "Maximum amount value is"
+        }
+      },
+      "BankTransfer": {
+        "Labels": {
+          "Ready": "Are you ready?",
+          "USDAmount": "USD Amount *",
+          "Country": "Choose your bank country"
+        },
+        "Checkbox": "I have double-checked all the risks"
+      },
+      "CardsList": {
+        "SectionTitle": "Card details",
+        "Processed": "Your request is being processed"
+      },
+      "Buttons": {
+        "AddCard": "Add a card",
+        "Continue": "Continue",
+        "Start": "Start",
+        "Proceed": "Proceed",
+        "Download": "Download",
+        "Print": "Print",
+        "Done": "Done"
+      },
+      "Errors": {
+        "Invalid": "Invalid amount value"
+      }
+    },
+    "Withdraw": {
+      "Heading": "Withdraw {{ asset }}",
+      "SectionTitle": "Choose withdrawal payment method",
+      "TFA": {
+        "SectionTitle": "You need to enable 2FA first",
+        "Text": "<span class=\"lead\">Enable 2FA in a few clicks</span>",
+        "Button": "Enable 2FA"
       },
       "Method": {
         "Card": "Payment card",
@@ -132,56 +196,33 @@
         "Limit": "Limit",
         "Increase": "Increase"
       },
-      "BankTransfer": {
-        "Label": "Are you ready?",
-        "Checkbox": "I have double-checked all the risks",
-        "Buttons": {
-          "Continue": "Continue"
+      "PaymentCard": {
+        "Labels": {
+          "SelectCard": "Select a card:",
+          "Amount": "Amount:"
+        },
+        "Text": {
+          "Agree": "I am agree with",
+          "Document": "Very Important Document"
+        },
+        "Errors": {
+          "Invalid": "Invalid amount value",
+          "Minimal": "Minimal amount value is",
+          "Maximum": "Maximum amount value is"
         }
       },
       "CardsList": {
-        "SectionTitle": "Card details"
-      }
-    },
-    "Withdraw": {
-      "Heading": "Withdraw {{ asset }}",
-      "SectionTitle": "Choose withdrawal payment method",
-	  "KYC": {
-        "Text": "<span class=\"lead\">We need to confirm your identity</span>",
-        "Pros": {
-          "Secure": {
-            "Title": "Secure",
-            "Text": "All provided information is encrypted and securely stored."
-          },
-          "Simple": {
-            "Title": "Simple",
-            "Text": "Verification process is very simple and takes not more than 15 minutes."
-          },
-          "Complaint": {
-            "Title": "Complaint",
-            "Text": "Verification procedure is fully compilant with AML and KYC regulations."
-          }
-        },
-        "Button": "Start"
+        "SectionTitle": "Card details",
+        "Processed": "Your request is being processed"
       },
-      "TFA": {
-        "SectionTitle": "You need to enable 2FA first",
-        "Text": "<span class=\"lead\">Enable 2FA in a few clicks</span>",
-        "Pros": {
-          "Secure": {
-            "Title": "Secure",
-            "Text": "All provided information is encrypted and securely stored."
-          },
-          "Simple": {
-            "Title": "Simple",
-            "Text": "Verification process is very simple and takes not more than 15 minutes."
-          },
-          "Complaint": {
-            "Title": "Complaint",
-            "Text": "Verification procedure is fully compilant with AML and KYC regulations."
-          }
-        },
-        "Button": "Enable 2FA"
+      "Buttons": {
+        "AddCard": "Add a card",
+        "Continue": "Continue",
+        "Start": "Start",
+        "Proceed": "Proceed",
+        "Download": "Download",
+        "Print": "Print",
+        "Done": "Done"
       }
     },
     "History": {
@@ -216,6 +257,23 @@
         "Username": "Email or Username",
         "Password": "Password",
         "TFACode": "Two-factor authentication code"
+      },
+      "LoginDPARequired": {
+        "Heading": "Data Processing Agreement",
+        "Text": {
+          "First": "In order to use Goldmint application you should sign data processing agreement we have sent to your email.",
+          "Second": "If you have signed an agreement, please note that in particular cases processing could take a while. Please be patient, wait a few minutes and try to sign in. ",
+          "Third": "If you have problems with signing this agreement, please contact our support team via ",
+          "Support": "support@goldmint.io"
+        }
+      },
+      "LoginDPASigned": {
+        "Heading": "Data Processing Agreement",
+        "Text": {
+          "First": "We have received document. Please click button below to sign in.",
+          "Second": "If you have problems with signing this agreement, please contact our support team via ",
+          "Support": "support@goldmint.io"
+        }
       },
       "Errors": {
         "Username": {
@@ -321,7 +379,8 @@
       "EmailTakenPage":  {
         "Title": "This email is already taken",
         "Content": "We are sorry, but email you specified is already taken. Please try another one."
-      }
+      },
+      "IAgreeText": "Hereby I grant the company GoldMint PTE LTD the right to keep and handle my personal data."
     },
     "Settings": {
       "Heading": "Account Info",
@@ -338,7 +397,7 @@
         "UserIdSection": {
           "Title": "UserID"
         },
-		    "EmailSection": {
+		"EmailSection": {
           "Title": "Email",
           "Labels": {
             "PrimaryEmail": "Primary Email Address"
@@ -381,6 +440,30 @@
           }
         }
       },
+      "Cards": {
+        "Heading": "Cards",
+        "Labels": {
+          "VerificationCode": "Verification code:"
+        },
+        "Info": {
+          "Add": "You did not add any card.",
+          "Confirm": "In order to add credit card you have to confirm your person.",
+          "Redirect": "You will be redirected to acquirer page to fill card data.",
+          "InputData": "You have to enter the same card data one more time. You will be redirected to acquirer page.",
+          "Verify": "We have charged test payment. Please check bank statement for exact amount of this payment. In order to verify this card please type this amount below. For example: 1.23",
+          "CardIsReady": "Card verified and ready to use.",
+          "Wrong": "Oops! Something went wrong. Card has not been added."
+        },
+        "Status": {
+          "New": "New",
+          "Failed": "Failed",
+          "Disabled": "Disabled",
+          "Checking": "Checking...",
+          "Confirm": "Confirm",
+          "Verify": "Verify",
+          "Verified": "Verified"
+        }
+      },
       "KYC": {
         "AccountType": {
           "Label": "Account type:",
@@ -391,13 +474,18 @@
         },
         "DefaultSection": {
           "Title": "Identity verification",
-          "Text": "Complete verification to withdraw fiat funds and unlock account opportinities",
-          "Note": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
-          "UpgradeText": "<span class=\"lead\">Complete verification to withdraw fiat funds and unlock account opportinities</span>",
-          "UpgradeNote": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
+          "StatusText": "Not verified",
+          "Labels": {
+            "KYCVer": "KYC verification",
+            "NotSigned": "Not signed",
+            "NotVerified": "Not verified"
+          },
+          "Text": "Complete verification to withdraw fiat funds and unlock account opportunities",
+          "Note": "Verification procedures is very simple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
           "Buttons": {
             "Start": "Start Verification",
-            "Upgrade": "Upgrade Verification"
+            "Upgrade": "Upgrade Verification",
+            "GetAdvancedVer": "Get advanced verification"
           }
         },
 		"AgreementSection": {
@@ -411,6 +499,7 @@
         },
         "FinishedSection": {
           "Title": "Advanced verification",
+          "StatusText": "Advanced verification completed",
           "Text": "<span class=\"lead\">Congratulations! Identity verification successfully finished!</span>"
         },
         "WarningSection": {
@@ -419,9 +508,9 @@
         },
         "FormSection": {
           "Title": "Basic Information",
-          "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it axists on your government identification.",
+          "StatusText": "Basic information filled",
+          "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it exists on your government identification.",
           "Important": "<b>IMPORTANT:</b> once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
-          "UpgradeAccountText": "<b>UPGRADE ACCOUNT.</b> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur vel eos perspiciatis aliquid officia labore expedita ipsam sequi totam magnam aspernatur libero quia, itaque eveniet pariatur omnis molestias, suscipit corporis.",
           "RequiredFields": "Required fields",
           "Labels": {
             "FirstName": "First Name",
@@ -438,6 +527,20 @@
             "Apartment": "Apartment or unit",
             "Passport": "Passport number (optional)",
             "Phone": "Phone number"
+          },
+          "Month": {
+            "January": "January",
+            "February": "February",
+            "March": "March",
+            "April": "April",
+            "May": "May",
+            "June": "June",
+            "July": "July",
+            "August": "August",
+            "September": "September",
+            "October": "October",
+            "November": "November",
+            "December": "December"
           },
           "Placeholders": {
             "ChooseCountry": "Choose your Country",
@@ -504,11 +607,17 @@
             "Enabled": "Enabled",
             "Disabled": "Disabled"
           },
-		  "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provic ed.</p>",
-          "Text": "<p><b>Please back up your secret key.</b> Reseting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
+          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provided. </p>",
+          "Text": "<p><b>Please back up your secret key.</b> Resetting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
           "KeyLabel": "Secret key:",
           "CodeLabel": "Authenticator Code",
-          "CodeHelpText": "Input your 6-digit authenticatoe code",
+          "CodeHelpText": "Input your 6-digit authenticator code",
+          "Steps": {
+            "One": "1. Backup secret key",
+            "Two": "2. Install application",
+            "Three": "3. Scan QR-code",
+            "Four": "4. Type current code"
+          },
           "Errors": {
             "pattern": "Only 6-digits numeric code is allowed"
           },
@@ -542,6 +651,63 @@
           "exchange": "Assets exchange",
           "creditcard": "Credit card"
         }
+      },
+      "Limits": {
+        "Heading": "Get an overview of your account opportunities",
+        "Buttons": {
+          "Deposit": "Deposit",
+          "Withdraw": "Withdraw"
+        },
+        "AccountTypes": {
+          "Heading": "Account types",
+          "Labels": {
+            "Basic": "BASIC",
+            "Verified": "VERIFIED"
+          },
+          "Text": {
+            "Basic": "Buy and sale Bitcoins in a few clicks using your Visa or Master Card.",
+            "Verified": "Extend your limits and enable more payment options by verifying your identity."
+          },
+          "AccountType": "Your account type"
+        },
+        "TotalLimits": {
+          "Heading": "TOTAL ACCOUNT LIMITS",
+          "SubTitle": {
+            "deposit": "Deposit",
+            "withdraw": "Withdraw"
+          },
+          "Labels": {
+            "Daily": "Daily",
+            "Monthly": "Monthly"
+          }
+        },
+        "PaymentLimits": {
+          "Heading": "PAYMENT METHODS LIMITS",
+          "Text": "Please note that each payment method has It’s own limits, BUT cumulative amount of payment method limits should not exceed total amount limits of your account type",
+          "Labels": {
+            "PaymentCard": "Payment card",
+            "BankTransfer": "Bank transfer",
+            "CryptoCapital": "Crypto capital",
+            "Commission": "Commission",
+            "NoCommission": "No commission"
+          }
+        }
+      }
+    },
+    "Transparency": {
+      "Heading": "Transparency",
+      "Issued": "Total issued:",
+      "Burnt": "Total burnt:",
+      "Circulation": "Total in circulation:",
+      "Link": "Link",
+      "Table": {
+        "Heading": "Transactions",
+        "TableCell": {
+          "Date": "Date",
+          "Amount": "Amount",
+          "Document": "Document",
+          "Comment": "Comment"
+        }
       }
     },
     "ErrorPage": {
@@ -550,6 +716,19 @@
         "SectionTitle": "Use the menu to navigate the site"
       }
     }
+  },
+  "BUTTONS": {
+    "Ok": "OK",
+    "Cancel": "Cancel",
+    "AddCard": "Add card",
+    "Remove": "Remove",
+    "Proceed": "Proceed",
+    "ConfirmCard": "Confirm card",
+    "VerifyCard": "Verify card",
+    "Verification": "Verification",
+    "Back": "Back",
+    "BackToCard": "Back to Cards list",
+    "GoToCard": "Go to Cards list"
   },
   "ERRORS": {
     "Registration": {

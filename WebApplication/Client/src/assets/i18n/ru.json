@@ -1,14 +1,21 @@
 {
+  "COMMONS": {
+    "Loading": "Загрузка...",
+    "TFACode": "Код двухфакторный аутентификации",
+    "TFACodeInvalid": "Неверный код"
+  },
   "HEADER": {
     "Balance": "Баланс:",
     "SignIn": "Вход",
     "SignUp": "Регистрация",
+    "SignOut": "Выход",
+    "AccountInfo": "Аккаунт",
+    "Wallet": "Кошелек",
     "Menu": {
       "Sell": "Продать",
       "Buy": "Купить",
       "Transfer": "Перевод активов",
       "Finance": "Финансы",
-
       "History": "История",
       "Limits": "Лимиты аккаунта",
       "Support": "Поддержка"
@@ -27,6 +34,7 @@
   },
   "PAGES": {
     "Home": {
+      "Heading": "Вы хотите купить или продать gold криптоактивы?",
       "Or": "или",
       "Buttons": {
         "Sell": "Продать",
@@ -93,11 +101,7 @@
         "Deposit": "Пополнить",
         "Withdraw": "Вывести",
         "History": "История"
-      }
-    },
-    "Deposit": {
-      "Heading": "Deposit",
-      "SectionTitle": "Выберите способ пополнения",
+      },
       "KYC": {
         "Text": "<span class=\"lead\">Вам необходимо подтвердить свою личность</span>",
         "Pros": {
@@ -110,11 +114,76 @@
             "Text": "Процесс верификации очень прост и занимает не более 15 минут."
           },
           "Complaint": {
-            "Title": "Complaint",
+            "Title": "Соответствие",
             "Text": "Процедура верификации полностью соответствует нормам AML и KYC."
           }
+        }
+      }
+    },
+    "Deposit": {
+      "Heading": "Deposit",
+      "SectionTitle": "Выберите способ пополнения",
+      "Method": {
+        "Card": "Платёжная карта",
+        "Transfer": "Банковский перевод"
+      },
+      "Table": {
+        "Menu": {
+          "Daily": "Ежедневный",
+          "Monthly": "Ежемесячный"
         },
-        "Button": "Начать"
+        "Heading": "Лимит акаунта",
+        "Available": "Доступно для оплаты",
+        "Limit": "Лимит",
+        "Increase": "Увеличить"
+      },
+      "PaymentCard": {
+        "Labels": {
+          "SelectCard": "Выберите карту:",
+          "Amount": "Количество:"
+        },
+        "Text": {
+          "Agree": "Я согласен с",
+          "Document": "Очень Важным Документом"
+        },
+        "Errors": {
+          "Invalid": "Недопустимое количество",
+          "Minimal": "Минимальное количество",
+          "Maximum": "Максимальное количество"
+        }
+      },
+      "BankTransfer": {
+        "Labels": {
+          "Ready": "Вы готовы?",
+          "USDAmount": "USD сумма *",
+          "Country": "Выберите страну вашего банка"
+        },
+        "Checkbox": "Я дважды проверил все риски"
+      },
+      "CardsList": {
+        "SectionTitle": "Детали карт",
+        "Processed": "Ваш запрос обрабатывается"
+      },
+      "Buttons": {
+        "AddCard": "Добавить карту",
+        "Continue": "Продолжить",
+        "Start": "Начать",
+        "Proceed": "Выполнить",
+        "Download": "Скачать",
+        "Print": "Распечатать",
+        "Done": "Готово"
+      },
+      "Errors": {
+        "Invalid": "Недопустимое количество"
+      }
+    },
+    "Withdraw": {
+      "Heading": "Withdraw {{ asset }}",
+      "SectionTitle": "Выберите способ вывода",
+      "TFA": {
+        "SectionTitle": "Сначала вам нужно включить 2FA",
+        "Text": "<span class=\"lead\">Включить 2FA за несколько кликов</span>",
+        "Button": "Включить 2FA"
       },
       "Method": {
         "Card": "Платёжная карта",
@@ -123,15 +192,40 @@
       "Table": {
         "Menu": {
           "Daily": "Ежедневный",
-          "Monthly": "Месячный"
+          "Monthly": "Ежемесячный"
         },
         "Heading": "Лимит акаунта",
         "Available": "Доступно для оплаты",
         "Limit": "Лимит",
         "Increase": "Увеличить"
       },
+      "PaymentCard": {
+        "Labels": {
+          "SelectCard": "Выберите карту:",
+          "Amount": "Количество:"
+        },
+        "Text": {
+          "Agree": "Я согласен с",
+          "Document": "Очень Важным Документом"
+        },
+        "Errors": {
+          "Invalid": "Недопустимое количество",
+          "Minimal": "Минимальное количество",
+          "Maximum": "Максимальное количество"
+        }
+      },
       "CardsList": {
-        "SectionTitle": "Card details"
+        "SectionTitle": "Детали карт",
+        "Processed": "Ваш запрос обрабатывается"
+      },
+      "Buttons": {
+        "AddCard": "Добавить карту",
+        "Continue": "Продолжить",
+        "Start": "Начать",
+        "Proceed": "Выполнить",
+        "Download": "Скачать",
+        "Print": "Распечатать",
+        "Done": "Готово"
       }
     },
     "History": {
@@ -140,10 +234,10 @@
       "Table": {
         "Columns": {
           "Date": "Дата",
-          "Amount": "Сумма",
+          "Amount": "Количество",
           "Balance": "Баланс",
           "Type": "Операция",
-          "Fee": "Fee",
+          "Fee": "Комиссия",
           "Comment": "Комментарий"
         },
         "EmptyMessage": "Нет данных..."
@@ -162,6 +256,23 @@
         "Username": "Email или логин",
         "Password": "Пароль",
         "TFACode": "Код двухфакторной аутентификации"
+      },
+      "LoginDPARequired": {
+        "Heading": "Соглашение об обработке данных",
+        "Text": {
+          "First": "Чтобы использовать приложение Goldmint, вы должны подписать соглашение об обработке данных, которое мы отправили на ваш адрес электронной почты.",
+          "Second": "Если вы подписали соглашение, обратите внимание, что в некоторых случаях обработка может занять некоторое время. Пожалуйста, подождите несколько минут и попробуйте войти.",
+          "Third": "Если у вас возникли проблемы с подписанием этого соглашения, обратитесь в нашу службу поддержки ",
+          "Support": "support@goldmint.io"
+        }
+      },
+      "LoginDPASigned": {
+        "Heading": "Соглашение об обработке данных",
+        "Text": {
+          "First": "Мы получили документ. Нажмите кнопку ниже, чтобы войти в систему.",
+          "Second": "Если у вас возникли проблемы с подписанием этого соглашения, обратитесь в нашу службу поддержки ",
+          "Support": "support@goldmint.io"
+        }
       },
       "Errors": {
         "Username": {
@@ -248,27 +359,28 @@
         "Register": "Регистрация",
         "RegisterViaSocial": "Войти через {{ provider }}"
       },
-      "Links": "Уже есть аккаунт? Войти"
+      "Links": "Уже есть аккаунт? Войти",
+      "IAgreeText": "Настоящим я даю компании GoldMint PTE LTD  разрешение на обработку и хранение моих персональных данных."
     },
     "Settings": {
-      "Heading": "Account Info",
+      "Heading": "Аккаунт",
       "Menu": {
-        "Profile": "Profile",
-        "Verification": "KYC Verification",
-        "TFA": "Two-Factor Authentication",
-        "Cards": "Cards",
-        "SocialNetworks": "Social Networks",
-        "AccountActivity": "Account Activity",
-        "AccountLimits": "Account Limits"
+        "Profile": "Профиль",
+        "Verification": "KYC верификация",
+        "TFA": "Двухфакторная аутентификация",
+        "Cards": "Карты",
+        "SocialNetworks": "Социальные сети",
+        "AccountActivity": "Активность аккаунта",
+        "AccountLimits": "Лимиты аккаунта"
       },
       "Profile": {
         "UserIdSection": {
-          "Title": "UserID"
+          "Title": "ID пользователя"
         },
         "EmailSection": {
           "Title": "Email",
           "Labels": {
-            "PrimaryEmail": "Primary Email Address"
+            "PrimaryEmail": "Основной Email адрес"
           },
           "Buttons": {
             "Confirm": "Confirm"
@@ -281,25 +393,25 @@
           }
         },
         "PasswordSection": {
-          "Title": "Change Password",
+          "Title": "Изменить пароль",
           "Texts": {
-            "Changed": "Password successfully changed"
+            "Changed": "Пароль успешно изменен"
           },
           "Labels": {
-            "CurrentPassword": "Current Password",
-            "NewPassword": "New Password",
-            "NewPasswordRepeat": "Repeat New Password"
+            "CurrentPassword": "Текущий пароль",
+            "NewPassword": "Новый пароль",
+            "NewPasswordRepeat": "Повторите пароль"
           },
           "Buttons": {
-            "ChangePassword": "Change password"
+            "ChangePassword": "Изменить пароль"
           },
           "Errors": {
             "CurrentPassword": {
-              "invalid": "Invalid password specified"
+              "invalid": "Указан неверный пароль"
             },
             "NewPassword": {
-              "required": "New password is required",
-              "minlength": "Should be at least 6 symbols length"
+              "required": "Поле пароль обязательно",
+              "minlength": "Длина должна быть не менее 6 символов"
             },
             "NewPasswordRepeat": {
               "required": "Повторите новый пароль",
@@ -308,164 +420,286 @@
           }
         }
       },
+      "Cards": {
+        "Heading": "Карты",
+        "Labels": {
+          "VerificationCode": "Код подтверждения:"
+        },
+        "Info": {
+          "Add": "Вы не добавили ни одной карты.",
+          "Confirm": "Чтобы добавить кредитную карту, вы должны подтвердить свое личность",
+          "Redirect": "Вы будете перенаправлены на страницу покупателя, чтобы ввести данные карты.",
+          "InputData": "Вы должны ввести те же данные карты еще раз. Вы будете перенаправлены на страницу покупателя.",
+          "Verify": "Вы совершили тестовый платеж. Пожалуйста, проверьте банковскую выписку для уточнения суммы платежа. Чтобы подтвердить кару, введите эту сумму ниже. Например: 1.23",
+          "CardIsReady": "Карта проверена и готова к использованию.",
+          "Wrong": "Ой! Что-то пошло не так. Карта не добавлена."
+        },
+        "Status": {
+          "New": "Новая",
+          "Failed": "Отклонена",
+          "Disabled": "Отключена",
+          "Checking": "Проверка...",
+          "Confirm": "Подтвердить",
+          "Verify": "Проверяется",
+          "Verified": "Проверенна"
+        }
+      },
       "KYC": {
         "AccountType": {
-          "Label": "Account type:",
+          "Label": "Тип аккаунта:",
           "Types": {
-            "Verified": "Verified",
-            "VerifiedPlus": "Verified+"
+            "Verified": "Проверенный",
+            "VerifiedPlus": "Проверенный+"
           }
         },
         "DefaultSection": {
-          "Title": "Identity verification",
-          "Text": "Complete verification to withdraw fiat funds and unlock account opportinities",
-          "Note": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
-          "UpgradeText": "<span class=\"lead\">Complete verification to withdraw fiat funds and unlock account opportinities</span>",
-          "UpgradeNote": "Verification procedures is very sumple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
+          "Title": "Проверка подлинности",
+          "StatusText": "Не верифицировано",
+          "Labels": {
+            "KYCVer": "KYC верификация",
+            "NotSigned": "Не подписан",
+            "NotVerified": "Не верифицирован"
+          },
+          "Text": "Завершите верификацию для вывода средств и разблокировки возможности аккаунта",
+          "Note": "Процедура верификации очень простая и интуитивная. Мы всего лишь просим предоставить некоторые персональные данные и подтверждающие документы.",
           "Buttons": {
-            "Start": "Start Verification",
-            "Upgrade": "Upgrade Verification"
+            "Start": "Начать верификацию",
+            "Upgrade": "Обновить верификацию",
+            "GetAdvancedVer": "Получить расшириную верификацию"
           }
         },
         "AgreementSection": {
-          "Title": "GoldMint agreement",
-          "Text": "Complete basic verification by signing GoldMint agreement. Agreement has been sent to your primary email address. <br><br>If you did not receive message in 30 minutes please click button below.",
-          "ResendLimited": "Resending has limited frequency. Please be patient and wait for email message.",
-          "ResendFinished": "Agreement has been resent.",
+          "Title": "GoldMint соглашение",
+          "Text": " Завершите базовую верификацию путем подписания соглашения GoldMint. Соглашение отправлено на ваш основной адрес электронной почты. <br> <br> Если вы не получите сообщение через 30 минут, нажмите кнопку ниже.",
+          "ResendLimited": "Повторная отправка выполняется через определенный промежуток времени. Пожалуйста, будьте терпеливы и дождитесь сообщения.",
+          "ResendFinished": "Сообщение было повторно отправлено.",
           "Buttons": {
-            "Resend": "Resend Agreement"
+            "Resend": "Повторно отправить соглашение"
           }
         },
         "FinishedSection": {
-          "Title": "Advanced verification",
-          "Text": "<span class=\"lead\">Congratulations! Identity verification successfully finished!</span>"
+          "Title": "Расширенная верификация",
+          "StatusText": "Расширенная верификация пройденна",
+          "Text": "<span class=\"lead\">Поздравляем! Проверка подлинности успешно пройдена!</span>"
         },
         "WarningSection": {
-          "Title": "Warning about deposits",
-          "Text": "Unverified accounts cannot withdraw from Goldmint. Please see this <a href=\"#\">link</a> for more information."
+          "Title": "Предупреждение о выводе средств",
+          "Text": "Не верифицированные аккаунты не могут выводить средства из Goldmint. Пожалуйста, посмотрите эту <a href=\"#\">ссылку</a> для подробной информации."
         },
         "FormSection": {
-          "Title": "Basic Information",
-          "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it axists on your government identification.",
-          "UpgradeAccountText": "<b>UPGRADE ACCOUNT.</b> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur vel eos perspiciatis aliquid officia labore expedita ipsam sequi totam magnam aspernatur libero quia, itaque eveniet pariatur omnis molestias, suscipit corporis.",
-          "RequiredFields": "Required fields",
+          "Title": "Основная информация",
+          "StatusText": "Основная информация заполнена",
+          "NewAccountText": "<b>НОВЫЙ АККАУНТ.</b> Пожалуйста заполните информацию ниже для получения базового аккаунта. Пожалуйста используйте ваше настоящее имя так как указано в ваших документах.",
+          "Important": "<b>ВАЖНО:</b> после отправки информацию не возможно будет изменить. Проверьте корректность данных.",
+          "RequiredFields": "Обязательные поля",
           "Labels": {
-            "FirstName": "First Name",
-            "MiddleName": "Middle Name",
-            "LastName": "Last Name",
-            "BirthMonth": "Birth Month",
-            "BirthDay": "Birth Day",
-            "BirthYear": "Birth Year",
-            "Country": "Country",
-            "State": "State or province",
-            "City": "City",
-            "PostalCode": "Postal or ZIP code",
-            "Street": "Street Address",
-            "Apartment": "Apartment or unit",
-            "Passport": "Passport number (optional)",
-            "Phone": "Phone number"
+            "FirstName": "Имя",
+            "MiddleName": "Отчество",
+            "LastName": "Фамилия",
+            "BirthMonth": "Месяц рождения",
+            "BirthDay": "День рождения",
+            "BirthYear": "Год рождения",
+            "Country": "Страна",
+            "State": "Штат/область/провинция",
+            "City": "Город",
+            "PostalCode": "Почтовый индекс",
+            "Street": "Улица",
+            "Apartment": "Номер дома",
+            "Passport": "Номер паспорта (необязательно)",
+            "Phone": "Номер телефона"
+          },
+          "Month": {
+            "January": "Январь",
+            "February": "Февраль",
+            "March": "Март",
+            "April": "Апрель",
+            "May": "Май",
+            "June": "Июнь",
+            "July": "Июль",
+            "August": "Август",
+            "September": "Сентябрь",
+            "October": "Октябрь",
+            "November": "Ноябрь",
+            "December": "Декабрь"
           },
           "Placeholders": {
-            "ChooseCountry": "Choose your Country",
-            "ChooseState": "Choose your State",
-            "ChooseBirthYear": "Choose your Birth Year..."
+            "ChooseCountry": "Выберите вашу страну",
+            "ChooseState": "Выберите ваш штат/область/провинцию",
+            "ChooseBirthYear": "Выберите год рождения..."
           },
           "Errors": {
             "FirstName": {
-              "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "required": "Это поле обязательно",
+              "pattern": "Разрешены только латинские символы"
             },
             "MiddleName": {
-              "pattern": "Only latin characters allowed"
+              "pattern": "Разрешены только латинские символы"
             },
             "LastName": {
-              "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "required": "Это поле обязательн",
+              "pattern": "Разрешены только латинские символы"
             },
             "BirthMonth": {
-              "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "required": "Это поле обязательн",
+              "pattern": "Разрешены только латинские символы"
             },
             "BirthDay": {
-              "required": "This field is required"
+              "required": "Это поле обязательн"
             },
             "BirthYear": {
-              "required": "This field is required"
+              "required": "Это поле обязательн"
             },
             "Country": {
-              "required": "This field is required"
+              "required": "Это поле обязательн"
             },
             "Street": {
-              "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "required": "Это поле обязательн",
+              "pattern": "Разрешены только латинские символы"
             },
             "City": {
-              "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "required": "Это поле обязательн",
+              "pattern": "Разрешены только латинские символы"
             },
             "State": {
-              "required": "This field is required",
-              "pattern": "Only latin characters allowed"
+              "required": "Это поле обязательн",
+              "pattern": "Разрешены только латинские символы"
             },
             "PostalCode": {
-              "required": "This field is required",
-              "pattern": "Only numbers allowed"
+              "required": "Это поле обязательн",
+              "pattern": "Разрешены только цифры"
             },
             "PhoneNumber": {
-              "required": "This field is required"
+              "required": "Это поле обязательн"
             }
           },
           "Buttons": {
-            "Submit": "Submit"
+            "Submit": "Отправить"
           }
         }
       },
       "TFA": {
         "SecretKeySection": {
-          "Title": "Two-factor authentication",
+          "Title": "Двухфакторная аутентификация",
           "TitleWidget": {
-            "Enabled": "Enabled",
-            "Disabled": "Disabled"
+            "Enabled": "Включена",
+            "Disabled": "Выключена"
           },
-          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provic ed.</p>",
-          "Text": "<p><b>Please back up your secret key.</b> Reseting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
-          "KeyLabel": "Secret key:",
-          "CodeLabel": "Authenticator Code",
-          "CodeHelpText": "Input your 6-digit authenticatoe code",
+          "WarningText": "<p> Двухфакторная аутентификация (2FA) значительно повышает безопасность требуя ввода пароля и кода аутентификации. Goldmint реализует 2FA с помощью Google Authenticator. Для включения этой возможности просто скачайте <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> на ваш мобильный телефон и отсканируйте CPCode. После подключения Google Authenticator введите предоставленный 6-значный код.</p>",
+          "Text": "<p><b>Пожалуйста сохраните ваш секретный ключ.</b> Сброс двухфакторной аутентификации требует открытия тикета в поддержке и может занять до 7-ми дней.</p>",
+          "KeyLabel": "Секретный ключ:",
+          "CodeLabel": "Код аутентификатора",
+          "CodeHelpText": "Введите 6-значный код аутентификатора",
+          "Steps": {
+            "One": "1. Сохраните секретный ключ",
+            "Two": "2. Установите приложение",
+            "Three": "3. Отсканируйте QR-код",
+            "Four": "4. Введите текущий код"
+          },
           "Errors": {
-            "pattern": "Only 6-digits numeric code is allowed"
+            "pattern": "Допускается только 6-значный цифровой код"
           },
           "Buttons": {
-            "Enable": "Enable 2FA",
-            "Disable": "Disable 2FA"
+            "Enable": "Включить 2FA",
+            "Disable": "Выключить 2FA"
           }
         }
       },
       "Social": {
         "NetworksSection": {
-          "Title": "Social Networks",
-          "Text": "You can sign in into app.goldmint.io with your Social Network account",
+          "Title": "Социальные сети",
+          "Text": "Вы можете войти в app.goldmint.io используя свою учетную запись в социальной сети",
           "Buttons": {
-            "Connect": "Connect",
-            "Connected": "Connected"
+            "Connect": "Подключить",
+            "Connected": "Подключено"
           }
         }
       },
       "Activity": {
-        "SectionTitle": "Account activity events",
+        "SectionTitle": "События аккаунта",
         "TitleWidget": {
-          "Label": "Date"
+          "Label": "Дата"
         },
         "ActivityTypes": {
-          "auth": "Authentication",
-          "password": "User password",
-          "settings": "Settings",
-          "deposit": "Deposit",
-          "withdraw": "Withdraw",
-          "exchange": "Assets exchange"
+          "auth": "Аутентификация",
+          "password": "Пароль пользователя",
+          "settings": "Настройки",
+          "deposit": "Внесение средств",
+          "withdraw": "Вывод средств",
+          "exchange": "Обмен средствами",
+          "creditcard": "Кредитная карта"
+        }
+      },
+      "Limits": {
+        "Heading": "Обзор возможностей вашего аккаунта",
+        "Buttons": {
+          "Deposit": "Пополнение",
+          "Withdraw": "Вывод"
+        },
+        "AccountTypes": {
+          "Heading": "Типы аккаунтов",
+          "Labels": {
+            "Basic": "Базовый",
+            "Verified": "Верифицированный"
+          },
+          "Text": {
+            "Basic": "Покупка и продажа Bitcoin за несколько кликов с использованием Visa или Master Card.",
+            "Verified": "Увеличьте свои лимиты и включите дополнительные варианты оплаты, подтвердив свою личность."
+          },
+          "AccountType": "Тип вашего аккаунта"
+        },
+        "TotalLimits": {
+          "Heading": "ЛИМИТЫ АККАНТА",
+          "SubTitle": {
+            "deposit": "Пополнение",
+            "withdraw": "Вывод"
+          },
+          "Labels": {
+            "Daily": "Дневной",
+            "Monthly": "Месячный"
+          }
+        },
+        "PaymentLimits": {
+          "Heading": "ЛИМИТЫ СПОСОБОВ ПЛАТИЖЕЙ",
+          "Text": "Пожалуйста учтите, что у каждого способа платежа есть свои лимиты, НО совокупная сумма лимитов способов платижей не должна привышать общего лимита аккаунта вашего типа",
+          "Labels": {
+            "PaymentCard": "Платежная карта",
+            "BankTransfer": "Банковский перевод",
+            "CryptoCapital": "Crypto капитал",
+            "Commission": "Комиссия",
+            "NoCommission": "Без комиссии"
+          }
+        }
+      }
+    },
+    "Transparency": {
+      "Heading": "Прозрачность",
+      "Issued": "Выпущено:",
+      "Burnt": "Потрачено:",
+      "Circulation": "Отциркулировано:",
+      "Link": "Ссылка",
+      "Table": {
+        "Heading": "Транзакции",
+        "TableCell": {
+          "Date": "Дата",
+          "Amount": "Количество",
+          "Document": "Документ",
+          "Comment": "Комментарий"
         }
       }
     }
+  },
+  "BUTTONS": {
+    "Ok": "OK",
+    "Cancel": "Отмена",
+    "AddCard": "Добавить карту",
+    "Remove": "Удалить",
+    "Proceed": "Выполнить",
+    "ConfirmCard": "Подтвердить карту",
+    "VerifyCard": "Проверить карту",
+    "Verification": "Верификация",
+    "Back": "Назад",
+    "BackToCard": "Вернуться к списку карт",
+    "GoToCard": "Перейти к списку карт"
   },
   "ERRORS": {
     "Login": {
