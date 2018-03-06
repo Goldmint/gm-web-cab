@@ -64,9 +64,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -168,9 +169,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -280,9 +282,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -341,9 +344,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
 
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -441,7 +445,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// get the card
 			var card = user.Card.FirstOrDefault(
 				c => c.Id == model.CardId &&
-				c.State == CardState.Verified
+				(c.State == CardState.Verification || c.State == CardState.Verified)
 			);
 
 			if (card != null) {

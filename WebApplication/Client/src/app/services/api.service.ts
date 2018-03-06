@@ -473,7 +473,7 @@ export class APIService {
       );
   }
 
-  resendKYCAgreement(): Observable<APIResponse<KYCAgreementResend>> {
+  resendKYCAgreement(): Observable<APIResponse<KYCProfile>> {
     return this._http
       .get(`${this._baseUrl}/user/settings/verification/resendAgreement`, this.jwt())
       .pipe(

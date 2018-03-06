@@ -296,9 +296,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// set next step
 							if (cardHolder != null &&
 								cardMask != null &&
-								UserAccount.IsVerifiedL1(payment.User) &&
-								cardHolder.Contains(payment.User.UserVerification.FirstName) &&
-								cardHolder.Contains(payment.User.UserVerification.LastName)
+								UserAccount.HasFilledPersonalData(payment.User?.UserVerification) &&
+								cardHolder.Contains(payment.User?.UserVerification.FirstName) &&
+								cardHolder.Contains(payment.User?.UserVerification.LastName)
 							) {
 
 								// this is 1st step - deposit data

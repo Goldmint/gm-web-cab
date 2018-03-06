@@ -95,7 +95,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
 
 					// DPA is unsigned
-					if (!CoreLogic.UserAccount.HasSignedDpa(user)) {
+					if (!CoreLogic.UserAccount.HasSignedDpa(user.UserOptions)) {
 						
 						// has not been sent previously
 						if (user.UserOptions != null) {
@@ -188,7 +188,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							);
 
 							// DPA is unsigned
-							if (!CoreLogic.UserAccount.HasSignedDpa(cuaResult.User)) {
+							if (!CoreLogic.UserAccount.HasSignedDpa(cuaResult.User.UserOptions)) {
 								return Redirect(
 									this.MakeLink(fragment: AppConfig.AppRoutes.DpaRequired)
 								);

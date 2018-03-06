@@ -13,31 +13,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class UserController : BaseController {
 
-		/*
-		// TODO: get rid of method. Frontend has everything needed
-		/// <summary>
-		/// Fiat and gold balance on this user account
-		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpPost, Route("balance")]
-		[ProducesResponseType(typeof(BalanceView), 200)]
-		public async Task<APIResponse> Balance([FromBody] BalanceModel model) {
-
-			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
-			}
-
-			var user = await GetUserFromDb();
-
-			return APIResponse.Success(
-				new BalanceView() {
-					Usd = await EthereumObserver.GetUserFiatBalance(user.UserName, FiatCurrency.USD) / 100d,
-					Gold = (await EthereumObserver.GetUserGoldBalance(user.UserName)).ToString(),
-				}
-			);
-		}*/
-
 		/// <summary>
 		/// Fiat limits
 		/// </summary>
@@ -47,10 +22,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		public async Task<APIResponse> Limits() {
 
 			var user = await GetUserFromDb();
-			var limits = await CoreLogic.UserAccount.GetFiatLimits(HttpContext.RequestServices, FiatCurrency.USD, user);
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 
-			var curDepositLimit = await CoreLogic.UserAccount.GetCurrentFiatDepositLimit(HttpContext.RequestServices, FiatCurrency.USD, user);
-			var curWithdrawLimit = await CoreLogic.UserAccount.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, FiatCurrency.USD, user);
+			var limits = await CoreLogic.UserAccount.GetFiatLimits(HttpContext.RequestServices, FiatCurrency.USD, userTier);
+
+			var curDepositLimit = await CoreLogic.UserAccount.GetCurrentFiatDepositLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
+			var curWithdrawLimit = await CoreLogic.UserAccount.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
 
 			return APIResponse.Success(
 				new LimitsView() {
@@ -89,24 +66,24 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						L0 = new LimitsView.VerificationLevelLimits() {
 
 							Deposit = new LimitsView.PeriodLimitItem() {
-								Day = limits.Level0.Deposit.Day / 100d,
-								Month = limits.Level0.Deposit.Month / 100d,
+								Day = limits.Tier1.Deposit.Day / 100d,
+								Month = limits.Tier1.Deposit.Month / 100d,
 							},
 							Withdraw = new LimitsView.PeriodLimitItem() {
-								Day = limits.Level0.Withdraw.Day / 100d,
-								Month = limits.Level0.Withdraw.Month / 100d,
+								Day = limits.Tier1.Withdraw.Day / 100d,
+								Month = limits.Tier1.Withdraw.Month / 100d,
 							}
 						},
 
 						L1 = new LimitsView.VerificationLevelLimits() {
 
 							Deposit = new LimitsView.PeriodLimitItem() {
-								Day = limits.Level1.Deposit.Day / 100d,
-								Month = limits.Level1.Deposit.Month / 100d,
+								Day = limits.Tier2.Deposit.Day / 100d,
+								Month = limits.Tier2.Deposit.Month / 100d,
 							},
 							Withdraw = new LimitsView.PeriodLimitItem() {
-								Day = limits.Level1.Withdraw.Day / 100d,
-								Month = limits.Level1.Withdraw.Month / 100d,
+								Day = limits.Tier2.Withdraw.Day / 100d,
+								Month = limits.Tier2.Withdraw.Month / 100d,
 							}
 						}
 					},
@@ -149,6 +126,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		public async Task<APIResponse> Profile() {
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 
 			// user challenges
 			// TODO: move to challenges subsystem
@@ -158,12 +136,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new ProfileView() {
 					Id = user.UserName,
-					Name = CoreLogic.UserAccount.IsVerifiedL0(user) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
+					Name = CoreLogic.UserAccount.HasFilledPersonalData(user.UserVerification) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
 					Email = user.Email ?? "",
 					DpaSigned = user.UserOptions.DPADocument?.IsSigned ?? false,
 					TfaEnabled = user.TwoFactorEnabled,
-					VerifiedL0 = CoreLogic.UserAccount.IsVerifiedL0(user),
-					VerifiedL1 = CoreLogic.UserAccount.IsVerifiedL1(user),
+					VerifiedL0 = userTier >= UserTier.Tier1,
+					VerifiedL1 = userTier >= UserTier.Tier2,
 					Challenges = challenges.ToArray(),
 				}
 			);

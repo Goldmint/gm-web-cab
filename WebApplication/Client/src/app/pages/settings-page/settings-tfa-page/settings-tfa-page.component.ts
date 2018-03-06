@@ -32,14 +32,16 @@ export class SettingsTFAPageComponent implements OnInit {
 
     this._apiService.getTFAInfo()
       .finally(() => {
-        this.loading = false;
-        this._cdRef.detectChanges();
       })
       .subscribe(
         res => {
           this.tfaInfo = res.data;
+
+          this.loading = false;
+          this._cdRef.detectChanges();
         },
-        err => {});
+        err => { }
+      );
   }
 
   ngOnInit() {

@@ -216,7 +216,6 @@ namespace Goldmint.WebApplication.Core {
 			await dbContext.SaveChangesAsync();
 
 			// set new unverified agreement 
-			user.UserVerification.SignedAgreementId = null;
 			user.UserVerification.LastAgreementId = request.Id;
 			dbContext.Update(user.UserVerification);
 			await dbContext.SaveChangesAsync();

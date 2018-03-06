@@ -1,5 +1,5 @@
 <!--START-->
-<ng-container *ngIf="phase === _phase.Start">
+<ng-container *ngIf="phase == _phase.Start">
   <section class="section" [ngClass]="{'section--no-bottom': loading}">
     <h2 class="section__title">
       <span>{{ "PAGES.Settings.KYC.DefaultSection.Title" | translate }}</span>
@@ -54,47 +54,122 @@
   </section>
 </ng-container>
 
-<ng-container *ngIf="phase === _phase.Basic || phase === _phase.KYCPending || phase === _phase.KYC || phase === _phase.Agreement || phase === _phase.Finished">
 
-  <!--KYC START BUTTON-->
-  <section class="section section--warning section--no-bottom" *ngIf="phase === _phase.KYC">
+<!--KYC-->
+<ng-container *ngIf="phase == _phase.Kyc">
+  <section class="section section--warning section--no-bottom">
     <h2 class="section__title section__title--warning">
       <svg class="icon" width="18px" height="16px">
         <use xlink:href="#warning"></use>
       </svg>
+
       {{ "PAGES.Settings.KYC.WarningSection.Title" | translate }}
+
+      <div class="section__title-widget">
+        <div class="lead icon--red">
+          {{ "PAGES.Settings.KYC.WarningSection.Widget" | translate }}
+        </div>
+      </div>
     </h2>
 
-    <div class="section__content kyc pt-1">
+    <div class="section__content kyc pt-2">
       <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Text' | translate"></p>
 
       <div class="text-center">
         <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
-          Get advanced verification
+          {{ "PAGES.Settings.KYC.WarningSection.Button" | translate }}
           <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
         </button>
       </div>
     </div>
   </section>
+</ng-container>
 
-  <!--KYC IN PROGRESS-->
-  <section class="section section--no-bottom" *ngIf="phase === _phase.KYCPending">
+
+<!--KYC PENDING-->
+<ng-container *ngIf="phase == _phase.KycPending">
+  <section class="section section--no-bottom">
     <h2 class="section__title">
-      <span>KYC verification</span>
+      <span>Advanced verification</span>
     </h2>
 
     <div class="section__content kyc pt-2">
-      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+      <div class="progress-linear progress-linear--tiny">
         <div class="container"></div>
       </div>
 
-      <!-- @todo: clarify texts and layout -->
-      <p class="pt-2 mb-2">KYC verification still in progress. Please come back later</p>
+      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.WarningSection.TextPending' | translate"></p>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3 mb-5" (click)="refreshPage()" [disabled]="loading">
+          Refresh
+        </button>
+      </div>
     </div>
   </section>
+</ng-container>
 
-  <!--KYC FINISHED-->
-  <section class="section section--no-bottom" *ngIf="phase === _phase.Finished">
+
+<!--AGREEMENT-->
+<ng-container *ngIf="phase == _phase.Agreement">
+
+  <section class="section section--warning section--no-bottom">
+    <h2 class="section__title section__title--warning">
+      <svg class="icon" width="18px" height="16px">
+        <use xlink:href="#warning"></use>
+      </svg>
+
+      {{ "PAGES.Settings.KYC.AgreementSection.Title" | translate }}
+
+      <div class="section__title-widget">
+        <div class="lead icon--red">
+          {{ "PAGES.Settings.KYC.AgreementSection.Widget" | translate }}
+        </div>
+      </div>
+    </h2>
+
+    <div class="section__content kyc pt-2">
+
+      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.AgreementSection.Text' | translate"></p>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
+          {{ "PAGES.Settings.KYC.AgreementSection.Buttons.Resend" | translate }}
+          <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
+        </button>
+      </div>
+    </div>
+  </section>
+</ng-container>
+
+
+<!--AGREEMENT PENDING-->
+<ng-container *ngIf="phase == _phase.AgreementPending">
+  <section class="section section--no-bottom">
+    <h2 class="section__title">
+      {{ "PAGES.Settings.KYC.AgreementSection.Title" | translate }}
+    </h2>
+
+    <div class="section__content kyc pt-2">
+      <div class="progress-linear progress-linear--tiny">
+        <div class="container"></div>
+      </div>
+
+      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.AgreementSection.TextPending' | translate"></p>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3 mb-5" (click)="refreshPage()" [disabled]="loading">
+          Refresh
+        </button>
+      </div>
+    </div>
+  </section>
+</ng-container>
+
+
+<!--FINISHED-->
+<ng-container *ngIf="phase == _phase.Finished">
+  <section class="section section--no-bottom">
     <h2 class="section__title">
       <span>{{ "PAGES.Settings.KYC.FinishedSection.Title" | translate }}</span>
 
@@ -114,43 +189,11 @@
       <p class="pt-2 mb-2" [innerHTML]="'PAGES.Settings.KYC.FinishedSection.Text' | translate"></p>
     </div>
   </section>
-
-  <!--AGREEMENT-->
-  <section class="section section--no-bottom" *ngIf="phase === _phase.Agreement">
-    <h2 class="section__title section__title--warning">
-      {{ "PAGES.Settings.KYC.AgreementSection.Title" | translate }}
-
-      <div class="section__title-widget">
-        <div class="lead icon--red">
-          Not signed
-        </div>
-      </div>
-    </h2>
-
-    <div class="section__content kyc pt-1">
-      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.AgreementSection.Text' | translate"></p>
-
-      <div class="text-center">
+</ng-container>
 
 
-        <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()" *ngIf="agreementResend === null; else blockResent">
-          {{ "PAGES.Settings.KYC.AgreementSection.Buttons.Resend" | translate }}
-          <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
-        </button>
-
-        <ng-template #blockResent>
-          <p class="pt-4 text-success" *ngIf="agreementResend.resent">
-            {{ "PAGES.Settings.KYC.AgreementSection.ResendFinished" | translate }}
-          </p>
-          <p class="pt-4 text-warning" *ngIf="!agreementResend.resent">
-            {{ "PAGES.Settings.KYC.AgreementSection.ResendLimited" | translate }}
-          </p>
-        </ng-template>
-      </div>
-    </div>
-  </section>
-
-  <!--FORM-->
+<!--FORM-->
+<ng-container *ngIf="phase != _phase.Start">
   <section class="section" [ngClass]="{'section--no-bottom': loading}">
 
     <h2 class="section__title section__title--warning">
@@ -522,7 +565,7 @@
 
         <div class="row mt-2 mb-4 pr-4" *ngIf="!kycProfile.isFormFilled">
           <div class="form-group col-6 mb-2">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="kycForm.form.invalid || kycForm.form.untouched">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}
               <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
             </button>

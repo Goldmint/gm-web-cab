@@ -86,6 +86,12 @@ namespace Goldmint.Common {
 		Owner = 0x80000000L,
 	}
 
+	public enum UserTier {
+		Tier0 = 0,
+		Tier1,
+		Tier2,
+	}
+
 	public enum BlockchainTransactionStatus {
 
 		/// <summary>

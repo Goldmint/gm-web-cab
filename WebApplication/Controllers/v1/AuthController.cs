@@ -200,7 +200,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					if (accessRightsMask == null) return null;
 
 					// DPA is unsigned
-					if (!CoreLogic.UserAccount.HasSignedDpa(user)) {
+					if (!CoreLogic.UserAccount.HasSignedDpa(user.UserOptions)) {
 						return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
 					}
 

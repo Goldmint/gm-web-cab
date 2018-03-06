@@ -36,8 +36,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// user
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 			if (!user.TwoFactorEnabled) {

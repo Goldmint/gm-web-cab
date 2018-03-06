@@ -9,7 +9,7 @@ import { KYCProfile } from '../../../models/kyc-profile';
 
 import * as countries from '../../../../assets/data/countries.json';
 
-enum Phase { Start, Basic, Agreement, KYCPending, KYC, Finished }
+enum Phase { Start, Basic, Kyc, KycPending, Agreement, AgreementPending, Finished }
 
 @Component({
   selector: 'app-settings-verification-page',
@@ -35,8 +35,6 @@ export class SettingsVerificationPageComponent implements OnInit {
   public dateOfBirth: { day: number, month: number, year: number | '' };
   public minBirthYear = 1999;
 
-  public agreementResend: KYCAgreementResend = null;
-
   private selectedCountry;
 
   constructor(
@@ -46,52 +44,33 @@ export class SettingsVerificationPageComponent implements OnInit {
 
     this.dateOfBirth = { day: 1, month: 1, year: '' };
     this.countries = <Country[]><any>countries;
-
-    this.phase = Phase.Start;
-
-    this._apiService.getKYCProfile()
-      .finally(() => {
-        this.loading = false;
-        this._cdRef.detectChanges();
-      })
-      .subscribe(
-      (res: APIResponse<KYCProfile>) => {
-        this.kycProfile = res.data;
-
-        if (this.kycProfile.dob) {
-          this.dateOfBirth = {
-            day: this.kycProfile.dob.getDate(),
-            month: this.kycProfile.dob.getMonth() + 1,
-            year: this.kycProfile.dob.getFullYear()
-          };
-        }
-
-        this.onCountrySelect(false);
-
-        this.onPhaseUpdate();
-      },
-      err => { });
   }
 
   ngOnInit() {
+    this.phase = Phase.Start;
+    this.refreshPage();
   }
 
   onPhaseUpdate() {
-    if (!this.kycProfile.isFormFilled) {
-      this.phase = Phase.Start;
+    this.phase = Phase.Start;
+
+    if (this.kycProfile.isFormFilled) {
+      this.phase = Phase.Kyc;
     }
-    else if (!this.kycProfile.isAgreementSigned) {
-      this.phase = Phase.Agreement;
-    }
-    else if (this.kycProfile.isKYCPending) {
-      this.phase = Phase.KYCPending;
-    }
-    else if (!this.kycProfile.isKYCFinished) {
-      this.phase = Phase.KYC;
-    }
-    else {
+
+    if (this.kycProfile.isAgreementSigned) {
       this.phase = Phase.Finished;
     }
+    else if (this.kycProfile.isAgreementPending) {
+      this.phase = Phase.AgreementPending;
+    }
+    else if (this.kycProfile.isKycFinished) {
+      this.phase = Phase.Agreement;
+    }
+    else if (this.kycProfile.isKycPending) {
+      this.phase = Phase.KycPending;
+    }
+
     this._cdRef.markForCheck();
   }
 
@@ -121,18 +100,20 @@ export class SettingsVerificationPageComponent implements OnInit {
     }
   }
 
+  // ---
+
   submit(kycForm?: NgForm) {
 
     if (this.phase == Phase.Basic && kycForm) {
       this.submitBasicInformation(kycForm);
     }
 
-    if (this.phase == Phase.Agreement) {
-      this.resendAgreement();
+    if (this.phase == Phase.Kyc) {
+      this.startKYCVerification();
     }
 
-    if (this.phase == Phase.KYC) {
-      this.startKYCVerification();
+    if (this.phase == Phase.Agreement) {
+      this.resendAgreement();
     }
 
     console.log("SUBMIT");
@@ -140,6 +121,7 @@ export class SettingsVerificationPageComponent implements OnInit {
 
   submitBasicInformation(kycForm: NgForm) {
     this.processing = true;
+    this._cdRef.detectChanges();
 
     this.kycProfile.dob = new Date(<number>this.dateOfBirth.year, this.dateOfBirth.month - 1, this.dateOfBirth.day);
 
@@ -175,27 +157,25 @@ export class SettingsVerificationPageComponent implements OnInit {
 
   startKYCVerification() {
     this.processing = true;
+    this._cdRef.detectChanges();
 
     this._apiService.startKYCVerification(window.location.href)
       .finally(() => {
-        this.processing = false;
         this._cdRef.detectChanges();
       })
       .subscribe(
       (res: APIResponse<KYCStart>) => {
-        this._messageBox.confirm('You\'ll be redirected to the verification service.')
-          .subscribe(confirmed => {
-            if (confirmed) {
-              localStorage.setItem('gmint_kycTicket', String(res.data.ticketId));
-              window.location.href = res.data.redirect;
-            }
-          });
+        localStorage.setItem('gmint_kycTicket', String(res.data.ticketId));
+        window.location.href = res.data.redirect;
       },
-      err => { });
+      err => {
+        this.processing = false;
+      });
   }
 
   resendAgreement() {
     this.processing = true;
+    this._cdRef.detectChanges();
 
     this._apiService.resendKYCAgreement()
       .finally(() => {
@@ -203,11 +183,45 @@ export class SettingsVerificationPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(
-        res => {
-          this.agreementResend = res.data;
-        },
-        err => { }
+      res => {
+        this.kycProfile = res.data;
+        this.onPhaseUpdate();
+      },
+      err => { }
       );
   }
 
+  // ---
+
+  refreshPage() {
+    this.loading = true;
+    this._cdRef.detectChanges();
+    this.getData();
+  }
+
+  private getData() {
+    this._apiService.getKYCProfile()
+      .finally(() => {
+      })
+      .subscribe(
+        (res: APIResponse<KYCProfile>) => {
+          this.kycProfile = res.data;
+
+          if (this.kycProfile.dob) {
+            this.dateOfBirth = {
+              day: this.kycProfile.dob.getDate(),
+              month: this.kycProfile.dob.getMonth() + 1,
+              year: this.kycProfile.dob.getFullYear()
+            };
+          }
+
+          this.onCountrySelect(false);
+
+          this.onPhaseUpdate();
+
+          this.loading = false;
+          this._cdRef.detectChanges();
+        },
+        err => { });
+  }
 }

@@ -6,29 +6,64 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.DAL.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.CoreLogic {
 
 	public static class UserAccount {
 
-		public static bool HasSignedDpa(this User user) {
-			return user?.UserOptions?.DPADocument?.IsSigned ?? false;
-		}
-
-		public static bool IsVerifiedL0(this User user) {
-			return 
-				(user?.UserVerification?.FirstName?.Length ?? 0) > 0 && 
-				(user?.UserVerification?.LastName?.Length ?? 0) > 0 &&
-				(user?.UserVerification?.SignedAgreementId != null)
+		public static bool HasSignedDpa(UserOptions data) {
+			return
+				data?.DPADocument != null &&
+				data.DPADocument.Type == SignedDocumentType.GoldmintDPA &&
+				data.DPADocument.TimeCompleted != null &&
+				data.DPADocument.IsSigned
 			;
 		}
 
-		public static bool IsVerifiedL1(this User user) {
-			return 
-				IsVerifiedL0(user) &&
-				user?.UserVerification?.KycVerifiedTicketId != null
+		public static bool HasFilledPersonalData(UserVerification data) {
+			return
+				(data?.FirstName?.Length ?? 0) > 0 &&
+				(data?.LastName?.Length ?? 0) > 0
 			;
+		}
+
+		public static bool HasKYCVerification(UserVerification data) {
+			return
+				data?.LastKycTicket != null &&
+				data.LastKycTicket.TimeResponded != null &&
+				data.LastKycTicket.IsVerified
+			;
+		}
+
+		public static bool HasSignedAgreement(UserVerification data) {
+			return
+				data?.LastAgreement != null &&
+				data.LastAgreement.Type == SignedDocumentType.GoldmintTOS &&
+				data.LastAgreement.TimeCompleted != null &&
+				data.LastAgreement.IsSigned
+			;
+		}
+
+		// ---
+
+		/// <summary>
+		/// User's tier
+		/// </summary>
+		public static UserTier GetTier(User user) {
+			var tier = UserTier.Tier0;
+
+			var hasDpa = HasSignedDpa(user?.UserOptions);
+			var hasPersData = HasFilledPersonalData(user?.UserVerification);
+			var hasKyc = HasKYCVerification(user?.UserVerification);
+			var hasAgreement = HasSignedAgreement(user?.UserVerification);
+
+			if (hasDpa && hasPersData) tier = UserTier.Tier1;
+
+			if (hasKyc && hasAgreement) tier = UserTier.Tier2;
+
+			return tier;
 		}
 
 		// ---
@@ -36,7 +71,7 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Fiat limits by level plus specified user's level
 		/// </summary>
-		public static Task<FiatLimitsLevels> GetFiatLimits(IServiceProvider services, FiatCurrency currency, User user) {
+		public static Task<FiatLimitsLevels> GetFiatLimits(IServiceProvider services, FiatCurrency currency, UserTier userTier) {
 
 			var appConfig = services.GetRequiredService<AppConfig>();
 
@@ -45,46 +80,45 @@ namespace Goldmint.CoreLogic {
 			}
 
 			var current = new UserAccount.FiatOperationsLimits();
-			var level0 = new UserAccount.FiatOperationsLimits();
-			var level1 = new UserAccount.FiatOperationsLimits();
+			var tier0Limits = new UserAccount.FiatOperationsLimits();
+			var tier1Limits = new UserAccount.FiatOperationsLimits();
+			var tier2Limits = new UserAccount.FiatOperationsLimits();
 
 			// usd
 			if (currency == FiatCurrency.USD) {
 
-				level0 = new UserAccount.FiatOperationsLimits() {
+				tier1Limits = new UserAccount.FiatOperationsLimits() {
 					Deposit = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.L0.DayDeposit,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.L0.MonthDeposit,
+						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier1.DayDeposit,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier1.MonthDeposit,
 					},
 					Withdraw = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.L0.DayWithdraw,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.L0.MonthWithdraw,
+						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier1.DayWithdraw,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier1.MonthWithdraw,
 					}
 				};
 
-				level1 = new UserAccount.FiatOperationsLimits() {
+				tier2Limits = new UserAccount.FiatOperationsLimits() {
 					Deposit = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.L1.DayDeposit,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.L1.MonthDeposit,
+						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier2.DayDeposit,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier2.MonthDeposit,
 					},
 					Withdraw = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.L1.DayWithdraw,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.L1.MonthWithdraw,
+						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier2.DayWithdraw,
+						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier2.MonthWithdraw,
 					}
 				};
 			}
 
-			// level 0
-			if (IsVerifiedL0(user)) current = level0;
-
-			// level 1
-			if (IsVerifiedL1(user)) current = level1;
+			if (userTier == UserTier.Tier1) current = tier1Limits;
+			if (userTier == UserTier.Tier2) current = tier2Limits;
 
 			return Task.FromResult(
 				new FiatLimitsLevels() {
 					Current = current,
-					Level0 = level0,
-					Level1 = level1,
+					Tier0 = tier0Limits,
+					Tier1 = tier1Limits,
+					Tier2 = tier2Limits,
 				}
 			);
 		}
@@ -92,24 +126,19 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Current deposit limit for specified user
 		/// </summary>
-		public static async Task<FiatLimits> GetCurrentFiatDepositLimit(IServiceProvider services, FiatCurrency currency, User user) {
+		public static async Task<FiatLimits> GetCurrentFiatDepositLimit(IServiceProvider services, FiatCurrency currency, long userId, UserTier userTier) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-			// load user verification
-			if (user.UserVerification == null) {
-				await dbContext.Entry(user).Reference(_ => _.UserVerification).LoadAsync();
-			}
-
 			var startDateMonth = DateTime.UtcNow.AddDays(-30);
 			var startDateDay = DateTime.UtcNow.AddHours(-24);
-			var accountLimits = await GetFiatLimits(services, currency, user);
+			var accountLimits = await GetFiatLimits(services, currency, userTier);
 
 			// get all user deposits for last 30 days
 			var deposits = await (
 				from d in dbContext.Deposit
 				where
-				d.UserId == user.Id &&
+				d.UserId == userId &&
 				d.Currency == currency &&
 				d.TimeCreated >= startDateMonth &&
 				d.Status != DepositStatus.Failed // get all pending or successful deposits
@@ -132,24 +161,19 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Current withdraw limit for specified user
 		/// </summary>
-		public static async Task<FiatLimits> GetCurrentFiatWithdrawLimit(IServiceProvider services, FiatCurrency currency, User user) {
+		public static async Task<FiatLimits> GetCurrentFiatWithdrawLimit(IServiceProvider services, FiatCurrency currency, long userId, UserTier userTier) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-			// load user verification
-			if (user.UserVerification == null) {
-				await dbContext.Entry(user).Reference(_ => _.UserVerification).LoadAsync();
-			}
-
 			var startDateMonth = DateTime.UtcNow.AddDays(-30);
 			var startDateDay = DateTime.UtcNow.AddHours(-24);
-			var accountLimits = await GetFiatLimits(services, currency, user);
+			var accountLimits = await GetFiatLimits(services, currency, userTier);
 
 			// get all user withdraws for last 30 days
 			var withdraws = await (
 				from d in dbContext.Withdraw
 				where
-				d.UserId == user.Id &&
+				d.UserId == userId &&
 				d.Currency == currency &&
 				d.TimeCreated >= startDateMonth &&
 				d.Status != WithdrawStatus.Failed // get all pending or successful
@@ -195,12 +219,12 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Check for pending operations
 		/// </summary>
-		public static async Task<bool> HasPendingBlockchainOps(IServiceProvider services, User user) {
+		public static async Task<bool> HasPendingBlockchainOps(IServiceProvider services, long userId) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
 			return await dbContext.FinancialHistory.Where(_ =>
-				_.UserId == user.Id &&
+				_.UserId == userId &&
 				_.Status == FinancialHistoryStatus.Pending
 			).CountAsync() > 0;
 		}
@@ -225,13 +249,15 @@ namespace Goldmint.CoreLogic {
 		public sealed class FiatLimitsLevels {
 
 			public FiatOperationsLimits Current { get; internal set; }
-			public FiatOperationsLimits Level0 { get; internal set; }
-			public FiatOperationsLimits Level1 { get; internal set; }
+			public FiatOperationsLimits Tier0 { get; internal set; }
+			public FiatOperationsLimits Tier1 { get; internal set; }
+			public FiatOperationsLimits Tier2 { get; internal set; }
 
 			internal FiatLimitsLevels() {
 				Current = new FiatOperationsLimits();
-				Level0 = new FiatOperationsLimits();
-				Level1 = new FiatOperationsLimits();
+				Tier0 = new FiatOperationsLimits();
+				Tier1 = new FiatOperationsLimits();
+				Tier2 = new FiatOperationsLimits();
 			}
 		}
 

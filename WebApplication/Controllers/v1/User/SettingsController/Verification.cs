@@ -18,6 +18,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		// TODO: move to app settings
 		private static readonly TimeSpan AllowedPeriodBetweenKYCRequests = TimeSpan.FromMinutes(30);
+		private static readonly TimeSpan AllowedPeriodBetweenAgreementRequests = TimeSpan.FromMinutes(30);
 
 		/// <summary>
 		/// Verification data
@@ -27,11 +28,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationView() {
 			var user = await GetUserFromDb();
-			return APIResponse.Success(await MakeVerificationView(user));
+			return APIResponse.Success(MakeVerificationView(user));
 		}
 
 		/// <summary>
-		/// Fill verification form
+		/// Step 1. Fill verification form
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/edit")]
@@ -44,13 +45,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 
-			// one-time form filling
-			if (user.UserVerification == null) {
+			// on tier-0
+			if (userTier == UserTier.Tier0) {
 
 				// format phone number
 				var phoneFormatted = Common.TextFormatter.NormalizePhoneNumber(model.PhoneNumber);
-				// dob
+
+				// parse dob
 				var dob = DateTime.ParseExact(model.Dob, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
 				user.UserVerification = new UserVerification() {
@@ -74,23 +77,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				DbContext.UserVerification.Add(user.UserVerification);
 				await DbContext.SaveChangesAsync();
-
-				var redirect = this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage);
-
-				// send agreement
-				await Core.UserAccount.ResendUserTosDocument(
-					services: HttpContext.RequestServices,
-					user: user,
-					email: user.Email,
-					redirectUrl: redirect
-				);
 			}
 
-			return APIResponse.Success(await MakeVerificationView(user));
+			return APIResponse.Success(MakeVerificationView(user));
 		}
 
 		/// <summary>
-		/// KYC verification redirect. Level 0 verification required
+		/// Step 2. KYC verification
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/kycStart")]
@@ -103,15 +96,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 
-			// check level 0 verification && NOT level 1 verification
-			if (!CoreLogic.UserAccount.IsVerifiedL0(user) || CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			// on tier-1 + KYC is not completed
+			if (userTier != UserTier.Tier1 || CoreLogic.UserAccount.HasKYCVerification(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
 			// check previous verification attempt
-			var status = await MakeVerificationView(user);
-			if (status.IsKYCPending) {
+			var status = MakeVerificationView(user);
+			if (status.IsKycPending) {
 				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
@@ -121,7 +115,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var ticket = new KycTicket() {
 				UserId = user.Id,
 				ReferenceId = Guid.NewGuid().ToString("N"),
-				Method = "",
+				Method = "general",
 
 				FirstName = user.UserVerification.FirstName,
 				LastName = user.UserVerification.LastName,
@@ -130,11 +124,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				PhoneNumber = user.UserVerification.PhoneNumber,
 				TimeCreated = DateTime.UtcNow,
 			};
-			await DbContext.KycShuftiProTicket.AddAsync(ticket);
+			DbContext.KycShuftiProTicket.Add(ticket);
 			await DbContext.SaveChangesAsync();
 
 			// set last ticket
-			user.UserVerification.KycLastTicket = ticket;
+			user.UserVerification.LastKycTicket = ticket;
 			await DbContext.SaveChangesAsync();
 
 			// new redirect
@@ -145,143 +139,92 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DoB = ticket.DoB,
 				PhoneNumber = ticket.PhoneNumber,
 			};
-			var callbackURL = Url.Link("CallbackShuftiPro", new { /*secret = AppConfig.Services.ShuftiPro.CallbackSecret*/ });
-			var userTempRedirectURL = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
 
+			var callbackUrl = Url.Link("CallbackShuftiPro", new { /*secret = AppConfig.Services.ShuftiPro.CallbackSecret*/ });
+			var userTempRedirectUrl = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
 			var kycRedirect = await KycExternalProvider.GetRedirect(
-				kycUser, 
-				ticket.ReferenceId, 
-				userTempRedirectURL, 
-				callbackURL
+				kycUser,
+				ticket.ReferenceId,
+				userTempRedirectUrl,
+				callbackUrl
 			);
 
-			Logger.Trace($"{user.UserName} got kyc redirect to {kycRedirect} with callback to {callbackURL} and middle redirect to {userTempRedirectURL}");
+			Logger.Trace($"{user.UserName} got kyc redirect to {kycRedirect} with callback to {callbackUrl} and middle redirect to {userTempRedirectUrl}");
 
 			return APIResponse.Success(new VerificationKycStartView() {
 				TicketId = ticket.Id.ToString(),
 				Redirect = kycRedirect,
 			});
 		}
-		/*
-		/// <summary>
-		/// KYC verification status
-		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpPost, Route("verification/kycStatus")]
-		[ProducesResponseType(typeof(VerificationKycStatusView), 200)]
-		public async Task<APIResponse> VerificationKycStatus([FromBody] VerificationKycStatusModel model) {
-
-			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
-			}
-
-			bool? verified = null;
-
-			var user = await GetUserFromDb();
-			if (user != null && long.TryParse(model.TicketId, out var ticketId) && ticketId > 0) {
-
-				// find ticket
-				var ticket = await (
-					from v in DbContext.KycShuftiProTicket
-					where v.Id == ticketId && v.UserId == user.Id
-					select v
-				)
-					.AsNoTracking()
-					.FirstOrDefaultAsync()
-				;
-				if (ticket != null) {
-					verified = ticket.IsVerified;
-				}
-			}
-
-			if (verified != null) {
-				return APIResponse.Success(new VerificationKycStatusView() {
-					Verified = verified.Value,
-				});
-			}
-
-			return APIResponse.BadRequest(nameof(model.TicketId), "Ticket not found");
-		}
-		*/
 
 		/// <summary>
-		/// Resend primary agreement to sign
+		/// Step 3. Resend primary agreement to sign
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("verification/resendAgreement")]
-		[ProducesResponseType(typeof(VerificationResendAgreementView), 200)]
+		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationResendAgreement() {
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 
-			// form must be filled
-			if (user.UserVerification?.FirstName == null || user.UserVerification?.LastName == null) {
+			// on tier-1 + KYC completed + agreement is not signed
+			if (userTier != UserTier.Tier1 || !CoreLogic.UserAccount.HasKYCVerification(user.UserVerification) || CoreLogic.UserAccount.HasSignedAgreement(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			var limitMinutes = 30d;
-			var sent = false;
-			var nextDate = (long?)null;
-
-			// document is not signed
-			if (user.UserVerification?.SignedAgreementId == null) {
-
-				DbContext.Entry(user.UserVerification).Reference(_ => _.LastAgreement).Load();
-
-				// limit
-				if (user.UserVerification.LastAgreement != null && (DateTime.UtcNow - user.UserVerification.LastAgreement.TimeCreated).TotalMinutes < limitMinutes) {
-					nextDate = 
-						((DateTimeOffset)user.UserVerification.LastAgreement.TimeCreated.AddMinutes(limitMinutes))
-						.ToUnixTimeSeconds();
-				}
-				// can send
-				else {
-
-					var redirect = this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage);
-
-					sent = await Core.UserAccount.ResendUserTosDocument(
-						services: HttpContext.RequestServices,
-						user: user,
-						email: user.Email,
-						redirectUrl: redirect
-					);
-				}
+			// check previous verification attempt
+			var status = MakeVerificationView(user);
+			if (status.IsAgreementPending) {
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
-			return APIResponse.Success(
-				new VerificationResendAgreementView() {
-					Resent = sent,
-					AvailableDate = nextDate,
-				}
+			// ---
+
+			await Core.UserAccount.ResendUserTosDocument(
+				services: HttpContext.RequestServices,
+				user: user,
+				email: user.Email,
+				redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage)
 			);
+
+			return APIResponse.Success(MakeVerificationView(user));
 		}
 
 		// ---
 
 		[NonAction]
-		private async Task<VerificationView> MakeVerificationView(DAL.Models.Identity.User user) {
+		private VerificationView MakeVerificationView(DAL.Models.Identity.User user) {
 
-			if (user.UserVerification != null) {
-				await DbContext.Entry(user.UserVerification).Reference(_ => _.KycLastTicket).LoadAsync();
-				// await DbContext.Entry(user.UserVerification).Reference(_ => _.KycVerifiedTicket).LoadAsync();
+			if (user == null) {
+				throw new ArgumentException("User must be specified");
 			}
 
-			// last ticket is not verified and within allowed period
-			var kycPending = false;
-			if (user.UserVerification?.KycLastTicket != null && user.UserVerification?.KycVerifiedTicketId == null) {
-				kycPending =
-					user.UserVerification.KycLastTicket.TimeResponded == null &&
-					(DateTime.UtcNow - user.UserVerification.KycLastTicket.TimeCreated) < AllowedPeriodBetweenKYCRequests
+			var kycFinished = CoreLogic.UserAccount.HasKYCVerification(user.UserVerification);
+			var kycPending =
+					!kycFinished &&
+					user.UserVerification?.LastKycTicket != null &&
+					user.UserVerification.LastKycTicket.TimeResponded == null &&
+					(DateTime.UtcNow - user.UserVerification.LastKycTicket.TimeCreated) < AllowedPeriodBetweenKYCRequests
 				;
-			}
 
+			var agrSigned = CoreLogic.UserAccount.HasSignedAgreement(user.UserVerification);
+			var agrPending =
+					!agrSigned &&
+					user.UserVerification?.LastAgreement != null &&
+					user.UserVerification.LastAgreement.TimeCompleted == null &&
+					(DateTime.UtcNow - user.UserVerification.LastAgreement.TimeCreated) < AllowedPeriodBetweenAgreementRequests
+				;
+			
 			var ret = new VerificationView() {
 
-				IsFormFilled = user.UserVerification?.FirstName != null && user.UserVerification?.LastName != null,
-				IsAgreementSigned = user.UserVerification?.SignedAgreementId != null,
-				IsKYCFinished = user.UserVerification?.KycVerifiedTicketId != null,
-				IsKYCPending = kycPending,
+				IsFormFilled = CoreLogic.UserAccount.HasFilledPersonalData(user?.UserVerification),
+
+				IsKycPending = kycPending,
+				IsKycFinished = kycFinished,
+
+				IsAgreementPending = agrPending,
+				IsAgreementSigned = agrSigned,
 
 				FirstName = user.UserVerification?.FirstName ?? "",
 				MiddleName = user.UserVerification?.MiddleName ?? "",
@@ -301,3 +244,4 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	}
 }
+
