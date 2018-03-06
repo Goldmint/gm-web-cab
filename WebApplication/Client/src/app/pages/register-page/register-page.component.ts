@@ -7,7 +7,6 @@ import 'rxjs/add/operator/debounceTime';
 
 import { APIService, UserService } from '../../services';
 import { MessageBoxService } from '../../services/message-box.service';
-import {FormControl} from "@angular/forms";
 
 @Component({
   selector: 'app-register-page',
@@ -27,7 +26,7 @@ export class RegisterPageComponent implements OnInit {
   public submitButtonBlur = new EventEmitter<boolean>();
   public errors: any = [];
   public passwordChanged = false;
-  public isShow = false;
+  public isAgreementConfirmShown = false;
   public agreeCheck = false;
 
   private returnUrl: string;
@@ -45,67 +44,49 @@ export class RegisterPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (isDevMode()) {
-      this.signupModel.recaptcha = "devmode";
-    }
-
     if (this.userService.isAuthenticated()) {
       this.router.navigate(['/home']);
-    }
-    else {
+    } else {
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     }
-
-    this.password.valueChanges
-      .debounceTime(500)
-      .subscribe(() => {
-        if (this.signupModel.password && !this.signupForm.controls.password.errors) {
-          this.passwordChecking = true;
-          this.cdRef.detectChanges();
-          this.testPassword();
-        }
-      });
   }
 
-  onPasswordChanged() {
-    if (this.signupModel.password && !this.signupForm.controls.password.errors) {
-      this.passwordChanged = true;
-      this.cdRef.detectChanges();
+  agreementConfirmed(status) {
+    this.isAgreementConfirmShown = false;
+    this.agreeCheck = false;
+
+    if (status) {
+      this._register();
+    } else {
+      this.loading = false;
     }
+
+    this.cdRef.detectChanges();
   }
 
-  testPassword() {
+  public onRegister() {
+    this.loading = true;
+    this.submitButtonBlur.emit();
+
+    this.passwordChecking = true;
     this.apiService.testPassword(this.signupModel.password)
       .finally(() => {
         this.passwordChecking = this.passwordChanged = false;
         this.cdRef.detectChanges();
       })
       .subscribe((data) => {
-        this.signupForm.controls.password.setErrors({'weak': true});
+          this.signupForm.controls.password.setErrors({'weak': true});
+          this.loading = false;
           this.cdRef.detectChanges();
         },
         (err) => {
           this.signupForm.controls.password.setErrors(null);
+          this.isAgreementConfirmShown = true;
           this.cdRef.detectChanges();
         });
   }
 
-  hideModal(show) {
-    this.isShow = show;
-  }
-
-  modalConfirm(ok) {
-    if (ok) {
-      this.register();
-    } else {
-      this.hideModal(false);
-    }
-    this.agreeCheck = false;
-  }
-
-  public register() {
-    this.loading = true;
-    this.submitButtonBlur.emit();
+  private _register() {
     this.userService.register(this.signupModel.email, this.signupModel.password, this.signupModel.recaptcha, this.agreeCheck)
       .finally(() => {
         this.loading = false;

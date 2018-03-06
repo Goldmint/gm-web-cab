@@ -12,7 +12,7 @@
           <h2 class="section__title">{{ "PAGES.Register.SectionTitles.Register" | translate }}</h2>
 
           <div class="section__content pt-4">
-            <form name="signupForm" (ngSubmit)="signupForm.form.valid && hideModal(true)" #signupForm="ngForm" novalidate>
+            <form name="signupForm" (ngSubmit)="signupForm.form.valid && onRegister()" #signupForm="ngForm" novalidate>
               <div class="form-group">
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
@@ -22,17 +22,16 @@
                        (ngModelChange)="errors.Email = false"
                        [readonly]="loading">
 
-                <div class="invalid-feedback" *ngIf="email.errors?.required">
+                <div class="invalid-feedback" *ngIf="email.touched && email.errors?.required">
                   {{ "PAGES.Register.Errors.Email.required" | translate }}
                 </div>
-                <div class="invalid-feedback" *ngIf="email.errors?.email || email.errors?.minlength">
+                <div class="invalid-feedback" *ngIf="email.touched && (email.errors?.email || email.errors?.minlength)">
                   {{ "PAGES.Register.Errors.Email.pattern" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="errors?.Email">
                   {{ errors?.Email }}
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="inputPassword">{{ "PAGES.Register.Labels.Password" | translate }}</label>
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" noAutoComplete
@@ -40,10 +39,9 @@
                        class="form-control col-7"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (signupForm.submitted || !password.pristine)}"
                        (ngModelChange)="errors.Password = false"
-                       [readonly]="loading || passwordChecking"
-                       (input)="onPasswordChanged()">
+                       [readonly]="loading || passwordChecking">
 
-                <div class="invalid-feedback" *ngIf="password.errors?.required">
+                <div class="invalid-feedback" *ngIf="password.touched && password.errors?.required">
                   {{ "PAGES.Register.Errors.Password.required" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="password.errors?.minlength">
@@ -73,7 +71,7 @@
 
               <div class="form-group row pt-3">
                 <div class="col-auto">
-                  <button class="btn btn-primary" [blur]="submitButtonBlur" [disabled]="(!signupForm.valid) || !signupModel.recaptcha || loading || passwordChanged">{{ "PAGES.Register.Buttons.Register" | translate }}</button>
+                  <button class="btn btn-primary" [blur]="submitButtonBlur" [disabled]="(!signupForm.valid || signupForm.untouched) || !signupModel.recaptcha || loading || passwordChanged">{{ "PAGES.Register.Buttons.Register" | translate }}</button>
                   <img *ngIf="loading || passwordChecking" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
                 <div class="col form-text form-text--small pl-4">
@@ -104,7 +102,7 @@
       </div>
     </div>
 
-    <div class="modal " role="dialog" tabindex="-1" [ngClass]="{'showRegModal': isShow, 'fade': isShow, 'show': isShow}">
+    <div class="modal " role="dialog" tabindex="-1" [ngClass]="{'showRegModal fade show': isAgreementConfirmShown}">
       <div role="document" class="modal-dialog message-box">
         <div class="modal-content">
 
@@ -125,8 +123,8 @@
           </div>
 
           <div class="message-box__footer">
-            <button class="btn btn-primary btn-sm mx-1" type="button" (click)="modalConfirm(true)" [disabled]="!agreeCheck">{{ "BUTTONS.Ok" | translate }}</button>
-            <button class="btn btn-primary btn-sm mx-1" type="button" (click)="modalConfirm(false)">{{ "BUTTONS.Cancel" | translate }}</button>
+            <button class="btn btn-primary btn-sm mx-1" type="button" (click)="agreementConfirmed(true)" [disabled]="!agreeCheck">{{ "BUTTONS.Ok" | translate }}</button>
+            <button class="btn btn-primary btn-sm mx-1" type="button" (click)="agreementConfirmed(false)">{{ "BUTTONS.Cancel" | translate }}</button>
           </div>
 
         </div>
