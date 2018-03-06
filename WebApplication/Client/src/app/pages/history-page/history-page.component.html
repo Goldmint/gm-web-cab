@@ -50,9 +50,7 @@
           </ng-template>
 
           <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-            <span>
-              {{ amount | number:'1.2-2':locale }}
-
+            <div class="d-flex">
               <span *ngIf="row.type === 'hwtransfer'; else usdIcon">
                 <svg class="icon-gold-color" width="15" height="15">
                   <use xlink:href="#cur-gold"></use>
@@ -65,7 +63,8 @@
                 </svg>
               </ng-template>
 
-            </span>
+              <span class="pl-1"> {{ amount | number:'1.2-2':locale }}</span>
+            </div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -77,24 +76,25 @@
           </ng-template>
 
           <ng-template let-type="value" ngx-datatable-cell-template let-row="row">
-            <img *ngIf="row.status === 1" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+            <div class="d-flex">
+              <img *ngIf="row.status === 1" alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif">
 
-            <span *ngIf="row.status === 2">
-              <svg class="icon-ok" width="15" height="15">
-                <use xlink:href="#ok"></use>
-              </svg>
-            </span>
+              <span *ngIf="row.status === 2">
+                <svg class="icon-ok" width="17" height="15">
+                  <use xlink:href="#ok"></use>
+                </svg>
+              </span>
 
-            <span *ngIf="row.status === 3">
-              <svg class="icon-nok" width="15" height="15">
-                <use xlink:href="#nok"></use>
-              </svg>
-            </span>
+              <span *ngIf="row.status === 3">
+                <svg class="icon-nok" width="17" height="15">
+                  <use xlink:href="#nok"></use>
+                </svg>
+              </span>
 
-            <span class="text-uppercase">
-              {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
-            </span>
-
+              <span class="text-uppercase pl-2">
+                {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
+              </span>
+            </div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -106,14 +106,16 @@
           </ng-template>
 
           <ng-template let-fee="value" let-row="row" ngx-datatable-cell-template>
-            <span *ngIf="fee && fee > 0; else noFeeBlock">
-              {{ fee | number:'1.0-2':locale }}
+            <span class="d-flex" *ngIf="fee && fee > 0; else noFeeBlock">
               <svg class="icon-gold-color" width="15" height="15">
                 <use xlink:href="#cur-usd"></use>
               </svg>
+              <span class="pl-1">{{ fee | number:'1.0-2':locale }}</span>
             </span>
 
-            <ng-template #noFeeBlock> - </ng-template>
+            <ng-template #noFeeBlock>
+              <div class="text-center free-cell-width">-</div>
+            </ng-template>
           </ng-template>
         </ngx-datatable-column>
 
