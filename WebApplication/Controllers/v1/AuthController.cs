@@ -57,6 +57,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
 				if (user.UserOptions != null) {
 					await DbContext.Entry(user.UserOptions).Reference(_ => _.DPADocument).LoadAsync();
+
 					if (user.UserOptions.DPADocument == null) {
 						await Core.UserAccount.ResendUserDpaDocument(
 							services: HttpContext.RequestServices,

@@ -93,21 +93,21 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 					// get options for DPA check
 					await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
+					if (user.UserOptions != null) {
+						await DbContext.Entry(user.UserOptions).Reference(_ => _.DPADocument).LoadAsync();
+					}
 
 					// DPA is unsigned
-					if (!CoreLogic.UserAccount.HasSignedDpa(user.UserOptions)) {
+					if (user.UserOptions != null && !CoreLogic.UserAccount.HasSignedDpa(user.UserOptions)) {
 						
 						// has not been sent previously
-						if (user.UserOptions != null) {
-							await DbContext.Entry(user.UserOptions).Reference(_ => _.DPADocument).LoadAsync();
-							if (user.UserOptions.DPADocument == null) {
-								await Core.UserAccount.ResendUserDpaDocument(
-									services: HttpContext.RequestServices,
-									user: user,
-									email: user.Email,
-									redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
-								);
-							}
+						if (user.UserOptions.DPADocument == null) {
+							await Core.UserAccount.ResendUserDpaDocument(
+								services: HttpContext.RequestServices,
+								user: user,
+								email: user.Email,
+								redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+							);
 						}
 
 						return Redirect(
