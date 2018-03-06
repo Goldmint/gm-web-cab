@@ -29,12 +29,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			// ---
 
 			// check pending operations
-			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user)) {
+			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 			// ---
@@ -47,7 +48,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 			
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -98,6 +99,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				// try
 				var queryResult = await DepositQueue.StartDepositWithCard(
 					services: scopedServices.ServiceProvider,
+					userId: user.Id,
+					userTier: userTier,
 					payment: payment,
 					financialHistoryId: finHistory.Id
 				);

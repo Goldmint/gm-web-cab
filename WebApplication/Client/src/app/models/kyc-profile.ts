@@ -1,9 +1,11 @@
 export class KYCProfile {
   isFormFilled?: boolean = false;
+  isKycPending?: boolean = false;
+  isKycFinished?: boolean = false;
+  isAgreementPending?: boolean = false;
   isAgreementSigned?: boolean = false;
-  isKYCFinished?: boolean = false;
-  isKYCPending?: boolean = false;
-  firstName   : string = '';
+
+  firstName: string = '';
   middleName ?: string;
   lastName    : string = '';
   /**

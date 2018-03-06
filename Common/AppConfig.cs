@@ -144,8 +144,8 @@ namespace Goldmint.Common {
 			public FiatLimitsSection FiatAccountLimitsUSD { get; set; } = new FiatLimitsSection();
 			public class FiatLimitsSection {
 
-				public Limits L0 { get; set; } = new Limits();
-				public Limits L1 { get; set; } = new Limits();
+				public Limits Tier1 { get; set; } = new Limits();
+				public Limits Tier2 { get; set; } = new Limits();
 
 				public class Limits {
 					public long DayDeposit { get; set; } = 0;

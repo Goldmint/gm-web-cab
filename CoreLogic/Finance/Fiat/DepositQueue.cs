@@ -6,8 +6,6 @@ using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
 using Goldmint.DAL.Models;
-using Goldmint.DAL.Models.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
@@ -19,19 +17,18 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Attempt to start deposit
 		/// </summary>
-		public static async Task<DepositResult> StartDepositWithCard(IServiceProvider services, CardPayment payment, long financialHistoryId) {
+		public static async Task<DepositResult> StartDepositWithCard(IServiceProvider services, long userId, UserTier userTier, CardPayment payment, long financialHistoryId) {
 
 			if (payment.Type != CardPaymentType.Deposit) throw new ArgumentException("Incorrect payment type");
 			if (payment.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 			if (payment.Card == null) throw new ArgumentException("Card not included");
-			if (payment.User == null) throw new ArgumentException("User not included");
 
 			var logger = services.GetLoggerFor(typeof(DepositQueue));
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var cardAcquirer = services.GetRequiredService<ICardAcquirer>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
 
-			return await StartDeposit(services, payment.User, payment.Currency, payment.AmountCents, async () => {
+			return await StartDeposit(services, userId, userTier, payment.Currency, payment.AmountCents, async () => {
 
 				try {
 					await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, $"Charging {payment.AmountCents} cents, card payment #{payment.Id}");
@@ -60,7 +57,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					catch { }
 
 					return new Deposit() {
-						UserId = payment.UserId,
+						UserId = userId,
 						Status = DepositStatus.Initial,
 						Currency = payment.Currency,
 						AmountCents = payment.AmountCents,
@@ -72,30 +69,27 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						TimeNextCheck = DateTime.UtcNow,
 					};
 				}
-				else {
-					try {
-						await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Charge failed");
-					}
-					catch { }
-					return null;
+
+				try {
+					await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, "Charge failed");
 				}
+				catch { }
+				return null;
 			});
 		}
 
 		/// <summary>
 		/// Attempt to start deposit
 		/// </summary>
-		public static async Task<DepositResult> StartDepositWithSwift(IServiceProvider services, SwiftRequest request, long financialHistoryId) {
+		public static async Task<DepositResult> StartDepositWithSwift(IServiceProvider services, long userId, UserTier userTier, SwiftRequest request, long financialHistoryId) {
 
 			if (request.Type != SwiftPaymentType.Deposit) throw new ArgumentException("Incorrect payment type");
 			if (request.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
-			if (request.User == null) throw new ArgumentException("User not included");
 
 			var logger = services.GetLoggerFor(typeof(DepositQueue));
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
 
-			return await StartDeposit(services, request.User, request.Currency, request.AmountCents, async () => {
+			return await StartDeposit(services, userId, userTier, request.Currency, request.AmountCents, async () => {
 
 				try {
 					await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Deposit of {request.AmountCents} cents, SWIFT request #{request.Id}");
@@ -103,7 +97,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				catch { }
 
 				return new Deposit() {
-					UserId = request.User.Id,
+					UserId = userId,
 					Status = DepositStatus.Initial,
 					Currency = request.Currency,
 					AmountCents = request.AmountCents,
@@ -120,26 +114,23 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Rollback failed withdrawal request
 		/// </summary>
-		public static async Task<DepositResult> StartDepositFromFailedWithdraw(IServiceProvider services, Withdraw withdraw, long financialHistoryId) {
+		public static async Task<DepositResult> StartDepositFromFailedWithdraw(IServiceProvider services, long userId, Withdraw withdraw, long financialHistoryId) {
 
 			if (withdraw.Destination != WithdrawDestination.CreditCard) throw new ArgumentException("Incorrect withdrawal destination");
 			if (withdraw.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
-			if (withdraw.User == null) throw new ArgumentException("User not included");
 
 			var logger = services.GetLoggerFor(typeof(DepositQueue));
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var cardAcquirer = services.GetRequiredService<ICardAcquirer>();
-			var ticketDesk = services.GetRequiredService<ITicketDesk>();
 
 			return await StartDeposit(
 				services: services, 
-				user: withdraw.User, 
+				userId: userId, 
+				userTier: UserTier.Tier0,
 				currency: withdraw.Currency, 
 				amountCents: withdraw.AmountCents,
 				ignoreLimits: true,
 				onSuccess: () => Task.FromResult(
 					new Deposit() {
-						UserId = withdraw.UserId,
+						UserId = userId,
 						Status = DepositStatus.Initial,
 						Currency = withdraw.Currency,
 						AmountCents = withdraw.AmountCents,
@@ -157,7 +148,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Attempt to enqueue deposit
 		/// </summary>
-		public static async Task<DepositResult> StartDeposit(IServiceProvider services, User user, FiatCurrency currency, long amountCents, Func<Task<Deposit>> onSuccess, bool ignoreLimits = false) {
+		public static async Task<DepositResult> StartDeposit(IServiceProvider services, long userId, UserTier userTier, FiatCurrency currency, long amountCents, Func<Task<Deposit>> onSuccess, bool ignoreLimits = false) {
 
 			if (amountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 
@@ -169,7 +160,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			// lock deposit attempt for user
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.DepositEnqueue, user.Id)
+				.Mutex(MutexEntity.DepositEnqueue, userId)
 			;
 
 			return await mutexBuilder.CriticalSection(async (ok) => {
@@ -177,7 +168,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					// check limits
 					if (!ignoreLimits) {
-						var limit = await UserAccount.GetCurrentFiatDepositLimit(services, currency, user);
+						var limit = await UserAccount.GetCurrentFiatDepositLimit(services, currency, userId, userTier);
 						if (amountCents > limit.Minimal) {
 							return new DepositResult() {
 								Status = FiatEnqueueStatus.Limit,

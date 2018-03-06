@@ -73,28 +73,34 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 	public class VerificationView : VerificationEditModel {
 		
 		/// <summary>
-		/// Form filled
+		/// Form is filled
 		/// </summary>
 		[Required]
 		public bool IsFormFilled { get; set; }
 		
 		/// <summary>
-		/// Agreement signed
+		/// KYC flow is pending
+		/// </summary>
+		[Required]
+		public bool IsKycPending { get; set; }
+
+		/// <summary>
+		/// KYC flow completed
+		/// </summary>
+		[Required]
+		public bool IsKycFinished { get; set; }
+
+		/// <summary>
+		/// Agreement signature is pending
+		/// </summary>
+		[Required]
+		public bool IsAgreementPending { get; set; }
+		
+		/// <summary>
+		/// Agreement is signed
 		/// </summary>
 		[Required]
 		public bool IsAgreementSigned { get; set; }
-
-		/// <summary>
-		/// Level 1 verification is completed (kyc done)
-		/// </summary>
-		[Required]
-		public bool IsKYCFinished { get; set; }
-
-		/// <summary>
-		/// Previous verification attempt is still in progress
-		/// </summary>
-		[Required]
-		public bool IsKYCPending { get; set; }
 	}
 
 	public class VerificationEditModel : BaseValidableModel {
@@ -274,58 +280,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		[Required]
 		public string Redirect { get; set; }
 
-	}
-
-	// ---
-	/*
-	public class VerificationKycStatusModel : BaseValidableModel {
-
-		/// <summary>
-		/// Ticket ID to track KYC status
-		/// </summary>
-		[Required]
-		public string TicketId { get; set; }
-
-		// ---
-
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<VerificationKycStatusModel>();
-			v.CascadeMode = CascadeMode.Continue;
-
-			v.RuleFor(_ => _.TicketId)
-				.Must(Common.ValidationRules.ContainOnlyDigits)
-				.WithMessage("Invalid ticket id format")
-			;
-
-			return v.Validate(this);
-		}
-	}
-
-	public class VerificationKycStatusView {
-
-		/// <summary>
-		/// True in case of verification is successful
-		/// </summary>
-		[Required]
-		public bool Verified { get; set; }
-
-	}
-	*/
-	// ---
-
-	public class VerificationResendAgreementView {
-
-		/// <summary>
-		/// Agreement succesfully resent
-		/// </summary>
-		[Required]
-		public bool Resent { get; set; }
-
-		/// <summary>
-		/// Next date sending available (unix), optional
-		/// </summary>
-		public long? AvailableDate { get; set; }
-		
 	}
 
 	// ---

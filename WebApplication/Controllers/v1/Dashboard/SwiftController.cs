@@ -115,12 +115,14 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						p.Type == SwiftPaymentType.Deposit
 					select p
 				)
-				.Include(_ => _.User)
+				.Include(_ => _.User).ThenInclude(_ => _.UserOptions)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
 				.AsNoTracking()
 				.FirstOrDefaultAsync()
 			;
 
-			if (request == null) {
+			if (request?.User == null) {
 				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
 			}
 
@@ -131,7 +133,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			}
 
 			// get limits
-			var limits = await CoreLogic.UserAccount.GetCurrentFiatDepositLimit(HttpContext.RequestServices, currency, request.User);
+			var userTier = CoreLogic.UserAccount.GetTier(request.User);
+			var limits = await CoreLogic.UserAccount.GetCurrentFiatDepositLimit(HttpContext.RequestServices, currency, request.User.Id, userTier);
 
 			return APIResponse.Success(
 				new LockDepositView() {
@@ -174,12 +177,14 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						p.Type == SwiftPaymentType.Withdraw
 					select p
 				)
-				.Include(_ => _.User)
+				.Include(_ => _.User).ThenInclude(_ => _.UserOptions)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
 				.AsNoTracking()
 				.FirstOrDefaultAsync()
 			;
 
-			if (request == null) {
+			if (request?.User == null) {
 				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
 			}
 
@@ -190,7 +195,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			}
 
 			// get limits
-			var limits = await CoreLogic.UserAccount.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, currency, request.User);
+			var userTier = CoreLogic.UserAccount.GetTier(request.User);
+			var limits = await CoreLogic.UserAccount.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, currency, request.User.Id, userTier);
 
 			return APIResponse.Success(
 				new LockWithdrawView() {
@@ -352,7 +358,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						p.Type == SwiftPaymentType.Deposit
 					select p
 				)
-				.Include(_ => _.User).ThenInclude(_ => _.UserVerification)
+				.Include(_ => _.User).ThenInclude(_ => _.UserOptions)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
+				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
 				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
@@ -363,7 +371,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			// check verification
 			var user = request.User;
-			if (!CoreLogic.UserAccount.IsVerifiedL1(user)) {
+			var userTier = CoreLogic.UserAccount.GetTier(user);
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -409,6 +418,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					// try
 					var queryResult = await DepositQueue.StartDepositWithSwift(
 						services: scopedServices.ServiceProvider,
+						userId: request.User.Id,
+						userTier: userTier,
 						request: request,
 						financialHistoryId: finHistory.Id
 					);

@@ -1,11 +1,11 @@
-﻿ using Goldmint.WebApplication.Core.Policies;
+﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.SignedDoc;
+using Goldmint.WebApplication.Core.Policies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
- using System.Linq;
- using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.SignedDoc;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -71,11 +71,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						ticket.CallbackStatusCode = check.ServiceStatus;
 						ticket.CallbackMessage = check.ServiceMessage;
 						ticket.TimeResponded = DateTime.UtcNow;
-						
-						// verified
-						if (ticket.User?.UserVerification != null && userVerified) {
-							ticket.User.UserVerification.KycVerifiedTicket = ticket;
-						}
 
 						await DbContext.SaveChangesAsync();
 					}
@@ -99,8 +94,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				if (check.OverallStatus == OverallStatus.Signed || check.OverallStatus == OverallStatus.Declined) {
 
 					var doc = await DbContext.SignedDocument
-						.Include(_ => _.User)
-							.ThenInclude(_ => _.UserVerification)
 						.AsNoTracking()
 						.FirstOrDefaultAsync(_ => _.ReferenceId == check.ReferenceId)
 					;
@@ -110,16 +103,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						doc.CallbackEvent = check.ServiceMessage;
 						doc.CallbackStatus = check.ServiceStatus;
 						doc.TimeCompleted = DateTime.UtcNow;
-
-						// special case
-						if (
-							doc.Type == SignedDocumentType.GoldmintTOS && 
-						    doc.IsSigned && 
-						    (doc.User?.UserVerification?.LastAgreementId ?? 0) == doc.Id
-						) {
-							doc.User.UserVerification.SignedAgreementId = doc.Id;
-							DbContext.Update(doc.User.UserVerification);
-						}
 
 						DbContext.Update(doc);
 						await DbContext.SaveChangesAsync();

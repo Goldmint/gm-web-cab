@@ -20,19 +20,18 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Attempt to start deposit
 		/// </summary>
-		public static async Task<WithdrawResult> StartWithdrawWithCard(IServiceProvider services, CardPayment payment, long financialHistoryId) {
+		public static async Task<WithdrawResult> StartWithdrawWithCard(IServiceProvider services, long userId, UserTier userTier, CardPayment payment, long financialHistoryId) {
 
 			if (payment.Type != CardPaymentType.Withdraw) throw new ArgumentException("Incorrect payment type");
 			if (payment.AmountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 			if (payment.Card == null) throw new ArgumentException("Card not included");
-			if (payment.User == null) throw new ArgumentException("User not included");
 
-			var logger = services.GetLoggerFor(typeof(WithdrawQueue));
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var cardAcquirer = services.GetRequiredService<ICardAcquirer>();
-			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+			// var logger = services.GetLoggerFor(typeof(WithdrawQueue));
+			// var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			// var cardAcquirer = services.GetRequiredService<ICardAcquirer>();
+			// var ticketDesk = services.GetRequiredService<ITicketDesk>();
 
-			return await StartWithdraw(services, payment.User, payment.Currency, payment.AmountCents, () => Task.FromResult(
+			return await StartWithdraw(services, userId, userTier, payment.Currency, payment.AmountCents, () => Task.FromResult(
 				new Withdraw() {
 					UserId = payment.UserId,
 					Status = WithdrawStatus.Initial,
@@ -51,7 +50,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// <summary>
 		/// Attempt to enqueue withdraw
 		/// </summary>
-		public static async Task<WithdrawResult> StartWithdraw(IServiceProvider services, User user, FiatCurrency currency, long amountCents, Func<Task<Withdraw>> onSuccess) {
+		public static async Task<WithdrawResult> StartWithdraw(IServiceProvider services, long userId, UserTier userTier, FiatCurrency currency, long amountCents, Func<Task<Withdraw>> onSuccess) {
 
 			if (amountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 
@@ -63,14 +62,14 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			// lock withdraw attempt for user
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.WithdrawEnqueue, user.Id)
+				.Mutex(MutexEntity.WithdrawEnqueue, userId)
 			;
 
 			return await mutexBuilder.CriticalSection(async (ok) => {
 				if (ok) {
 
 					// get limit
-					var limit = await UserAccount.GetCurrentFiatWithdrawLimit(services, currency, user);
+					var limit = await UserAccount.GetCurrentFiatWithdrawLimit(services, currency, userId, userTier);
 					if (amountCents <= limit.Minimal) {
 						try {
 							var withdraw = await onSuccess();
@@ -259,6 +258,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 											// enqueue deposit
 											var res = await DepositQueue.StartDepositFromFailedWithdraw(
 												services: services,
+												userId: withdraw.UserId,
 												withdraw: withdraw,
 												financialHistoryId: finHistory.Id
 											);

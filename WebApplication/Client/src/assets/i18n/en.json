@@ -476,7 +476,7 @@
           "Title": "Identity verification",
           "StatusText": "Not verified",
           "Labels": {
-            "KYCVer": "KYC verification",
+            "KYCVer": "Advanced verification",
             "NotSigned": "Not signed",
             "NotVerified": "Not verified"
           },
@@ -488,23 +488,26 @@
             "GetAdvancedVer": "Get advanced verification"
           }
         },
+		"WarningSection": {
+          "Title": "Advanced verification",
+		  "Widget": "Not verified",
+          "Text": "Unverified accounts cannot make any fiat operaions. You will be redirected to identity verification service.",
+		  "TextPending": "Advanced verification is still in progress. Please come back later or try to refresh this page.",
+		  "Button": "Get verification"
+        },
 		"AgreementSection": {
-          "Title": "GoldMint agreement",
-          "Text": "Complete basic verification by signing GoldMint agreement. Agreement has been sent to your primary email address. <br><br>If you did not receive message in 30 minutes please click button below.",
-		  "ResendLimited": "Resending has limited frequency. Please be patient and wait for email message.",
-		  "ResendFinished": "Agreement has been resent.",
+          "Title": "Sign agreement",
+          "Text": "Complete verification by signing Goldmint agreement. Agreement will be sent to your primary email address.",
+		  "TextPending": "Agreement signing is still in progress. Please come back later or try to refresh this page.",
+		  "Widget": "Not signed",
           "Buttons": {
-            "Resend": "Resend Agreement"
+            "Resend": "Send agreement"
           }
         },
         "FinishedSection": {
           "Title": "Advanced verification",
           "StatusText": "Advanced verification completed",
           "Text": "<span class=\"lead\">Congratulations! Identity verification successfully finished!</span>"
-        },
-        "WarningSection": {
-          "Title": "Warning about deposits",
-          "Text": "Unverified accounts cannot withdraw from Goldmint. Please see this <a href=\"#\">link</a> for more information."
         },
         "FormSection": {
           "Title": "Basic Information",
