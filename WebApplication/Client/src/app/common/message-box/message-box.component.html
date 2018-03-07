@@ -21,8 +21,8 @@
           (click)="onConfirm()">OK</button>
   <button type="button" class="btn btn-primary btn-sm mx-1"
           *ngIf="messageType === types.Confirm"
-          (click)="onCancel()">Cancel</button>
+          (click)="onCancel()">{{ "BUTTONS.Cancel" | translate }}</button>
   <button type="button" class="btn btn-primary btn-sm mx-1"
           *ngIf="messageType === types.Prompt"
-          (click)="onCancel()">Close</button>
+          (click)="onCancel()">{{ "BUTTONS.Close" | translate }}</button>
 </div>

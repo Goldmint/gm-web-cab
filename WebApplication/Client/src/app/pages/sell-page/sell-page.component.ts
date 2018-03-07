@@ -6,6 +6,7 @@ import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js';
 import {Subscription} from "rxjs/Subscription";
 import {Router} from "@angular/router";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-sell-page',
@@ -50,7 +51,8 @@ export class SellPageComponent implements OnInit, OnDestroy {
     private _ethService: EthereumService,
     private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -221,31 +223,26 @@ export class SellPageComponent implements OnInit, OnDestroy {
           this._cdRef.markForCheck();
         })
         .subscribe(res => {
-            const confText =
-              "GOLD to sell: " +
-              (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
-              " GOLD<br/>" +
-              "You will get: $ " +
-              res.data.fiatAmount +
-              " ($ " +
-              res.data.feeAmount +
-              " fee)<br/>" +
-              "GOLD/USD: $ " +
-              res.data.goldRate;
+          const amount = new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))
+          this.confirmation = true;
+          this._cdRef.markForCheck();
 
-            this.confirmation = true;
-            this._cdRef.markForCheck();
-
-            this._messageBox.confirm(confText).subscribe(ok => {
-              this.confirmation = false;
-              if (ok) {
-                this._apiService.confirmHwRequest(false, res.data.requestId).subscribe(() => {
-                    this._messageBox.alert('Your request is in progress now!').subscribe(() => {
-                    this.router.navigate(['/finance/history']);
+          this._translate.get('MessageBox.GoldSell',
+            {goldAmount: amount, fiatAmount: res.data.fiatAmount, feeAmount: res.data.feeAmount, goldRate: res.data.goldRate}
+            ).subscribe(phrase => {
+              this._messageBox.confirm(phrase).subscribe(ok => {
+                this.confirmation = false;
+                if (ok) {
+                  this._apiService.confirmHwRequest(false, res.data.requestId).subscribe(() => {
+                    this._translate.get('MessageBox.RequestProgress' ).subscribe(phrase => {
+                      this._messageBox.alert(phrase).subscribe(() => {
+                        this.router.navigate(['/finance/history']);
+                      });
+                    });
                   });
-                });
-              }
-              this._cdRef.markForCheck();
+                }
+                this._cdRef.markForCheck();
+              });
             });
           });
     } else {
@@ -255,27 +252,20 @@ export class SellPageComponent implements OnInit, OnDestroy {
           this._cdRef.markForCheck();
         })
         .subscribe(res => {
-            var confText =
-              "GOLD to sell: " +
-              (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
-              " GOLD<br/>" +
-              "You will get: $ " +
-              res.data.fiatAmount +
-              " ($ " +
-              res.data.feeAmount +
-              " fee)<br/>" +
-              "GOLD/USD: $ " +
-              res.data.goldRate;
+          const amount = new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))
+          this.confirmation = true;
+          this._cdRef.markForCheck();
 
-            this.confirmation = true;
-            this._cdRef.markForCheck();
-
-            this._messageBox.confirm(confText).subscribe(ok => {
-              this.confirmation = false;
-              if (ok) {
-                this._ethService.sendSellRequest(this.ethAddress, res.data.payload);
-              }
-              this._cdRef.markForCheck();
+          this._translate.get('MessageBox.GoldSell',
+            {goldAmount: amount, fiatAmount: res.data.fiatAmount, feeAmount: res.data.feeAmount, goldRate: res.data.goldRate}
+          ).subscribe(phrase => {
+              this._messageBox.confirm(phrase).subscribe(ok => {
+                this.confirmation = false;
+                if (ok) {
+                  this._ethService.sendSellRequest(this.ethAddress, res.data.payload);
+                }
+                this._cdRef.markForCheck();
+              });
             });
           });
     }

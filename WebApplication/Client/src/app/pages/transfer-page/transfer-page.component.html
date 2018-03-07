@@ -23,7 +23,7 @@
                      >
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!walletChecked">
-              Invalid address
+              {{ 'PAGES.Transfer.Errors.InvalidAddress' | translate }}
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
               <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!amountChecked">
-              Invalid amount value
+              {{ 'PAGES.Transfer.Errors.InvalidAmount' | translate }}
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@
 
 <ng-template #chooseMethodModal let-close="close">
   <div class="modal-header">
-    <h4 class="modal-title">Choose transfer method</h4>
+    <h4 class="modal-title">{{ "PAGES.Transfer.Labels.ChooseMethod" | translate }}</h4>
     <button type="button" class="close" (click)="_modalRef.hide()">
       <svg class="icon" width="24px" height="24px">
         <use xlink:href="#close"></use>
@@ -78,7 +78,7 @@
       <div class="col">
         <button class="btn btn-primary btn-block" (click)="onMetamask()">MetaMask</button>
       </div>
-      <div class="col-1 text-center">or</div>
+      <div class="col-1 text-center">{{ "PAGES.Transfer.Labels.Or" | translate }}</div>
       <div class="col">
         <button class="btn btn-primary btn-block" (click)="modal(myEtheriumWalletModal)" disabled>myetherwallet.com</button>
       </div>
@@ -88,7 +88,7 @@
 
 <ng-template #myEtheriumWalletModal let-close="close">
   <div class="modal-header">
-    <h4 class="modal-title">My Etherium wallet</h4>
+    <h4 class="modal-title">{{ "PAGES.Transfer.Labels.MyWallet" | translate }}</h4>
     <button type="button" class="close" (click)="_modalRef.hide()">
       <svg class="icon" width="24px" height="24px">
         <use xlink:href="#close"></use>
@@ -99,9 +99,9 @@
     <div class="row align-items-center py-4">
       <div class="col-auto mx-auto">
         <ol class="mb-0">
-          <li>Перейдите на <a href="http://myetherwallet.com" target="_blank" class="link link--bolder link--gold">myetherwallet.com</a></li>
-          <li>Введите адрес смарт-контракта <b>0x0</b></li>
-          <li>Нажмите подтвердить транзакцию</li>
+          <li>{{ "PAGES.Transfer.Steps.One" | translate }} <a href="http://myetherwallet.com" target="_blank" class="link link--bolder link--gold">myetherwallet.com</a></li>
+          <li>{{ "PAGES.Transfer.Steps.Two" | translate }} <b>0x0</b></li>
+          <li>{{ "PAGES.Transfer.Steps.Three" | translate }}</li>
         </ol>
       </div>
     </div>

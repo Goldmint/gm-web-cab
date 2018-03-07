@@ -8,6 +8,7 @@ import { TFAInfo, CardsList, CardsListItem, FiatLimits } from '../../interfaces'
 import { APIService, MessageBoxService } from '../../services';
 import { UserService } from "../../services/user.service";
 import { User } from "../../interfaces/user";
+import {TranslateService} from "@ngx-translate/core";
 
 enum Pages { Default, CardsList, CardsListSuccess }
 
@@ -48,7 +49,8 @@ export class WithdrawPageComponent implements OnInit {
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
     private _user: UserService,
-    private _messageBox: MessageBoxService
+    private _messageBox: MessageBoxService,
+    private _translate: TranslateService
   ) {
     this.page = Pages.Default;
   }
@@ -123,7 +125,9 @@ export class WithdrawPageComponent implements OnInit {
               break;
 
             case 1005: // AccountDepositLimit
-              this._messageBox.alert('Deposit limit reached');
+              this._translate.get('MessageBox.DepositLimit').subscribe(phrase => {
+                this._messageBox.alert(phrase);
+              });
               break;
 
             default:

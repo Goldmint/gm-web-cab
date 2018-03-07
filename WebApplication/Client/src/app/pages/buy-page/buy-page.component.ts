@@ -1,10 +1,14 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { UserService, APIService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import { GoldBuyResponse } from '../../interfaces'
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js'
 import {Router} from "@angular/router";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-buy-page',
@@ -16,10 +20,11 @@ import {Router} from "@angular/router";
 })
 export class BuyPageComponent implements OnInit, OnDestroy {
 
+  @ViewChild('inputToSpend') inputToSpend;
+
   confirmation: boolean = false;
   progress: boolean = false;
   toSpendUnset: boolean = true;
-  toSpendVal: string = "";
   toSpend: BigNumber = new BigNumber(0);
 
   usdBalance: number = 0;
@@ -38,7 +43,8 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     private _ethService: EthereumService,
     private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -51,7 +57,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         if (this.toSpendUnset && this.usdBalance > 0) {
           this.toSpendUnset = false;
           this.toSpend = new BigNumber(this.usdBalance);
-          this.toSpendVal = this.toSpend.toString();
+          this.inputToSpend.nativeElement.value = this.toSpend.toNumber();
           this.buyAmountCheck(this.toSpend);
         }
 
@@ -82,10 +88,11 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     this.toSpendUnset = false;
 
     this.toSpend = new BigNumber(0);
-    var testVal = this.usdBalance && value && value.length > 0 ? parseFloat(value): 0;
+    var testVal = this.usdBalance && value && value.length > 0 ? parseFloat(value).toFixed(2) : 0;
 
     if (testVal > 0) {
       this.toSpend = (new BigNumber(testVal)).decimalPlaces(2, BigNumber.ROUND_DOWN);
+      this.inputToSpend.nativeElement.value = this.toSpend.toNumber();
     }
 
     this.estimate(this.toSpend);
@@ -94,9 +101,8 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   }
 
   setUsdBalance(percent) {
-    const amount = (this.usdBalance * percent).toString();
-    this.toSpendVal = amount;
-    this.onToSpendChanged(amount);
+    const amount = this.usdBalance * percent;
+    this.onToSpendChanged(amount.toString());
   }
 
   estimate(amount: BigNumber) {
@@ -116,26 +122,26 @@ export class BuyPageComponent implements OnInit, OnDestroy {
           this._cdRef.markForCheck();
         })
         .subscribe(res => {
-            const confText =
-              "GOLD to buy: " +
-              (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) +
-              " GOLD<br/>" +
-              "GOLD/USD: $ " +
-              res.data.goldRate;
+          const amount = new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18));
+          this.confirmation = true;
+          this._cdRef.markForCheck();
 
-            this.confirmation = true;
-            this._cdRef.markForCheck();
-
-            this._messageBox.confirm(confText).subscribe(ok => {
+          this._translate.get('MessageBox.GoldBuy',
+            {goldAmount: amount, goldRate: res.data.goldRate}
+          ).subscribe(phrase => {
               this.confirmation = false;
-              if (ok) {
-                this._apiService.confirmHwRequest(true, res.data.requestId).subscribe(() => {
-                  this._messageBox.alert('Your request is in progress now!').subscribe(() => {
-                    this.router.navigate(['/finance/history']);
+              this._messageBox.confirm(phrase).subscribe(ok => {
+                if (ok) {
+                  this._apiService.confirmHwRequest(true, res.data.requestId).subscribe(() => {
+                    this._translate.get('MessageBox.RequestProgress').subscribe(phrase => {
+                      this._messageBox.alert(phrase).subscribe(() => {
+                        this.router.navigate(['/finance/history']);
+                      });
+                    });
                   });
-                });
-              }
-              this._cdRef.markForCheck();
+                }
+                this._cdRef.markForCheck();
+              });
             });
           });
     } else {
@@ -145,23 +151,22 @@ export class BuyPageComponent implements OnInit, OnDestroy {
           this._cdRef.markForCheck();
         })
         .subscribe(res => {
-            var confText =
-              "USD to spend: " + this.toSpend + "<br/>" +
-              "You will get: " + (new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))) + " GOLD<br/>" +
-              "GOLD/USD: $ " + res.data.goldRate
-            ;
+          const amount = new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18));
+          this.confirmation = true;
+          this._cdRef.markForCheck();
 
-            this.confirmation = true;
-            this._cdRef.markForCheck();
-
-            this._messageBox.confirm(confText).subscribe(ok => {
-              this.confirmation = false;
+          this._translate.get('MessageBox.GoldBuy',
+            {goldAmount: amount, goldRate: res.data.goldRate}
+          ).subscribe(phrase => {
+            this.confirmation = false;
+            this._messageBox.confirm(phrase).subscribe(ok => {
               if (ok) {
                 this._ethService.sendBuyRequest(this.ethAddress, res.data.payload);
               }
               this._cdRef.markForCheck();
             });
           });
+        });
     }
   }
 

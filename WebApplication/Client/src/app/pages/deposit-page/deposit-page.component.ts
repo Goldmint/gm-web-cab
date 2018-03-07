@@ -14,6 +14,7 @@ import * as countries from '../../../assets/data/countries.json';
 import { User } from "../../interfaces/user";
 import { UserService } from "../../services/user.service";
 import { Observable } from "rxjs/Observable";
+import {TranslateService} from "@ngx-translate/core";
 
 enum Pages { Default, CardsList, BankTransfer, CardsListSuccess }
 enum BankTransferSteps { Default, Form, PaymentDetails }
@@ -61,7 +62,8 @@ export class DepositPageComponent implements OnInit {
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
     private _user: UserService,
-    private _messageBox: MessageBoxService
+    private _messageBox: MessageBoxService,
+    private _translate: TranslateService
   ) {
     this.page = Pages.Default;
     this.countries = <Country[]><any>countries;
@@ -166,7 +168,9 @@ export class DepositPageComponent implements OnInit {
               break;
 
             case 1005: // AccountDepositLimit
-              this._messageBox.alert('Deposit limit reached');
+              this._translate.get('MessageBox.DepositLimit').subscribe(phrase => {
+                this._messageBox.alert(phrase);
+              });
               break;
 
             default:

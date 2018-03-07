@@ -127,7 +127,7 @@
           <ng-template let-comment="value" ngx-datatable-cell-template let-row="row">
             {{ comment }}
             <div *ngIf="row.ethTxId">
-              <a href="{{ etherscanLink + row.ethTxId }}" target="_blank">link</a>
+              <a href="{{ etherscanLink + row.ethTxId }}" target="_blank">{{ "PAGES.History.Table.Link" | translate }}</a>
             </div>
           </ng-template>
         </ngx-datatable-column>

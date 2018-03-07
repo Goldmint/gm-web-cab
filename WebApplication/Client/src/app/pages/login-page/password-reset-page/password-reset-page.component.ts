@@ -8,6 +8,7 @@ import { RecaptchaComponent as reCaptcha } from 'ng-recaptcha';
 import 'rxjs/add/operator/finally';
 
 import { APIService, MessageBoxService } from "../../../services";
+import {TranslateService} from "@ngx-translate/core";
 
 enum Pages {Default, EmailSent, NewPassword}
 
@@ -39,7 +40,8 @@ export class PasswordResetPageComponent implements OnInit, AfterViewInit {
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
     private jwtHelper: JwtHelperService,
-    private _messageBox: MessageBoxService) {
+    private _messageBox: MessageBoxService,
+    private _translate: TranslateService) {
 
     this.page = Pages.Default;
 
@@ -102,7 +104,9 @@ export class PasswordResetPageComponent implements OnInit, AfterViewInit {
 
               default:
                 //@todo: handle 'new password request' error
-                this._messageBox.alert('Something went wrong.');
+                this._translate.get('MessageBox.SomethingWrong').subscribe(phrase => {
+                  this._messageBox.alert(phrase);
+                });
                 break;
             }
           }
@@ -136,8 +140,9 @@ export class PasswordResetPageComponent implements OnInit, AfterViewInit {
       .subscribe(
         res => {
           this.router.navigate(['/signin']);
-
-          this._messageBox.alert('Password successfully changed.');
+          this._translate.get('MessageBox.PasswordChanged' ).subscribe(phrase => {
+            this._messageBox.alert(phrase);
+          });
         },
         err => {
           if (err.error.errorCode) {
@@ -150,7 +155,9 @@ export class PasswordResetPageComponent implements OnInit, AfterViewInit {
 
               default:
                 //@todo: handle 'change password' error
-                this._messageBox.alert('Something went wrong.');
+                this._translate.get('MessageBox.SomethingWrong').subscribe(phrase => {
+                  this._messageBox.alert(phrase);
+                });
                 break;
             }
           }

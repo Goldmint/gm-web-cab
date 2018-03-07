@@ -11,6 +11,7 @@ import {APIService, UserService} from "../../services";
 import {Subscription} from "rxjs/Subscription";
 import {Router} from "@angular/router";
 import {Subject} from "rxjs/Subject";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-transfer-page',
@@ -50,7 +51,8 @@ export class TransferPageComponent implements OnInit, OnDestroy {
     private _apiService: APIService,
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -140,11 +142,10 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   }
 
   onMetamask() {
-      var confText =
-        "Target address: " + this.walletAddress + "<br/>" +
-        "GOLD amount: " + this.amount + " GOLD<br/>"
-      ;
-      this._messageBox.confirm(confText).subscribe(ok => {
+    this._translate.get('MessageBox.GoldTransfer',
+      {address: this.walletAddress, amount: this.amount}
+    ).subscribe(phrase => {
+      this._messageBox.confirm(phrase).subscribe(ok => {
         if (ok) {
           this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, this.amount);
           this.walletAddressVal = "";
@@ -153,25 +154,26 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         }
         this._cdRef.markForCheck();
       });
+    });
   }
 
   onHotWallet() {
-    var confText =
-      "Target address: " + this.walletAddress + "<br/>" +
-      "GOLD amount: " + this.amount + " GOLD<br/>";
-
-    this._messageBox.confirm(confText).subscribe(ok => {
-      if(ok) {
-        this._apiService.goldTransferHwRequest(this.walletAddress, this.amount)
-          .subscribe(() => {
-            this._messageBox.alert('Your request is in progress now!').subscribe(() => {
-              this.walletAddressVal = "";
-              this.amount = new BigNumber(0);
-              this.amountValue = null;
-              this.router.navigate(['/finance/history']);
-            });
-          });
-      }
+    this._translate.get('MessageBox.GoldTransfer',
+      {address: this.walletAddress, amount: this.amount}
+    ).subscribe(phrase => {
+      this._messageBox.confirm(phrase).subscribe(ok => {
+        if(ok) {
+          this._apiService.goldTransferHwRequest(this.walletAddress, this.amount)
+            .subscribe(() => {
+              this._messageBox.alert('Your request is in progress now!').subscribe(() => {
+                this.walletAddressVal = "";
+                this.amount = new BigNumber(0);
+                this.amountValue = null;
+                this.router.navigate(['/finance/history']);
+              });
+           });
+        }
+      });
     });
   }
 

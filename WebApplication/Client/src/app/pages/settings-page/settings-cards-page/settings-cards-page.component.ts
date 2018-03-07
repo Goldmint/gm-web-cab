@@ -5,6 +5,7 @@ import { zip } from 'rxjs/observable/zip';
 
 import { User, CardsList, CardsListItem, APIResponse, CardStatusResponse } from '../../../interfaces';
 import { UserService, APIService, MessageBoxService } from '../../../services';
+import {TranslateService} from "@ngx-translate/core";
 
 enum Page { List, OnNew, OnNeedConfirmation, OnNeedVerification, OnVerified, OnFailure }
 
@@ -35,7 +36,8 @@ export class SettingsCardsPageComponent implements OnInit {
     private _userService: UserService,
     private _apiService: APIService,
     private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService
+    private _messageBox: MessageBoxService,
+    private _translate: TranslateService
   ) {
     this._route.params
       .subscribe(params => {
@@ -95,24 +97,26 @@ export class SettingsCardsPageComponent implements OnInit {
   }
 
   removeCard(card) {
-    const confText = 'Remove the card?'
-    this._messageBox.confirm(confText).subscribe(ok => {
-      if (ok) {
-        this.processing = true;
-        this._apiService.removeFiatCard(card.cardId).subscribe(() => {
-          const id = this.cards.list.indexOf(card);
-          id >= 0 && this.cards.list.splice(id, 1);
-
-          this._messageBox.alert('Your card has been removed');
-          this.processing = false;
-          this._cdRef.detectChanges();
-        }, err => {
-          this._messageBox.alert('error');
-          this.processing = false;
-          this._cdRef.detectChanges();
-          }
-        );
-      }
+    this._translate.get('MessageBox.Remove').subscribe(phrase => {
+      this._messageBox.confirm(phrase).subscribe(ok => {
+        if (ok) {
+          this.processing = true;
+          this._apiService.removeFiatCard(card.cardId).subscribe(() => {
+            const id = this.cards.list.indexOf(card);
+            id >= 0 && this.cards.list.splice(id, 1);
+            this._translate.get('MessageBox.Removed').subscribe(phrase => {
+              this._messageBox.alert(phrase);
+              this.processing = false;
+              this._cdRef.detectChanges();
+            });
+          }, err => {
+            this._messageBox.alert(err.error.errorDesc);
+            this.processing = false;
+            this._cdRef.detectChanges();
+            }
+          );
+        }
+      });
     });
   }
 
@@ -173,7 +177,9 @@ export class SettingsCardsPageComponent implements OnInit {
         if (err.error && err.error.errorCode) {
           switch (err.error.errorCode) {
             case 100:
-              this._messageBox.alert('Wrong card ID');
+              this._translate.get('MessageBox.WrongID').subscribe(phrase => {
+                this._messageBox.alert(phrase);
+              });
               break;
 
             default:
@@ -215,7 +221,9 @@ export class SettingsCardsPageComponent implements OnInit {
           if (err.error && err.error.errorCode) {
             switch (err.error.errorCode) {
               case 100:
-                this._messageBox.alert('Invalid code');
+                this._translate.get('MessageBox.InvalidCode').subscribe(phrase => {
+                  this._messageBox.alert(phrase);
+                });
                 break;
 
               default:
@@ -226,7 +234,9 @@ export class SettingsCardsPageComponent implements OnInit {
         });
     }
     else {
-      this._messageBox.alert('Invalid code format. Only digits are allowed.');
+      this._translate.get('MessageBox.InvalidFormat').subscribe(phrase => {
+        this._messageBox.alert(phrase);
+      });
     }
   }
 

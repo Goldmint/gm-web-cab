@@ -37,7 +37,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return next.handle(req)
         .catch((error, caught) => {
           let translateKey  = null,
-              ignoredErrors = [
+              ignoredErrors = [ // ignore auto translation for these codes
 				100, 	// InvalidParameter
 				1000,	// AccountNotFound
 				1011,	// AccountDpaNotSigned

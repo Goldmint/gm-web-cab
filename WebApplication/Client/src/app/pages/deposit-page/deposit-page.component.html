@@ -62,7 +62,7 @@
                   <use xlink:href="#payment-bank"></use>
                 </svg>
               </button>
-              <div class="text-left pt-1 blocked-notification" *ngIf="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min">Your available for payment limit is less than minimally bank transfer sum ({{ limits.paymentMethod.swift.deposit.min | currency }})</div>
+              <div class="text-left pt-1 blocked-notification" *ngIf="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min">{{ "PAGES.Deposit.LimitInfo" | translate }} ({{ limits.paymentMethod.swift.deposit.min | currency }})</div>
             </div>
           </div>
 
@@ -360,7 +360,7 @@
                     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAgCAMAAADT9S0cAAABelBMVEUAAAD//wD//4D/qlX/v4D/zGbV1YDb223jxnHmzGbo0XTq1WrtyG3uzGbvz3Dw0mnkyWvmzGbnzm3pyG/qymrrzmzlymrmzG/mzmvpy2npzG3qzWrry2nszGzmzWrnyG3nymvqymrny23qy2vpy2zqy2rqzGzoy2rozGzpymzpy2roy2zoymrpzGzqy2roymzoy2rpzGrqzGvqymvoy2zozGvpymvpy2rpzGvqy2rqy2vpy2vpymvqy2vqzGroymvpymvpy2rpy2vpzGzqy2rpzGvpymvqy2vozGvpy2vpzGvpy2vpy2vqy2vqymvoy2vpy2vpymvoy2zpy2vpymrpy2vpy2vpy2vpy2vqy2vpy2zpy2rpy2vpy2zqy2voy2vpzGrpy2vpy2vpy2vpzGvpy2vpy2vpzGvpy2vpy2zpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2vpy2v////CE2bhAAAAfHRSTlMAAQIDBAUGBwkKCwwODxARExQVFxgaHR4fIiMkJygpKiswNkpTVFVZWlxeY2VobG9xc3d5e3x+f4GEhYqMj5CRlpeYmpyfoKepq66wsbKztby9wMHCw8bIycrMztHT1tfa29zd3+Hj5OXm6Orr7O3u8fLz9PX3+Pn6+/z+nKWD0QAAAAFiS0dEfaaxEMkAAAFoSURBVBgZtcFpV1JhGIbRGxUwySTFJg1tsszmrExLzbBSK8sB0NKkoFNAk0JSXT8+lh/OOqf84lrPu7cOonN4Nl/+9rWQmzrXITfST+r4vj84Lnvtk79o8rIL86sfaWqMx2UslQe2RtPa03+jALxNyNRgCbwrbfK1XPjMmEylSrCcVMjRWxFZas/B05jcug9LMbnVW8NLyrEZGJFjh2tstsqxS3BbrmVgUK6tUVbI61yILFRZV8g2IREZaPBSIRvFEFnYZVHOVXkj5/JU5NwMnFHQynrQQ1kYgrsK2iboqiwkdngfU8DGB98fal0y8QiuaV/n4bFs9PygktI+jpRonJaRO5CN6z+R5zAhK9FleBbXP1ozsJWQme4i5HoVknwB1T4ZGijCl+tR+Vouf4LKWZnqXgIKo2ntOXbzHbB5Usai9+o0edmFuVceTT/HD8neiUwd3870KbnROTybL//eLa1OXuzSAfwFetN/gQq3rk0AAAAASUVORK5CYII="
                          width="120" alt="">
                   </td>
-                  <td><h2 style="font-size:30px">PAYMENT DETAILS</h2></td>
+                  <td><h2 style="font-size:30px">{{ "PAGES.Deposit.BankTransfer.Table.Heading" | translate }}</h2></td>
                 </tr>
               </table>
               <div>
@@ -369,7 +369,7 @@
                   <tbody>
                     <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Beneficiary name:
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.BeneficiaryName" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{ invoiceData.benName}}
@@ -377,7 +377,7 @@
                     </tr>
                     <tr>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Beneficiary address:
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.BeneficiaryAddress" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{invoiceData.benAddress}}
@@ -385,7 +385,7 @@
                     </tr>
                     <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Beneficiary’s bank account number (IBAN):
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.BeneficiaryIBAN" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{invoiceData.benIban}}
@@ -393,7 +393,7 @@
                     </tr>
                     <tr>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Beneficiary’s Bank name:
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.BeneficiaryBankName" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{invoiceData.benBankName}}
@@ -401,7 +401,7 @@
                     </tr>
                     <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Beneficiary’s Bank address:
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.BeneficiaryBankAddress" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{invoiceData.benBankAddress}}
@@ -409,7 +409,7 @@
                     </tr>
                     <tr>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Beneficiary bank SWIFT:
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.BeneficiaryBankSWIFT" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:12px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{invoiceData.benSwift}}
@@ -417,7 +417,7 @@
                     </tr>
                     <tr style="background-color:rgb(247,247,247);background-position:initial initial;background-repeat:initial initial">
                       <td style="width:340px;padding:20px;font-size:20px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
-                        Reference:
+                        {{ "PAGES.Deposit.BankTransfer.Table.Cell.Reference" | translate }}
                       </td>
                       <td style="width:340px;padding:20px;font-size:20px;font-family:Helvetica,'Helvetica Neue',Arial,sans-serif">
                         {{invoiceData.reference}}
@@ -427,20 +427,16 @@
                 </table>
                 <div style="color:rgb(223,35,46);font-size:12px;padding:0 45px;">
                   <p>
-                    REFERENCE SHOULD BE ENTERED FIRST IN THE
-                    NARRATIVE OF THE SENDING BANK'S PAYMENT INSTRUCTIONS, BEFORE ANY OTHER REFERENCES.
+                    {{ "PAGES.Deposit.BankTransfer.Table.Text.One" | translate }}
                   </p>
                   <p>
-                    PLEASE SEND THE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR (EXCLUDING BANK CHARGES) AND MAKE SURE YOUR
-                    PAYMENT DETAILS IS STATED CORRECTLY.
+                    {{ "PAGES.Deposit.BankTransfer.Table.Text.Two" | translate }}
                   </p>
                   <p>
-                    PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SENDER. PLEASE NOTE THAT
-                    BANK CHARGES FOR PAYMENT RETURN WILL BE DEDUCTED FROM THE AMOUNT.
+                    {{ "PAGES.Deposit.BankTransfer.Table.Text.Three" | translate }}
                   </p>
                   <p style="color: #000">
-                    CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto
-                    Capital).
+                    {{ "PAGES.Deposit.BankTransfer.Table.Text.Four" | translate }}
                   </p>
                 </div>
               </div>

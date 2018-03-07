@@ -64,7 +64,7 @@ export class SettingsTFAPageComponent implements OnInit {
           if (err.error && err.error.errorCode) {
             switch (err.error.errorCode) {
               case 100:
-                this._translate.get('ERRORS.TFA.InvalidCode').subscribe(phrase => {
+                this._translate.get('MessageBox.InvalidCode').subscribe(phrase => {
                   this.errors['Code'] = phrase;
                 });
                 break;

@@ -17,11 +17,10 @@
                   <use xlink:href="#cur-usd"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control" id="input_toSpend"
+              <input type="number" class="form-control" id="input_toSpend" #inputToSpend
                      min="0"
                      step="1"
                      name="amount"
-                     [(ngModel)]="toSpendVal"
                      (input)="onToSpendChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !buyAmountChecked}"
               >

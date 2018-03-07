@@ -5,6 +5,7 @@ import {
 import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import {Subject} from "rxjs/Subject";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-header',
@@ -37,7 +38,8 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     private _goldrateService: GoldrateService,
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService
+    private _messageBox: MessageBoxService,
+    private _translate: TranslateService
   ) {
   }
 
@@ -92,7 +94,9 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   onWalletSwitch(wallet) {
     if (wallet.id === 'metamask' && !this.metamaskAccount) {
-      this._messageBox.alert(`MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Get <a href="https://metamask.io" target="_blank">Metamask</a>`,'What is Metamask?');
+      this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
+        this._messageBox.alert(phrase.Text, phrase.Heading);
+      });
       return;
     }
 
@@ -115,13 +119,15 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   private logout(e) {
     e.preventDefault();
 
-    this._messageBox.confirm('Are you sure you want to log out?')
-      .subscribe(confirmed => {
-        if (confirmed) {
-          this._userService.logout(e);
-          this._cdRef.detectChanges();
-        }
-      });
+    this._translate.get('MessageBox.logOut').subscribe(phrase => {
+      this._messageBox.confirm(phrase)
+        .subscribe(confirmed => {
+          if (confirmed) {
+            this._userService.logout(e);
+            this._cdRef.detectChanges();
+          }
+        });
+    });
   }
 
   public isLoggedIn() {
