@@ -26,6 +26,12 @@
                      [ngClass]="{'is-invalid': !buyAmountChecked}"
               >
             </div>
+            <div class="percent-btn-cont">
+              <button class="percent-btn" (click)="setUsdBalance(0.25)">25%</button>
+              <button class="percent-btn" (click)="setUsdBalance(0.5)">50%</button>
+              <button class="percent-btn" (click)="setUsdBalance(0.75)">75%</button>
+              <button class="percent-btn" (click)="setUsdBalance(1)">100%</button>
+            </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
               {{ "PAGES.Buy.Errors.Invalid" | translate }}
             </div>

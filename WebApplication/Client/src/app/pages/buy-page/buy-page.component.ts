@@ -93,6 +93,12 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
+  setUsdBalance(percent) {
+    const amount = (this.usdBalance * percent).toString();
+    this.toSpendVal = amount;
+    this.onToSpendChanged(amount);
+  }
+
   estimate(amount: BigNumber) {
     var toConvert = this.usdBalance ? BigNumber.min(amount, new BigNumber(this.usdBalance)) : new BigNumber(0);
     this.estimatedAmount = toConvert.dividedBy(this.goldUsdRate).toPrecision(18 + 1);

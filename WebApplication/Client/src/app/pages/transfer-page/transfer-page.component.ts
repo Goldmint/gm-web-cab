@@ -10,6 +10,7 @@ import {Observable} from "rxjs/Observable";
 import {APIService, UserService} from "../../services";
 import {Subscription} from "rxjs/Subscription";
 import {Router} from "@angular/router";
+import {Subject} from "rxjs/Subject";
 
 @Component({
   selector: 'app-transfer-page',
@@ -37,8 +38,10 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   public amountValue: number;
   public ethAddress: string = '';
   public selectedWallet = 0;
+  private isLoaded = false;
 
   private sub1: Subscription;
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private _modalService: BsModalService,
@@ -51,38 +54,44 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
     Observable.combineLatest(
       this._ethService.getObservableHotGoldBalance(),
       this._ethService.getObservableGoldBalance(),
       this._ethService.getObservableEthAddress()
-    ).subscribe(data => {
+    ).takeUntil(this.destroy$).subscribe(data => {
       if (this.ethAddress !== data[2]) {
         this.ethAddress = data[2];
         if (!this.ethAddress) {
           this.selectedWallet = 0;
+          this.goldBalance = data[0];
+          this.goldBalance && this.setGoldBalance();
         }
       }
 
+      this.goldBalance = this.selectedWallet == 0 ? data[0] : data[1];
       this.goldHotBalance = data[0];
       this.goldMetamaskBalance = data[1];
-      this.goldBalance = this.selectedWallet == 0 ? data[0] : data[1];
 
-      this.validateAmount();
+      if (this.goldBalance && !this.isLoaded) {
+        this.isLoaded = true;
+        this.setGoldBalance();
+      }
+
       this._cdRef.markForCheck();
     });
-
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
 
     this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
-      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
+      if (wallet['id'] === 'hot') {
+        this.selectedWallet = 0;
+        this.goldBalance = this.goldHotBalance;
+      } else {
+        this.selectedWallet = 1;
+        this.goldBalance = this.goldMetamaskBalance;
+      }
+      this.setGoldBalance();
       this._cdRef.markForCheck();
     });
-
-  }
-
-  onChangeWallet() {
-    this.goldBalance  = this.selectedWallet == 0 ?  this.goldHotBalance : this.goldMetamaskBalance;
-    this.validateAmount();
   }
 
   modal(template: TemplateRef<any>) {
@@ -94,6 +103,11 @@ export class TransferPageComponent implements OnInit, OnDestroy {
     } else {
       this.onHotWallet();
     }
+  }
+
+  setGoldBalance(percent: number = 1) {
+    let goldBalance = new BigNumber(this.goldBalance.times(percent));
+    this.onAmountChanged(goldBalance.toString());
   }
 
   onWalletAddressChanged(value: string) {
@@ -116,6 +130,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
       this.amount = new BigNumber(value);
       this.amount = this.amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
+    this.amountValue = +this.amount.toString();
     this.validateAmount();
     this._cdRef.markForCheck();
   }
@@ -162,6 +177,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sub1 && this.sub1.unsubscribe();
+    this.destroy$.next(true);
   }
 
 }

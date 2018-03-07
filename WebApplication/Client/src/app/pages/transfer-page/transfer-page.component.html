@@ -40,8 +40,14 @@
               <input type="number" min="0" step="0.1" class="form-control" id="input_transferAmount" name="transfer-amount"
                      (input)="onAmountChanged($event.target.value)"
                      [ngClass]="{'is-invalid': !amountChecked}"
-                     [value]="amountValue"
+                     [(ngModel)]="amountValue"
               >
+            </div>
+            <div class="percent-btn-cont">
+              <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
+              <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
+              <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
+              <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
             </div>
             <div class="invalid-feedback invalid-feedback--abs" *ngIf="!amountChecked">
               Invalid amount value
