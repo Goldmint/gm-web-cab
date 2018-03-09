@@ -165,11 +165,13 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         if(ok) {
           this._apiService.goldTransferHwRequest(this.walletAddress, this.amount)
             .subscribe(() => {
-              this._messageBox.alert('Your request is in progress now!').subscribe(() => {
-                this.walletAddressVal = "";
-                this.amount = new BigNumber(0);
-                this.amountValue = null;
-                this.router.navigate(['/finance/history']);
+              this._translate.get('MessageBox.RequestProgress').subscribe(phrase => {
+                this._messageBox.alert(phrase).subscribe(() => {
+                  this.walletAddressVal = "";
+                  this.amount = new BigNumber(0);
+                  this.amountValue = null;
+                  this.router.navigate(['/finance/history']);
+                });
               });
            });
         }

@@ -28,9 +28,9 @@ export class APIHttpInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this._isOnline) {
       console.info('Browser is offline!');
-
-      this._messageBox.alert('Seems like your internet connection is lost.<br>Please check it and try again.', 'Connection error');
-
+      this._translate.get('MessageBox.ConnectionError').subscribe(phrase => {
+        this._messageBox.alert(phrase.Message, phrase.Title);
+      });
       return Observable.throw('ohO_offline');
     }
     else {

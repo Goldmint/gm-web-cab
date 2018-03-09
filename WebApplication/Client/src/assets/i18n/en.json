@@ -808,6 +808,7 @@
     "Close": "Close",
     "AddCard": "Add card",
     "Remove": "Remove",
+    "Refresh": "Refresh",
     "Proceed": "Proceed",
     "ConfirmCard": "Confirm card",
     "VerifyCard": "Verify card",
@@ -831,6 +832,7 @@
     }
   },
   "APIErrors": {
+    "102": "You have exceeded request frequency (One request for 30 minutes). Please try later",
     "1001": "Too many unsuccessful attempts. Account is locked, try to sign in later",
     "1002": "Your email address is not confirmed yet",
     "1010": "You have exceeded request frequency (One request for 30 minutes). Please try later",
@@ -848,6 +850,10 @@
     "GoldTransfer": "Target address: {{ address }} <br> GOLD amount: {{ amount }} GOLD",
     "PasswordChanged": "Password successfully changed",
     "InvalidCode": "Invalid code",
+    "ConnectionError": {
+      "Title": "Connection error",
+      "Message": "Seems like your internet connection is lost.<br>Please check it and try again."
+    },
     "Cards": {
       "Remove": "Remove the card?",
       "Removed": "Your card has been removed",

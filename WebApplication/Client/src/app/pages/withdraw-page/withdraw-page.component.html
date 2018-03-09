@@ -280,7 +280,7 @@
           </div>
 
           <div class="row pt-4 align-items-center">
-            <button type="submit" class="btn btn-primary" [disabled]="!cardWithdrawChecked || !agreeCheck || !depositModel.cardId || processing">Proceed</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!cardWithdrawChecked || !agreeCheck || !depositModel.cardId || processing">{{ "PAGES.Withdraw.Buttons.Proceed" | translate }}</button>
             <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </form>
