@@ -1,0 +1,79 @@
+MNTP
+0xba363e44e66d94909b211999507caa351d6e01aa
+
+UNSOLD
+0x77fa3e4d10163ec07c7683edeb55c196286e9cf8
+
+team - 0x76a1E5FcC8176E76b9210B8dBC484258f8745200
+mntp - 0xba363e44e66d94909b211999507caa351d6e01aa
+
+"0x76a1E5FcC8176E76b9210B8dBC484258f8745200","0xba363e44e66d94909b211999507caa351d6e01aa"
+
+
+FOUNDER VESTING
+0xD644191170e33f319A7404b1e295C4356A17A0ef
+
+GOLDMINT ICO
+0x903790072d8c88c4b08278b9dd3ba7a1feebc957
+
+"0x76a1E5FcC8176E76b9210B8dBC484258f8745200","0x76a1E5FcC8176E76b9210B8dBC484258f8745200","0x76a1E5FcC8176E76b9210B8dBC484258f8745200","0xba363e44e66d94909b211999507caa351d6e01aa","0x77fa3e4d10163ec07c7683edeb55c196286e9cf8","0xD644191170e33f319A7404b1e295C4356A17A0ef"
+
+
+DEPLOY
+
+DEPLOY GoldFee contract -> <gold-fee-contract-address>
+DEPLOY Gold contract Gold(<mntp-token-address>,<gm-team-address>, <gold-fee-contract-address>) -> <gold-token-address>
+DEPLOY GoldmintMigration contract GoldmintMigration(<mntp-token-address>, <gold-token-address>) -> <gm-migration-contract-address>
+DEPLOY Storage contract Storage() -> <storage-contract-address>
+DEPLOY GoldFiatFee -> <gold-fiat-fee-contract-address>
+DEPLOY StorageController contract StorageController(<mntp-token-address>,<gold-token-address>,<storage-contract-address>,<gold-fiat-fee-contract-address>) -> <fiat-tables-contract-address>) -> <fiat-tables-contract-address>
+CALL setMigrationContractAddress in Gold contract setMigrationContractAddress(<gm-migration-contract-address>)
+CALL setStorageControllerContractAddress(<storage-controller-contract-address>) in Gold contract
+CALL setStorageControllerAddress(<storage-controller-contract-address>) in Storage contract
+CALL setHotWalletTokenHolderAddress(<hot-wallet-address>) in StorageController contract
+
+GOLD FEES
+0xf84d130c46962755f7ede2dca09bc0af010fed3b
+
+
+GOLD TOKEN
+0x684184eeb977c94f8c362b6ffbc11164c6a283ec
+
+mntp - 0xba363e44e66d94909b211999507caa351d6e01aa
+gmTeam - 0xa9ff8af49e817bf7b8ad0fcc883ae6215713d5ea
+gmFee - 0xf84d130c46962755f7ede2dca09bc0af010fed3b
+
+"0xba363e44e66d94909b211999507caa351d6e01aa","0xa9ff8af49e817bf7b8ad0fcc883ae6215713d5ea","0xf84d130c46962755f7ede2dca09bc0af010fed3b"
+
+000000000000000000000000ba363e44e66d94909b211999507caa351d6e01aa000000000000000000000000a9ff8af49e817bf7b8ad0fcc883ae6215713d5ea000000000000000000000000f84d130c46962755f7ede2dca09bc0af010fed3b
+
+MIGRATION
+0x14b62d83500a863becad0f2c5b076237ed080ab5
+
+mntp - 0xba363e44e66d94909b211999507caa351d6e01aa
+gold token - 0x684184eeb977c94f8c362b6ffbc11164c6a283ec
+
+"0xba363e44e66d94909b211999507caa351d6e01aa","0x684184eeb977c94f8c362b6ffbc11164c6a283ec"
+
+
+STORAGE
+0x4820cfc36817aadb41bb20741d04c35a68841a05
+
+GOLD FIAT FEE
+0xec326ff692bd793e9134e782b3915a3908f62e4c
+
+gmAccountId - 0
+
+STORAGE CONTROLLER
+0x0e9e48add2595c5a61fd740b046fe3810555102b
+
+
+mntp - 0xba363e44e66d94909b211999507caa351d6e01aa
+gold token - 0x684184eeb977c94f8c362b6ffbc11164c6a283ec
+storage - 0x4820cfc36817aadb41bb20741d04c35a68841a05
+fiat fee - 0xec326ff692bd793e9134e782b3915a3908f62e4c
+
+
+"0xba363e44e66d94909b211999507caa351d6e01aa","0x684184eeb977c94f8c362b6ffbc11164c6a283ec","0x4820cfc36817aadb41bb20741d04c35a68841a05","0xec326ff692bd793e9134e782b3915a3908f62e4c"
+
+000000000000000000000000ba363e44e66d94909b211999507caa351d6e01aa000000000000000000000000684184eeb977c94f8c362b6ffbc11164c6a283ec0000000000000000000000004820cfc36817aadb41bb20741d04c35a68841a05000000000000000000000000ec326ff692bd793e9134e782b3915a3908f62e4c
