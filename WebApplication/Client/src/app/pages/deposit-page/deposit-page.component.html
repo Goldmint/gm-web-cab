@@ -233,17 +233,8 @@
             </div>
           </div>
 
-          <div class="row pt-4">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="processing">
-              <label class="custom-control-label" for="agreeCheck">{{ "PAGES.Deposit.PaymentCard.Text.Agree" | translate }}
-                <a href="#" target="_blank">
-                  {{ "PAGES.Deposit.PaymentCard.Text.Document" | translate }}
-                </a></label>
-            </div>
-          </div>
           <div class="row pt-4 align-items-center">
-            <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !agreeCheck || processing">
+            <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !depositModel.cardId || processing">
               {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
             </button>
             <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
