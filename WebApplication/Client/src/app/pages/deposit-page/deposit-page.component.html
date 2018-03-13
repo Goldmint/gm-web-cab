@@ -180,7 +180,7 @@
       <ng-container *ngIf="cards && cards.list.length; else noCardsBlock">
         <form name="depositForm" (ngSubmit)="depositForm.form.valid && submit()" #depositForm="ngForm" novalidate>
           <div class="row">
-            <div class="col-12">
+            <div class="col-4">
               <div class="form-group">
                 <label for="selectCard">{{ "PAGES.Deposit.PaymentCard.Labels.SelectCard" | translate }}</label>
                 <div class="d-flex align-items-center">
@@ -189,7 +189,7 @@
                       <use xlink:href="#payment-card"></use>
                     </svg>
                   </div>
-                  <select id="selectCard" class="form-control" #assetBuySelect required
+                  <select id="selectCard" class="custom-select" #assetBuySelect required
                           name="cardId" [(ngModel)]="depositModel.cardId" #cardId="ngModel"
                           [ngClass]="{'is-invalid': (errors?.CardId || !cardId.valid) && (depositForm.submitted || !cardId.pristine)}"
                           (ngModelChange)="errors.CardId = false"
@@ -201,54 +201,82 @@
                   {{ errors?.CardId }}
                 </div>
               </div>
+            </div>
 
-              <div class="form-row align-items-end">
-                <div class="form-group col-12">
-                  <label for="inputAmount">{{ "PAGES.Deposit.PaymentCard.Labels.Amount" | translate }}</label>
-                  <div class="d-flex align-items-center">
-                    <div class="form-currency form-currency--usd">
-                      <svg class="icon" width="30">
-                        <use xlink:href="#cur-usd"></use>
-                      </svg>
-                    </div>
-                    <input type="number" min="0" step="0.01" required
-                           class="form-control" id="inputAmount"
-                           name="amount" [(ngModel)]="depositModel.amount" #amount="ngModel"
-                           [ngClass]="{'is-invalid': (!cardDepositChecked && amount.dirty) || (errors?.Amount || !amount.valid) && (depositForm.submitted || !amount.pristine)}"
-                           (ngModelChange)="errors.Amount = false"
-                           (input)="checkCardDeposit(depositModel.amount)"
-                           [readonly]="processing">
+            <div class="col-4">
+              <div class="form-group">
+                <label for="inputAmount">{{ "PAGES.Deposit.PaymentCard.Labels.Amount" | translate }}</label>
+                <div class="d-flex align-items-center">
+                  <div class="form-currency form-currency--usd">
+                    <svg class="icon" width="30">
+                      <use xlink:href="#cur-usd"></use>
+                    </svg>
                   </div>
-                  <div class="invalid-feedback" *ngIf="errors?.Amount || (!cardDepositChecked && amount.dirty)">
-                    {{ "PAGES.Deposit.PaymentCard.Errors.Invalid" | translate }}
-                  </div>
-                  <div class="invalid-feedback" *ngIf="depositModel.amount < minAmount && !cardDepositChecked">
-                    {{ "PAGES.Deposit.PaymentCard.Errors.Minimal" | translate }} {{ minAmount | currency }}
-                  </div>
-                  <div class="invalid-feedback" *ngIf="depositModel.amount > maxAmount && !cardDepositChecked">
-                    {{ "PAGES.Deposit.PaymentCard.Errors.Maximum" | translate }} {{ maxAmount | currency }}
-                  </div>
+                  <input type="number" min="0" step="0.01" required
+                         class="form-control" id="inputAmount"
+                         name="amount" [(ngModel)]="depositModel.amount" #amount="ngModel"
+                         [ngClass]="{'is-invalid': (!cardDepositChecked && amount.dirty) || (errors?.Amount || !amount.valid) && (depositForm.submitted || !amount.pristine)}"
+                         (ngModelChange)="errors.Amount = false"
+                         (input)="checkCardDeposit(depositModel.amount)"
+                         [readonly]="processing">
+                </div>
+                <div class="invalid-feedback" *ngIf="errors?.Amount || (!cardDepositChecked && amount.dirty)">
+                  {{ "PAGES.Deposit.PaymentCard.Errors.Invalid" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="depositModel.amount < minAmount && !cardDepositChecked">
+                  {{ "PAGES.Deposit.PaymentCard.Errors.Minimal" | translate }} {{ minAmount | currency }}
+                </div>
+                <div class="invalid-feedback" *ngIf="depositModel.amount > maxAmount && !cardDepositChecked">
+                  {{ "PAGES.Deposit.PaymentCard.Errors.Maximum" | translate }} {{ maxAmount | currency }}
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="row pt-4">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="processing">
-              <label class="custom-control-label" for="agreeCheck">{{ "PAGES.Deposit.PaymentCard.Text.Agree" | translate }}
-                <a href="#" target="_blank">
-                  {{ "PAGES.Deposit.PaymentCard.Text.Document" | translate }}
-                </a></label>
+            <div class="col-4 pt-3 text-right">
+              <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !depositModel.cardId || processing">
+                {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
+              </button>
+              <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
             </div>
           </div>
-          <div class="row pt-4 align-items-center">
-            <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !agreeCheck || processing">
-              {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
-            </button>
-            <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-          </div>
         </form>
+
+        <section class="page__section section section--table">
+          <h2 class="section__title">{{ "PAGES.Finance.TableLimits.Heading" | translate }}</h2>
+          <table class="mt-3" *ngIf="!loading">
+            <tr class="limits-header-row">
+              <td class="limits-text-bold limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.AccountType" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Basic" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified+" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Corporate" | translate }}</td>
+            </tr>
+            <tr class="limits-daily-row">
+              <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Daily" | translate }}</td>
+              <td class="text-center limits-border-right-cell">{{ limits.levels.l0.deposit.day }}</td>
+              <td class="text-center limits-border-cell limits-border-bottom-cell">
+                {{ limits.levels.l1.deposit.day }}
+                <div class="limits-font-size-small">
+                  {{ "PAGES.Finance.TableLimits.Table.Labels.LimitUsed" | translate }}
+                  {{ limits.levels.l1.deposit.day - limits.current.deposit.day }}
+                </div>
+              </td>
+              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
+              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
+            </tr>
+            <tr class="limits-monthly-row">
+              <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Monthly" | translate }}</td>
+              <td class="text-center limits-border-right-cell">{{ limits.levels.l0.deposit.month }}</td>
+              <td class="text-center limits-border-cell">
+                {{ limits.levels.l1.deposit.month }}
+                <div class="limits-font-size-small">
+                  {{ "PAGES.Finance.TableLimits.Table.Labels.LimitUsed" | translate }}
+                  {{ limits.levels.l1.deposit.month - limits.current.deposit.month }}
+                </div>
+              </td>
+            </tr>
+          </table>
+        </section>
       </ng-container>
 
       <ng-template #noCardsBlock>
@@ -307,47 +335,103 @@
               (ngSubmit)="swiftDepositChecked && transferForm.form.valid && submitTransferForm(transferForm.amount)"
               #transferForm="ngForm"
               novalidate>
-          <div class="form-group">
-            <label for="transferAmount">{{ "PAGES.Deposit.BankTransfer.Labels.USDAmount" | translate }}</label>
+          <div class="row">
+            <div class="col-4">
+              <div class="form-group">
+                <label for="transferAmount">{{ "PAGES.Deposit.BankTransfer.Labels.USDAmount" | translate }}</label>
+                <div class="d-flex align-items-center">
+                  <input id="transferAmount"
+                         type="number"
+                         step="0.01"
+                         class="form-control is-invalid mb-0"
+                         name="amount"
+                         required
+                         [(ngModel)]="transferForm.amount"
+                         (input)="checkSwiftDeposit(transferForm.amount)"
+                         #amount="ngModel"
+                         [ngClass]="{'is-invalid': (amount.dirty && !swiftDepositChecked) || (amount.invalid && (transferForm.submitted || amount.dirty))}">
+                  <div class="invalid-feedback" *ngIf="errors?.amount || (amount.dirty && !swiftDepositChecked)">
+                    {{ "PAGES.Deposit.Errors.Invalid" | translate }}
+                  </div>
+                  <div class="form-currency mb-0">
+                    <svg class="icon mr-1" width="30" height="32">
+                      <use xlink:href="#cur-usd"></use>
+                    </svg>
+                  </div>
+                  <div class="font-weight-500">USD</div>
+                </div>
+              </div>
 
-            <input id="transferAmount"
-                   type="number"
-                   step="0.01"
-                   class="form-control is-invalid"
-                   name="amount"
-                   required
-                   [(ngModel)]="transferForm.amount"
-                   (input)="checkSwiftDeposit(transferForm.amount)"
-                   #amount="ngModel"
-                   [ngClass]="{'is-invalid': (amount.dirty && !swiftDepositChecked) || (amount.invalid && (transferForm.submitted || amount.dirty))}">
-            <div class="invalid-feedback" *ngIf="errors?.amount || (amount.dirty && !swiftDepositChecked)">
-              {{ "PAGES.Deposit.Errors.Invalid" | translate }}
+            </div>
+            <div class="col-5">
+              <div class="form-group">
+                <label for="selectBankCountry">{{ "PAGES.Deposit.BankTransfer.Labels.Country" | translate }}</label>
+
+                <select id="selectBankCountry"
+                        class="custom-select"
+                        #countrySelect
+                        required
+                        name="bankCountry"
+                        [(ngModel)]="transferForm.bankCountry"
+                        #bankCountry="ngModel"
+                        [ngClass]="{'is-invalid': bankCountry.invalid && (transferForm.submitted || bankCountry.dirty)}">
+                  <option *ngFor="let country of countries"
+                          [value]="country.countryShortCode">
+                    {{country.countryName}}
+                  </option>
+                </select>
+                <div class="page__note">
+                  {{ "PAGES.Deposit.BankTransfer.SelectCountryNote.FirstText" | translate }}
+                  <a href="#">{{ "PAGES.Deposit.BankTransfer.SelectCountryNote.Link" | translate }}</a>
+                  {{ "PAGES.Deposit.BankTransfer.SelectCountryNote.LastText" | translate }}
+                </div>
+              </div>
+            </div>
+            <div class="col-3 text-right">
+              <button class="btn btn-primary mt-3"
+                      [disabled]="!swiftDepositChecked || !transferForm.bankCountry || !transferForm.amount">
+                {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
+              </button>
             </div>
           </div>
-
-          <div class="form-group">
-            <label for="selectBankCountry">{{ "PAGES.Deposit.BankTransfer.Labels.Country" | translate }}</label>
-
-            <select id="selectBankCountry"
-                    class="custom-select"
-                    #countrySelect
-                    required
-                    name="bankCountry"
-                    [(ngModel)]="transferForm.bankCountry"
-                    #bankCountry="ngModel"
-                    [ngClass]="{'is-invalid': bankCountry.invalid && (transferForm.submitted || bankCountry.dirty)}">
-              <option *ngFor="let country of countries"
-                      [value]="country.countryShortCode">
-                {{country.countryName}}
-              </option>
-            </select>
-          </div>
-
-          <button class="btn btn-primary"
-                  [disabled]="!swiftDepositChecked || !transferForm.bankCountry || !transferForm.amount">
-            {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
-          </button>
         </form>
+
+        <section class="page__section section section--table">
+          <h2 class="section__title">{{ "PAGES.Finance.TableLimits.Heading" | translate }}</h2>
+          <table class="mt-3" *ngIf="!loading">
+            <tr class="limits-header-row">
+              <td class="limits-text-bold limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.AccountType" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Basic" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified+" | translate }}</td>
+              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Corporate" | translate }}</td>
+            </tr>
+            <tr class="limits-daily-row">
+              <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Daily" | translate }}</td>
+              <td class="text-center limits-border-right-cell">{{ limits.levels.l0.deposit.day }}</td>
+              <td class="text-center limits-border-cell limits-border-bottom-cell">
+                {{ limits.levels.l1.deposit.day }}
+                <div class="limits-font-size-small">
+                  {{ "PAGES.Finance.TableLimits.Table.Labels.LimitUsed" | translate }}
+                  {{ limits.levels.l1.deposit.day - limits.current.deposit.day }}
+                </div>
+              </td>
+              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
+              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
+            </tr>
+            <tr class="limits-monthly-row">
+              <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Monthly" | translate }}</td>
+              <td class="text-center limits-border-right-cell">{{ limits.levels.l0.deposit.month }}</td>
+              <td class="text-center limits-border-cell">
+                {{ limits.levels.l1.deposit.month }}
+                <div class="limits-font-size-small">
+                  {{ "PAGES.Finance.TableLimits.Table.Labels.LimitUsed" | translate }}
+                  {{ limits.levels.l1.deposit.month - limits.current.deposit.month }}
+                </div>
+              </td>
+            </tr>
+          </table>
+        </section>
       </ng-container>
 
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.PaymentDetails">

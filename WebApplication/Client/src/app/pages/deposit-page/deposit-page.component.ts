@@ -43,7 +43,6 @@ export class DepositPageComponent implements OnInit {
   public limitsIncrease: boolean = true; //@todo: dev
 
   public depositModel: any = {};
-  public agreeCheck: boolean = false;
   public buttonBlur = new EventEmitter<boolean>();
   public errors = [];
   public riskChecked: boolean = false; // use in Bank Transfer steps
