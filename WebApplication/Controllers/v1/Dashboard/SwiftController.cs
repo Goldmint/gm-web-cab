@@ -147,12 +147,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						}
 					},
 					BankInfo = new LockDepositView.BankInfoData() {
-						Name = request.BenName,
-						Address = request.BenAddress,
-						BankName = request.BenBankName,
-						BankAddress = request.BenBankAddress,
-						Iban = request.BenIban,
-						Swift = request.BenSwift,
+						Name = request.Holder,
+						Address = request.HolderAddress,
+						BankName = request.Bank,
+						BankAddress = request.Details,
+						Iban = request.Iban,
+						Swift = request.Bic,
 					},
 				}
 			);
@@ -209,12 +209,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						}
 					},
 					BankInfo = new LockDepositView.BankInfoData() {
-						Name = request.BenName,
-						Address = request.BenAddress,
-						BankName = request.BenBankName,
-						BankAddress = request.BenBankAddress,
-						Iban = request.BenIban,
-						Swift = request.BenSwift,
+						Name = request.Holder,
+						Address = request.HolderAddress,
+						BankName = request.Bank,
+						BankAddress = request.Details,
+						Iban = request.Iban,
+						Swift = request.Bic,
 					},
 				}
 			);

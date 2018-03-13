@@ -167,6 +167,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userLocale = Locale.En;
 
 			// on tier-1 + KYC completed + agreement is not signed
 			if (userTier != UserTier.Tier1 || !CoreLogic.UserAccount.HasKYCVerification(user.UserVerification) || CoreLogic.UserAccount.HasSignedAgreement(user.UserVerification)) {
@@ -182,6 +183,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			await Core.UserAccount.ResendUserTosDocument(
+				locale: userLocale,
 				services: HttpContext.RequestServices,
 				user: user,
 				email: user.Email,

@@ -29,9 +29,10 @@ namespace Goldmint.Common {
 		public AuthSection Auth { get; set; } = new AuthSection();
 		public class AuthSection {
 
-			public JWTSection JWT { get; set; } = new JWTSection();
-			public class JWTSection {
+			public JwtSection Jwt { get; set; } = new JwtSection();
+			public class JwtSection {
 
+				public string Issuer { get; set; } = "";
 				public string Secret { get; set; } = "";
 				public AudienceSection[] Audiences { get; set; } = new AudienceSection[0];
 
@@ -51,6 +52,11 @@ namespace Goldmint.Common {
 			public class GoogleSection {
 				public string ClientId { get; set; } = "";
 				public string ClientSecret { get; set; } = "";
+			}
+
+			public ZendeskSsoSection ZendeskSso { get; set; } = new ZendeskSsoSection();
+			public class ZendeskSsoSection {
+				public string JwtSecret { get; set; } = "";
 			}
 		}
 
@@ -83,8 +89,8 @@ namespace Goldmint.Common {
 				public string CallbackSecret { get; set; } = "";
 			}
 
-			public The1stPaymentsSection The1stPayments { get; set; } = new The1stPaymentsSection();
-			public class The1stPaymentsSection {
+			public The1StPaymentsSection The1StPayments { get; set; } = new The1StPaymentsSection();
+			public class The1StPaymentsSection {
 
 				public string MerchantGuid { get; set; } = "";
 				public string ProcessingPassword { get; set; } = "";
@@ -96,13 +102,13 @@ namespace Goldmint.Common {
 
 				public string EthereumNetUrl { get; set; } = "";
 				public long DefaultGasPriceWei { get; set; } = 0;
-				public string GMAccountPrivateKey { get; set; } = "";
+				public string RootAccountPrivateKey { get; set; } = "";
 				public string FiatContractAddress { get; set; } = "";
-				public string FiatContractABI { get; set; } = "";
+				public string FiatContractAbi { get; set; } = "";
 			}
 
-			public IPFSSection IPFS { get; set; } = new IPFSSection();
-			public class IPFSSection {
+			public IpfsSection Ipfs { get; set; } = new IpfsSection();
+			public class IpfsSection {
 
 				public string Url { get; set; } = "";
 			}
@@ -119,6 +125,7 @@ namespace Goldmint.Common {
 				public class TemplateSection {
 
 					public string Name { get; set; }
+					public string Locale { get; set; }
 					public string Filename { get; set; }
 					public string Template { get; set; }
 				}
@@ -141,7 +148,7 @@ namespace Goldmint.Common {
 
 			public double ExchangeThreshold { get; set; } = 0.5d;
 
-			public FiatLimitsSection FiatAccountLimitsUSD { get; set; } = new FiatLimitsSection();
+			public FiatLimitsSection FiatAccountLimitsUsd { get; set; } = new FiatLimitsSection();
 			public class FiatLimitsSection {
 
 				public Limits Tier1 { get; set; } = new Limits();

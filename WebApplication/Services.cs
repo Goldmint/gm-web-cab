@@ -118,7 +118,7 @@ namespace Goldmint.WebApplication {
 
 				// jwt audience
 				foreach (var v in (JwtAudience[]) Enum.GetValues(typeof(JwtAudience))) {
-					var audSett = _appConfig.Auth.JWT.Audiences.FirstOrDefault(_ => _.Audience == v.ToString());
+					var audSett = _appConfig.Auth.Jwt.Audiences.FirstOrDefault(_ => _.Audience == v.ToString());
 					if (audSett != null) {
 						opts.AddPolicy(
 							Core.Policies.Policy.JWTAudienceTemplate + v.ToString(),
@@ -194,9 +194,9 @@ namespace Goldmint.WebApplication {
 			// cc acquirer
 			services.AddScoped<ICardAcquirer>(fac => {
 				return new The1stPayments(opts => {
-					opts.MerchantGuid = _appConfig.Services.The1stPayments.MerchantGuid;
-					opts.ProcessingPassword = _appConfig.Services.The1stPayments.ProcessingPassword;
-					opts.Gateway = _appConfig.Services.The1stPayments.Gateway;
+					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
+					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
+					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
 				}, _loggerFactory);
 			});
 
@@ -213,7 +213,7 @@ namespace Goldmint.WebApplication {
 
 			// open storage
 			services.AddSingleton<IOpenStorageProvider>(fac => 
-				new IPFS(_appConfig.Services.IPFS.Url, _loggerFactory)
+				new IPFS(_appConfig.Services.Ipfs.Url, _loggerFactory)
 			);
 
 			// docs signing
@@ -227,8 +227,10 @@ namespace Goldmint.WebApplication {
 					},
 					logFactory: _loggerFactory
 				);
-				foreach (var t in _appConfig.Services.SignRequest.Templates) { 
-					srv.AddTemplate(t.Name, t.Filename, t.Template);
+				foreach (var t in _appConfig.Services.SignRequest.Templates) {
+					if (Enum.TryParse(t.Locale, true, out Common.Locale locale)) {
+						srv.AddTemplate(locale, t.Name, t.Filename, t.Template);
+					}
 				}
 				return srv;
 			});

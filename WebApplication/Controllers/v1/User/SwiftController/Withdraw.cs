@@ -6,6 +6,7 @@ using Goldmint.WebApplication.Models.API.v1.User.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -60,12 +61,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = SwiftPaymentStatus.Pending,
 				Currency = transCurrency,
 				AmountCents = amountCents,
-				BenName = model.BenName,
-				BenAddress = model.BenAddress,
-				BenIban = model.BenIban,
-				BenBankName = model.BenBankName,
-				BenBankAddress = model.BenBankAddress,
-				BenSwift = model.BenSwift,
+				Holder = model.Holder.LimitLength(256),
+				HolderAddress = "",
+				Iban = model.Iban.LimitLength(256),
+				Bank = model.Bank.LimitLength(256),
+				Bic = model.Bic.LimitLength(128),
+				Details = model.Details.LimitLength(1024),
 				PaymentReference = "", // see below
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,

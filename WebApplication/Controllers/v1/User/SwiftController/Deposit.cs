@@ -8,6 +8,7 @@ using Goldmint.WebApplication.Models.API.v1.User.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -40,6 +41,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.UserAccount.GetTier(user);
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
+
 			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
@@ -53,12 +56,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = SwiftPaymentStatus.Pending,
 				Currency = transCurrency,
 				AmountCents = amountCents,
-				BenName = AppConfig.Constants.SwiftData.BenName,
-				BenAddress = AppConfig.Constants.SwiftData.BenAddress,
-				BenIban = AppConfig.Constants.SwiftData.BenIban,
-				BenBankName = AppConfig.Constants.SwiftData.BenBankName,
-				BenBankAddress = AppConfig.Constants.SwiftData.BenBankAddress,
-				BenSwift = AppConfig.Constants.SwiftData.BenSwift,
+				Holder = AppConfig.Constants.SwiftData.BenName.LimitLength(256),
+				HolderAddress = AppConfig.Constants.SwiftData.BenAddress.LimitLength(512),
+				Iban = AppConfig.Constants.SwiftData.BenIban.LimitLength(256),
+				Bank = AppConfig.Constants.SwiftData.BenBankName.LimitLength(256),
+				Bic = AppConfig.Constants.SwiftData.BenSwift.LimitLength(128),
+				Details = AppConfig.Constants.SwiftData.BenBankAddress.LimitLength(1024),
 				PaymentReference = "", // see below
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,
@@ -98,7 +101,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			);
 
 			// notification
-			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SwiftDepositInvoice))
+			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SwiftDepositInvoice, userLocale))
 
 				.ReplaceBodyTag("BEN_NAME", AppConfig.Constants.SwiftData.BenName)
 				.ReplaceBodyTag("BEN_ADDR", AppConfig.Constants.SwiftData.BenAddress)
@@ -116,12 +119,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			return APIResponse.Success(
 				new DepositView() {
-					BenName = request.BenName,
-					BenAddress = request.BenAddress,
-					BenIban = request.BenIban,
-					BenBankName = request.BenBankName,
-					BenBankAddress = request.BenBankAddress,
-					BenSwift = request.BenSwift,
+					BenName = request.Holder,
+					BenAddress = request.HolderAddress,
+					BenIban = request.Iban,
+					BenBankName = request.Bank,
+					BenBankAddress = request.Details,
+					BenSwift = request.Bic,
 					Reference = request.PaymentReference,
 				}
 			);

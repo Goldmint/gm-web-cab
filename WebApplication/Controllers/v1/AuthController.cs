@@ -34,6 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
 
 			// captcha
 			if (!HostingEnvironment.IsDevelopment()) {
@@ -60,6 +61,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 					if (user.UserOptions.DPADocument == null) {
 						await Core.UserAccount.ResendUserDpaDocument(
+							locale: userLocale,
 							services: HttpContext.RequestServices,
 							user: user,
 							email: user.Email,
@@ -81,7 +83,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					if (sres.GetHttpStatusCode() == System.Net.HttpStatusCode.OK && sres.GetErrorCode() == null) {
 						
 						// notification
-						await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn))
+						await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn, userLocale))
 							.ReplaceBodyTag("IP", agent.Ip)
 							.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
 							.Send(user.Email, user.UserName, EmailQueue)
@@ -183,8 +185,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// </summary>
 		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("signout")]
-		public async Task<APIResponse> SignOut() {
-			var user = await GetUserFromDb();
+		public APIResponse SignOut() {
+			//var user = await GetUserFromDb();
 			return APIResponse.Success();
 		}
 

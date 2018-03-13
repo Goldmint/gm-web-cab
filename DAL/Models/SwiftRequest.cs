@@ -21,23 +21,23 @@ namespace Goldmint.DAL.Models {
 		[Column("amount"), Required]
 		public long AmountCents { get; set; }
 
-		[Column("ben_name"), MaxLength(256), Required]
-		public string BenName { get; set; }
+		[Column("holder"), MaxLength(256), Required]
+		public string Holder { get; set; }
 
-		[Column("ben_addr"), MaxLength(512), Required]
-		public string BenAddress { get; set; }
+		[Column("holder_address"), MaxLength(512), Required]
+		public string HolderAddress { get; set; }
 
-		[Column("ben_iban"), MaxLength(128), Required]
-		public string BenIban { get; set; }
+		[Column("iban"), MaxLength(256), Required]
+		public string Iban { get; set; }
 
-		[Column("ben_bank_name"), MaxLength(256), Required]
-		public string BenBankName { get; set; }
+		[Column("bank"), MaxLength(256), Required]
+		public string Bank { get; set; }
 
-		[Column("ben_bank_addr"), MaxLength(512), Required]
-		public string BenBankAddress { get; set; }
+		[Column("bic"), MaxLength(128), Required]
+		public string Bic { get; set; }
 
-		[Column("ben_swift"), MaxLength(64), Required]
-		public string BenSwift { get; set; }
+		[Column("details"), MaxLength(1024), Required]
+		public string Details { get; set; }
 
 		[Column("payment_ref"), MaxLength(128), Required]
 		public string PaymentReference { get; set; }

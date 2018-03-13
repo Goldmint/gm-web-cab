@@ -30,21 +30,36 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 			_templates = new List<TemplateDesc>();
 		}
 
-		public void AddTemplate(string name, string filename, string templateUrl) {
+		public void AddTemplate(Locale locale, string name, string filename, string templateUrl) {
 			_templates.Add(new TemplateDesc() {
+				Locale = locale,
 				Name = name,
 				Filename = filename,
 				TemplateUrl = templateUrl.TrimEnd('/') + "/",
 			});
 		}
 
-		public async Task<bool> SendDpaRequest(string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
+		private TemplateDesc GetTemplate(SignedDocumentType type, Locale locale) {
+			var ar = _templates.Where(_ => _.Name == type.ToString()).ToList();
 
-			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.GoldmintDPA.ToString());
-			if (template == null) {
-				_logger.Error($"Template not found for {nameof(SendPrimaryAgreementRequest)}");
-				return false;
+			var loc = ar.FirstOrDefault(_ => _.Locale == locale);
+			if (loc != null) {
+				return loc;
 			}
+
+			var eng = ar.FirstOrDefault(_ => _.Locale == Locale.En);
+			if (eng != null) {
+				return eng;
+			}
+
+			_logger.Error($"Template {type.ToString()} ({locale.ToString()}) not found");
+			return null;
+		}
+
+		public async Task<bool> SendDpaRequest(Locale locale, string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
+
+			var template = GetTemplate(SignedDocumentType.Dpa, locale);
+			if (template == null) return false;
 
 			// var fullName = firstName + " " + lastName;
 
@@ -90,13 +105,10 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 		}
 
 
-		public async Task<bool> SendPrimaryAgreementRequest(string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
+		public async Task<bool> SendPrimaryAgreementRequest(Locale locale, string refId, string firstName, string lastName, string email, DateTime date, string redirectUrl) {
 
-			var template = _templates.FirstOrDefault(_ => _.Name == SignedDocumentType.GoldmintTOS.ToString());
-			if (template == null) {
-				_logger.Error($"Template not found for {nameof(SendPrimaryAgreementRequest)}");
-				return false;
-			}
+			var template = GetTemplate(SignedDocumentType.Tos, locale);
+			if (template == null) return false;
 
 			var fullName = firstName + " " + lastName;
 
@@ -206,7 +218,9 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 		}
 
 		private class TemplateDesc {
+			
 			public string Name { get; set; }
+			public Locale Locale { get; set; }
 			public string Filename { get; set; }
 			public string TemplateUrl { get; set; }
 		}

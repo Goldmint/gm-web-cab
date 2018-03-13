@@ -2,6 +2,12 @@
 
 namespace Goldmint.Common {
 
+	public enum Locale {
+
+		En = 1,
+		Ru,
+	}
+
 	public enum LoginProvider {
 
 		Google = 1,
@@ -604,13 +610,13 @@ namespace Goldmint.Common {
 	public enum SignedDocumentType {
 
 		/// <summary>
-		/// Primary agreement
+		/// Terms of service (of sales)
 		/// </summary>
-		GoldmintTOS = 1,
+		Tos = 1,
 
 		/// <summary>
-		/// Data processing agreement
+		/// Data privacy policy (agreement)
 		/// </summary>
-		GoldmintDPA,
+		Dpa,
 	}
 }

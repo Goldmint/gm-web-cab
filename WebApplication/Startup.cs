@@ -14,11 +14,11 @@ namespace Goldmint.WebApplication {
 
 	public partial class Startup {
 
-		private IHostingEnvironment _environment;
-		private IConfiguration _configuration;
-		private AppConfig _appConfig;
-		private LogFactory _loggerFactory;
-		private NLog.Config.XmlLoggingConfiguration _nlogConfiguration;
+		private readonly IHostingEnvironment _environment;
+		private readonly IConfiguration _configuration;
+		private readonly AppConfig _appConfig;
+		private readonly LogFactory _loggerFactory;
+		private readonly NLog.Config.XmlLoggingConfiguration _nlogConfiguration;
 
 		// ---
 

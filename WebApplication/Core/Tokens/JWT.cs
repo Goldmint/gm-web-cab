@@ -17,7 +17,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 	public static class JWT {
 
-		public const string Issuer = "app.goldmint.io";
+		//public const string Issuer = "app.goldmint.io";
 
 		public const string GMAreaField = "gm_area";
 		public const string GMIdField = "gm_id";
@@ -31,15 +31,15 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// </summary>
 		public static TokenValidationParameters ValidationParameters(AppConfig appConfig) {
 
-			var auds = (from a in appConfig.Auth.JWT.Audiences select a.Audience.ToLower()).ToArray();
+			var auds = (from a in appConfig.Auth.Jwt.Audiences select a.Audience.ToLower()).ToArray();
 
 			return new TokenValidationParameters() {
 				NameClaimType = GMIdField,
 				RoleClaimType = GMRightsField,
 				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = CreateJwtKey(appConfig),
+				IssuerSigningKey = CreateJwtSecurityKey(appConfig.Auth.Jwt.Secret),
 				ValidateIssuer = true,
-				ValidIssuer = Issuer,
+				ValidIssuer = appConfig.Auth.Jwt.Issuer,
 				ValidateAudience = true,
 				ValidAudiences = auds,
 				ValidateLifetime = true,
@@ -64,17 +64,17 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// <summary>
 		/// Audience settings
 		/// </summary>
-		private static AppConfig.AuthSection.JWTSection.AudienceSection GetAudienceSettings(AppConfig appConfig, JwtAudience audience) {
-			return (from a in appConfig.Auth.JWT.Audiences where a.Audience == audience.ToString() select a).FirstOrDefault();
+		private static AppConfig.AuthSection.JwtSection.AudienceSection GetAudienceSettings(AppConfig appConfig, JwtAudience audience) {
+			return (from a in appConfig.Auth.Jwt.Audiences where a.Audience == audience.ToString() select a).FirstOrDefault();
 		}
 		
 		/// <summary>
 		/// Make a secure key from main secret phrase
 		/// </summary>
-		public static SymmetricSecurityKey CreateJwtKey(AppConfig appConfig) {
+		public static SymmetricSecurityKey CreateJwtSecurityKey(string secret) {
 			return new SymmetricSecurityKey(
 				System.Text.Encoding.UTF8.GetBytes(
-					appConfig.Auth.JWT.Secret
+					secret
 				)
 			);
 		}
@@ -86,7 +86,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// </summary>
 		public static string CreateAuthToken(AppConfig appConfig, JwtAudience audience, JwtArea area, User user, long rightsMask) {
 			var now = DateTime.UtcNow;
-			var uniqueness = UniqueId(appConfig.Auth.JWT.Secret);
+			var uniqueness = UniqueId(appConfig.Auth.Jwt.Secret);
 			var audienceSett = GetAudienceSettings(appConfig, audience);
 
 			var claims = new[] {
@@ -108,10 +108,13 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				JwtBearerDefaults.AuthenticationScheme
 			);
 
-			var creds = new SigningCredentials(CreateJwtKey(appConfig), SecurityAlgorithms.HmacSha256);
+			var creds = new SigningCredentials(
+				CreateJwtSecurityKey(appConfig.Auth.Jwt.Secret), 
+				SecurityAlgorithms.HmacSha256
+			);
 
 			var token = new JwtSecurityToken(
-				issuer: Issuer,
+				issuer: appConfig.Auth.Jwt.Issuer,
 				audience: audienceSett.Audience.ToLower(),
 				claims: claimIdentity.Claims,
 				signingCredentials: creds,
@@ -127,7 +130,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		public static string CreateSecurityToken(AppConfig appConfig, JwtAudience audience, JwtArea area, string entityId, string securityStamp, TimeSpan validFor, IEnumerable<Claim> optClaims = null) {
 
 			var now = DateTime.UtcNow;
-			var uniqueness = UniqueId(appConfig.Auth.JWT.Secret);
+			var uniqueness = UniqueId(appConfig.Auth.Jwt.Secret);
 			var audienceSett = GetAudienceSettings(appConfig, audience);
 
 			var claims = new List<Claim>() {
@@ -147,14 +150,47 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				claims.AddRange(optClaims);
 			}
 
-			var creds = new SigningCredentials(CreateJwtKey(appConfig), SecurityAlgorithms.HmacSha256);
+			var creds = new SigningCredentials(
+				CreateJwtSecurityKey(appConfig.Auth.Jwt.Secret), 
+				SecurityAlgorithms.HmacSha256
+			);
 
 			var token = new JwtSecurityToken(
-				issuer: Issuer,
+				issuer: appConfig.Auth.Jwt.Issuer,
 				audience: audienceSett.Audience.ToLower(),
 				claims: claims,
 				signingCredentials: creds,
 				expires: now.Add(validFor)
+			);
+
+			return (new JwtSecurityTokenHandler()).WriteToken(token);
+		}
+
+		/// <summary>
+		/// Make a token for Zendesk SSO flow
+		/// </summary>
+		public static string CreateZendeskSsoToken(AppConfig appConfig, User user) {
+			var now = DateTime.UtcNow;
+			var uniqueness = UniqueId(appConfig.Auth.Jwt.Secret);
+
+			var claims = new[] {
+				new Claim(JwtRegisteredClaimNames.Jti, uniqueness),
+				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+				new Claim("email", user.NormalizedEmail.ToLower()),
+				new Claim("name", user.UserName),
+				new Claim("external_id", user.UserName + "@" + appConfig.Auth.Jwt.Issuer),
+				new Claim("role", "user"),
+			};
+
+			var creds = new SigningCredentials(
+				CreateJwtSecurityKey(appConfig.Auth.ZendeskSso.JwtSecret), 
+				SecurityAlgorithms.HmacSha256
+			);
+
+			var token = new JwtSecurityToken(
+				issuer: appConfig.Auth.Jwt.Issuer,
+				claims: claims,
+				signingCredentials: creds
 			);
 
 			return (new JwtSecurityTokenHandler()).WriteToken(token);

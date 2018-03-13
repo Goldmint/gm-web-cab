@@ -134,7 +134,7 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Reset DPA state and resend it to the specified email address
 		/// </summary>
-		public static async Task<bool> ResendUserDpaDocument(IServiceProvider services, User user, string email, string redirectUrl) {
+		public static async Task<bool> ResendUserDpaDocument(IServiceProvider services, User user, string email, string redirectUrl, Locale locale) {
 
 			if (user == null) {
 				throw new ArgumentException("User is null");
@@ -152,7 +152,7 @@ namespace Goldmint.WebApplication.Core {
 
 			// create new request
 			var request = new SignedDocument() {
-				Type = SignedDocumentType.GoldmintDPA,
+				Type = SignedDocumentType.Dpa,
 				IsSigned = false,
 				ReferenceId = Guid.NewGuid().ToString("N"),
 				TimeCreated = DateTime.UtcNow,
@@ -170,6 +170,7 @@ namespace Goldmint.WebApplication.Core {
 			await dbContext.SaveChangesAsync();
 
 			return await docService.SendDpaRequest(
+				locale: locale,
 				refId: request.ReferenceId,
 				firstName: "", // user.UserVerification.FirstName,
 				lastName: "", // user.UserVerification.LastName,
@@ -182,7 +183,7 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Reset current agreement and resend to specified email address
 		/// </summary>
-		public static async Task<bool> ResendUserTosDocument(IServiceProvider services, User user, string email, string redirectUrl) {
+		public static async Task<bool> ResendUserTosDocument(IServiceProvider services, User user, string email, string redirectUrl, Locale locale) {
 
 			if (user == null) {
 				throw new ArgumentException("User is null");
@@ -203,7 +204,7 @@ namespace Goldmint.WebApplication.Core {
 
 			// create new request
 			var request = new SignedDocument() {
-				Type = SignedDocumentType.GoldmintTOS,
+				Type = SignedDocumentType.Tos,
 				IsSigned = false,
 				ReferenceId = Guid.NewGuid().ToString("N"),
 				TimeCreated = DateTime.UtcNow,
@@ -221,6 +222,7 @@ namespace Goldmint.WebApplication.Core {
 			await dbContext.SaveChangesAsync();
 
 			return await docService.SendPrimaryAgreementRequest(
+				locale: locale,
 				refId: request.ReferenceId,
 				firstName: user.UserVerification.FirstName,
 				lastName: user.UserVerification.LastName,

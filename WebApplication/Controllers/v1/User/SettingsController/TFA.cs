@@ -39,6 +39,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
 
 			var makeChange = user.TwoFactorEnabled != model.Enable;
 
@@ -57,7 +58,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				if (model.Enable) {
 					
 					// notification
-					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.TfaEnabled))
+					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.TfaEnabled, userLocale))
 						.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
 						.Send(user.Email, user.UserName, EmailQueue)
 					;
@@ -75,7 +76,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				else {
 
 					// notification
-					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.TfaDisabled))
+					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.TfaDisabled, userLocale))
 						.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
 						.Send(user.Email, user.UserName, EmailQueue)
 					;
