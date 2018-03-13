@@ -692,7 +692,7 @@
           "KeyLabel": "Secret key:",
           "CodeLabel": "Authenticator Code",
           "CodeHelpText": "Input your 6-digit authenticator code",
-		  "DisableWarning": "If you want to turn off 2FA, input your account password and the six-digit code provided by the Google Authenticator app below, then click \"Disable 2FA\". Your account will be insecure and can be easily hacked."
+		  "DisableWarning": "If you want to turn off 2FA, input your account password and the six-digit code provided by the Google Authenticator app below, then click \"Disable 2FA\". Your account will be insecure and can be easily hacked.",
           "Steps": {
             "One": "1. Backup secret key",
             "Two": "2. Install application",
