@@ -152,7 +152,7 @@
           "Amount": "Amount:"
         },
         "Text": {
-          "Agree": "I am agree with",
+          "Agree": "I agree with",
           "Document": "Very Important Document"
         },
         "Errors": {
@@ -163,7 +163,7 @@
       },
       "BankTransfer": {
         "Labels": {
-          "Ready": "Are you ready?",
+          "Ready": "Due to the specifics of our payment partner’s operations, we cannot guarantee payment processing time. Currently, transaction processing may take 2 to 60 days.",
           "USDAmount": "USD Amount *",
           "Country": "Choose your bank country"
         },
@@ -185,7 +185,7 @@
             "Four": "CRYPTO SP.ZO.O is the payment processor for Crypto Capital Corp (Crypto Capital)."
           }
         },
-        "Checkbox": "I have double-checked all the risks"
+        "Checkbox": "I have double-checked all the risks and acknowledge that GOLDMINT.IO should not be responsible for the outcomes of my actions. It also concerns the risks of losses and lost profits in case of payment delays."
       },
       "CardsList": {
         "SectionTitle": "Card details",
@@ -692,6 +692,7 @@
           "KeyLabel": "Secret key:",
           "CodeLabel": "Authenticator Code",
           "CodeHelpText": "Input your 6-digit authenticator code",
+		  "DisableWarning": "If you want to turn off 2FA, input your account password and the six-digit code provided by the Google Authenticator app below, then click \"Disable 2FA\". Your account will be insecure and can be easily hacked."
           "Steps": {
             "One": "1. Backup secret key",
             "Two": "2. Install application",
