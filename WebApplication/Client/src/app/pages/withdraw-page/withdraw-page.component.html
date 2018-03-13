@@ -90,8 +90,8 @@
                 </button>
               </div>
               <div class="col form-group text-center">
-                <label for="btnPaymentBank" disabled>{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnPaymentBank" disabled>
+                <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
+                <button class="btn btn-primary btn-block" id="btnPaymentBank" (click)="goto(pages.BankTransfer)">
                   <svg class="icon" width="107px" height="56px">
                     <use xlink:href="#payment-bank"></use>
                   </svg>
@@ -331,4 +331,138 @@
       <button type="submit" (click)="page = pages.CardsList" class="btn btn-primary">{{ "PAGES.Withdraw.Buttons.Done" | translate }}</button>
     </div>
   </section>
+</ng-container>
+
+<ng-container *ngIf="page === pages.BankTransfer">
+  <div *ngIf="!showAddAcountBlock" class="section">
+    <h2 class="section__title">Bank transfer</h2>
+    <div class="section__content pb-4">
+      <div class="row">
+        <div class="col-md-9">
+          <div class="form-group">
+            <label for="selectBankAccount">Bank account</label>
+            <select id="selectBankAccount" class="custom-select" name="bankAccount">
+              <option>Tinkoff</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3 mt-md-4 mb-3 text-right add-btn-block">
+          <button type="submit" class="btn btn-primary btn-sm" (click)="showAddAcountBlock = !showAddAcountBlock">Add account</button>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">Amount</label>
+            <input type="number" class="form-control" min="0">
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">Fee</label>
+            <div>15$</div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Send request</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="page__section section section--table">
+      <h2 class="section__title">{{ "PAGES.Finance.TableLimits.Heading" | translate }}</h2>
+      <table class="mt-3" *ngIf="!loading">
+        <tr class="limits-header-row">
+          <td class="limits-text-bold limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.AccountType" | translate }}</td>
+          <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Basic" | translate }}</td>
+          <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified" | translate }}</td>
+          <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified+" | translate }}</td>
+          <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Corporate" | translate }}</td>
+        </tr>
+        <tr class="limits-daily-row">
+          <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Daily" | translate }}</td>
+          <td class="text-center limits-border-right-cell">{{ limits.levels.l0.withdraw.day }}</td>
+          <td class="text-center limits-border-cell limits-border-bottom-cell">
+            {{ limits.levels.l1.withdraw.day }}
+            <div class="limits-font-size-small">
+              {{ "PAGES.Finance.TableLimits.Table.Labels.LimitUsed" | translate }}
+              {{ limits.levels.l1.withdraw.day - limits.current.withdraw.day }}
+            </div>
+          </td>
+          <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
+          <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
+        </tr>
+        <tr class="limits-monthly-row">
+          <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Monthly" | translate }}</td>
+          <td class="text-center limits-border-right-cell">{{ limits.levels.l0.withdraw.month }}</td>
+          <td class="text-center limits-border-cell">
+            {{ limits.levels.l1.withdraw.month }}
+            <div class="limits-font-size-small">
+              {{ "PAGES.Finance.TableLimits.Table.Labels.LimitUsed" | translate }}
+              {{ limits.levels.l1.withdraw.month - limits.current.withdraw.month }}
+            </div>
+          </td>
+        </tr>
+      </table>
+    </section>
+  </div>
+
+  <div *ngIf="showAddAcountBlock" class="section">
+    <h2 class="section__title">Add account</h2>
+    <div class="section__content pb-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">Description</label>
+            <input type="text" class="form-control">
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">Name on account</label>
+            <input type="text" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">IBAN</label>
+            <input type="number" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">Bank name</label>
+            <input type="text" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">BIC</label>
+            <input type="number" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="selectBankAccount">Address</label>
+            <textarea class="w-100" name="address" rows="5" required></textarea>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <button type="submit" class="btn btn-primary" (click)="showAddAcountBlock = !showAddAcountBlock">Cancel</button>
+        </div>
+
+        <div class="col-6 text-right">
+          <button type="submit" class="btn btn-primary">Save bank account</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </ng-container>

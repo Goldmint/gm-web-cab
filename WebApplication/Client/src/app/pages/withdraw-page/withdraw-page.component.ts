@@ -10,7 +10,7 @@ import { UserService } from "../../services/user.service";
 import { User } from "../../interfaces/user";
 import {TranslateService} from "@ngx-translate/core";
 
-enum Pages { Default, CardsList, CardsListSuccess }
+enum Pages { Default, CardsList, CardsListSuccess, BankTransfer }
 
 @Component({
   selector: 'app-withdraw-page',
@@ -43,6 +43,7 @@ export class WithdrawPageComponent implements OnInit {
 
   public minAmount: number;
   public maxAmount: number;
+  public showAddAcountBlock = false;
 
   constructor(
     private _apiService: APIService,
@@ -77,7 +78,6 @@ export class WithdrawPageComponent implements OnInit {
       case Pages.CardsList:
         this.loading = true;
         this.page = page;
-
         this._apiService.getFiatCards()
           .finally(() => {
             this.loading = false;
@@ -89,6 +89,10 @@ export class WithdrawPageComponent implements OnInit {
             this.cards.list = this.cards.list.filter((card: CardsListItem) => card.status === 'verified');
           },
           err => { });
+        break;
+
+      case Pages.BankTransfer:
+        this.page = page;
         break;
 
       default:
