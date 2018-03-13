@@ -126,6 +126,24 @@
             "Text": "Verification procedure is fully compliant with AML and KYC regulations."
           }
         }
+      },
+      "TableLimits": {
+        "Heading": "Account limits",
+        "Table": {
+          "Heading": {
+            "AccountType": "Account type",
+            "Basic": "BASIC",
+            "Verified": "VERIFIED",
+            "Verified+": "VERIFIED PLUS",
+            "Corporate": "CORPORATE"
+          },
+          "Labels": {
+            "Daily": "Daily",
+            "Monthly": "Monthly",
+            "Unlimited": "Unlimited",
+            "LimitUsed": "Limit used:"
+          }
+        }
       }
     },
     "Deposit": {
@@ -164,8 +182,13 @@
       "BankTransfer": {
         "Labels": {
           "Ready": "Due to the specifics of our payment partner’s operations, we cannot guarantee payment processing time. Currently, transaction processing may take 2 to 60 days.",
-          "USDAmount": "USD Amount *",
+          "USDAmount": "Deposit amount",
           "Country": "Choose your bank country"
+        },
+        "SelectCountryNote": {
+          "FirstText": "If your country is not on the list, if means we are unable to receive a bank transfer for this country. Please check",
+          "Link": "Limits and Commission",
+          "LastText": "tab."
         },
         "Table": {
           "Heading": "PAYMENT DETAILS",
