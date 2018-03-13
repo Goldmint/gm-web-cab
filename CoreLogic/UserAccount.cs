@@ -16,7 +16,7 @@ namespace Goldmint.CoreLogic {
 		public static bool HasSignedDpa(UserOptions data) {
 			return
 				data?.DPADocument != null &&
-				data.DPADocument.Type == SignedDocumentType.GoldmintDPA &&
+				data.DPADocument.Type == SignedDocumentType.Dpa &&
 				data.DPADocument.TimeCompleted != null &&
 				data.DPADocument.IsSigned
 			;
@@ -40,7 +40,7 @@ namespace Goldmint.CoreLogic {
 		public static bool HasSignedAgreement(UserVerification data) {
 			return
 				data?.LastAgreement != null &&
-				data.LastAgreement.Type == SignedDocumentType.GoldmintTOS &&
+				data.LastAgreement.Type == SignedDocumentType.Tos &&
 				data.LastAgreement.TimeCompleted != null &&
 				data.LastAgreement.IsSigned
 			;
@@ -89,23 +89,23 @@ namespace Goldmint.CoreLogic {
 
 				tier1Limits = new UserAccount.FiatOperationsLimits() {
 					Deposit = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier1.DayDeposit,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier1.MonthDeposit,
+						Day = appConfig.Constants.FiatAccountLimitsUsd.Tier1.DayDeposit,
+						Month = appConfig.Constants.FiatAccountLimitsUsd.Tier1.MonthDeposit,
 					},
 					Withdraw = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier1.DayWithdraw,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier1.MonthWithdraw,
+						Day = appConfig.Constants.FiatAccountLimitsUsd.Tier1.DayWithdraw,
+						Month = appConfig.Constants.FiatAccountLimitsUsd.Tier1.MonthWithdraw,
 					}
 				};
 
 				tier2Limits = new UserAccount.FiatOperationsLimits() {
 					Deposit = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier2.DayDeposit,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier2.MonthDeposit,
+						Day = appConfig.Constants.FiatAccountLimitsUsd.Tier2.DayDeposit,
+						Month = appConfig.Constants.FiatAccountLimitsUsd.Tier2.MonthDeposit,
 					},
 					Withdraw = new FiatLimits() {
-						Day = appConfig.Constants.FiatAccountLimitsUSD.Tier2.DayWithdraw,
-						Month = appConfig.Constants.FiatAccountLimitsUSD.Tier2.MonthWithdraw,
+						Day = appConfig.Constants.FiatAccountLimitsUsd.Tier2.DayWithdraw,
+						Month = appConfig.Constants.FiatAccountLimitsUsd.Tier2.MonthWithdraw,
 					}
 				};
 			}

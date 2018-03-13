@@ -78,6 +78,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			// find user with this ext login
 			var user = await UserManager.FindByLoginAsync(provider.ToString(), userInfo.Id);
+			var userLocale = Locale.En;
 
 			// exists
 			if (user != null) {
@@ -103,6 +104,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						// has not been sent previously
 						if (user.UserOptions.DPADocument == null) {
 							await Core.UserAccount.ResendUserDpaDocument(
+								locale: userLocale,
 								services: HttpContext.RequestServices,
 								user: user,
 								email: user.Email,
@@ -116,7 +118,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// notification
-					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn))
+					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn, userLocale))
 						.ReplaceBodyTag("IP", agent.Ip)
 						.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
 						.Send(user.Email, user.UserName, EmailQueue)
@@ -181,6 +183,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 							// send dpa
 							await Core.UserAccount.ResendUserDpaDocument(
+								locale: userLocale,
 								services: HttpContext.RequestServices,
 								user: cuaResult.User,
 								email: cuaResult.User.Email,

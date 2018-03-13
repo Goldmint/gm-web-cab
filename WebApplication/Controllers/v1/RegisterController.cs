@@ -29,6 +29,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
 
 			// captcha
 			if (!HostingEnvironment.IsDevelopment()) {
@@ -54,7 +55,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				var callbackUrl = this.MakeLink(fragment: AppConfig.AppRoutes.SignUpConfirmation.Replace(":token", token));
 
 				// email confirmation
-				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.EmailConfirmation))
+				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.EmailConfirmation, userLocale))
 					.Link(callbackUrl)
 					.Send(model.Email, "", EmailQueue)
 				;
@@ -85,6 +86,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			var user = (DAL.Models.Identity.User)null;
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
 
 			// check token
 			if (! await Core.Tokens.JWT.IsValid(
@@ -106,6 +108,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			// send dpa
 			await Core.UserAccount.ResendUserDpaDocument(
+				locale: userLocale,
 				services: HttpContext.RequestServices,
 				user: user,
 				email: user.Email,

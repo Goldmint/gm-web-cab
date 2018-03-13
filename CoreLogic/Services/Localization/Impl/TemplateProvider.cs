@@ -24,10 +24,10 @@ namespace Goldmint.CoreLogic.Services.Localization.Impl {
 			LoadUp();
 		}
 
-		public Task<EmailTemplate> GetEmailTemplate(string name, Locale locale = null) {
+		public Task<EmailTemplate> GetEmailTemplate(string name, Locale locale) {
 			var body = "";
 			var subj = "goldmint.io"; // placeholder
-			var localeStr = (locale?.Code ?? Locale.EN.Code)?.ToLower();
+			var localeStr = locale.ToString().ToLower();
 
 			try {
 				body = GetResourceAsString("Email", localeStr, name + ".html");

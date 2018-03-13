@@ -23,7 +23,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			Logger = logFactory.GetLoggerFor(this);
 
 			FiatContractAddress = appConfig.Services.Infura.FiatContractAddress;
-			FiatContractABI = appConfig.Services.Infura.FiatContractABI;
+			FiatContractABI = appConfig.Services.Infura.FiatContractAbi;
 
 			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Infura.EthereumNetUrl));
 

@@ -58,9 +58,9 @@ namespace Goldmint.QueueService {
 			// acquirer
 			services.AddScoped<ICardAcquirer>(fac => {
 				return new The1stPayments(opts => {
-					opts.MerchantGuid = _appConfig.Services.The1stPayments.MerchantGuid;
-					opts.ProcessingPassword = _appConfig.Services.The1stPayments.ProcessingPassword;
-					opts.Gateway = _appConfig.Services.The1stPayments.Gateway;
+					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
+					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
+					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
 				}, _loggerFactory);
 			});
 

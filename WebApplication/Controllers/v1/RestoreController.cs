@@ -29,6 +29,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
 
 			// captcha
 			if (!HostingEnvironment.IsDevelopment()) {
@@ -56,7 +57,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var callbackUrl = this.MakeLink(fragment: AppConfig.AppRoutes.PasswordRestoration.Replace(":token", token));
 
 			// restoration email
-			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordRestoration))
+			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordRestoration, userLocale))
 				.Link(callbackUrl)
 				.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
 				.Send(model.Email, user.UserName, EmailQueue)
@@ -90,6 +91,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			var user = (DAL.Models.Identity.User)null;
 			var agent = GetUserAgentInfo();
+			var userLocale = Locale.En;
 
 			// check token
 			if (!await Core.Tokens.JWT.IsValid(
@@ -114,7 +116,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			// posteffect
 			{
 				// notification
-				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordChanged))
+				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordChanged, userLocale))
 					.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
 					.Send(user.Email, user.UserName, EmailQueue)
 				;

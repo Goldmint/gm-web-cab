@@ -114,34 +114,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	}
 
 	// ---
-	/*
-	public class BalanceModel : BaseValidableModel {
-
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<BalanceModel>();
-			v.CascadeMode = CascadeMode.Continue;
-
-			return v.Validate(this);
-		}
-	}
-
-	public class BalanceView {
-
-		/// <summary>
-		/// USD fiat amount
-		/// </summary>
-		[Required]
-		public double Usd { get; set; }
-
-		/// <summary>
-		/// Hot wallet GOLD token amount in wei
-		/// </summary>
-		[Required]
-		public string Gold { get; set; }
-	}
-	*/
-	// ---
-
+	
 	public class LimitsView {
 
 		/// <summary>
@@ -395,4 +368,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		[Required]
 		public long Date { get; set; }
 	}
+
+	// ---
+
+	public class ZendeskSsoView {
+
+		/// <summary>
+		/// JWT to use as Zendesk-SSO payload
+		/// </summary>
+		[Required]
+		public string Jwt { get; set; }
+	}
+
 }

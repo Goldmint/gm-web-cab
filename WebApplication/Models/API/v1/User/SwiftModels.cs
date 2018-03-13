@@ -80,40 +80,34 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 		public double Amount { get; set; }
 
 		/// <summary>
-		/// Beneficiary name
+		/// Account holder's name, .{1,256}
 		/// </summary>
 		[Required]
-		public string BenName { get; set; }
+		public string Holder { get; set; }
 
 		/// <summary>
-		/// Beneficiary address
+		/// IBAN, account number, .{1,256}
 		/// </summary>
 		[Required]
-		public string BenAddress { get; set; }
+		public string Iban { get; set; }
 
 		/// <summary>
-		/// Beneficiary IBAN
+		/// Bank name, .{1,256}
 		/// </summary>
 		[Required]
-		public string BenIban { get; set; }
+		public string Bank { get; set; }
 
 		/// <summary>
-		/// Beneficiary bank name
+		/// BIC / SWIFT, .{1,128}
 		/// </summary>
 		[Required]
-		public string BenBankName { get; set; }
+		public string Bic { get; set; }
 
 		/// <summary>
-		/// Beneficiary bank addr
+		/// Details, .{1-1024}
 		/// </summary>
 		[Required]
-		public string BenBankAddress { get; set; }
-
-		/// <summary>
-		/// Beneficiary bank SWIFT
-		/// </summary>
-		[Required]
-		public string BenSwift { get; set; }
+		public string Details { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<WithdrawModel>();
@@ -124,40 +118,34 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 				.WithMessage("Invalid amount")
 			;
 
-			v.RuleFor(_ => _.BenName)
+			v.RuleFor(_ => _.Holder)
 				.NotEmpty()
 				.MaximumLength(256)
-				.WithMessage("Invalid name")
+				.WithMessage("Invalid holder name")
 			;
 
-			v.RuleFor(_ => _.BenAddress)
+			v.RuleFor(_ => _.Iban)
 				.NotEmpty()
-				.MaximumLength(512)
-				.WithMessage("Invalid address")
+				.MaximumLength(256)
+				.WithMessage("Invalid IBAN")
 			;
 
-			v.RuleFor(_ => _.BenIban)
-				.NotEmpty()
-				.MaximumLength(128)
-				.WithMessage("Invalid iban")
-			;
-
-			v.RuleFor(_ => _.BenBankName)
+			v.RuleFor(_ => _.Bank)
 				.NotEmpty()
 				.MaximumLength(256)
 				.WithMessage("Invalid bank name")
 			;
 
-			v.RuleFor(_ => _.BenBankAddress)
+			v.RuleFor(_ => _.Bic)
 				.NotEmpty()
-				.MaximumLength(512)
-				.WithMessage("Invalid bank address")
+				.MaximumLength(128)
+				.WithMessage("Invalid BIC/SWIFT")
 			;
 
-			v.RuleFor(_ => _.BenSwift)
+			v.RuleFor(_ => _.Details)
 				.NotEmpty()
-				.MaximumLength(64)
-				.WithMessage("Invalid swift")
+				.MaximumLength(1024)
+				.WithMessage("Invalid details")
 			;
 
 			return v.Validate(this);

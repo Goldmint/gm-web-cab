@@ -15,7 +15,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		public InfuraWriter(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 
-			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Infura.GMAccountPrivateKey);
+			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Infura.RootAccountPrivateKey);
 			
 			// uses semaphore inside:
 			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, JsonRpcClient);
