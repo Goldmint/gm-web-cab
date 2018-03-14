@@ -155,25 +155,41 @@ export class UserService {
     return true;
   }
 
-  public launchTokenRefresher() {
-    interval(10000)
-      .subscribe(time => {
+	public launchTokenRefresher() {
+		this.refreshJwtToken(true);
+		interval(10000).subscribe(time => { this.refreshJwtToken(false); });
+	}
+  
+	private refreshJwtToken(forceNewToken: boolean) {
+		const token = this._jwtHelper.tokenGetter();
+		if (!token) {
+			console.log("[JWT Refresher]", "/ EMPTY TOKEN");
+			return;
+		}
 
-        const token = this._jwtHelper.tokenGetter();
+		const jwt:any = this._jwtHelper.decodeToken(token);
+		if (!jwt || !jwt.hasOwnProperty('exp') || !jwt.hasOwnProperty('iat') || !jwt.hasOwnProperty('gm_area') || jwt.gm_area !== 'authorized') {
+			console.log("[JWT Refresher]", "/ INVALID TOKEN");
+			return;
+		}
 
-        if (!token) {
-          return;
-        }
+		var fullTtlSeconds = jwt.exp - jwt.iat;
+		if (!this._jwtHelper.isTokenExpired(token, 3)) {
+			var remainSeconds = (this._jwtHelper.getTokenExpirationDate(token).getTime() - new Date().getTime()) / 1000;
+			var remainPerc = Math.round(remainSeconds / (fullTtlSeconds / 100));
+			console.log("[JWT Refresher]", "/ VALID", "/ TTL", remainSeconds + " s.", remainPerc + "%", "/ FTTL", fullTtlSeconds);
 
-        // try to refresh within 5-minute period
-        const validForSec = (this._jwtHelper.getTokenExpirationDate(token).getTime() - new Date().getTime()) / 1000;
-        if (validForSec >= 5 * 60 && validForSec < 15 * 60) {
-          this._apiService.userRefreshToken()
-            .subscribe(x => {
-              console.log("Access-token refreshed");
-              localStorage.setItem('gmint_token', x);
-            })
-        }
-      });
-  }
+			if (remainPerc <= 20 || forceNewToken) {
+				console.log("[JWT Refresher]", "/ REFRESHING ATTEMPT");
+
+				this._apiService.userRefreshToken()
+				.subscribe(x => {
+					console.log("[JWT Refresher]", "/ GOT FRESH TOKEN");
+					localStorage.setItem('gmint_token', x);
+				});
+			}
+		} else {
+			console.log("[JWT Refresher]", "/ WILL EXPIRE within 3 s.", "/ FTTL", fullTtlSeconds);
+		}
+	}
 }

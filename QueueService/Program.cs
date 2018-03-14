@@ -18,12 +18,13 @@ namespace Goldmint.QueueService {
 
 	public partial class Program {
 
+		[Flags]
 		public enum WorkingMode : int {
 			Worker = 1,
 			Service = 2,
 		}
 
-		private const string IPCPipeName = "gm.queueservice.ipc";
+		private const string IpcPipeName = "gm.queueservice.ipc";
 
 		public static WorkingMode Mode { get; private set; }
 
@@ -42,10 +43,12 @@ namespace Goldmint.QueueService {
 		/// <summary>
 		/// Entry point
 		/// </summary>
-		/// <param name="args">ipc-stop - to stop launched service</param>
+		/// <param name="args">
+		/// `ipc-stop` - command to stop launched instance;
+		/// </param>
 		public static void Main(string[] args) {
 
-			if (SetupIPC(args)) {
+			if (SetupIpc(args)) {
 				return;
 			}
 
@@ -109,6 +112,9 @@ namespace Goldmint.QueueService {
 				.ConfigureNLog(nlogConfig)
 			;
 
+			// rpc
+			SetupRpc(services);
+
 			// setup workers and wait
 			Task.WaitAll(SetupWorkers(services).ToArray());
 
@@ -120,20 +126,28 @@ namespace Goldmint.QueueService {
 
 		private static void OnStopped() {
 
-			// rpc server
-			if (_defaultRpcServer != null) _defaultRpcServer.Stop();
+			// stop rpc servers
+			if (_rpcServers != null) {
+				foreach (var v in _rpcServers) {
+					v.Stop();
+				}
+			}
 		}
 
 		// ---
 
-		private static bool SetupIPC(string[] args) {
+		/// <summary>
+		/// IPC server/client 
+		/// </summary>
+		private static bool SetupIpc(string[] args) {
 
 			bool isClient = args.Contains("ipc-stop");
 
+			// process that listens for commands
 			if (!isClient) {
 
 				_ipcServerMonitor = new object();
-				_ipcServer = new NamedPipeServerStream(IPCPipeName);
+				_ipcServer = new NamedPipeServerStream(IpcPipeName);
 
 				_ipcServer.BeginWaitForConnection(
 					(result) => {
@@ -151,20 +165,16 @@ namespace Goldmint.QueueService {
 				return false;
 			}
 
-			if (isClient) {
-
-				try {
-					using (var pipe = new NamedPipeClientStream(IPCPipeName)) {
-						pipe.Connect(60000);
-						pipe.ReadByte();
-					}
+			// process that sends command
+			try {
+				using (var pipe = new NamedPipeClientStream(IpcPipeName)) {
+					pipe.Connect(60000);
+					pipe.ReadByte();
 				}
-				catch { }
-
-				return true;
 			}
+			catch { }
 
-			return false;
+			return true;
 		}
 		
 	}

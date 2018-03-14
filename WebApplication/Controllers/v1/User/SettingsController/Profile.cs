@@ -53,7 +53,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					;
 
 				// activity
-				await CoreLogic.UserAccount.SaveActivity(
+				await CoreLogic.User.SaveActivity(
 					services: HttpContext.RequestServices,
 					user: user,
 					type: Common.UserActivityType.Password,

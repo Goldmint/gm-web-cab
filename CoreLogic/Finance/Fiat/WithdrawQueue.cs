@@ -69,7 +69,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 				if (ok) {
 
 					// get limit
-					var limit = await UserAccount.GetCurrentFiatWithdrawLimit(services, currency, userId, userTier);
+					var limit = await User.GetCurrentFiatWithdrawLimit(services, currency, userId, userTier);
 					if (amountCents <= limit.Minimal) {
 						try {
 							var withdraw = await onSuccess();
@@ -90,24 +90,24 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							catch { }
 
 							return new WithdrawResult() {
-								Status = FiatEnqueueStatus.Success,
+								Status = FiatEnqueueResult.Success,
 								WithdrawId = withdraw.Id,
 							};
 						}
 						catch (Exception e) {
 							return new WithdrawResult() {
-								Status = FiatEnqueueStatus.Error,
+								Status = FiatEnqueueResult.Error,
 								Error = e,
 							};
 						}
 					}
 					return new WithdrawResult() {
-						Status = FiatEnqueueStatus.Limit,
+						Status = FiatEnqueueResult.Limit,
 					};
 				}
 				else {
 					return new WithdrawResult() {
-						Status = FiatEnqueueStatus.Error,
+						Status = FiatEnqueueResult.Error,
 						Error = new Exception("Faield to lock deposit queue"),
 					};
 				}
@@ -200,9 +200,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							var result = await ethereumReader.CheckTransaction(withdraw.EthTransactionId);
 
 							// final
-							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
+							if (result == EthTransactionStatus.Success || result == EthTransactionStatus.Failed) {
 
-								var success = result == BlockchainTransactionStatus.Success;
+								var success = result == EthTransactionStatus.Success;
 
 								withdraw.Status = success ? WithdrawStatus.Success : WithdrawStatus.Failed;
 								withdraw.TimeCompleted = DateTime.UtcNow;
@@ -264,7 +264,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 											);
 
 											// failed
-											if (res.Status != FiatEnqueueStatus.Success) {
+											if (res.Status != FiatEnqueueResult.Success) {
 												dbContext.FinancialHistory.Remove(finHistory);
 												await dbContext.SaveChangesAsync();
 
@@ -353,7 +353,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// </summary>
 		public sealed class WithdrawResult {
 
-			public FiatEnqueueStatus Status { get; internal set; }
+			public FiatEnqueueResult Status { get; internal set; }
 			public long? WithdrawId { get; internal set; }
 			public Exception Error { get; internal set; }
 		}

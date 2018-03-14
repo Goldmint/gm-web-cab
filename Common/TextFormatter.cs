@@ -34,10 +34,9 @@ namespace Goldmint.Common {
 		}
 
 		// 0x0000000000000000000000000000000000000000 => 0x000***000
-		public static string MaskEthereumAddress(string address) {
-			if (string.IsNullOrWhiteSpace(address) || address.Length < 8) {
-				return "0x0";
-			}
+		public static string MaskBlockchainAddress(string address) {
+			if (string.IsNullOrWhiteSpace(address)) return "0x0";
+			if (address.Length < 8) return address;
 			return address.Substring(0, 5) + "***" + address.Substring(address.Length - 1 - 3, 3);
 		}
 	}

@@ -56,10 +56,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						requestBuying = await (
 									from r in DbContext.BuyRequest
 									where
-										r.Type == ExchangeRequestType.HWRequest &&
+										r.Type == GoldExchangeRequestType.HWRequest &&
 										r.Id == model.RequestId &&
 										r.UserId == user.Id &&
-										r.Status == ExchangeRequestStatus.Initial
+										r.Status == GoldExchangeRequestStatus.Initial
 									select r
 								)
 								.AsTracking()
@@ -72,10 +72,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						requestSelling = await (
 									from r in DbContext.SellRequest
 									where
-										r.Type == ExchangeRequestType.HWRequest &&
+										r.Type == GoldExchangeRequestType.HWRequest &&
 										r.Id == model.RequestId &&
 										r.UserId == user.Id &&
-										r.Status == ExchangeRequestStatus.Initial
+										r.Status == GoldExchangeRequestStatus.Initial
 									select r
 								)
 								.AsTracking()
@@ -101,7 +101,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					if (requestBuying != null) {
 						deskTicketId = requestBuying.DeskTicketId;
 
-						requestBuying.Status = ExchangeRequestStatus.Processing;
+						requestBuying.Status = GoldExchangeRequestStatus.Processing;
 						requestBuying.TimeRequested = DateTime.UtcNow;
 						requestBuying.TimeNextCheck = DateTime.UtcNow;
 
@@ -111,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					if (requestSelling != null) {
 						deskTicketId = requestSelling.DeskTicketId;
 
-						requestSelling.Status = ExchangeRequestStatus.Processing;
+						requestSelling.Status = GoldExchangeRequestStatus.Processing;
 						requestSelling.TimeRequested = DateTime.UtcNow;
 						requestSelling.TimeNextCheck = DateTime.UtcNow;
 
@@ -155,7 +155,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			// check pending operations
-			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
+			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
@@ -211,7 +211,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// request
 					var request = new TransferRequest() {
 						User = user,
-						Status = ExchangeRequestStatus.Processing,
+						Status = GoldExchangeRequestStatus.Processing,
 						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
 						DeskTicketId = ticket,
@@ -225,7 +225,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					await DbContext.SaveChangesAsync();
 
 					// update comment
-					finHistory.Comment = $"Transfer order #{request.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei)} GOLD from hot wallet to {TextFormatter.MaskEthereumAddress(model.EthAddress)}";
+					finHistory.Comment = $"Transfer order #{request.Id} of {CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei)} GOLD from hot wallet to {TextFormatter.MaskBlockchainAddress(model.EthAddress)}";
 					await DbContext.SaveChangesAsync();
 
 					try {
@@ -235,11 +235,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					}
 
 					// activity
-					await CoreLogic.UserAccount.SaveActivity(
+					await CoreLogic.User.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.Exchange,
-						comment: $"GOLD transfer request #{request.Id} ({ CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei) } oz) from HW to {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
+						comment: $"GOLD transfer request #{request.Id} ({ CoreLogic.Finance.Tokens.GoldToken.FromWeiFixed(amountWei) } oz) from HW to {Common.TextFormatter.MaskBlockchainAddress(model.EthAddress)} initiated",
 						ip: agent.Ip,
 						agent: agent.Agent
 					);

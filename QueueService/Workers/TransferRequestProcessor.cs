@@ -35,7 +35,7 @@ namespace Goldmint.QueueService.Workers {
 			var rows = await (
 				from r in _dbContext.TransferRequest
 				where 
-				(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm) &&
+				(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
 				select new { Id = r.Id }
 			)

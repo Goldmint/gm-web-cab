@@ -16,7 +16,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		public InfuraReader(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 		}
 
-		public async Task<BlockchainTransactionStatus> CheckTransaction(string transactionId) {
+		public async Task<EthTransactionStatus> CheckTransaction(string transactionId) {
 
 			if (string.IsNullOrWhiteSpace(transactionId)) {
 				throw new ArgumentException("Invalid transaction format");
@@ -36,15 +36,15 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				) {
 					// check status
 					if ((txinfo.Status?.Value ?? BigInteger.Zero) == BigInteger.One) {
-						return BlockchainTransactionStatus.Success;
+						return EthTransactionStatus.Success;
 					}
-					return BlockchainTransactionStatus.Failed;
+					return EthTransactionStatus.Failed;
 				}
-				return BlockchainTransactionStatus.Pending;
+				return EthTransactionStatus.Pending;
 			}
 
 			// assume it is pending
-			return BlockchainTransactionStatus.Pending;
+			return EthTransactionStatus.Pending;
 		}
 
 		public async Task<long> GetUserFiatBalance(string userId, FiatCurrency currency) {

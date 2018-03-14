@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.CoreLogic {
 
-	public static class UserAccount {
+	public static class User {
 
 		public static bool HasSignedDpa(UserOptions data) {
 			return
@@ -51,7 +51,7 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// User's tier
 		/// </summary>
-		public static UserTier GetTier(User user) {
+		public static UserTier GetTier(DAL.Models.Identity.User user) {
 			var tier = UserTier.Tier0;
 
 			var hasDpa = HasSignedDpa(user?.UserOptions);
@@ -79,15 +79,15 @@ namespace Goldmint.CoreLogic {
 				throw new NotImplementedException("Non-USD currency is not implemented");
 			}
 
-			var current = new UserAccount.FiatOperationsLimits();
-			var tier0Limits = new UserAccount.FiatOperationsLimits();
-			var tier1Limits = new UserAccount.FiatOperationsLimits();
-			var tier2Limits = new UserAccount.FiatOperationsLimits();
+			var current = new User.FiatOperationsLimits();
+			var tier0Limits = new User.FiatOperationsLimits();
+			var tier1Limits = new User.FiatOperationsLimits();
+			var tier2Limits = new User.FiatOperationsLimits();
 
 			// usd
 			if (currency == FiatCurrency.USD) {
 
-				tier1Limits = new UserAccount.FiatOperationsLimits() {
+				tier1Limits = new User.FiatOperationsLimits() {
 					Deposit = new FiatLimits() {
 						Day = appConfig.Constants.FiatAccountLimitsUsd.Tier1.DayDeposit,
 						Month = appConfig.Constants.FiatAccountLimitsUsd.Tier1.MonthDeposit,
@@ -98,7 +98,7 @@ namespace Goldmint.CoreLogic {
 					}
 				};
 
-				tier2Limits = new UserAccount.FiatOperationsLimits() {
+				tier2Limits = new User.FiatOperationsLimits() {
 					Deposit = new FiatLimits() {
 						Day = appConfig.Constants.FiatAccountLimitsUsd.Tier2.DayDeposit,
 						Month = appConfig.Constants.FiatAccountLimitsUsd.Tier2.MonthDeposit,
@@ -199,7 +199,7 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Persist user activity record
 		/// </summary>
-		public static async Task SaveActivity(IServiceProvider services, User user, UserActivityType type, string comment, string ip, string agent) {
+		public static async Task SaveActivity(IServiceProvider services, DAL.Models.Identity.User user, UserActivityType type, string comment, string ip, string agent) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
@@ -222,10 +222,12 @@ namespace Goldmint.CoreLogic {
 		public static async Task<bool> HasPendingBlockchainOps(IServiceProvider services, long userId) {
 
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var notTime = DateTime.UtcNow;
 
 			return await dbContext.FinancialHistory.Where(_ =>
 				_.UserId == userId &&
-				_.Status == FinancialHistoryStatus.Pending
+				_.Status == FinancialHistoryStatus.Pending &&
+				(notTime - _.TimeCreated) < TimeSpan.FromHours(1)
 			).CountAsync() > 0;
 		}
 

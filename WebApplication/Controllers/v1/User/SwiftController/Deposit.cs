@@ -39,7 +39,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// user
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 			var userLocale = Locale.En;
 
@@ -91,7 +91,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// activity
-			await CoreLogic.UserAccount.SaveActivity(
+			await CoreLogic.User.SaveActivity(
 				services: HttpContext.RequestServices,
 				user: user,
 				type: UserActivityType.Swift,

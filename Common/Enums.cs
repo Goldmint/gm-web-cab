@@ -2,6 +2,8 @@
 
 namespace Goldmint.Common {
 
+	#region Auth
+
 	public enum Locale {
 
 		En = 1,
@@ -98,132 +100,10 @@ namespace Goldmint.Common {
 		Tier2,
 	}
 
-	public enum BlockchainTransactionStatus {
+	#endregion
 
-		/// <summary>
-		/// Unconfirmed status, still outside of any block
-		/// </summary>
-		Pending = 1,
 
-		/// <summary>
-		/// Transaction confirmed
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Transaction cancelled or failed
-		/// </summary>
-		Failed,
-	}
-
-	public enum FiatEnqueueStatus {
-
-		/// <summary>
-		/// Enqueued
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Limit reached or gateway transaction failed
-		/// </summary>
-		Limit,
-
-		/// <summary>
-		/// Internal error
-		/// </summary>
-		Error,
-	}
-
-	public enum UserOpLogStatus {
-
-		/// <summary>
-		/// Operation is pending
-		/// </summary>
-		Pending = 1,
-
-		/// <summary>
-		/// Operation succesfully completed
-		/// </summary>
-		Completed,
-
-		/// <summary>
-		/// Operation is failed
-		/// </summary>
-		Failed,
-	}
-
-	public enum MutexEntity {
-		
-		/// <summary>
-		/// Particular payment should be locked before it will be updated via acquirer (payment-wide)
-		/// </summary>
-		CardPaymentCheck = 1,
-
-		/// <summary>
-		/// Lock should be set while new deposit creation to check limits (user-wide)
-		/// </summary>
-		DepositEnqueue,
-
-		/// <summary>
-		/// Lock should be set while updating deposit (deposit-wide)
-		/// </summary>
-		DepositCheck,
-
-		/// <summary>
-		/// Lock should be set while new withdraw creation to check limits (user-wide)
-		/// </summary>
-		WithdrawEnqueue,
-
-		/// <summary>
-		/// Lock should be set while updating withdraw (withdraw-wide)
-		/// </summary>
-		WithdrawCheck,
-
-		/// <summary>
-		/// Lock should be set while sending a notification (notification-wide)
-		/// </summary>
-		NotificationSend,
-
-		/// <summary>
-		/// Lock should be set while changing buying request state
-		/// </summary>
-		EthBuyRequest,
-
-		/// <summary>
-		/// Lock should be set while changing selling request state
-		/// </summary>
-		EthSellRequest,
-
-		/// <summary>
-		/// Hot wallet operation initiation mutex
-		/// </summary>
-		HWOperation,
-
-		/// <summary>
-		/// Lock should be set while buying gold to hot wallet
-		/// </summary>
-		HWBuyRequest,
-
-		/// <summary>
-		/// Lock should be set while selling gold from hot wallet
-		/// </summary>
-		HWSellRequest,
-
-		/// <summary>
-		/// Lock should be set while transferring gold from hot wallet
-		/// </summary>
-		HWTransferRequest,
-
-		/// <summary>
-		/// Support team should lock SWIFT request record before it could be processed
-		/// </summary>
-		SupportSwiftRequestProc,
-	}
-
-	public enum FiatCurrency {
-
-		USD = 1,
-	}
+	#region Credit card
 
 	public enum CardState {
 
@@ -344,6 +224,34 @@ namespace Goldmint.Common {
 		Cancelled,
 	}
 
+	#endregion
+
+
+	#region Deposit / Withdraw
+
+	public enum FiatCurrency {
+
+		USD = 1,
+	}
+
+	public enum FiatEnqueueResult {
+
+		/// <summary>
+		/// Enqueued
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Limit reached or gateway transaction failed
+		/// </summary>
+		Limit,
+
+		/// <summary>
+		/// Internal error
+		/// </summary>
+		Error,
+	}
+
 	public enum SwiftPaymentType {
 
 		/// <summary>
@@ -391,6 +299,11 @@ namespace Goldmint.Common {
 		/// Deposit comes from failed withdrawal
 		/// </summary>
 		FailedWithdraw,
+
+		/// <summary>
+		/// Deposit initiated with cryptoasset's selling
+		/// </summary>
+		CryptoExchange,
 	}
 
 	public enum DepositStatus {
@@ -432,6 +345,11 @@ namespace Goldmint.Common {
 		/// Destination is bank transaction
 		/// </summary>
 		Swift,
+
+		/// <summary>
+		/// Destination is cryptoasset's transfer
+		/// </summary>
+		CryptoExchange,
 	}
 
 	public enum WithdrawStatus {
@@ -467,7 +385,84 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
-	public enum ExchangeRequestType {
+	public enum CryptoExchangeRequestType {
+
+		/// <summary>
+		/// Sell cryptoactive / deposit
+		/// </summary>
+		Deposit = 1,
+
+		/// <summary>
+		/// Buy cryptoactive / withdraw
+		/// </summary>
+		Withdraw,
+	}
+
+	public enum CryptoExchangeRequestStatus {
+
+		/// <summary>
+		/// Just created
+		/// </summary>
+		Initial = 1,
+
+		/// <summary>
+		/// Prepared for processing
+		/// </summary>
+		Prepared,
+
+		/// <summary>
+		/// Processing
+		/// </summary>
+		Processing,
+
+		/// <summary>
+		/// Success
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Cancelled
+		/// </summary>
+		Cancelled,
+
+		/// <summary>
+		/// Final failure
+		/// </summary>
+		Failed,
+	}
+
+	public enum CryptoExchangeRequestOrigin {
+
+		/// <summary>
+		/// Ethereum
+		/// </summary>
+		Ethereum = 1,
+	}
+
+	#endregion
+
+
+	#region Blockchain
+
+	public enum EthTransactionStatus {
+
+		/// <summary>
+		/// Unconfirmed status, still outside of any block
+		/// </summary>
+		Pending = 1,
+
+		/// <summary>
+		/// Transaction confirmed
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Transaction cancelled or failed
+		/// </summary>
+		Failed,
+	}
+
+	public enum GoldExchangeRequestType {
 
 		/// <summary>
 		/// Hot wallet queue
@@ -480,7 +475,7 @@ namespace Goldmint.Common {
 		EthRequest,
 	}
 
-	public enum ExchangeRequestStatus {
+	public enum GoldExchangeRequestStatus {
 
 		/// <summary>
 		/// Just created
@@ -518,47 +513,27 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
-	public enum NotificationType {
+	#endregion
 
-		Email = 1,
-	}
 
-	public enum DbSetting {
+	#region User
 
-		LastExchangeIndex = 1,
-	}
-
-	public enum UserActivityType {
+	public enum UserOpLogStatus {
 
 		/// <summary>
-		/// User logged in
+		/// Operation is pending
 		/// </summary>
-		Auth = 1,
+		Pending = 1,
 
 		/// <summary>
-		/// Password restoration / change
+		/// Operation succesfully completed
 		/// </summary>
-		Password,
+		Completed,
 
 		/// <summary>
-		/// Some setting changed
+		/// Operation is failed
 		/// </summary>
-		Settings,
-
-		/// <summary>
-		/// Gold token exchange
-		/// </summary>
-		Exchange,
-
-		/// <summary>
-		/// Credit card operation
-		/// </summary>
-		CreditCard,
-
-		/// <summary>
-		/// Swift reqeust
-		/// </summary>
-		Swift
+		Failed,
 	}
 
 	public enum FinancialHistoryType {
@@ -604,7 +579,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Failed or cancelled
 		/// </summary>
-		Cancelled
+		Cancelled,
+
+		/// <summary>
+		/// Manual processing by support team
+		/// </summary>
+		Manual,
 	}
 
 	public enum SignedDocumentType {
@@ -619,4 +599,119 @@ namespace Goldmint.Common {
 		/// </summary>
 		Dpa,
 	}
+	
+	public enum UserActivityType {
+
+		/// <summary>
+		/// User logged in
+		/// </summary>
+		Auth = 1,
+
+		/// <summary>
+		/// Password restoration / change
+		/// </summary>
+		Password,
+
+		/// <summary>
+		/// Some setting changed
+		/// </summary>
+		Settings,
+
+		/// <summary>
+		/// Gold token exchange
+		/// </summary>
+		Exchange,
+
+		/// <summary>
+		/// Credit card operation
+		/// </summary>
+		CreditCard,
+
+		/// <summary>
+		/// Swift reqeust
+		/// </summary>
+		Swift
+	}
+
+	#endregion
+
+
+	public enum DbSetting {
+
+		LastExchangeIndex = 1,
+	}
+
+	public enum MutexEntity {
+		
+		/// <summary>
+		/// Particular payment should be locked before it will be updated via acquirer (payment-wide)
+		/// </summary>
+		CardPaymentCheck = 1,
+
+		/// <summary>
+		/// Lock should be set while new deposit creation to check limits (user-wide)
+		/// </summary>
+		DepositEnqueue,
+
+		/// <summary>
+		/// Lock should be set while updating deposit (deposit-wide)
+		/// </summary>
+		DepositCheck,
+
+		/// <summary>
+		/// Lock should be set while new withdraw creation to check limits (user-wide)
+		/// </summary>
+		WithdrawEnqueue,
+
+		/// <summary>
+		/// Lock should be set while updating withdraw (withdraw-wide)
+		/// </summary>
+		WithdrawCheck,
+
+		/// <summary>
+		/// Lock should be set while sending a notification (notification-wide)
+		/// </summary>
+		NotificationSend,
+
+		/// <summary>
+		/// Lock should be set while changing buying request state
+		/// </summary>
+		EthBuyRequest,
+
+		/// <summary>
+		/// Lock should be set while changing selling request state
+		/// </summary>
+		EthSellRequest,
+
+		/// <summary>
+		/// Hot wallet operation initiation mutex
+		/// </summary>
+		HWOperation,
+
+		/// <summary>
+		/// Lock should be set while buying gold to hot wallet
+		/// </summary>
+		HWBuyRequest,
+
+		/// <summary>
+		/// Lock should be set while selling gold from hot wallet
+		/// </summary>
+		HWSellRequest,
+
+		/// <summary>
+		/// Lock should be set while transferring gold from hot wallet
+		/// </summary>
+		HWTransferRequest,
+
+		/// <summary>
+		/// Support team should lock SWIFT request record before it could be processed
+		/// </summary>
+		SupportSwiftRequestProc,
+	}
+
+	public enum NotificationType {
+
+		Email = 1,
+	}
+
 }

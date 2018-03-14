@@ -125,7 +125,7 @@ export function getGoldmintToken() {
     JwtModule.forRoot({
       config: {
         tokenGetter: getGoldmintToken,
-        whitelistedDomains: ['localhost:4200', 'gm-cabinet.pashog.net', 'gm-cabinet-dev.pashog.net', 'app.goldmint.io']
+        whitelistedDomains: [ environment.apiUrl ],
       }
     }),
     TranslateModule.forRoot({

@@ -9,10 +9,10 @@ namespace Goldmint.DAL.Models {
 	public class SellRequest : BaseFinancialHistoryEntity, IConcurrentUpdate {
 
 		[Column("type"), Required]
-		public ExchangeRequestType Type { get; set; }
+		public GoldExchangeRequestType Type { get; set; }
 
 		[Column("status"), Required]
-		public ExchangeRequestStatus Status { get; set; }
+		public GoldExchangeRequestStatus Status { get; set; }
 
 		[Column("currency"), Required]
 		public FiatCurrency Currency { get; set; }

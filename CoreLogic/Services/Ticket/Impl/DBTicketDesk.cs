@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 
@@ -28,7 +29,7 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 				Status = status,
 				UserId = userId,
 				RefId = refId,
-				Message = message,
+				Message = message.LimitLength(512),
 				TimeCreated = DateTime.UtcNow,
 			};
 			_dbContext.UserOpLog.Add(op);
@@ -59,41 +60,49 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 			}
 		}
 
-		public Task NewManualSupportTicket(string message) {
-			// TODO: support tickets queue
-			return Task.CompletedTask;
-		}
-
-		public async Task<string> NewCardVerification(User user, Card card) {
+		public async Task<string> NewCardVerification(DAL.Models.Identity.User user, Card card) {
 			return await CreateTicket(user.Id, $"New card #{card.Id} verification started with {TextFormatter.FormatAmount(card.VerificationAmountCents, FiatCurrency.USD)}");
 		}
 
-		public async Task<string> NewCardDeposit(User user, Card card, FiatCurrency currency, long amount) {
+		public async Task<string> NewCardDeposit(DAL.Models.Identity.User user, Card card, FiatCurrency currency, long amount) {
 			return await CreateTicket(user.Id, $"New card deposit #? (card #{card.Id}, {card.CardMask}) started with {TextFormatter.FormatAmount(amount, currency)}");
 		}
 
-		public async Task<string> NewSwiftDeposit(User user, FiatCurrency currency, long amount) {
-			return await CreateTicket(user.Id, $"New SWIFT deposit #? requested with {TextFormatter.FormatAmount(amount, currency)}");
-		}
-
-		public async Task<string> NewCardWithdraw(User user, Card card, FiatCurrency currency, long amount) {
+		public async Task<string> NewCardWithdraw(DAL.Models.Identity.User user, Card card, FiatCurrency currency, long amount) {
 			return await CreateTicket(user.Id, $"New card witdraw #? (card #{card.Id}, {card.CardMask}) started with {TextFormatter.FormatAmount(amount, currency)}");
 		}
 
-		public async Task<string> NewSwiftWithdraw(User user, FiatCurrency currency, long amount) {
+
+		public async Task<string> NewSwiftDeposit(DAL.Models.Identity.User user, FiatCurrency currency, long amount) {
+			return await CreateTicket(user.Id, $"New SWIFT deposit #? requested with {TextFormatter.FormatAmount(amount, currency)}");
+		}
+
+		public async Task<string> NewSwiftWithdraw(DAL.Models.Identity.User user, FiatCurrency currency, long amount) {
 			return await CreateTicket(user.Id, $"New SWIFT withdraw #? requested with {TextFormatter.FormatAmount(amount, currency)}");
 		}
 
-		public async Task<string> NewGoldBuying(User user, string ethAddressOrNull, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents) {
-			return await CreateTicket(user.Id, $"New gold buying #? for {TextFormatter.FormatAmount(fiatAmount, currency)} requested from {( ethAddressOrNull != null? TextFormatter.MaskEthereumAddress(ethAddressOrNull): "HW" )} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {CoreLogic.Finance.Tokens.GoldToken.FromWei(estimatedGoldAmount)} oz, fee {TextFormatter.FormatAmount(feeCents, currency)}");
+
+		public async Task<string> NewCryptoDeposit(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, string amount) {
+			return await CreateTicket(user.Id, $"New {origin.ToString()}-deposit #? received from {TextFormatter.MaskBlockchainAddress(address)} of {amount}");
 		}
 
-		public async Task<string> NewGoldSelling(User user, string ethAddressOrNull, FiatCurrency currency, BigInteger goldAmount, long rate, BigInteger mntpBalance, long estimatedFiatAmount, long feeCents) {
-			return await CreateTicket(user.Id, $"New gold selling #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from {( ethAddressOrNull != null? TextFormatter.MaskEthereumAddress(ethAddressOrNull): "HW")} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {TextFormatter.FormatAmount(estimatedFiatAmount, currency)}, fee {TextFormatter.FormatAmount(feeCents, currency)}");
+		public async Task<string> NewCryptoWithdraw(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, FiatCurrency currency, long amount) {
+			return await CreateTicket(user.Id, $"New {origin.ToString()}-witdraw #? to {TextFormatter.MaskBlockchainAddress(address)} started with {TextFormatter.FormatAmount(amount, currency)}");
 		}
 
-		public async Task<string> NewGoldTransfer(User user, string ethAddress, BigInteger goldAmount) {
-			return await CreateTicket(user.Id, $"New gold transfer #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from HW to {TextFormatter.MaskEthereumAddress(ethAddress)}");
+
+		public async Task<string> NewGoldBuying(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents) {
+			return await CreateTicket(user.Id, $"New gold buying #? for {TextFormatter.FormatAmount(fiatAmount, currency)} requested from {( ethAddressOrNull != null? TextFormatter.MaskBlockchainAddress(ethAddressOrNull): "HW" )} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {CoreLogic.Finance.Tokens.GoldToken.FromWei(estimatedGoldAmount)} oz, fee {TextFormatter.FormatAmount(feeCents, currency)}");
 		}
+
+		public async Task<string> NewGoldSelling(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, BigInteger goldAmount, long rate, BigInteger mntpBalance, long estimatedFiatAmount, long feeCents) {
+			return await CreateTicket(user.Id, $"New gold selling #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from {( ethAddressOrNull != null? TextFormatter.MaskBlockchainAddress(ethAddressOrNull): "HW")} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {TextFormatter.FormatAmount(estimatedFiatAmount, currency)}, fee {TextFormatter.FormatAmount(feeCents, currency)}");
+		}
+
+		public async Task<string> NewGoldTransfer(DAL.Models.Identity.User user, string ethAddress, BigInteger goldAmount) {
+			return await CreateTicket(user.Id, $"New gold transfer #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from HW to {TextFormatter.MaskBlockchainAddress(ethAddress)}");
+		}
+
+		
 	}
 }

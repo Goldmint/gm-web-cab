@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 
@@ -27,8 +28,11 @@ namespace Goldmint.QueueService {
 
 	public partial class Program {
 
-		private static IRPCServer _defaultRpcServer;
+		private static List<IRPCServer> _rpcServers = new List<IRPCServer>();
 
+		/// <summary>
+		/// DI services
+		/// </summary>
 		private static void SetupCommonServices(ServiceCollection services) {
 
 			// app config
@@ -86,9 +90,9 @@ namespace Goldmint.QueueService {
 				services.AddSingleton<IGoldRateProvider>(new LocalGoldRateProvider());
 
 				// rpc server
-				var workerRPCService = new WorkerRPCService();
-				_defaultRpcServer = new JsonRPCServer<WorkerRPCService>(workerRPCService, _loggerFactory);
-				_defaultRpcServer.Start(Environment.GetEnvironmentVariable("ASPNETCORE_RPC"));
+				// var rpcSvc = new WorkerRpcService(_loggerFactory);
+				// _defaultRpcServer = new JsonRPCServer<WorkerRpcService>(rpcSvc, _loggerFactory);
+				// _defaultRpcServer.Start(Environment.GetEnvironmentVariable("ASPNETCORE_RPC"));
 			}
 
 			if (Mode.HasFlag(WorkingMode.Service)) {
@@ -100,6 +104,25 @@ namespace Goldmint.QueueService {
 				if (services.Count(x => x.ServiceType == typeof(IGoldRateProvider)) == 0) {
 					services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
 				}
+			}
+		}
+
+		/// <summary>
+		/// Launch RPC servers
+		/// </summary>
+		private static void SetupRpc(IServiceProvider services) {
+
+			// worker rpc
+			if (Mode.HasFlag(WorkingMode.Worker)) {
+
+				var rpcSvc = new WorkerRpcService(
+					services.CreateScope().ServiceProvider, 
+					_loggerFactory
+				);
+				var rpcSrv = new JsonRPCServer<WorkerRpcService>(rpcSvc, _loggerFactory);
+				rpcSrv.Start(Environment.GetEnvironmentVariable("ASPNETCORE_RPC"));
+
+				_rpcServers.Add(rpcSrv);
 			}
 		}
 	}

@@ -29,13 +29,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			// ---
 
 			// check pending operations
-			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
+			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
@@ -55,6 +55,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			if (!user.TwoFactorEnabled) {
 				return APIResponse.BadRequest(APIErrorCode.AccountTFADisabled);
+			}
+
+			if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
+				return APIResponse.BadRequest(nameof(model.Code), "Invalid code");
 			}
 
 			// get card
@@ -111,7 +115,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				);
 
 				// failed
-				if (queryResult.Status != FiatEnqueueStatus.Success) {
+				if (queryResult.Status != FiatEnqueueResult.Success) {
 					DbContext.FinancialHistory.Remove(finHistory);
 
 					payment.Status = CardPaymentStatus.Cancelled;
@@ -134,10 +138,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				switch (queryResult.Status) {
 
-					case FiatEnqueueStatus.Success:
+					case FiatEnqueueResult.Success:
 
 						// activity
-						await CoreLogic.UserAccount.SaveActivity(
+						await CoreLogic.User.SaveActivity(
 							services: scopedServices.ServiceProvider,
 							user: user,
 							type: Common.UserActivityType.CreditCard,
@@ -152,7 +156,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 							}
 						);
 
-					case FiatEnqueueStatus.Limit:
+					case FiatEnqueueResult.Limit:
 						return APIResponse.BadRequest(APIErrorCode.AccountWithdrawLimit);
 
 					default:

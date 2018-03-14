@@ -168,10 +168,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 					// check limits
 					if (!ignoreLimits) {
-						var limit = await UserAccount.GetCurrentFiatDepositLimit(services, currency, userId, userTier);
+						var limit = await User.GetCurrentFiatDepositLimit(services, currency, userId, userTier);
 						if (amountCents > limit.Minimal) {
 							return new DepositResult() {
-								Status = FiatEnqueueStatus.Limit,
+								Status = FiatEnqueueResult.Limit,
 							};
 						}
 					}
@@ -195,20 +195,20 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						catch { }
 
 						return new DepositResult() {
-							Status = FiatEnqueueStatus.Success,
+							Status = FiatEnqueueResult.Success,
 							DepositId = deposit.Id,
 						};
 					}
 					catch (Exception e) {
 						return new DepositResult() {
-							Status = FiatEnqueueStatus.Error,
+							Status = FiatEnqueueResult.Error,
 							Error = e,
 						};
 					}
 				}
 
 				return new DepositResult() {
-					Status = FiatEnqueueStatus.Error,
+					Status = FiatEnqueueResult.Error,
 					Error = new Exception("Faield to lock deposit queue"),
 				};
 			});
@@ -298,9 +298,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							var result = await ethereumReader.CheckTransaction(deposit.EthTransactionId);
 
 							// final
-							if (result == BlockchainTransactionStatus.Success || result == BlockchainTransactionStatus.Failed) {
+							if (result == EthTransactionStatus.Success || result == EthTransactionStatus.Failed) {
 
-								bool success = result == BlockchainTransactionStatus.Success;
+								bool success = result == EthTransactionStatus.Success;
 
 								deposit.Status = success ? DepositStatus.Success : DepositStatus.Failed;
 								deposit.TimeCompleted = DateTime.UtcNow;
@@ -339,7 +339,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		/// </summary>
 		public sealed class DepositResult {
 
-			public FiatEnqueueStatus Status { get; internal set; }
+			public FiatEnqueueResult Status { get; internal set; }
 			public long? DepositId { get; internal set; }
 			public Exception Error { get; internal set; }
 		}

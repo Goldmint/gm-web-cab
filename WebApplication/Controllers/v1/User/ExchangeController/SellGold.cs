@@ -35,7 +35,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			// check pending operations
-			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
+			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
@@ -87,8 +87,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// request
 			var sellRequest = new SellRequest() {
 				User = user,
-				Type = ExchangeRequestType.EthRequest,
-				Status = ExchangeRequestStatus.Initial,
+				Type = GoldExchangeRequestType.EthRequest,
+				Status = GoldExchangeRequestStatus.Initial,
 				Currency = currency,
 				FiatAmountCents = estimated.ResultGrossCents,
 				Address = model.EthAddress,
@@ -108,11 +108,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 	
 			// activity
-			await CoreLogic.UserAccount.SaveActivity(
+			await CoreLogic.User.SaveActivity(
 				services: HttpContext.RequestServices,
 				user: user,
 				type: Common.UserActivityType.Exchange,
-				comment: $"GOLD selling request #{sellRequest.Id} ({TextFormatter.FormatAmount(estimated.ResultGrossCents, currency)}) from {Common.TextFormatter.MaskEthereumAddress(model.EthAddress)} initiated",
+				comment: $"GOLD selling request #{sellRequest.Id} ({TextFormatter.FormatAmount(estimated.ResultGrossCents, currency)}) from {Common.TextFormatter.MaskBlockchainAddress(model.EthAddress)} initiated",
 				ip: agent.Ip,
 				agent: agent.Agent
 			);
@@ -147,7 +147,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			// check pending operations
-			if (HostingEnvironment.IsDevelopment() && await CoreLogic.UserAccount.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
+			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
@@ -206,8 +206,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// request
 			var sellRequest = new SellRequest() {
 				User = user,
-				Type = ExchangeRequestType.HWRequest,
-				Status = ExchangeRequestStatus.Initial,
+				Type = GoldExchangeRequestType.HWRequest,
+				Status = GoldExchangeRequestStatus.Initial,
 				Currency = currency,
 				FiatAmountCents = estimated.ResultGrossCents,
 				Address = "HW",
@@ -227,7 +227,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 	
 			// activity
-			await CoreLogic.UserAccount.SaveActivity(
+			await CoreLogic.User.SaveActivity(
 				services: HttpContext.RequestServices,
 				user: user,
 				type: Common.UserActivityType.Exchange,

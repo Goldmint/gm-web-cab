@@ -21,6 +21,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[ProducesResponseType(typeof(TFAView), 200)]
 		public async Task<APIResponse> TFAView() {
 			var user = await GetUserFromDb();
+
+			// randomize tfa secret
+			if (!user.TwoFactorEnabled) {
+				user.TFASecret = Core.UserAccount.GenerateTfaSecret();
+				await DbContext.SaveChangesAsync();
+			}
+
 			return APIResponse.Success(MakeTFASetupView(user));
 		}
 
@@ -64,7 +71,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					;
 
 					// activity
-					await CoreLogic.UserAccount.SaveActivity(
+					await CoreLogic.User.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.Settings,
@@ -82,7 +89,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					;
 
 					// activity
-					await CoreLogic.UserAccount.SaveActivity(
+					await CoreLogic.User.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.Settings,

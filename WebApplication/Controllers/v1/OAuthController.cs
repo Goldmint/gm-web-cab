@@ -99,7 +99,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// DPA is unsigned
-					if (user.UserOptions != null && !CoreLogic.UserAccount.HasSignedDpa(user.UserOptions)) {
+					if (user.UserOptions != null && !CoreLogic.User.HasSignedDpa(user.UserOptions)) {
 						
 						// has not been sent previously
 						if (user.UserOptions.DPADocument == null) {
@@ -125,7 +125,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					;
 
 					// activity
-					await CoreLogic.UserAccount.SaveActivity(
+					await CoreLogic.User.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.Auth,
@@ -148,6 +148,10 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							this.MakeLink(fragment: AppConfig.AppRoutes.OAuthTfaPage.Replace(":token", tokenForTFA))
 						);
 					}
+
+					// new jwt salt
+					user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+					DbContext.SaveChanges();
 
 					// ok
 					var token = JWT.CreateAuthToken(
@@ -191,7 +195,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							);
 
 							// DPA is unsigned
-							if (!CoreLogic.UserAccount.HasSignedDpa(cuaResult.User.UserOptions)) {
+							if (!CoreLogic.User.HasSignedDpa(cuaResult.User.UserOptions)) {
 								return Redirect(
 									this.MakeLink(fragment: AppConfig.AppRoutes.DpaRequired)
 								);

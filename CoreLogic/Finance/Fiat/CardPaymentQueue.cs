@@ -296,7 +296,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 							// set next step
 							if (cardHolder != null &&
 								cardMask != null &&
-								UserAccount.HasFilledPersonalData(payment.User?.UserVerification) &&
+								User.HasFilledPersonalData(payment.User?.UserVerification) &&
 								cardHolder.Contains(payment.User?.UserVerification.FirstName) &&
 								cardHolder.Contains(payment.User?.UserVerification.LastName)
 							) {

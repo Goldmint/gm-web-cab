@@ -43,7 +43,7 @@ namespace Goldmint.QueueService.Workers {
 
 				var data = await _ethereumReader.GetExchangeRequestByIndex(_lastIndex);
 
-				var userId = CoreLogic.UserAccount.ExtractId(data.UserId);
+				var userId = CoreLogic.User.ExtractId(data.UserId);
 
 				// is pending
 				if (data.IsPending) {

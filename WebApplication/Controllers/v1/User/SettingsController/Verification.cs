@@ -45,7 +45,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 
 			// on tier-0
 			if (userTier == UserTier.Tier0) {
@@ -96,10 +96,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 
 			// on tier-1 + KYC is not completed
-			if (userTier != UserTier.Tier1 || CoreLogic.UserAccount.HasKYCVerification(user.UserVerification)) {
+			if (userTier != UserTier.Tier1 || CoreLogic.User.HasKYCVerification(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -166,11 +166,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		public async Task<APIResponse> VerificationResendAgreement() {
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var userLocale = Locale.En;
 
 			// on tier-1 + KYC completed + agreement is not signed
-			if (userTier != UserTier.Tier1 || !CoreLogic.UserAccount.HasKYCVerification(user.UserVerification) || CoreLogic.UserAccount.HasSignedAgreement(user.UserVerification)) {
+			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKYCVerification(user.UserVerification) || CoreLogic.User.HasSignedAgreement(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -202,7 +202,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				throw new ArgumentException("User must be specified");
 			}
 
-			var kycFinished = CoreLogic.UserAccount.HasKYCVerification(user.UserVerification);
+			var kycFinished = CoreLogic.User.HasKYCVerification(user.UserVerification);
 			var kycPending =
 					!kycFinished &&
 					user.UserVerification?.LastKycTicket != null &&
@@ -210,7 +210,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					(DateTime.UtcNow - user.UserVerification.LastKycTicket.TimeCreated) < AllowedPeriodBetweenKYCRequests
 				;
 
-			var agrSigned = CoreLogic.UserAccount.HasSignedAgreement(user.UserVerification);
+			var agrSigned = CoreLogic.User.HasSignedAgreement(user.UserVerification);
 			var agrPending =
 					!agrSigned &&
 					user.UserVerification?.LastAgreement != null &&
@@ -220,7 +220,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			
 			var ret = new VerificationView() {
 
-				IsFormFilled = CoreLogic.UserAccount.HasFilledPersonalData(user?.UserVerification),
+				IsFormFilled = CoreLogic.User.HasFilledPersonalData(user?.UserVerification),
 
 				IsKycPending = kycPending,
 				IsKycFinished = kycFinished,

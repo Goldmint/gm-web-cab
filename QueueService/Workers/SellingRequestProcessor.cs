@@ -35,8 +35,8 @@ namespace Goldmint.QueueService.Workers {
 			var rows = await (
 				from r in _dbContext.SellRequest
 				where
-				(r.Type == ExchangeRequestType.EthRequest || r.Type == ExchangeRequestType.HWRequest ) &&
-				(r.Status == ExchangeRequestStatus.Processing || r.Status == ExchangeRequestStatus.BlockchainConfirm) &&
+				(r.Type == GoldExchangeRequestType.EthRequest || r.Type == GoldExchangeRequestType.HWRequest ) &&
+				(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
 				select new { Type = r.Type, Id = r.Id }
 			)
@@ -48,10 +48,10 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
-				if (row.Type == ExchangeRequestType.HWRequest) {
+				if (row.Type == GoldExchangeRequestType.HWRequest) {
 					await CoreLogic.Finance.Tokens.GoldToken.ProcessHWSellingRequest(_services, row.Id);
 				}
-				if (row.Type == ExchangeRequestType.EthRequest) {
+				if (row.Type == GoldExchangeRequestType.EthRequest) {
 					await CoreLogic.Finance.Tokens.GoldToken.ProcessEthSellingRequest(_services, row.Id);
 				}
 			}

@@ -12,9 +12,9 @@ namespace Goldmint.CoreLogic.Services.RPC.Impl {
 	public class JsonRPCServer<TService> : IDisposable, IRPCServer where TService : AustinHarris.JsonRpc.JsonRpcService {
 
 		private HttpListener _listener;
-		private ILogger _logger;
-		private TService _rpcService;
-		private object _monitor;
+		private readonly ILogger _logger;
+		private readonly TService _rpcService;
+		private readonly object _monitor;
 
 		public JsonRPCServer(TService service, LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
@@ -47,10 +47,15 @@ namespace Goldmint.CoreLogic.Services.RPC.Impl {
 				new AsyncCallback(ListenerCallback),
 				this
 			);
+
+			LogAction("started", address);
 		}
 
 		public void Stop() {
 			if (_listener == null || !_listener.IsListening) return;
+
+			LogAction("stop request", "-");
+
 			lock (_monitor) {
 				_listener.Stop();
 			}
@@ -73,10 +78,14 @@ namespace Goldmint.CoreLogic.Services.RPC.Impl {
 					return;
 				}
 
+				string remoteIp = "?";
+
 				try {
+
 					var request = context.Request;
 					var response = context.Response;
 					var responseBytes = (byte[])null;
+					remoteIp = request.RemoteEndPoint?.ToString();
 
 					response.ContentType = "application/json";
 					response.ContentEncoding = Encoding.UTF8;
@@ -86,20 +95,27 @@ namespace Goldmint.CoreLogic.Services.RPC.Impl {
 
 							using (var reader = new StreamReader(request.InputStream, request.ContentEncoding)) {
 								var body = reader.ReadToEnd();
+
+								server.LogAction("call", $"[ip={remoteIp}] => [{body}]");
+
 								var procTask = AustinHarris.JsonRpc.JsonRpcProcessor.Process(body, server._rpcService);
 
 								response.StatusCode = (int)HttpStatusCode.OK;
 								responseBytes = Encoding.UTF8.GetBytes(procTask.Result);
+
+								server.LogAction("call", $"[ip={remoteIp}] <= 200 [{procTask.Result}]");
 							}
 						}
 						else {
 							throw new Exception();
 						}
 					}
-					catch (Exception e) {
+					catch (Exception) {
 						response.StatusCode = (int)HttpStatusCode.BadRequest;
 						responseBytes = Encoding.UTF8.GetBytes("{}");
-						throw e;
+
+						server.LogAction("call", $"[ip={remoteIp}] <= {response.StatusCode} []");
+						throw;
 					}
 					finally {
 
@@ -115,7 +131,7 @@ namespace Goldmint.CoreLogic.Services.RPC.Impl {
 					}
 				}
 				catch (Exception e) {
-					logger.Error(e);
+					logger.Error(e, $"JSONRPC fail: [ip={remoteIp}]");
 				}
 				finally {
 					listener.BeginGetContext(
@@ -124,6 +140,10 @@ namespace Goldmint.CoreLogic.Services.RPC.Impl {
 					);
 				}
 			}
+		}
+
+		private void LogAction(string action, string data) {
+			_logger.Info($"JSONRPC {action}: {data}");
 		}
 	}
 }

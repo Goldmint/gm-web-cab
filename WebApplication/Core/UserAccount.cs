@@ -35,7 +35,7 @@ namespace Goldmint.WebApplication.Core {
 				return ret;
 			}
 
-			var tfaSecret = SecureRandom.GetString09azAZSpecs(14);
+			var tfaSecret = GenerateTfaSecret();
 
 			try {
 
@@ -129,6 +129,13 @@ namespace Goldmint.WebApplication.Core {
 		/// </summary>
 		public static string GenerateJwtSalt() {
 			return SecureRandom.GetString09azAZ(64);
+		}
+
+		/// <summary>
+		/// Random TFA secret
+		/// </summary>
+		public static string GenerateTfaSecret() {
+			return SecureRandom.GetString09azAZSpecs(14);
 		}
 
 		/// <summary>
@@ -229,7 +236,7 @@ namespace Goldmint.WebApplication.Core {
 				email: email,
 				date: DateTime.UtcNow,
 				redirectUrl: redirectUrl
-			); ;
+			);
 		}
 
 		// ---

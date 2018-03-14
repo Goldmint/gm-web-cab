@@ -64,7 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -169,7 +169,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -282,7 +282,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -307,7 +307,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					DbContext.SaveChanges();
 
 					// activity
-					await CoreLogic.UserAccount.SaveActivity(
+					await CoreLogic.User.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.CreditCard,
@@ -344,7 +344,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -455,7 +455,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				if (await DbContext.SaveChangesAsync() > 0) {
 
 					// activity
-					await CoreLogic.UserAccount.SaveActivity(
+					await CoreLogic.User.SaveActivity(
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.CreditCard,

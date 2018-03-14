@@ -10,6 +10,9 @@ namespace Goldmint.QueueService {
 
 		private static readonly int DefaultWorkerRowsPerRound = 100; // TODO: move to args
 
+		/// <summary>
+		/// Launch workers
+		/// </summary>
 		private static List<Task> SetupWorkers(IServiceProvider services) {
 
 			// general workers

@@ -90,7 +90,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						;
 
 						// activity
-						await CoreLogic.UserAccount.SaveActivity(
+						await CoreLogic.User.SaveActivity(
 							services: HttpContext.RequestServices,
 							user: user,
 							type: Common.UserActivityType.Auth,
@@ -185,8 +185,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// </summary>
 		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("signout")]
-		public APIResponse SignOut() {
-			//var user = await GetUserFromDb();
+		public async Task<APIResponse> SignOut() {
+			var user = await GetUserFromDb();
+
+			// new jwt salt
+			user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+			await DbContext.SaveChangesAsync();
+
 			return APIResponse.Success();
 		}
 
@@ -203,7 +208,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					if (accessRightsMask == null) return null;
 
 					// DPA is unsigned
-					if (!CoreLogic.UserAccount.HasSignedDpa(user.UserOptions)) {
+					if (!CoreLogic.User.HasSignedDpa(user.UserOptions)) {
 						return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
 					}
 
@@ -222,6 +227,10 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							}
 						);
 					}
+
+					// new jwt salt
+					user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+					DbContext.SaveChanges();
 
 					// auth token
 					return APIResponse.Success(

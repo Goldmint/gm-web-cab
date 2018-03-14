@@ -9,7 +9,7 @@ namespace Goldmint.DAL.Models {
 	public class TransferRequest : BaseFinancialHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
-		public ExchangeRequestStatus Status { get; set; }
+		public GoldExchangeRequestStatus Status { get; set; }
 
 		[Column("address"), MaxLength(64), Required]
 		public string DestinationAddress { get; set; }

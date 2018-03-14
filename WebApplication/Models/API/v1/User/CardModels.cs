@@ -249,6 +249,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		[Required]
 		public double Amount { get; set; }
 
+		/// <summary>
+		/// TFA Code /[0-9]{6}/
+		/// </summary>
+		[Required]
+		public string Code { get; set; }
+
+		// ---
+
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<WithdrawModel>();
 			v.CascadeMode = CascadeMode.Continue;
@@ -261,6 +269,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 			v.RuleFor(_ => _.Amount)
 				.GreaterThanOrEqualTo(1)
 				.WithMessage("Invalid amount")
+			;
+
+			v.RuleFor(_ => _.Code)
+				.Must(Common.ValidationRules.BeValidTFACode)
+				.WithMessage("Invalid code format")
 			;
 
 			return v.Validate(this);

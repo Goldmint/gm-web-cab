@@ -22,12 +22,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		public async Task<APIResponse> Limits() {
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 
-			var limits = await CoreLogic.UserAccount.GetFiatLimits(HttpContext.RequestServices, FiatCurrency.USD, userTier);
+			var limits = await CoreLogic.User.GetFiatLimits(HttpContext.RequestServices, FiatCurrency.USD, userTier);
 
-			var curDepositLimit = await CoreLogic.UserAccount.GetCurrentFiatDepositLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
-			var curWithdrawLimit = await CoreLogic.UserAccount.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
+			var curDepositLimit = await CoreLogic.User.GetCurrentFiatDepositLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
+			var curWithdrawLimit = await CoreLogic.User.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
 
 			return APIResponse.Success(
 				new LimitsView() {
@@ -126,7 +126,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		public async Task<APIResponse> Profile() {
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.UserAccount.GetTier(user);
+			var userTier = CoreLogic.User.GetTier(user);
 
 			// user challenges
 			// TODO: move to challenges subsystem
@@ -136,7 +136,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new ProfileView() {
 					Id = user.UserName,
-					Name = CoreLogic.UserAccount.HasFilledPersonalData(user.UserVerification) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
+					Name = CoreLogic.User.HasFilledPersonalData(user.UserVerification) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
 					Email = user.Email ?? "",
 					DpaSigned = user.UserOptions.DPADocument?.IsSigned ?? false,
 					TfaEnabled = user.TwoFactorEnabled,
