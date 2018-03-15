@@ -201,7 +201,7 @@ namespace Goldmint.WebApplication {
 			});
 
 			// ethereum reader
-			services.AddSingleton<IEthereumReader, InfuraReader>();
+			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rates
 			services.AddSingleton<CachedGoldRate>();

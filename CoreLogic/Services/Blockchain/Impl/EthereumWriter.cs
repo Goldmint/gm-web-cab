@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
-	public sealed class InfuraWriter : InfuraBaseClient, IEthereumWriter {
+	public sealed class EthereumWriter : EthereumBaseClient, IEthereumWriter {
 
 		private readonly Nethereum.Web3.Accounts.Account _gmAccount;
 		private readonly HexBigInteger _defaultGas;
 
-		public InfuraWriter(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
+		public EthereumWriter(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 
-			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Infura.RootAccountPrivateKey);
+			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.RootAccountPrivateKey);
 			
 			// uses semaphore inside:
 			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, JsonRpcClient);
 
-			_defaultGas = new HexBigInteger(new BigInteger(appConfig.Services.Infura.DefaultGasPriceWei));
+			_defaultGas = new HexBigInteger(new BigInteger(appConfig.Services.Ethereum.DefaultGasPriceWei));
 		}
 
 		// ---

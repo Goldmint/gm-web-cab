@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
-	public abstract class InfuraBaseClient {
+	public abstract class EthereumBaseClient {
 
 		protected ILogger Logger { get; private set; }
 
@@ -19,13 +19,13 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		// ---
 
-		public InfuraBaseClient(AppConfig appConfig, LogFactory logFactory) {
+		public EthereumBaseClient(AppConfig appConfig, LogFactory logFactory) {
 			Logger = logFactory.GetLoggerFor(this);
 
-			FiatContractAddress = appConfig.Services.Infura.FiatContractAddress;
-			FiatContractABI = appConfig.Services.Infura.FiatContractAbi;
+			FiatContractAddress = appConfig.Services.Ethereum.FiatContractAddress;
+			FiatContractABI = appConfig.Services.Ethereum.FiatContractAbi;
 
-			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Infura.EthereumNetUrl));
+			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
 
 			// obtain additional info from contract
 			Task.Run(async () => {
