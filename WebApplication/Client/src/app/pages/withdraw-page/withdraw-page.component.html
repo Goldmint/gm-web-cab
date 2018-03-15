@@ -81,6 +81,14 @@
           <!-- WITHDRAWAL METHODS -->
           <ng-container *ngIf="tfaInfo.enabled">
             <div class="row">
+              <div class="col form-group text-center" *ngIf="false">
+                <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
+                <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCapital)">
+                  <svg class="icon" width="56px" height="56px">
+                    <use xlink:href="#payment-crypto"></use>
+                  </svg>
+                </button>
+              </div>
               <div class="col form-group text-center">
                 <label for="btnPaymentCard">{{ "PAGES.Withdraw.Method.Card" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
@@ -202,6 +210,68 @@
     </div>
   </section>
 
+</ng-container>
+
+<ng-container *ngIf="false">
+  <section class="page__section section">
+    <h2 class="section__title">{{ "PAGES.Withdraw.CryptoCapital.Heading" | translate }}</h2>
+
+    <div class="btn-group mt-4">
+      <label class="btn btn-primary btn-sm"
+             [ngClass]="{'active': currentCoin === coinList[0]}"
+             (click)="chooseCurrentCoin(coinList[0])">BTC</label>
+      <label class="btn btn-primary btn-sm"
+             [ngClass]="{'active': currentCoin === coinList[1]}"
+             (click)="chooseCurrentCoin(coinList[1])">Eth</label>
+    </div>
+
+    <div class="pt-4">
+      <form action="#">
+        <div class="row align-items-start">
+          <div class="col-12 pb-4">
+            <div class="from-row form-group">
+              <label for="input_btc">{{ "PAGES.Withdraw.CryptoCapital.Labels.Amount" | translate }}</label>
+              <div class="d-flex align-items-center">
+                <div class="form-currency">
+                  <svg class="icon" width="30" height="30">
+                    <use xlink:href="#cur-usd"></use>
+                  </svg>
+                </div>
+                <input type="number" class="form-control" name="input_btc" id="input_btc"
+                       min="0" step="0.1"
+                       [(ngModel)]="coinAmount"
+                       [ngClass]="{'is-invalid': false}"
+                >
+              </div>
+              <div class="invalid-feedback" *ngIf="false">
+                {{ "PAGES.Withdraw.CryptoCapital.Errors.Invalid" | translate }}
+              </div>
+            </div>
+          </div>
+          <div class="col-12 pb-4">
+            <div class="from-row form-group ">
+              <label for="input_BtcEstimateAmount">{{ "PAGES.Withdraw.CryptoCapital.Labels.EstimatesAmount" | translate }}</label>
+              <div class="d-flex align-items-center">
+                <div class="form-currency">
+                  <svg class="icon" width="30" height="30">
+                    <use xlink:href="#bitcoin" *ngIf="currentCoin === coinList[0]"></use>
+                    <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
+                  </svg>
+                </div>
+                <input type="text" class="form-control" id="input_BtcEstimateAmount" name="estimates-amount" readonly [value]="estimatedAmount | number:'1.2-2':locale">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <button type="submit" class="btn btn-primary">{{ "BUTTONS.Withdraw" | translate }}</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+  </section>
 </ng-container>
 
 <ng-container *ngIf="page === pages.CardsList">

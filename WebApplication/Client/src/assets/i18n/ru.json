@@ -150,6 +150,7 @@
       "Heading": "Deposit",
       "SectionTitle": "Выберите способ пополнения",
       "Method": {
+        "CryptoCapital": "Crypto Capital",
         "Card": "Платёжная карта",
         "Transfer": "Банковский перевод"
       },
@@ -163,6 +164,15 @@
         "Available": "Доступно для оплаты",
         "Limit": "Лимит",
         "Increase": "Увеличить"
+      },
+      "CryptoCapital": {
+        "Heading": "Crypto Capital",
+        "Labels": {
+          "EstimatesAmount": "Оценочное количество"
+        },
+        "Errors": {
+          "Invalid": "Недопустимое количество"
+        }
       },
       "PaymentCard": {
         "Labels": {
@@ -236,6 +246,7 @@
         "Button": "Включить 2FA"
       },
       "Method": {
+        "CryptoCapital": "Crypto Capital",
         "Card": "Платёжная карта",
         "Transfer": "Банковский перевод"
       },
@@ -248,6 +259,16 @@
         "Available": "Доступно для оплаты",
         "Limit": "Лимит",
         "Increase": "Увеличить"
+      },
+      "CryptoCapital": {
+        "Heading": "Crypto Capital",
+        "Labels": {
+          "Amount": "Количество",
+          "EstimatesAmount": "Оценочное количество"
+        },
+        "Errors": {
+          "Invalid": "Недопустимое количество"
+        }
       },
       "PaymentCard": {
         "Labels": {
@@ -715,6 +736,7 @@
           "KeyLabel": "Секретный ключ:",
           "CodeLabel": "Код аутентификатора",
           "CodeHelpText": "Введите 6-значный код аутентификатора",
+          "DisableWarning": "Если вы хотите отключить 2FA, введите пароль своего аккаунта и шестизначный код, указанный в приложении Google Authenticator, а затем нажмите «Отключить 2FA». Ваш аккаунта будет небезопасным и может быть легко взломан.",
           "Steps": {
             "One": "1. Сохраните секретный ключ",
             "Two": "2. Установите приложение",
@@ -834,7 +856,9 @@
     "Back": "Назад",
     "Next": "Далее",
     "BackToCard": "Вернуться к списку карт",
-    "GoToCard": "Перейти к списку карт"
+    "GoToCard": "Перейти к списку карт",
+    "Deposit": "Пополнить",
+    "Withdraw": "Вывести"
   },
   "ERRORS": {
     "Registration": {
