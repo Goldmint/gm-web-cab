@@ -83,6 +83,7 @@ namespace Goldmint.WebApplication {
 			app.UseExceptionHandler(builder => {
 				builder.Run(async context => {
 					var error = context.Features.Get<IExceptionHandlerFeature>();
+					context.RequestServices?.GetService<LogFactory>()?.GetLogger(this.GetType().FullName)?.Error(error?.Error ?? new Exception("No extra data"), "Service failure");
 					var resp = APIResponse.GeneralInternalFailure(error?.Error, !_environment.IsProduction());
 					await resp.WriteResponse(context).ConfigureAwait(false);
 				});

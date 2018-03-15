@@ -106,6 +106,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
 			await DbContext.SaveChangesAsync();
 
+			// load user's options
+			await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
+
 			// send dpa
 			await Core.UserAccount.ResendUserDpaDocument(
 				locale: userLocale,
