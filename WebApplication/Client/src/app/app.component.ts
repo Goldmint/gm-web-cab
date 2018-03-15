@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, ViewEncapsulation, isDevMode } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { UserService } from "./services";
+import {APIService, UserService} from "./services";
 
 @Component({
   selector: 'app-root',
@@ -13,7 +12,19 @@ export class AppComponent {
 
   constructor(
     private _userService: UserService,
-    private _translateService: TranslateService) {
+    private _apiService: APIService
+  ) {
+    let queryParams: any = {};
+    let regexp = /[?&]([\w-]+)=([^?&]*)/g;
+    for (let matches; (matches = regexp.exec(window.location.search)) !== null; queryParams[matches[1]] = matches[2]);
+
+    this._userService.currentUser.subscribe(data => {
+      if (data.id && queryParams.zendeskAuth && queryParams.return_to) {
+        this._apiService.getZendeskTokenSSO().subscribe(token => {
+          window.location.replace(`https://goldmint.zendesk.com/access/jwt?jwt=${token.data.jwt}&return_to=${ queryParams.return_to }`);
+        });
+      }
+    });
   }
 
   ngOnInit() {

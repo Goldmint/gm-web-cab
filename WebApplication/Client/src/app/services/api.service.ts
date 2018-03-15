@@ -173,6 +173,15 @@ export class APIService {
     );
   }
 
+  getZendeskTokenSSO() {
+    return this._http
+      .get(`${this._baseUrl}/user/zendesk/sso`, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
   getLimits(): Observable<APIResponse<FiatLimits>> {
     return this._http
       .get(`${this._baseUrl}/user/limits`, this.jwt())

@@ -77,15 +77,29 @@
 
           <ng-template let-type="value" ngx-datatable-cell-template let-row="row">
             <div class="d-flex">
-              <img *ngIf="row.status === 1" alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif">
+              <span class="history-icon-container" *ngIf="row.status === 1">
+                <img alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif">
+              </span>
 
-              <span *ngIf="row.status === 2">
-                <svg class="icon-ok" width="17" height="15">
-                  <use xlink:href="#ok"></use>
+              <span class="history-icon-container" *ngIf="row.status !== 1 && row.status !== 3" [ngSwitch]="type.toLowerCase()">
+                <svg width="27" height="18" *ngSwitchCase="'deposit'">
+                  <use xlink:href="#withdraw-history"></use>
+                </svg>
+                <svg width="27" height="18" *ngSwitchCase="'withdraw'">
+                  <use xlink:href="#deposit-history"></use>
+                </svg>
+                <svg width="20" height="20" *ngSwitchCase="'hwtransfer'">
+                  <use xlink:href="#hwtransfer-history"></use>
+                </svg>
+                <svg width="20" height="20" *ngSwitchCase="'goldsell'">
+                  <use xlink:href="#goldsell-history"></use>
+                </svg>
+                <svg width="20" height="20" *ngSwitchCase="'goldbuy'">
+                  <use xlink:href="#goldbuy-history"></use>
                 </svg>
               </span>
 
-              <span *ngIf="row.status === 3">
+              <span class="history-icon-container" *ngIf="row.status === 3">
                 <svg class="icon-nok" width="17" height="15">
                   <use xlink:href="#nok"></use>
                 </svg>
