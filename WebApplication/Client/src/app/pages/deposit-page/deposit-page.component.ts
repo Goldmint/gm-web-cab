@@ -16,7 +16,7 @@ import { UserService } from "../../services/user.service";
 import { Observable } from "rxjs/Observable";
 import {TranslateService} from "@ngx-translate/core";
 
-enum Pages { Default, CardsList, BankTransfer, CardsListSuccess }
+enum Pages { Default, CardsList, BankTransfer, CardsListSuccess, CryptoCapital }
 enum BankTransferSteps { Default, Form, PaymentDetails }
 
 @Component({
@@ -56,6 +56,10 @@ export class DepositPageComponent implements OnInit {
 
   public minAmount: number;
   public maxAmount: number;
+
+  public coinAmount;
+  public coinList = ['btc', 'eth']
+  private currentCoin = this.coinList[1];
 
   constructor(
     private _apiService: APIService,
@@ -114,6 +118,10 @@ export class DepositPageComponent implements OnInit {
         this.nextStep(BankTransferSteps.Default);
         break;
 
+      case Pages.CryptoCapital:
+        this.page = page;
+        break;
+
       default:
         // code...
         break;
@@ -140,6 +148,12 @@ export class DepositPageComponent implements OnInit {
       default:
         // code...
         break;
+    }
+  }
+
+  chooseCurrentCoin(coin) {
+    if (this.currentCoin !== coin) {
+      this.currentCoin = coin;
     }
   }
 

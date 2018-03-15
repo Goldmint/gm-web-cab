@@ -150,6 +150,7 @@
       "Heading": "Deposit",
       "SectionTitle": "Choose deposit payment method",
       "Method": {
+        "CryptoCapital": "Crypto Capital",
         "Card": "Payment card",
         "Transfer": "Bank transfer"
       },
@@ -163,6 +164,15 @@
         "Available": "Available for payment",
         "Limit": "Limit",
         "Increase": "Increase"
+      },
+      "CryptoCapital": {
+        "Heading": "Crypto Capital",
+        "Labels": {
+          "EstimatesAmount": "Estimates Amount"
+        },
+        "Errors": {
+          "Invalid": "Invalid amount"
+        }
       },
       "PaymentCard": {
         "Labels": {
@@ -236,6 +246,7 @@
         "Button": "Enable 2FA"
       },
       "Method": {
+        "CryptoCapital": "Crypto Capital",
         "Card": "Payment card",
         "Transfer": "Bank transfer"
       },
@@ -248,6 +259,16 @@
         "Available": "Available for payment",
         "Limit": "Limit",
         "Increase": "Increase"
+      },
+      "CryptoCapital": {
+        "Heading": "Crypto Capital",
+        "Labels": {
+          "Amount": "Amount",
+          "EstimatesAmount": "Estimates Amount"
+        },
+        "Errors": {
+          "Invalid": "Invalid amount"
+        }
       },
       "PaymentCard": {
         "Labels": {
@@ -835,7 +856,9 @@
     "Back": "Back",
     "Next": "Next",
     "BackToCard": "Back to Cards list",
-    "GoToCard": "Go to Cards list"
+    "GoToCard": "Go to Cards list",
+    "Deposit": "Deposit",
+    "Withdraw": "Withdraw"
   },
   "ERRORS": {
     "Registration": {

@@ -10,7 +10,7 @@ import { UserService } from "../../services/user.service";
 import { User } from "../../interfaces/user";
 import {TranslateService} from "@ngx-translate/core";
 
-enum Pages { Default, CardsList, CardsListSuccess, BankTransfer }
+enum Pages { Default, CardsList, CardsListSuccess, BankTransfer, CryptoCapital }
 
 @Component({
   selector: 'app-withdraw-page',
@@ -44,6 +44,10 @@ export class WithdrawPageComponent implements OnInit {
   public minAmount: number;
   public maxAmount: number;
   public showAddAcountBlock = false;
+
+  public coinAmount;
+  public coinList = ['btc', 'eth']
+  private currentCoin = this.coinList[1];
 
   constructor(
     private _apiService: APIService,
@@ -95,12 +99,22 @@ export class WithdrawPageComponent implements OnInit {
         this.page = page;
         break;
 
+      case Pages.CryptoCapital:
+        this.page = page;
+        break;
+
       default:
         // code...
         break;
     }
 
     this._cdRef.detectChanges();
+  }
+
+  chooseCurrentCoin(coin) {
+    if (this.currentCoin !== coin) {
+      this.currentCoin = coin;
+    }
   }
 
   submit() {
