@@ -35,6 +35,7 @@ namespace Goldmint.WebApplication {
 					.SetBasePath(cfgDir)
 					.AddJsonFile("appsettings.json", optional: false)
 					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", optional: false)
+					.AddJsonFile("appsettings.Private.json", optional: true)
 					.Build()
 				;
 				
@@ -115,7 +116,7 @@ namespace Goldmint.WebApplication {
 				app.UseSwagger(opts => {
 				});
 				app.UseSwaggerUI(opts => {
-					opts.SwaggerEndpoint("/swagger/api/swagger.json", "API");
+					opts.SwaggerEndpoint("/" + ((_appConfig.AppRoutes.Path).Trim('/') + "/swagger/api/swagger.json").Trim('/'), "API");
 				});
 			}
 
