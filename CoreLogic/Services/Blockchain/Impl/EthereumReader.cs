@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
-	public class InfuraReader : InfuraBaseClient, IEthereumReader {
+	public class EthereumReader : EthereumBaseClient, IEthereumReader {
 
 		private const int TransactionMinConfirmationsCount = 2;
 
-		public InfuraReader(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
+		public EthereumReader(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 		}
 
 		public async Task<EthTransactionStatus> CheckTransaction(string transactionId) {

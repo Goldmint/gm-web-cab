@@ -72,7 +72,7 @@ namespace Goldmint.QueueService {
 			services.AddSingleton<INotificationQueue, DBNotificationQueue>();
 
 			// blockchain reader
-			services.AddSingleton<IEthereumReader, InfuraReader>();
+			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// ---
 
@@ -98,7 +98,7 @@ namespace Goldmint.QueueService {
 			if (Mode.HasFlag(WorkingMode.Service)) {
 
 				// blockchain writer
-				services.AddSingleton<IEthereumWriter, InfuraWriter>();
+				services.AddSingleton<IEthereumWriter, EthereumWriter>();
 
 				// rates (could be added in section above)
 				if (services.Count(x => x.ServiceType == typeof(IGoldRateProvider)) == 0) {

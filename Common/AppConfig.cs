@@ -97,10 +97,10 @@ namespace Goldmint.Common {
 				public string Gateway { get; set; } = "";
 			}
 
-			public InfuraSection Infura { get; set; } = new InfuraSection();
-			public class InfuraSection {
+			public EthereumSection Ethereum { get; set; } = new EthereumSection();
+			public class EthereumSection {
 
-				public string EthereumNetUrl { get; set; } = "";
+				public string Provider { get; set; } = "";
 				public long DefaultGasPriceWei { get; set; } = 0;
 				public string RootAccountPrivateKey { get; set; } = "";
 				public string FiatContractAddress { get; set; } = "";
