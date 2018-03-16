@@ -21,9 +21,7 @@
     "Menu": {
       "About": "О нас",
       "Transparency": "Прозрачность",
-      "Terms": "Условия использования",
-      "Privacy": "Конфиденциальность",
-      "KYCPolicy": "KYC политика",
+      "LegalSecurity": "Легальность и безопасность",
       "HelpCenter": "Помощь"
     },
     "Copyright": "ООО GoldMint © {{year}}"
@@ -833,6 +831,15 @@
           "Document": "Документ",
           "Comment": "Комментарий"
         }
+      }
+    },
+    "LegalSecurity": {
+      "Heading": "Легальность и безопасность",
+      "Label": "1. Документы",
+      "Links": {
+        "Terms": "Условия использования",
+        "Privacy": "Конфиденциальность",
+        "KYCPolicy": "KYC политика"
       }
     },
     "ErrorPage": {

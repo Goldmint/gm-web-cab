@@ -5,7 +5,7 @@
 	"TFACodeInvalid": "Invalid code"
   },
   "HEADER": {
-    "Wallet": "Wallet:",
+    "Wallet": "Wallet",
     "SignIn": "Sign in",
     "SignUp": "Sign up",
     "SignOut": "Sign out",
@@ -21,9 +21,7 @@
     "Menu": {
       "About": "About",
       "Transparency": "Transparency",
-      "Terms": "Terms of use",
-      "Privacy": "Privacy policy",
-      "KYCPolicy": "KYC Policy",
+      "LegalSecurity": "Legal & Security",
       "HelpCenter": "Help Center"
     },
     "Copyright": "GoldMint, PTE, LTD © {{year}}"
@@ -833,6 +831,15 @@
           "Document": "Document",
           "Comment": "Comment"
         }
+      }
+    },
+    "LegalSecurity": {
+      "Heading": "Legal & Security",
+      "Label": "1. Documents",
+      "Links": {
+        "Terms": "Terms of use",
+        "Privacy": "Privacy policy",
+        "KYCPolicy": "KYC Policy"
       }
     },
     "ErrorPage": {
