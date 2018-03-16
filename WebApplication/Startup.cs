@@ -35,6 +35,7 @@ namespace Goldmint.WebApplication {
 					.SetBasePath(cfgDir)
 					.AddJsonFile("appsettings.json", optional: false)
 					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", optional: false)
+					.AddJsonFile("appsettings.Private.json", optional: true)
 					.Build()
 				;
 				
@@ -82,6 +83,7 @@ namespace Goldmint.WebApplication {
 			app.UseExceptionHandler(builder => {
 				builder.Run(async context => {
 					var error = context.Features.Get<IExceptionHandlerFeature>();
+					context.RequestServices?.GetService<LogFactory>()?.GetLogger(this.GetType().FullName)?.Error(error?.Error ?? new Exception("No extra data"), "Service failure");
 					var resp = APIResponse.GeneralInternalFailure(error?.Error, !_environment.IsProduction());
 					await resp.WriteResponse(context).ConfigureAwait(false);
 				});
@@ -115,7 +117,7 @@ namespace Goldmint.WebApplication {
 				app.UseSwagger(opts => {
 				});
 				app.UseSwaggerUI(opts => {
-					opts.SwaggerEndpoint("/swagger/api/swagger.json", "API");
+					opts.SwaggerEndpoint("/" + ((_appConfig.AppRoutes.Path).Trim('/') + "/swagger/api/swagger.json").Trim('/'), "API");
 				});
 			}
 

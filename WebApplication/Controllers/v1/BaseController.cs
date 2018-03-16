@@ -97,9 +97,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				HttpContext.Request.Host.Host,
 				HttpContext.Request.Host.Port ?? 443
 			);
-			if (path != null) {
-				uri.Path = path;
-			}
+
+			uri.Path = "/" + ((AppConfig.AppRoutes.Path ?? "").Trim('/') + "/" + (path ?? "").Trim('/')).Trim('/') + "/";
+			
 			if (query != null) {
 				uri.Query = query;
 			}
