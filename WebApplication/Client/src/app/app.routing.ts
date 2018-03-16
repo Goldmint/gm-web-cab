@@ -35,6 +35,7 @@ import { SettingsActivityPageComponent } from './pages/settings-page/settings-ac
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { StaticPagesComponent } from "./pages/static-pages/static-pages.component";
 import { LegalSecurityPageComponent } from "./pages/legal-security-page/legal-security-page.component";
+import {SettingsFeesPageComponent} from "./pages/settings-page/settings-fees-page/settings-fees-page.component";
 
 
 const appRoutes: Routes = [
@@ -77,7 +78,8 @@ const appRoutes: Routes = [
       { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
-      { path: 'limits', component: LimitsPageComponent }
+      { path: 'limits', component: LimitsPageComponent },
+      { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
   { path: 'transparency', component: TransparencyPageComponent },

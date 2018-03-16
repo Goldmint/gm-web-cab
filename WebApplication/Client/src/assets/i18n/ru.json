@@ -510,7 +510,8 @@
         "Cards": "Карты",
         "SocialNetworks": "Социальные сети",
         "AccountActivity": "Активность аккаунта",
-        "AccountLimits": "Лимиты аккаунта"
+        "AccountLimits": "Лимиты аккаунта",
+        "Fees": "Комиссия вывода/пополнения"
       },
       "Profile": {
         "UserIdSection": {
@@ -813,6 +814,28 @@
             "CryptoCapital": "Crypto капитал",
             "Commission": "Комиссия",
             "NoCommission": "Без комиссии"
+          }
+        }
+      },
+      "Fees": {
+        "Heading": "Комиссия вывода/пополнения",
+        "CurrencyType": {
+          "Fiat": "Фиатные средства",
+          "Crypto": "Криптовалюта"
+        },
+        "Table": {
+          "Head": {
+            "Currency": "Валюта",
+            "PaymentMethod": "Способ оплаты",
+            "Deposit": "Пополнение",
+            "Withdrawal": "Вывод"
+          },
+          "Method": {
+            "VISA": "VISA",
+            "MasterCard": "MasterCard",
+            "BankTransfer": "Банковски перевод",
+            "Card": "Карта",
+            "SEPA": "SEPA"
           }
         }
       }

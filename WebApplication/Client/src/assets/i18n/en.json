@@ -164,7 +164,7 @@
         "Increase": "Increase"
       },
       "CryptoCapital": {
-        "Heading": "Crypto Capital",
+        "Heading": "Crypto currency",
         "Labels": {
           "EstimatesAmount": "Estimates Amount"
         },
@@ -259,7 +259,7 @@
         "Increase": "Increase"
       },
       "CryptoCapital": {
-        "Heading": "Crypto Capital",
+        "Heading": "Crypto currency",
         "Labels": {
           "Amount": "Amount",
           "EstimatesAmount": "Estimates Amount"
@@ -510,7 +510,8 @@
         "Cards": "Cards",
         "SocialNetworks": "Social Networks",
         "AccountActivity": "Account Activity",
-        "AccountLimits": "Account Limits"
+        "AccountLimits": "Account Limits",
+        "Fees": "Withdraw/Deposit Fees"
       },
       "Profile": {
         "UserIdSection": {
@@ -813,6 +814,28 @@
             "CryptoCapital": "Crypto capital",
             "Commission": "Commission",
             "NoCommission": "No commission"
+          }
+        }
+      },
+      "Fees": {
+        "Heading": "Withdraw/Deposit Fees",
+        "CurrencyType": {
+          "Fiat": "Fiat money",
+          "Crypto": "Cryptocurrency"
+        },
+        "Table": {
+          "Head": {
+            "Currency": "Currency",
+            "PaymentMethod": "Payment method",
+            "Deposit": "Deposit",
+            "Withdrawal": "Withdrawal"
+          },
+          "Method": {
+            "VISA": "VISA",
+            "MasterCard": "MasterCard",
+            "BankTransfer": "Bank Transfer",
+            "Card": "Card",
+            "SEPA": "SEPA"
           }
         }
       }
