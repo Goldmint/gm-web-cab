@@ -148,7 +148,7 @@
       "Heading": "Deposit",
       "SectionTitle": "Выберите способ пополнения",
       "Method": {
-        "CryptoCapital": "Crypto Capital",
+        "CryptoCapital": "Криптовалюта",
         "Card": "Платёжная карта",
         "Transfer": "Банковский перевод"
       },
@@ -164,7 +164,7 @@
         "Increase": "Увеличить"
       },
       "CryptoCapital": {
-        "Heading": "Crypto Capital",
+        "Heading": "Криптовалюта",
         "Labels": {
           "EstimatesAmount": "Оценочное количество"
         },
@@ -244,7 +244,7 @@
         "Button": "Включить 2FA"
       },
       "Method": {
-        "CryptoCapital": "Crypto Capital",
+        "CryptoCapital": "Криптовалюта",
         "Card": "Платёжная карта",
         "Transfer": "Банковский перевод"
       },
@@ -259,7 +259,7 @@
         "Increase": "Увеличить"
       },
       "CryptoCapital": {
-        "Heading": "Crypto Capital",
+        "Heading": "Криптовалюта",
         "Labels": {
           "Amount": "Количество",
           "EstimatesAmount": "Оценочное количество"
@@ -811,7 +811,7 @@
           "Labels": {
             "PaymentCard": "Платежная карта",
             "BankTransfer": "Банковский перевод",
-            "CryptoCapital": "Crypto капитал",
+            "CryptoCapital": "Криптовалюта",
             "Commission": "Комиссия",
             "NoCommission": "Без комиссии"
           }

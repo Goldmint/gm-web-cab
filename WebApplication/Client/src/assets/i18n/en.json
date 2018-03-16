@@ -148,7 +148,7 @@
       "Heading": "Deposit",
       "SectionTitle": "Choose deposit payment method",
       "Method": {
-        "CryptoCapital": "Crypto Capital",
+        "CryptoCapital": "Cryptocurrency",
         "Card": "Payment card",
         "Transfer": "Bank transfer"
       },
@@ -164,7 +164,7 @@
         "Increase": "Increase"
       },
       "CryptoCapital": {
-        "Heading": "Crypto currency",
+        "Heading": "Cryptocurrency",
         "Labels": {
           "EstimatesAmount": "Estimates Amount"
         },
@@ -244,7 +244,7 @@
         "Button": "Enable 2FA"
       },
       "Method": {
-        "CryptoCapital": "Crypto Capital",
+        "CryptoCapital": "Cryptocurrency",
         "Card": "Payment card",
         "Transfer": "Bank transfer"
       },
@@ -259,7 +259,7 @@
         "Increase": "Increase"
       },
       "CryptoCapital": {
-        "Heading": "Crypto currency",
+        "Heading": "Cryptocurrency",
         "Labels": {
           "Amount": "Amount",
           "EstimatesAmount": "Estimates Amount"
@@ -811,7 +811,7 @@
           "Labels": {
             "PaymentCard": "Payment card",
             "BankTransfer": "Bank transfer",
-            "CryptoCapital": "Crypto capital",
+            "CryptoCapital": "Cryptocurrency",
             "Commission": "Commission",
             "NoCommission": "No commission"
           }
