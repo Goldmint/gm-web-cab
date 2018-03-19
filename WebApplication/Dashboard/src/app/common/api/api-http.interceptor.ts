@@ -29,8 +29,11 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return Observable.throw('ohO_offline');
     }
     else {
-      return next.handle(req)
-        .catch((error, caught) => {
+      return next.handle(req.clone({
+        setHeaders: {
+          'GM-LOCALE': localStorage.getItem('gmint_language')
+        }
+      })).catch((error, caught) => {
           if (error.status === 404) {
             this._messageBox.alert('Goldmint server does not respond. Please try again in few minutes.', 'Connection error');
           }

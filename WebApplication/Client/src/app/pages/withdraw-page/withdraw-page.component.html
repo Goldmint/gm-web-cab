@@ -80,7 +80,7 @@
 
           <!-- WITHDRAWAL METHODS -->
           <ng-container *ngIf="tfaInfo.enabled">
-            <div class="row">
+            <div class="row align-items-end mb-4">
               <div class="col form-group text-center">
                 <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCapital)">
