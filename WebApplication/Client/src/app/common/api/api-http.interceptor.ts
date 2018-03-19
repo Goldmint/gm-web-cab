@@ -36,7 +36,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
     else {
       return next.handle(req.clone({
         setHeaders: {
-          'GM-LOCALE': localStorage.getItem('gmint_language')
+          'GM-LOCALE': localStorage.getItem('gmint_language') || ''
         }
       })).catch((error, caught) => {
           let translateKey  = null,
