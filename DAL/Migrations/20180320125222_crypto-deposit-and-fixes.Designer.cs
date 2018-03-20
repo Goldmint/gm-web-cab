@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180320125222_crypto-deposit-and-fixes")]
+    partial class cryptodepositandfixes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -426,9 +427,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<DateTime>("TimeCreated")
                         .HasColumnName("time_created");
-
-                    b.Property<DateTime?>("TimeExpires")
-                        .HasColumnName("time_expires");
 
                     b.Property<int>("Type")
                         .HasColumnName("type");

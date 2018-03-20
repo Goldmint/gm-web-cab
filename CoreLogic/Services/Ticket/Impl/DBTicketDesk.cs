@@ -82,13 +82,13 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 		}
 
 
-		public async Task<string> NewCryptoDeposit(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, string amount) {
-			return await CreateTicket(user.Id, $"New {origin.ToString()}-deposit #? received from {TextFormatter.MaskBlockchainAddress(address)} of {amount}");
+		public async Task<string> NewCryptoDeposit(DAL.Models.Identity.User user, CryptoDepositOrigin origin, string address, FiatCurrency currency, long tokenRate) {
+			return await CreateTicket(user.Id, $"New {origin.ToString()}-deposit #? requested from {TextFormatter.MaskBlockchainAddress(address)} at rate {TextFormatter.FormatAmount(tokenRate, currency)} per token");
 		}
 
-		public async Task<string> NewCryptoWithdraw(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, FiatCurrency currency, long amount) {
+		/*public async Task<string> NewCryptoWithdraw(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, FiatCurrency currency, long amount) {
 			return await CreateTicket(user.Id, $"New {origin.ToString()}-witdraw #? to {TextFormatter.MaskBlockchainAddress(address)} started with {TextFormatter.FormatAmount(amount, currency)}");
-		}
+		}*/
 
 
 		public async Task<string> NewGoldBuying(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents) {

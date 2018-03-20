@@ -182,8 +182,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// </summary>
 		public static async Task<bool> PrepareEthBuyingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
 
-			long payloadId = 0;
-			if (!long.TryParse(payload, out payloadId) || payloadId <= 0) {
+			if (!long.TryParse(payload, out var payloadId) || payloadId <= 0) {
 				return false;
 			}
 
@@ -203,7 +202,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					r.Type == GoldExchangeRequestType.EthRequest &&
 					r.Id == payloadId &&
 					r.UserId == userId &&
-					r.Status == GoldExchangeRequestStatus.Initial &&
+					r.Status == GoldExchangeRequestStatus.Confirmed &&
 					r.Address == address
 				select r
 			;
@@ -228,7 +227,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 
 					try {
-						request.Status = GoldExchangeRequestStatus.Processing;
+						request.Status = GoldExchangeRequestStatus.Prepared;
 						request.TimeRequested = DateTime.UtcNow;
 						request.TimeNextCheck = DateTime.UtcNow;
 						request.RequestIndex = requestIndex.ToString();
@@ -276,7 +275,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					r.Type == GoldExchangeRequestType.EthRequest &&
 					r.Id == payloadId &&
 					r.UserId == userId &&
-					r.Status == GoldExchangeRequestStatus.Initial &&
+					r.Status == GoldExchangeRequestStatus.Confirmed &&
 					r.Address == address
 				select r
 			;
@@ -301,7 +300,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					}
 
 					try {
-						request.Status = GoldExchangeRequestStatus.Processing;
+						request.Status = GoldExchangeRequestStatus.Prepared;
 						request.TimeRequested = DateTime.UtcNow;
 						request.TimeNextCheck = DateTime.UtcNow;
 						request.RequestIndex = requestIndex.ToString();
@@ -349,7 +348,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						where
 							r.Type == GoldExchangeRequestType.EthRequest &&
 							r.Id == requestId &&
-							(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
+							(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.RefFinancialHistory)
@@ -369,7 +368,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeRequested ?? request.TimeCreated, TimeSpan.FromSeconds(10), 4);
 
 						// initiate blockchain transaction
-						if (request.Status == GoldExchangeRequestStatus.Processing) {
+						if (request.Status == GoldExchangeRequestStatus.Prepared) {
 
 							// update status to prevent double spending
 							request.Status = GoldExchangeRequestStatus.BlockchainInit;
@@ -444,7 +443,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
@@ -499,7 +498,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						where
 						r.Id == requestId &&
 						r.Type == GoldExchangeRequestType.EthRequest &&
-						(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
+						(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.RefFinancialHistory)
@@ -519,7 +518,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeRequested ?? request.TimeCreated, TimeSpan.FromSeconds(10), 4);
 
 						// initiate blockchain transaction
-						if (request.Status == GoldExchangeRequestStatus.Processing) {
+						if (request.Status == GoldExchangeRequestStatus.Prepared) {
 
 							// update status to prevent double spending
 							request.Status = GoldExchangeRequestStatus.BlockchainInit;
@@ -595,7 +594,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
@@ -652,7 +651,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						where
 							r.Type == GoldExchangeRequestType.HWRequest &&
 							r.Id == requestId &&
-							(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
+							(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.User)
@@ -671,7 +670,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeRequested ?? request.TimeCreated, TimeSpan.FromSeconds(10), 4);
 
 						// initiate blockchain transaction
-						if (request.Status == GoldExchangeRequestStatus.Processing) {
+						if (request.Status == GoldExchangeRequestStatus.Prepared) {
 
 							// update status to prevent double spending
 							request.Status = GoldExchangeRequestStatus.BlockchainInit;
@@ -744,7 +743,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
@@ -797,9 +796,9 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 					var request = await (
 						from r in dbContext.SellRequest
 						where
-						r.Id == requestId &&
-						r.Type == GoldExchangeRequestType.HWRequest &&
-						(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
+							r.Id == requestId &&
+							r.Type == GoldExchangeRequestType.HWRequest &&
+							(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.User)
@@ -818,7 +817,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeRequested ?? request.TimeCreated, TimeSpan.FromSeconds(10), 4);
 
 						// initiate blockchain transaction
-						if (request.Status == GoldExchangeRequestStatus.Processing) {
+						if (request.Status == GoldExchangeRequestStatus.Prepared) {
 
 							// update status to prevent double spending
 							request.Status = GoldExchangeRequestStatus.BlockchainInit;
@@ -892,7 +891,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
@@ -946,7 +945,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						from r in dbContext.TransferRequest
 						where
 							r.Id == requestId &&
-							(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
+							(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.User)
@@ -965,7 +964,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeCreated, TimeSpan.FromSeconds(10), 4);
 
 						// initiate blockchain transaction
-						if (request.Status == GoldExchangeRequestStatus.Processing) {
+						if (request.Status == GoldExchangeRequestStatus.Prepared) {
 
 							// update status to prevent double spending
 							request.Status = GoldExchangeRequestStatus.BlockchainInit;
@@ -1030,7 +1029,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();

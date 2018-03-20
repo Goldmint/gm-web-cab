@@ -1,4 +1,5 @@
-﻿using Goldmint.Common;
+﻿using System.Collections.Generic;
+using Goldmint.Common;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -47,5 +48,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// </summary>
 		/// <returns>Request data and status</returns>
 		Task<ExchangeRequestData> GetExchangeRequestByIndex(BigInteger requestIndex);
+
+		/// <summary>
+		/// Get EthDeposited event in a range of blocks
+		/// </summary>
+		/// <returns>Events</returns>
+		Task<List<EthDepositedEventData>> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 	}
 }

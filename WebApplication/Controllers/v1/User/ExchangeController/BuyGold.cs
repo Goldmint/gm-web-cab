@@ -64,17 +64,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
 			}
 
+			var expiresIn = TimeSpan.FromSeconds(AppConfig.Constants.TimeLimits.BuySellRequestExpireSec);
 			var ticket = await TicketDesk.NewGoldBuying(user, model.EthAddress, currency, amountCents, goldRate, mntpBalance, estimated.ResultGold, estimated.ResultFeeCents);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
+				Status = FinancialHistoryStatus.Unconfirmed,
 				Type = FinancialHistoryType.GoldBuy,
 				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
 				DeskTicketId = ticket,
-				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
-				User = user,
+				TimeExpires = DateTime.UtcNow.Add(expiresIn),
+				UserId = user.Id,
 				Comment = "" // see below
 			};
 
@@ -84,9 +86,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// request
 			var buyRequest = new BuyRequest() {
-				User = user,
+				Status = GoldExchangeRequestStatus.Unconfirmed,
 				Type = GoldExchangeRequestType.EthRequest,
-				Status = GoldExchangeRequestStatus.Initial,
 				Currency = currency,
 				FiatAmountCents = estimated.InputUsed,
 				Address = model.EthAddress,
@@ -94,7 +95,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow,
+
 				RefFinancialHistoryId = finHistory.Id,
+				UserId = user.Id,
 			};
 
 			// add and save
@@ -120,6 +123,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					GoldAmount = estimated.ResultGold.ToString(),
 					GoldRate = goldRate / 100d,
 					Payload = new[] { user.UserName, buyRequest.Id.ToString() },
+					RequestId = buyRequest.Id,
+					ExpiresIn = (long)expiresIn.TotalSeconds,
 				}
 			);
 		}
@@ -130,7 +135,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/hw/buy")]
 		[ProducesResponseType(typeof(HWBuyRequestView), 200)]
-		public async Task<APIResponse> HWBuyRequest([FromBody] HWBuyRequestModel model) {
+		public async Task<APIResponse> HwBuyRequest([FromBody] HWBuyRequestModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -184,13 +189,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
+				Status = FinancialHistoryStatus.Unconfirmed,
 				Type = FinancialHistoryType.GoldBuy,
 				AmountCents = estimated.InputUsed,
 				FeeCents = estimated.ResultFeeCents,
 				DeskTicketId = ticket,
-				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
-				User = user,
+				UserId = user.Id,
 				Comment = "" // see below
 			};
 
@@ -200,9 +205,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// request
 			var buyRequest = new BuyRequest() {
-				User = user,
+				Status = GoldExchangeRequestStatus.Unconfirmed,
 				Type = GoldExchangeRequestType.HWRequest,
-				Status = GoldExchangeRequestStatus.Initial,
 				Currency = currency,
 				FiatAmountCents = estimated.InputUsed,
 				Address = "HW",
@@ -210,7 +214,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow,
+
 				RefFinancialHistoryId = finHistory.Id,
+				UserId = user.Id,
 			};
 
 			// add and save

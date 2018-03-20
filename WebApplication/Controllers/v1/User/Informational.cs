@@ -221,9 +221,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 
 			var query = (
-				from a in DbContext.FinancialHistory
-				where a.UserId == user.Id
-				select a
+				from h in DbContext.FinancialHistory
+				where 
+					h.UserId == user.Id &&
+					(
+						h.Status == FinancialHistoryStatus.Manual || 
+						h.Status == FinancialHistoryStatus.Processing ||
+						h.Status == FinancialHistoryStatus.Completed ||
+						h.Status == FinancialHistoryStatus.Failed
+					)
+				select h
 			);
 
 			var page = await query.PagerAsync(
@@ -231,11 +238,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
 			);
 
+			var nowTime = DateTime.UtcNow;
+
 			var list =
 				from i in page.Selected
 				select new FiatHistoryViewItem() {
 					Type = i.Type.ToString().ToLower(),
-					Status = (int)i.Status,
+					Status = (
+						i.Status == FinancialHistoryStatus.Completed
+						? 2 // success
+						: i.Status == FinancialHistoryStatus.Failed || (i.TimeExpires != null && i.TimeExpires <= nowTime)
+							? 3 // cancelled/failed
+							: 1 // pending
+					),
 					Comment = i.Comment,
 					EthTxId = i.RelEthTransactionId,
 					Amount = i.AmountCents / 100d,

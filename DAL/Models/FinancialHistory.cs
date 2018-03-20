@@ -34,6 +34,9 @@ namespace Goldmint.DAL.Models {
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 
+		[Column("time_expires")]
+		public DateTime? TimeExpires { get; set; }
+
 		[Column("time_completed")]
 		public DateTime? TimeCompleted { get; set; }
 

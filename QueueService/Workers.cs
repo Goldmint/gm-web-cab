@@ -9,6 +9,8 @@ namespace Goldmint.QueueService {
 	public partial class Program {
 
 		private static readonly int DefaultWorkerRowsPerRound = 100; // TODO: move to args
+		private static readonly int DefaultCryptoHarvesterBlocksPerRound = 10; // TODO: move to args
+		private static readonly int DefaultCryptoHarvesterConfirmationsRequired = 2; // TODO: move to args
 
 		/// <summary>
 		/// Launch workers
@@ -19,6 +21,7 @@ namespace Goldmint.QueueService {
 			var workers = new List<IWorker>() {
 #if DEBUG
 				new DebugWorker().BurstMode(),
+				new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).BurstMode(),
 #endif
 			};
 

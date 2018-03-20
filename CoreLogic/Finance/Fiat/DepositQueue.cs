@@ -305,7 +305,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								deposit.Status = success ? DepositStatus.Success : DepositStatus.Failed;
 								deposit.TimeCompleted = DateTime.UtcNow;
 
-								deposit.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								deposit.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								deposit.RefFinancialHistory.TimeCompleted = deposit.TimeCompleted;
 
 								dbContext.Update(deposit.RefFinancialHistory);

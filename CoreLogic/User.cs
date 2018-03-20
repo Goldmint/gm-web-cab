@@ -13,6 +13,8 @@ namespace Goldmint.CoreLogic {
 
 	public static class User {
 
+		public static readonly TimeSpan FinancialHistoryOvarlappingOperationsAllowedWithin = TimeSpan.FromMinutes(60);
+
 		public static bool HasSignedDpa(UserOptions data) {
 			return
 				data?.DPADocument != null &&
@@ -226,8 +228,8 @@ namespace Goldmint.CoreLogic {
 
 			return await dbContext.FinancialHistory.Where(_ =>
 				_.UserId == userId &&
-				_.Status == FinancialHistoryStatus.Pending &&
-				(notTime - _.TimeCreated) < TimeSpan.FromHours(1)
+				_.Status == FinancialHistoryStatus.Processing &&
+				(notTime - _.TimeCreated) < FinancialHistoryOvarlappingOperationsAllowedWithin
 			).CountAsync() > 0;
 		}
 

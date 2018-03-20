@@ -207,7 +207,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								withdraw.Status = success ? WithdrawStatus.Success : WithdrawStatus.Failed;
 								withdraw.TimeCompleted = DateTime.UtcNow;
 
-								withdraw.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								withdraw.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								withdraw.RefFinancialHistory.TimeCompleted = withdraw.TimeCompleted;
 								dbContext.Update(withdraw.RefFinancialHistory);
 							}
@@ -221,11 +221,6 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								if (withdraw.Destination == WithdrawDestination.CreditCard) {
 									try {
 										var wdrPayment = await SendCardWithdraw(services, withdraw);
-
-#if DEBUG
-										wdrPayment.Status = CardPaymentStatus.Failed;
-#endif
-
 										if (wdrPayment.Status == CardPaymentStatus.Success) {
 											try {
 												await ticketDesk.UpdateTicket(withdraw.DeskTicketId, UserOpLogStatus.Completed, $"Withdraw completed with credit card payment #{wdrPayment.Id}");
@@ -240,11 +235,11 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 											// fin history
 											var finHistory = new DAL.Models.FinancialHistory() {
+												Status = FinancialHistoryStatus.Processing,
 												Type = FinancialHistoryType.Deposit,
 												AmountCents = withdraw.AmountCents,
 												FeeCents = 0,
 												DeskTicketId = withdraw.DeskTicketId,
-												Status = FinancialHistoryStatus.Pending,
 												TimeCreated = DateTime.UtcNow,
 												UserId = withdraw.UserId,
 												Comment = $"Reverting failed withdrawal payment #{withdraw.DestinationId}",

@@ -11,6 +11,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		protected ILogger Logger { get; private set; }
 
 		protected Nethereum.JsonRpc.Client.IClient JsonRpcClient { get; private set; }
+		protected Nethereum.JsonRpc.Client.IClient JsonRpcLogsClient { get; private set; }
 
 		protected string FiatContractAddress { get; private set; }
 		protected string FiatContractABI { get; private set; }
@@ -26,6 +27,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			FiatContractABI = appConfig.Services.Ethereum.FiatContractAbi;
 
 			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
+			JsonRpcLogsClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));
 
 			// obtain additional info from contract
 			Task.Run(async () => {

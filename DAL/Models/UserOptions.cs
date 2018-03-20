@@ -26,6 +26,12 @@ namespace Goldmint.DAL.Models {
 		[Column("hw_transfer_stamp")]
 		public DateTime? HotWalletTransferLastTime { get; set; }
 
+		[Column("crypto_deposit_stamp")]
+		public DateTime? CryptoDepositLastTime { get; set; }
+
+		[Column("crypto_withdraw_stamp")]
+		public DateTime? CryptoWithdrawLastTime { get; set; }
+
 		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 

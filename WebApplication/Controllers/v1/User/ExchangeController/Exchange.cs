@@ -20,6 +20,95 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		// TODO: move to app settings constants
 		private static readonly TimeSpan HWOperationTimeLimit = TimeSpan.FromMinutes(30);
+		private static readonly TimeSpan ExchangeConfirmationTimeout = TimeSpan.FromMinutes(2);
+
+		/// <summary>
+		/// Confirm buying/selling request
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[HttpPost, Route("gold/confirm")]
+		[ProducesResponseType(typeof(ConfirmView), 200)]
+		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var user = await GetUserFromDb();
+			var agent = GetUserAgentInfo();
+
+			// ---
+
+			BuyRequest requestBuying = null;
+			SellRequest requestSelling = null;
+
+			if (model.IsBuying) {
+				requestBuying = await (
+					from r in DbContext.BuyRequest
+					where
+						r.Type == GoldExchangeRequestType.EthRequest &&
+						r.Id == model.RequestId &&
+						r.UserId == user.Id &&
+						r.Status == GoldExchangeRequestStatus.Unconfirmed &&
+						(DateTime.UtcNow - r.TimeCreated) <= ExchangeConfirmationTimeout
+					select r
+				)
+				.Include(_ => _.RefFinancialHistory)
+				.AsTracking()
+				.FirstOrDefaultAsync()
+				;
+			}
+			else {
+				requestSelling = await (
+					from r in DbContext.SellRequest
+					where
+						r.Type == GoldExchangeRequestType.EthRequest &&
+						r.Id == model.RequestId &&
+						r.UserId == user.Id &&
+						r.Status == GoldExchangeRequestStatus.Unconfirmed &&
+						(DateTime.UtcNow - r.TimeCreated) <= ExchangeConfirmationTimeout
+					select r
+				)
+				.Include(_ => _.RefFinancialHistory)
+				.AsTracking()
+				.FirstOrDefaultAsync()
+				;
+			}
+
+			// request exists
+			if (requestSelling == null && requestBuying == null) {
+				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid request id");
+			}
+
+			// mark request for processing
+			var deskTicketId = (string)null;
+			if (requestBuying != null) {
+				deskTicketId = requestBuying.DeskTicketId;
+
+				requestBuying.RefFinancialHistory.Status = FinancialHistoryStatus.Manual;
+				requestBuying.Status = GoldExchangeRequestStatus.Confirmed;
+			}
+
+			if (requestSelling != null) {
+				deskTicketId = requestSelling.DeskTicketId;
+
+				requestSelling.RefFinancialHistory.Status = FinancialHistoryStatus.Manual;
+				requestSelling.Status = GoldExchangeRequestStatus.Confirmed;
+			}
+
+			await DbContext.SaveChangesAsync();
+
+			try {
+				await TicketDesk.UpdateTicket(deskTicketId, UserOpLogStatus.Pending, "Request has been confirmed by user. Awaiting for blockchain");
+			}
+			catch {
+			}
+
+			return APIResponse.Success(
+				new ConfirmView() { }
+			);
+		}
 
 		/// <summary>
 		/// Confirm buying/selling request (hot wallet)
@@ -27,7 +116,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/hw/confirm")]
 		[ProducesResponseType(typeof(HWConfirmView), 200)]
-		public async Task<APIResponse> HWConfirm([FromBody] HWConfirmModel model) {
+		public async Task<APIResponse> HwConfirm([FromBody] HWConfirmModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -54,33 +143,37 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					if (model.IsBuying) {
 						requestBuying = await (
-									from r in DbContext.BuyRequest
-									where
-										r.Type == GoldExchangeRequestType.HWRequest &&
-										r.Id == model.RequestId &&
-										r.UserId == user.Id &&
-										r.Status == GoldExchangeRequestStatus.Initial
-									select r
-								)
-								.AsTracking()
-								.FirstOrDefaultAsync()
-							;
+							from r in DbContext.BuyRequest
+							where
+								r.Type == GoldExchangeRequestType.HWRequest &&
+								r.Id == model.RequestId &&
+								r.UserId == user.Id &&
+								r.Status == GoldExchangeRequestStatus.Unconfirmed &&
+								(DateTime.UtcNow - r.TimeCreated) <= ExchangeConfirmationTimeout
+							select r
+						)
+						.Include(_ => _.RefFinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
+						;
 
 						opLastTime = user.UserOptions.HotWalletBuyingLastTime;
 					}
 					else {
 						requestSelling = await (
-									from r in DbContext.SellRequest
-									where
-										r.Type == GoldExchangeRequestType.HWRequest &&
-										r.Id == model.RequestId &&
-										r.UserId == user.Id &&
-										r.Status == GoldExchangeRequestStatus.Initial
-									select r
-								)
-								.AsTracking()
-								.FirstOrDefaultAsync()
-							;
+							from r in DbContext.SellRequest
+							where
+								r.Type == GoldExchangeRequestType.HWRequest &&
+								r.Id == model.RequestId &&
+								r.UserId == user.Id &&
+								r.Status == GoldExchangeRequestStatus.Unconfirmed &&
+								(DateTime.UtcNow - r.TimeCreated) <= ExchangeConfirmationTimeout
+							select r
+						)
+						.Include(_ => _.RefFinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
+						;
 
 						opLastTime = user.UserOptions.HotWalletSellingLastTime;
 					}
@@ -101,7 +194,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					if (requestBuying != null) {
 						deskTicketId = requestBuying.DeskTicketId;
 
-						requestBuying.Status = GoldExchangeRequestStatus.Processing;
+						requestBuying.RefFinancialHistory.Status = FinancialHistoryStatus.Processing;
+						requestBuying.Status = GoldExchangeRequestStatus.Prepared;
 						requestBuying.TimeRequested = DateTime.UtcNow;
 						requestBuying.TimeNextCheck = DateTime.UtcNow;
 
@@ -111,7 +205,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					if (requestSelling != null) {
 						deskTicketId = requestSelling.DeskTicketId;
 
-						requestSelling.Status = GoldExchangeRequestStatus.Processing;
+						requestSelling.RefFinancialHistory.Status = FinancialHistoryStatus.Processing;
+						requestSelling.Status = GoldExchangeRequestStatus.Prepared;
 						requestSelling.TimeRequested = DateTime.UtcNow;
 						requestSelling.TimeNextCheck = DateTime.UtcNow;
 
@@ -142,7 +237,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/hw/transfer")]
 		[ProducesResponseType(typeof(HWTransferView), 200)]
-		public async Task<APIResponse> HWTransfer([FromBody] HWTransferModel model) {
+		public async Task<APIResponse> HwTransfer([FromBody] HWTransferModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -162,12 +257,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var amountWei = BigInteger.Zero;
-			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
+			if (!BigInteger.TryParse(model.Amount, out amountWei) || amountWei < 1 || amountWei.ToString().Length > 64) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 			var goldBalance = await EthereumObserver.GetUserGoldBalance(user.UserName);
 
-			if (amountWei < 1 || amountWei > goldBalance || amountWei.ToString().Length > 64) {
+			if (amountWei > goldBalance) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -194,13 +289,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					// history
 					var finHistory = new DAL.Models.FinancialHistory() {
-						Type = FinancialHistoryType.HWTransfer,
+						Status = FinancialHistoryStatus.Unconfirmed,
+						Type = FinancialHistoryType.HwTransfer,
 						AmountCents = (long)(CoreLogic.Finance.Tokens.GoldToken.FromWei(amountWei) * 100),
 						FeeCents = 0,
 						DeskTicketId = ticket,
-						Status = FinancialHistoryStatus.Pending,
 						TimeCreated = DateTime.UtcNow,
-						User = user,
+						UserId = user.Id,
 						Comment = "" // see below
 					};
 
@@ -210,17 +305,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					// request
 					var request = new TransferRequest() {
-						User = user,
-						Status = GoldExchangeRequestStatus.Processing,
+						Status = GoldExchangeRequestStatus.Prepared,
 						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
 						DeskTicketId = ticket,
-						RefFinancialHistory = finHistory,
 						TimeCreated = DateTime.UtcNow,
 						TimeNextCheck = DateTime.UtcNow,
+
+						UserId = user.Id,
+						RefFinancialHistoryId = finHistory.Id,
 					};
 
 					// save
+					finHistory.Status = FinancialHistoryStatus.Processing;
 					DbContext.TransferRequest.Add(request);
 					await DbContext.SaveChangesAsync();
 
