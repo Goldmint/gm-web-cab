@@ -21,9 +21,7 @@
     "Menu": {
       "About": "О нас",
       "Transparency": "Прозрачность",
-      "Terms": "Условия использования",
-      "Privacy": "Конфиденциальность",
-      "KYCPolicy": "KYC политика",
+      "LegalSecurity": "Легальность и безопасность",
       "HelpCenter": "Помощь"
     },
     "Copyright": "ООО GoldMint © {{year}}"
@@ -150,7 +148,7 @@
       "Heading": "Deposit",
       "SectionTitle": "Выберите способ пополнения",
       "Method": {
-        "CryptoCapital": "Crypto Capital",
+        "CryptoCapital": "Криптовалюта",
         "Card": "Платёжная карта",
         "Transfer": "Банковский перевод"
       },
@@ -166,7 +164,7 @@
         "Increase": "Увеличить"
       },
       "CryptoCapital": {
-        "Heading": "Crypto Capital",
+        "Heading": "Криптовалюта",
         "Labels": {
           "EstimatesAmount": "Оценочное количество"
         },
@@ -246,7 +244,7 @@
         "Button": "Включить 2FA"
       },
       "Method": {
-        "CryptoCapital": "Crypto Capital",
+        "CryptoCapital": "Криптовалюта",
         "Card": "Платёжная карта",
         "Transfer": "Банковский перевод"
       },
@@ -261,7 +259,7 @@
         "Increase": "Увеличить"
       },
       "CryptoCapital": {
-        "Heading": "Crypto Capital",
+        "Heading": "Криптовалюта",
         "Labels": {
           "Amount": "Количество",
           "EstimatesAmount": "Оценочное количество"
@@ -512,7 +510,8 @@
         "Cards": "Карты",
         "SocialNetworks": "Социальные сети",
         "AccountActivity": "Активность аккаунта",
-        "AccountLimits": "Лимиты аккаунта"
+        "AccountLimits": "Лимиты аккаунта",
+        "Fees": "Комиссия вывода/пополнения"
       },
       "Profile": {
         "UserIdSection": {
@@ -812,9 +811,31 @@
           "Labels": {
             "PaymentCard": "Платежная карта",
             "BankTransfer": "Банковский перевод",
-            "CryptoCapital": "Crypto капитал",
+            "CryptoCapital": "Криптовалюта",
             "Commission": "Комиссия",
             "NoCommission": "Без комиссии"
+          }
+        }
+      },
+      "Fees": {
+        "Heading": "Комиссия вывода/пополнения",
+        "CurrencyType": {
+          "Fiat": "Фиатные средства",
+          "Crypto": "Криптовалюта"
+        },
+        "Table": {
+          "Head": {
+            "Currency": "Валюта",
+            "PaymentMethod": "Способ оплаты",
+            "Deposit": "Пополнение",
+            "Withdrawal": "Вывод"
+          },
+          "Method": {
+            "VISA": "VISA",
+            "MasterCard": "MasterCard",
+            "BankTransfer": "Банковски перевод",
+            "Card": "Карта",
+            "SEPA": "SEPA"
           }
         }
       }
@@ -833,6 +854,15 @@
           "Document": "Документ",
           "Comment": "Комментарий"
         }
+      }
+    },
+    "LegalSecurity": {
+      "Heading": "Легальность и безопасность",
+      "Label": "1. Документы",
+      "Links": {
+        "Terms": "Условия использования",
+        "Privacy": "Конфиденциальность",
+        "KYCPolicy": "KYC политика"
       }
     },
     "ErrorPage": {

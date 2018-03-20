@@ -93,6 +93,8 @@ import { StaticPagesComponent } from './pages/static-pages/static-pages.componen
 import {SafePipe} from "./directives/safe.pipe";
 import { LoginDpaRequiredComponent } from './pages/login-page/login-dpa-required/login-dpa-required.component';
 import { LoginDpaSignedComponent } from './pages/login-page/login-dpa-signed/login-dpa-signed.component';
+import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-security-page.component';
+import { SettingsFeesPageComponent } from './pages/settings-page/settings-fees-page/settings-fees-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -178,9 +180,11 @@ export function getGoldmintToken() {
     FinancePageComponent,
     NoautocompleteDirective,
     StaticPagesComponent,
-      SafePipe,
-      LoginDpaRequiredComponent,
-      LoginDpaSignedComponent,
+    SafePipe,
+    LoginDpaRequiredComponent,
+    LoginDpaSignedComponent,
+    LegalSecurityPageComponent,
+    SettingsFeesPageComponent
   ],
   exports: [],
   providers: [

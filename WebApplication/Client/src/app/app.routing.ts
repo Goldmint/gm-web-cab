@@ -34,6 +34,8 @@ import { SettingsSocialPageComponent } from './pages/settings-page/settings-soci
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { StaticPagesComponent } from "./pages/static-pages/static-pages.component";
+import { LegalSecurityPageComponent } from "./pages/legal-security-page/legal-security-page.component";
+import {SettingsFeesPageComponent} from "./pages/settings-page/settings-fees-page/settings-fees-page.component";
 
 
 const appRoutes: Routes = [
@@ -53,7 +55,8 @@ const appRoutes: Routes = [
   { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },
   { path: 'buy', component: BuyPageComponent, canActivate: [AuthGuard] },
   { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
-  { path: 'static-pages/:page', component: StaticPagesComponent },
+  { path: 'legal-security', component: LegalSecurityPageComponent },
+  { path: 'legal-security/:page', component: StaticPagesComponent },
   {
     path: 'finance', component: FinancePageComponent, canActivate: [AuthGuard],
     children: [
@@ -75,7 +78,8 @@ const appRoutes: Routes = [
       { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
-      { path: 'limits', component: LimitsPageComponent }
+      { path: 'limits', component: LimitsPageComponent },
+      { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
   { path: 'transparency', component: TransparencyPageComponent },

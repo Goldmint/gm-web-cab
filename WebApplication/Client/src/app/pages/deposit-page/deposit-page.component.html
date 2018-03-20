@@ -44,8 +44,8 @@
 
         <ng-template #blockMethods>
 
-          <div class="row">
-            <div class="col form-group text-center" *ngIf="false">
+          <div class="row align-items-end mb-4">
+            <div class="col form-group text-center">
               <label for="btnCryptoCapital">{{ "PAGES.Deposit.Method.CryptoCapital" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCapital)">
                 <svg class="icon" width="56px" height="56px">
@@ -176,14 +176,12 @@
   </section>
 </ng-container>
 
-<ng-container *ngIf="false">
+<ng-container *ngIf="page === pages.CryptoCapital">
   <section class="page__section section">
     <h2 class="section__title">{{ "PAGES.Deposit.CryptoCapital.Heading" | translate }}</h2>
 
     <div class="btn-group mt-4">
-      <label class="btn btn-primary btn-sm"
-             [ngClass]="{'active': currentCoin === coinList[0]}"
-             (click)="chooseCurrentCoin(coinList[0])">BTC</label>
+      <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
       <label class="btn btn-primary btn-sm"
              [ngClass]="{'active': currentCoin === coinList[1]}"
              (click)="chooseCurrentCoin(coinList[1])">Eth</label>
@@ -240,6 +238,7 @@
 
 <ng-container *ngIf="page === pages.CardsList">
   <section class="page__section section section--table">
+    <div class="disable-content-block"><span>Coming Soon</span></div>
     <h2 class="section__title">{{ "PAGES.Deposit.CardsList.SectionTitle" | translate }}</h2>
 
     <div class="section__content pt-4">
@@ -318,8 +317,6 @@
               <td class="limits-text-bold limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.AccountType" | translate }}</td>
               <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Basic" | translate }}</td>
               <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified" | translate }}</td>
-              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified+" | translate }}</td>
-              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Corporate" | translate }}</td>
             </tr>
             <tr class="limits-daily-row">
               <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Daily" | translate }}</td>
@@ -331,8 +328,6 @@
                   {{ limits.levels.l1.deposit.day - limits.current.deposit.day }}
                 </div>
               </td>
-              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
-              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
             </tr>
             <tr class="limits-monthly-row">
               <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Monthly" | translate }}</td>
@@ -372,6 +367,7 @@
 <!-- START: Bank Transfer -->
 <ng-container *ngIf="page === pages.BankTransfer">
   <section class="page__section section section--table">
+    <div class="disable-content-block"><span>Coming Soon</span></div>
     <div class="section__content pt-4">
 
       <ng-container *ngIf="bankTransferStep === _bankTransferSteps.Default">
@@ -473,8 +469,6 @@
               <td class="limits-text-bold limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.AccountType" | translate }}</td>
               <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Basic" | translate }}</td>
               <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified" | translate }}</td>
-              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Verified+" | translate }}</td>
-              <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Corporate" | translate }}</td>
             </tr>
             <tr class="limits-daily-row">
               <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Daily" | translate }}</td>
@@ -486,8 +480,6 @@
                   {{ limits.levels.l1.deposit.day - limits.current.deposit.day }}
                 </div>
               </td>
-              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
-              <td rowspan="2" class="text-center">{{ "PAGES.Finance.TableLimits.Table.Labels.Unlimited" | translate }}</td>
             </tr>
             <tr class="limits-monthly-row">
               <td class="limits-bg-cell limits-text-bold">{{ "PAGES.Finance.TableLimits.Table.Labels.Monthly" | translate }}</td>
