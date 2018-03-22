@@ -161,7 +161,9 @@ export class BuyPageComponent implements OnInit, OnDestroy {
             this.confirmation = false;
             this._messageBox.confirm(phrase).subscribe(ok => {
               if (ok) {
-                this._ethService.sendBuyRequest(this.ethAddress, res.data.payload);
+                this._apiService.confirmMMRequest(true, res.data.requestId).subscribe(() => {
+                  this._ethService.sendBuyRequest(this.ethAddress, res.data.payload);
+                });
               }
               this._cdRef.markForCheck();
             });

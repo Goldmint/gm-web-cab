@@ -262,7 +262,9 @@ export class SellPageComponent implements OnInit, OnDestroy {
               this._messageBox.confirm(phrase).subscribe(ok => {
                 this.confirmation = false;
                 if (ok) {
-                  this._ethService.sendSellRequest(this.ethAddress, res.data.payload);
+                  this._apiService.confirmMMRequest(false, res.data.requestId).subscribe(() => {
+                    this._ethService.sendSellRequest(this.ethAddress, res.data.payload);
+                  });
                 }
                 this._cdRef.markForCheck();
               });

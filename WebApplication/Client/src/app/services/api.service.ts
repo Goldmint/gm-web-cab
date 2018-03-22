@@ -393,6 +393,15 @@ export class APIService {
       );
   }
 
+  confirmMMRequest(isBuying: boolean, requestId: number) {
+    return this._http
+      .post(`${this._baseUrl}/user/exchange/gold/confirm`, { isBuying, requestId }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
   getBannedCountries() {
     return this._http
       .get(`${this._baseUrl}/commons/bannedCountries`)
