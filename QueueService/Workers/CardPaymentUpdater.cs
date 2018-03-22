@@ -49,6 +49,8 @@ namespace Goldmint.QueueService.Workers {
 
 			foreach (var row in rows) {
 
+				_dbContext.DetachEverything();
+
 				if (row.Type == Common.CardPaymentType.Verification) {
 					await CardPaymentQueue.ProcessVerificationPayment(_services, row.Id);
 				}

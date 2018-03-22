@@ -55,6 +55,8 @@ namespace Goldmint.QueueService.Workers {
 
 			foreach (var r in rows) {
 
+				_dbContext.DetachEverything();
+
 				// acquire lock
 				var mutexBuilder = new MutexBuilder(_mutexHolder)
 					.Mutex(Common.MutexEntity.NotificationSend, r.Id)

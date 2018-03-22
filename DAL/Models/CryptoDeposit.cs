@@ -10,7 +10,7 @@ namespace Goldmint.DAL.Models {
 	public class CryptoDeposit : BaseFinancialHistoryEntity, IConcurrentUpdate {
 
 		[Column("origin"), Required]
-		public CryptoDepositOrigin Origin { get; set; }
+		public CryptoExchangeAsset Origin { get; set; }
 
 		[Column("status"), Required]
 		public CryptoDepositStatus Status { get; set; }
@@ -41,6 +41,9 @@ namespace Goldmint.DAL.Models {
 
 		[Column("time_prepared")]
 		public DateTime? TimePrepared { get; set; }
+
+		[Column("time_next_check"), Required]
+		public DateTime TimeNextCheck { get; set; }
 
 		[Column("time_completed")]
 		public DateTime? TimeCompleted { get; set; }

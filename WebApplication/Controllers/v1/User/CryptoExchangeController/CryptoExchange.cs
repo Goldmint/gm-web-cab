@@ -53,17 +53,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					if (model.IsDeposit) {
 						requestDeposit = await (
-								from d in DbContext.CryptoDeposit
-								where
-									d.Id == model.RequestId &&
-									d.UserId == user.Id &&
-									d.Status == CryptoDepositStatus.Unconfirmed &&
-									(DateTime.UtcNow - d.TimeCreated) <= CryptoExchangeConfirmationTimeout
-								select d
-							)
-							.Include(_ => _.RefFinancialHistory)
-							.AsTracking()
-							.FirstOrDefaultAsync()
+							from d in DbContext.CryptoDeposit
+							where
+								d.Id == model.RequestId &&
+								d.UserId == user.Id &&
+								d.Status == CryptoDepositStatus.Unconfirmed &&
+								(DateTime.UtcNow - d.TimeCreated) <= CryptoExchangeConfirmationTimeout
+							select d
+						)
+						.Include(_ => _.RefFinancialHistory)
+						.AsTracking()
+						.FirstOrDefaultAsync()
 						;
 
 						opLastTime = user.UserOptions.CryptoDepositLastTime;

@@ -3,22 +3,23 @@ using Goldmint.Common.WebRequest;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
-	public class CmcRateProvider : IEthereumRateProvider {
+	public class CmcRateProvider : ICryptoassetRateProvider {
 
 		// CMC has requirement: max 10 requests/min
-		private const long CacheTimeoutSeconds = 15;
+		private const long CacheTimeoutSeconds = 20;
 
 		private readonly string _tickerUrl;
 		private readonly ILogger _logger;
 
-		private long _ethUsdStamp = 0;
-		private long _ethUsdValue = 0;
+		private long _ethUsdStamp;
+		private long _ethUsdValue;
 		private readonly object _ethUsdMonitor = new object();
 
 		public CmcRateProvider(string tickerUrl, LogFactory logFactory) {
@@ -26,12 +27,14 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
-		public async Task<long> GetEthereumRate(FiatCurrency currency) {
+		public async Task<long> GetRate(CryptoExchangeAsset asset, FiatCurrency currency) {
 
 			long value = 0;
 
-			if (currency == FiatCurrency.USD) {
-				value = await GetInUsd();
+			if (asset == CryptoExchangeAsset.ETH) {
+				if (currency == FiatCurrency.USD) {
+					value = await GetUsdPerEth();
+				}
 			}
 
 			return value;
@@ -39,7 +42,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		// ---
 
-		private Task<long> GetInUsd() {
+		private Task<long> GetUsdPerEth() {
 
 			var url = _tickerUrl + "/ethereum/?convert=USD";
 			var field = "price_usd";
@@ -94,12 +97,18 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			Json.ParseInto(Json.Stringify(result), resultAsDict);
 
 			if (!resultAsDict.ContainsKey(field)) {
-				var ex = new Exception($"Failed to parse field {field} from response of {url}");
+				var ex = new Exception($"Failed to find field {field} in response of {url}");
 				_logger.Error(ex);
 				throw ex;
 			}
 
-			return (long)Math.Round(decimal.Parse(resultAsDict[field]) * 100);
+			if (!decimal.TryParse(resultAsDict[field], NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var dval)) {
+				var ex = new Exception($"Failed to parse field {field}=`{resultAsDict[field]}` from response of {url}");
+				_logger.Error(ex);
+				throw ex;
+			}
+
+			return (long)Math.Round(dval * 100);
 		}
 
 		// ---

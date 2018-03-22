@@ -180,15 +180,15 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Mark request as prepared for processing
 		/// </summary>
-		public static async Task<bool> PrepareEthBuyingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
+		public static async Task<BuySellPreparationResult> PrepareEthBuyingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
 
-			if (!long.TryParse(payload, out var payloadId) || payloadId <= 0) {
-				return false;
+			if (!long.TryParse(payload, out var internalRequestId) || internalRequestId <= 0) {
+				return BuySellPreparationResult.InvalidArgs;
 			}
 
-			if (userId <= 0) return false;
-			if (string.IsNullOrWhiteSpace(address)) return false;
-			if (requestIndex < 0) return false;
+			if (userId <= 0) return BuySellPreparationResult.InvalidArgs;
+			if (string.IsNullOrWhiteSpace(address)) return BuySellPreparationResult.InvalidArgs;
+			if (requestIndex < 0) return BuySellPreparationResult.InvalidArgs;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -200,7 +200,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				from r in dbContext.BuyRequest
 				where
 					r.Type == GoldExchangeRequestType.EthRequest &&
-					r.Id == payloadId &&
+					r.Id == internalRequestId &&
 					r.UserId == userId &&
 					r.Status == GoldExchangeRequestStatus.Confirmed &&
 					r.Address == address
@@ -209,21 +209,21 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			// find first
 			if (await (query).AsNoTracking().CountAsync() != 1) {
-				return false;
+				return BuySellPreparationResult.NotFound;
 			}
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.EthBuyRequest, payloadId)
+				.Mutex(MutexEntity.EthBuyRequest, internalRequestId)
 			;
 
-			return await mutexBuilder.CriticalSection<bool>(async (ok) => {
+			return await mutexBuilder.CriticalSection<BuySellPreparationResult>(async (ok) => {
 				if (ok) {
 
 					// get again
 					var request = await (query).FirstOrDefaultAsync();
 					if (request == null) {
-						return false;
+						return BuySellPreparationResult.NotFound;
 					}
 
 					try {
@@ -239,29 +239,28 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						}
 						catch { }
 
-						return true;
+						return BuySellPreparationResult.Success;
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to mark buying request #{request.Id} for processing");
 					}
 				}
-				return false;
+				return BuySellPreparationResult.MutexFailure;
 			});
 		}
 
 		/// <summary>
 		/// Mark request as prepared for processing
 		/// </summary>
-		public static async Task<bool> PrepareEthSellingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
+		public static async Task<BuySellPreparationResult> PrepareEthSellingRequest(IServiceProvider services, long userId, string payload, string address, BigInteger requestIndex) {
 
-			long payloadId = 0;
-			if (!long.TryParse(payload, out payloadId) || payloadId <= 0) {
-				return false;
+			if (!long.TryParse(payload, out var internalRequestId) || internalRequestId <= 0) {
+				return BuySellPreparationResult.InvalidArgs;
 			}
 
-			if (userId <= 0) return false;
-			if (string.IsNullOrWhiteSpace(address)) return false;
-			if (requestIndex < 0) return false;
+			if (userId <= 0) return BuySellPreparationResult.InvalidArgs;
+			if (string.IsNullOrWhiteSpace(address)) return BuySellPreparationResult.InvalidArgs;
+			if (requestIndex < 0) return BuySellPreparationResult.InvalidArgs;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -273,7 +272,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				from r in dbContext.SellRequest
 				where
 					r.Type == GoldExchangeRequestType.EthRequest &&
-					r.Id == payloadId &&
+					r.Id == internalRequestId &&
 					r.UserId == userId &&
 					r.Status == GoldExchangeRequestStatus.Confirmed &&
 					r.Address == address
@@ -282,21 +281,21 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 			// find first
 			if (await (query).AsNoTracking().CountAsync() != 1) {
-				return false;
+				return BuySellPreparationResult.NotFound;
 			}
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.EthSellRequest, payloadId)
+				.Mutex(MutexEntity.EthSellRequest, internalRequestId)
 			;
 
-			return await mutexBuilder.CriticalSection<bool>(async (ok) => {
+			return await mutexBuilder.CriticalSection<BuySellPreparationResult>(async (ok) => {
 				if (ok) {
 
 					// get again
 					var request = await (query).FirstOrDefaultAsync();
 					if (request == null) {
-						return false;
+						return BuySellPreparationResult.NotFound;
 					}
 
 					try {
@@ -312,13 +311,13 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						}
 						catch { }
 
-						return true;
+						return BuySellPreparationResult.Success;
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to mark selling request #{request.Id} for processing");
 					}
 				}
-				return false;
+				return BuySellPreparationResult.MutexFailure;
 			});
 		}
 
@@ -628,7 +627,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Process request on blockchain and check it
 		/// </summary>
-		public static async Task<bool> ProcessHWBuyingRequest(IServiceProvider services, long requestId) {
+		public static async Task<bool> ProcessHwBuyingRequest(IServiceProvider services, long requestId) {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -775,7 +774,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Post blockchain transaction for request
 		/// </summary>
-		public static async Task<bool> ProcessHWSellingRequest(IServiceProvider services, long requestId) {
+		public static async Task<bool> ProcessHwSellingRequest(IServiceProvider services, long requestId) {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -923,7 +922,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 		/// <summary>
 		/// Post blockchain transaction for request
 		/// </summary>
-		public static async Task<bool> ProcessHWTransferRequest(IServiceProvider services, long requestId) {
+		public static async Task<bool> ProcessHwTransferRequest(IServiceProvider services, long requestId) {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -1138,6 +1137,14 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			/// Abort processing and cancel request
 			/// </summary>
 			public bool Abort { get; set; }
+		}
+
+		public enum BuySellPreparationResult {
+
+			Success,
+			InvalidArgs,
+			NotFound,
+			MutexFailure,
 		}
 	}
 }

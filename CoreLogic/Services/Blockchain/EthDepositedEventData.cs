@@ -2,6 +2,13 @@
 
 namespace Goldmint.CoreLogic.Services.Blockchain {
 
+	public sealed class EthDepositedResult {
+		
+		public BigInteger FromBlock { get; set; }
+		public BigInteger ToBlock { get; set; }
+		public EthDepositedEventData[] Events { get; set; }
+	}
+
 	public sealed class EthDepositedEventData {
 
 		/// <summary>
@@ -28,10 +35,5 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Transaction ID
 		/// </summary>
 		public string TransactionId { get; set; }
-
-		/// <summary>
-		/// Current latest block on blockchain
-		/// </summary>
-		public BigInteger BlockchainLatestBlock { get; set; }
 	}
 }

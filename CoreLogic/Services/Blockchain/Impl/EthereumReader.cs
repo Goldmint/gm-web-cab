@@ -160,7 +160,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 
-		public async Task<List<EthDepositedEventData>> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		public async Task<EthDepositedResult> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
 			var web3 = new Web3(JsonRpcLogsClient);
 
@@ -169,11 +169,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				FiatContractAddress
 			);
 
-			var hexLatestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
-			hexLatestBlock.Value -= confirmationsRequired;
+			var hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
-			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, hexLatestBlock));
-			var hexToBlock = new HexBigInteger(BigInteger.Min(to, hexLatestBlock));
+			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
 
 			var evnt = contract.GetEvent("EthDeposited");
 			var filter = await evnt.CreateFilterBlockRangeAsync(
@@ -181,20 +181,24 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				new BlockParameter(hexToBlock)
 			);
 
-			var ret = new List<EthDepositedEventData>();
+			var events = new List<EthDepositedEventData>();
 			var logs = await evnt.GetAllChanges<EthereumDepositEventResult>(filter);
+
 			foreach (var v in logs) {
-				ret.Add(new EthDepositedEventData() {
+				events.Add(new EthDepositedEventData() {
 					Address = v.Event.Address,
 					EthAmount = v.Event.EthValue,
 					RequestId = v.Event.RequestId,
 					BlockNumber = v.Log.BlockNumber,
 					TransactionId = v.Log.TransactionHash,
-					BlockchainLatestBlock = hexLatestBlock.Value,
 				});
 			}
 
-			return ret;
+			return new EthDepositedResult() {
+				FromBlock = hexFromBlock.Value,
+				ToBlock = hexToBlock.Value,
+				Events = events.ToArray(),
+			};
 		}
 
 		// ---
@@ -226,7 +230,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("address", "_address", 2, true)]
 			public string Address { get; set; }
 
-			[Parameter("uint", "_ethValue", 3, true)]
+			[Parameter("uint", "_ethValue", 3, false)]
 			public BigInteger EthValue { get; set; }
 		}
 	}

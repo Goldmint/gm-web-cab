@@ -48,8 +48,11 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
+
+				_dbContext.DetachEverything();
+
 				if (row.Type == GoldExchangeRequestType.HWRequest) {
-					await CoreLogic.Finance.Tokens.GoldToken.ProcessHWSellingRequest(_services, row.Id);
+					await CoreLogic.Finance.Tokens.GoldToken.ProcessHwSellingRequest(_services, row.Id);
 				}
 				if (row.Type == GoldExchangeRequestType.EthRequest) {
 					await CoreLogic.Finance.Tokens.GoldToken.ProcessEthSellingRequest(_services, row.Id);

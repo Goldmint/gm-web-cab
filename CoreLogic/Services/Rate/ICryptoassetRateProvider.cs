@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
-	public interface IEthereumRateProvider {
+	public interface ICryptoassetRateProvider {
 
 		/// <summary>
 		/// Price in cents per token
 		/// </summary>
-		Task<long> GetEthereumRate(FiatCurrency currency);
+		Task<long> GetRate(CryptoExchangeAsset asset, FiatCurrency currency);
 	}
 }

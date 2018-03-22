@@ -303,7 +303,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Deposit initiated with cryptoasset's selling
 		/// </summary>
-		CryptoExchange,
+		CryptoDeposit,
 	}
 
 	public enum DepositStatus {
@@ -385,6 +385,14 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
+	public enum CryptoExchangeAsset {
+
+		/// <summary>
+		/// Ethereum
+		/// </summary>
+		ETH = 1,
+	}
+
 	public enum CryptoDepositStatus {
 
 		/// <summary>
@@ -396,14 +404,14 @@ namespace Goldmint.Common {
 		/// Confirmed, awaiting for transaction
 		/// </summary>
 		Confirmed,
-		/*
+		
 		/// <summary>
 		/// Prepared for processing
 		/// </summary>
 		Prepared,
 
 		/// <summary>
-		/// Processing
+		/// Prepared for processing
 		/// </summary>
 		Processing,
 
@@ -415,20 +423,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Cancelled
 		/// </summary>
-		Cancelled,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Failed,*/
-	}
-
-	public enum CryptoDepositOrigin {
-
-		/// <summary>
-		/// Ethereum
-		/// </summary>
-		Ethereum = 1,
+		Failed,
 	}
 
 	#endregion
@@ -725,6 +720,11 @@ namespace Goldmint.Common {
 		/// Support team should lock SWIFT request record before it could be processed
 		/// </summary>
 		SupportSwiftRequestProc,
+
+		/// <summary>
+		/// Lock should be set while changing deposit request state
+		/// </summary>
+		CryptoDepositRequest,
 
 		/// <summary>
 		/// Lock should be set while confirming cryptoexchange opertations (crypto-deposit/crypto-withdraw)

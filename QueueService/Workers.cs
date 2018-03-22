@@ -20,8 +20,7 @@ namespace Goldmint.QueueService {
 			// general workers
 			var workers = new List<IWorker>() {
 #if DEBUG
-				new DebugWorker().BurstMode(),
-				new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).BurstMode(),
+				new DebugWorker().BurstMode()
 #endif
 			};
 
@@ -42,6 +41,7 @@ namespace Goldmint.QueueService {
 
 					// does require ethereum (reader)
 					new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(10)),
+					new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(3)),
 
 					// does require ethereum (writer and reader)
 					new DepositUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
@@ -49,6 +49,8 @@ namespace Goldmint.QueueService {
 					new BuyingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new TransferRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					new CryptoDepositRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+
 				});
 			}
 

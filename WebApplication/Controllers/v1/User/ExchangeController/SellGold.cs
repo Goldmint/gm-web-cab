@@ -7,10 +7,8 @@ using Goldmint.WebApplication.Models.API.v1.User.ExchangeModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 

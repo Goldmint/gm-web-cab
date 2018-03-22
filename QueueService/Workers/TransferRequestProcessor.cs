@@ -47,7 +47,10 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
-				await CoreLogic.Finance.Tokens.GoldToken.ProcessHWTransferRequest(_services, row.Id);
+
+				_dbContext.DetachEverything();
+
+				await CoreLogic.Finance.Tokens.GoldToken.ProcessHwTransferRequest(_services, row.Id);
 			}
 		}
 	}

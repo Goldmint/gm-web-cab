@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Finance.Fiat;
 
 namespace Goldmint.QueueService.Workers {
 
@@ -48,21 +49,30 @@ namespace Goldmint.QueueService.Workers {
 
 		protected override async Task Loop() {
 
-			var getFrom = _lastBlock;
-			var getTo = _lastBlock + _blocksPerRound;
-			_lastBlock = getTo;
+			_dbContext.DetachEverything();
 
 			// get events
-			var events = await _ethereumReader.GetEthDepositedEvent(getFrom, getTo, _confirmationsRequired);
-			Logger.Trace($"{events.Count} eth payments gathered while checking blocks {getFrom} - {getTo}");
+			var log = await _ethereumReader.GetEthDepositedEvent(_lastBlock, _lastBlock + _blocksPerRound, _confirmationsRequired);
+			_lastBlock = log.ToBlock;
+			Logger.Trace($"{log.Events.Length} found in blocks {log.FromBlock} - {log.ToBlock}");
 
-			foreach (var v in events) {
+			foreach (var v in log.Events) {
 
-				// TODO: put record to the queue
+				_dbContext.DetachEverything();
 
-				if (_lastBlock > v.BlockchainLatestBlock) {
-					_lastBlock = v.BlockchainLatestBlock;
+				if (v.RequestId < long.MinValue || v.RequestId > long.MaxValue || !long.TryParse(v.RequestId.ToString(), out var innerRequestId)) {
+					Logger.Error($"Cant handle {v.RequestId} in long-value");
+					continue;
 				}
+
+				await CryptoExchangeQueue.PrepareDepositRequest(
+					services: _services,
+					asset: CryptoExchangeAsset.ETH,
+					internalRequestId: innerRequestId,
+					address: v.Address,
+					amount: v.EthAmount,
+					transactionId: v.TransactionId
+				);
 			}
 
 			// save last index to settings
@@ -71,6 +81,7 @@ namespace Goldmint.QueueService.Workers {
 					_lastSavedBlock = _lastBlock;
 				}
 			}
+			
 		}
 	}
 }

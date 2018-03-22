@@ -35,6 +35,8 @@ namespace Goldmint.QueueService.Workers {
 
 		protected override async Task Loop() {
 
+			_dbContext.DetachEverything();
+
 			var currentCount = await _ethereumReader.GetExchangeRequestsCount();
 
 			while (_lastIndex < currentCount) {
@@ -50,10 +52,8 @@ namespace Goldmint.QueueService.Workers {
 
 					_dbContext.DetachEverything();
 
-					var success = false;
-
 					if (data.IsBuyRequest) {
-						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareEthBuyingRequest(
+						await CoreLogic.Finance.Tokens.GoldToken.PrepareEthBuyingRequest(
 							services: _services,
 							userId: userId,
 							payload: data.Payload,
@@ -61,7 +61,7 @@ namespace Goldmint.QueueService.Workers {
 							requestIndex: data.RequestIndex
 						);
 					} else {
-						success = await CoreLogic.Finance.Tokens.GoldToken.PrepareEthSellingRequest(
+						await CoreLogic.Finance.Tokens.GoldToken.PrepareEthSellingRequest(
 							services: _services,
 							userId: userId,
 							payload: data.Payload,
@@ -69,8 +69,6 @@ namespace Goldmint.QueueService.Workers {
 							requestIndex: data.RequestIndex
 						);
 					}
-
-					// TODO: cancel request here in case of: invalid user id, invalid payload, invalid eth address
 				}
 
 				_lastIndex++;

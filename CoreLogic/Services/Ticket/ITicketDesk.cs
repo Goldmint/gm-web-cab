@@ -14,8 +14,8 @@ namespace Goldmint.CoreLogic.Services.Ticket {
 		Task<string> NewCardWithdraw(DAL.Models.Identity.User user, Card card, FiatCurrency currency, long amount);
 		Task<string> NewSwiftDeposit(DAL.Models.Identity.User user, FiatCurrency currency, long amount);
 		Task<string> NewSwiftWithdraw(DAL.Models.Identity.User user, FiatCurrency currency, long amount);
-		Task<string> NewCryptoDeposit(DAL.Models.Identity.User user, CryptoDepositOrigin origin, string address, FiatCurrency currency, long tokenRate);
-		//Task<string> NewCryptoWithdraw(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, FiatCurrency currency, long fiatAmount, long tokenRate);
+		Task<string> NewCryptoDeposit(DAL.Models.Identity.User user, CryptoExchangeAsset asset, string address, FiatCurrency currency, long tokenRate);
+		//Task<string> NewCryptoWithdraw(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin asset, string address, FiatCurrency currency, long fiatAmount, long tokenRate);
 		Task<string> NewGoldBuying(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents);
 		Task<string> NewGoldSelling(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, BigInteger goldAmount, long rate, BigInteger mntpBalance, long estimatedFiatAmount, long feeCents);
 		Task<string> NewGoldTransfer(DAL.Models.Identity.User user, string ethAddress, BigInteger goldAmount);

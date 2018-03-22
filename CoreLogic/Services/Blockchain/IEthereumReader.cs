@@ -53,6 +53,6 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Get EthDeposited event in a range of blocks
 		/// </summary>
 		/// <returns>Events</returns>
-		Task<List<EthDepositedEventData>> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		Task<EthDepositedResult> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 	}
 }

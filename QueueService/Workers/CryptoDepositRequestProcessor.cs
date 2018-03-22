@@ -8,14 +8,14 @@ using Goldmint.Common;
 
 namespace Goldmint.QueueService.Workers {
 
-	public class BuyingRequestProcessor : BaseWorker {
+	public class CryptoDepositRequestProcessor : BaseWorker {
 
 		private readonly int _rowsPerRound;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
 		
-		public BuyingRequestProcessor(int rowsPerRound) {
+		public CryptoDepositRequestProcessor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 		}
 
@@ -33,12 +33,11 @@ namespace Goldmint.QueueService.Workers {
 			var nowTime = DateTime.UtcNow;
 
 			var rows = await (
-				from r in _dbContext.BuyRequest
+				from r in _dbContext.CryptoDeposit
 				where 
-				(r.Type == GoldExchangeRequestType.EthRequest || r.Type == GoldExchangeRequestType.HWRequest ) &&
-				(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm) &&
-				r.TimeNextCheck <= nowTime
-				select new { Type = r.Type, Id = r.Id }
+					r.Status == CryptoDepositStatus.Prepared &&
+					r.TimeNextCheck <= nowTime
+				select new { Id = r.Id }
 			)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -51,12 +50,7 @@ namespace Goldmint.QueueService.Workers {
 
 				_dbContext.DetachEverything();
 
-				if (row.Type == GoldExchangeRequestType.HWRequest) {
-					await CoreLogic.Finance.Tokens.GoldToken.ProcessHwBuyingRequest(_services, row.Id);
-				}
-				if (row.Type == GoldExchangeRequestType.EthRequest) {
-					await CoreLogic.Finance.Tokens.GoldToken.ProcessEthBuyingRequest(_services, row.Id);
-				}
+				await CoreLogic.Finance.Fiat.CryptoExchangeQueue.ProcessDepositReqeust(_services, row.Id);
 			}
 		}
 	}

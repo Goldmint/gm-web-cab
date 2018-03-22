@@ -54,7 +54,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var currency = FiatCurrency.USD;
-			var ethRate = await EthereumRateProvider.GetEthereumRate(currency);
+			var ethRate = await CryptoassetRateProvider.GetRate(CryptoExchangeAsset.ETH, currency);
 			ethRate = ethRate - (long)Math.Round(ethRate * AppConfig.Constants.CryptoExchange.DepositFiatConversionBuffer);
 			if (ethRate <= 0) {
 				throw new Exception("Eth rate is <= 0");
@@ -63,7 +63,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var expiresIn = TimeSpan.FromSeconds(AppConfig.Constants.TimeLimits.CryptoExchangeRequestExpireSec);
-			var ticket = await TicketDesk.NewCryptoDeposit(user, CryptoDepositOrigin.Ethereum, model.EthAddress, currency, ethRate);
+			var ticket = await TicketDesk.NewCryptoDeposit(user, CryptoExchangeAsset.ETH, model.EthAddress, currency, ethRate);
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
@@ -85,13 +85,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// request
 			var depositRequest = new CryptoDeposit() {
 				Status = CryptoDepositStatus.Unconfirmed,
-				Origin = CryptoDepositOrigin.Ethereum,
+				Origin = CryptoExchangeAsset.ETH,
 				Address = model.EthAddress,
 				RequestedAmount = amountWei.ToString(),
 				Currency = currency,
 				RateCents = ethRate,
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,
+				TimeNextCheck = DateTime.UtcNow,
 
 				UserId = user.Id,
 				RefFinancialHistoryId = finHistory.Id,
