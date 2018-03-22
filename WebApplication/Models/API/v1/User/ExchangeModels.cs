@@ -53,6 +53,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		/// </summary>
 		[Required]
 		public string[] Payload { get; set; }
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long RequestId { get; set; }
+
+		/// <summary>
+		/// Request will expire in .. (seconds)
+		/// </summary>
+		[Required]
+		public long ExpiresIn { get; set; }
 	}
 
 	// ---
@@ -122,6 +134,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		/// </summary>
 		[Required]
 		public string[] Payload { get; set; }
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long RequestId { get; set; }
+
+		/// <summary>
+		/// Request will expire in .. (seconds)
+		/// </summary>
+		[Required]
+		public long ExpiresIn { get; set; }
 	}
 
 	// ---
@@ -223,6 +247,40 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		/// </summary>
 		[Required]
 		public long RequestId { get; set; }
+	}
+
+	// ---
+
+	public class ConfirmModel : BaseValidableModel {
+
+		/// <summary>
+		/// Is it buying request ID?
+		/// </summary>
+		[Required]
+		public bool IsBuying { get; set; }
+
+		/// <summary>
+		/// Buying/selling request ID
+		/// </summary>
+		[Required]
+		public long RequestId { get; set; }
+
+		// ---
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<ConfirmModel>();
+			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.RequestId)
+				.Must(Common.ValidationRules.BeValidId)
+				.WithMessage("Invalid request id")
+				;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class ConfirmView {
 	}
 
 	// ---

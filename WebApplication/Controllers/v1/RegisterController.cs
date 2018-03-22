@@ -120,6 +120,5 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			return APIResponse.Success();
 		}
-
 	}
 }

@@ -45,6 +45,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected CachedGoldRate GoldRateCached { get; private set; }
 		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 		protected IDocSigningProvider DocSigningProvider { get; private set; }
+		protected ICryptoassetRateProvider CryptoassetRateProvider { get; private set; }
 
 		protected BaseController() { }
 
@@ -67,6 +68,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			GoldRateCached = services.GetRequiredService<CachedGoldRate>();
 			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
+			CryptoassetRateProvider = services.GetRequiredService<ICryptoassetRateProvider>();
 		}
 
 		// ---

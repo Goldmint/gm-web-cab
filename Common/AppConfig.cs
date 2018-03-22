@@ -102,10 +102,17 @@ namespace Goldmint.Common {
 			public class EthereumSection {
 
 				public string Provider { get; set; } = "";
+				public string LogsProvider { get; set; } = "";
+				public CryptoExchangeRequestSection CryptoExchangeRequest { get; set; } = new CryptoExchangeRequestSection();
 				public long DefaultGasPriceWei { get; set; } = 0;
 				public string RootAccountPrivateKey { get; set; } = "";
 				public string FiatContractAddress { get; set; } = "";
 				public string FiatContractAbi { get; set; } = "";
+
+				public class CryptoExchangeRequestSection {
+
+					public string FromBlock { get; set; } = "0";
+				}
 			}
 
 			public IpfsSection Ipfs { get; set; } = new IpfsSection();
@@ -130,6 +137,12 @@ namespace Goldmint.Common {
 					public string Filename { get; set; }
 					public string Template { get; set; }
 				}
+			}
+
+			public CoinmarketcapSection Coinmarketcap { get; set; } = new CoinmarketcapSection();
+			public class CoinmarketcapSection {
+
+				public string TickerUrl { get; set; } = "";
 			}
 		}
 
@@ -186,6 +199,20 @@ namespace Goldmint.Common {
 				public string BenBankName { get; set; } = "";
 				public string BenBankAddress { get; set; } = "";
 				public string BenSwift { get; set; } = "";
+			}
+
+			public CryptoExchangeSection CryptoExchange { get; set; } = new CryptoExchangeSection();
+			public class CryptoExchangeSection {
+
+				public double DepositFiatConversionBuffer { get; set; } = 0.02d;
+				public double WithdrawFiatConversionBuffer { get; set; } = 0.02d;
+			}
+
+			public TimeLimitsSection TimeLimits { get; set; } = new TimeLimitsSection();
+			public class TimeLimitsSection {
+
+				public long BuySellRequestExpireSec { get; set; } = 3600;
+				public long CryptoExchangeRequestExpireSec { get; set; } = 3600;
 			}
 		}
 	}

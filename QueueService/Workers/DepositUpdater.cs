@@ -49,6 +49,9 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
+
+				_dbContext.DetachEverything();
+
 				await DepositQueue.ProcessDeposit(_services, row);
 			}
 		}

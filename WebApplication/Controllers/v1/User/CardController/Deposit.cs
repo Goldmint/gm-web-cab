@@ -75,13 +75,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.FinancialHistory() {
+				Status = FinancialHistoryStatus.Processing,
 				Type = FinancialHistoryType.Deposit,
 				AmountCents = amountCents,
 				FeeCents = 0,
 				DeskTicketId = ticket,
-				Status = FinancialHistoryStatus.Pending,
 				TimeCreated = DateTime.UtcNow,
-				User = user,
+				UserId = user.Id,
 				Comment = "", // see below
 			};
 			DbContext.FinancialHistory.Add(finHistory);
@@ -107,6 +107,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				// failed
 				if (queryResult.Status != FiatEnqueueResult.Success) {
+
 					DbContext.FinancialHistory.Remove(finHistory);
 
 					payment.Status = CardPaymentStatus.Cancelled;

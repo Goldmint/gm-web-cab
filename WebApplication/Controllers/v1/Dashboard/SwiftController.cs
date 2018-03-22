@@ -240,6 +240,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						p.Type == SwiftPaymentType.Deposit
 					select p
 				)
+				.Include(_ => _.RefFinancialHistory)
 				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
@@ -260,8 +261,10 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 				}
 
-				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
-			
+				request.RefFinancialHistory.Status = FinancialHistoryStatus.Failed;
+				MarkRequestFinalized(supportUser.Id, request, false, model.Comment);				
+				await DbContext.SaveChangesAsync();
+
 				try {
 					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT deposit refused by support team ({supportUser.UserName})");
 				}
@@ -293,6 +296,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						p.Type == SwiftPaymentType.Withdraw
 					select p
 				)
+				.Include(_ => _.RefFinancialHistory)
 				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
@@ -313,7 +317,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 				}
 
-				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
+				request.RefFinancialHistory.Status = FinancialHistoryStatus.Failed;
+				MarkRequestFinalized(supportUser.Id, request, false, model.Comment);
+				await DbContext.SaveChangesAsync();
 
 				try {
 					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"SWIFT withdraw refused by support team ({supportUser.UserName})");
@@ -361,6 +367,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				.Include(_ => _.User).ThenInclude(_ => _.UserOptions)
 				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
 				.Include(_ => _.User).ThenInclude(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
+				.Include(_ => _.RefFinancialHistory)
 				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
@@ -388,29 +395,11 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					return APIResponse.BadRequest(APIErrorCode.OwnershipLost);
 				}
 
-				// fin history
-				var finHistory = new DAL.Models.FinancialHistory() {
-					Type = FinancialHistoryType.Deposit,
-					AmountCents = amountCents,
-					FeeCents = 0,
-					DeskTicketId = request.DeskTicketId,
-					Status = FinancialHistoryStatus.Success,
-					TimeCreated = DateTime.UtcNow,
-					User = user,
-					Comment = $"Deposit SWIFT payment {request.PaymentReference}",
-				};
-				DbContext.FinancialHistory.Add(finHistory);
-
-				// save
-				await DbContext.SaveChangesAsync();
-
 				try {
 					await TicketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"SWIFT deposit accepted by support team ({supportUser.UserName})");
 				}
 				catch {
 				}
-
-				await FinalizeRequest(supportUser.Id, request, false, model.Comment);
 
 				// own scope
 				using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
@@ -421,12 +410,17 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						userId: request.User.Id,
 						userTier: userTier,
 						request: request,
-						financialHistoryId: finHistory.Id
+						financialHistoryId: request.Id
 					);
 
 					switch (queryResult.Status) {
 
 						case FiatEnqueueResult.Success:
+
+							request.RefFinancialHistory.Status = FinancialHistoryStatus.Completed;
+							MarkRequestFinalized(supportUser.Id, request, false, model.Comment);
+							await DbContext.SaveChangesAsync();
+
 							return APIResponse.Success(
 								new RefuseDepositView() {
 								}
@@ -452,12 +446,11 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			;
 		}
 
-		private async Task FinalizeRequest(long userId, SwiftRequest request, bool success, string comment) {
+		private void MarkRequestFinalized(long userId, SwiftRequest request, bool success, string comment) {
 			request.Status = success? SwiftPaymentStatus.Success: SwiftPaymentStatus.Cancelled;
 			request.SupportUserId = userId;
 			request.SupportComment = (comment ?? "").LimitLength(512);
 			request.TimeCompleted = DateTime.UtcNow;
-			await DbContext.SaveChangesAsync();
 		}
 	}
 }

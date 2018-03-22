@@ -4,8 +4,10 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using Nethereum.RPC.Eth.DTOs;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
@@ -158,6 +160,47 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 
+		public async Task<EthDepositedResult> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+
+			var web3 = new Web3(JsonRpcLogsClient);
+
+			var contract = web3.Eth.GetContract(
+				FiatContractABI,
+				FiatContractAddress
+			);
+
+			var hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
+
+			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+
+			var evnt = contract.GetEvent("EthDeposited");
+			var filter = await evnt.CreateFilterBlockRangeAsync(
+				new BlockParameter(hexFromBlock),
+				new BlockParameter(hexToBlock)
+			);
+
+			var events = new List<EthDepositedEventData>();
+			var logs = await evnt.GetAllChanges<EthereumDepositEventResult>(filter);
+
+			foreach (var v in logs) {
+				events.Add(new EthDepositedEventData() {
+					Address = v.Event.Address,
+					EthAmount = v.Event.EthValue,
+					RequestId = v.Event.RequestId,
+					BlockNumber = v.Log.BlockNumber,
+					TransactionId = v.Log.TransactionHash,
+				});
+			}
+
+			return new EthDepositedResult() {
+				FromBlock = hexFromBlock.Value,
+				ToBlock = hexToBlock.Value,
+				Events = events.ToArray(),
+			};
+		}
+
 		// ---
 
 		[FunctionOutput]
@@ -179,5 +222,16 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			public int State { get; set; }
 		}
 
+		private class EthereumDepositEventResult {
+
+			[Parameter("uint", "_requestId", 1, true)]
+			public BigInteger RequestId { get; set; }
+
+			[Parameter("address", "_address", 2, true)]
+			public string Address { get; set; }
+
+			[Parameter("uint", "_ethValue", 3, false)]
+			public BigInteger EthValue { get; set; }
+		}
 	}
 }

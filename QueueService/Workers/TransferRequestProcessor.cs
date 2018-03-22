@@ -35,7 +35,7 @@ namespace Goldmint.QueueService.Workers {
 			var rows = await (
 				from r in _dbContext.TransferRequest
 				where 
-				(r.Status == GoldExchangeRequestStatus.Processing || r.Status == GoldExchangeRequestStatus.BlockchainConfirm) &&
+				(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
 				select new { Id = r.Id }
 			)
@@ -47,7 +47,10 @@ namespace Goldmint.QueueService.Workers {
 			if (IsCancelled()) return;
 
 			foreach (var row in rows) {
-				await CoreLogic.Finance.Tokens.GoldToken.ProcessHWTransferRequest(_services, row.Id);
+
+				_dbContext.DetachEverything();
+
+				await CoreLogic.Finance.Tokens.GoldToken.ProcessHwTransferRequest(_services, row.Id);
 			}
 		}
 	}

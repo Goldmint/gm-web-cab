@@ -55,6 +55,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// new ticket
 			var ticket = await TicketDesk.NewSwiftWithdraw(user, transCurrency, amountCents);
 
+			// history
+			var finHistory = new DAL.Models.FinancialHistory() {
+				Status = FinancialHistoryStatus.Unconfirmed,
+				Type = FinancialHistoryType.Withdraw,
+				AmountCents = amountCents,
+				FeeCents = 0,
+				DeskTicketId = ticket,
+				TimeCreated = DateTime.UtcNow,
+				UserId = user.Id,
+				Comment = "", // see below
+			};
+			DbContext.FinancialHistory.Add(finHistory);
+			await DbContext.SaveChangesAsync();
+
 			// make payment
 			var request = new DAL.Models.SwiftRequest() {
 				Type = SwiftPaymentType.Withdraw,
@@ -70,28 +84,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				PaymentReference = "", // see below
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,
+
+				RefFinancialHistoryId = finHistory.Id,
 				UserId = user.Id,
 			};
+			finHistory.Status = FinancialHistoryStatus.Manual;
 			DbContext.SwiftRequest.Add(request);
-
-			// history
-			var finHistory = new DAL.Models.FinancialHistory() {
-				Type = FinancialHistoryType.Withdraw,
-				AmountCents = amountCents,
-				FeeCents = 0,
-				DeskTicketId = ticket,
-				Status = FinancialHistoryStatus.Success,
-				TimeCreated = DateTime.UtcNow,
-				UserId = user.Id,
-				Comment = "", // see below
-			};
-			DbContext.FinancialHistory.Add(finHistory);
-
-			// save
 			await DbContext.SaveChangesAsync();
 
 			// update
-			request.PaymentReference = $"W-{user.UserName}-{request.Id}";
+			request.PaymentReference = $"w-{user.UserName}-{request.Id}";
 			finHistory.Comment = $"Swift withdraw request #{request.Id} ({request.PaymentReference})";
 			await DbContext.SaveChangesAsync();
 

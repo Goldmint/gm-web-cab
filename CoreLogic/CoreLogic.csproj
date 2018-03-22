@@ -27,7 +27,7 @@
     <EmbeddedResource Include="Data\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Nethereum.Web3" Version="2.2.3" />
+    <PackageReference Include="Nethereum.Web3" Version="2.4.0" />
   </ItemGroup>
 
 </Project>

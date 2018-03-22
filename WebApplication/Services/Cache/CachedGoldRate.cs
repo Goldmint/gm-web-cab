@@ -11,11 +11,11 @@ namespace Goldmint.WebApplication.Services.Cache {
 
 		private const long CacheTimeoutSeconds = 10;
 
-		private IGoldRateProvider _goldRateProvider;
+		private readonly IGoldRateProvider _goldRateProvider;
 
 		private long _usdStamp = 0;
 		private long _usdValue = 0;
-		private object _usdMonitor = new object();
+		private readonly object _usdMonitor = new object();
 
 		// ---
 
@@ -46,7 +46,8 @@ namespace Goldmint.WebApplication.Services.Cache {
 						Interlocked.Exchange(ref _usdStamp, now);
 						Interlocked.Exchange(ref _usdValue, value);
 					}
-					catch { }
+					catch {
+					}
 					finally {
 						Monitor.Exit(_usdMonitor);
 					}

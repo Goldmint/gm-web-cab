@@ -146,6 +146,37 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		}
 
 		/// <summary>
+		/// Enqueue deposit from crypto-deposit
+		/// </summary>
+		public static async Task<DepositResult> StartDepositFromCryptoDeposit(IServiceProvider services, long userId, CryptoDeposit cryptoDeposit, long calculatedAmountCents, long financialHistoryId) {
+			var logger = services.GetLoggerFor(typeof(DepositQueue));
+
+			return await StartDeposit(
+				services: services,
+				userId: userId,
+				userTier: UserTier.Tier0,
+				currency: cryptoDeposit.Currency,
+				amountCents: calculatedAmountCents,
+				ignoreLimits: true,
+				onSuccess: () => Task.FromResult(
+					new Deposit() {
+						UserId = userId,
+						Status = DepositStatus.Initial,
+						Currency = cryptoDeposit.Currency,
+						AmountCents = calculatedAmountCents,
+						RefFinancialHistoryId = financialHistoryId,
+						Source = DepositSource.CryptoDeposit,
+						SourceId = cryptoDeposit.Id,
+						DeskTicketId = cryptoDeposit.DeskTicketId,
+						TimeCreated = DateTime.UtcNow,
+						TimeNextCheck = DateTime.UtcNow,
+					}
+				)
+			);
+		}
+
+
+		/// <summary>
 		/// Attempt to enqueue deposit
 		/// </summary>
 		public static async Task<DepositResult> StartDeposit(IServiceProvider services, long userId, UserTier userTier, FiatCurrency currency, long amountCents, Func<Task<Deposit>> onSuccess, bool ignoreLimits = false) {
@@ -305,7 +336,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								deposit.Status = success ? DepositStatus.Success : DepositStatus.Failed;
 								deposit.TimeCompleted = DateTime.UtcNow;
 
-								deposit.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Success : FinancialHistoryStatus.Cancelled;
+								deposit.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
 								deposit.RefFinancialHistory.TimeCompleted = deposit.TimeCompleted;
 
 								dbContext.Update(deposit.RefFinancialHistory);

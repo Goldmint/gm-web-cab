@@ -303,7 +303,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Deposit initiated with cryptoasset's selling
 		/// </summary>
-		CryptoExchange,
+		CryptoDeposit,
 	}
 
 	public enum DepositStatus {
@@ -385,33 +385,33 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
-	public enum CryptoExchangeRequestType {
+	public enum CryptoExchangeAsset {
 
 		/// <summary>
-		/// Sell cryptoactive / deposit
+		/// Ethereum
 		/// </summary>
-		Deposit = 1,
-
-		/// <summary>
-		/// Buy cryptoactive / withdraw
-		/// </summary>
-		Withdraw,
+		ETH = 1,
 	}
 
-	public enum CryptoExchangeRequestStatus {
+	public enum CryptoDepositStatus {
 
 		/// <summary>
-		/// Just created
+		/// Just created, unconfirmed
 		/// </summary>
-		Initial = 1,
+		Unconfirmed = 1,
 
+		/// <summary>
+		/// Confirmed, awaiting for transaction
+		/// </summary>
+		Confirmed,
+		
 		/// <summary>
 		/// Prepared for processing
 		/// </summary>
 		Prepared,
 
 		/// <summary>
-		/// Processing
+		/// Prepared for processing
 		/// </summary>
 		Processing,
 
@@ -423,20 +423,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Cancelled
 		/// </summary>
-		Cancelled,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
 		Failed,
-	}
-
-	public enum CryptoExchangeRequestOrigin {
-
-		/// <summary>
-		/// Ethereum
-		/// </summary>
-		Ethereum = 1,
 	}
 
 	#endregion
@@ -480,12 +467,17 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Just created
 		/// </summary>
-		Initial = 1,
+		Unconfirmed = 1,
+
+		/// <summary>
+		/// Confirmed by user
+		/// </summary>
+		Confirmed,
 
 		/// <summary>
 		/// Prepared for processing
 		/// </summary>
-		Processing,
+		Prepared,
 
 		/// <summary>
 		/// Sending request to blockchain
@@ -561,30 +553,45 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Transferring gold from HW
 		/// </summary>
-		HWTransfer,
+		HwTransfer,
+
+		/// <summary>
+		/// Deposit with cryptoassets exchange
+		/// </summary>
+		CryptoDeposit,
+
+		/// <summary>
+		/// Withdraw with cryptoassets exchange
+		/// </summary>
+		CryptoWithdraw,
 	}
 
 	public enum FinancialHistoryStatus {
 
 		/// <summary>
+		/// Initially created
+		/// </summary>
+		Unconfirmed = 1,
+
+		/// <summary>
+		/// Manual operation / sent to support team
+		/// </summary>
+		Manual,
+
+		/// <summary>
 		/// Pending
 		/// </summary>
-		Pending = 1,
+		Processing,
 
 		/// <summary>
 		/// Completed
 		/// </summary>
-		Success,
+		Completed,
 
 		/// <summary>
-		/// Failed or cancelled
+		/// Failed
 		/// </summary>
-		Cancelled,
-
-		/// <summary>
-		/// Manual processing by support team
-		/// </summary>
-		Manual,
+		Failed,
 	}
 
 	public enum SignedDocumentType {
@@ -630,7 +637,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Swift reqeust
 		/// </summary>
-		Swift
+		Swift,
+
+		/// <summary>
+		/// Cryptoassets operations
+		/// </summary>
+		Cryptoassets,
 	}
 
 	#endregion
@@ -639,6 +651,7 @@ namespace Goldmint.Common {
 	public enum DbSetting {
 
 		LastExchangeIndex = 1,
+		LastCryptoExchangeBlockChecked,
 	}
 
 	public enum MutexEntity {
@@ -707,6 +720,16 @@ namespace Goldmint.Common {
 		/// Support team should lock SWIFT request record before it could be processed
 		/// </summary>
 		SupportSwiftRequestProc,
+
+		/// <summary>
+		/// Lock should be set while changing deposit request state
+		/// </summary>
+		CryptoDepositRequest,
+
+		/// <summary>
+		/// Lock should be set while confirming cryptoexchange opertations (crypto-deposit/crypto-withdraw)
+		/// </summary>
+		CryptoExchangeConfirm,
 	}
 
 	public enum NotificationType {
