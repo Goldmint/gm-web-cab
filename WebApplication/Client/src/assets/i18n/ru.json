@@ -847,12 +847,29 @@
       "Circulation": "Отциркулировано:",
       "Link": "Ссылка",
       "Table": {
-        "Heading": "Транзакции",
+        "Heading": "Документы",
         "TableCell": {
           "Date": "Дата",
           "Amount": "Количество",
           "Document": "Документ",
           "Comment": "Комментарий"
+        }
+      },
+      "TableInfo": {
+        "Headings": {
+          "Assets": "Активы",
+          "Liabilities": "Пасивы",
+          "Exchange": "Дениги у брокера/биржи",
+          "Storage": "Физическое золото в хранилище",
+          "DataProvided": "Данные предоставлены",
+          "Report": "Последний отчет аудитора",
+          "MoneyInBanks": "Деньги в банке",
+          "Distribution": "Криптоактивов GOLD в обороте"
+        },
+        "TableCell": {
+          "Borrowings": "Займы",
+          "Capital": "Капитал",
+          "Profits": "Нераспределенная прибыль"
         }
       }
     },
@@ -920,6 +937,7 @@
     "GoldSell": "Продать: {{ goldAmount }} GOLD <br> Вы получите: $ {{ fiatAmount }} ($ {{ feeAmount }} комиссия) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "Купить: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Целевой адрес: {{ address }} <br> GOLD количество: {{ amount }} GOLD",
+    "EthDeposit": "Eth для внесения: {{ coinAmount }} Eth <br> Оценочная сумма: $ {{ usdAmount }} <br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Пароль успешно изменен",
     "InvalidCode": "Неверный код",
     "ConnectionError": {

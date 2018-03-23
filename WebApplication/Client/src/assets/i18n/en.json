@@ -847,12 +847,29 @@
       "Circulation": "Total in circulation:",
       "Link": "Link",
       "Table": {
-        "Heading": "Transactions",
+        "Heading": "Documents",
         "TableCell": {
           "Date": "Date",
           "Amount": "Amount",
           "Document": "Document",
           "Comment": "Comment"
+        }
+      },
+      "TableInfo": {
+        "Headings": {
+          "Assets": "Assets",
+          "Liabilities": "Liabilities",
+          "Exchange": "Money at broker/exchange",
+          "Storage": "Physical gold in the storage",
+          "DataProvided": "Data provided",
+          "Report": "The latest auditor's report",
+          "MoneyInBanks": "Money in banks",
+          "Distribution": "GOLD Cryptoassets in distribution"
+        },
+        "TableCell": {
+          "Borrowings": "Borrowings",
+          "Capital": "Capital",
+          "Profits": "Undistributed profits"
         }
       }
     },
@@ -920,6 +937,7 @@
     "GoldSell": "GOLD to sell: {{ goldAmount }} GOLD <br> You will get: $ {{ fiatAmount }} ($ {{ feeAmount }} fee) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "GOLD to buy: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Target address: {{ address }} <br> GOLD amount: {{ amount }} GOLD",
+    "EthDeposit": "Eth to deposit: {{ coinAmount }} Eth <br> Estimates Amount: $ {{ usdAmount }} <br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Password successfully changed",
     "InvalidCode": "Invalid code",
     "ConnectionError": {

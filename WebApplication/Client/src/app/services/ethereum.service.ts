@@ -45,8 +45,6 @@ export class EthereumService {
   private _obsMntpBalance: Observable<BigNumber> = this._obsMntpBalanceSubject.asObservable();
   private _obsHotGoldBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsHotGoldBalance: Observable<BigNumber> = this._obsHotGoldBalanceSubject.asObservable();
-  private _obsTotalGoldBalancesSubject = new BehaviorSubject<Object>(null);
-  private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
 
   constructor(
     private _userService: UserService
@@ -101,23 +99,6 @@ export class EthereumService {
     }
   }
 
-  private updateTotalGoldBalances() {
-    if (this._contractHotGold) {
-      this._contractHotGold.getTotalBurnt((err, res) => {
-        if (!this._totalGoldBalances.burnt || !this._totalGoldBalances.burnt.eq(res)) {
-          this._totalGoldBalances.burnt = res;
-          this._totalGoldBalances.issued && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
-        }
-      });
-      this._contractHotGold.getTotalIssued((err, res) => {
-        if (!this._totalGoldBalances.issued || !this._totalGoldBalances.issued.eq(res)) {
-          this._totalGoldBalances.issued = res;
-          this._totalGoldBalances.burnt && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
-        }
-      });
-    }
-  }
-
   private checkBalance() {
     if (this._lastAddress != null) {
       // check via eth
@@ -127,7 +108,6 @@ export class EthereumService {
 
     this.updateUsdBalance();
     this.checkHotBalance();
-    this.updateTotalGoldBalances();
   }
 
   private checkHotBalance() {
@@ -204,10 +184,6 @@ export class EthereumService {
     return this._obsMntpBalance;
   }
 
-  public getObservableTotalGoldBalances(): Observable<Object> {
-    return this._obsTotalGoldBalances;
-  }
-
   // ---
 
   public sendBuyRequest(fromAddr: string, payload: any[]) {
@@ -218,6 +194,11 @@ export class EthereumService {
   public sendSellRequest(fromAddr: string, payload: any[]) {
     if (this._contractFiatMetamask == null) return;
     this._contractFiatMetamask.addSellTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
+  }
+
+  public ethDepositRequest(fromAddr: string, payload: any[]) {
+    if (this._contractFiatMetamask == null) return;
+    this._contractFiatMetamask.depositEth.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
   }
 
   public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {

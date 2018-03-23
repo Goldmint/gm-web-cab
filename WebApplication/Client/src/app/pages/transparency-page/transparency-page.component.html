@@ -2,141 +2,199 @@
   <h1 class="page__heading">{{ "PAGES.Transparency.Heading" | translate }}</h1>
 
   <div class="page__section">
+    <div class="d-flex">
+      <table class="fees-ngx-datatable w-100 mr-2">
+        <thead class="fees-datatable-header">
+          <tr class="fees-datatable-header fees-border-bottom">
+            <td class="fees-datatable-header-cell trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Assets" | translate }}</td>
+            <td class="fees-datatable-header-cell trn-info__label"></td>
+          </tr>
+        </thead>
+        <tbody class="fees-datatable-body">
+          <tr class="fees-datatable-body-row fees-border-bottom">
+            <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.Headings.MoneyInBanks" | translate }}</td>
+            <td class="fees-datatable-body-cell align-middle"></td>
+          </tr>
+          <tr class="fees-datatable-body-row">
+            <td class="fees-datatable-body-cell align-middle">1 USD</td>
+            <td class="fees-datatable-body-cell align-middle">100</td>
+          </tr>
+          <tr class="fees-datatable-body-row">
+            <td class="fees-datatable-body-cell align-middle">2 EUR</td>
+            <td class="fees-datatable-body-cell align-middle">200</td>
+          </tr>
+          <tr class="fees-datatable-body-row fees-border-bottom">
+            <td class="fees-datatable-body-cell align-middle">3 SGD</td>
+            <td class="fees-datatable-body-cell align-middle">300</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="trn-info">
-      <div class="col px-5 trn-info__block">
-        <div class="trn-info__icon trn-info__icon--plus">
-          <svg class="icon" width="8px" height="8px">
-            <use xlink:href="#amount-plus"></use>
-          </svg>
-        </div>
-        <div class="trn-info__label">{{ "PAGES.Transparency.Issued" | translate }}</div>
-        <div class="trn-info__value">
-          {{ summary.issued?.prefix }}
-          {{ summary.issued.amount }}
-          {{ summary.issued?.suffix }}
-        </div>
-      </div>
-
-      <div class="col px-5 trn-info__block">
-        <div class="trn-info__icon trn-info__icon--minus">
-          <svg class="icon" width="8px" height="2px">
-            <use xlink:href="#amount-minus"></use>
-          </svg>
-        </div>
-        <div class="trn-info__label">{{ "PAGES.Transparency.Burnt" | translate }}</div>
-        <div class="trn-info__value">
-          {{ summary.burnt?.prefix }}
-          {{ summary.burnt.amount }}
-          {{ summary.burnt?.suffix }}
-        </div>
-      </div>
-
-      <div class="col px-5 trn-info__block">
-        <div class="trn-info__icon trn-info__icon--circ">
-          <svg class="icon" width="21px" height="16px">
-            <use xlink:href="#circulation"></use>
-          </svg>
-        </div>
-        <div class="trn-info__label">{{ "PAGES.Transparency.Circulation" | translate }}</div>
-        <div class="trn-info__value">
-          {{ summary.circulation?.prefix }}
-          {{ summary.circulation.amount }}
-          {{ summary.circulation?.suffix }}
-        </div>
-      </div>
+      <table class="fees-ngx-datatable w-100 ml-2">
+        <thead class="fees-datatable-header">
+          <tr class="fees-datatable-header fees-border-bottom">
+            <td class="fees-datatable-header-cell trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Liabilities" | translate }}</td>
+            <td class="fees-datatable-header-cell trn-info__label"></td>
+          </tr>
+        </thead>
+        <tbody class="fees-datatable-body">
+          <tr class="fees-datatable-body-row fees-border-bottom">
+            <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.Headings.Distribution" | translate }}</td>
+            <td class="fees-datatable-body-cell align-middle"></td>
+          </tr>
+          <tr class="fees-datatable-body-row">
+            <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Borrowings" | translate }}</td>
+            <td class="fees-datatable-body-cell align-middle">100</td>
+          </tr>
+          <tr class="fees-datatable-body-row">
+            <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Capital" | translate }}</td>
+            <td class="fees-datatable-body-cell align-middle">200</td>
+          </tr>
+          <tr class="fees-datatable-body-row fees-border-bottom">
+            <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Profits" | translate }}</td>
+            <td class="fees-datatable-body-cell align-middle">300</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <section class="section section--table">
-      <h2 class="section__title" id="pageSectionTitle">{{ "PAGES.Transparency.Table.Heading" | translate }}</h2>
+    <table class="fees-ngx-datatable w-100 mt-5">
+      <tbody class="fees-datatable-body">
+        <tr class="fees-datatable-body-row fees-border-top fees-border-bottom">
+          <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Exchange" | translate }}</td>
+          <td class="fees-datatable-body-cell w-50 align-middle"></td>
+        </tr>
+        <tr class="fees-datatable-body-row">
+          <td class="fees-datatable-body-cell w-50 align-middle">1 Wedbush</td>
+          <td class="fees-datatable-body-cell w-50 align-middle">100</td>
+        </tr>
+        <tr class="fees-datatable-body-row">
+          <td class="fees-datatable-body-cell w-50 align-middle">2 SGPMX</td>
+          <td class="fees-datatable-body-cell w-50 align-middle">200</td>
+        </tr>
+        <tr class="fees-datatable-body-row fees-border-bottom">
+          <td class="fees-datatable-body-cell w-50 align-middle">3 Saxobank</td>
+          <td class="fees-datatable-body-cell w-50 align-middle">300</td>
+        </tr>
+        <tr class="fees-datatable-body-row fees-border-bottom">
+          <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Storage" | translate }}</td>
+          <td class="fees-datatable-body-cell w-50 align-middle"></td>
+        </tr>
+        <tr class="fees-datatable-body-row">
+          <td class="fees-datatable-body-cell w-50 align-middle">SGPMX</td>
+          <td class="fees-datatable-body-cell w-50 align-middle"></td>
+        </tr>
+        <tr class="fees-datatable-body-row">
+          <td class="fees-datatable-body-cell w-50 align-middle">Brinks</td>
+          <td class="fees-datatable-body-cell w-50 align-middle"></td>
+        </tr>
+        <tr class="fees-datatable-body-row fees-border-bottom">
+          <td class="fees-datatable-body-cell w-50 align-middle">FRBNY</td>
+          <td class="fees-datatable-body-cell w-50 align-middle"></td>
+        </tr>
+        <tr class="fees-datatable-body-row fees-border-bottom">
+          <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.DataProvided" | translate }}</td>
+          <td class="fees-datatable-body-cell w-50 align-middle">23.03.18</td>
+        </tr>
+        <tr class="fees-datatable-body-row fees-border-bottom">
+          <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Report" | translate }}</td>
+          <td class="fees-datatable-body-cell w-50 align-middle">19.03.18</td>
+        </tr>
+      </tbody>
+    </table>
 
-      <div class="section__content">
-        <ngx-datatable class="table table--no-footer" #table
-                       [rows]="rows"
-                       [columnMode]="'force'"
-                       [sorts]="sorts"
-                       [headerHeight]="53"
-                       [rowHeight]="'auto'"
-                       [footerHeight]="135"
-                       [reorderable]="false"
-                       [loadingIndicator]="loading"
-                       [count]="page.totalElements"
-                       [offset]="page.pageNumber"
-                       [limit]="page.size"
-                       [externalSorting]="true"
-                       (sort)="onSort($event)"
-                       [externalPaging]="true"
-                       (page)='setPage($event)'
-                       [messages]="messages">
+    <div class="pt-5">
+      <section class="section section--table">
+        <h2 class="section__title" id="pageSectionTitle">{{ "PAGES.Transparency.Table.Heading" | translate }}</h2>
 
-          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
-            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+        <div class="section__content">
+          <ngx-datatable class="table table--no-footer" #table
+                         [rows]="rows"
+                         [columnMode]="'force'"
+                         [sorts]="sorts"
+                         [headerHeight]="53"
+                         [rowHeight]="'auto'"
+                         [footerHeight]="135"
+                         [reorderable]="false"
+                         [loadingIndicator]="loading"
+                         [count]="page.totalElements"
+                         [offset]="page.pageNumber"
+                         [limit]="page.size"
+                         [externalSorting]="true"
+                         (sort)="onSort($event)"
+                         [externalPaging]="true"
+                         (page)='setPage($event)'
+                         [messages]="messages">
+
+            <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
+              <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                {{ "PAGES.Transparency.Table.TableCell.Date" | translate }}
               </span>
-            </ng-template>
+              </ng-template>
 
-            <ng-template let-timestamp="value" ngx-datatable-cell-template>
-              {{ timestamp * 1000 | date:'short':'':locale }}
-            </ng-template>
-          </ngx-datatable-column>
+              <ng-template let-timestamp="value" ngx-datatable-cell-template>
+                {{ timestamp * 1000 | date:'short':'':locale }}
+              </ng-template>
+            </ngx-datatable-column>
 
-          <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="160">
-            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="160">
+              <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 {{ "PAGES.Transparency.Table.TableCell.Amount" | translate }}
               </span>
-            </ng-template>
+              </ng-template>
 
-            <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-              {{ amount | number:'1.2-2':locale }} OZ
-            </ng-template>
-          </ngx-datatable-column>
+              <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
+                {{ amount | number:'1.2-2':locale }} OZ
+              </ng-template>
+            </ngx-datatable-column>
 
-          <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
-            <ng-template ngx-datatable-header-template>
-              {{ "PAGES.Transparency.Table.TableCell.Document" | translate }}
-            </ng-template>
+            <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
+              <ng-template ngx-datatable-header-template>
+                {{ "PAGES.Transparency.Table.TableCell.Document" | translate }}
+              </ng-template>
 
-            <ng-template let-link="value" ngx-datatable-cell-template>
-              <a [href]="link">{{ "PAGES.Transparency.Link" | translate }}</a>
-            </ng-template>
-          </ngx-datatable-column>
+              <ng-template let-link="value" ngx-datatable-cell-template>
+                <a [href]="link">{{ "PAGES.Transparency.Link" | translate }}</a>
+              </ng-template>
+            </ngx-datatable-column>
 
-          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
-            <ng-template ngx-datatable-header-template>
-              {{ "PAGES.Transparency.Table.TableCell.Comment" | translate }}
-            </ng-template>
+            <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template ngx-datatable-header-template>
+                {{ "PAGES.Transparency.Table.TableCell.Comment" | translate }}
+              </ng-template>
 
-            <ng-template let-link="value" ngx-datatable-cell-template>
-              {{ comment }}
-            </ng-template>
-          </ngx-datatable-column>
-        </ngx-datatable>
+              <ng-template let-link="value" ngx-datatable-cell-template>
+                {{ comment }}
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
 
-        <div class="progress-linear progress-linear--tiny" *ngIf="loading">
-          <div class="container"></div>
+          <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+            <div class="container"></div>
+          </div>
+
+          <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
+            <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+              <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+                <svg class="icon icon--previous" height="17px" width="7px">
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+              <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+                <svg class="icon icon--next" height="17px" width="7px">
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+                </svg>
+              </a>
+            </li>
+          </ul>
+
         </div>
-
-        <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
-          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
-            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
-              <svg class="icon icon--previous" height="17px" width="7px">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
-              </svg>
-            </a>
-          </li>
-          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
-            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
-              <svg class="icon icon--next" height="17px" width="7px">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
-              </svg>
-            </a>
-          </li>
-        </ul>
-
-      </div>
-    </section>
+      </section>
+    </div>
 
   </div>
 </div>
