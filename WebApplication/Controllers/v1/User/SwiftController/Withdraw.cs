@@ -5,7 +5,9 @@ using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.SwiftModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
@@ -46,6 +48,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.AccountTFADisabled);
 			}
 
+			// get the template
+			var template = await (
+					from t in DbContext.SwiftTemplate
+					where t.UserId == user.Id && t.Id == model.TemplateId
+					select t
+				)
+				.FirstOrDefaultAsync()
+			;
+			if (template == null) {
+				return APIResponse.BadRequest(nameof(model.TemplateId), "Invalid ID");
+			}
+
 			// actual user balance check
 			var currentBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, transCurrency);
 			if (amountCents > currentBalance) {
@@ -75,12 +89,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = SwiftPaymentStatus.Pending,
 				Currency = transCurrency,
 				AmountCents = amountCents,
-				Holder = model.Holder.LimitLength(256),
+				Holder = template.Holder.LimitLength(256),
 				HolderAddress = "",
-				Iban = model.Iban.LimitLength(256),
-				Bank = model.Bank.LimitLength(256),
-				Bic = model.Bic.LimitLength(128),
-				Details = model.Details.LimitLength(1024),
+				Iban = template.Iban.LimitLength(256),
+				Bank = template.Bank.LimitLength(256),
+				Bic = template.Bic.LimitLength(128),
+				Details = template.Details.LimitLength(1024),
 				PaymentReference = "", // see below
 				DeskTicketId = ticket,
 				TimeCreated = DateTime.UtcNow,
