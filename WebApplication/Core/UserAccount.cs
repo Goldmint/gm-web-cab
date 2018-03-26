@@ -104,7 +104,7 @@ namespace Goldmint.WebApplication.Core {
 			var rights = (long)user.AccessRights;
 			var defaultUserMaxRights = 0L | (long)AccessRights.Client;
 
-			if (audience == JwtAudience.App) {
+			if (audience == JwtAudience.Cabinet) {
 				// max rights are default user rights
 				return user.AccessRights & defaultUserMaxRights;
 			}

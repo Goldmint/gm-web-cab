@@ -29,7 +29,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var audience = JwtAudience.Cabinet;
+			var userLocale = GetUserLocale();
 
 			// captcha
 			if (!HostingEnvironment.IsDevelopment()) {
@@ -46,13 +47,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				var token = Core.Tokens.JWT.CreateSecurityToken(
 					appConfig: AppConfig,
 					entityId: result.User.UserName,
-					audience: JwtAudience.App,
+					audience: audience,
 					securityStamp: result.User.JWTSalt,
 					area: Common.JwtArea.Registration, 
 					validFor: TimeSpan.FromDays(3)
 				);
 
-				var callbackUrl = this.MakeLink(fragment: AppConfig.AppRoutes.SignUpConfirmation.Replace(":token", token));
+				var callbackUrl = this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteSignUpConfirmation.Replace(":token", token));
 
 				// email confirmation
 				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.EmailConfirmation, userLocale))
@@ -84,15 +85,16 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			var audience = JwtAudience.Cabinet;
 			var user = (DAL.Models.Identity.User)null;
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// check token
 			if (! await Core.Tokens.JWT.IsValid(
 				appConfig: AppConfig, 
 				jwtToken: model.Token, 
-				expectedAudience: JwtAudience.App,
+				expectedAudience: audience,
 				expectedArea: Common.JwtArea.Registration,
 				validStamp: async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
@@ -115,7 +117,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				services: HttpContext.RequestServices,
 				user: user,
 				email: user.Email,
-				redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+				redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
 			);
 
 			return APIResponse.Success();

@@ -89,5 +89,6 @@ namespace Goldmint.DAL.Models.Identity {
 		public virtual IEnumerable<UserOpLog> UserOpLog { get; set; }
 		public virtual IEnumerable<SignedDocument> SignedDocument { get; set; }
 		public virtual IEnumerable<CryptoDeposit> CryptoDeposit { get; set; }
+		public virtual IEnumerable<SwiftTemplate> SwiftTemplate { get; set; }
 	}
 }

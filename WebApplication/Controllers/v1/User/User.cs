@@ -13,7 +13,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Zendesk SSO: new JWT token
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("zendesk/sso")]
 		[ProducesResponseType(typeof(ZendeskSsoView), 200)]
 		public async Task<APIResponse> ZendeskSso() {

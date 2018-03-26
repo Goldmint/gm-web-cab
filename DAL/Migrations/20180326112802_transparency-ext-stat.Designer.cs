@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180326112802_transparency-ext-stat")]
+    partial class transparencyextstat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1025,61 +1026,6 @@ namespace Goldmint.DAL.Migrations
                     b.ToTable("gm_swift_request");
                 });
 
-            modelBuilder.Entity("Goldmint.DAL.Models.SwiftTemplate", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Bank")
-                        .IsRequired()
-                        .HasColumnName("bank")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("Bic")
-                        .IsRequired()
-                        .HasColumnName("bic")
-                        .HasMaxLength(128);
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnName("concurrency_stamp")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("Details")
-                        .IsRequired()
-                        .HasColumnName("details")
-                        .HasMaxLength(1024);
-
-                    b.Property<string>("Holder")
-                        .IsRequired()
-                        .HasColumnName("holder")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("Iban")
-                        .IsRequired()
-                        .HasColumnName("iban")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnName("name")
-                        .HasMaxLength(64);
-
-                    b.Property<DateTime>("TimeCreated")
-                        .HasColumnName("time_created");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("gm_swift_template");
-                });
-
             modelBuilder.Entity("Goldmint.DAL.Models.TransferRequest", b =>
                 {
                     b.Property<long>("Id")
@@ -1646,14 +1592,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Goldmint.DAL.Models.SwiftTemplate", b =>
-                {
-                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
-                        .WithMany("SwiftTemplate")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

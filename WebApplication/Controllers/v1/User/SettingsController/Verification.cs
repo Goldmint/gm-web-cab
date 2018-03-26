@@ -23,7 +23,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Verification data
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("verification/view")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationView() {
@@ -34,7 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Step 1. Fill verification form
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/edit")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationEdit([FromBody] VerificationEditModel model) {
@@ -85,7 +85,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Step 2. KYC verification
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("verification/kycStart")]
 		[ProducesResponseType(typeof(VerificationKycStartView), 200)]
 		public async Task<APIResponse> VerificationKycStart([FromBody] VerificationKycStartModel model) {
@@ -160,14 +160,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Step 3. Resend primary agreement to sign
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("verification/resendAgreement")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationResendAgreement() {
 
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// on tier-1 + KYC completed + agreement is not signed
 			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKYCVerification(user.UserVerification) || CoreLogic.User.HasSignedAgreement(user.UserVerification)) {
@@ -187,7 +187,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				services: HttpContext.RequestServices,
 				user: user,
 				email: user.Email,
-				redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.VerificationPage)
+				redirectUrl: this.MakeAppLink(JwtAudience.Cabinet, fragment: AppConfig.Apps.Cabinet.RouteVerificationPage)
 			);
 
 			return APIResponse.Success(MakeVerificationView(user));

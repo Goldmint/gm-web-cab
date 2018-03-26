@@ -17,7 +17,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Selling request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/sell")]
 		[ProducesResponseType(typeof(SellRequestView), 200)]
 		public async Task<APIResponse> SellRequest([FromBody] SellRequestModel model) {
@@ -134,7 +134,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Selling request (hot wallet)
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/hw/sell")]
 		[ProducesResponseType(typeof(HWSellRequestView), 200)]
 		public async Task<APIResponse> HwSellRequest([FromBody] HWSellRequestModel model) {

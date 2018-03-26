@@ -17,7 +17,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Create swift deposit request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("deposit")]
 		[ProducesResponseType(typeof(DepositView), 200)]
 		public async Task<APIResponse> Deposit([FromBody] DepositModel model) {
@@ -41,7 +41,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);

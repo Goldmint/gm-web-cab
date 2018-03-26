@@ -93,18 +93,20 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		// ---
 
 		[NonAction]
-		public string MakeLink(string path = null, string query = null, string fragment = null) {
-			var uri = new UriBuilder(
-				HttpContext.Request.Scheme,
-				HttpContext.Request.Host.Host,
-				HttpContext.Request.Host.Port ?? 443
-			);
+		public string MakeAppLink(JwtAudience audience, string fragment) {
 
-			uri.Path = "/" + ((AppConfig.AppRoutes.Path ?? "").Trim('/') + "/" + (path ?? "").Trim('/')).Trim('/') + "/";
-			
-			if (query != null) {
-				uri.Query = query;
+			var appUri = (string) null;
+			if (audience == JwtAudience.Cabinet) {
+				appUri = AppConfig.Apps.Cabinet.Url;
 			}
+			else if (audience == JwtAudience.Dashboard) {
+				appUri = AppConfig.Apps.Dashboard.Url;
+			}
+			else {
+				throw new NotImplementedException("Audience is not implemented. Could not create app link");
+			}
+
+			var uri = new UriBuilder(new Uri(appUri));
 			if (fragment != null) {
 				uri.Fragment = fragment;
 			}
@@ -181,6 +183,18 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				IpObject = ipObj,
 				Agent = agent,
 			};
+		}
+
+		[NonAction]
+		protected Locale GetUserLocale() {
+			if (
+				HttpContext.Request.Headers.TryGetValue("GM-LOCALE", out var localeHeader) && 
+				!string.IsNullOrWhiteSpace(localeHeader.ToString()) && 
+				Enum.TryParse(localeHeader.ToString(), true, out Locale localeEnum)
+			) {
+				return localeEnum;
+			}
+			return Locale.En;
 		}
 	}
 }

@@ -33,6 +33,8 @@ namespace Goldmint.DAL {
 		public DbSet<BannedCountry> BannedCountry { get; set; }
 		public DbSet<SignedDocument> SignedDocument { get; set; }
 		public DbSet<CryptoDeposit> CryptoDeposit { get; set; }
+		public DbSet<TransparencyStat> TransparencyStat { get; set; }
+		public DbSet<SwiftTemplate> SwiftTemplate { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}

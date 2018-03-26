@@ -25,7 +25,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Confirm buying/selling request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/confirm")]
 		[ProducesResponseType(typeof(ConfirmView), 200)]
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
@@ -113,7 +113,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Confirm buying/selling request (hot wallet)
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/hw/confirm")]
 		[ProducesResponseType(typeof(HWConfirmView), 200)]
 		public async Task<APIResponse> HwConfirm([FromBody] HWConfirmModel model) {
@@ -234,7 +234,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Transferring request of GOLD to eth address (hot wallet)
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("gold/hw/transfer")]
 		[ProducesResponseType(typeof(HWTransferView), 200)]
 		public async Task<APIResponse> HwTransfer([FromBody] HWTransferModel model) {

@@ -11,18 +11,36 @@ namespace Goldmint.Common {
 
 		// ---
 
-		public AppRoutesSection AppRoutes { get; set; } = new AppRoutesSection();
-		public class AppRoutesSection {
+		public AppsSection Apps { get; set; } = new AppsSection();
 
-			public string Path { get; set; } = "/";
-			public string VerificationPage { get; set; } = "";
-			public string SignUpConfirmation { get; set; } = "";
-			public string PasswordRestoration { get; set; } = "";
-			public string EmailTaken { get; set; } = "";
-			public string OAuthTfaPage { get; set; } = "";
-			public string OAuthAuthorized { get; set; } = "";
-			public string DpaRequired { get; set; } = "";
-			public string DpaSigned { get; set; } = "";
+		public class AppsSection {
+
+			public string RelativeApiPath { get; set; } = "/";
+
+			public CabinetSection Cabinet { get; set; } = new CabinetSection();
+			public DashboardSection Dashboard { get; set; } = new DashboardSection();
+
+			// ---
+
+			public class CabinetSection : BaseAppSection {
+
+				public string RouteVerificationPage { get; set; } = "";
+				public string RouteSignUpConfirmation { get; set; } = "";
+				public string RoutePasswordRestoration { get; set; } = "";
+				public string RouteEmailTaken { get; set; } = "";
+				public string RouteOAuthTfaPage { get; set; } = "";
+				public string RouteOAuthAuthorized { get; set; } = "";
+				public string RouteDpaRequired { get; set; } = "";
+				public string RouteDpaSigned { get; set; } = "";
+			}
+
+			public class DashboardSection : BaseAppSection {
+			}
+
+			public abstract class BaseAppSection {
+
+				public string Url { get; set; } = "/";
+			}
 		}
 
 		// ---

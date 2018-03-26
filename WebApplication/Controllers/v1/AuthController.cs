@@ -34,7 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// captcha
 			if (!HostingEnvironment.IsDevelopment()) {
@@ -47,7 +47,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (user != null) { // || !await SignInManager.CanSignInAsync(user)) {
 
 				// get audience
-				JwtAudience audience = JwtAudience.App;
+				JwtAudience audience = JwtAudience.Cabinet;
 				if (!string.IsNullOrWhiteSpace(model.Audience)) {
 					if (Enum.TryParse(model.Audience, true, out JwtAudience aud)) {
 						audience = aud;
@@ -65,7 +65,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							services: HttpContext.RequestServices,
 							user: user,
 							email: user.Email,
-							redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+							redirectUrl: this.MakeAppLink(JwtAudience.Cabinet, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
 						);
 					}
 				}
