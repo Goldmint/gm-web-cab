@@ -45,5 +45,41 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				new AddView() { }
 			);
 		}
+
+		/// <summary>
+		/// Update transparency stat
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.TransparencyWriteAccess)]
+		[HttpPost, Route("updateStat")]
+		[ProducesResponseType(typeof(UpdateStatView), 200)]
+		public async Task<APIResponse> UpdateStat([FromBody] UpdateStatModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var user = await GetUserFromDb();
+
+			// ---
+
+			DbContext.TransparencyStat.Add(
+				new TransparencyStat() {
+					AssetsArray = Common.Json.Stringify(model.Assets),
+					BondsArray = Common.Json.Stringify(model.Bonds),
+					FiatArray = Common.Json.Stringify(model.Fiat),
+					GoldArray = Common.Json.Stringify(model.Gold),
+					DataTimestamp = DateTimeOffset.FromUnixTimeSeconds(model.DataTimestamp).UtcDateTime,
+					AuditTimestamp = DateTimeOffset.FromUnixTimeSeconds(model.AuditTimestamp).UtcDateTime,
+					UserId = user.Id,
+					TimeCreated = DateTime.UtcNow,
+				}
+			);
+			await DbContext.SaveChangesAsync();
+
+			return APIResponse.Success(
+				new UpdateStatView() { }
+			);
+		}
 	}
 }

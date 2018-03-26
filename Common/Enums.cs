@@ -20,7 +20,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// App access
 		/// </summary>
-		App = 1,
+		Cabinet = 1,
 
 		/// <summary>
 		/// Dashboard access

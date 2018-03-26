@@ -117,28 +117,26 @@ namespace Goldmint.WebApplication {
 				app.UseSwagger(opts => {
 				});
 				app.UseSwaggerUI(opts => {
-					opts.SwaggerEndpoint("/" + ((_appConfig.AppRoutes.Path).Trim('/') + "/swagger/api/swagger.json").Trim('/'), "API");
+					opts.SwaggerEndpoint("/" + ((_appConfig.Apps.RelativeApiPath).Trim('/') + "/swagger/api/swagger.json").Trim('/'), "API");
 				});
 			}
 
-			app.UseDefaultFiles();
-			app.UseStaticFiles();
-
-			// redirect to index: not found, not a file, not api request
+			// 404: redirect to index: not found, not a file, not api request
 			app.Use(async (context, next) => {
 				await next();
-				if (context.Response.StatusCode == 404 && !System.IO.Path.HasExtension(context.Request.Path.Value) && !context.Request.Path.Value.ToLower().StartsWith("/api/")) {
-					context.Request.Path = "/index.html";
-					await next();
+				if (context.Response.StatusCode == 404) {
+					var resp = APIResponse.BadRequest(APIErrorCode.MethodNotFound);
+					await resp.WriteResponse(context).ConfigureAwait(false);
 				}
 			});
 
 			app.UseAuthentication();
 
-			app.UseCors(opts => opts
-				.AllowAnyOrigin()
-				.AllowAnyHeader()
-				.AllowAnyMethod()
+			app.UseCors(opts => {
+					opts.WithMethods("GET", "POST", "OPTIONS");
+					opts.AllowAnyHeader();
+					opts.AllowAnyOrigin();
+				}
 			);
 
 			app.UseMvc();

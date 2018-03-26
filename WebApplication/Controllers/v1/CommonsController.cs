@@ -65,8 +65,24 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				}
 			;
 
+			var stat = await DbContext.TransparencyStat.AsNoTracking().LastOrDefaultAsync();
+			var statAssets = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.AssetsArray ?? "[]");
+			var statBonds = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.BondsArray ?? "[]");
+			var statFiat = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.FiatArray ?? "[]");
+			var statGold = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.GoldArray ?? "[]");
+			var statDataTime = stat?.DataTimestamp ?? DateTime.UtcNow;
+			var statAuditTime = stat?.AuditTimestamp ?? DateTime.UtcNow;
+
 			return APIResponse.Success(
 				new TransparencyView() {
+					Stat = new TransparencyViewStat() {
+						Assets = statAssets,
+						Bonds = statBonds,
+						Fiat = statFiat,
+						Gold = statGold,
+						DataTimestamp = ((DateTimeOffset)statDataTime).ToUnixTimeSeconds(),
+						AuditTimestamp = ((DateTimeOffset)statAuditTime).ToUnixTimeSeconds(),
+					},
 					Items = list.ToArray(),
 					Limit = model.Limit,
 					Offset = model.Offset,

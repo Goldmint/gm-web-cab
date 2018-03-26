@@ -15,7 +15,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Create swift withdraw request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("withdraw")]
 		[ProducesResponseType(typeof(WithdrawView), 200)]
 		public async Task<APIResponse> Withdraw([FromBody] WithdrawModel model) {

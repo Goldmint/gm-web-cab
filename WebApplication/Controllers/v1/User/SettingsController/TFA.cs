@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Get TFA status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("tfa/view")]
 		[ProducesResponseType(typeof(TFAView), 200)]
 		public async Task<APIResponse> TFAView() {
@@ -34,7 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Set TFA status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("tfa/edit")]
 		[ProducesResponseType(typeof(TFAView), 200)]
 		public async Task<APIResponse> TFAEdit([FromBody] TFAEditModel model) {
@@ -46,7 +46,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			var makeChange = user.TwoFactorEnabled != model.Enable;
 

@@ -74,11 +74,11 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		public async Task<RedirectResult> ProcessOAuthCallback(LoginProvider provider, UserInfo userInfo) {
 
-			var audience = JwtAudience.App;
+			var audience = JwtAudience.Cabinet;
 
 			// find user with this ext login
 			var user = await UserManager.FindByLoginAsync(provider.ToString(), userInfo.Id);
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// exists
 			if (user != null) {
@@ -108,12 +108,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 								services: HttpContext.RequestServices,
 								user: user,
 								email: user.Email,
-								redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+								redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
 							);
 						}
 
 						return Redirect(
-							this.MakeLink(fragment: AppConfig.AppRoutes.DpaRequired)
+							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaRequired)
 						);
 					}
 
@@ -139,13 +139,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						var tokenForTFA = JWT.CreateAuthToken(
 							appConfig: AppConfig,
 							user: user,
-							audience: JwtAudience.App,
+							audience: audience,
 							area: JwtArea.TFA,
 							rightsMask: accessRightsMask.Value
 						);
 
 						return Redirect(
-							this.MakeLink(fragment: AppConfig.AppRoutes.OAuthTfaPage.Replace(":token", tokenForTFA))
+							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteOAuthTfaPage.Replace(":token", tokenForTFA))
 						);
 					}
 
@@ -157,12 +157,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					var token = JWT.CreateAuthToken(
 						appConfig: AppConfig, 
 						user: user, 
-						audience: JwtAudience.App,
+						audience: audience,
 						area: JwtArea.Authorized,
 						rightsMask: accessRightsMask.Value
 					);
 					return Redirect(
-						this.MakeLink(fragment: AppConfig.AppRoutes.OAuthAuthorized.Replace(":token", token))
+						this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteOAuthAuthorized.Replace(":token", token))
 					);
 				}
 
@@ -191,13 +191,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 								services: HttpContext.RequestServices,
 								user: cuaResult.User,
 								email: cuaResult.User.Email,
-								redirectUrl: this.MakeLink(fragment: AppConfig.AppRoutes.DpaSigned)
+								redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
 							);
 
 							// DPA is unsigned
 							if (!CoreLogic.User.HasSignedDpa(cuaResult.User.UserOptions)) {
 								return Redirect(
-									this.MakeLink(fragment: AppConfig.AppRoutes.DpaRequired)
+									this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaRequired)
 								);
 							}
 
@@ -205,12 +205,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							var token = JWT.CreateAuthToken(
 								appConfig: AppConfig,
 								user: cuaResult.User,
-								audience: JwtAudience.App,
+								audience: audience,
 								area: JwtArea.Authorized,
 								rightsMask: accessRightsMask.Value
 							);
 							return Redirect(
-								this.MakeLink(fragment: AppConfig.AppRoutes.OAuthAuthorized.Replace(":token", token))
+								this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteOAuthAuthorized.Replace(":token", token))
 							);
 						}
 					}
@@ -221,7 +221,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 				// redirect to error OR email input
 				return Redirect(
-					this.MakeLink(fragment: AppConfig.AppRoutes.EmailTaken)
+					this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteEmailTaken)
 				);
 			}
 		}

@@ -26,7 +26,7 @@ namespace Goldmint.WebApplication.Services.OAuth.Impl {
 				appConfig: _appConfig, 
 				entityId: userId?.ToString() ?? Guid.NewGuid().ToString("N"), 
 				securityStamp: "",
-				audience: JwtAudience.App,
+				audience: JwtAudience.Cabinet,
 				area: JwtArea.OAuth,
 				validFor: TimeSpan.FromMinutes(5),
 				optClaims: new[] { new System.Security.Claims.Claim("google", "true") }
@@ -55,7 +55,7 @@ namespace Goldmint.WebApplication.Services.OAuth.Impl {
 			if (! await Core.Tokens.JWT.IsValid(
 				appConfig: _appConfig,
 				jwtToken: oauthState,
-				expectedAudience: JwtAudience.App,
+				expectedAudience: JwtAudience.Cabinet,
 				expectedArea: JwtArea.OAuth, 
 				validStamp: (jwt, id) => Task.FromResult("") )
 			) {
