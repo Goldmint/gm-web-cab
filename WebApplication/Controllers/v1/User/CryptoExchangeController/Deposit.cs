@@ -20,7 +20,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Eth deposit request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.App), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("depositEth")]
 		[ProducesResponseType(typeof(EthDepositView), 200)]
 		public async Task<APIResponse> EthDeposit([FromBody] EthDepositModel model) {

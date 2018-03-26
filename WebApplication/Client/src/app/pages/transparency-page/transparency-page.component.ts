@@ -5,6 +5,7 @@ import { Page } from '../../models/page';
 import { TransparencySummary, TransparencyRecord } from '../../interfaces';
 import {APIService, EthereumService, UserService} from '../../services';
 import {BigNumber} from "bignumber.js";
+import {DatePipe} from "@angular/common";
 
 @Component({
   selector: 'app-transparency-page',
@@ -16,6 +17,7 @@ import {BigNumber} from "bignumber.js";
 export class TransparencyPageComponent implements OnInit {
   public locale: string;
   public loading: boolean;
+  public isDataLoaded = false;
   public page = new Page();
 
   public summary: TransparencySummary;
@@ -23,13 +25,15 @@ export class TransparencyPageComponent implements OnInit {
   public rows:  Array<TransparencyRecord> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No data'};
+  public statData: object;
 
   constructor(
     private apiService: APIService,
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
-    private _ethService: EthereumService ) {
+    private _ethService: EthereumService,
+    private datePipe: DatePipe) {
 
     this.page.pageNumber = 0;
     this.page.size = 10;
@@ -62,16 +66,21 @@ export class TransparencyPageComponent implements OnInit {
         res => {
           this.rows = res.data.items;
 
+          this.statData = res.data.stat;
+          this.statData['viewDataTimestamp'] = this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'dd.MM.yy');
+          this.statData['viewAuditTimestamp'] = this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'dd.MM.yy');
+
           this.page.totalElements = res.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
 
           this.loading = false;
-          this.cdRef.detectChanges();
+          this.isDataLoaded = true;
 
           const tableTitle = document.getElementById('pageSectionTitle');
           if (tableTitle && tableTitle.getBoundingClientRect().top < 0) {
             tableTitle.scrollIntoView();
           }
+          this.cdRef.detectChanges();
         });
   }
 

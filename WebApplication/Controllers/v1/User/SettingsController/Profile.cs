@@ -28,7 +28,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// first check tfa
 			if (user.TwoFactorEnabled && !Core.Tokens.GoogleAuthenticator.Validate(model.TfaCode, user.TFASecret)) {

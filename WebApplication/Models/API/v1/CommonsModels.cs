@@ -29,6 +29,13 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 	}
 
 	public class TransparencyView : BasePagerView<TransparencyViewItem> {
+
+		/// <summary>
+		/// Current transparency stat
+		/// </summary>
+		[Required]
+		public TransparencyViewStat Stat { get; set; }
+
 	}
 
 	public class TransparencyViewItem {
@@ -56,5 +63,59 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		/// </summary>
 		[Required]
 		public long Date { get; set; }
+	}
+
+	public class TransparencyViewStat {
+
+		/// <summary>
+		/// Assets array
+		/// </summary>
+		[Required]
+		public TransparencyViewStatItem[] Assets { get; set; }
+
+		/// <summary>
+		/// Liabilities array
+		/// </summary>
+		[Required]
+		public TransparencyViewStatItem[] Bonds { get; set; }
+
+		/// <summary>
+		/// Fiat data array
+		/// </summary>
+		[Required]
+		public TransparencyViewStatItem[] Fiat { get; set; }
+
+		/// <summary>
+		/// Physical gold data array
+		/// </summary>
+		[Required]
+		public TransparencyViewStatItem[] Gold { get; set; }
+
+		/// <summary>
+		/// Data provided time (unix)
+		/// </summary>
+		[Required]
+		public long DataTimestamp { get; set; }
+
+		/// <summary>
+		/// Audit time (unix)
+		/// </summary>
+		[Required]
+		public long AuditTimestamp { get; set; }
+	}
+
+	public class TransparencyViewStatItem {
+
+		/// <summary>
+		/// Item key
+		/// </summary>
+		[Required]
+		public string K { get; set; }
+
+		/// <summary>
+		/// Item value
+		/// </summary>
+		[Required]
+		public string V { get; set; }
 	}
 }

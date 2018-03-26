@@ -29,7 +29,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// captcha
 			if (!HostingEnvironment.IsDevelopment()) {
@@ -48,13 +48,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var token = Core.Tokens.JWT.CreateSecurityToken(
 				appConfig: AppConfig,
 				entityId: user.UserName,
-				audience: JwtAudience.App,
+				audience: JwtAudience.Cabinet,
 				area: Common.JwtArea.RestorePassword,
 				securityStamp: "",
 				validFor: TimeSpan.FromHours(24)
 			);
 
-			var callbackUrl = this.MakeLink(fragment: AppConfig.AppRoutes.PasswordRestoration.Replace(":token", token));
+			var callbackUrl = this.MakeAppLink(JwtAudience.Cabinet, fragment: AppConfig.Apps.Cabinet.RoutePasswordRestoration.Replace(":token", token));
 
 			// restoration email
 			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordRestoration, userLocale))
@@ -91,13 +91,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			var user = (DAL.Models.Identity.User)null;
 			var agent = GetUserAgentInfo();
-			var userLocale = Locale.En;
+			var userLocale = GetUserLocale();
 
 			// check token
 			if (!await Core.Tokens.JWT.IsValid(
 				appConfig: AppConfig,
 				jwtToken: model.Token,
-				expectedAudience: JwtAudience.App,
+				expectedAudience: JwtAudience.Cabinet,
 				expectedArea: JwtArea.RestorePassword,
 				validStamp: async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);

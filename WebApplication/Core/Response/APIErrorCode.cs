@@ -15,6 +15,11 @@
 		InvalidContentType = 2,
 
 		/// <summary>
+		/// Method not found
+		/// </summary>
+		MethodNotFound = 3,
+
+		/// <summary>
 		/// Unauthorized request, have to sign in first
 		/// </summary>
 		Unauthorized = 50,
