@@ -22,6 +22,23 @@
         "Amount": "Amount",
         "URL": "URL",
         "Comment": "Comment"
+      },
+      "TableInfo": {
+        "Headings": {
+          "Assets": "Assets",
+          "Liabilities": "Liabilities",
+          "Exchange": "Money at broker/exchange",
+          "Storage": "Physical gold in the storage",
+          "DataProvided": "Data provided",
+          "Report": "The latest auditor's report",
+          "MoneyInBanks": "Money in banks",
+          "Distribution": "GOLD Cryptoassets in distribution"
+        },
+        "TableCell": {
+          "Borrowings": "Borrowings",
+          "Capital": "Capital",
+          "Profits": "Undistributed profits"
+        }
       }
     },
     "Countries": {
