@@ -67,6 +67,15 @@ export class TransparencyPageComponent implements OnInit {
           this.rows = res.data.items;
 
           this.statData = res.data.stat;
+
+          ['assets', 'bonds', 'fiat', 'gold'].forEach(field => {
+            let object = {};
+            this.statData[field].forEach(item => {
+              object[item.k] = item.v;
+            });
+            this.statData[field] = object;
+          });
+
           this.statData['viewDataTimestamp'] = this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'dd.MM.yy');
           this.statData['viewAuditTimestamp'] = this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'dd.MM.yy');
 
