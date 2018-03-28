@@ -20,19 +20,19 @@
             <tr class="fees-datatable-body-row">
               <td class="fees-datatable-body-cell align-middle">1 USD</td>
               <td class="fees-datatable-body-cell align-middle">
-                <input type="text" [(ngModel)]="statData.assets[0].v" name="assets_usd">
+                <input type="text" [(ngModel)]="statData.assets.usd" name="assets_usd">
               </td>
             </tr>
             <tr class="fees-datatable-body-row">
               <td class="fees-datatable-body-cell align-middle">2 EUR</td>
               <td class="fees-datatable-body-cell align-middle">
-                <input type="text" [(ngModel)]="statData.assets[1].v" name="assets_eur">
+                <input type="text" [(ngModel)]="statData.assets.eur" name="assets_eur">
               </td>
             </tr>
             <tr class="fees-datatable-body-row fees-border-bottom">
               <td class="fees-datatable-body-cell align-middle">3 SGD</td>
               <td class="fees-datatable-body-cell align-middle">
-                <input type="text" [(ngModel)]="statData.assets[2].v" name="assets_sgb">
+                <input type="text" [(ngModel)]="statData.assets.sgd" name="assets_sgb">
               </td>
             </tr>
             </tbody>
@@ -53,19 +53,19 @@
             <tr class="fees-datatable-body-row">
               <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Borrowings" | translate }}</td>
               <td class="fees-datatable-body-cell align-middle">
-                <input type="text" [(ngModel)]="statData.bonds[0].v" name="liabilities_usd">
+                <input type="text" [(ngModel)]="statData.bonds.borrowings" name="liabilities_usd">
               </td>
             </tr>
             <tr class="fees-datatable-body-row">
               <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Capital" | translate }}</td>
               <td class="fees-datatable-body-cell align-middle">
-                <input type="text" [(ngModel)]="statData.bonds[1].v" name="liabilities_eur">
+                <input type="text" [(ngModel)]="statData.bonds.capital" name="liabilities_eur">
               </td>
             </tr>
             <tr class="fees-datatable-body-row fees-border-bottom">
               <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Profits" | translate }}</td>
               <td class="fees-datatable-body-cell align-middle">
-                <input type="text" [(ngModel)]="statData.bonds[2].v" name="liabilities_sgb">
+                <input type="text" [(ngModel)]="statData.bonds.profits" name="liabilities_sgb">
               </td>
             </tr>
             </tbody>
@@ -81,19 +81,19 @@
           <tr class="fees-datatable-body-row">
             <td class="fees-datatable-body-cell w-50 align-middle">1 Wedbush</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" [(ngModel)]="statData.fiat[0].v" name="fiat_1">
+              <input type="text" [(ngModel)]="statData.fiat.wedbush" name="fiat_1">
             </td>
           </tr>
           <tr class="fees-datatable-body-row">
             <td class="fees-datatable-body-cell w-50 align-middle">2 SGPMX</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" [(ngModel)]="statData.fiat[1].v" name="fiat_2">
+              <input type="text" [(ngModel)]="statData.fiat.sgpmx" name="fiat_2">
             </td>
           </tr>
           <tr class="fees-datatable-body-row fees-border-bottom">
             <td class="fees-datatable-body-cell w-50 align-middle">3 Saxobank</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" [(ngModel)]="statData.fiat[2].v" name="fiat_3">
+              <input type="text" [(ngModel)]="statData.fiat.saxobank" name="fiat_3">
             </td>
           </tr>
           <tr class="fees-datatable-body-row fees-border-bottom">
@@ -103,19 +103,19 @@
           <tr class="fees-datatable-body-row">
             <td class="fees-datatable-body-cell w-50 align-middle">SGPMX</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" [(ngModel)]="statData.gold[0].v" name="gold_1">
+              <input type="text" [(ngModel)]="statData.gold.sgpmx" name="gold_1">
             </td>
           </tr>
           <tr class="fees-datatable-body-row">
             <td class="fees-datatable-body-cell w-50 align-middle">Brinks</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" [(ngModel)]="statData.gold[1].v" name="gold_2">
+              <input type="text" [(ngModel)]="statData.gold.brinks" name="gold_2">
             </td>
           </tr>
           <tr class="fees-datatable-body-row fees-border-bottom">
             <td class="fees-datatable-body-cell w-50 align-middle">FRBNY</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" [(ngModel)]="statData.gold[2].v" name="gold_3">
+              <input type="text" [(ngModel)]="statData.gold.frbny" name="gold_3">
             </td>
           </tr>
           <tr class="fees-datatable-body-row fees-border-bottom">

@@ -85,6 +85,14 @@ export class TransparencyPageComponent implements OnInit {
           this.rows = data.data.items;
           this.statData = data.data.stat;
 
+          ['assets', 'bonds', 'fiat', 'gold'].forEach(field => {
+            let object = {};
+            this.statData[field].forEach(item => {
+              object[item.k] = item.v;
+            });
+            this.statData[field] = object;
+          });
+
           this.statData['viewDataTimestamp'] = this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'dd.MM.yy');
           this.statData['viewAuditTimestamp'] = this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'dd.MM.yy');
 
@@ -118,13 +126,23 @@ export class TransparencyPageComponent implements OnInit {
   updateStat() {
     this.loading = true;
 
-    let dataTimestamp = this.statData['viewDataTimestamp'].split('.');
-    let auditTimestamp = this.statData['viewAuditTimestamp'].split('.');
+    let data = Object.assign({}, this.statData);
 
-    this.statData['dataTimestamp'] = Math.ceil(Date.UTC(+dataTimestamp[2] + 2000, dataTimestamp[1], dataTimestamp[0]) / 1000);
-    this.statData['auditTimestamp'] = Math.ceil(Date.UTC(+auditTimestamp[2] + 2000, auditTimestamp[1], auditTimestamp[0]) / 1000);
+    let dataTimestamp = data['viewDataTimestamp'].split('.');
+    let auditTimestamp = data['viewAuditTimestamp'].split('.');
 
-    this.apiService.updateStatTransparency(this.statData).subscribe(() => {
+    data['dataTimestamp'] = Math.ceil(Date.UTC(+dataTimestamp[2] + 2000, dataTimestamp[1], dataTimestamp[0]) / 1000);
+    data['auditTimestamp'] = Math.ceil(Date.UTC(+auditTimestamp[2] + 2000, auditTimestamp[1], auditTimestamp[0]) / 1000);
+
+    ['assets', 'bonds', 'fiat', 'gold'].forEach(field => {
+      let array = [];
+      for (let i in data[field]) {
+        data[field].hasOwnProperty(i) && array.push({k: i, v: data[field][i]});
+      }
+      data[field] = array;
+    });
+
+    this.apiService.updateStatTransparency(data).subscribe(() => {
       this._messageBox.alert('Changes saved');
       this.loading = false;
     });
