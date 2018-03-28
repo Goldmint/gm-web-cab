@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Rate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
@@ -24,6 +25,20 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return APIResponse.Success(
 				new GoldRateView() {
 					Rate = await GoldRateCached.GetGoldRate(Common.FiatCurrency.USD) / 100d,
+				}
+			);
+		}
+		
+		/// <summary>
+		/// Price per ETH
+		/// </summary>
+		[AnonymousAccess]
+		[HttpGet, Route("ethRate")]
+		[ProducesResponseType(typeof(EthRateView), 200)]
+		public async Task<APIResponse> EthRate() {
+			return APIResponse.Success(
+				new EthRateView() {
+					Usd = await CryptoassetRateProvider.GetRate(CryptoExchangeAsset.ETH, FiatCurrency.USD) / 100d,
 				}
 			);
 		}

@@ -14,6 +14,17 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		/// </summary>
 		[Required]
 		public double Rate { get; set; }
+	}
+
+	// ---
+
+	public class EthRateView {
+
+		/// <summary>
+		/// USD amount per asset
+		/// </summary>
+		[Required]
+		public double Usd { get; set; }
 
 	}
 
