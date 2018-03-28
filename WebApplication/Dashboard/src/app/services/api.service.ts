@@ -194,6 +194,14 @@ export class APIService {
       );
   }
 
+  updateStatTransparency(data) {
+    return this._http
+      .post(`${this._baseUrl}/dashboard/transparency/updateStat`, data, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   addTransparency(hash: string, amount: number, comment: string) {
     return this._http
       .post(`${this._baseUrl}/dashboard/transparency/add`, {hash, amount, comment}, this.jwt())

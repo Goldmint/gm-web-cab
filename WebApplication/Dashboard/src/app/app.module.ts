@@ -24,7 +24,7 @@ import { APIHttpInterceptor } from './common/api/api-http.interceptor'
  */
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { registerLocaleData } from '@angular/common';
+import {DatePipe, registerLocaleData} from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 registerLocaleData(localeRu);
 
@@ -134,6 +134,7 @@ export function getGoldmintToken() {
     MessageBoxService,
     APIService,
     UserService,
+    DatePipe,
     {
       provide: RECAPTCHA_SETTINGS,
       useValue: {
