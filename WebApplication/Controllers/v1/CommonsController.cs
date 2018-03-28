@@ -38,7 +38,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		public async Task<APIResponse> EthRate() {
 			return APIResponse.Success(
 				new EthRateView() {
-					Usd = await CryptoassetRateProvider.GetRate(CryptoExchangeAsset.ETH, FiatCurrency.USD),
+					Usd = await CryptoassetRateProvider.GetRate(CryptoExchangeAsset.ETH, FiatCurrency.USD) / 100d,
 				}
 			);
 		}
