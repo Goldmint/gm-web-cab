@@ -402,6 +402,34 @@ export class APIService {
       );
   }
 
+  ethDepositRequest(ethAddress: string, amountCoin: BigNumber) {
+    var wei = new BigNumber(amountCoin).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    return this._http
+      .post(`${this._baseUrl}/user/fiat/asset/depositEth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  confirmEthDepositRequest(isDeposit: boolean, requestId: number) {
+    return this._http
+      .post(`${this._baseUrl}/user/fiat/asset/confirm`, { isDeposit, requestId }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  getEthereumRate() {
+    return this._http
+      .get(`${this._baseUrl}/commons/ethRate`)
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
   getBannedCountries() {
     return this._http
       .get(`${this._baseUrl}/commons/bannedCountries`)
@@ -570,6 +598,47 @@ export class APIService {
       tap(res => {
         return res;
       })
+      );
+  }
+
+  getSwiftWithdrawInvoice(amount: number, templateId: number) {
+    let data = { amount, templateId };
+
+    return this._http
+      .post(`${this._baseUrl}/user/fiat/swift/withdraw`, data, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+        tap(res => {
+          return res;
+        })
+      );
+  }
+
+  getSwiftWithdrawTemplatesList() {
+    return this._http
+      .get(`${this._baseUrl}/user/fiat/swift/list`, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
+  addSwiftWithdrawTemplate(data: object) {
+    return this._http
+      .post(`${this._baseUrl}/user/fiat/swift/add`, data, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
+  removeSwiftWithdrawTemplate(templateId: number) {
+    return this._http
+      .post(`${this._baseUrl}/user/fiat/swift/remove`, {templateId}, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
       );
   }
 

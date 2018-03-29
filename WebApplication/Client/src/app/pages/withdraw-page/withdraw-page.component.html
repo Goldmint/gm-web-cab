@@ -80,7 +80,7 @@
 
           <!-- WITHDRAWAL METHODS -->
           <ng-container *ngIf="tfaInfo.enabled">
-            <div class="row align-items-end mb-4">
+            <div class="row mb-4">
               <div class="col form-group text-center">
                 <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCapital)">
@@ -99,11 +99,22 @@
               </div>
               <div class="col form-group text-center">
                 <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnPaymentBank" (click)="goto(pages.BankTransfer)">
+                <button class="btn btn-primary btn-block" id="btnPaymentBank"
+                        [disabled]="(limits.current.withdraw.day < limits.paymentMethod.swift.withdraw.min ||
+                                    userUsdBalance < limits.paymentMethod.swift.withdraw.min)"
+                        (click)="goto(pages.BankTransfer)">
                   <svg class="icon" width="107px" height="56px">
                     <use xlink:href="#payment-bank"></use>
                   </svg>
                 </button>
+                <div *ngIf="!loading && userUsdBalance">
+                  <div class="text-left pt-1 blocked-notification text-center" *ngIf="limits.current.withdraw.day < limits.paymentMethod.swift.withdraw.min">
+                    Your daily limit is less than minimal method limit
+                  </div>
+                  <div class="text-left pt-1 blocked-notification text-center" *ngIf="userUsdBalance < limits.paymentMethod.swift.withdraw.min">
+                    Your balance is less than minimal method limit
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -237,11 +248,12 @@
                 </div>
                 <input type="number" class="form-control" name="input_btc" id="input_btc"
                        min="0" step="0.1"
-                       [(ngModel)]="coinAmount"
-                       [ngClass]="{'is-invalid': false}"
+                       [(ngModel)]="usdAmount"
+                       (input)="onCryptoCurrencyChanged($event.target.value)"
+                       [ngClass]="{'is-invalid': estimatedAmount <= 0}"
                 >
               </div>
-              <div class="invalid-feedback" *ngIf="false">
+              <div class="invalid-feedback" *ngIf="estimatedAmount <= 0">
                 {{ "PAGES.Withdraw.CryptoCapital.Errors.Invalid" | translate }}
               </div>
             </div>
@@ -256,13 +268,13 @@
                     <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
                   </svg>
                 </div>
-                <input type="text" class="form-control" id="input_BtcEstimateAmount" name="estimates-amount" readonly [value]="estimatedAmount | number:'1.2-2':locale">
+                <input type="text" class="form-control" id="input_BtcEstimateAmount" name="estimates-amount" readonly [value]="estimatedAmount">
               </div>
             </div>
           </div>
 
           <div class="mb-5">
-            <button type="submit" class="btn btn-primary">{{ "BUTTONS.Withdraw" | translate }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="estimatedAmount <= 0">{{ "BUTTONS.Withdraw" | translate }}</button>
           </div>
         </div>
 
@@ -399,46 +411,67 @@
 </ng-container>
 
 <ng-container *ngIf="page === pages.BankTransfer">
-  <div class="disable-content-block"><span>Coming Soon</span></div>
-  <div *ngIf="!showAddAcountBlock" class="section">
+ <div class="disable-content-block"><span>Coming Soon</span></div>
+  <div *ngIf="currentTransferBlock === bankTransferBlock[0]" class="section">
     <h2 class="section__title">Bank transfer</h2>
     <div class="section__content pb-4">
-      <div class="row">
-        <div class="col-md-9">
-          <div class="form-group">
-            <label for="selectBankAccount">Bank account</label>
-            <select id="selectBankAccount" class="custom-select" name="bankAccount">
-              <option>Tinkoff</option>
-            </select>
+      <form [formGroup]="bankTransferForm" (ngSubmit)="bankTransferSendRequest()">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label for="selectBankAccount">Bank account</label>
+              <select id="selectBankAccount" class="custom-select" name="bankAccount" formControlName="selectBankAccount">
+                <option *ngFor="let b of bankTransferList" [value]="b.templateId">{{ b.bank }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-lg-3 mt-lg-4 mb-3 text-right add-btn-block">
+            <button type="button" class="btn btn-primary btn-sm w-100" (click)="currentTransferBlock = bankTransferBlock[1]">Add account</button>
+          </div>
+
+          <div class="col-lg-3 mt-lg-4 mb-3 text-right add-btn-block">
+            <button type="button" class="btn btn-primary btn-sm w-100" (click)="currentTransferBlock = bankTransferBlock[2]">Remove account</button>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">Amount</label>
+              <input type="number" class="form-control" formControlName="bankTransferAmount"
+                     [ngClass]="{'is-invalid': bankTransferForm.get('bankTransferAmount').invalid}"
+              >
+              <div *ngIf="bankTransferForm.get('bankTransferAmount').invalid">
+                <div class="invalid-feedback" *ngIf="bankTransferForm.get('bankTransferAmount')['errors']['min']">
+                  Minimal amount is {{ limits.paymentMethod.swift.withdraw.min }}
+                </div>
+                <div class="invalid-feedback" *ngIf="bankTransferForm.get('bankTransferAmount')['errors']['max']">
+                  Maximum amount is {{ maxBankTransferAmount }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">Fee:</label>
+              <span>$15</span>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary"
+                    [disabled]="bankTransferForm.invalid || bankTransferForm.get('bankTransferAmount').value <= 0 || loading">
+              Send request
+            </button>
+            <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </div>
-        <div class="col-md-3 mt-md-4 mb-3 text-right add-btn-block">
-          <button type="submit" class="btn btn-primary btn-sm" (click)="showAddAcountBlock = !showAddAcountBlock">Add account</button>
-        </div>
-
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">Amount</label>
-            <input type="number" class="form-control" min="0">
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">Fee:</label>
-            <span>$15</span>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <button type="submit" class="btn btn-primary">Send request</button>
-        </div>
-      </div>
+      </form>
     </div>
 
     <section class="page__section section section--table">
       <h2 class="section__title">{{ "PAGES.Finance.TableLimits.Heading" | translate }}</h2>
-      <table class="mt-3" *ngIf="!loading">
+      <table class="mt-3" *ngIf="isDataLoaded">
         <tr class="limits-header-row">
           <td class="limits-text-bold limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.AccountType" | translate }}</td>
           <td class="text-center limits-word-break">{{ "PAGES.Finance.TableLimits.Table.Heading.Basic" | translate }}</td>
@@ -470,58 +503,119 @@
     </section>
   </div>
 
-  <div *ngIf="showAddAcountBlock" class="section">
+  <div *ngIf="currentTransferBlock === bankTransferBlock[1]" class="section">
     <h2 class="section__title">Add account</h2>
     <div class="section__content pb-4">
+      <form [formGroup]="addBankForm">
+        <div class="row">
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">Description</label>
+              <div class="d-flex align-items-center">
+                <input type="text" class="form-control" formControlName="description" placeholder="Unique description used to identify this bank account">
+                <svg class="asterisk add-account-asterisk" width="6px" height="6px">
+                  <use xlink:href="#asterisk"></use>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">Name on account</label>
+              <div class="d-flex align-items-center">
+                <input type="text" class="form-control" formControlName="accountName" placeholder="The name on this bank account must match this account">
+                <svg class="asterisk add-account-asterisk" width="6px" height="6px">
+                  <use xlink:href="#asterisk"></use>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">IBAN</label>
+              <div class="d-flex align-items-center">
+                <input type="text" class="form-control" formControlName="iban">
+                <svg class="asterisk add-account-asterisk" width="6px" height="6px">
+                  <use xlink:href="#asterisk"></use>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">Bank name</label>
+              <div class="d-flex align-items-center">
+                <input type="text" class="form-control" formControlName="bankName">
+                <svg class="asterisk add-account-asterisk" width="6px" height="6px">
+                  <use xlink:href="#asterisk"></use>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="selectBankAccount">BIC</label>
+              <div class="d-flex align-items-center">
+                <input type="number" class="form-control" formControlName="bic">
+                <svg class="asterisk add-account-asterisk" width="6px" height="6px">
+                  <use xlink:href="#asterisk"></use>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+            <div class="col-12">
+              <div class="form-group">
+                <label for="selectBankAccount">Address</label>
+                <div class="d-flex align-items-center">
+                  <textarea class="w-100" class="form-control" name="address" rows="5" formControlName="address" placeholder="The physical address of your bank's branch? including the country"></textarea>
+                  <svg class="asterisk add-account-asterisk" width="6px" height="6px">
+                    <use xlink:href="#asterisk"></use>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+          <div class="col-lg-6">
+            <button type="button" class="btn btn-primary" (click)="currentTransferBlock = bankTransferBlock[0]" [disabled]="loading">Back</button>
+          </div>
+
+          <div class="col-lg-6 text-right">
+            <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+            <button type="button" class="btn btn-primary" (click)="addBankAccount()" [disabled]="addBankForm.invalid || loading">Save bank account</button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="currentTransferBlock === bankTransferBlock[2]" class="section">
+    <h2 class="section__title">Remove account</h2>
+    <div class="section__content pb-4">
       <div class="row">
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">Description</label>
-            <input type="text" class="form-control">
-          </div>
-        </div>
 
         <div class="col-12">
           <div class="form-group">
-            <label for="selectBankAccount">Name on account</label>
-            <input type="text" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">IBAN</label>
-            <input type="number" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">Bank name</label>
-            <input type="text" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">BIC</label>
-            <input type="number" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="form-group">
-            <label for="selectBankAccount">Address</label>
-            <textarea class="w-100" name="address" rows="5" required></textarea>
+            <label for="removeBankAccount">Bank account</label>
+            <select id="removeBankAccount" class="custom-select" name="removeBankAccount" [(ngModel)]="bankTemplateIdForRemove">
+              <option *ngFor="let b of bankTransferList" [value]="b.templateId">{{ b.bank }}</option>
+            </select>
           </div>
         </div>
 
         <div class="col-6">
-          <button type="submit" class="btn btn-primary" (click)="showAddAcountBlock = !showAddAcountBlock">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="currentTransferBlock = bankTransferBlock[0]" [disabled]="loading">Back</button>
         </div>
 
         <div class="col-6 text-right">
-          <button type="submit" class="btn btn-primary">Save bank account</button>
+          <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+          <button type="button" class="btn btn-primary" (click)="removeBankAccount()" [disabled]="!bankTemplateIdForRemove || loading">Remove bank account</button>
         </div>
 
       </div>
