@@ -196,9 +196,9 @@ export class EthereumService {
     this._contractFiatMetamask.addSellTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
   }
 
-  public ethDepositRequest(fromAddr: string, payload: any[]) {
+  public ethDepositRequest(fromAddr: string, requestId: number) {
     if (this._contractFiatMetamask == null) return;
-    this._contractFiatMetamask.depositEth.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
+    this._contractFiatMetamask.depositEth.sendTransaction(requestId, { from: fromAddr, value: 0 }, (err, res) => { });
   }
 
   public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
