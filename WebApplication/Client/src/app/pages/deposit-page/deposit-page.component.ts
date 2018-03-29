@@ -4,17 +4,20 @@ import {
   ViewEncapsulation,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  EventEmitter, ViewChild
+  EventEmitter, ViewChild, OnDestroy
 } from '@angular/core';
 
 import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits, SwiftInvoice } from '../../interfaces';
-import { APIService, MessageBoxService } from '../../services';
+import {APIService, EthereumService, MessageBoxService} from '../../services';
 
 import * as countries from '../../../assets/data/countries.json';
 import { User } from "../../interfaces/user";
 import { UserService } from "../../services/user.service";
 import { Observable } from "rxjs/Observable";
 import {TranslateService} from "@ngx-translate/core";
+import {BigNumber} from "bignumber.js";
+import {interval} from "rxjs/observable/interval";
+import {Subscription} from "rxjs/Subscription";
 
 enum Pages { Default, CardsList, BankTransfer, CardsListSuccess, CryptoCapital }
 enum BankTransferSteps { Default, Form, PaymentDetails }
@@ -57,12 +60,16 @@ export class DepositPageComponent implements OnInit {
   public minAmount: number;
   public maxAmount: number;
 
-  public coinAmount;
+  public ethAddress: string = '';
   public coinList = ['btc', 'eth']
-  private currentCoin = this.coinList[1];
+  public currentCoin = this.coinList[1];
+  public cryptoCurrencyAmount;
+  public ethRate: number;
+  public estimatedAmount;
 
   constructor(
     private _apiService: APIService,
+    private _ethService: EthereumService,
     private _cdRef: ChangeDetectorRef,
     private _user: UserService,
     private _messageBox: MessageBoxService,
@@ -92,7 +99,14 @@ export class DepositPageComponent implements OnInit {
     this._apiService.getBannedCountries().subscribe((list) => {
       this.countries = this.countries.filter(item => list.data.indexOf(item.countryShortCode) < 0);
       this._cdRef.markForCheck();
-    })
+    });
+
+    this._ethService.getObservableEthAddress().subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+    });
+
+    this._apiService.getEthereumRate().subscribe(data => this.ethRate = data.data.usd);
+
   }
 
   goto(page: Pages) {
@@ -155,6 +169,39 @@ export class DepositPageComponent implements OnInit {
     if (this.currentCoin !== coin) {
       this.currentCoin = coin;
     }
+  }
+
+  onCryptoCurrencyChanged(value) {
+    if (value != null && value > 0) {
+      this.cryptoCurrencyAmount = new BigNumber(value);
+      this.cryptoCurrencyAmount = this.cryptoCurrencyAmount.decimalPlaces(6, BigNumber.ROUND_DOWN);
+      this.estimatedAmount = value * this.ethRate;
+    } else {
+      this.estimatedAmount = 0;
+    }
+  }
+
+  onCryptoCurrencySubmit() {
+    this.loading = true;
+    this._apiService.ethDepositRequest(this.ethAddress, this.cryptoCurrencyAmount)
+      .finally(() => {
+        this.loading = false;
+        this._cdRef.markForCheck();
+      })
+      .subscribe(res => {
+        const amount = (this.cryptoCurrencyAmount * res.data.ethRate).toFixed(2)
+        this._translate.get('MessageBox.EthDeposit',
+          {coinAmount: this.cryptoCurrencyAmount, usdAmount: amount, ethRate: res.data.ethRate}
+        ).subscribe(phrase => {
+          this._messageBox.confirm(phrase).subscribe(ok => {
+            if (ok) {
+              this._apiService.confirmEthDepositRequest(true, res.data.requestId).subscribe(() => {
+                this._ethService.ethDepositRequest(this.ethAddress, res.data.requestId);
+              });
+            }
+          });
+        });
+      });
   }
 
   submit() {
@@ -231,5 +278,6 @@ export class DepositPageComponent implements OnInit {
     && val >= this.limits.paymentMethod.card.deposit.min
     && val <= this.limits.paymentMethod.card.deposit.max;
   }
+
 }
 
