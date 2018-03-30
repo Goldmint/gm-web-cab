@@ -4,7 +4,7 @@ import {
   ViewEncapsulation,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  EventEmitter, ViewChild, OnDestroy
+  EventEmitter, ViewChild
 } from '@angular/core';
 
 import { TFAInfo, CardsList, CardsListItem, Country, FiatLimits, SwiftInvoice } from '../../interfaces';
@@ -16,10 +16,8 @@ import { UserService } from "../../services/user.service";
 import { Observable } from "rxjs/Observable";
 import {TranslateService} from "@ngx-translate/core";
 import {BigNumber} from "bignumber.js";
-import {interval} from "rxjs/observable/interval";
-import {Subscription} from "rxjs/Subscription";
 
-enum Pages { Default, CardsList, BankTransfer, CardsListSuccess, CryptoCapital }
+enum Pages { Default, CardsList, BankTransfer, CardsListSuccess, CryptoCurrency, CryptoCapital }
 enum BankTransferSteps { Default, Form, PaymentDetails }
 
 @Component({
@@ -132,6 +130,10 @@ export class DepositPageComponent implements OnInit {
         this.nextStep(BankTransferSteps.Default);
         break;
 
+      case Pages.CryptoCurrency:
+        this.page = page;
+        break;
+
       case Pages.CryptoCapital:
         this.page = page;
         break;
@@ -163,6 +165,13 @@ export class DepositPageComponent implements OnInit {
         // code...
         break;
     }
+  }
+
+  onCopyData(input) {
+    input.focus();
+    input.setSelectionRange(0, input.value.length);
+    document.execCommand("copy");
+    input.setSelectionRange(0, 0);
   }
 
   chooseCurrentCoin(coin) {

@@ -45,15 +45,23 @@
         <ng-template #blockMethods>
 
           <div class="row align-items-end mb-4">
-            <div class="col form-group text-center">
-              <label for="btnCryptoCapital">{{ "PAGES.Deposit.Method.CryptoCapital" | translate }}</label>
-              <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCapital)">
+            <div class="col col-lg-6 col-xl form-group text-center">
+              <label for="btnCapital">Crypto capital</label>
+              <button class="btn btn-primary btn-block" id="btnCapital" (click)="goto(pages.CryptoCapital)">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-crypto"></use>
                 </svg>
               </button>
             </div>
-            <div class="col form-group text-center">
+            <div class="col col-lg-6 col-xl form-group text-center">
+              <label for="btnCryptoCapital">{{ "PAGES.Deposit.Method.CryptoCapital" | translate }}</label>
+              <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCurrency)">
+                <svg class="icon" width="56px" height="56px">
+                  <use xlink:href="#payment-crypto"></use>
+                </svg>
+              </button>
+            </div>
+            <div class="col col-lg-6 col-xl form-group text-center">
               <label for="btnPaymentCard">{{ "PAGES.Deposit.Method.Card" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
                 <svg class="icon" width="56px" height="56px">
@@ -61,7 +69,7 @@
                 </svg>
               </button>
             </div>
-            <div class="col form-group text-center">
+            <div class="col col-lg-6 col-xl form-group text-center">
               <label for="btnPaymentBank">{{ "PAGES.Deposit.Method.Transfer" | translate }}</label>
               <button class="btn btn-primary btn-block"
                       [disabled]="limits.current.deposit.day < limits.paymentMethod.swift.deposit.min"
@@ -177,6 +185,52 @@
 </ng-container>
 
 <ng-container *ngIf="page === pages.CryptoCapital">
+  <section class="page__section section">
+    <h2 class="section__title">Crypto Capital</h2>
+    <table class="ngx-datatable-cc mt-3 mb-3">
+      <tbody class="datatable-body">
+        <tr class="datatable-body-row">
+          <td class="w-40">Company name:</td>
+          <td><input class="crypto-capital-input" type="text" [value]="'data1'" #inputName readonly></td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputName)">Copy</button>
+          </td>
+        </tr>
+        <tr class="datatable-body-row datatable-row-even">
+          <td class="w-40">Address:</td>
+          <td><input class="crypto-capital-input" type="text" [value]="'data2'" #inputAddress readonly></td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputAddress)">Copy</button>
+          </td>
+        </tr>
+        <tr class="datatable-body-row">
+          <td class="w-40">Country:</td>
+          <td><input class="crypto-capital-input" type="text" [value]="'data3'" #inputCountry readonly></td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputCountry)">Copy</button>
+          </td>
+        </tr>
+        <tr class="datatable-body-row datatable-row-even">
+          <td class="w-40">Beneficiary account:</td>
+          <td><input class="crypto-capital-input" type="text" [value]="'data4'" #inputAccount readonly></td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputAccount)">Copy</button>
+          </td>
+        </tr>
+        <tr class="datatable-body-row border-0">
+          <td class="w-40">Reference:</td>
+          <td><input class="crypto-capital-input" type="text" [value]="'data5'" #inputReference readonly></td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputReference)">Copy</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </section>
+</ng-container>
+
+<ng-container *ngIf="page === pages.CryptoCurrency">
   <section class="page__section section">
     <h2 class="section__title">{{ "PAGES.Deposit.CryptoCapital.Heading" | translate }}</h2>
 
