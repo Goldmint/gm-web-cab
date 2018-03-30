@@ -643,6 +643,11 @@ namespace Goldmint.Common {
 		/// Cryptoassets operations
 		/// </summary>
 		Cryptoassets,
+
+		/// <summary>
+		/// CryptoCapital operations
+		/// </summary>
+		CryptoCapital,
 	}
 
 	#endregion

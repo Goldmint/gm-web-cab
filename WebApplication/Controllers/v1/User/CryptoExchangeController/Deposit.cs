@@ -30,23 +30,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var amountWei = BigInteger.Zero;
-			if (!BigInteger.TryParse(model.Amount, out amountWei) || amountWei.ToString().Length > 64 || amountWei < 1) {
+			if (!BigInteger.TryParse(model.Amount, out var amountWei) || amountWei.ToString().Length > 64 || amountWei < 1) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
+
+			// ---
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// ---
-
-			// check rate
 			var opLastTime = user.UserOptions.CryptoDepositLastTime;
 			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < CryptoExchangeOperationTimeLimit) {
 				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
-			// check pending operations
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
@@ -59,8 +56,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (ethRate <= 0) {
 				throw new Exception("Eth rate is <= 0");
 			}
-
-			// ---
 
 			var expiresIn = TimeSpan.FromSeconds(AppConfig.Constants.TimeLimits.CryptoExchangeRequestExpireSec);
 			var ticket = await TicketDesk.NewCryptoDeposit(user, CryptoExchangeAsset.ETH, model.EthAddress, currency, ethRate);

@@ -244,29 +244,25 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			if (!BigInteger.TryParse(model.Amount, out var amountWei) || amountWei < 1 || amountWei.ToString().Length > 64) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+			
+			// ---
+
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// ---
-
-			// check pending operations
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
 			// ---
 
-			var amountWei = BigInteger.Zero;
-			if (!BigInteger.TryParse(model.Amount, out amountWei) || amountWei < 1 || amountWei.ToString().Length > 64) {
-				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-			}
 			var goldBalance = await EthereumObserver.GetUserGoldBalance(user.UserName);
-
 			if (amountWei > goldBalance) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
-
-			// ---
 
 			var mutexBuilder =
 				new MutexBuilder(MutexHolder)

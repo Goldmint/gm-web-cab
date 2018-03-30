@@ -28,23 +28,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// round cents
+			var currency = FiatCurrency.USD;
+
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
+
+			// ---
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// ---
-
-			// check pending operations
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
 			// ---
 
-			var currency = FiatCurrency.USD;
 			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressMntpBalance(model.EthAddress);
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
@@ -142,23 +141,27 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// round cents
+			var currency = FiatCurrency.USD;
+
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
+
+			// ---
 
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// ---
+			var opLastTime = user.UserOptions.HotWalletBuyingLastTime;
+			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
+			}
 
-			// check pending operations
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
 			// ---
 
-			var currency = FiatCurrency.USD;
 			var mntpBalance = BigInteger.Zero;
 			var fiatBalance = await EthereumObserver.GetUserFiatBalance(user.UserName, currency);
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
@@ -176,13 +179,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// invalid amount passed
 			if (amountCents != estimated.InputUsed) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Amount is invalid");
-			}
-
-			// check rate
-			var opLastTime = user.UserOptions.HotWalletBuyingLastTime;
-			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
-				// failed
-				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
 			var ticket = await TicketDesk.NewGoldBuying(user, null, currency, amountCents, goldRate, mntpBalance, estimated.ResultGold, estimated.ResultFeeCents);

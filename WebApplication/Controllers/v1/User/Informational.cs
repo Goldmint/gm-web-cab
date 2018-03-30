@@ -111,6 +111,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 								Min = AppConfig.Constants.SwiftData.WithdrawMin / 100d,
 								Max = AppConfig.Constants.SwiftData.WithdrawMax / 100d,
 							}
+						},
+
+						CryptoCapital = new LimitsView.PaymentMethodLimits() {
+							Deposit = new LimitsView.OnetimeLimitItem() {
+								Min = AppConfig.Constants.CryptoCapitalData.DepositMin / 100d,
+								Max = AppConfig.Constants.CryptoCapitalData.DepositMax / 100d,
+							},
+							Withdraw = new LimitsView.OnetimeLimitItem() {
+								Min = AppConfig.Constants.CryptoCapitalData.WithdrawMin / 100d,
+								Max = AppConfig.Constants.CryptoCapitalData.WithdrawMax / 100d,
+							}
 						}
 					}
 				}

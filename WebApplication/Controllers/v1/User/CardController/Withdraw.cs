@@ -28,26 +28,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
-			var agent = GetUserAgentInfo();
-
-			// ---
-
-			// check pending operations
-			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
-				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
-			}
-
-			// ---
-			
 			var transCurrency = FiatCurrency.USD;
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
 
-			if (amountCents < AppConfig.Constants.CardPaymentData.WithdrawMin || amountCents > AppConfig.Constants.CardPaymentData.WithdrawMax) {
+			if (amountCents < AppConfig.Constants.CardPaymentData.WithdrawMin || (amountCents > AppConfig.Constants.CardPaymentData.WithdrawMax && AppConfig.Constants.CardPaymentData.WithdrawMax != 0)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
+
+			// ---
+
+			var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user);
+			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
@@ -60,6 +53,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
 				return APIResponse.BadRequest(nameof(model.Code), "Invalid code");
 			}
+
+			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
+			}
+
+			// ---
 
 			// get card
 			var card = user.Card.SingleOrDefault(

@@ -27,24 +27,23 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			var currency = FiatCurrency.USD;
+
+			if (!BigInteger.TryParse(model.Amount, out var amountWei)) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+			
+			// ---
+
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// ---
-
-			// check pending operations
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
 			// ---
 
-			var amountWei = BigInteger.Zero;
-			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
-				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-			}
-
-			var currency = FiatCurrency.USD;
 			var goldBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressGoldBalance(model.EthAddress);
 			var mntpBalance = model.EthAddress == null ? BigInteger.Zero : await EthereumObserver.GetAddressMntpBalance(model.EthAddress);
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
@@ -144,24 +143,28 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			var currency = FiatCurrency.USD;
+
+			if (!BigInteger.TryParse(model.Amount, out var amountWei)) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+			
+			// ---
+
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// ---
+			var opLastTime = user.UserOptions.HotWalletSellingLastTime;
+			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
+				return APIResponse.BadRequest(APIErrorCode.RateLimit);
+			}
 
-			// check pending operations
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}
 
 			// ---
 
-			var amountWei = BigInteger.Zero;
-			if (!BigInteger.TryParse(model.Amount, out amountWei)) {
-				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-			}
-
-			var currency = FiatCurrency.USD;
 			var goldBalance = await EthereumObserver.GetUserGoldBalance(user.UserName);
 			var mntpBalance = BigInteger.Zero;
 			var goldRate = await GoldRateCached.GetGoldRate(currency);
@@ -179,13 +182,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// invalid amount passed
 			if (amountWei < estimated.InputMin || amountWei > estimated.InputMax) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-			}
-
-			// check rate
-			var opLastTime = user.UserOptions.HotWalletSellingLastTime;
-			if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HWOperationTimeLimit) {
-				// failed
-				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			}
 
 			var ticket = await TicketDesk.NewGoldSelling(user, null, currency, estimated.InputUsed, goldRate, mntpBalance, estimated.ResultNetCents, estimated.ResultFeeCents);

@@ -29,8 +29,8 @@ namespace Goldmint.Common {
 		// ---
 
 		// 1234.40 => 1,234.40 USD
-		public static string FormatAmount(long amount, FiatCurrency currency) {
-			return (amount / 100m).ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + " " + currency.ToString().ToUpperInvariant();
+		public static string FormatAmount(long cents, FiatCurrency currency) {
+			return (cents / 100m).ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + " " + currency.ToString().ToUpperInvariant();
 		}
 
 		// 0x0000000000000000000000000000000000000000 => 0x000***000

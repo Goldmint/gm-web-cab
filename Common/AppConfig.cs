@@ -61,6 +61,8 @@ namespace Goldmint.Common {
 				}
 			}
 
+			public string TwoFactorIssuer { get; set; } = "goldmint.io";
+
 			public FacebookSection Facebook { get; set; } = new FacebookSection();
 			public class FacebookSection {
 				public string AppId { get; set; } = "";
@@ -197,18 +199,18 @@ namespace Goldmint.Common {
 			public CardPaymentDataSection CardPaymentData { get; set; } = new CardPaymentDataSection();
 			public class CardPaymentDataSection {
 
-				public long DepositMin { get; set; } = 0;
+				public long DepositMin { get; set; } = 1;
 				public long DepositMax { get; set; } = 0;
-				public long WithdrawMin { get; set; } = 0;
+				public long WithdrawMin { get; set; } = 1;
 				public long WithdrawMax { get; set; } = 0;
 			}
 
 			public SwiftDataSection SwiftData { get; set; } = new SwiftDataSection();
 			public class SwiftDataSection {
 
-				public long DepositMin { get; set; } = 0;
+				public long DepositMin { get; set; } = 1;
 				public long DepositMax { get; set; } = 0;
-				public long WithdrawMin { get; set; } = 0;
+				public long WithdrawMin { get; set; } = 1;
 				public long WithdrawMax { get; set; } = 0;
 
 				public string BenName { get; set; } = "";
@@ -231,6 +233,21 @@ namespace Goldmint.Common {
 
 				public long BuySellRequestExpireSec { get; set; } = 3600;
 				public long CryptoExchangeRequestExpireSec { get; set; } = 3600;
+			}
+
+			public CryptoCapitalDataSection CryptoCapitalData { get; set; } = new CryptoCapitalDataSection();
+			public class CryptoCapitalDataSection {
+
+				public long DepositMin { get; set; } = 1;
+				public long DepositMax { get; set; } = 0;
+				public long WithdrawMin { get; set; } = 1;
+				public long WithdrawMax { get; set; } = 0;
+
+				public string CompanyName { get; set; } = "";
+				public string Address { get; set; } = "";
+				public string Country { get; set; } = "";
+				public string BenAccount { get; set; } = "";
+				public string Reference { get; set; } = "";
 			}
 		}
 	}

@@ -119,7 +119,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				var secretBytes = System.Text.Encoding.ASCII.GetBytes(user.TFASecret);
 				var secretBase32 = Wiry.Base32.Base32Encoding.Standard.GetString(secretBytes).Replace("=", "").ToUpper();
 
-				ret.QrData = Core.Tokens.GoogleAuthenticator.MakeQRCode("goldmint.io", user.UserName, secretBase32);
+				ret.QrData = Core.Tokens.GoogleAuthenticator.MakeQRCode(AppConfig.Auth.TwoFactorIssuer, user.UserName, secretBase32);
 				ret.Secret = secretBase32;
 			}
 

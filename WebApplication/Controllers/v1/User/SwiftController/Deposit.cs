@@ -33,7 +33,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// limits
 			var transCurrency = FiatCurrency.USD;
-			if (amountCents < AppConfig.Constants.SwiftData.DepositMin || amountCents > AppConfig.Constants.SwiftData.DepositMax) {
+			if (amountCents < AppConfig.Constants.SwiftData.DepositMin || (amountCents > AppConfig.Constants.SwiftData.DepositMax && AppConfig.Constants.SwiftData.DepositMax != 0)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
