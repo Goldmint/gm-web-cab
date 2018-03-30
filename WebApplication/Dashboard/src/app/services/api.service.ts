@@ -58,9 +58,7 @@ export class APIService {
     let params = {offset, limit, sort, ascending: ascending === 'asc'};
 
     let httpOptions = {
-      headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      })
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
     };
 
     return this._http
@@ -69,10 +67,6 @@ export class APIService {
         catchError(this._handleError)
       );
   };
-
-  getCountriesLocalList() {
-    return this._http.get('../../assets/data/countries.json');
-  }
 
   banCountry(code: string, comment: string) {
     return this._http
@@ -94,10 +88,8 @@ export class APIService {
                   sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
     let params = {filter, offset, limit, sort, ascending: ascending === 'asc'};
 
-    let httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
+   let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
     };
 
     return this._http
@@ -111,10 +103,8 @@ export class APIService {
                sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
     let params = {id, filter, offset, limit, sort, ascending: ascending === 'asc'};
 
-    let httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
+   let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
     };
 
     return this._http
@@ -127,10 +117,8 @@ export class APIService {
   getUsersAccountInfo(id): Observable<APIResponse<TransparencyRecord[]>> {
     let params = {id};
 
-    let httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
+   let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
     };
 
     return this._http
@@ -143,10 +131,8 @@ export class APIService {
 
   setUserAccessRight(id: number, mask): Observable<APIResponse<TransparencyRecord[]>> {
 
-    let httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
+   let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
     };
 
     return this._http
@@ -181,10 +167,8 @@ export class APIService {
       ascending: ascending === 'asc'
     };
 
-    let httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
+   let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
     };
 
     return this._http
@@ -264,13 +248,15 @@ export class APIService {
   public jwt(): { headers?: HttpHeaders, params?: HttpParams } {
     let token = localStorage.getItem('gmint_token');
 
+    let result = {
+      headers: new HttpHeaders()
+    };
+
     if (token) {
-      return {
-        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
-      };
+      result.headers = result.headers.append('Authorization', `Bearer ${token}`);
     }
 
-    return {};
+    return result;
   }
 
 }
