@@ -3,6 +3,7 @@ import {APIService, MessageBoxService, UserService} from "../../services";
 import {Page} from "../../models/page";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import * as countries from '../../../assets/data/countries.json';
 
 @Component({
   selector: 'app-countries-page',
@@ -85,14 +86,12 @@ export class CountriesPageComponent implements OnInit {
   }
 
   loadCountiesFoSelect() {
-    this.apiService.getCountriesLocalList().subscribe((localList: any[]) => {
-      this.countriesForSelect = localList.sort((item1, item2) =>
-        item1.countryName < item2.countryName ? -1 : (item1.countryName > item2.countryName ? 1 : 0)
-      );
+    this.countriesForSelect = countries['sort']((item1, item2) =>
+      item1.countryName < item2.countryName ? -1 : (item1.countryName > item2.countryName ? 1 : 0)
+    );
 
-      this.form.patchValue({
-        country: this.countriesForSelect[0].countryShortCode
-      });
+    this.form.patchValue({
+      country: this.countriesForSelect[0].countryShortCode
     });
   }
 
