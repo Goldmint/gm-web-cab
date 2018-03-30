@@ -154,6 +154,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 
 			public PaymentMethodLimits Card { get; set; }
 			public PaymentMethodLimits Swift { get; set; }
+			public PaymentMethodLimits CryptoCapital { get; set; }
 		}
 
 		// ---

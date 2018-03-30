@@ -24,10 +24,10 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private long _ethUsdValue;
 		private readonly object _ethUsdMonitor = new object();
 
-		private long _ethEurStamp;
-		private long _ethEurValue;
-		private readonly object _ethEurMonitor = new object();
-		
+		// private long _ethEurStamp;
+		// private long _ethEurValue;
+		// private readonly object _ethEurMonitor = new object();
+
 		#endregion
 
 		public CmcRateProvider(string tickerUrl, LogFactory logFactory) {
@@ -41,7 +41,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			if (asset == CryptoExchangeAsset.ETH) {
 				if (currency == FiatCurrency.USD) {
-					value = await UsdPerEth();
+					value = await EthUsd();
 				}
 			}
 
@@ -50,7 +50,9 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		// ---
 
-		private Task<long> UsdPerEth() {
+		#region ETH
+
+		private Task<long> EthUsd() {
 
 			var url = _tickerUrl + "/ethereum/?convert=USD";
 			var field = "price_usd";
@@ -77,6 +79,10 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			return Task.FromResult(value);
 		}
+
+		#endregion
+
+		// ---
 
 		private async Task<long> PerformRequest(string url, string field) {
 
@@ -118,8 +124,6 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			return (long)Math.Round(dval * 100);
 		}
-
-		// ---
 
 		internal class CmcResponse {
 

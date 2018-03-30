@@ -248,31 +248,42 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 	public class WithdrawModel : BaseValidableModel {
 
 		/// <summary>
+		/// Saved swift template ID
+		/// </summary>
+		[Required]
+		public long TemplateId { get; set; }
+		
+		/// <summary>
 		/// USD amount
 		/// </summary>
 		[Required]
 		public double Amount { get; set; }
 
 		/// <summary>
-		/// Saved swift template ID
+		/// TFA Code /[0-9]{6}/
 		/// </summary>
 		[Required]
-		public long TemplateId { get; set; }
+		public string Code { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<WithdrawModel>();
 			v.CascadeMode = CascadeMode.Continue;
+
+			v.RuleFor(_ => _.TemplateId)
+				.Must(ValidationRules.BeValidId)
+				.WithMessage("Invalid holder name")
+			;
 
 			v.RuleFor(_ => _.Amount)
 				.GreaterThanOrEqualTo(1)
 				.WithMessage("Invalid amount")
 			;
 
-			v.RuleFor(_ => _.TemplateId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid holder name")
-			;
-			
+			v.RuleFor(_ => _.Code)
+				.Must(Common.ValidationRules.BeValidTFACode)
+				.WithMessage("Invalid code format")
+				;
+
 			return v.Validate(this);
 
 		}

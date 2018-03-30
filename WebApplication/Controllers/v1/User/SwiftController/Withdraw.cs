@@ -33,20 +33,29 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// limits
 			var transCurrency = FiatCurrency.USD;
-			if (amountCents < AppConfig.Constants.SwiftData.WithdrawMin || amountCents > AppConfig.Constants.SwiftData.WithdrawMax) {
+			if (amountCents < AppConfig.Constants.SwiftData.WithdrawMin || (amountCents > AppConfig.Constants.SwiftData.WithdrawMax && AppConfig.Constants.SwiftData.WithdrawMax != 0)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			// user
+			// ---
+
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
+
 			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
+
 			if (!user.TwoFactorEnabled) {
 				return APIResponse.BadRequest(APIErrorCode.AccountTFADisabled);
 			}
+
+			if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
+				return APIResponse.BadRequest(nameof(model.Code), "Invalid code");
+			}
+
+			// ---
 
 			// get the template
 			var template = await (
