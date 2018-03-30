@@ -81,15 +81,24 @@
           <!-- WITHDRAWAL METHODS -->
           <ng-container *ngIf="tfaInfo.enabled">
             <div class="row mb-4">
-              <div class="col form-group text-center">
-                <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCapital)">
+              <div class="col col-lg-6 col-xl form-group text-center">
+                <label for="btnCapital">Crypto capital</label>
+                <button class="btn btn-primary btn-block" id="btnCapital" (click)="goto(pages.CryptoCapital)">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-crypto"></use>
                   </svg>
                 </button>
               </div>
-              <div class="col form-group text-center">
+
+              <div class="col col-lg-6 col-xl form-group text-center">
+                <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
+                <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCurrency)">
+                  <svg class="icon" width="56px" height="56px">
+                    <use xlink:href="#payment-crypto"></use>
+                  </svg>
+                </button>
+              </div>
+              <div class="col col-lg-6 col-xl form-group text-center">
                 <label for="btnPaymentCard">{{ "PAGES.Withdraw.Method.Card" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" (click)="goto(pages.CardsList)">
                   <svg class="icon" width="56px" height="56px">
@@ -97,7 +106,7 @@
                   </svg>
                 </button>
               </div>
-              <div class="col form-group text-center">
+              <div class="col col-lg-6 col-xl form-group text-center">
                 <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentBank"
                         [disabled]="(limits.current.withdraw.day < limits.paymentMethod.swift.withdraw.min ||
@@ -224,6 +233,66 @@
 </ng-container>
 
 <ng-container *ngIf="page === pages.CryptoCapital">
+  <section class="page__section section">
+    <h2 class="section__title">Crypto Capital</h2>
+    <div class="section__content">
+      <form #cryptoCapitalForm="ngForm">
+
+        <div class="form-group">
+          <label for="cc-amount">Amount</label>
+            <input type="number" class="form-control" id="cc-amount" name="ccAmount"
+                     [(ngModel)]="ccData.amount" #ccAmount="ngModel" required
+                     [ngClass]="{'is-invalid': (ccAmount.value <= 0 || ccAmount.invalid) && ccAmount.touched}">
+            <div class="invalid-feedback" *ngIf="(ccAmount.value <= 0 || ccAmount.invalid) && ccAmount.touched">
+              Invalid amount
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cc-number">Specify your Crypto Capital number</label>
+          <div class="d-flex">
+            <div class="w-100">
+              <input type="number" class="form-control" id="cc-number" name="ccNumber"
+                     [(ngModel)]="ccData.number" #ccNumber="ngModel" required
+                     [ngClass]="{'is-invalid': ccNumber.invalid && ccNumber.touched}">
+              <div class="invalid-feedback" *ngIf="ccNumber.invalid && ccNumber.touched">
+                Field is required
+              </div>
+            </div>
+            <div (click)="showModalAttention()">
+              <svg class="icon cc-info-icon ml-2" width="25" height="38">
+                <use xlink:href="#info"></use>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <p>Pay attention that each Crypto Capital account in each currency should be verified by GoldMint.io. You can proceed with unverified account as well, but the payment will be processed only after verification of your Crypto Capital account.</p>
+          <p>Please note that if the withdrawal currency differs from the currency of your  Crypto Capital account? conversion fees may be applied.</p>
+        </div>
+
+        <div class="form-group">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck"
+                     [(ngModel)]="ccData.agree" #ccAgree="ngModel" required>
+            <label class="custom-control-label custom-control-label-reg" for="agreeCheck">I have read, understood and agree with above mentioned policies.</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary"
+                    (click)="cryptoCapitalWithdraw()"
+                    [disabled]="cryptoCapitalForm.invalid || cryptoCapitalForm.untouched || ccAmount.value <= 0 || loading">Proceed</button>
+          <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+        </div>
+      </form>
+    </div>
+
+  </section>
+</ng-container>
+
+<ng-container *ngIf="page === pages.CryptoCurrency">
   <section class="page__section section">
     <h2 class="section__title">{{ "PAGES.Withdraw.CryptoCapital.Heading" | translate }}</h2>
 

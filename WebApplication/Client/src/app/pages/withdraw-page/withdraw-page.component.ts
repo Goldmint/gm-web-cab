@@ -11,8 +11,9 @@ import { User } from "../../interfaces/user";
 import {TranslateService} from "@ngx-translate/core";
 import {BigNumber} from "bignumber.js";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {CryptoCapitalWithdraw} from "../../models/crypto-capital-withdraw";
 
-enum Pages { Default, CardsList, CardsListSuccess, BankTransfer, CryptoCapital }
+enum Pages { Default, CardsList, CardsListSuccess, BankTransfer, CryptoCurrency, CryptoCapital }
 
 @Component({
   selector: 'app-withdraw-page',
@@ -59,6 +60,8 @@ export class WithdrawPageComponent implements OnInit {
   public currentCoin = this.coinList[1];
   public estimatedAmount = 0;
   public maxBankTransferAmount: number;
+
+  public ccData: CryptoCapitalWithdraw = new CryptoCapitalWithdraw();
 
   constructor(
     private _apiService: APIService,
@@ -141,6 +144,10 @@ export class WithdrawPageComponent implements OnInit {
         this.page = page;
         break;
 
+      case Pages.CryptoCurrency:
+        this.page = page;
+        break;
+
       case Pages.CryptoCapital:
         this.page = page;
         break;
@@ -151,6 +158,17 @@ export class WithdrawPageComponent implements OnInit {
     }
 
     this._cdRef.detectChanges();
+  }
+
+  cryptoCapitalWithdraw() {
+    this._messageBox.alert('Sent');
+    this.ccData = new CryptoCapitalWithdraw();
+  }
+
+  showModalAttention() {
+    this._messageBox.alert(`How to verify a Crypto Capital account?<br><br>
+                                    1. Take a screenshot of your Crypto Capital account with clearly visible account number. A separate screenshot is required for each Crypto Capital account.<br><br> 
+                                    2. Provide this screenshot to our support team via <b>support@goldmint.io</b>`, 'Attention')
   }
 
   chooseCurrentCoin(coin) {
