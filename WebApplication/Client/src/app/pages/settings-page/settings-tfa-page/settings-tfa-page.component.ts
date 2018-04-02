@@ -59,6 +59,8 @@ export class SettingsTFAPageComponent implements OnInit {
       .subscribe(
         res => {
           this.tfaInfo = res.data;
+          this.tfaModel = {};
+          this._cdRef.detectChanges();
         },
         err => {
           if (err.error && err.error.errorCode) {
