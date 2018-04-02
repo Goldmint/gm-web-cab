@@ -835,7 +835,8 @@
             "MasterCard": "MasterCard",
             "BankTransfer": "Банковски перевод",
             "Card": "Карта",
-            "SEPA": "SEPA"
+            "SEPA": "SEPA",
+            "CryptoCapital": "CryptoCapital"
           }
         }
       }
