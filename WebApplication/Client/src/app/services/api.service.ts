@@ -323,9 +323,9 @@ export class APIService {
       );
   }
 
-  cardWithdraw(cardId: number, amount: number): Observable<APIResponse<any>> {
+  cardWithdraw(cardId: number, amount: number, code: string): Observable<APIResponse<any>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/withdraw`, { cardId: cardId, amount: amount }, this.jwt())
+      .post(`${this._baseUrl}/user/fiat/card/withdraw`, { cardId, amount, code }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),

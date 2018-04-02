@@ -54,7 +54,7 @@ export class WithdrawPageComponent implements OnInit {
   public currentTransferBlock = this.bankTransferBlock[0];
   public bankTemplateIdForRemove: number;
 
-  public userUsdBalance: number;
+  public userUsdBalance: number | null = null;
   public usdAmount;
   public coinList = ['btc', 'eth']
   public currentCoin = this.coinList[1];
@@ -255,7 +255,7 @@ export class WithdrawPageComponent implements OnInit {
     this.processing = true;
     this.buttonBlur.emit();
 
-    this._apiService.cardWithdraw(this.depositModel.cardId, this.depositModel.amount)
+    this._apiService.cardWithdraw(this.depositModel.cardId, this.depositModel.amount, this.depositModel.code)
       .finally(() => {
         this.processing = false;
         this._cdRef.detectChanges();
