@@ -12,6 +12,7 @@
       "Transparency": "Transparency",
       "Swift": "Swift",
       "Countries": "Countries",
+      "Fees": "Withdraw/deposit fees",
       "Users": "Users"
     }
   },
@@ -50,6 +51,29 @@
         "Comment": "Comment",
         "Ban": "Actions",
         "Cancel": "Unban"
+      }
+    },
+    "Fees": {
+      "Heading": "Withdraw/Deposit Fees",
+      "CurrencyType": {
+        "Fiat": "Fiat money",
+        "Crypto": "Cryptocurrency"
+      },
+      "Table": {
+        "Head": {
+          "Currency": "Currency",
+          "PaymentMethod": "Payment method",
+          "Deposit": "Deposit",
+          "Withdrawal": "Withdrawal"
+        },
+        "Method": {
+          "VISA": "VISA",
+          "MasterCard": "MasterCard",
+          "BankTransfer": "Bank Transfer",
+          "Card": "Card",
+          "SEPA": "SEPA",
+          "CryptoCapital": "CryptoCapital"
+        }
       }
     },
     "Users": {

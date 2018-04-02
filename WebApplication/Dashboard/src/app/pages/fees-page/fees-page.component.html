@@ -1,0 +1,187 @@
+<div class="page">
+  <h1 class="page__heading">{{ "PAGES.Fees.Heading" | translate }}</h1>
+
+  <div class="section__content">
+
+    <div class="row mb-4">
+      <div class="col-auto btn-group ml-auto">
+        <label class="btn btn-primary btn-sm active"
+               [ngClass]="{'active': currentCurrencyType === currencyTypeList[0]}"
+               (click)="chooseCurrencyType(currencyTypeList[0])"
+        >
+          {{ "PAGES.Fees.CurrencyType.Fiat" | translate }}
+        </label>
+        <label class="btn btn-primary btn-sm"
+               [ngClass]="{'active': currentCurrencyType === currencyTypeList[1]}"
+               (click)="chooseCurrencyType(currencyTypeList[1])">
+          {{ "PAGES.Fees.CurrencyType.Crypto" | translate }}
+        </label>
+      </div>
+    </div>
+
+    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0]">
+      <thead class="fees-datatable-header">
+      <tr class="fees-datatable-header fees-border-bottom">
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Currency" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.PaymentMethod" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Deposit" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Withdrawal" | translate }}</td>
+      </tr>
+      </thead>
+      <tbody class="fees-datatable-body">
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="4">
+          <svg class="icon" width="30" height="65">
+            <use xlink:href="#fee-usd"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">USD</div>
+        </td>
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.VISA" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="3,5% + $ 0.25"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="$ 3.80"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.MasterCard" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="3,5% + $ 0.25"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1.2% + $ 3.80"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.BankTransfer" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="$ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="n/a"></td>
+      </tr>
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.CryptoCapital" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="$ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="5">
+          <svg class="icon" width="37" height="52">
+            <use xlink:href="#fee-eur"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">EUR</div>
+        </td>
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.VISA" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="3,5% + € 0.24"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="€ 3.50"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.MasterCard" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="3,5% + € 0.24"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1.2% + € 3.50"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.BankTransfer" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="€ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="n/a"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.SEPA" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="€ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="€ 10.000"></td>
+      </tr>
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.CryptoCapital" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="€ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="3">
+          <svg class="icon" width="35" height="51">
+            <use xlink:href="#fee-rub"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">RUB</div>
+        </td>
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.VISA" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="5% + Р 15.57"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="2.5% + $ 30.00"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.MasterCard" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="5% + Р 15.57"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="2.5% + $ 30.00"></td>
+      </tr>
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.CryptoCapital" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="Р 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="4">
+          <svg class="icon" width="32" height="51">
+            <use xlink:href="#fee-gbr"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">GBR</div>
+        </td>
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.MasterCard" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="n/a"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1.2% + £ 2.90"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.Card" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="3,5% + £ 0.20"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="n/a"></td>
+      </tr>
+      <tr class="fees-datatable-body-row">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.BankTransfer" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="£ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="n/a"></td>
+      </tr>
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell">{{ "PAGES.Fees.Table.Method.CryptoCapital" | translate }}</td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="£ 0"></td>
+        <td class="fees-datatable-body-cell"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[1]">
+      <thead class="fees-datatable-header">
+      <tr class="fees-datatable-header fees-border-bottom">
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Currency" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Deposit" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Withdrawal" | translate }}</td>
+      </tr>
+      </thead>
+      <tbody class="fees-datatable-body">
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell align-middle text-center pt-3 pb-3">
+          <svg class="icon" width="30" height="65">
+            <use xlink:href="#fee-usd"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">USD</div>
+        </td>
+        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" value="$ 0"></td>
+        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell align-middle text-center pt-3 pb-3">
+          <svg class="icon" width="37" height="52">
+            <use xlink:href="#fee-eur"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">EUR</div>
+        </td>
+        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" value="€ 0"></td>
+        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      <tr class="fees-datatable-body-row fees-border-bottom">
+        <td class="fees-datatable-body-cell align-middle text-center pt-3 pb-3">
+          <svg class="icon" width="32" height="51">
+            <use xlink:href="#fee-gbr"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">GBR</div>
+        </td>
+        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" value="£ 0"></td>
+        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" value="1%"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="col pb-3 pt-3 text-right">
+      <button class="btn btn-primary" type="submit" (click)="updateFees()" [disabled]="loading || statDataForm.invalid">Save</button>
+    </div>
+
+  </div>
+</div>
+

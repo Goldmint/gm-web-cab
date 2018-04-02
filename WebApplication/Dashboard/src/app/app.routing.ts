@@ -14,13 +14,15 @@ import {UserPageComponent} from "./pages/users-page/user-page/user-page.componen
 import {OplogPageComponent} from "./pages/users-page/oplog-page/oplog-page.component";
 import {AccessRightsPageComponent} from "./pages/users-page/access-rights-page/access-rights-page.component";
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
+import {FeesPageComponent} from "./pages/fees-page/fees-page.component";
 
 const appRoutes: Routes = [
 
-  { path: 'signin',                  component: LoginPageComponent },
-  { path: 'transparency',     component: TransparencyPageComponent,     canActivate: [AuthGuard] },
-  { path: 'countries',     component: CountriesPageComponent,     canActivate: [AuthGuard] },
-  { path: 'users',     component: UsersPageComponent,     canActivate: [AuthGuard],
+  { path: 'signin', component: LoginPageComponent },
+  { path: 'transparency', component: TransparencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'countries', component: CountriesPageComponent, canActivate: [AuthGuard] },
+  { path: 'fees', component: FeesPageComponent, canActivate: [AuthGuard] },
+  { path: 'users', component: UsersPageComponent, canActivate: [AuthGuard],
     children: [
       {path: '', component: UsersListPageComponent},
       {path: ':id', component: UserPageComponent},
@@ -29,10 +31,10 @@ const appRoutes: Routes = [
     ]
   },
   {
-    path: 'account',          component: SettingsPageComponent, canActivate: [AuthGuard],
+    path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [
       {path: '', redirectTo: 'profile', pathMatch: 'full'},
-      {path: 'profile',       component: SettingsProfilePageComponent},
+      {path: 'profile', component: SettingsProfilePageComponent},
     ]
   },
   { path: '', redirectTo: 'transparency', pathMatch: 'full' },

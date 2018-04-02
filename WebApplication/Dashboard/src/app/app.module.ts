@@ -66,6 +66,7 @@ import { AccessRightsPageComponent } from './pages/users-page/access-rights-page
 import { UserPageComponent } from './pages/users-page/user-page/user-page.component';
 import { UsersListPageComponent } from './pages/users-page/users-list-page/users-list-page.component';
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
+import { FeesPageComponent } from './pages/fees-page/fees-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -126,6 +127,7 @@ export function getGoldmintToken() {
     AccessRightsPageComponent,
     UserPageComponent,
     UsersListPageComponent,
+    FeesPageComponent,
   ],
   exports: [],
   providers: [
