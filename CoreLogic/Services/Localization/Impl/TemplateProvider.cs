@@ -53,7 +53,19 @@ namespace Goldmint.CoreLogic.Services.Localization.Impl {
 
 		public string GetResourceAsString(string type, string locale, string name) {
 			// ex: Goldmint.CoreLogic.Data.Templates.Email.en.SignInNotification.html
-			return _resources.GetValueOrDefault($"Goldmint.CoreLogic.Data.Templates.{type}.{locale}.{name}", "");
+			var ret = _resources.GetValueOrDefault(
+				$"Goldmint.CoreLogic.Data.Templates.{type}.{locale}.{name}",
+				// fallback to the EN-resource
+				_resources.GetValueOrDefault(
+					$"Goldmint.CoreLogic.Data.Templates.{type}.{Locale.En.ToString().ToLower()}.{name}",
+					//
+					null
+				)
+			);
+			if (ret == null) {
+				throw new Exception($"Resource not found: Goldmint.CoreLogic.Data.Templates.{type}.{locale}.{name}");
+			}
+			return ret;
 		}
 
 		private void LoadUp() {

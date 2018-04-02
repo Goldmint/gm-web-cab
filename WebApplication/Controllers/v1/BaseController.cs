@@ -7,6 +7,7 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate;
+using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
 using Goldmint.WebApplication.Models;
@@ -22,7 +23,6 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.SignedDoc;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -187,15 +187,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 		[NonAction]
 		protected Locale GetUserLocale() {
-			/*
-			TODO: implement email templates, docs templates, etc. 
 			if (
 				HttpContext.Request.Headers.TryGetValue("GM-LOCALE", out var localeHeader) && 
 				!string.IsNullOrWhiteSpace(localeHeader.ToString()) && 
 				Enum.TryParse(localeHeader.ToString(), true, out Locale localeEnum)
 			) {
 				return localeEnum;
-			}*/
+			}
 			return Locale.En;
 		}
 	}
