@@ -129,4 +129,57 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		[Required]
 		public string V { get; set; }
 	}
+
+	// ---
+
+	public class FeesView {
+
+		/// <summary>
+		/// Fiat currencies
+		/// </summary>
+		[Required]
+		public FeesViewCurrency[] Fiat { get; set; }
+
+		/// <summary>
+		/// Cryptoassets
+		/// </summary>
+		[Required]
+		public FeesViewCurrency[] Crypto { get; set; }
+	}
+
+	public class FeesViewCurrency {
+
+		/// <summary>
+		/// Currency name: USD, EUR etc.
+		/// </summary>
+		[Required]
+		public string Name { get; set; }
+		
+		/// <summary>
+		/// Currency methods
+		/// </summary>
+		[Required]
+		public FeesViewMethod[] Methods { get; set; }
+	}
+
+	public class FeesViewMethod {
+
+		/// <summary>
+		/// Method name: VISA, MC etc.
+		/// </summary>
+		[Required]
+		public string Name { get; set; }
+
+		/// <summary>
+		/// Deposit data
+		/// </summary>
+		[Required]
+		public string Deposit { get; set; }
+
+		/// <summary>
+		/// Withdraw data
+		/// </summary>
+		[Required]
+		public string Withdraw { get; set; }
+	}
 }

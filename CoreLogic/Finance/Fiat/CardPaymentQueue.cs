@@ -301,20 +301,43 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								cardHolder.Contains(payment.User?.UserVerification.LastName)
 							) {
 
-								// this is 1st step - deposit data
-								if (cardPrevState == CardState.InputDepositData) {
+								// check for duplicate
+								if (
+									await dbContext.Card.CountAsync(_ =>
+										_.UserId == payment.UserId &&
+										_.State != CardState.Deleted &&
+										_.Id != card.Id &&
+										_.CardMask == cardMask
+									) > 0
+								) {
 
+									card.State = CardState.Deleted;
+									card.CardHolder = cardHolder;
+									card.CardMask = cardMask;
+
+									try {
+										await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Failed, $"Card with the same mask exists {cardMask}");
+									}
+									catch {
+									}
+
+									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DuplicateCard;
+								}
+
+								// this is 1st step - deposit data
+								else if (cardPrevState == CardState.InputDepositData) {
 									card.State = CardState.InputWithdrawData;
 									card.CardHolder = cardHolder;
 									card.CardMask = cardMask;
-									
+
 									try {
 										await ticketDesk.UpdateTicket(payment.DeskTicketId, UserOpLogStatus.Pending, "Provided card data on first step is saved");
 									}
-									catch { }
+									catch {
+									}
 
 									// ok
-									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DepositSuccess;
+									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DepositDataOk;
 								}
 
 								// this is 2nd step - withdraw data - must be the same card
@@ -341,7 +364,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 											verificationPaymentEnqueued = verPayment;
 
 											// ok, for now
-											ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.WithdrawSuccess;
+											ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.WithdrawDataOk;
 										}
 										catch (Exception e) {
 											logger?.Error(e, $"Failed to start verification charge for this payment");
@@ -645,10 +668,11 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			public enum ResultEnum {
 				NothingToDo,
 				Pending,
-				DepositSuccess,
+				DuplicateCard,
+				DepositDataOk,
 				WithdrawCardDataMismatched,
 				FailedToChargeVerification,
-				WithdrawSuccess
+				WithdrawDataOk
 			}
 		}
 

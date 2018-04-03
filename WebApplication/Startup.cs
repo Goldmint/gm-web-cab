@@ -35,7 +35,7 @@ namespace Goldmint.WebApplication {
 					.SetBasePath(cfgDir)
 					.AddJsonFile("appsettings.json", optional: false)
 					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", optional: false)
-					.AddJsonFile("appsettings.Private.json", optional: true)
+					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.Private.json", optional: true)
 					.Build()
 				;
 				

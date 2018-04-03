@@ -364,7 +364,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
-			
+
 			// ---
 
 			// get the card
@@ -413,15 +413,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					using (var scopedServices = HttpContext.RequestServices.CreateScope()) {
 
 						var presult = await CardPaymentQueue.ProcessPendingCardDataInputPayment(
-							scopedServices.ServiceProvider, 
+							scopedServices.ServiceProvider,
 							payment.Id
 						);
 
-						// own scope
-						using (var scopedServices2 = HttpContext.RequestServices.CreateScope()) {
+						// just charged - try to check payment
+						if (presult.VerificationPaymentId != null) {
 
-							// just charged - try to check payment
-							if (presult.VerificationPaymentId != null) {
+							// own scope
+							using (var scopedServices2 = HttpContext.RequestServices.CreateScope()) {
 								await CardPaymentQueue.ProcessVerificationPayment(
 									scopedServices2.ServiceProvider,
 									presult.VerificationPaymentId.Value

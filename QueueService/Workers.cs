@@ -40,7 +40,7 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// does require ethereum (reader)
-					new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(10)),
+					new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(15)),
 					new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(3)),
 
 					// does require ethereum (writer and reader)

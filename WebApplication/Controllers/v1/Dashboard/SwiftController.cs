@@ -348,7 +348,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			var amountCents = (long)Math.Floor(model.Amount * 100d);
 			model.Amount = amountCents / 100d;
 
-			if (amountCents < AppConfig.Constants.CardPaymentData.DepositMin || amountCents > AppConfig.Constants.CardPaymentData.DepositMax) {
+			if (amountCents < AppConfig.Constants.SwiftData.DepositMin || (amountCents > AppConfig.Constants.SwiftData.DepositMax) && AppConfig.Constants.SwiftData.DepositMax != 0) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
