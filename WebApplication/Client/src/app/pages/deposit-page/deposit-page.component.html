@@ -55,7 +55,9 @@
             </div>
             <div class="col col-lg-6 col-xl form-group text-center">
               <label for="btnCryptoCapital">{{ "PAGES.Deposit.Method.CryptoCapital" | translate }}</label>
-              <button class="btn btn-primary btn-block" id="btnCryptoCapital" (click)="goto(pages.CryptoCurrency)">
+              <button class="btn btn-primary btn-block" id="btnCryptoCapital"
+                      [disabled]="!ethAddress"
+                      (click)="goto(pages.CryptoCurrency)">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-crypto"></use>
                 </svg>

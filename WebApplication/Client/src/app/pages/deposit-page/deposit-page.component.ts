@@ -101,6 +101,7 @@ export class DepositPageComponent implements OnInit {
 
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.ethAddress = ethAddr;
+      this._cdRef.markForCheck();
     });
 
     this._apiService.getEthereumRate().subscribe(data => this.ethRate = data.data.usd);
@@ -198,14 +199,14 @@ export class DepositPageComponent implements OnInit {
         this._cdRef.markForCheck();
       })
       .subscribe(res => {
-        const amount = (this.cryptoCurrencyAmount * res.data.ethRate).toFixed(2)
+        const amount = (this.cryptoCurrencyAmount * res.data.ethRate).toFixed(2);
         this._translate.get('MessageBox.EthDeposit',
           {coinAmount: this.cryptoCurrencyAmount, usdAmount: amount, ethRate: res.data.ethRate}
         ).subscribe(phrase => {
           this._messageBox.confirm(phrase).subscribe(ok => {
             if (ok) {
               this._apiService.confirmEthDepositRequest(true, res.data.requestId).subscribe(() => {
-                this._ethService.ethDepositRequest(this.ethAddress, res.data.requestId);
+                this._ethService.ethDepositRequest(this.ethAddress, res.data.requestId, this.cryptoCurrencyAmount);
               });
             }
           });
