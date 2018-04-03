@@ -15,11 +15,13 @@ import {OplogPageComponent} from "./pages/users-page/oplog-page/oplog-page.compo
 import {AccessRightsPageComponent} from "./pages/users-page/access-rights-page/access-rights-page.component";
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
 import {FeesPageComponent} from "./pages/fees-page/fees-page.component";
+import {SwiftPageComponent} from "./pages/swift-page/swift-page.component";
 
 const appRoutes: Routes = [
 
   { path: 'signin', component: LoginPageComponent },
   { path: 'transparency', component: TransparencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'swift', component: SwiftPageComponent, canActivate: [AuthGuard] },
   { path: 'countries', component: CountriesPageComponent, canActivate: [AuthGuard] },
   { path: 'fees', component: FeesPageComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersPageComponent, canActivate: [AuthGuard],
