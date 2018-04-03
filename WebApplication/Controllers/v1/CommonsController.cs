@@ -123,5 +123,30 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			).AsNoTracking().ToArrayAsync();
 			return APIResponse.Success(list);
 		}
+		
+		/// <summary>
+		/// Fees table
+		/// </summary>
+		[AnonymousAccess]
+		[HttpGet, Route("fees")]
+		[ProducesResponseType(typeof(FeesView), 200)]
+		public async Task<APIResponse> Fees() {
+
+			var ret = new FeesView() {
+				Fiat = new FeesViewCurrency[0],
+				Crypto = new FeesViewCurrency[0],
+			};
+
+			// TODO: DB hit, cache response for some period
+
+			var json = await DbContext.GetDBSetting(DbSetting.FeesTable, null);
+			if (json != null) {
+				ret = Common.Json.Parse<FeesView>(json);
+			}
+
+			return APIResponse.Success(
+				ret
+			);
+		}
 	}
 }

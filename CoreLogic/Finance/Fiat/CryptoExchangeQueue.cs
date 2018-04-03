@@ -238,7 +238,18 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						catch { }
 
 						if (amountCents <= 0) {
+							
+							request.Status = CryptoDepositStatus.Failed;
+							request.TimeCompleted = DateTime.UtcNow;
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, $"Cryptodeposit #{request.Id} cancelled. Estimated cents amount is {amountCents} ({request.Amount} {request.Origin.ToString()})");
+							}
+							catch { }
+
 							logger.Error($"Failed to enqueue deposit from cryptodeposit #{request.Id}. Amount in cents is {amountCents}");
+
 							return false;
 						}
 

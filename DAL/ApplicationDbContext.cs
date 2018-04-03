@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Goldmint.DAL.Models;
 using Goldmint.DAL.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -107,12 +108,17 @@ namespace Goldmint.DAL {
 		// ---
 
 		public async Task<string> GetDBSetting(Common.DbSetting key, string def) {
+
 			Settings sett = null;
+			string keyStr = key.ToString();
+			if (keyStr.Length > DAL.Models.Settings.MaxKeyFieldLength) {
+				throw new Exception("DB settings key is too long");
+			}
 
 			try {
 				sett = await (
 					from s in this.Settings
-					where s.Key == key.ToString()
+					where s.Key == keyStr
 					select s
 				)
 				.AsNoTracking()
@@ -130,20 +136,28 @@ namespace Goldmint.DAL {
 		public async Task<bool> SaveDbSetting(Common.DbSetting key, string value) {
 			Settings sett = null;
 
+			string keyStr = key.ToString();
+			if (keyStr.Length > DAL.Models.Settings.MaxKeyFieldLength) {
+				throw new Exception("DB settings key is too long");
+			}
+			if (value != null && value.Length > DAL.Models.Settings.MaxValueFieldLength) {
+				throw new Exception("DB settings value is too long");
+			}
+
 			try {
 				sett = await (
-					from s in this.Settings
-					where s.Key == key.ToString()
-					select s
-				)
-				.FirstOrDefaultAsync();
+						from s in this.Settings
+						where s.Key == keyStr
+						select s
+					)
+					.FirstOrDefaultAsync();
 
 				if (sett != null) {
 					sett.Value = value;
 				}
 				else {
 					sett = new Settings() {
-						Key = key.ToString(),
+						Key = keyStr,
 						Value = value,
 					};
 
@@ -154,10 +168,12 @@ namespace Goldmint.DAL {
 
 				return true;
 			}
-			catch { }
+			catch {
+			}
 			finally {
 				if (sett != null) this.Entry(sett).State = EntityState.Detached;
 			}
+
 			return false;
 		}
 	}

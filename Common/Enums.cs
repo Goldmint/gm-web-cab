@@ -657,6 +657,7 @@ namespace Goldmint.Common {
 
 		LastExchangeIndex = 1,
 		LastCryptoExchangeBlockChecked,
+		FeesTable
 	}
 
 	public enum MutexEntity {
