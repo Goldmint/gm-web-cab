@@ -80,9 +80,9 @@
 
           <!-- WITHDRAWAL METHODS -->
           <ng-container *ngIf="tfaInfo.enabled">
-            <div class="row mb-4">
+            <div class="row mb-4 align-items-baseline">
               <div class="col col-lg-6 col-xl form-group text-center">
-                <label for="btnCapital">Crypto capital</label>
+                <label for="btnCapital">{{ "PAGES.Withdraw.Method.Crypto" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCapital" (click)="goto(pages.CryptoCapital)">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-crypto"></use>
@@ -109,7 +109,7 @@
                 </button>
                 <div *ngIf="!loading && userUsdBalance !== null">
                   <div class="text-left pt-1 blocked-notification text-center" *ngIf="userUsdBalance < minAmount">
-                    Your balance is less than minimal method limit
+                    {{ "PAGES.Withdraw.Method.Errors.BalanceLess" | translate }}
                   </div>
                 </div>
               </div>
@@ -125,10 +125,10 @@
                 </button>
                 <div *ngIf="!loading && userUsdBalance !== null">
                   <div class="text-left pt-1 blocked-notification text-center" *ngIf="limits.current.withdraw.day < limits.paymentMethod.swift.withdraw.min">
-                    Your daily limit is less than minimal method limit
+                    {{ "PAGES.Withdraw.Method.Errors.LimitLess" | translate }}
                   </div>
                   <div class="text-left pt-1 blocked-notification text-center" *ngIf="userUsdBalance < limits.paymentMethod.swift.withdraw.min">
-                    Your balance is less than minimal method limit
+                    {{ "PAGES.Withdraw.Method.Errors.BalanceLess" | translate }}
                   </div>
                 </div>
               </div>
@@ -241,29 +241,29 @@
 
 <ng-container *ngIf="page === pages.CryptoCapital">
   <section class="page__section section">
-    <h2 class="section__title">Crypto Capital</h2>
+    <h2 class="section__title">{{ "PAGES.Withdraw.Crypto.Heading" | translate }}</h2>
     <div class="section__content">
       <form #cryptoCapitalForm="ngForm">
 
         <div class="form-group">
-          <label for="cc-amount">Amount</label>
+          <label for="cc-amount">{{ "PAGES.Withdraw.Crypto.Labels.Amount" | translate }}</label>
             <input type="number" class="form-control" id="cc-amount" name="ccAmount"
                      [(ngModel)]="ccData.amount" #ccAmount="ngModel" required
                      [ngClass]="{'is-invalid': (ccAmount.value <= 0 || ccAmount.invalid) && ccAmount.touched}">
             <div class="invalid-feedback" *ngIf="(ccAmount.value <= 0 || ccAmount.invalid) && ccAmount.touched">
-              Invalid amount
+              {{ "PAGES.Withdraw.Crypto.Errors.Invalid" | translate }}
           </div>
         </div>
 
         <div class="form-group">
-          <label for="cc-number">Specify your Crypto Capital number</label>
+          <label for="cc-number">{{ "PAGES.Withdraw.Crypto.Labels.Number" | translate }}</label>
           <div class="d-flex">
             <div class="w-100">
               <input type="number" class="form-control" id="cc-number" name="ccNumber"
                      [(ngModel)]="ccData.number" #ccNumber="ngModel" required
                      [ngClass]="{'is-invalid': ccNumber.invalid && ccNumber.touched}">
               <div class="invalid-feedback" *ngIf="ccNumber.invalid && ccNumber.touched">
-                Field is required
+                {{ "PAGES.Withdraw.Crypto.Errors.Required" | translate }}
               </div>
             </div>
             <div (click)="showModalAttention()">
@@ -275,22 +275,24 @@
         </div>
 
         <div class="form-group">
-          <p>Pay attention that each Crypto Capital account in each currency should be verified by GoldMint.io. You can proceed with unverified account as well, but the payment will be processed only after verification of your Crypto Capital account.</p>
-          <p>Please note that if the withdrawal currency differs from the currency of your  Crypto Capital account? conversion fees may be applied.</p>
+          <p>{{ "PAGES.Withdraw.Crypto.Text.FirstText" | translate }}</p>
+          <p>{{ "PAGES.Withdraw.Crypto.Text.SecondText" | translate }}</p>
         </div>
 
         <div class="form-group">
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck"
                      [(ngModel)]="ccData.agree" #ccAgree="ngModel" required>
-            <label class="custom-control-label custom-control-label-reg" for="agreeCheck">I have read, understood and agree with above mentioned policies.</label>
+            <label class="custom-control-label custom-control-label-reg" for="agreeCheck">{{ "PAGES.Withdraw.Crypto.Checkbox" | translate }}</label>
           </div>
         </div>
 
         <div class="form-group">
           <button type="submit" class="btn btn-primary"
                     (click)="cryptoCapitalWithdraw()"
-                    [disabled]="cryptoCapitalForm.invalid || cryptoCapitalForm.untouched || ccAmount.value <= 0 || loading">Proceed</button>
+                    [disabled]="cryptoCapitalForm.invalid || cryptoCapitalForm.untouched || ccAmount.value <= 0 || loading">
+            {{ "PAGES.Withdraw.Crypto.Buttons.Proceed" | translate }}
+          </button>
           <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
         </div>
       </form>
@@ -424,7 +426,7 @@
 
             <div class="col-12">
               <div class="form-group">
-                <label for="inputCode">Two-factor authentication code</label>
+                <label for="inputCode">{{ "PAGES.Withdraw.PaymentCard.Labels.2FA" | translate }}</label>
                 <div class="d-flex align-items-center">
                   <div class="form-currency form-currency--usd">
                     <svg class="icon" width="30">
@@ -438,7 +440,7 @@
                          [readonly]="processing" pattern="\d+">
                 </div>
                 <div class="invalid-feedback" *ngIf="code.invalid && code.dirty">
-                  Code should be 6-digits length
+                  {{ "PAGES.Withdraw.PaymentCard.Errors.Length" | translate }}
                 </div>
               </div>
             </div>
@@ -507,13 +509,13 @@
 <ng-container *ngIf="page === pages.BankTransfer">
  <div class="disable-content-block"><span>Coming Soon</span></div>
   <div *ngIf="currentTransferBlock === bankTransferBlock[0]" class="section">
-    <h2 class="section__title">Bank transfer</h2>
+    <h2 class="section__title">{{ "PAGES.Withdraw.BankTransfer.Heading" | translate }}</h2>
     <div class="section__content pb-4">
       <form [formGroup]="bankTransferForm" (ngSubmit)="bankTransferSendRequest()">
         <div class="row">
           <div class="col-lg-6">
             <div class="form-group">
-              <label for="selectBankAccount">Bank account</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.Labels.BankAccount" | translate }}</label>
               <select id="selectBankAccount" class="custom-select" name="bankAccount" formControlName="selectBankAccount">
                 <option *ngFor="let b of bankTransferList" [value]="b.templateId">{{ b.bank }}</option>
               </select>
@@ -521,16 +523,20 @@
           </div>
 
           <div class="col-lg-3 mt-lg-4 mb-3 text-right add-btn-block">
-            <button type="button" class="btn btn-primary btn-sm w-100" (click)="currentTransferBlock = bankTransferBlock[1]">Add account</button>
+            <button type="button" class="btn btn-primary btn-sm w-100" (click)="currentTransferBlock = bankTransferBlock[1]">
+              {{ "PAGES.Withdraw.BankTransfer.Buttons.Add" | translate }}
+            </button>
           </div>
 
           <div class="col-lg-3 mt-lg-4 mb-3 text-right add-btn-block">
-            <button type="button" class="btn btn-primary btn-sm w-100" (click)="currentTransferBlock = bankTransferBlock[2]">Remove account</button>
+            <button type="button" class="btn btn-primary btn-sm w-100" (click)="currentTransferBlock = bankTransferBlock[2]">
+              {{ "PAGES.Withdraw.BankTransfer.Buttons.Remove" | translate }}
+            </button>
           </div>
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">Amount</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.Labels.Amount" | translate }}</label>
               <input type="number" class="form-control" formControlName="bankTransferAmount"
                      [ngClass]="{'is-invalid': bankTransferForm.get('bankTransferAmount').invalid}"
               >
@@ -547,15 +553,15 @@
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">Fee:</label>
-              <span>$15</span>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.Labels.Fee" | translate }}</label>
+              <span>{{ fee }}</span>
             </div>
           </div>
 
           <div class="col-12">
             <button type="submit" class="btn btn-primary"
                     [disabled]="bankTransferForm.invalid || bankTransferForm.get('bankTransferAmount').value <= 0 || loading">
-              Send request
+              {{ "PAGES.Withdraw.BankTransfer.Buttons.Send" | translate }}
             </button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
@@ -598,16 +604,17 @@
   </div>
 
   <div *ngIf="currentTransferBlock === bankTransferBlock[1]" class="section">
-    <h2 class="section__title">Add account</h2>
+    <h2 class="section__title">{{ "PAGES.Withdraw.BankTransfer.AddForm.Heading" | translate }}</h2>
     <div class="section__content pb-4">
       <form [formGroup]="addBankForm">
         <div class="row">
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">Description</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.AddForm.Labels.Description" | translate }}</label>
               <div class="d-flex align-items-center">
-                <input type="text" class="form-control" formControlName="description" placeholder="Unique description used to identify this bank account">
+                <input type="text" class="form-control" formControlName="description"
+                       placeholder="{{ 'PAGES.Withdraw.BankTransfer.AddForm.Placeholder.Description' | translate }}">
                 <svg class="asterisk add-account-asterisk" width="6px" height="6px">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -617,9 +624,10 @@
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">Name on account</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.AddForm.Labels.NameAccount" | translate }}</label>
               <div class="d-flex align-items-center">
-                <input type="text" class="form-control" formControlName="accountName" placeholder="The name on this bank account must match this account">
+                <input type="text" class="form-control" formControlName="accountName"
+                       placeholder="{{ 'PAGES.Withdraw.BankTransfer.AddForm.Placeholder.NameOnAccount' | translate }}">
                 <svg class="asterisk add-account-asterisk" width="6px" height="6px">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -629,7 +637,7 @@
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">IBAN</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.AddForm.Labels.IBAN" | translate }}</label>
               <div class="d-flex align-items-center">
                 <input type="text" class="form-control" formControlName="iban">
                 <svg class="asterisk add-account-asterisk" width="6px" height="6px">
@@ -641,7 +649,7 @@
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">Bank name</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.AddForm.Labels.BankName" | translate }}</label>
               <div class="d-flex align-items-center">
                 <input type="text" class="form-control" formControlName="bankName">
                 <svg class="asterisk add-account-asterisk" width="6px" height="6px">
@@ -653,7 +661,7 @@
 
           <div class="col-12">
             <div class="form-group">
-              <label for="selectBankAccount">BIC</label>
+              <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.AddForm.Labels.BIC" | translate }}</label>
               <div class="d-flex align-items-center">
                 <input type="number" class="form-control" formControlName="bic">
                 <svg class="asterisk add-account-asterisk" width="6px" height="6px">
@@ -665,9 +673,10 @@
 
             <div class="col-12">
               <div class="form-group">
-                <label for="selectBankAccount">Address</label>
+                <label for="selectBankAccount">{{ "PAGES.Withdraw.BankTransfer.AddForm.Labels.Address" | translate }}</label>
                 <div class="d-flex align-items-center">
-                  <textarea class="w-100" class="form-control" name="address" rows="5" formControlName="address" placeholder="The physical address of your bank's branch? including the country"></textarea>
+                  <textarea class="w-100" class="form-control" name="address" rows="5" formControlName="address"
+                            placeholder="{{ 'PAGES.Withdraw.BankTransfer.AddForm.Placeholder.Address' | translate }}"></textarea>
                   <svg class="asterisk add-account-asterisk" width="6px" height="6px">
                     <use xlink:href="#asterisk"></use>
                   </svg>
@@ -676,12 +685,16 @@
             </div>
 
           <div class="col-lg-6">
-            <button type="button" class="btn btn-primary" (click)="currentTransferBlock = bankTransferBlock[0]" [disabled]="loading">Back</button>
+            <button type="button" class="btn btn-primary" (click)="currentTransferBlock = bankTransferBlock[0]" [disabled]="loading">
+              {{ "PAGES.Withdraw.BankTransfer.AddForm.Buttons.Back" | translate }}
+            </button>
           </div>
 
           <div class="col-lg-6 text-right">
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-            <button type="button" class="btn btn-primary" (click)="addBankAccount()" [disabled]="addBankForm.invalid || loading">Save bank account</button>
+            <button type="button" class="btn btn-primary" (click)="addBankAccount()" [disabled]="addBankForm.invalid || loading">
+              {{ "PAGES.Withdraw.BankTransfer.AddForm.Buttons.Save" | translate }}
+            </button>
           </div>
 
         </div>
@@ -690,13 +703,13 @@
   </div>
 
   <div *ngIf="currentTransferBlock === bankTransferBlock[2]" class="section">
-    <h2 class="section__title">Remove account</h2>
+    <h2 class="section__title">{{ "PAGES.Withdraw.BankTransfer.RemoveForm.Heading" | translate }}</h2>
     <div class="section__content pb-4">
       <div class="row">
 
         <div class="col-12">
           <div class="form-group">
-            <label for="removeBankAccount">Bank account</label>
+            <label for="removeBankAccount">{{ "PAGES.Withdraw.BankTransfer.RemoveForm.Labels.BankAccount" | translate }}</label>
             <select id="removeBankAccount" class="custom-select" name="removeBankAccount" [(ngModel)]="bankTemplateIdForRemove">
               <option *ngFor="let b of bankTransferList" [value]="b.templateId">{{ b.bank }}</option>
             </select>
@@ -704,12 +717,16 @@
         </div>
 
         <div class="col-6">
-          <button type="button" class="btn btn-primary" (click)="currentTransferBlock = bankTransferBlock[0]" [disabled]="loading">Back</button>
+          <button type="button" class="btn btn-primary" (click)="currentTransferBlock = bankTransferBlock[0]" [disabled]="loading">
+            {{ "PAGES.Withdraw.BankTransfer.RemoveForm.Buttons.Back" | translate }}
+          </button>
         </div>
 
         <div class="col-6 text-right">
           <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-          <button type="button" class="btn btn-primary" (click)="removeBankAccount()" [disabled]="!bankTemplateIdForRemove || loading">Remove bank account</button>
+          <button type="button" class="btn btn-primary" (click)="removeBankAccount()" [disabled]="!bankTemplateIdForRemove || loading">
+            {{ "PAGES.Withdraw.BankTransfer.RemoveForm.Buttons.Remove" | translate }}
+          </button>
         </div>
 
       </div>

@@ -46,7 +46,7 @@
 
           <div class="row align-items-end mb-4">
             <div class="col col-lg-6 col-xl form-group text-center">
-              <label for="btnCapital">Crypto capital</label>
+              <label for="btnCapital">{{ "PAGES.Deposit.Method.Crypto" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnCapital" (click)="goto(pages.CryptoCapital)">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-crypto"></use>
@@ -188,42 +188,42 @@
 
 <ng-container *ngIf="page === pages.CryptoCapital">
   <section class="page__section section">
-    <h2 class="section__title">Crypto Capital</h2>
+    <h2 class="section__title">{{ "PAGES.Deposit.Crypto.Heading" | translate }}</h2>
     <table class="ngx-datatable-cc mt-3 mb-3">
       <tbody class="datatable-body">
         <tr class="datatable-body-row">
-          <td class="w-40">Company name:</td>
+          <td class="w-40">{{ "PAGES.Deposit.Crypto.Table.CellName.Company" | translate }}</td>
           <td><input class="crypto-capital-input" type="text" [value]="'data1'" #inputName readonly></td>
           <td class="text-right">
-            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputName)">Copy</button>
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputName)">{{ "PAGES.Deposit.Crypto.Buttons.Copy" | translate }}</button>
           </td>
         </tr>
         <tr class="datatable-body-row datatable-row-even">
-          <td class="w-40">Address:</td>
+          <td class="w-40">{{ "PAGES.Deposit.Crypto.Table.CellName.Address" | translate }}</td>
           <td><input class="crypto-capital-input" type="text" [value]="'data2'" #inputAddress readonly></td>
           <td class="text-right">
-            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputAddress)">Copy</button>
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputAddress)">{{ "PAGES.Deposit.Crypto.Buttons.Copy" | translate }}</button>
           </td>
         </tr>
         <tr class="datatable-body-row">
-          <td class="w-40">Country:</td>
+          <td class="w-40">{{ "PAGES.Deposit.Crypto.Table.CellName.Country" | translate }}</td>
           <td><input class="crypto-capital-input" type="text" [value]="'data3'" #inputCountry readonly></td>
           <td class="text-right">
-            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputCountry)">Copy</button>
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputCountry)">{{ "PAGES.Deposit.Crypto.Buttons.Copy" | translate }}</button>
           </td>
         </tr>
         <tr class="datatable-body-row datatable-row-even">
-          <td class="w-40">Beneficiary account:</td>
+          <td class="w-40">{{ "PAGES.Deposit.Crypto.Table.CellName.Account" | translate }}</td>
           <td><input class="crypto-capital-input" type="text" [value]="'data4'" #inputAccount readonly></td>
           <td class="text-right">
-            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputAccount)">Copy</button>
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputAccount)">{{ "PAGES.Deposit.Crypto.Buttons.Copy" | translate }}</button>
           </td>
         </tr>
         <tr class="datatable-body-row border-0">
-          <td class="w-40">Reference:</td>
+          <td class="w-40">{{ "PAGES.Deposit.Crypto.Table.CellName.Reference" | translate }}</td>
           <td><input class="crypto-capital-input" type="text" [value]="'data5'" #inputReference readonly></td>
           <td class="text-right">
-            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputReference)">Copy</button>
+            <button class="btn btn-sm btn-primary" (click)="onCopyData(inputReference)">{{ "PAGES.Deposit.Crypto.Buttons.Copy" | translate }}</button>
           </td>
         </tr>
       </tbody>

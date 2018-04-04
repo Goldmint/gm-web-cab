@@ -150,7 +150,8 @@
       "Method": {
         "CryptoCapital": "Cryptocurrency",
         "Card": "Payment card",
-        "Transfer": "Bank transfer"
+        "Transfer": "Bank transfer",
+        "Crypto": "CryptoCapital"
       },
       "LimitInfo": "Your available for payment limit is less than minimally bank transfer sum",
       "Table": {
@@ -170,6 +171,21 @@
         },
         "Errors": {
           "Invalid": "Invalid amount"
+        }
+      },
+      "Crypto": {
+        "Heading": "Crypto Capital",
+        "Table": {
+          "CellName": {
+            "Company": "Company name:",
+            "Address": "Address:",
+            "Country": "Country:",
+            "Account": "Beneficiary account:",
+            "Reference": "Reference:"
+          }
+        },
+        "Buttons": {
+          "Copy": "Copy"
         }
       },
       "PaymentCard": {
@@ -246,7 +262,12 @@
       "Method": {
         "CryptoCapital": "Cryptocurrency",
         "Card": "Payment card",
-        "Transfer": "Bank transfer"
+        "Transfer": "Bank transfer",
+        "Crypto": "CryptoCapital",
+        "Errors": {
+          "BalanceLess": "Your balance is less than minimal method limit",
+          "LimitLess": "Your daily limit is less than minimal method limit"
+        }
       },
       "Table": {
         "Menu": {
@@ -268,10 +289,40 @@
           "Invalid": "Invalid amount"
         }
       },
+      "Crypto": {
+        "Heading": "Crypto Capital",
+        "Labels": {
+          "Amount": "Amount",
+          "Number": "Specify your Crypto Capital number"
+        },
+        "Errors": {
+          "Invalid": "Invalid amount",
+          "Required": "Field is required"
+        },
+        "Text": {
+          "FirstText": "Pay attention that each Crypto Capital account in each currency should be verified by GoldMint.io. You can proceed with unverified account as well, but the payment will be processed only after verification of your Crypto Capital account.",
+          "SecondText": "Please note that if the withdrawal currency differs from the currency of your Crypto Capital account? conversion fees may be applied."
+        },
+        "Checkbox": "I have read, understood and agree with above mentioned policies.",
+        "Message": {
+          "PopUp": {
+            "Heading": "Attention",
+            "Text": "How to verify a Crypto Capital account?<br><br>1. Take a screenshot of your Crypto Capital account with clearly visible account number. A separate screenshot is required for each Crypto Capital account.<br><br>2. Provide this screenshot to our support team via <b>support@goldmint.io</b>"
+          },
+          "AccountAdded": "Account has been added",
+          "Remove": "Do you want to remove account?",
+          "AccountRemoved": "Account has been removed",
+          "Sent": "Request has been sent"
+        },
+        "Buttons": {
+          "Proceed": "Proceed"
+        }
+      },
       "PaymentCard": {
         "Labels": {
           "SelectCard": "Select a card:",
-          "Amount": "Amount:"
+          "Amount": "Amount:",
+          "2FA": "Two-factor authentication code"
         },
         "Text": {
           "Agree": "I am agree with",
@@ -280,7 +331,51 @@
         "Errors": {
           "Invalid": "Invalid amount value",
           "Minimal": "Minimal amount value is",
-          "Maximum": "Maximum amount value is"
+          "Maximum": "Maximum amount value is",
+          "Length": "Code should be 6-digits length"
+        }
+      },
+      "BankTransfer": {
+        "Heading": "Bank transfer",
+        "Labels": {
+          "BankAccount": "Bank account",
+          "Amount": "Amount",
+          "Fee": "Fee:"
+        },
+        "AddForm": {
+          "Heading": "Add account",
+          "Labels": {
+            "Description": "Description",
+            "NameAccount": "Name on account",
+            "IBAN": "IBAN",
+            "BankName": "Bank name",
+            "BIC": "BIC",
+            "Address": "Address"
+          },
+          "Placeholder": {
+            "Description": "Unique description used to identify this bank account",
+            "NameOnAccount": "The name on this bank account must match this account",
+            "Address": "The physical address of your bank's branch, including the country"
+          },
+          "Buttons": {
+            "Save": "Save bank account",
+            "Back": "Back"
+          }
+        },
+        "RemoveForm": {
+          "Heading": "Remove account",
+          "Labels": {
+            "BankAccount": "Bank account"
+          },
+          "Buttons": {
+            "Remove": "Remove bank account",
+            "Back": "Back"
+          }
+        },
+        "Buttons": {
+          "Add": "Add account",
+          "Remove": "Remove account",
+          "Send": "Send request"
         }
       },
       "CardsList": {
