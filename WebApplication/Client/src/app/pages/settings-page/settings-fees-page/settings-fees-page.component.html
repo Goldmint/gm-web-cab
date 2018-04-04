@@ -1,4 +1,13 @@
-<section class="page__section section section--no-bottom">
+<section class="section section--no-bottom" *ngIf="!isDataLoaded">
+  <h2 class="section__title">{{ "COMMONS.Loading" | translate }}</h2>
+  <div class="section__content pt-4">
+    <div class="progress-linear progress-linear--tiny">
+      <div class="container"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page__section section section--no-bottom" *ngIf="isDataLoaded">
   <h2 class="section__title">{{ "PAGES.Settings.Fees.Heading" | translate }}</h2>
 
   <div class="section__content">
@@ -19,164 +28,54 @@
         </div>
       </div>
 
-      <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0]">
-        <thead class="fees-datatable-header">
-          <tr class="fees-datatable-header fees-border-bottom">
-            <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Currency" | translate }}</td>
-            <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.PaymentMethod" | translate }}</td>
-            <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Deposit" | translate }}</td>
-            <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Withdrawal" | translate }}</td>
-          </tr>
-        </thead>
-        <tbody class="fees-datatable-body">
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="4">
-              <svg class="icon" width="30" height="65">
-                <use xlink:href="#fee-usd"></use>
-              </svg>
-              <div class="mt-2 font-weight-bold">USD</div>
-            </td>
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.VISA" | translate }}</td>
-            <td class="fees-datatable-body-cell">3,5% + $ 0.25</td>
-            <td class="fees-datatable-body-cell">$ 3.80</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.MasterCard" | translate }}</td>
-            <td class="fees-datatable-body-cell">3,5% + $ 0.25</td>
-            <td class="fees-datatable-body-cell">1.2% + $ 3.80</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.BankTransfer" | translate }}</td>
-            <td class="fees-datatable-body-cell">$ 0</td>
-            <td class="fees-datatable-body-cell">n/a</td>
-          </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.CryptoCapital" | translate }}</td>
-            <td class="fees-datatable-body-cell">$ 0</td>
-            <td class="fees-datatable-body-cell">1%</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="5">
-              <svg class="icon" width="37" height="52">
-                <use xlink:href="#fee-eur"></use>
-              </svg>
-              <div class="mt-2 font-weight-bold">EUR</div>
-            </td>
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.VISA" | translate }}</td>
-            <td class="fees-datatable-body-cell">3,5% + € 0.24</td>
-            <td class="fees-datatable-body-cell">€ 3.50</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.MasterCard" | translate }}</td>
-            <td class="fees-datatable-body-cell">3,5% + € 0.24</td>
-            <td class="fees-datatable-body-cell">1.2% + € 3.50</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.BankTransfer" | translate }}</td>
-            <td class="fees-datatable-body-cell">€ 0</td>
-            <td class="fees-datatable-body-cell">n/a</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.SEPA" | translate }}</td>
-            <td class="fees-datatable-body-cell">€ 0</td>
-            <td class="fees-datatable-body-cell">€ 10.000</td>
-          </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.CryptoCapital" | translate }}</td>
-            <td class="fees-datatable-body-cell">€ 0</td>
-            <td class="fees-datatable-body-cell">1%</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="3">
-              <svg class="icon" width="35" height="51">
-                <use xlink:href="#fee-rub"></use>
-              </svg>
-              <div class="mt-2 font-weight-bold">RUB</div>
-            </td>
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.VISA" | translate }}</td>
-            <td class="fees-datatable-body-cell">5% + Р 15.57</td>
-            <td class="fees-datatable-body-cell">2.5% + $ 30.00</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.MasterCard" | translate }}</td>
-            <td class="fees-datatable-body-cell">5% + Р 15.57</td>
-            <td class="fees-datatable-body-cell">2.5% + $ 30.00</td>
-          </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.CryptoCapital" | translate }}</td>
-            <td class="fees-datatable-body-cell">Р 0</td>
-            <td class="fees-datatable-body-cell">1%</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell fees-border-bottom align-middle text-center" rowspan="4">
-              <svg class="icon" width="32" height="51">
-                <use xlink:href="#fee-gbr"></use>
-              </svg>
-              <div class="mt-2 font-weight-bold">GBR</div>
-            </td>
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.MasterCard" | translate }}</td>
-            <td class="fees-datatable-body-cell">n/a</td>
-            <td class="fees-datatable-body-cell">1.2% + £ 2.90</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.Card" | translate }}</td>
-            <td class="fees-datatable-body-cell">3,5% + £ 0.20</td>
-            <td class="fees-datatable-body-cell">n/a</td>
-          </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.BankTransfer" | translate }}</td>
-            <td class="fees-datatable-body-cell">£ 0</td>
-            <td class="fees-datatable-body-cell">n/a</td>
-          </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell">{{ "PAGES.Settings.Fees.Table.Method.CryptoCapital" | translate }}</td>
-            <td class="fees-datatable-body-cell">£ 0</td>
-            <td class="fees-datatable-body-cell">1%</td>
-          </tr>
-        </tbody>
-      </table>
+    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0] && isDataLoaded">
+      <thead class="fees-datatable-header">
+      <tr class="fees-datatable-header fees-border-bottom">
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Currency" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.PaymentMethod" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Deposit" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Withdrawal" | translate }}</td>
+      </tr>
+      </thead>
+      <tbody class="fees-datatable-body fees-border-bottom" *ngFor="let item of fees.fiat">
 
-      <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[1]">
-        <thead class="fees-datatable-header">
-        <tr class="fees-datatable-header fees-border-bottom">
-          <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Currency" | translate }}</td>
-          <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Deposit" | translate }}</td>
-          <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Withdrawal" | translate }}</td>
-        </tr>
-        </thead>
-        <tbody class="fees-datatable-body">
-        <tr class="fees-datatable-body-row fees-border-bottom">
-          <td class="fees-datatable-body-cell align-middle text-center pt-3 pb-3">
-            <svg class="icon" width="30" height="65">
-              <use xlink:href="#fee-usd"></use>
-            </svg>
-            <div class="mt-2 font-weight-bold">USD</div>
-          </td>
-          <td class="fees-datatable-body-cell align-middle">$ 0</td>
-          <td class="fees-datatable-body-cell align-middle">1%</td>
-        </tr>
-        <tr class="fees-datatable-body-row fees-border-bottom">
-          <td class="fees-datatable-body-cell align-middle text-center pt-3 pb-3">
-            <svg class="icon" width="37" height="52">
-              <use xlink:href="#fee-eur"></use>
-            </svg>
-            <div class="mt-2 font-weight-bold">EUR</div>
-          </td>
-          <td class="fees-datatable-body-cell align-middle">€ 0</td>
-          <td class="fees-datatable-body-cell align-middle">1%</td>
-        </tr>
-        <tr class="fees-datatable-body-row fees-border-bottom">
-          <td class="fees-datatable-body-cell align-middle text-center pt-3 pb-3">
-            <svg class="icon" width="32" height="51">
-              <use xlink:href="#fee-gbr"></use>
-            </svg>
-            <div class="mt-2 font-weight-bold">GBR</div>
-          </td>
-          <td class="fees-datatable-body-cell align-middle">£ 0</td>
-          <td class="fees-datatable-body-cell align-middle">1%</td>
-        </tr>
-        </tbody>
-      </table>
+      <tr class="fees-datatable-body-row" *ngFor="let method of item.methods; let i = index">
+        <td class="fees-datatable-body-cell align-middle text-center align-middle" [attr.rowspan]="item.methods.length" *ngIf="!i">
+          <svg class="icon" width="35" height="52">
+            <use [attr.xlink:href]="'#fee-' + item.name"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">{{ item.name.toUpperCase() }}</div>
+        </td>
+        <td class="fees-datatable-body-cell align-middle">{{ method.name }}</td>
+        <td class="fees-datatable-body-cell align-middle">{{ method.deposit }}</td>
+        <td class="fees-datatable-body-cell align-middle">{{ method.withdraw }}</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[1] && isDataLoaded">
+
+      <thead class="fees-datatable-header">
+      <tr class="fees-datatable-header fees-border-bottom">
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Currency" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Deposit" | translate }}</td>
+        <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Withdrawal" | translate }}</td>
+      </tr>
+      </thead>
+      <tbody class="fees-datatable-body fees-border-bottom" *ngFor="let item of fees.crypto">
+
+      <tr class="fees-datatable-body-row" *ngFor="let method of item.methods; let i = index">
+        <td class="fees-datatable-body-cell align-middle text-center align-middle" [attr.rowspan]="item.methods.length" *ngIf="!i">
+          <svg class="icon" width="35" height="52">
+            <use [attr.xlink:href]="'#fee-' + item.name"></use>
+          </svg>
+          <div class="mt-2 font-weight-bold">{{ item.name.toUpperCase() }}</div>
+        </td>
+        <td class="fees-datatable-body-cell align-middle">{{ method.deposit }}</td>
+        <td class="fees-datatable-body-cell align-middle">{{ method.withdraw }}</td>
+      </tr>
+      </tbody>
+    </table>
 
   </div>
 </section>
