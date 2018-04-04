@@ -194,6 +194,22 @@ export class APIService {
       );
   }
 
+  getFees() {
+    return this._http
+      .get(`${this._baseUrl}/commons/fees`)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  updateFees(data) {
+    return this._http
+      .post(`${this._baseUrl}/dashboard/fees/update`, data, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   getSwiftList(filter: string, excludeCompleted: boolean, offset: number = 0, limit: number = 5,
                sort: string = 'date', ascending: 'asc' | 'desc' = 'desc') {
     let params = {
@@ -211,6 +227,34 @@ export class APIService {
 
     return this._http
       .post(`${this._baseUrl}/dashboard/swift/list`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  swiftLockDeposit(id: number) {
+    let params = { id };
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/swift/lockDeposit`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  swiftLockWithdraw(id: number) {
+    let params = { id };
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/swift/lockWithdraw`, params, httpOptions)
       .pipe(
         catchError(this._handleError)
       );
