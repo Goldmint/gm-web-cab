@@ -21,12 +21,14 @@ namespace Goldmint.WebApplication.Models {
 				var parser = UAParser.Parser.GetDefault();
 				var ua = parser.Parse(uas);
 
+				var knownDeviceFamily = ua.Device.Family != "Other";
+
 				return sb
-					.Append(ua.Device.Family)
+					.Append(knownDeviceFamily ? ua.Device.Family: "")
 					.Append("/")
 					.Append(ua.OS.Family)
 					.Append("/")
-					.Append(ua.UserAgent)
+					.Append(ua.UserAgent.Family)
 					.ToString()
 					.Trim('/')
 					;

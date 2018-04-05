@@ -56,12 +56,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<TFAEditModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<TFAEditModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode)
-				.WithMessage("Invalid code format")
+				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
 			;
 			
 			return v.Validate(this);
@@ -172,68 +170,56 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<VerificationEditModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<VerificationEditModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.FirstName)
-				.Must(Common.ValidationRules.BeValidName)
-				.WithMessage("Invalid first name format")
+				.Must(Common.ValidationRules.BeValidName).WithMessage("Invalid format")
 			;
 
 			v.RuleFor(_ => _.MiddleName)
-				.Must(Common.ValidationRules.BeValidName)
-				.WithMessage("Invalid middle name format")
-				.When(_ => _.MiddleName != null && _.MiddleName != "")
+				.Must(Common.ValidationRules.BeValidName).WithMessage("Invalid format")
+				.When(_ => !string.IsNullOrEmpty(_.MiddleName))
 			;
 
 			v.RuleFor(_ => _.LastName)
-				.Must(Common.ValidationRules.BeValidName)
-				.WithMessage("Invalid last name format")
+				.Must(Common.ValidationRules.BeValidName).WithMessage("Invalid format")
 			;
 
 			v.RuleFor(_ => _.Dob)
-				.Must(Common.ValidationRules.BeValidDate)
-				.WithMessage("Invalid date of birth format")
+				.Must(Common.ValidationRules.BeValidDate).WithMessage("Invalid format")
 			;
 
 			v.RuleFor(_ => _.PhoneNumber)
-				.Must(Common.ValidationRules.BeValidPhone)
-				.WithMessage("Invalid phone number format")
+				.Must(Common.ValidationRules.BeValidPhone).WithMessage("Invalid phone number format")
 			;
 
 			v.RuleFor(_ => _.Country)
-				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2)
-				.WithMessage("Invalid country format")
+				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2).WithMessage("Invalid country format")
 			;
 
 			v.RuleFor(_ => _.State)
-				.Must(Common.ValidationRules.ContainLatinAndPuncts)
-				.Length(1, 256)
-				.WithMessage("Invalid state format")
+				.Must(Common.ValidationRules.ContainLatinAndPuncts).WithMessage("Invalid format")
+				.Length(1, 256).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.City)
-				.Must(Common.ValidationRules.ContainLatinAndPuncts)
-				.Length(1, 256)
-				.WithMessage("Invalid city format")
+				.Must(Common.ValidationRules.ContainLatinAndPuncts).WithMessage("Invalid format")
+				.Length(1, 256).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.PostalCode)
-				.Must(Common.ValidationRules.ContainOnlyDigits)
-				.Length(3, 16)
-				.WithMessage("Invalid postal code format")
+				.Must(Common.ValidationRules.ContainOnlyDigits).WithMessage("Invalid format")
+				.Length(3, 16).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Street)
-				.Must(Common.ValidationRules.ContainLatinAndPuncts)
-				.Length(1, 256)
-				.WithMessage("Invalid street format")
+				.Must(Common.ValidationRules.ContainLatinAndPuncts).WithMessage("Invalid format")
+				.Length(1, 256).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Apartment)
-				.Must(Common.ValidationRules.ContainLatinAndPuncts)
-				.Length(1, 128)
-				.WithMessage("Invalid apartment format")
+				.Must(Common.ValidationRules.ContainLatinAndPuncts).WithMessage("Invalid format")
+				.Length(1, 128).WithMessage("Invalid length")
 				.When(_ => _.Apartment != null && Apartment != "")
 			;
 
@@ -254,12 +240,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<VerificationKycStartModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<VerificationKycStartModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Redirect)
-				.Must(Common.ValidationRules.BeValidURL)
-				.WithMessage("Invalid url format")
+				.Must(Common.ValidationRules.BeValidURL).WithMessage("Invalid format")
 			;
 
 			return v.Validate(this);
@@ -306,12 +290,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ChangePasswordModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ChangePasswordModel>() {CascadeMode = CascadeMode.StopOnFirstFailure};
 
 			v.RuleFor(_ => _.New)
-				.Must(Common.ValidationRules.BeValidPassword)
-				.WithMessage($"Password have to be from {Common.ValidationRules.PasswordMinLength} up to {Common.ValidationRules.PasswordMaxLength} symbols length")
+				.Must(Common.ValidationRules.BeValidPasswordLength).WithMessage("Invalid length")
 				;
 
 			return v.Validate(this);

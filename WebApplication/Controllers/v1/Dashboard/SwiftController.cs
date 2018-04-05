@@ -48,6 +48,10 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			if (model.ExcludeCompleted) {
 				query = query.Where(_ => _.Status == SwiftPaymentStatus.Pending);
 			}
+			// filter by type
+			if (model.Type == 1 || model.Type == 2) {
+				query = query.Where(_ => _.Type == (model.Type == 1? SwiftPaymentType.Deposit: SwiftPaymentType.Withdraw));
+			}
 			// filter
 			if (!string.IsNullOrWhiteSpace(model.Filter)) {
 				query = query.Where(_ => _.PaymentReference.Contains(model.Filter));

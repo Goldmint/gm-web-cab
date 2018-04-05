@@ -32,30 +32,25 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<AuthenticateModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<AuthenticateModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Username)
-				.Must(Common.ValidationRules.BeValidUsername)
-				.WithMessage("Invalid username format")
+				.Must(Common.ValidationRules.BeValidUsername).WithMessage("Invalid format")
 				.When(_ => !(_.Username?.Contains("@") ?? false))
 			;
 
 			v.RuleFor(_ => _.Username)
-				.EmailAddress()
-				.Must(Common.ValidationRules.BeValidEmailLength)
-				.WithMessage("Invalid email format")
+				.EmailAddress().WithMessage("Invalid format")
+				.Must(Common.ValidationRules.BeValidEmailLength).WithMessage("Invalid length")
 				.When(_ => (_.Username?.Contains("@") ?? false))
 			;
 
 			v.RuleFor(_ => _.Password)
-				.Must(Common.ValidationRules.BeValidPassword)
-				.WithMessage($"Password have to be from {Common.ValidationRules.PasswordMinLength} up to {Common.ValidationRules.PasswordMaxLength} symbols length")
+				.Must(Common.ValidationRules.BeValidPasswordLength).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Captcha)
-				.Must(Common.ValidationRules.BeValidCaptcha)
-				.WithMessage("Invalid captcha token")
+				.Must(Common.ValidationRules.BeValidCaptchaLength).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
@@ -101,12 +96,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<TfaModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<TfaModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode)
-				.WithMessage("Invalid code format")
+				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
 			;
 
 			return v.Validate(this);
@@ -271,8 +264,8 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	public class ActivityModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ActivityModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ActivityModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
 			return v.Validate(this);
 		}
 	}
@@ -318,8 +311,8 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	public class FiatHistoryModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<FiatHistoryModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<FiatHistoryModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
 			return v.Validate(this);
 		}
 	}

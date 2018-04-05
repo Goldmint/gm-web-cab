@@ -7,7 +7,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 	public class ListModel : BasePagerModel {
 
 		/// <summary>
-		/// Filter query, optional
+		/// Filter query, optional, 64 max
 		/// </summary>
 		public string Filter { get; set; }
 
@@ -16,9 +16,22 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		/// </summary>
 		public bool ExcludeCompleted { get; set; }
 
+		/// <summary>
+		/// Request type, optional: 0 - both (default), 1 - deposit, 2 - withdraw
+		/// </summary>
+		public int Type { get; set; }
+
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ListModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ListModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
+			v.RuleFor(_ => _.Filter)
+				.MaximumLength(64).WithMessage("Invalid length")
+			;
+
+			v.RuleFor(_ => _.Type)
+				.InclusiveBetween(0, 2).WithMessage("Invalid format")
+				;
+
 			return v.Validate(this);
 		}
 	}
@@ -117,12 +130,10 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		public long Id { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<LockModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<LockModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			return v.Validate(this);
@@ -225,17 +236,14 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		public string Comment { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<RefuseDepositModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<RefuseDepositModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			v.RuleFor(_ => _.Comment)
-				.NotEmpty()
-				.WithMessage("Invalid comment")
+				.NotEmpty().WithMessage("Empty")
 				;
 
 			return v.Validate(this);
@@ -262,17 +270,14 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		public string Comment { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<RefuseWithdrawModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<RefuseWithdrawModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			v.RuleFor(_ => _.Comment)
-				.NotEmpty()
-				.WithMessage("Invalid comment")
+				.NotEmpty().WithMessage("Empty")
 				;
 
 			return v.Validate(this);
@@ -308,13 +313,11 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 			v.CascadeMode = CascadeMode.Continue;
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThan(0)
-				.WithMessage("Invalid amount")
+				.GreaterThan(0).WithMessage("Invalid amount")
 				;
 
 			return v.Validate(this);

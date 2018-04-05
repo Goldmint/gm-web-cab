@@ -101,43 +101,36 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 		public string Details { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<AddModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<AddModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Name)
-				.NotEmpty()
-				.MaximumLength(64)
-				.WithMessage("Invalid name")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(64).WithMessage("Invalid length")
 				;
 
 			v.RuleFor(_ => _.Holder)
-				.NotEmpty()
-				.MaximumLength(256)
-				.WithMessage("Invalid holder name")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(256).WithMessage("Invalid length")
 				;
 
 			v.RuleFor(_ => _.Iban)
-				.NotEmpty()
-				.MaximumLength(256)
-				.WithMessage("Invalid IBAN")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(256).WithMessage("Invalid length")
 				;
 
 			v.RuleFor(_ => _.Bank)
-				.NotEmpty()
-				.MaximumLength(256)
-				.WithMessage("Invalid bank name")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(256).WithMessage("Invalid length")
 				;
 
 			v.RuleFor(_ => _.Bic)
-				.NotEmpty()
-				.MaximumLength(128)
-				.WithMessage("Invalid BIC/SWIFT")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(128).WithMessage("Invalid length")
 				;
 
 			v.RuleFor(_ => _.Details)
-				.NotEmpty()
-				.MaximumLength(1024)
-				.WithMessage("Invalid details")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(1024).WithMessage("Invalid length")
 				;
 
 			return v.Validate(this);
@@ -159,12 +152,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 		public long TemplateId { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<RemoveModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<RemoveModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.TemplateId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			return v.Validate(this);
@@ -186,12 +177,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 		public double Amount { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<DepositModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<DepositModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(1)
-				.WithMessage("Invalid amount")
+				.GreaterThanOrEqualTo(1).WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -266,22 +255,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SwiftModels {
 		public string Code { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<WithdrawModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<WithdrawModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.TemplateId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid holder name")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(1)
-				.WithMessage("Invalid amount")
+				.GreaterThanOrEqualTo(1).WithMessage("Invalid amount")
 			;
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode)
-				.WithMessage("Invalid code format")
+				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
 				;
 
 			return v.Validate(this);

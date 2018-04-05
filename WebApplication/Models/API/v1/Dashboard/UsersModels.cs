@@ -12,8 +12,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public string Filter { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ListModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ListModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 			return v.Validate(this);
 		}
 	}
@@ -59,12 +58,10 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public long Id { get; set; }
 		
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<AccountModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<AccountModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 			
 			return v.Validate(this);
@@ -135,12 +132,10 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public string Filter { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<OplogModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<OplogModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			return v.Validate(this);
@@ -200,18 +195,15 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public long Mask { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<RightsModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<RightsModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			v.RuleFor(_ => _.Mask)
-				.GreaterThanOrEqualTo(0)
-				.LessThan(((long)AccessRights.Owner) << 1)
-				.WithMessage("Invalid rights mask")
+				.GreaterThanOrEqualTo(0).WithMessage("Invalid mask")
+				.LessThan(((long)AccessRights.Owner) << 1).WithMessage("Invalid mask")
 				;
 
 			return v.Validate(this);
