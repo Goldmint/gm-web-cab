@@ -44,6 +44,7 @@ export class WithdrawPageComponent implements OnInit {
   public errors = [];
   public limits: FiatLimits;
   public user: User;
+  public fee: string;
   public bankTransferList: Array<any>;
   public swiftWithdrawChecked:boolean = false;
   public cardWithdrawChecked:boolean = false;
@@ -81,12 +82,22 @@ export class WithdrawPageComponent implements OnInit {
       this._apiService.getTFAInfo(),
       this._apiService.getLimits(),
       this._user.currentUser,
-      this._apiService.getSwiftWithdrawTemplatesList()
+      this._apiService.getSwiftWithdrawTemplatesList(),
+      this._apiService.getFees()
     ).subscribe(res => {
       this.tfaInfo = res[0].data;
       this.limits = res[1].data;
       this.user = res[2];
       this.bankTransferList = res[3].data.list;
+      res[4].data.fiat.forEach(item => {
+        if(item.name === 'usd') {
+          item.methods.forEach(method => {
+            if (method.name === "Bank Transfer") {
+              this.fee = method.withdraw;
+            }
+          });
+        }
+      });
 
       this._ethService.getObservableUsdBalance().subscribe(balance => {
         this.userUsdBalance = balance;
@@ -166,9 +177,9 @@ export class WithdrawPageComponent implements OnInit {
   }
 
   showModalAttention() {
-    this._messageBox.alert(`How to verify a Crypto Capital account?<br><br>
-                                    1. Take a screenshot of your Crypto Capital account with clearly visible account number. A separate screenshot is required for each Crypto Capital account.<br><br> 
-                                    2. Provide this screenshot to our support team via <b>support@goldmint.io</b>`, 'Attention')
+    this._translate.get('PAGES.Withdraw.Crypto.Message.PopUp').subscribe(phrase => {
+      this._messageBox.alert(phrase.Text, phrase.Heading);
+    });
   }
 
   chooseCurrentCoin(coin) {
@@ -203,7 +214,9 @@ export class WithdrawPageComponent implements OnInit {
       }).subscribe(() => {
       this._apiService.getSwiftWithdrawTemplatesList().subscribe((data) => {
         this.bankTransferList = data.data.list;
-        this._messageBox.alert('Account has been added');
+        this._translate.get('PAGES.Withdraw.Crypto.Message.AccountAdded').subscribe(phrase => {
+          this._messageBox.alert(phrase);
+        });
         this.addBankForm.reset();
         this.currentTransferBlock = this.bankTransferBlock[0];
         this._cdRef.detectChanges();
@@ -212,25 +225,29 @@ export class WithdrawPageComponent implements OnInit {
   }
 
   removeBankAccount() {
-    this._messageBox.confirm('Do you want to remove account?').subscribe(ok => {
-      if (ok) {
-        this.loading = true;
-        this._apiService.removeSwiftWithdrawTemplate(+this.bankTemplateIdForRemove)
-          .finally(() => {
-            this.loading = false;
-            this._cdRef.detectChanges();
-          })
-          .subscribe(() => {
-          this.bankTransferList.forEach((item, index) => {
-            if (item.templateId == +this.bankTemplateIdForRemove) {
-              this.bankTransferList.splice(index, 1);
-              this.bankTemplateIdForRemove = null;
-              this._messageBox.alert('Account has been removed');
-            }
-          });
-        });
-        this._cdRef.detectChanges();
-      }
+    this._translate.get('PAGES.Withdraw.Crypto.Message.Remove').subscribe(phrase => {
+      this._messageBox.confirm(phrase).subscribe(ok => {
+        if (ok) {
+          this.loading = true;
+          this._apiService.removeSwiftWithdrawTemplate(+this.bankTemplateIdForRemove)
+            .finally(() => {
+              this.loading = false;
+              this._cdRef.detectChanges();
+            })
+            .subscribe(() => {
+              this.bankTransferList.forEach((item, index) => {
+                if (item.templateId == +this.bankTemplateIdForRemove) {
+                  this.bankTransferList.splice(index, 1);
+                  this.bankTemplateIdForRemove = null;
+                  this._translate.get('PAGES.Withdraw.Crypto.Message.AccountRemoved').subscribe(phrase => {
+                    this._messageBox.alert(phrase);
+                  });
+                }
+              });
+            });
+          this._cdRef.detectChanges();
+        }
+      });
     });
   }
 
@@ -245,8 +262,10 @@ export class WithdrawPageComponent implements OnInit {
         this._cdRef.detectChanges();
       })
       .subscribe(() => {
-      this._messageBox.alert('Request has been sent');
-      this.bankTransferForm.reset();
+        this._translate.get('PAGES.Withdraw.Crypto.Message.Sent').subscribe(phrase => {
+          this._messageBox.alert(phrase);
+        });
+        this.bankTransferForm.reset();
     });
     this._cdRef.detectChanges();
   }

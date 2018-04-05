@@ -443,6 +443,15 @@ export class APIService {
       .get(`https://api.pwnedpasswords.com/pwnedpassword/${pass}`)
   }
 
+  getFees() {
+    return this._http
+      .get(`${this._baseUrl}/commons/fees`)
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
   getTFAInfo(): Observable<APIResponse<TFAInfo>> {
     return this._http
       .get(`${this._baseUrl}/user/settings/tfa/view`, this.jwt())

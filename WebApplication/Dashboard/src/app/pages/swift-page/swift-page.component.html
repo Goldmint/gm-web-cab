@@ -1,0 +1,136 @@
+<div class="page">
+  <h1 class="page__heading">SWIFT</h1>
+
+  <div class="trn-info">
+    <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" (ngSubmit)="swiftFilter()">
+
+      <div class="row align-items-start">
+
+        <div class="col-lg-3 pt-3">
+          <div class="from-row form-group">
+            <input type="text" class="form-control" placeholder="Filter" formControlName="filter">
+          </div>
+        </div>
+
+        <div class="col-lg-auto pb-3 pt-3">
+          <button type="submit" class="btn btn-sm btn-primary btn-block">Filter</button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div class="custom-control custom-checkbox">
+    <input type="checkbox" class="custom-control-input" id="exclude" name="exclude"
+           (change)="excludeCompleted(exclude)" #exclude>
+    <label class="custom-control-label custom-control-label-reg" for="exclude">Exclude completed</label>
+  </div>
+
+  <div class="page__section">
+
+    <section class="section section--table">
+
+      <div class="section__content">
+        <ngx-datatable class="table table--no-footer" #table
+                       [rows]="rows"
+
+                       [columnMode]="'force'"
+                       [sorts]="sorts"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="page.totalElements"
+                       [offset]="page.pageNumber"
+                       [limit]="page.size"
+                       [externalSorting]="true"
+                       (sort)="onSort($event)"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages">
+
+          <ngx-datatable-column prop="id" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                RequestId
+              </span>
+            </ng-template>
+
+            <ng-template let-id="value" ngx-datatable-cell-template>
+              {{ id }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="user" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                User Name
+              </span>
+            </ng-template>
+
+            <ng-template let-user="value" let-row="row" ngx-datatable-cell-template>
+              {{ user.username }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Amount
+              </span>
+            </ng-template>
+
+            <ng-template let-amount="value" ngx-datatable-cell-template>
+              {{ amount | number:'1.2-2':locale }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Date
+              </span>
+            </ng-template>
+
+            <ng-template let-date="value" ngx-datatable-cell-template>
+              {{ date * 1000 | date:'short':'':locale }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="status" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Status
+              </span>
+            </ng-template>
+
+            <ng-template let-status="value" ngx-datatable-cell-template>
+              {{ status }}
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+              <svg class="icon icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+              <svg class="icon icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+  </div>
+</div>
