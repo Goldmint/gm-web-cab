@@ -210,11 +210,12 @@ export class APIService {
       );
   }
 
-  getSwiftList(filter: string, excludeCompleted: boolean, offset: number = 0, limit: number = 5,
+  getSwiftList(filter: string, excludeCompleted: boolean, type: number, offset: number = 0, limit: number = 5,
                sort: string = 'date', ascending: 'asc' | 'desc' = 'desc') {
     let params = {
       filter,
       excludeCompleted,
+      type,
       offset,
       limit,
       sort,
@@ -255,6 +256,35 @@ export class APIService {
 
     return this._http
       .post(`${this._baseUrl}/dashboard/swift/lockWithdraw`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+
+  swiftRefuseDeposit(id: number, comment: string) {
+    let params = { id, comment };
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/swift/refuseDeposit`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  swiftRefuseWithdraw(id: number, comment: string) {
+    let params = { id, comment };
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/swift/refuseWithdraw`, params, httpOptions)
       .pipe(
         catchError(this._handleError)
       );
