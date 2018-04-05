@@ -49,7 +49,7 @@
               <label for="btnCapital">{{ "PAGES.Deposit.Method.Crypto" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnCapital" (click)="goto(pages.CryptoCapital)">
                 <svg class="icon" width="56px" height="56px">
-                  <use xlink:href="#payment-crypto"></use>
+                  <use xlink:href="#crypto-capital"></use>
                 </svg>
               </button>
             </div>
@@ -187,7 +187,7 @@
 </ng-container>
 
 <ng-container *ngIf="page === pages.CryptoCapital">
-  <section class="page__section section">
+  <section class="page__section section" *ngIf="currentCryptoCarencyPage === cryptoCarencyPage[0]">
     <h2 class="section__title">{{ "PAGES.Deposit.Crypto.Heading" | translate }}</h2>
     <table class="ngx-datatable-cc mt-3 mb-3">
       <tbody class="datatable-body">
@@ -229,7 +229,88 @@
       </tbody>
     </table>
 
+    <div>
+      <button class="btn btn-sm btn-primary" (click)="currentCryptoCarencyPage = cryptoCarencyPage[1]">
+        {{ "PAGES.Deposit.Crypto.Buttons.Edit" | translate }}
+      </button>
+    </div>
+
+    <div class="mt-4 d-flex">
+      <svg class="icon dep-warning-icon mr-3" width="25" height="25">
+        <use xlink:href="#warning"></use>
+      </svg>
+      <div class="dep-warning-note">
+        <p>{{ "PAGES.Deposit.Crypto.Warning.First" | translate }}</p>
+        <p>{{ "PAGES.Deposit.Crypto.Warning.Second" | translate }}</p>
+        <p>{{ "PAGES.Deposit.Crypto.Warning.Third" | translate }}</p>
+      </div>
+    </div>
+
   </section>
+
+  <section class="page__section section" *ngIf="currentCryptoCarencyPage === cryptoCarencyPage[1]">
+    <h2 class="section__title">{{ "PAGES.Deposit.Crypto.EditForm.Heading" | translate }}</h2>
+
+    <div class="section__content">
+      <form #ccEditForm="ngForm">
+
+        <div class="form-group">
+          <label for="cc-name">{{ "PAGES.Deposit.Crypto.EditForm.Labels.Company" | translate }}</label>
+          <input type="number" class="form-control" id="cc-name" name="ccName"
+                 ngModel #ccName="ngModel" required
+                 [ngClass]="{'is-invalid': ccName.invalid && ccName.touched}">
+          <div class="invalid-feedback" *ngIf="ccName.invalid && ccName.touched">
+            {{ "PAGES.Deposit.Crypto.EditForm.Errors.Required" | translate }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cc-address">{{ "PAGES.Deposit.Crypto.EditForm.Labels.Address" | translate }}</label>
+          <input type="number" class="form-control" id="cc-address" name="ccAddress"
+                 ngModel #ccAddress="ngModel" required
+                 [ngClass]="{'is-invalid': ccAddress.invalid && ccAddress.touched}">
+          <div class="invalid-feedback" *ngIf="ccAddress.invalid && ccAddress.touched">
+            {{ "PAGES.Deposit.Crypto.EditForm.Errors.Required" | translate }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cc-country">{{ "PAGES.Deposit.Crypto.EditForm.Labels.Country" | translate }}</label>
+          <input type="number" class="form-control" id="cc-country" name="ccCountry"
+                 ngModel #ccCountry="ngModel" required
+                 [ngClass]="{'is-invalid': ccCountry.invalid && ccCountry.touched}">
+          <div class="invalid-feedback" *ngIf="ccCountry.invalid && ccCountry.touched">
+            {{ "PAGES.Deposit.Crypto.EditForm.Errors.Required" | translate }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cc-account">{{ "PAGES.Deposit.Crypto.EditForm.Labels.Account" | translate }}</label>
+          <input type="number" class="form-control" id="cc-account" name="ccAccount"
+                 ngModel #ccAccount="ngModel" required
+                 [ngClass]="{'is-invalid': ccAccount.invalid && ccAccount.touched}">
+          <div class="invalid-feedback" *ngIf="ccAccount.invalid && ccAccount.touched">
+            {{ "PAGES.Deposit.Crypto.EditForm.Errors.Required" | translate }}
+          </div>
+        </div>
+
+
+        <div class="form-group d-flex justify-content-between">
+          <button type="button" class="btn btn-primary" (click)="currentCryptoCarencyPage = cryptoCarencyPage[0]">
+            {{ "BUTTONS.Back" | translate }}
+          </button>
+          <div>
+            <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+            <button type="submit" class="btn btn-primary" (click)="editRequisites()" [disabled]="ccEditForm.invalid || ccEditForm.untouched">
+              {{ "BUTTONS.Save" | translate }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </section>
+
 </ng-container>
 
 <ng-container *ngIf="page === pages.CryptoCurrency">
@@ -363,10 +444,10 @@
             </div>
 
             <div class="col-4 pt-3 text-right">
+              <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
               <button type="submit" class="btn btn-primary" [disabled]="!cardDepositChecked || !depositModel.cardId || processing">
                 {{ "PAGES.Deposit.Buttons.Proceed" | translate }}
               </button>
-              <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
             </div>
           </div>
         </form>

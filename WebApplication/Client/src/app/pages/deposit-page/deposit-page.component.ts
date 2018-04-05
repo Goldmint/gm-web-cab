@@ -65,6 +65,9 @@ export class DepositPageComponent implements OnInit {
   public ethRate: number;
   public estimatedAmount;
 
+  public cryptoCarencyPage = ['default', 'edit'];
+  public currentCryptoCarencyPage = this.cryptoCarencyPage[0];
+
   constructor(
     private _apiService: APIService,
     private _ethService: EthereumService,
@@ -214,6 +217,10 @@ export class DepositPageComponent implements OnInit {
       });
   }
 
+  editRequisites() {
+
+  }
+
   submit() {
     this.processing = true;
     this.buttonBlur.emit();
@@ -243,9 +250,6 @@ export class DepositPageComponent implements OnInit {
               });
               break;
 
-            default:
-              this._messageBox.alert(err.error.errorDesc);
-              break;
           }
         }
       });

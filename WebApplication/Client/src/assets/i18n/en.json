@@ -184,8 +184,26 @@
             "Reference": "Reference:"
           }
         },
+        "EditForm": {
+          "Heading": "Edit requisites",
+          "Labels": {
+            "Company": "Company name:",
+            "Address": "Address:",
+            "Country": "Country:",
+            "Account": "Beneficiary account:"
+          },
+          "Errors": {
+            "Required": "Field is required"
+          }
+        },
+        "Warning": {
+          "First": "REFERENCE IS MANDATORY AND SHOULD BE ENTERED IN THE INFO FIELD WHEN YOU SEND A PAYMENT CRYPTO CAPITAL",
+          "Second": "PLEASE SEND TNE EXACT AMOUNT IN CURRENCY YOU APPLIED FOR AND MAKE SURE YOUR PAYMENT DETAILS ARE STATED CORRECTLY",
+          "Third": "PAYMENTS FROM THIRD PARTIES WILL NOT BE ACCEPTED AND RETURNED BACK TO THE SEDER"
+        },
         "Buttons": {
-          "Copy": "Copy"
+          "Copy": "Copy",
+          "Edit": "Edit requisites"
         }
       },
       "PaymentCard": {
@@ -998,6 +1016,7 @@
     "Verification": "Verification",
     "Back": "Back",
     "Next": "Next",
+    "Save": "Save",
     "BackToCard": "Back to Cards list",
     "GoToCard": "Go to Cards list",
     "Deposit": "Deposit",
