@@ -158,12 +158,6 @@ namespace Goldmint.Common {
 					public string Template { get; set; }
 				}
 			}
-
-			public CoinmarketcapSection Coinmarketcap { get; set; } = new CoinmarketcapSection();
-			public class CoinmarketcapSection {
-
-				public string TickerUrl { get; set; } = "";
-			}
 		}
 
 		// ---

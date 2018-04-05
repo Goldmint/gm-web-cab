@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
-	public interface IGoldRateProvider {
+	public interface ISafeGoldRateProvider {
 
 		/// <summary>
 		/// Price in cents per gold ounce
 		/// </summary>
-		Task<long> GetRate(FiatCurrency currency);
+		Task<SafeRate> GetRate(FiatCurrency currency);
 	}
 }

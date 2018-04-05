@@ -203,9 +203,11 @@ namespace Goldmint.WebApplication {
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
-			// rates
-			services.AddSingleton<ICryptoassetRateProvider>(fac => new CmcRateProvider(_appConfig.Services.Coinmarketcap.TickerUrl, _loggerFactory));
+			// public cached rates
 			services.AddSingleton<CachedGoldRate>();
+
+			// rates
+			services.AddSingleton<ICryptoassetRateProvider>(fac => new CoinbaseRateProvider(_loggerFactory));
 #if DEBUG
 			services.AddSingleton<IGoldRateProvider>(fac => new DebugGoldRateProvider());
 #else

@@ -9,7 +9,7 @@ namespace Goldmint.QueueService.Services {
 
 	public class LocalGoldRateProvider : IGoldRateProvider {
 
-		public Task<long> GetGoldRate(FiatCurrency currency) {
+		public Task<long> GetRate(FiatCurrency currency) {
 			var value = Workers.GoldRateUpdater.GetGoldRate(FiatCurrency.USD);
 			if (value == null) {
 				throw new Exception("Failed ot currency not implemented");

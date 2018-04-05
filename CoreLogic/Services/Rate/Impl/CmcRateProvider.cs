@@ -15,7 +15,6 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		// CMC has requirement: max 10 requests/min
 		private const long CacheTimeoutSeconds = 20;
 
-		private readonly string _tickerUrl;
 		private readonly ILogger _logger;
 
 		#region ETH
@@ -24,14 +23,9 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private long _ethUsdValue;
 		private readonly object _ethUsdMonitor = new object();
 
-		// private long _ethEurStamp;
-		// private long _ethEurValue;
-		// private readonly object _ethEurMonitor = new object();
-
 		#endregion
 
-		public CmcRateProvider(string tickerUrl, LogFactory logFactory) {
-			_tickerUrl = tickerUrl.TrimEnd('/');
+		public CmcRateProvider(LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
@@ -54,7 +48,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		private Task<long> EthUsd() {
 
-			var url = _tickerUrl + "/ethereum/?convert=USD";
+			var url = "https://api.coinmarketcap.com/v1/ticker/ethereum/?convert=USD";
 			var field = "price_usd";
 
 			var now = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
@@ -136,10 +130,6 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			public string price_usd { get; set; }
 			public string price_eur { get; set; }
-
-			public long ParseCents(string value) {
-				return (long)Math.Round(decimal.Parse(value) * 100);
-			}
 		}
 	}
 }

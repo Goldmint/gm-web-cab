@@ -75,7 +75,7 @@ namespace Goldmint.QueueService {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rate
-			services.AddSingleton<ICryptoassetRateProvider>(fac => new CmcRateProvider(_appConfig.Services.Coinmarketcap.TickerUrl, _loggerFactory));
+			services.AddSingleton<ICryptoassetRateProvider>(fac => new CoinbaseRateProvider(_loggerFactory));
 
 			// ---
 

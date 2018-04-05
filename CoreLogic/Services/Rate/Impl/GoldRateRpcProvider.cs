@@ -8,15 +8,17 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public class GoldRateRpcProvider : IGoldRateProvider {
 
-		private string _jsonRpcUrl;
-		private ILogger _logger;
+		private readonly string _jsonRpcUrl;
+		private readonly ILogger _logger;
 
 		public GoldRateRpcProvider(string jsonRpcUrl, LogFactory logFactory) {
 			_jsonRpcUrl = jsonRpcUrl;
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
-		public async Task<long> GetGoldRate(FiatCurrency currency) {
+		// ---
+
+		public async Task<long> GetRate(FiatCurrency currency) {
 
 			var result = (long?)null;
 

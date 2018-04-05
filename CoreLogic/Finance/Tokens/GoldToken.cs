@@ -155,7 +155,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			var rate = fixedGoldRateCents;
 			var abort = false;
 
-			var currentRate = await goldRateProvider.GetGoldRate(currency);
+			var currentRate = await goldRateProvider.GetRate(currency);
 			var threshold = (long)(fixedGoldRateCents * appConfig.Constants.ExchangeThreshold);
 
 			if (buying) {

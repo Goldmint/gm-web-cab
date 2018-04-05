@@ -27,13 +27,13 @@ namespace Goldmint.WebApplication.Services.Cache {
 			long value = 0;
 
 			if (currency == FiatCurrency.USD) {
-				value = await GetUSD();
+				value = await GetUsd();
 			}
 
 			return value;
 		}
 
-		private Task<long> GetUSD() {
+		private Task<long> GetUsd() {
 			var now = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
 
 			var stamp = Interlocked.Read(ref _usdStamp);
@@ -42,7 +42,7 @@ namespace Goldmint.WebApplication.Services.Cache {
 			if (now - stamp > CacheTimeoutSeconds) {
 				if (Monitor.TryEnter(_usdMonitor)) {
 					try {
-						value = _goldRateProvider.GetGoldRate(FiatCurrency.USD).Result; // <-- can't await inside lock
+						value = _goldRateProvider.GetRate(FiatCurrency.USD).Result; // <-- can't await inside lock
 						Interlocked.Exchange(ref _usdStamp, now);
 						Interlocked.Exchange(ref _usdValue, value);
 					}
