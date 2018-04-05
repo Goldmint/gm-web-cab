@@ -52,13 +52,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		public string Redirect { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<AddModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<AddModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Redirect)
-				//.Must(ValidationRules.BeValidDectaRedirectUrl)
-				.NotEmpty()
-				.WithMessage("Invalid URL")
+				.NotEmpty().WithMessage("Empty")
 			;
 			
 			return v.Validate(this);
@@ -99,18 +96,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		public string Redirect { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ConfirmModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			v.RuleFor(_ => _.Redirect)
-				//.Must(ValidationRules.BeValidDectaRedirectUrl)
-				.NotEmpty()
-				.WithMessage("Invalid URL")
+				.NotEmpty().WithMessage("Empty")
 			;
 
 			return v.Validate(this);
@@ -145,17 +138,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		public string Code { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<VerifyModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<VerifyModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			v.RuleFor(_ => _.Code)
-				.Length(1, 10)
-				.WithMessage("Invalid code")
+				.Length(1, 10).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
@@ -174,12 +164,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		public long CardId { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<StatusModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<StatusModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			return v.Validate(this);
@@ -212,17 +200,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		public double Amount { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<DepositModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<DepositModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(1)
-				.WithMessage("Invalid amount")
+				.GreaterThanOrEqualTo(1).WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -258,22 +243,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<WithdrawModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<WithdrawModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(1)
-				.WithMessage("Invalid amount")
+				.GreaterThanOrEqualTo(1).WithMessage("Invalid amount")
 			;
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode)
-				.WithMessage("Invalid code format")
+				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
 			;
 
 			return v.Validate(this);
@@ -295,12 +276,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CardModels {
 		public long CardId { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<RemoveModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<RemoveModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid ID")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			return v.Validate(this);

@@ -20,12 +20,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<BuyRequestModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<BuyRequestModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.EthAddress)
-				.Must(Common.ValidationRules.BeValidEthereumAddress)
-				.WithMessage("Invalid eth address format")
+				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid address")
 			;
 
 			// any amount
@@ -86,17 +84,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<SellRequestModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<SellRequestModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.EthAddress)
-				.Must(Common.ValidationRules.BeValidEthereumAddress)
-				.WithMessage("Invalid eth address format")
+				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid address")
 			;
 
 			v.RuleFor(_ => _.Amount)
-				.NotEmpty()
-				.WithMessage("Invalid amount")
+				.NotEmpty().WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -161,8 +156,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<HWBuyRequestModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<HWBuyRequestModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			// any amount
 
@@ -204,12 +198,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<HWSellRequestModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<HWSellRequestModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Amount)
-				.NotEmpty()
-				.WithMessage("Invalid amount")
+				.NotEmpty().WithMessage("Invalid amount")
 				;
 
 			return v.Validate(this);
@@ -268,12 +260,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ConfirmModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.RequestId)
-				.Must(Common.ValidationRules.BeValidId)
-				.WithMessage("Invalid request id")
+				.Must(Common.ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			return v.Validate(this);
@@ -302,12 +292,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<HWConfirmModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<HWConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.RequestId)
-				.Must(Common.ValidationRules.BeValidId)
-				.WithMessage("Invalid request id")
+				.Must(Common.ValidationRules.BeValidId).WithMessage("Invalid id")
 			;
 
 			return v.Validate(this);
@@ -336,17 +324,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<HWTransferModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<HWTransferModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.EthAddress)
-				.Must(Common.ValidationRules.BeValidEthereumAddress)
-				.WithMessage("Invalid eth address format")
+				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid address")
 				;
 
 			v.RuleFor(_ => _.Amount)
-				.NotEmpty()
-				.WithMessage("Invalid amount")
+				.NotEmpty().WithMessage("Invalid amount")
 				;
 
 			return v.Validate(this);

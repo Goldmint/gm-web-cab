@@ -26,23 +26,19 @@ namespace Goldmint.WebApplication.Models.API.v1.RegisterModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<RegisterModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<RegisterModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Email)
-				.EmailAddress()
-				.Must(Common.ValidationRules.BeValidEmailLength)
-				.WithMessage("Invalid email format")
+				.EmailAddress().WithMessage("Invalid format")
+				.Must(Common.ValidationRules.BeValidEmailLength).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Password)
-				.Must(Common.ValidationRules.BeValidPassword)
-				.WithMessage($"Password have to be from {Common.ValidationRules.PasswordMinLength} up to {Common.ValidationRules.PasswordMaxLength} symbols length")
+				.Must(Common.ValidationRules.BeValidPasswordLength).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Captcha)
-				.Must(Common.ValidationRules.BeValidCaptcha)
-				.WithMessage("Invalid captcha token")
+				.Must(Common.ValidationRules.BeValidCaptchaLength).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
@@ -62,12 +58,10 @@ namespace Goldmint.WebApplication.Models.API.v1.RegisterModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ConfirmModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Token)
-				.Must(Common.ValidationRules.BeValidConfirmationToken)
-				.WithMessage("Invalid token")
+				.Must(Common.ValidationRules.BeValidConfirmationTokenLength).WithMessage("Invalid length")
 			;;
 
 			return v.Validate(this);

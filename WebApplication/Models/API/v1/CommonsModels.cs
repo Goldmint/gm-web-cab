@@ -33,8 +33,8 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 	public class TransparencyModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<TransparencyModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<TransparencyModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
 			return v.Validate(this);
 		}
 	}

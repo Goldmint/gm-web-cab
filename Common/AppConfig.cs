@@ -242,12 +242,6 @@ namespace Goldmint.Common {
 				public long DepositMax { get; set; } = 0;
 				public long WithdrawMin { get; set; } = 1;
 				public long WithdrawMax { get; set; } = 0;
-
-				public string CompanyName { get; set; } = "";
-				public string Address { get; set; } = "";
-				public string Country { get; set; } = "";
-				public string BenAccount { get; set; } = "";
-				public string Reference { get; set; } = "";
 			}
 		}
 	}

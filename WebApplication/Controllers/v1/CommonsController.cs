@@ -138,6 +138,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			};
 
 			// TODO: DB hit, cache response for some period
+			// TODO: ser/deser via common structure
 
 			var json = await DbContext.GetDBSetting(DbSetting.FeesTable, null);
 			if (json != null) {

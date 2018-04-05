@@ -6,8 +6,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 	public class ListModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ListModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ListModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 			return v.Validate(this);
 		}
 	}
@@ -64,17 +63,14 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 		public string Comment { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<BanModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<BanModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2)
-				.WithMessage("Invalid country code")
+				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2).WithMessage("Invalid format")
 			;
 
 			v.RuleFor(_ => _.Comment)
-				.MaximumLength(128)
-				.WithMessage("Invalid comment")
+				.MaximumLength(128).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
@@ -96,12 +92,10 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.CountriesModels {
 		public string Code { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<UnbanModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<UnbanModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2)
-				.WithMessage("Invalid country code")
+				.Must(Common.ValidationRules.BeValidCountryCodeAlpha2).WithMessage("Invalid format")
 				;
 
 			return v.Validate(this);

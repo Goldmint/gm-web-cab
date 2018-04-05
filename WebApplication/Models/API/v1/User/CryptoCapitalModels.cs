@@ -6,23 +6,8 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CryptoCapitalModels {
 
 	public class DepositModel : BaseValidableModel {
 
-		/// <summary>
-		/// Account ID
-		/// </summary>
-		[Required]
-		public long AccountId { get; set; }
-
-		// ---
-
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<DepositModel>();
-			v.CascadeMode = CascadeMode.Continue;
-
-			v.RuleFor(_ => _.AccountId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid account id")
-				;
-
+			var v = new InlineValidator<DepositModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 			return v.Validate(this);
 		}
 	}
@@ -85,22 +70,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CryptoCapitalModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<WithdrawModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<WithdrawModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.AccountId)
-				.Must(ValidationRules.BeValidId)
-				.WithMessage("Invalid account id")
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(1)
-				.WithMessage("Invalid amount")
+				.GreaterThanOrEqualTo(1).WithMessage("Invalid amount")
 				;
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode)
-				.WithMessage("Invalid code format")
+				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
 				;
 
 			return v.Validate(this);

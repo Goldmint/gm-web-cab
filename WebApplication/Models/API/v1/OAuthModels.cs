@@ -30,18 +30,15 @@ namespace Goldmint.WebApplication.Models.API.v1.OAuthModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ConfirmModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Email)
-				.EmailAddress()
+				.EmailAddress().WithMessage("Invalid format")
 				.Must(Common.ValidationRules.BeValidEmailLength)
-				.WithMessage("Invalid email format")
 			;
 
 			v.RuleFor(_ => _.Captcha)
-				.Must(Common.ValidationRules.BeValidCaptcha)
-				.WithMessage("Invalid captcha token")
+				.Must(Common.ValidationRules.BeValidCaptchaLength).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);

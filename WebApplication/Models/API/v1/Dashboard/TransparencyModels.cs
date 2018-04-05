@@ -24,24 +24,20 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 		public string Comment { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<AddModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<AddModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(0.01)
-				.WithMessage("Invalid amount")
+				.GreaterThanOrEqualTo(0.01).WithMessage("Invalid amount")
 			;
 
 			v.RuleFor(_ => _.Hash)
-				.NotEmpty()
-				.MaximumLength(128)
-				.WithMessage("Invalid hash")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(128).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Comment)
-				.NotNull()
-				.MaximumLength(512)
-				.WithMessage("Invalid comment")
+				.NotEmpty().WithMessage("Empty")
+				.MaximumLength(512).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
@@ -93,61 +89,46 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 		public long AuditTimestamp { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<UpdateStatModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<UpdateStatModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Assets)
-				.NotEmpty()
-				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength)
-				.WithMessage("Invalid assets")
+				.NotEmpty().WithMessage("Empty")
+				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength).WithMessage("Invalid length")
 				;
 			v.RuleForEach(_ => _.Assets)
-				.Must(_ => !string.IsNullOrWhiteSpace(_.K))
-				.Must(_ => !string.IsNullOrWhiteSpace(_.V))
-				.WithMessage("Invalid assets: empty key or value")
+				.Must(_ => !string.IsNullOrWhiteSpace(_.K) && !string.IsNullOrWhiteSpace(_.V)).WithMessage("Empty")
 				;
 
 			v.RuleFor(_ => _.Bonds)
-				.NotEmpty()
-				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength)
-				.WithMessage("Invalid bonds")
+				.NotEmpty().WithMessage("Empty")
+				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength).WithMessage("Invalid length")
 				;
 			v.RuleForEach(_ => _.Bonds)
-				.Must(_ => !string.IsNullOrWhiteSpace(_.K))
-				.Must(_ => !string.IsNullOrWhiteSpace(_.V))
-				.WithMessage("Invalid bonds: empty key or value")
+				.Must(_ => !string.IsNullOrWhiteSpace(_.K) && !string.IsNullOrWhiteSpace(_.V)).WithMessage("Empty")
 				;
 
 			v.RuleFor(_ => _.Fiat)
-				.NotEmpty()
-				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength)
-				.WithMessage("Invalid fiat")
+				.NotEmpty().WithMessage("Empty")
+				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength).WithMessage("Invalid length")
 				;
 			v.RuleForEach(_ => _.Fiat)
-				.Must(_ => !string.IsNullOrWhiteSpace(_.K))
-				.Must(_ => !string.IsNullOrWhiteSpace(_.V))
-				.WithMessage("Invalid fiat: empty key or value")
+				.Must(_ => !string.IsNullOrWhiteSpace(_.K) && !string.IsNullOrWhiteSpace(_.V)).WithMessage("Empty")
 				;
 
 			v.RuleFor(_ => _.Gold)
-				.NotEmpty()
-				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength)
-				.WithMessage("Invalid gold")
+				.NotEmpty().WithMessage("Empty")
+				.Must(_ => Common.Json.Stringify(_).Length <= DAL.Models.TransparencyStat.MaxJsonFieldLength).WithMessage("Invalid length")
 				;
 			v.RuleForEach(_ => _.Gold)
-				.Must(_ => !string.IsNullOrWhiteSpace(_.K))
-				.Must(_ => !string.IsNullOrWhiteSpace(_.V))
-				.WithMessage("Invalid gold: empty key or value")
+				.Must(_ => !string.IsNullOrWhiteSpace(_.K) && !string.IsNullOrWhiteSpace(_.V)).WithMessage("Empty")
 				;
 
 			v.RuleFor(_ => _.DataTimestamp)
-				.GreaterThan(0)
-				.WithMessage("Invalid data timestamp")
+				.GreaterThan(0).WithMessage("Invalid timestamp")
 				;
 
 			v.RuleFor(_ => _.AuditTimestamp)
-				.GreaterThan(0)
-				.WithMessage("Invalid audit timestamp")
+				.GreaterThan(0).WithMessage("Invalid timestamp")
 				;
 
 			return v.Validate(this);

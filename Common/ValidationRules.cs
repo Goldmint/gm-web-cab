@@ -27,7 +27,7 @@ namespace Goldmint.Common {
 			return allowed.Contains(x);
 		}
 
-		public static bool BeValidCaptcha(string x) {
+		public static bool BeValidCaptchaLength(string x) {
 			return x != null && x.Trim().Length >= 1;
 		}
 
@@ -46,7 +46,7 @@ namespace Goldmint.Common {
 			}
 		}
 
-		public static bool BeValidPassword(string x) {
+		public static bool BeValidPasswordLength(string x) {
 			return x != null && x.Trim().Length >= PasswordMinLength && x.Trim().Length <= PasswordMaxLength;
 		}
 
@@ -62,7 +62,7 @@ namespace Goldmint.Common {
 			return x > 0;
 		}
 
-		public static bool BeValidConfirmationToken(string x) {
+		public static bool BeValidConfirmationTokenLength(string x) {
 			return x != null && x.Length >= 1;
 		}
 

@@ -34,6 +34,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			var ret = new DepositView();
+
+			// TODO: DB hit, cache response for some period
+			// TODO: ser/deser via common structure
+
+			var json = await DbContext.GetDBSetting(DbSetting.CryptoCapitalDepositData, null);
+			if (json != null) {
+				ret = Common.Json.Parse<DepositView>(json);
+				ret.Reference = user.UserName;
+			}
+
 			// activity
 			await CoreLogic.User.SaveActivity(
 				services: HttpContext.RequestServices,
@@ -46,15 +57,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			return APIResponse.Success(
-				new DepositView() {
-					CompanyName = AppConfig.Constants.CryptoCapitalData.CompanyName,
-					Address = AppConfig.Constants.CryptoCapitalData.Address,
-					Country = AppConfig.Constants.CryptoCapitalData.Country,
-					BenAccount = AppConfig.Constants.CryptoCapitalData.BenAccount,
-					Reference = AppConfig.Constants.CryptoCapitalData.Reference,
-				}
-			);
+			return APIResponse.Success(ret);
 		}
 	}
 }

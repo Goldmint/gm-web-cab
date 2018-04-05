@@ -20,17 +20,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CryptoExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<EthDepositModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<EthDepositModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.EthAddress)
-				.Must(Common.ValidationRules.BeValidEthereumAddress)
-				.WithMessage("Invalid eth address format")
+				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
 			;
 
 			v.RuleFor(_ => _.Amount)
-				.NotEmpty()
-				.WithMessage("Invalid amount")
+				.NotEmpty().WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -77,12 +74,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CryptoExchangeModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ConfirmModel>();
-			v.CascadeMode = CascadeMode.Continue;
+			var v = new InlineValidator<ConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.RequestId)
-				.Must(Common.ValidationRules.BeValidId)
-				.WithMessage("Invalid request id")
+				.Must(Common.ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
 			return v.Validate(this);

@@ -24,8 +24,8 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.FiatFeesModels {
 				.NotEmpty().WithMessage("Invalid length")
 				;
 			v.RuleForEach(_ => _.Fiat)
-				.Must(_ => !string.IsNullOrWhiteSpace(_.Name)).WithMessage("Invalid currency name")
-				.Must(_ => _.Methods != null && _.Methods.Length > 0).WithMessage("Invalid methods count")
+				.Must(_ => !string.IsNullOrWhiteSpace(_.Name)).WithMessage("Empty")
+				.Must(_ => _.Methods != null && _.Methods.Length > 0).WithMessage("Methods count")
 				.Must(_ => {
 					foreach (var m in _.Methods) {
 						if (string.IsNullOrWhiteSpace(m.Name)) return false;
@@ -33,15 +33,15 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.FiatFeesModels {
 						if (string.IsNullOrWhiteSpace(m.Withdraw)) return false;
 					}
 					return true;
-				}).WithMessage("Invalid method name/data")
+				}).WithMessage("Method name/data")
 				;
 
 			v.RuleFor(_ => _.Crypto)
 				.NotEmpty().WithMessage("Invalid length")
 				;
 			v.RuleForEach(_ => _.Crypto)
-				.Must(_ => !string.IsNullOrWhiteSpace(_.Name)).WithMessage("Invalid currency name")
-				.Must(_ => _.Methods != null && _.Methods.Length > 0).WithMessage("Invalid methods count")
+				.Must(_ => !string.IsNullOrWhiteSpace(_.Name)).WithMessage("Empty")
+				.Must(_ => _.Methods != null && _.Methods.Length > 0).WithMessage("Methods count")
 				.Must(_ => {
 					foreach (var m in _.Methods) {
 						if (string.IsNullOrWhiteSpace(m.Name)) return false;
@@ -49,7 +49,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.FiatFeesModels {
 						if (string.IsNullOrWhiteSpace(m.Withdraw)) return false;
 					}
 					return true;
-				}).WithMessage("Invalid method name/data")
+				}).WithMessage("Method name/data")
 				;
 
 			return v.Validate(this);
