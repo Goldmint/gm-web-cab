@@ -8,72 +8,122 @@
     <form action="#">
       <div class="row align-items-start">
 
-        <div class="col-12 pb-4">
+        <div class="w-100 pb-4">
           <div class="from-row form-group">
-            <label for="input_toSell">{{ "PAGES.Sell.Labels.Amount" | translate }}</label>
+            <label for="method">Choose payment method</label>
             <div class="d-flex align-items-center">
-              <div class="form-currency form-currency--gold">
-                <svg class="icon">
-                  <use xlink:href="#cur-gold"></use>
+              <div class="form-currency">
+                <svg class="icon" width="30" height="30">
+                  <use xlink:href="#payment-card"></use>
                 </svg>
               </div>
-              <input type="number" class="form-control" name="input_toSell" id="input_toSell"
-                     min="0"
-                     step="0.1"
-                     [(ngModel)]="toSellVal"
-                     (input)="onToSellChanged($event.target.value)"
-                     [ngClass]="{'is-invalid': !sellAmountChecked}"
-              >
-            </div>
-              <div class="percent-btn-cont">
-                <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
-                <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
-                <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
-                <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
-              </div>
-            <div class="invalid-feedback" *ngIf="!sellAmountChecked">
-              {{ "PAGES.Sell.Errors.Invalid" | translate }}
+              <select class="custom-select" name="method" id="method" >
+                <option value="1">Cryptocurrency</option>
+              </select>
             </div>
           </div>
         </div>
 
-        <div class="col-12 pb-4">
-          <div class="from-row form-group">
-            <label for="input_EstimateAmount">{{ "PAGES.Sell.Labels.Estimate" | translate }}</label>
-            <div class="d-flex align-items-center">
-              <div class="form-currency form-currency--usd">
-                <svg class="icon">
-                  <use xlink:href="#cur-usd"></use>
-                </svg>
-              </div>
-              <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [value]="estimatedAmount | number:'1.2-2':locale">
+        <ng-container *ngIf="page === pages.CryptoCurrency">
+          <div class="w-100">
+            <div class="btn-group">
+              <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
+              <label class="btn btn-primary btn-sm"
+                     [ngClass]="{'active': currentCoin === coinList[1]}"
+                     (click)="chooseCurrentCoin(coinList[1])">Eth</label>
             </div>
-            <div class="discount-badge__wrap">
-              <span class="discount-badge" [ngClass]="{'discount-badge--gold': commission > 0}"><b>{{ commission }}</b>%</span> {{ "PAGES.Sell.Discount" | translate }}
+
+            <div class="pt-4">
+              <form #CryptoCurrencyFrom="ngForm">
+                <div class="row align-items-start">
+                  <div class="col-12">
+                    <div class="from-row form-group">
+                      <label for="cCurrencyGoldAmount">{{ "PAGES.Sell.Labels.Amount" | translate }}</label>
+                      <div class="d-flex align-items-center">
+                        <div class="form-currency form-currency--gold">
+                          <svg class="icon">
+                            <use xlink:href="#cur-gold"></use>
+                          </svg>
+                        </div>
+                        <input type="number" class="form-control" name="cCurrencyGoldAmount" id="cCurrencyGoldAmount"
+                               min="0"
+                               step="0.1"
+                               [(ngModel)]="cCurrencyAmountView"
+                               #cCurrencyGoldAmount="ngModel"
+                               (input)="onCCurrencyChanged($event.target.value)"
+                               [ngClass]="{'is-invalid': (!cCurrencyAmountView || invalidBalance) && cCurrencyGoldAmount.dirty}"
+                        >
+                      </div>
+                      <div class="percent-btn-cont">
+                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(0.25)">25%</button>
+                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(0.5)">50%</button>
+                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(0.75)">75%</button>
+                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(1)">100%</button>
+                      </div>
+                      <div class="invalid-feedback" *ngIf="(!cCurrencyAmountView || invalidBalance) && cCurrencyGoldAmount.dirty">
+                        {{ "PAGES.Sell.Errors.Invalid" | translate }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="from-row form-group ">
+                      <label for="cCurrencyEstimateAmount">{{ "PAGES.Withdraw.CryptoCapital.Labels.EstimatesAmount" | translate }}</label>
+                      <div class="d-flex align-items-center">
+                        <div class="form-currency">
+                          <svg class="icon" width="30" height="30">
+                            <use xlink:href="#bitcoin" *ngIf="currentCoin === coinList[0]"></use>
+                            <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
+                          </svg>
+                        </div>
+                        <input type="text" class="form-control" id="cCurrencyEstimateAmount" name="cCurrencyEstimateAmount" readonly [value]="cCurrencyEstimateAmount">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 pb-4">
+                    <div class="form-group">
+                      <label for="cCurrencyCode">Two-factor authentication code</label>
+                      <div class="d-flex align-items-center">
+                        <div class="form-currency form-currency--usd">
+                          <svg class="icon" width="30">
+                            <use xlink:href="#verify-secure"></use>
+                          </svg>
+                        </div>
+                        <input type="text" required minlength="6" maxlength="6" autocomplete="off"
+                               class="form-control" id="cCurrencyCode"
+                               name="cCurrencyCode" ngModel #cCurrencyCode="ngModel"
+                               [ngClass]="{'is-invalid': cCurrencyCode.invalid && cCurrencyCode.dirty}"
+                               [readonly]="processing" pattern="\d+">
+                      </div>
+                      <div class="invalid-feedback" *ngIf="cCurrencyCode.invalid && cCurrencyCode.dirty">
+                        Code should be 6-digits length
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-5">
+                    <button type="submit" class="btn btn-primary" [disabled]="!cCurrencyAmountView || invalidBalance || cCurrencyCode.invalid">Sell now</button>
+                  </div>
+                </div>
+
+              </form>
             </div>
           </div>
-        </div>
-
-        <div class="col-lg-auto pb-4 pt-3">
-          <button class="btn btn-primary btn-block" [disabled]="!sellAmountChecked || (selectedWallet == 0 ? hotGoldBalance : goldBalance) == null || toSell.gt(selectedWallet == 0 ? hotGoldBalance : goldBalance) || !toSell || toSell.lte(0) || progress" (click)="onSell()">
-            {{ "PAGES.Sell.Buttons.SellNow" | translate }}
-          </button>
-        </div>
+        </ng-container>
 
       </div>
     </form>
   </div>
 
-  <div class="section__footer">
+  <!--<div class="section__footer">
     <span class="page__note">
       {{ "PAGES.Sell.Note" | translate }}
     </span>
-  </div>
+  </div>-->
 </section>
 
-
-
-<div class="row">
+<!--<div class="row">
   <div class="col form-group text-center buy-mntp-block buy-mntp-block-1">
     <div class="buy-mntp-circle mt-5 mb-5">{{ mntpArray[0] }}<span class="buy-mntp-circle-cur">MNTP</span></div>
     <div class="buy-mntp-caption mb-4">{{ commissionArray[1] }}% {{ "PAGES.Sell.Discount" | translate }}</div>
@@ -122,4 +172,4 @@
       </svg>
     </ng-template>
   </div>
-</div>
+</div>-->

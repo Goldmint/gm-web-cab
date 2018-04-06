@@ -60,7 +60,7 @@ const appRoutes: Routes = [
   {
     path: 'finance', component: FinancePageComponent, canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: 'deposit', pathMatch: 'full' },
+      { path: '', redirectTo: 'history', pathMatch: 'full' },
       { path: 'deposit', component: DepositPageComponent },
       { path: 'withdraw', component: WithdrawPageComponent },
       { path: 'history', component: HistoryPageComponent }

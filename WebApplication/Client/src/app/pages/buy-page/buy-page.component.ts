@@ -9,6 +9,9 @@ import { Observable } from "rxjs/Observable";
 import { BigNumber } from 'bignumber.js'
 import {Router} from "@angular/router";
 import {TranslateService} from "@ngx-translate/core";
+import {Subject} from "rxjs/Subject";
+
+enum Pages { CryptoCurrency,  CryptoCapital }
 
 @Component({
   selector: 'app-buy-page',
@@ -34,7 +37,24 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public ethAddress: string = '';
   public selectedWallet = 0;
 
-  private sub1: Subscription;
+  // ----------
+
+  public pages = Pages;
+  public page: Pages;
+
+  public loading = false;
+  public isBalancesLoaded = false;
+  public coinList = ['btc', 'eth']
+  public currentCoin = this.coinList[1];
+  public ethRate: number;
+  public ethBalance: BigNumber = null;
+  public hotEthBalance: BigNumber = null;
+  public cCurrencyCoinAmount: any = null;
+  public cCurrencyAmountView;
+  public cCurrencyEstimateAmount;
+  public invalidBalance = false;
+
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private _userService: UserService,
@@ -48,70 +68,87 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(this._ethService.getObservableUsdBalance(), this._goldrateService.getObservableRate())
-      .subscribe((data) => {
-        if (data[0] !== null) this.usdBalance = data[0];
-        if (data[1] !== null) this.goldUsdRate = data[1];
+    this.page = Pages.CryptoCurrency;
 
-        // got first time
-        if (this.toSpendUnset && this.usdBalance > 0) {
-          this.toSpendUnset = false;
-          this.toSpend = new BigNumber(this.usdBalance);
-          this.inputToSpend.nativeElement.value = this.toSpend.toNumber();
-          this.buyAmountCheck(this.toSpend);
-        }
-
-        if (!this.progress && !this.confirmation) {
-          this.estimate(this.toSpend);
-        }
-
-        this._cdRef.markForCheck();
-
+    this._apiService.getEthereumRate().subscribe((data) => {
+        this.ethRate = data.data.usd;
+        this.setCCurrencyEthBalance();
       });
+
+
+    this._ethService.getObservableEthBalance().takeUntil(this.destroy$).subscribe(balance => {
+      if (this.ethBalance === null || !this.ethBalance.eq(balance)) {
+        this.ethBalance = balance;
+        this.setCCurrencyEthBalance();
+      }
+    });
+
+    this._goldrateService.getObservableRate().subscribe(rate => {
+      if (rate > 0 && rate !== this.goldUsdRate) {
+        this.goldUsdRate = rate;
+        if (this.cCurrencyCoinAmount !== null) {
+          this.cCurrencyEstimateAmount = this.calculationCCurrencyAmount();
+          this._cdRef.markForCheck();
+        }
+      }
+    });
 
     this._ethService.getObservableEthAddress().subscribe(ethAddr => {
       this.ethAddress = ethAddr;
       if (!this.ethAddress) {
         this.selectedWallet = 0;
       }
+      // this.isBalancesLoaded = false;
+      this.setCCurrencyEthBalance();
     });
 
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
+    // this.setCCurrencyEthBalance();
 
-    this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
+    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
       this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
-      this._cdRef.markForCheck();
+      this.setCCurrencyEthBalance();
     });
+
   }
 
-  onToSpendChanged(value: string) {
-    this.toSpendUnset = false;
+  onCCurrencyChanged(value: string) {
+    const testValue = value != null && value.length > 0 ? new BigNumber(value) : new BigNumber(0);
+    this.cCurrencyCoinAmount = new BigNumber(0);
 
-    this.toSpend = new BigNumber(0);
-    var testVal = this.usdBalance && value && value.length > 0 ? parseFloat(value).toFixed(2) : 0;
-
-    if (testVal > 0) {
-      this.toSpend = (new BigNumber(testVal)).decimalPlaces(2, BigNumber.ROUND_DOWN);
-      this.inputToSpend.nativeElement.value = this.toSpend.toNumber();
+    if (testValue.gt(0)) {
+      this.cCurrencyCoinAmount = new BigNumber(value);
+      this.cCurrencyCoinAmount = this.cCurrencyCoinAmount.decimalPlaces(6, BigNumber.ROUND_DOWN);
     }
-
-    this.estimate(this.toSpend);
-    this.buyAmountCheck(this.toSpend);
+    this.cCurrencyEstimateAmount = this.calculationCCurrencyAmount();
     this._cdRef.markForCheck();
   }
 
-  setUsdBalance(percent) {
-    const amount = this.usdBalance * percent;
-    this.onToSpendChanged(amount.toString());
+  setCCurrencyEthBalance(percent: number = 1) {
+    let ethBalance = this.selectedWallet == 0 ? this.hotEthBalance : this.ethBalance;
+    if (!ethBalance) {
+      return;
+    }
+    ethBalance = new BigNumber(ethBalance.times(percent));
+    // got gold balance first time
+    this.isBalancesLoaded = true;
+    if (ethBalance.gt(0)) {
+      this.cCurrencyCoinAmount = ethBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+      this.cCurrencyEstimateAmount = this.calculationCCurrencyAmount();
+      this.cCurrencyAmountView = this.cCurrencyCoinAmount.toNumber();
+      this.invalidBalance = false;
+    } else {
+      this.cCurrencyEstimateAmount = this.cCurrencyAmountView = 0;
+      this.invalidBalance = true;
+    }
+    this._cdRef.markForCheck();
   }
 
-  estimate(amount: BigNumber) {
-    var toConvert = this.usdBalance ? BigNumber.min(amount, new BigNumber(this.usdBalance)) : new BigNumber(0);
-    this.estimatedAmount = toConvert.dividedBy(this.goldUsdRate).toPrecision(18 + 1);
-    this.estimatedAmount = this.estimatedAmount.substr(0, this.estimatedAmount.length - 1);
+  calculationCCurrencyAmount() {
+    return +(this.cCurrencyCoinAmount.toNumber() / (this.goldUsdRate / this.ethRate)).toFixed(6)
   }
 
-  onBuy() {
+  /*onBuy() {
     this.progress = true;
     this._cdRef.markForCheck();
 
@@ -170,13 +207,56 @@ export class BuyPageComponent implements OnInit, OnDestroy {
           });
         });
     }
-  }
+  }*/
 
-  buyAmountCheck(val: BigNumber) {
+  /*buyAmountCheck(val: BigNumber) {
     this.buyAmountChecked = val.gte(1) && this.usdBalance && val.lte(this.usdBalance);
-  }
+  }*/
 
   ngOnDestroy() {
-    this.sub1 && this.sub1.unsubscribe();
+    this.destroy$.next(true);
   }
+
+  // ------------
+
+  chooseCurrentCoin(coin) {
+    if (this.currentCoin !== coin) {
+      this.currentCoin = coin;
+    }
+  }
+
+  /*onCryptoCurrencyChanged(value) {
+    if (value != null && value > 0) {
+      this.cCurrencyCoinAmount = new BigNumber(value);
+      this.cCurrencyCoinAmount = this.cCurrencyCoinAmount.decimalPlaces(6, BigNumber.ROUND_DOWN);
+      this.cCurrencyEstimateAmount = value / (this.goldUsdRate / this.ethRate);
+      // this.cCurrencyEstimateAmount = value * this.ethRate;
+    } else {
+      this.cCurrencyEstimateAmount = 0;
+    }
+  }*/
+
+  onCryptoCurrencySubmit() {
+    this.loading = true;
+    this._apiService.ethDepositRequest(this.ethAddress, this.cCurrencyCoinAmount)
+      .finally(() => {
+        this.loading = false;
+        this._cdRef.markForCheck();
+      })
+      .subscribe(res => {
+        const amount = (this.cCurrencyCoinAmount * res.data.ethRate).toFixed(2);
+        this._translate.get('MessageBox.EthDeposit',
+          {coinAmount: this.cCurrencyCoinAmount, usdAmount: amount, ethRate: res.data.ethRate}
+        ).subscribe(phrase => {
+          this._messageBox.confirm(phrase).subscribe(ok => {
+            if (ok) {
+              this._apiService.confirmEthDepositRequest(true, res.data.requestId).subscribe(() => {
+                this._ethService.ethDepositRequest(this.ethAddress, res.data.requestId, this.cCurrencyCoinAmount);
+              });
+            }
+          });
+        });
+      });
+  }
+
 }

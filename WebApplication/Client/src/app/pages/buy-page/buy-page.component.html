@@ -8,11 +8,101 @@
     <form action="#" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
       <div class="row">
 
-        <div class="col-12 pb-4">
+        <div class="w-100 pb-4">
+          <div class="from-row form-group">
+            <label for="method">Choose payment method</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency">
+                <svg class="icon" width="30" height="30">
+                  <use xlink:href="#payment-card"></use>
+                </svg>
+              </div>
+              <select class="custom-select" name="method" id="method" >
+                <option value="1">Cryptocurrency</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <ng-container *ngIf="page === pages.CryptoCurrency">
+          <div class="w-100">
+            <div class="btn-group">
+              <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
+              <label class="btn btn-primary btn-sm"
+                     [ngClass]="{'active': currentCoin === coinList[1]}"
+                     (click)="chooseCurrentCoin(coinList[1])">Eth</label>
+            </div>
+
+            <div class="pt-4">
+              <form #cryptoCurrencyForm="ngForm">
+                <div class="row align-items-start">
+
+
+
+                  <div class="col-12">
+                    <div class="from-row form-group">
+                      <label for="cCurrencyEthAmount" *ngIf="currentCoin === coinList[0]">BTC</label>
+                      <label for="cCurrencyEthAmount" *ngIf="currentCoin === coinList[1]">Eth</label>
+                      <div class="d-flex align-items-center">
+                        <div class="form-currency">
+                          <svg class="icon" width="30" height="30">
+                            <use xlink:href="#bitcoin" *ngIf="currentCoin === coinList[0]"></use>
+                            <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
+                          </svg>
+                        </div>
+                        <input type="number" class="form-control" name="cCurrencyEthAmount" id="cCurrencyEthAmount"
+                               min="0"
+                               step="0.1"
+                               [(ngModel)]="cCurrencyAmountView"
+                               #cCurrencyEthAmount="ngModel"
+                               (input)="onCCurrencyChanged($event.target.value)"
+                               [ngClass]="{'is-invalid': (!cCurrencyAmountView || invalidBalance) && cCurrencyEthAmount.dirty}"
+                        >
+                      </div>
+                      <div class="percent-btn-cont">
+                        <button class="percent-btn" (click)="setCCurrencyEthBalance(0.25)">25%</button>
+                        <button class="percent-btn" (click)="setCCurrencyEthBalance(0.5)">50%</button>
+                        <button class="percent-btn" (click)="setCCurrencyEthBalance(0.75)">75%</button>
+                        <button class="percent-btn" (click)="setCCurrencyEthBalance(1)">100%</button>
+                      </div>
+                      <div class="invalid-feedback" *ngIf="(!cCurrencyAmountView || invalidBalance) && cCurrencyEthAmount.dirty">
+                        {{ "PAGES.Sell.Errors.Invalid" | translate }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 pb-4">
+                    <div class="from-row form-group ">
+                      <label for="input_EstimateAmount">{{ "PAGES.Deposit.CryptoCapital.Labels.EstimatesAmount" | translate }}</label>
+                      <div class="d-flex align-items-center">
+                        <div class="form-currency">
+                          <svg class="icon" width="30" height="30">
+                            <use xlink:href="#cur-gold"></use>
+                          </svg>
+                        </div>
+                        <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [value]="cCurrencyEstimateAmount | number:'1.2-2':locale">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 mb-5">
+                    <button type="submit" class="btn btn-primary" (click)="onCryptoCurrencySubmit()" [disabled]="cCurrencyCoinAmount == null || cCurrencyCoinAmount <= 0 || loading">Buy now</button>
+                    <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-container>
+
+
+
+
+<!--        <div class="col-12 pb-4">
           <div class="from-row form-group">
             <label for="input_toSpend">{{ "PAGES.Buy.Labels.Spend" | translate }}</label>
             <div class="d-flex align-items-center">
-              <div class="form-currency form-currency--usd">
+              <div class="form-currency form-currency&#45;&#45;usd">
                 <svg class="icon">
                   <use xlink:href="#cur-usd"></use>
                 </svg>
@@ -31,7 +121,7 @@
               <button class="percent-btn" (click)="setUsdBalance(0.75)">75%</button>
               <button class="percent-btn" (click)="setUsdBalance(1)">100%</button>
             </div>
-            <div class="invalid-feedback invalid-feedback--abs" *ngIf="!buyAmountChecked">
+            <div class="invalid-feedback invalid-feedback&#45;&#45;abs" *ngIf="!buyAmountChecked">
               {{ "PAGES.Buy.Errors.Invalid" | translate }}
             </div>
           </div>
@@ -41,7 +131,7 @@
           <div class="from-row form-group">
             <label for="input_EstimateAmount">{{ "PAGES.Buy.Labels.Estimate" | translate }}</label>
             <div class="d-flex align-items-center">
-              <div class="form-currency form-currency--gold">
+              <div class="form-currency form-currency&#45;&#45;gold">
                 <svg class="icon">
                   <use xlink:href="#cur-gold"></use>
                 </svg>
@@ -56,24 +146,24 @@
           <button class="btn btn-primary btn-block" [disabled]="!buyAmountChecked || progress || confirmation || toSpend.gt(usdBalance) || toSpend.lte(0)" (click)="onBuy()">
             {{ "PAGES.Buy.Buttons.BuyNow" | translate }}
           </button>
-        </div>
+        </div>-->
 
       </div>
     </form>
   </div>
 
-  <div class="section__footer">
+  <!--<div class="section__footer">
     <span class="page__note">
       {{ "PAGES.Buy.Note" | translate }}
     </span>
-  </div>
+  </div>-->
 </section>
 
-<div class="row mb-4 pb-2">
+<!--<div class="row mb-4 pb-2">
   <div class="col-auto">
     <a routerLink="/finance/deposit" class="btn btn-primary btn-wide">{{ "PAGES.Buy.Buttons.Deposit" | translate }}</a>
   </div>
   <div class="col-5 form-text">
     <span>{{ "PAGES.Buy.DepositDesc" | translate }}</span>
   </div>
-</div>
+</div>-->
