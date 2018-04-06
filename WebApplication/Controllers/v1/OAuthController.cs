@@ -150,7 +150,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// new jwt salt
-					user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+					user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
 					DbContext.SaveChanges();
 
 					// ok

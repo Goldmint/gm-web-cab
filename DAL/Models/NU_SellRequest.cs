@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
-
+	/*
 	[Table("gm_sell_request")]
-	public class SellRequest : BaseFinancialHistoryEntity, IConcurrentUpdate {
+	public class SellRequest : BaseUserFinHistoryEntity, IConcurrentUpdate {
 
 		[Column("type"), Required]
 		public GoldExchangeRequestType Type { get; set; }
@@ -58,5 +58,5 @@ namespace Goldmint.DAL.Models {
 		public void OnConcurrencyStampRegen() {
 			this.ConcurrencyStamp = ConcurrentStamp.GetGuid();
 		}
-	}
+	}*/
 }

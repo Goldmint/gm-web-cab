@@ -12,13 +12,13 @@ namespace Goldmint.DAL.Models {
 		[Column("type"), MaxLength(32), Required]
 		public string Type { get; set; }
 
-		[Column("comment"), MaxLength(512), Required]
+		[Column("comment"), MaxLength(FieldMaxLength.Comment), Required]
 		public string Comment { get; set; }
 
-		[Column("ip"), MaxLength(32), Required]
+		[Column("ip"), MaxLength(FieldMaxLength.Ip), Required]
 		public string Ip { get; set; }
 
-		[Column("agent"), MaxLength(128), Required]
+		[Column("agent"), MaxLength(FieldMaxLength.UserAgent), Required]
 		public string Agent { get; set; }
 
 		[Column("time_created"), Required]

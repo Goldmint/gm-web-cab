@@ -1,5 +1,4 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Acquiring;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
@@ -12,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Finance.Fiat {
 
+/*
 	public static class DepositQueue {
 
 		/// <summary>
@@ -61,7 +61,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						Status = DepositStatus.Initial,
 						Currency = payment.Currency,
 						AmountCents = payment.AmountCents,
-						RefFinancialHistoryId = financialHistoryId,
+						RefUserFinHistoryId = financialHistoryId,
 						Source = DepositSource.CreditCard,
 						SourceId = payment.Id,
 						DeskTicketId = payment.DeskTicketId,
@@ -101,7 +101,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					Status = DepositStatus.Initial,
 					Currency = request.Currency,
 					AmountCents = request.AmountCents,
-					RefFinancialHistoryId = financialHistoryId,
+					RefUserFinHistoryId = financialHistoryId,
 					Source = DepositSource.SwiftRequest,
 					SourceId = request.Id,
 					DeskTicketId = request.DeskTicketId,
@@ -134,7 +134,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						Status = DepositStatus.Initial,
 						Currency = withdraw.Currency,
 						AmountCents = withdraw.AmountCents,
-						RefFinancialHistoryId = financialHistoryId,
+						RefUserFinHistoryId = financialHistoryId,
 						Source = DepositSource.FailedWithdraw,
 						SourceId = withdraw.Id,
 						DeskTicketId = withdraw.DeskTicketId,
@@ -164,7 +164,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 						Status = DepositStatus.Initial,
 						Currency = cryptoDeposit.Currency,
 						AmountCents = calculatedAmountCents,
-						RefFinancialHistoryId = financialHistoryId,
+						RefUserFinHistoryId = financialHistoryId,
 						Source = DepositSource.CryptoDeposit,
 						SourceId = cryptoDeposit.Id,
 						DeskTicketId = cryptoDeposit.DeskTicketId,
@@ -251,7 +251,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		public static async Task ProcessDeposit(IServiceProvider services, Deposit deposit) {
 
 			if (deposit.User == null) throw new ArgumentException("User not included");
-			if (deposit.RefFinancialHistory == null) throw new ArgumentException("Financial history not included");
+			if (deposit.RefUserFinHistory == null) throw new ArgumentException("Financial history not included");
 
 			var logger = services.GetLoggerFor(typeof(DepositQueue));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -305,10 +305,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// set new status
 							deposit.EthTransactionId = ethTransactionId;
-							deposit.RefFinancialHistory.RelEthTransactionId = deposit.EthTransactionId;
+							deposit.RefUserFinHistory.RelEthTransactionId = deposit.EthTransactionId;
 							deposit.Status = DepositStatus.BlockchainConfirm;
 							dbContext.Update(deposit);
-							dbContext.Update(deposit.RefFinancialHistory);
+							dbContext.Update(deposit.RefUserFinHistory);
 							await dbContext.SaveChangesAsync();
 
 							// update ticket safely
@@ -336,10 +336,10 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								deposit.Status = success ? DepositStatus.Success : DepositStatus.Failed;
 								deposit.TimeCompleted = DateTime.UtcNow;
 
-								deposit.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								deposit.RefFinancialHistory.TimeCompleted = deposit.TimeCompleted;
+								deposit.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								deposit.RefUserFinHistory.TimeCompleted = deposit.TimeCompleted;
 
-								dbContext.Update(deposit.RefFinancialHistory);
+								dbContext.Update(deposit.RefUserFinHistory);
 							}
 
 							dbContext.Update(deposit);
@@ -375,4 +375,5 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			public Exception Error { get; internal set; }
 		}
 	}
+*/
 }

@@ -104,7 +104,7 @@ namespace Goldmint.Common {
 
 
 	#region Credit Card / Bank Account
-
+	// REMOVE
 	public enum CardState {
 
 		/// <summary>
@@ -227,31 +227,93 @@ namespace Goldmint.Common {
 	#endregion
 
 
-	#region Deposit / Withdraw
+	#region GOLD
 
-	public enum FiatCurrency {
+	public enum BuyGoldRequestInput {
 
-		USD = 1,
+		EthereumDirectPayment = 1,
 	}
 
-	public enum FiatEnqueueResult {
+	public enum BuyGoldRequestDestination {
 
 		/// <summary>
-		/// Enqueued
+		/// Buy to Ethereum address
+		/// </summary>
+		EthereumAddress = 1,
+
+		/// <summary>
+		/// Buy to internal Hot Wallet
+		/// </summary>
+		EthereumHotWallet,
+	}
+
+	public enum BuyGoldRequestStatus {
+
+		/// <summary>
+		/// Just created
+		/// </summary>
+		Unconfirmed = 1,
+
+		/// <summary>
+		/// Confirmed by user
+		/// </summary>
+		Confirmed,
+
+		/// <summary>
+		/// Final success
 		/// </summary>
 		Success,
 
 		/// <summary>
-		/// Limit reached or gateway transaction failed
+		/// Expired
 		/// </summary>
-		Limit,
+		Expired,
 
 		/// <summary>
-		/// Internal error
+		/// Final failure
 		/// </summary>
-		Error,
+		Failed,
 	}
 
+	public enum TransferGoldRequestStatus {
+
+		/// <summary>
+		/// Initially enqueued
+		/// </summary>
+		Unconfirmed = 1,
+		
+		/// <summary>
+		/// Confirmed by user
+		/// </summary>
+		Confirmed,
+
+		/// <summary>
+		/// Prepared for processing
+		/// </summary>
+		Prepared,
+
+		/// <summary>
+		/// Sending request to blockchain
+		/// </summary>
+		BlockchainInit,
+
+		/// <summary>
+		/// Waiting confirmation from blockchain
+		/// </summary>
+		BlockchainConfirm,
+
+		/// <summary>
+		/// Success
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Failed
+		/// </summary>
+		Failed,
+	}
+
+	/*
 	public enum SwiftPaymentType {
 
 		/// <summary>
@@ -306,33 +368,7 @@ namespace Goldmint.Common {
 		CryptoDeposit,
 	}
 
-	public enum DepositStatus {
-
-		/// <summary>
-		/// Initially enqueued
-		/// </summary>
-		Initial = 1,
-
-		/// <summary>
-		/// Sending request to blockchain
-		/// </summary>
-		BlockchainInit,
-
-		/// <summary>
-		/// Waiting confirmation from blockchain
-		/// </summary>
-		BlockchainConfirm,
-
-		/// <summary>
-		/// Final success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Failed,
-	}
+	
 
 	public enum WithdrawDestination {
 
@@ -385,7 +421,7 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
-	public enum CryptoExchangeAsset {
+	public enum BuyGoldForAssetOrigin {
 
 		/// <summary>
 		/// Ethereum
@@ -425,7 +461,7 @@ namespace Goldmint.Common {
 		/// </summary>
 		Failed,
 	}
-
+	*/
 	#endregion
 
 
@@ -445,62 +481,6 @@ namespace Goldmint.Common {
 
 		/// <summary>
 		/// Transaction cancelled or failed
-		/// </summary>
-		Failed,
-	}
-
-	public enum GoldExchangeRequestType {
-
-		/// <summary>
-		/// Hot wallet queue
-		/// </summary>
-		HWRequest = 1,
-
-		/// <summary>
-		/// Ethereum requests queue
-		/// </summary>
-		EthRequest,
-	}
-
-	public enum GoldExchangeRequestStatus {
-
-		/// <summary>
-		/// Just created
-		/// </summary>
-		Unconfirmed = 1,
-
-		/// <summary>
-		/// Confirmed by user
-		/// </summary>
-		Confirmed,
-
-		/// <summary>
-		/// Prepared for processing
-		/// </summary>
-		Prepared,
-
-		/// <summary>
-		/// Sending request to blockchain
-		/// </summary>
-		BlockchainInit,
-
-		/// <summary>
-		/// Waiting confirmation from blockchain
-		/// </summary>
-		BlockchainConfirm,
-
-		/// <summary>
-		/// Final success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Cancelled
-		/// </summary>
-		Cancelled,
-		
-		/// <summary>
-		/// Final failure
 		/// </summary>
 		Failed,
 	}
@@ -528,45 +508,25 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
-	public enum FinancialHistoryType {
+	public enum UserFinHistoryType {
 
 		/// <summary>
-		/// Deposit
+		/// Gold purchase
 		/// </summary>
-		Deposit = 1,
+		GoldBuy = 1,
 
 		/// <summary>
-		/// Completed
-		/// </summary>
-		Withdraw,
-
-		/// <summary>
-		/// Gold bought
-		/// </summary>
-		GoldBuy,
-
-		/// <summary>
-		/// Gold sold
+		/// Gold selling
 		/// </summary>
 		GoldSell,
 
 		/// <summary>
-		/// Transferring gold from HW
+		/// GOLD transfer from HW
 		/// </summary>
 		HwTransfer,
-
-		/// <summary>
-		/// Deposit with cryptoassets exchange
-		/// </summary>
-		CryptoDeposit,
-
-		/// <summary>
-		/// Withdraw with cryptoassets exchange
-		/// </summary>
-		CryptoWithdraw,
 	}
 
-	public enum FinancialHistoryStatus {
+	public enum UserFinHistoryStatus {
 
 		/// <summary>
 		/// Initially created
@@ -622,36 +582,20 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Some setting changed
 		/// </summary>
-		Settings,
-
-		/// <summary>
-		/// Gold token exchange
-		/// </summary>
-		Exchange,
-
-		/// <summary>
-		/// Credit card operation
-		/// </summary>
-		CreditCard,
-
-		/// <summary>
-		/// Swift reqeust
-		/// </summary>
-		Swift,
-
-		/// <summary>
-		/// Cryptoassets operations
-		/// </summary>
-		Cryptoassets,
-
-		/// <summary>
-		/// CryptoCapital operations
-		/// </summary>
-		CryptoCapital,
+		Settings
 	}
 
 	#endregion
 
+	public enum CryptoCurrency {
+
+		ETH = 1,
+	}
+
+	public enum FiatCurrency {
+
+		USD = 1,
+	}
 
 	public enum DbSetting {
 

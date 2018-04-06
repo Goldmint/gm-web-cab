@@ -12,10 +12,10 @@ namespace Goldmint.DAL.Models {
 		[Column("amount"), Required]
 		public long Amount { get; set; }
 
-		[Column("hash"), MaxLength(128), Required]
+		[Column("hash"), MaxLength(FieldMaxLength.BlockchainMaxAddress), Required]
 		public string Hash { get; set; }
 
-		[Column("comment"), MaxLength(512), Required]
+		[Column("comment"), MaxLength(FieldMaxLength.Comment), Required]
 		public string Comment { get; set; }
 
 		[Column("time_created"), Required]

@@ -1,23 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Mutex.Impl;
-using Goldmint.DAL.Models;
-using Goldmint.WebApplication.Core.Policies;
-using Goldmint.WebApplication.Core.Response;
-using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.v1.User.ExchangeModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Numerics;
-using Microsoft.AspNetCore.Hosting;
+﻿namespace Goldmint.WebApplication.Controllers.v1.User {
 
-namespace Goldmint.WebApplication.Controllers.v1.User {
+	public partial class SellGoldController : BaseController {
 
-	[Route("api/v1/user/exchange")]
-	public partial class ExchangeController : BaseController {
-
+/*
 		// TODO: move to app settings constants
 		private static readonly TimeSpan HWOperationTimeLimit = TimeSpan.FromMinutes(30);
 		private static readonly TimeSpan ExchangeConfirmationTimeout = TimeSpan.FromMinutes(2);
@@ -349,6 +334,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.RateLimit);
 			});
 		}
-
+*/
 	}
 }

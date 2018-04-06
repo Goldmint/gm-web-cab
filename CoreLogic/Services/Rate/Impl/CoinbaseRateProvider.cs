@@ -30,11 +30,11 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
-		public async Task<long> GetRate(CryptoExchangeAsset asset, FiatCurrency currency) {
+		public async Task<long> GetRate(CryptoCurrency asset, FiatCurrency currency) {
 
 			long value = 0;
 
-			if (asset == CryptoExchangeAsset.ETH) {
+			if (asset == CryptoCurrency.ETH) {
 				value = await Eth(currency);
 			}
 

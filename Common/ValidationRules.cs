@@ -19,7 +19,6 @@ namespace Goldmint.Common {
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");
 		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
 		public static readonly Regex RexEthereumTransactionId = new Regex(@"^0x[0-9abcdefABCDEF]{64}$");
-		public static readonly Regex RexEthereumExchangePayload = new Regex(@"^[0-9a-zA-Z\-]{1,64}$");
 
 		// ---
 
@@ -66,7 +65,7 @@ namespace Goldmint.Common {
 			return x != null && x.Length >= 1;
 		}
 
-		public static bool BeValidTFACode(string x) {
+		public static bool BeValidTfaCode(string x) {
 			return x != null && RexTFAToken.IsMatch(x);
 		}
 
@@ -93,12 +92,8 @@ namespace Goldmint.Common {
 			return x != null && RexDigits.IsMatch(x);
 		}
 
-		public static bool BeValidURL(string x) {
+		public static bool BeValidUrl(string x) {
 			return x != null && Uri.TryCreate(x, UriKind.Absolute, out var test) && (test.Scheme == "http" || test.Scheme == "https");
-		}
-
-		public static bool BeValidDectaRedirectUrl(string x) {
-			return BeValidURL(x);// && x.Contains("ZZZZZZZ");
 		}
 
 		public static bool BeValidEthereumAddress(string x) {
@@ -108,9 +103,5 @@ namespace Goldmint.Common {
 		public static bool BeValidEthereumTransactionId(string x) {
 			return x != null && RexEthereumTransactionId.IsMatch(x);
 		}
-
-		/*public static bool BeValidEthereumExchangeRequestPayload(string x) {
-			return x != null && RexEthereumExchangePayload.IsMatch(x);
-		}*/
 	}
 }

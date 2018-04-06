@@ -1,5 +1,4 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Acquiring;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
@@ -14,7 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Finance.Fiat {
-
+/*
 	public static class WithdrawQueue {
 
 		/// <summary>
@@ -37,7 +36,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 					Status = WithdrawStatus.Initial,
 					Currency = payment.Currency,
 					AmountCents = payment.AmountCents,
-					RefFinancialHistoryId = financialHistoryId,
+					RefUserFinHistoryId = financialHistoryId,
 					Destination = WithdrawDestination.CreditCard,
 					DestinationId = payment.Id,
 					DeskTicketId = payment.DeskTicketId,
@@ -120,7 +119,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 		public static async Task ProcessWithdraw(IServiceProvider services, Withdraw withdraw) {
 
 			if (withdraw.User == null) throw new ArgumentException("User not included");
-			if (withdraw.RefFinancialHistory == null) throw new ArgumentException("Financial history not included");
+			if (withdraw.RefUserFinHistory == null) throw new ArgumentException("Financial history not included");
 
 			var logger = services.GetLoggerFor(typeof(WithdrawQueue));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -174,11 +173,11 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 
 							// set new status
 							withdraw.EthTransactionId = ethTransactionId;
-							withdraw.RefFinancialHistory.RelEthTransactionId = withdraw.EthTransactionId;
+							withdraw.RefUserFinHistory.RelEthTransactionId = withdraw.EthTransactionId;
 							withdraw.Status = WithdrawStatus.BlockchainConfirm;
 
 							// save
-							dbContext.Update(withdraw.RefFinancialHistory);
+							dbContext.Update(withdraw.RefUserFinHistory);
 							dbContext.Update(withdraw);
 							await dbContext.SaveChangesAsync();
 
@@ -207,9 +206,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 								withdraw.Status = success ? WithdrawStatus.Success : WithdrawStatus.Failed;
 								withdraw.TimeCompleted = DateTime.UtcNow;
 
-								withdraw.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								withdraw.RefFinancialHistory.TimeCompleted = withdraw.TimeCompleted;
-								dbContext.Update(withdraw.RefFinancialHistory);
+								withdraw.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								withdraw.RefUserFinHistory.TimeCompleted = withdraw.TimeCompleted;
+								dbContext.Update(withdraw.RefUserFinHistory);
 							}
 
 							// finalize
@@ -234,9 +233,9 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 											catch { }
 
 											// fin history
-											var finHistory = new DAL.Models.FinancialHistory() {
-												Status = FinancialHistoryStatus.Processing,
-												Type = FinancialHistoryType.Deposit,
+											var finHistory = new DAL.Models.UserFinHistory() {
+												Status = UserFinHistoryStatus.Processing,
+												Type = UserFinHistoryType.Deposit,
 												AmountCents = withdraw.AmountCents,
 												FeeCents = 0,
 												DeskTicketId = withdraw.DeskTicketId,
@@ -353,4 +352,5 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			public Exception Error { get; internal set; }
 		}
 	}
+*/
 }

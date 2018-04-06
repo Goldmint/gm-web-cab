@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Goldmint.WebApplication.Models.API.v1.User.ExchangeModels {
 
+	// REMOVE
+
 	public class BuyRequestModel : BaseValidableModel {
 
 		/// <summary>

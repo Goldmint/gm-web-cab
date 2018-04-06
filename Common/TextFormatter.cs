@@ -1,6 +1,7 @@
 ﻿using PhoneNumbers;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -31,6 +32,16 @@ namespace Goldmint.Common {
 		// 1234.40 => 1,234.40 USD
 		public static string FormatAmount(long cents, FiatCurrency currency) {
 			return (cents / 100m).ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + " " + currency.ToString().ToUpperInvariant();
+		}
+
+		/// <summary>
+		/// Amount from wei. Ex: 1512345670000000000 => 1.51234567
+		/// </summary>
+		public static string FormatTokenAmount(BigInteger tokenAmount, int tokenDecimals) {
+			if (tokenAmount <= 0) return "0";
+			var str = tokenAmount.ToString().PadLeft(tokenDecimals + 1, '0');
+			str = str.Substring(0, str.Length - tokenDecimals) + "." + str.Substring(str.Length - 18);
+			return str.TrimEnd('0', '.');
 		}
 
 		// 0x0000000000000000000000000000000000000000 => 0x000***000

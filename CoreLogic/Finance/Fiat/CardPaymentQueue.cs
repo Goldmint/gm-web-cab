@@ -1,5 +1,4 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Acquiring;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
@@ -13,7 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Finance.Fiat {
-
+/*
 	public static class CardPaymentQueue {
 
 		/// <summary>
@@ -693,4 +692,5 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			}
 		}
 	}
+*/
 }

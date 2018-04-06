@@ -17,6 +17,7 @@ using Goldmint.CoreLogic.Services.Blockchain;
 
 namespace Goldmint.CoreLogic.Finance.Fiat {
 
+/*
 	public static class CryptoExchangeQueue {
 
 		/// <summary>
@@ -316,4 +317,7 @@ namespace Goldmint.CoreLogic.Finance.Fiat {
 			MutexFailure,
 		}
 	}
+
+*/
+
 }

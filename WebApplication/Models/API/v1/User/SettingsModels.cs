@@ -3,23 +3,34 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 
-	public class DpaStatusView {
+	public class TfaEditModel : BaseValidableModel {
 
 		/// <summary>
-		/// DPA is signed
+		/// Code /[0-9]{6}/
 		/// </summary>
 		[Required]
-		public bool IsSigned { get; set; }
+		public string Code { get; set; }
 
 		/// <summary>
-		/// DPA could be resent
+		/// Enable/disable TFA
 		/// </summary>
 		[Required]
-		public bool CanResend { get; set; }
+		public bool Enable { get; set; }
+
+		// ---
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<TfaEditModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
+			v.RuleFor(_ => _.Code)
+				.Must(Common.ValidationRules.BeValidTfaCode).WithMessage("Invalid format")
+			;
+			
+			return v.Validate(this);
+		}
 	}
 
-	// ---
-	public class TFAView {
+	public class TfaView {
 
 		/// <summary>
 		/// Is two factor auth enabled
@@ -37,33 +48,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		/// </summary>
 		public string Secret { get; set; }
 
-	}
-
-	public class TFAEditModel : BaseValidableModel {
-
-		/// <summary>
-		/// Code /[0-9]{6}/
-		/// </summary>
-		[Required]
-		public string Code { get; set; }
-
-		/// <summary>
-		/// Enable/disable TFA
-		/// </summary>
-		[Required]
-		public bool Enable { get; set; }
-
-		// ---
-
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<TFAEditModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
-
-			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
-			;
-			
-			return v.Validate(this);
-		}
 	}
 
 	// ---
@@ -243,7 +227,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 			var v = new InlineValidator<VerificationKycStartModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Redirect)
-				.Must(Common.ValidationRules.BeValidURL).WithMessage("Invalid format")
+				.Must(Common.ValidationRules.BeValidUrl).WithMessage("Invalid format")
 			;
 
 			return v.Validate(this);

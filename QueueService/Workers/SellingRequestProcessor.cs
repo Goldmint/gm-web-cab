@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
-
+/*
 	public class SellingRequestProcessor : BaseWorker {
 
 		private readonly int _rowsPerRound;
@@ -59,5 +59,5 @@ namespace Goldmint.QueueService.Workers {
 				}
 			}
 		}
-	}
+	}*/
 }

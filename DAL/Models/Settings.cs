@@ -12,7 +12,7 @@ namespace Goldmint.DAL.Models {
 		[Column("value"), MaxLength(MaxValueFieldLength)]
 		public string Value { get; set; }
 
-		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
+		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 
 		// ---

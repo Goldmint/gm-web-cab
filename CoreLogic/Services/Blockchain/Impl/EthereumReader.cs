@@ -58,7 +58,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			if (currency == FiatCurrency.USD) {
 				var web3 = new Web3(JsonRpcClient);
 				var contract = web3.Eth.GetContract(
-					FiatContractABI,
+					FiatContractAbi,
 					FiatContractAddress
 				);
 
@@ -79,7 +79,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			var web3 = new Web3(JsonRpcClient);
 			var contract = web3.Eth.GetContract(
-				FiatContractABI,
+				FiatContractAbi,
 				FiatContractAddress
 			);
 
@@ -130,7 +130,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(JsonRpcClient);
 
 			var contract = web3.Eth.GetContract(
-					FiatContractABI,
+					FiatContractAbi,
 					FiatContractAddress
 				);
 			var func = contract.GetFunction("getRequestsCount");
@@ -142,7 +142,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(JsonRpcClient);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractABI,
+				FiatContractAbi,
 				FiatContractAddress
 			);
 			var func = contract.GetFunction("getRequest");
@@ -165,7 +165,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(JsonRpcLogsClient);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractABI,
+				FiatContractAbi,
 				FiatContractAddress
 			);
 

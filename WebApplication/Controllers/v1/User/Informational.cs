@@ -14,121 +14,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	public partial class UserController : BaseController {
 
 		/// <summary>
-		/// Fiat limits
-		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpGet, Route("limits")]
-		[ProducesResponseType(typeof(LimitsView), 200)]
-		public async Task<APIResponse> Limits() {
-
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
-
-			var limits = await CoreLogic.User.GetFiatLimits(HttpContext.RequestServices, FiatCurrency.USD, userTier);
-
-			var curDepositLimit = await CoreLogic.User.GetCurrentFiatDepositLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
-			var curWithdrawLimit = await CoreLogic.User.GetCurrentFiatWithdrawLimit(HttpContext.RequestServices, FiatCurrency.USD, user.Id, userTier);
-
-			return APIResponse.Success(
-				new LimitsView() {
-
-					// current user fiat limits
-					Current = new LimitsView.UserLimits() {
-
-						Deposit = new LimitsView.UserPeriodLimitItem() {
-							Minimal = curDepositLimit.Minimal / 100d,
-							Day = curDepositLimit.Day / 100d,
-							Month = curDepositLimit.Month / 100d,
-						},
-
-						Withdraw = new LimitsView.UserPeriodLimitItem() {
-							Minimal = curWithdrawLimit.Minimal / 100d,
-							Day = curWithdrawLimit.Day / 100d,
-							Month = curWithdrawLimit.Month / 100d,
-						},
-					},
-
-					// limits by verification level and current user level
-					Levels = new LimitsView.VerificationLevels() {
-
-						Current = new LimitsView.VerificationLevelLimits() {
-
-							Deposit = new LimitsView.PeriodLimitItem() {
-								Day = limits.Current.Deposit.Day / 100d,
-								Month = limits.Current.Deposit.Month / 100d,
-							},
-							Withdraw = new LimitsView.PeriodLimitItem() {
-								Day = limits.Current.Withdraw.Day / 100d,
-								Month = limits.Current.Withdraw.Month / 100d,
-							}
-						},
-
-						L0 = new LimitsView.VerificationLevelLimits() {
-
-							Deposit = new LimitsView.PeriodLimitItem() {
-								Day = limits.Tier1.Deposit.Day / 100d,
-								Month = limits.Tier1.Deposit.Month / 100d,
-							},
-							Withdraw = new LimitsView.PeriodLimitItem() {
-								Day = limits.Tier1.Withdraw.Day / 100d,
-								Month = limits.Tier1.Withdraw.Month / 100d,
-							}
-						},
-
-						L1 = new LimitsView.VerificationLevelLimits() {
-
-							Deposit = new LimitsView.PeriodLimitItem() {
-								Day = limits.Tier2.Deposit.Day / 100d,
-								Month = limits.Tier2.Deposit.Month / 100d,
-							},
-							Withdraw = new LimitsView.PeriodLimitItem() {
-								Day = limits.Tier2.Withdraw.Day / 100d,
-								Month = limits.Tier2.Withdraw.Month / 100d,
-							}
-						}
-					},
-
-					// limits per payment method
-					PaymentMethod = new LimitsView.PaymentMethods() {
-
-						Card = new LimitsView.PaymentMethodLimits() {
-							Deposit = new LimitsView.OnetimeLimitItem() {
-								Min = AppConfig.Constants.CardPaymentData.DepositMin / 100d,
-								Max = AppConfig.Constants.CardPaymentData.DepositMax / 100d,
-							},
-							Withdraw = new LimitsView.OnetimeLimitItem() {
-								Min = AppConfig.Constants.CardPaymentData.WithdrawMin / 100d,
-								Max = AppConfig.Constants.CardPaymentData.WithdrawMax / 100d,
-							}
-						},
-
-						Swift = new LimitsView.PaymentMethodLimits() {
-							Deposit = new LimitsView.OnetimeLimitItem() {
-								Min = AppConfig.Constants.SwiftData.DepositMin / 100d,
-								Max = AppConfig.Constants.SwiftData.DepositMax / 100d,
-							},
-							Withdraw = new LimitsView.OnetimeLimitItem() {
-								Min = AppConfig.Constants.SwiftData.WithdrawMin / 100d,
-								Max = AppConfig.Constants.SwiftData.WithdrawMax / 100d,
-							}
-						},
-
-						CryptoCapital = new LimitsView.PaymentMethodLimits() {
-							Deposit = new LimitsView.OnetimeLimitItem() {
-								Min = AppConfig.Constants.CryptoCapitalData.DepositMin / 100d,
-								Max = AppConfig.Constants.CryptoCapitalData.DepositMax / 100d,
-							},
-							Withdraw = new LimitsView.OnetimeLimitItem() {
-								Min = AppConfig.Constants.CryptoCapitalData.WithdrawMin / 100d,
-								Max = AppConfig.Constants.CryptoCapitalData.WithdrawMax / 100d,
-							}
-						}
-					}
-				}
-			);
-		}
-
-		/// <summary>
 		/// Profile info
 		/// </summary>
 		[RequireJWTArea(JwtArea.Authorized)]
@@ -142,7 +27,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// user challenges
 			// TODO: move to challenges subsystem
 			var challenges = new List<string>();
-			if (!user.UserOptions.InitialTFAQuest && !user.TwoFactorEnabled) challenges.Add("2fa");
+			if (!user.UserOptions.InitialTfaQuest && !user.TwoFactorEnabled) challenges.Add("2fa");
 
 			return APIResponse.Success(
 				new ProfileView() {
@@ -212,15 +97,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// Fiat history
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpPost, Route("fiat/history")]
+		[HttpPost, Route("history")]
 		[ProducesResponseType(typeof(FiatHistoryView), 200)]
 		public async Task<APIResponse> FiatHistory([FromBody] FiatHistoryModel model) {
 
-			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.FinancialHistory, object>>>() {
+			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.UserFinHistory, object>>>() {
 				{ "date",   _ => _.TimeCreated },
-				{ "amount", _ => _.AmountCents },
 				{ "type",   _ => _.Type },
-				{ "fee",    _ => _.FeeCents },
 				{ "status", _ => _.Status }
 			};
 
@@ -232,14 +115,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 
 			var query = (
-				from h in DbContext.FinancialHistory
+				from h in DbContext.UserFinHistory
 				where 
 					h.UserId == user.Id &&
 					(
-						h.Status == FinancialHistoryStatus.Manual || 
-						h.Status == FinancialHistoryStatus.Processing ||
-						h.Status == FinancialHistoryStatus.Completed ||
-						h.Status == FinancialHistoryStatus.Failed
+						h.Status == UserFinHistoryStatus.Manual || 
+						h.Status == UserFinHistoryStatus.Processing ||
+						h.Status == UserFinHistoryStatus.Completed ||
+						h.Status == UserFinHistoryStatus.Failed
 					)
 				select h
 			);
@@ -256,17 +139,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				select new FiatHistoryViewItem() {
 					Type = i.Type.ToString().ToLower(),
 					Status = (
-						i.Status == FinancialHistoryStatus.Completed
+						i.Status == UserFinHistoryStatus.Completed
 						? 2 // success
-						: i.Status == FinancialHistoryStatus.Failed || (i.TimeExpires != null && i.TimeExpires <= nowTime)
+						: i.Status == UserFinHistoryStatus.Failed || (i.TimeExpires != null && i.TimeExpires <= nowTime)
 							? 3 // cancelled/failed
 							: 1 // pending
 					),
 					Comment = i.Comment,
-					EthTxId = i.RelEthTransactionId,
-					Amount = i.AmountCents / 100d,
-					Fee = i.FeeCents > 0 ? (i.FeeCents / 100d) : (double?)null,
+					Src = i.Source,
+					Dst = i.Destination,
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
+					EthTxId = i.RelEthTransactionId,
 				}
 			;
 

@@ -42,8 +42,8 @@ namespace Goldmint.WebApplication.Core {
 				var newUser = new User() {
 					UserName = email,
 					Email = email,
-					TFASecret = tfaSecret,
-					JWTSalt = GenerateJwtSalt(),
+					TfaSecret = tfaSecret,
+					JwtSalt = GenerateJwtSalt(),
 					EmailConfirmed = emailConfirmed,
 					AccessRights = 0,
 
@@ -68,7 +68,7 @@ namespace Goldmint.WebApplication.Core {
 
 						newUser.UserName = name;
 						newUser.NormalizedUserName = name.ToUpperInvariant();
-						newUser.JWTSalt = GenerateJwtSalt();
+						newUser.JwtSalt = GenerateJwtSalt();
 						newUser.AccessRights = (long)AccessRights.Client;
 
 						await dbContext.SaveChangesAsync();
@@ -257,7 +257,7 @@ namespace Goldmint.WebApplication.Core {
 			}
 
 			public override Task<string> GenerateTwoFactorTokenAsync(User user, string tokenProvider) {
-				return Task.FromResult(Tokens.GoogleAuthenticator.Generate(user.TFASecret));
+				return Task.FromResult(Tokens.GoogleAuthenticator.Generate(user.TfaSecret));
 			}
 
 			public override Task<IList<string>> GetValidTwoFactorProvidersAsync(User user) {
@@ -265,7 +265,7 @@ namespace Goldmint.WebApplication.Core {
 			}
 
 			public override Task<bool> VerifyTwoFactorTokenAsync(User user, string tokenProvider, string token) {
-				return Task.FromResult(Tokens.GoogleAuthenticator.Validate(token, user.TFASecret));
+				return Task.FromResult(Tokens.GoogleAuthenticator.Validate(token, user.TfaSecret));
 			}
 		}
 	}

@@ -31,7 +31,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userLocale = GetUserLocale();
 
 			// first check tfa
-			if (user.TwoFactorEnabled && !Core.Tokens.GoogleAuthenticator.Validate(model.TfaCode, user.TFASecret)) {
+			if (user.TwoFactorEnabled && !Core.Tokens.GoogleAuthenticator.Validate(model.TfaCode, user.TfaSecret)) {
 				return APIResponse.BadRequest(nameof(model.TfaCode), "Invalid 2fa code");
 			}
 

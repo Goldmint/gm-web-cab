@@ -40,7 +40,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 				var contract = web3.Eth.GetContract(
-					FiatContractABI,
+					FiatContractAbi,
 					FiatContractAddress
 				);
 				var func = contract.GetFunction("addFiatTransaction");
@@ -74,7 +74,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 				var contract = web3.Eth.GetContract(
-					FiatContractABI,
+					FiatContractAbi,
 					FiatContractAddress
 				);
 				var func = contract.GetFunction("processRequest");
@@ -96,7 +96,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractABI,
+				FiatContractAbi,
 				FiatContractAddress
 			);
 			var func = contract.GetFunction("cancelRequest");
@@ -128,7 +128,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 				var contract = web3.Eth.GetContract(
-					FiatContractABI,
+					FiatContractAbi,
 					FiatContractAddress
 				);
 				var func = contract.GetFunction("processInternalRequest");
@@ -160,7 +160,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractABI,
+				FiatContractAbi,
 				FiatContractAddress
 			);
 			var func = contract.GetFunction("transferGoldFromHotWallet");

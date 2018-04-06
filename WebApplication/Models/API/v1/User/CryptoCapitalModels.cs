@@ -81,7 +81,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.CryptoCapitalModels {
 				;
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
+				.Must(Common.ValidationRules.BeValidTfaCode).WithMessage("Invalid format")
 				;
 
 			return v.Validate(this);

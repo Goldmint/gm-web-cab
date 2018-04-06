@@ -1,38 +1,46 @@
 ﻿using Goldmint.Common;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using Goldmint.DAL.Models.Identity;
 
 namespace Goldmint.DAL.Models {
+/*
+	[Table("gm_buy_gold_asset")]
+	public class BuyGoldForAsset : BaseUserFinHistoryEntity, IConcurrentUpdate {
 
-	[Table("gm_deposit")]
-	public class Deposit : BaseFinancialHistoryEntity, IConcurrentUpdate {
+		[Column("origin"), Required]
+		public BuyGoldForAssetOrigin Origin { get; set; }
 
 		[Column("status"), Required]
-		public DepositStatus Status { get; set; }
+		public CryptoDepositStatus Status { get; set; }
 
-		[Column("source"), Required]
-		public DepositSource Source { get; set; }
+		[Column("address"), MaxLength(128), Required]
+		public string Address { get; set; }
 
-		[Column("source_id")]
-		public long SourceId { get; set; }
+		[Column("requested_amount"), MaxLength(64), Required]
+		public string RequestedAmount { get; set; }
 
 		[Column("currency"), Required]
 		public FiatCurrency Currency { get; set; }
 
-		[Column("amount"), Required]
-		public long AmountCents { get; set; }
+		[Column("rate"), Required]
+		public long RateCents { get; set; }
+
+		[Column("origin_txid"), MaxLength(256)]
+		public string TransactionId { get; set; }
+		
+		[Column("amount"), MaxLength(128)]
+		public string Amount { get; set; }
 
 		[Column("desk_ticket_id"), MaxLength(32), Required]
 		public string DeskTicketId { get; set; }
 
-		[Column("eth_transaction_id"), MaxLength(66)]
-		public string EthTransactionId { get; set; }
-
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
+
+		[Column("time_prepared")]
+		public DateTime? TimePrepared { get; set; }
 
 		[Column("time_next_check"), Required]
 		public DateTime TimeNextCheck { get; set; }
@@ -49,4 +57,5 @@ namespace Goldmint.DAL.Models {
 			this.ConcurrencyStamp = ConcurrentStamp.GetGuid();
 		}
 	}
+*/
 }

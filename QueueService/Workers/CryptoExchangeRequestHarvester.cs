@@ -5,10 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Finance.Fiat;
 
 namespace Goldmint.QueueService.Workers {
-
+	/*
 	public class CryptoExchangeRequestHarvester : BaseWorker {
 
 		private readonly BigInteger _blocksPerRound;
@@ -104,5 +103,5 @@ namespace Goldmint.QueueService.Workers {
 			}
 			
 		}
-	}
+	}*/
 }

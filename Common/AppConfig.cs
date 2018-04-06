@@ -215,18 +215,11 @@ namespace Goldmint.Common {
 				public string BenSwift { get; set; } = "";
 			}
 
-			public CryptoExchangeSection CryptoExchange { get; set; } = new CryptoExchangeSection();
-			public class CryptoExchangeSection {
-
-				public double DepositFiatConversionBuffer { get; set; } = 0.02d;
-				public double WithdrawFiatConversionBuffer { get; set; } = 0.02d;
-			}
-
 			public TimeLimitsSection TimeLimits { get; set; } = new TimeLimitsSection();
 			public class TimeLimitsSection {
 
-				public long BuySellRequestExpireSec { get; set; } = 3600;
-				public long CryptoExchangeRequestExpireSec { get; set; } = 3600;
+				public long BuyGoldForEthRequestTimeoutSec { get; set; } = 1800;
+				//public long CryptoExchangeRequestExpireSec { get; set; } = 3600;
 			}
 
 			public CryptoCapitalDataSection CryptoCapitalData { get; set; } = new CryptoCapitalDataSection();

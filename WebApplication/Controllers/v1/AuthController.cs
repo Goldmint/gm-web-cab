@@ -134,7 +134,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				}
 
 				// by code
-				if (GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
+				if (GoogleAuthenticator.Validate(model.Code, user.TfaSecret)) {
 					return OnSignInResultCheck(
 						services: HttpContext.RequestServices,
 						result: Microsoft.AspNetCore.Identity.SignInResult.Success, 
@@ -189,7 +189,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var user = await GetUserFromDb();
 
 			// new jwt salt
-			user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+			user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success();
@@ -229,7 +229,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// new jwt salt
-					user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+					user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
 					DbContext.SaveChanges();
 
 					// auth token

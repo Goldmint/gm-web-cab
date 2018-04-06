@@ -1,6 +1,4 @@
-﻿using Goldmint.CoreLogic.Services.Acquiring;
-using Goldmint.CoreLogic.Services.Acquiring.Impl;
-using Goldmint.CoreLogic.Services.Blockchain;
+﻿using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
@@ -58,15 +56,6 @@ namespace Goldmint.QueueService {
 
 			// ticket desk
 			services.AddScoped<ITicketDesk, DBTicketDesk>();
-
-			// acquirer
-			services.AddScoped<ICardAcquirer>(fac => {
-				return new The1stPayments(opts => {
-					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
-					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
-					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
-				}, _loggerFactory);
-			});
 
 			// notifications
 			services.AddSingleton<INotificationQueue, DBNotificationQueue>();

@@ -13,29 +13,21 @@ namespace Goldmint.DAL {
 
 	public class ApplicationDbContext : IdentityDbContext<User, Role, long, UserClaim, UserRole, UserLogin, RoleClaim, UserToken> {
 
-		public DbSet<Settings> Settings { get; set; }
-		public DbSet<UserOptions> UserOptions { get; set; }
-		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
-		public DbSet<UserVerification> UserVerification { get; set; }
-		public DbSet<Models.Mutex> Mutex { get; set; }
-		public DbSet<Card> Card { get; set; }
-		public DbSet<CardPayment> CardPayment { get; set; }
-		public DbSet<SwiftRequest> SwiftRequest { get; set; }
-		public DbSet<Deposit> Deposit { get; set; }
-		public DbSet<Withdraw> Withdraw { get; set; }
-		public DbSet<Notification> Notification { get; set; }
-		public DbSet<UserActivity> UserActivity { get; set; }
-		public DbSet<BuyRequest> BuyRequest { get; set; }
-		public DbSet<SellRequest> SellRequest { get; set; }
-		public DbSet<TransferRequest> TransferRequest { get; set; }
-		public DbSet<FinancialHistory> FinancialHistory { get; set; }
-		public DbSet<UserOpLog> UserOpLog { get; set; }
-		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<BannedCountry> BannedCountry { get; set; }
+		public DbSet<BuyGoldRequest> BuyGoldRequest { get; set; }
+		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
+		public DbSet<Models.Mutex> Mutex { get; set; }
+		public DbSet<Notification> Notification { get; set; }
+		public DbSet<Settings> Settings { get; set; }
 		public DbSet<SignedDocument> SignedDocument { get; set; }
-		public DbSet<CryptoDeposit> CryptoDeposit { get; set; }
+		public DbSet<TransferGoldRequest> TransferGoldRequest { get; set; }
+		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<TransparencyStat> TransparencyStat { get; set; }
-		public DbSet<SwiftTemplate> SwiftTemplate { get; set; }
+		public DbSet<UserActivity> UserActivity { get; set; }
+		public DbSet<UserFinHistory> UserFinHistory { get; set; }
+		public DbSet<UserOpLog> UserOpLog { get; set; }
+		public DbSet<UserOptions> UserOptions { get; set; }
+		public DbSet<UserVerification> UserVerification { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}

@@ -18,13 +18,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("tfa/view")]
-		[ProducesResponseType(typeof(TFAView), 200)]
+		[ProducesResponseType(typeof(TfaView), 200)]
 		public async Task<APIResponse> TFAView() {
 			var user = await GetUserFromDb();
 
 			// randomize tfa secret
 			if (!user.TwoFactorEnabled) {
-				user.TFASecret = Core.UserAccount.GenerateTfaSecret();
+				user.TfaSecret = Core.UserAccount.GenerateTfaSecret();
 				await DbContext.SaveChangesAsync();
 			}
 
@@ -36,8 +36,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("tfa/edit")]
-		[ProducesResponseType(typeof(TFAView), 200)]
-		public async Task<APIResponse> TFAEdit([FromBody] TFAEditModel model) {
+		[ProducesResponseType(typeof(TfaView), 200)]
+		public async Task<APIResponse> TFAEdit([FromBody] TfaEditModel model) {
 			
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -51,13 +51,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var makeChange = user.TwoFactorEnabled != model.Enable;
 
 			if (makeChange) {
-				if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
+				if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TfaSecret)) {
 					return APIResponse.BadRequest(nameof(model.Code), "Invalid 2fa code");
 				}
 				user.TwoFactorEnabled = model.Enable;
 			}
 
-			user.UserOptions.InitialTFAQuest = true;
+			user.UserOptions.InitialTfaQuest = true;
 			await DbContext.SaveChangesAsync();
 
 			// notify
@@ -106,9 +106,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		// ---
 
 		[NonAction]
-		private TFAView MakeTFASetupView(DAL.Models.Identity.User user) {
+		private TfaView MakeTFASetupView(DAL.Models.Identity.User user) {
 
-			var ret = new TFAView() {
+			var ret = new TfaView() {
 				Enabled = user.TwoFactorEnabled,
 				QrData = null,
 				Secret = null,
@@ -116,7 +116,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			if (!user.TwoFactorEnabled) {
 
-				var secretBytes = System.Text.Encoding.ASCII.GetBytes(user.TFASecret);
+				var secretBytes = System.Text.Encoding.ASCII.GetBytes(user.TfaSecret);
 				var secretBase32 = Wiry.Base32.Base32Encoding.Standard.GetString(secretBytes).Replace("=", "").ToUpper();
 
 				ret.QrData = Core.Tokens.GoogleAuthenticator.MakeQRCode(AppConfig.Auth.TwoFactorIssuer, user.UserName, secretBase32);

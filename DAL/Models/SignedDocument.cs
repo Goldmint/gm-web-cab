@@ -14,7 +14,7 @@ namespace Goldmint.DAL.Models {
 		[Column("is_signed"), Required]
 		public bool IsSigned { get; set; }
 
-		[Column("reference_id"), Required, MaxLength(32)]
+		[Column("reference_id"), Required, MaxLength(FieldMaxLength.Guid)]
 		public string ReferenceId { get; set; }
 
 		[Column("callback_status"), MaxLength(16)]

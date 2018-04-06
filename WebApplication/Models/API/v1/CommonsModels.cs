@@ -18,18 +18,6 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 
 	// ---
 
-	public class EthRateView {
-
-		/// <summary>
-		/// USD amount per asset
-		/// </summary>
-		[Required]
-		public double Usd { get; set; }
-
-	}
-
-	// ---
-
 	public class TransparencyModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {

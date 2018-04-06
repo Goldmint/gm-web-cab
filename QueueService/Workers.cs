@@ -9,8 +9,8 @@ namespace Goldmint.QueueService {
 	public partial class Program {
 
 		private static readonly int DefaultWorkerRowsPerRound = 100; // TODO: move to args
-		private static readonly int DefaultCryptoHarvesterBlocksPerRound = 10; // TODO: move to args
-		private static readonly int DefaultCryptoHarvesterConfirmationsRequired = 2; // TODO: move to args
+		// private static readonly int DefaultCryptoHarvesterBlocksPerRound = 10; // TODO: move to args
+		// private static readonly int DefaultCryptoHarvesterConfirmationsRequired = 2; // TODO: move to args
 
 		/// <summary>
 		/// Launch workers
@@ -30,7 +30,6 @@ namespace Goldmint.QueueService {
 
 					// doesn't require ethereum at all
 					new NotificationSender(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(3)),
-					new CardPaymentUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(30)),
 					new GoldRateUpdater().Period(TimeSpan.FromSeconds(3)),
 				});
 			}
@@ -40,16 +39,16 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// does require ethereum (reader)
-					new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(15)),
-					new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(3)),
+					//new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(15)),
+					//new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(3)),
 
 					// does require ethereum (writer and reader)
-					new DepositUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					new WithdrawUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					new BuyingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					//new DepositUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					//new WithdrawUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					//new BuyingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new TransferRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					new CryptoDepositRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					//new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					//new CryptoDepositRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 
 				});
 			}

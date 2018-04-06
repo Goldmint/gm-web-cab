@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
-
+	/*
 	public class ExchangeRequestHarvester : BaseWorker {
 
 		private IServiceProvider _services;
@@ -93,5 +93,5 @@ namespace Goldmint.QueueService.Workers {
 				}
 			}
 		}
-	}
+	}*/
 }

@@ -99,7 +99,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 			var v = new InlineValidator<TfaModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Code)
-				.Must(Common.ValidationRules.BeValidTFACode).WithMessage("Invalid format")
+				.Must(Common.ValidationRules.BeValidTfaCode).WithMessage("Invalid format")
 			;
 
 			return v.Validate(this);
@@ -108,6 +108,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 
 	// ---
 	
+	// REMOVE
 	public class LimitsView {
 
 		/// <summary>
@@ -308,6 +309,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 
 	// ---
 
+	// REMOVE / RENAME
 	public class FiatHistoryModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -339,28 +341,28 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		/// </summary>
 		[Required]
 		public string Comment { get; set; }
-		
-		/// <summary>
-		/// Ethereum transaction ID to track, optional
-		/// </summary>
-		public string EthTxId { get; set; }
 
 		/// <summary>
-		/// Amount
+		/// Operation source
 		/// </summary>
 		[Required]
-		public double Amount { get; set; }
-
-		/// <summary>
-		/// Fee, optional
-		/// </summary>
-		public double? Fee { get; set; }
+		public string Src { get; set; }
 
 		/// <summary>
 		/// Unixtime
 		/// </summary>
 		[Required]
 		public long Date { get; set; }
+
+		/// <summary>
+		/// Operation destination, optional
+		/// </summary>
+		public string Dst { get; set; }
+
+		/// <summary>
+		/// Ethereum transaction ID to track, optional
+		/// </summary>
+		public string EthTxId { get; set; }
 	}
 
 	// ---

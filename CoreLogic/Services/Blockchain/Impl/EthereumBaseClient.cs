@@ -14,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		protected Nethereum.JsonRpc.Client.IClient JsonRpcLogsClient { get; private set; }
 
 		protected string FiatContractAddress { get; private set; }
-		protected string FiatContractABI { get; private set; }
+		protected string FiatContractAbi { get; private set; }
 		protected string GoldTokenContractAddress { get; private set; }
 		protected string MntpTokenContractAddress { get; private set; }
 
@@ -24,7 +24,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			Logger = logFactory.GetLoggerFor(this);
 
 			FiatContractAddress = appConfig.Services.Ethereum.FiatContractAddress;
-			FiatContractABI = appConfig.Services.Ethereum.FiatContractAbi;
+			FiatContractAbi = appConfig.Services.Ethereum.FiatContractAbi;
 
 			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
 			JsonRpcLogsClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));
@@ -34,7 +34,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 				var web3 = new Web3(JsonRpcClient);
 				var contract = web3.Eth.GetContract(
-					FiatContractABI,
+					FiatContractAbi,
 					FiatContractAddress
 				);
 

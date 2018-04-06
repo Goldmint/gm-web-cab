@@ -1,5 +1,4 @@
-﻿using Goldmint.CoreLogic.Finance.Fiat;
-using Goldmint.DAL;
+﻿using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
-
+/*
 	public class WithdrawUpdater : BaseWorker {
 
 		private readonly int _rowsPerRound;
@@ -39,7 +38,7 @@ namespace Goldmint.QueueService.Workers {
 				d.TimeNextCheck <= nowTime
 				select d
 			)
-				.Include(_ => _.RefFinancialHistory)
+				.Include(_ => _.RefUserFinHistory)
 				.Include(_ => _.User)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -56,4 +55,5 @@ namespace Goldmint.QueueService.Workers {
 			}
 		}
 	}
+*/
 }

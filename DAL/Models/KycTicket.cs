@@ -7,7 +7,7 @@ namespace Goldmint.DAL.Models {
 	[Table("gm_kyc_shuftipro_ticket")]
 	public class KycTicket : BaseUserEntity {
 
-		[Column("reference_id"), Required, MaxLength(32)]
+		[Column("reference_id"), Required, MaxLength(FieldMaxLength.Guid)]
 		public string ReferenceId { get; set; }
 
 		[Column("is_verified"), Required]

@@ -48,7 +48,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					appConfig: AppConfig,
 					entityId: result.User.UserName,
 					audience: audience,
-					securityStamp: result.User.JWTSalt,
+					securityStamp: result.User.JwtSalt,
 					area: Common.JwtArea.Registration, 
 					validFor: TimeSpan.FromDays(3)
 				);
@@ -98,14 +98,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				expectedArea: Common.JwtArea.Registration,
 				validStamp: async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
-					return user?.JWTSalt;
+					return user?.JwtSalt;
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
 			user.EmailConfirmed = true;
-			user.JWTSalt = Core.UserAccount.GenerateJwtSalt();
+			user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
 			await DbContext.SaveChangesAsync();
 
 			// load user's options

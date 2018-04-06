@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Goldmint.Common;
 
 namespace Goldmint.QueueService.Workers {
-
+/*
 	public class CryptoDepositRequestProcessor : BaseWorker {
 
 		private readonly int _rowsPerRound;
@@ -53,5 +53,5 @@ namespace Goldmint.QueueService.Workers {
 				await CoreLogic.Finance.Fiat.CryptoExchangeQueue.ProcessDepositReqeust(_services, row.Id);
 			}
 		}
-	}
+	}*/
 }

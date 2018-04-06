@@ -1,6 +1,4 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Acquiring;
-using Goldmint.CoreLogic.Services.Acquiring.Impl;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
 using Goldmint.CoreLogic.Services.KYC;
@@ -188,15 +186,6 @@ namespace Goldmint.WebApplication {
 				return new ShuftiProKycProvider(opts => {
 					opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
 					opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
-				}, _loggerFactory);
-			});
-
-			// cc acquirer
-			services.AddScoped<ICardAcquirer>(fac => {
-				return new The1stPayments(opts => {
-					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
-					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
-					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
 				}, _loggerFactory);
 			});
 

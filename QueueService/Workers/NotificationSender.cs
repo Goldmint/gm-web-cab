@@ -1,5 +1,4 @@
-﻿using Goldmint.CoreLogic.Finance.Fiat;
-using Goldmint.CoreLogic.Services.Mutex;
+﻿using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.DAL;

@@ -17,13 +17,13 @@ namespace Goldmint.DAL.Models {
 		[Column("status"), Required]
 		public UserOpLogStatus Status { get; set; }
 
-		[Column("message"), MaxLength(512), Required]
+		[Column("message"), MaxLength(FieldMaxLength.Comment), Required]
 		public string Message { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 
-		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
+		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 
 		// ---

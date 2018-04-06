@@ -1,5 +1,4 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Acquiring;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.Localization;
@@ -9,7 +8,6 @@ using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.Ticket;
-using Goldmint.DAL;
 using Goldmint.WebApplication.Models;
 using Goldmint.WebApplication.Services.Cache;
 using Microsoft.AspNetCore.Hosting;
@@ -31,14 +29,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected AppConfig AppConfig { get; private set; }
 		protected IHostingEnvironment HostingEnvironment { get; private set; }
 		protected ILogger Logger { get; private set; }
-		protected ApplicationDbContext DbContext { get; private set; }
+		protected DAL.ApplicationDbContext DbContext { get; private set; }
 		protected IMutexHolder MutexHolder { get; private set; }
 		protected SignInManager<DAL.Models.Identity.User> SignInManager { get; private set; }
 		protected UserManager<DAL.Models.Identity.User> UserManager { get; private set; }
 		protected IKycProvider KycExternalProvider { get; private set; }
 		protected INotificationQueue EmailQueue { get; private set; }
 		protected ITemplateProvider TemplateProvider { get; private set; }
-		protected ICardAcquirer CardAcquirer { get; private set; }
 		protected ITicketDesk TicketDesk { get; private set; }
 		protected IEthereumReader EthereumObserver { get; private set; }
 		protected IGoldRateProvider GoldRateProvider { get; private set; }
@@ -54,14 +51,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			Logger = services.GetLoggerFor(this.GetType());
 			AppConfig = services.GetRequiredService<AppConfig>();
 			HostingEnvironment = services.GetRequiredService<IHostingEnvironment>();
-			DbContext = services.GetRequiredService<ApplicationDbContext>();
+			DbContext = services.GetRequiredService<DAL.ApplicationDbContext>();
 			MutexHolder = services.GetRequiredService<IMutexHolder>();
 			SignInManager = services.GetRequiredService<SignInManager<DAL.Models.Identity.User>>();
 			UserManager = services.GetRequiredService<UserManager<DAL.Models.Identity.User>>();
 			KycExternalProvider = services.GetRequiredService<IKycProvider>();
 			EmailQueue = services.GetRequiredService<INotificationQueue>();
 			TemplateProvider = services.GetRequiredService<ITemplateProvider>();
-			CardAcquirer = services.GetRequiredService<ICardAcquirer>();
 			TicketDesk = services.GetRequiredService<ITicketDesk>();
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
 			GoldRateProvider = services.GetRequiredService<IGoldRateProvider>();
@@ -148,7 +144,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					.Include(_ => _.UserOptions).ThenInclude(_ => _.DPADocument)
 					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
 					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
-					.Include(_ => _.Card)
 					.AsTracking()
 					.FirstAsync(user => user.NormalizedUserName == name)
 				;

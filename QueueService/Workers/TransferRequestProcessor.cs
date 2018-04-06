@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Goldmint.Common;
 
 namespace Goldmint.QueueService.Workers {
-
+	
 	public class TransferRequestProcessor : BaseWorker {
 
 		private readonly int _rowsPerRound;
@@ -33,9 +33,9 @@ namespace Goldmint.QueueService.Workers {
 			var nowTime = DateTime.UtcNow;
 
 			var rows = await (
-				from r in _dbContext.TransferRequest
+				from r in _dbContext.TransferGoldRequest
 				where 
-				(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm) &&
+				(r.Status == TransferGoldRequestStatus.Prepared || r.Status == TransferGoldRequestStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
 				select new { Id = r.Id }
 			)
@@ -50,7 +50,7 @@ namespace Goldmint.QueueService.Workers {
 
 				_dbContext.DetachEverything();
 
-				await CoreLogic.Finance.Tokens.GoldToken.ProcessHwTransferRequest(_services, row.Id);
+				await CoreLogic.Finance.GoldToken.ProcessHwTransferRequest(_services, row.Id);
 			}
 		}
 	}

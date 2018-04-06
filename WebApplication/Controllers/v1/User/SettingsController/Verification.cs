@@ -99,7 +99,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user);
 
 			// on tier-1 + KYC is not completed
-			if (userTier != UserTier.Tier1 || CoreLogic.User.HasKYCVerification(user.UserVerification)) {
+			if (userTier != UserTier.Tier1 || CoreLogic.User.HasKycVerification(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -170,7 +170,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userLocale = GetUserLocale();
 
 			// on tier-1 + KYC completed + agreement is not signed
-			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKYCVerification(user.UserVerification) || CoreLogic.User.HasSignedAgreement(user.UserVerification)) {
+			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKycVerification(user.UserVerification) || CoreLogic.User.HasSignedAgreement(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -202,7 +202,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				throw new ArgumentException("User must be specified");
 			}
 
-			var kycFinished = CoreLogic.User.HasKYCVerification(user.UserVerification);
+			var kycFinished = CoreLogic.User.HasKycVerification(user.UserVerification);
 			var kycPending =
 					!kycFinished &&
 					user.UserVerification?.LastKycTicket != null &&

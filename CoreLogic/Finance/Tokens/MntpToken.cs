@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Goldmint.CoreLogic.Finance.Tokens {
 
+/*
 	public static class MntpToken {
 
 		public static readonly int TokenPercision = 18;
@@ -80,4 +81,5 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			return (3L * cents / 100L);
 		}
 	}
+*/
 }

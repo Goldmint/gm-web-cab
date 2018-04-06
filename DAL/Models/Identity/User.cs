@@ -62,13 +62,13 @@ namespace Goldmint.DAL.Models.Identity {
 		// ---
 
 		[Column("jwt_salt"), MaxLength(64), Required]
-		public string JWTSalt { get; set; }
+		public string JwtSalt { get; set; }
 
 		[Column("access_rights"), Required]
 		public long AccessRights { get; set; }
 
 		[Column("tfa_secret"), MaxLength(32), Required]
-		public string TFASecret { get; set; }
+		public string TfaSecret { get; set; }
 
 		[Column("time_registered"), Required]
 		public DateTime TimeRegistered { get; set; }
@@ -78,17 +78,10 @@ namespace Goldmint.DAL.Models.Identity {
 		public virtual UserOptions UserOptions { get; set; }
 		public virtual UserVerification UserVerification { get; set; }
 		public virtual IEnumerable<KycTicket> KycShuftiProTicket { get; set; }
-		public virtual IEnumerable<Card> Card { get; set; }
-		public virtual IEnumerable<CardPayment> CardPayment { get; set; }
-		public virtual IEnumerable<Deposit> Deposit { get; set; }
-		public virtual IEnumerable<Withdraw> Withdraw { get; set; }
 		public virtual IEnumerable<UserActivity> UserActivity { get; set; }
-		public virtual IEnumerable<BuyRequest> BuyRequest { get; set; }
-		public virtual IEnumerable<SellRequest> SellRequest { get; set; }
-		public virtual IEnumerable<FinancialHistory> FinancialHistory { get; set; }
+		public virtual IEnumerable<BuyGoldRequest> BuyRequest { get; set; }
+		public virtual IEnumerable<UserFinHistory> FinancialHistory { get; set; }
 		public virtual IEnumerable<UserOpLog> UserOpLog { get; set; }
 		public virtual IEnumerable<SignedDocument> SignedDocument { get; set; }
-		public virtual IEnumerable<CryptoDeposit> CryptoDeposit { get; set; }
-		public virtual IEnumerable<SwiftTemplate> SwiftTemplate { get; set; }
 	}
 }

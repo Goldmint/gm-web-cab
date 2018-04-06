@@ -5,22 +5,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_transfer_request")]
-	public class TransferRequest : BaseFinancialHistoryEntity, IConcurrentUpdate {
+	[Table("gm_trans_gold_request")]
+	public class TransferGoldRequest : BaseUserFinHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
-		public GoldExchangeRequestStatus Status { get; set; }
+		public TransferGoldRequestStatus Status { get; set; }
 
-		[Column("address"), MaxLength(64), Required]
+		[Column("address"), MaxLength(FieldMaxLength.BlockchainMaxAddress), Required]
 		public string DestinationAddress { get; set; }
 
-		[Column("amount_wei"), MaxLength(64), Required]
+		[Column("amount_wei"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
 		public string AmountWei { get; set; }
 
-		[Column("eth_transaction_id"), MaxLength(66)]
+		[Column("eth_transaction_id"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
 		public string EthTransactionId { get; set; }
 
-		[Column("desk_ticket_id"), MaxLength(32), Required]
+		[Column("desk_ticket_id"), MaxLength(FieldMaxLength.Guid), Required]
 		public string DeskTicketId { get; set; }
 
 		[Column("time_created"), Required]
@@ -32,7 +32,7 @@ namespace Goldmint.DAL.Models {
 		[Column("time_completed")]
 		public DateTime? TimeCompleted { get; set; }
 
-		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
+		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 
 		// ---

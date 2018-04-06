@@ -15,10 +15,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Goldmint.CoreLogic.Services.Blockchain;
 
-namespace Goldmint.CoreLogic.Finance.Tokens {
+namespace Goldmint.CoreLogic.Finance {
 
 	public static class GoldToken {
 
+		/*
 		public static readonly int TokenPercision = 18;
 		public static readonly decimal TokenPercisionMultiplier = (decimal)Math.Pow(10d, (double)TokenPercision);
 
@@ -350,7 +351,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
-						.Include(_ => _.RefFinancialHistory)
+						.Include(_ => _.RefUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -412,7 +413,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
-							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
+							request.RefUserFinHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -442,8 +443,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								request.RefUserFinHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -500,7 +501,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
 						select r
 					)
-						.Include(_ => _.RefFinancialHistory)
+						.Include(_ => _.RefUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -562,7 +563,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
-							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
+							request.RefUserFinHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -593,8 +594,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								request.RefUserFinHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -654,7 +655,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.RefFinancialHistory)
+						.Include(_ => _.RefUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -712,7 +713,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
-							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
+							request.RefUserFinHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -742,8 +743,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								request.RefUserFinHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -801,7 +802,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.RefFinancialHistory)
+						.Include(_ => _.RefUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -859,7 +860,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amountCents: request.FiatAmountCents,
 								centsPerGoldToken: adjust.GoldRateCents
 							);
-							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
+							request.RefUserFinHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -890,8 +891,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								request.RefUserFinHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
@@ -918,7 +919,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				return false;
 			});
 		}
-
+		*/
 		/// <summary>
 		/// Post blockchain transaction for request
 		/// </summary>
@@ -941,14 +942,14 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				if (ok) {
 
 					var request = await (
-						from r in dbContext.TransferRequest
+						from r in dbContext.TransferGoldRequest
 						where
 							r.Id == requestId &&
-							(r.Status == GoldExchangeRequestStatus.Prepared || r.Status == GoldExchangeRequestStatus.BlockchainConfirm)
+							(r.Status == TransferGoldRequestStatus.Prepared || r.Status == TransferGoldRequestStatus.BlockchainConfirm)
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.RefFinancialHistory)
+						.Include(_ => _.RefUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -963,10 +964,10 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeCreated, TimeSpan.FromSeconds(10), 4);
 
 						// initiate blockchain transaction
-						if (request.Status == GoldExchangeRequestStatus.Prepared) {
+						if (request.Status == TransferGoldRequestStatus.Prepared) {
 
 							// update status to prevent double spending
-							request.Status = GoldExchangeRequestStatus.BlockchainInit;
+							request.Status = TransferGoldRequestStatus.BlockchainInit;
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -980,11 +981,11 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							// cancelled
 							if (amount < 1 || amount > goldBalance) {
 
-								request.Status = GoldExchangeRequestStatus.Cancelled;
+								request.Status = TransferGoldRequestStatus.Failed;
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has been cancelled. Invalid amount specified");
+									await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request failed. Invalid amount specified");
 								}
 								catch { }
 
@@ -997,7 +998,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 								amount: amount,
 								userId: request.User.UserName
 							);
-							request.RefFinancialHistory.RelEthTransactionId = request.EthTransactionId;
+							request.RefUserFinHistory.RelEthTransactionId = request.EthTransactionId;
 
 							try {
 								await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
@@ -1005,7 +1006,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							catch { }
 
 							// set new status
-							request.Status = GoldExchangeRequestStatus.BlockchainConfirm;
+							request.Status = TransferGoldRequestStatus.BlockchainConfirm;
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -1016,7 +1017,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 							return true;
 						}
 
-						if (request.Status == GoldExchangeRequestStatus.BlockchainConfirm) {
+						if (request.Status == TransferGoldRequestStatus.BlockchainConfirm) {
 
 							var result = await ethereumReader.CheckTransaction(request.EthTransactionId);
 
@@ -1025,26 +1026,26 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 
 								var success = result == EthTransactionStatus.Success;
 
-								request.Status = success ? GoldExchangeRequestStatus.Success : GoldExchangeRequestStatus.Failed;
+								request.Status = success ? TransferGoldRequestStatus.Success : TransferGoldRequestStatus.Failed;
 								request.TimeCompleted = DateTime.UtcNow;
 
-								request.RefFinancialHistory.Status = success ? FinancialHistoryStatus.Completed : FinancialHistoryStatus.Failed;
-								request.RefFinancialHistory.TimeCompleted = request.TimeCompleted;
+								request.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+								request.RefUserFinHistory.TimeCompleted = request.TimeCompleted;
 
 								await dbContext.SaveChangesAsync();
 
 								try {
-									if (request.Status == GoldExchangeRequestStatus.Success) {
+									if (request.Status == TransferGoldRequestStatus.Success) {
 										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
 									}
-									if (request.Status == GoldExchangeRequestStatus.Failed) {
+									if (request.Status == TransferGoldRequestStatus.Failed) {
 										await ticketDesk.UpdateTicket(request.DeskTicketId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
 									}
 								}
 								catch { }
 							}
 
-							return request.Status == GoldExchangeRequestStatus.Success;
+							return request.Status == TransferGoldRequestStatus.Success;
 						}
 
 					}
@@ -1056,6 +1057,8 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 				return false;
 			});
 		}
+
+		/*
 
 		// ---
 
@@ -1146,5 +1149,7 @@ namespace Goldmint.CoreLogic.Finance.Tokens {
 			NotFound,
 			MutexFailure,
 		}
+		*/
 	}
+
 }

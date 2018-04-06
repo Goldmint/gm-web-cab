@@ -97,7 +97,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
 				
 				// gm fields
-				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.JWTSalt)),
+				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.JwtSalt)),
 				new Claim(GMIdField, user.UserName),
 				new Claim(GMRightsField, rightsMask.ToString()),
 				new Claim(GMAreaField, area.ToString().ToLower()),
@@ -229,7 +229,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 						var sstamp = await (
 							from u in dbContext.Users
 							where u.UserName == userName
-							select ObtainSecurityStamp(u.JWTSalt)
+							select ObtainSecurityStamp(u.JwtSalt)
 						)
 							.AsNoTracking()
 							.FirstOrDefaultAsync()

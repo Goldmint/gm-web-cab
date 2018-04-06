@@ -28,24 +28,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				}
 			);
 		}
-		
-		/// <summary>
-		/// Price per ETH
-		/// </summary>
-		[AnonymousAccess]
-		[HttpGet, Route("ethRate")]
-		[ProducesResponseType(typeof(EthRateView), 200)]
-		public async Task<APIResponse> EthRate() {
-
-			var usd = await CryptoassetRateProvider.GetRate(CryptoExchangeAsset.ETH, FiatCurrency.USD);
-			usd = usd - (long)Math.Round(usd * AppConfig.Constants.CryptoExchange.DepositFiatConversionBuffer);
-
-			return APIResponse.Success(
-				new EthRateView() {
-					Usd = usd / 100d,
-				}
-			);
-		}
 
 		/// <summary>
 		/// Transparency

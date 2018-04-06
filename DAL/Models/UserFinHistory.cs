@@ -7,20 +7,20 @@ using System.Text;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_financial_history")]
-	public class FinancialHistory : BaseUserEntity, IConcurrentUpdate {
+	[Table("gm_user_finhistory")]
+	public class UserFinHistory : BaseUserEntity, IConcurrentUpdate {
 
 		[Column("type"), Required]
-		public FinancialHistoryType Type { get; set; }
+		public UserFinHistoryType Type { get; set; }
 
 		[Column("status"), Required]
-		public FinancialHistoryStatus Status { get; set; }
+		public UserFinHistoryStatus Status { get; set; }
 
-		[Column("amount"), Required]
-		public long AmountCents { get; set; }
+		[Column("source"), MaxLength(128), Required]
+		public string Source { get; set; }
 
-		[Column("fee"), Required]
-		public long FeeCents { get; set; }
+		[Column("destination"), MaxLength(128)]
+		public string Destination { get; set; }
 
 		[Column("comment"), MaxLength(512), Required]
 		public string Comment { get; set; }
@@ -40,7 +40,7 @@ namespace Goldmint.DAL.Models {
 		[Column("time_completed")]
 		public DateTime? TimeCompleted { get; set; }
 
-		[Column("concurrency_stamp"), MaxLength(64), ConcurrencyCheck]
+		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 
 		// ---

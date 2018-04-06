@@ -8,6 +8,6 @@ namespace Goldmint.CoreLogic.Services.Rate {
 		/// <summary>
 		/// Price in cents per asset
 		/// </summary>
-		Task<SafeRate> GetRate(CryptoExchangeAsset asset, FiatCurrency currency);
+		Task<SafeRate> GetRate(CryptoCurrency asset, FiatCurrency currency);
 	}
 }
