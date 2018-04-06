@@ -43,6 +43,8 @@ export class EthereumService {
   private _obsMntpBalance: Observable<BigNumber> = this._obsMntpBalanceSubject.asObservable();
   private _obsHotGoldBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsHotGoldBalance: Observable<BigNumber> = this._obsHotGoldBalanceSubject.asObservable();
+  private _obsEthBalanceSubject = new BehaviorSubject<BigNumber>(null);
+  private _obsEthBalance: Observable<BigNumber> = this._obsEthBalanceSubject.asObservable();
 
   constructor(
     private _userService: UserService
@@ -102,6 +104,7 @@ export class EthereumService {
       // check via eth
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
+      this.updateEthBalance(this._lastAddress);
     }
 
     this.updateUsdBalance();
@@ -152,6 +155,16 @@ export class EthereumService {
     }
   }
 
+  private updateEthBalance(addr: string) {
+    if (addr == null || this._contractGold == null) {
+      this._obsEthBalanceSubject.next(null);
+    } else {
+      this._contractGold._eth.getBalance(addr, (err, res) => {
+        this._obsEthBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
   // ---
 
   public isValidAddress(addr: string): boolean {
@@ -180,6 +193,10 @@ export class EthereumService {
 
   public getObservableMntpBalance(): Observable<BigNumber> {
     return this._obsMntpBalance;
+  }
+
+  public getObservableEthBalance(): Observable<BigNumber> {
+    return this._obsEthBalance;
   }
 
   // ---
