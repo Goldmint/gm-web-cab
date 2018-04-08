@@ -229,9 +229,42 @@ namespace Goldmint.Common {
 
 	#region GOLD
 
+	public enum EthereumOperationStatus {
+
+		/// <summary>
+		/// Enqueued
+		/// </summary>
+		Initial = 1,
+
+		/// <summary>
+		/// Prepared for processing
+		/// </summary>
+		Prepared,
+
+		/// <summary>
+		/// Sending request to blockchain
+		/// </summary>
+		BlockchainInit,
+
+		/// <summary>
+		/// Waiting confirmation from blockchain
+		/// </summary>
+		BlockchainConfirm,
+
+		/// <summary>
+		/// Success
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Failed
+		/// </summary>
+		Failed,
+	}
+
 	public enum BuyGoldRequestInput {
 
-		EthereumDirectPayment = 1,
+		EthereumContractPayment = 1,
 	}
 
 	public enum BuyGoldRequestDestination {
@@ -275,42 +308,9 @@ namespace Goldmint.Common {
 		Failed,
 	}
 
-	public enum TransferGoldRequestStatus {
+	public enum IssueGoldOrigin {
 
-		/// <summary>
-		/// Initially enqueued
-		/// </summary>
-		Unconfirmed = 1,
-		
-		/// <summary>
-		/// Confirmed by user
-		/// </summary>
-		Confirmed,
-
-		/// <summary>
-		/// Prepared for processing
-		/// </summary>
-		Prepared,
-
-		/// <summary>
-		/// Sending request to blockchain
-		/// </summary>
-		BlockchainInit,
-
-		/// <summary>
-		/// Waiting confirmation from blockchain
-		/// </summary>
-		BlockchainConfirm,
-
-		/// <summary>
-		/// Success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Failed
-		/// </summary>
-		Failed,
+		BuyingRequest = 1,
 	}
 
 	/*
@@ -600,7 +600,7 @@ namespace Goldmint.Common {
 	public enum DbSetting {
 
 		LastExchangeIndex = 1,
-		LastCryptoExchangeBlockChecked,
+		LastBuyRequestBlockChecked,
 		FeesTable,
 		CryptoCapitalDepositData,
 	}
@@ -608,79 +608,33 @@ namespace Goldmint.Common {
 	public enum MutexEntity {
 		
 		/// <summary>
-		/// Particular payment should be locked before it will be updated via acquirer (payment-wide)
+		/// Sending a notification (notification-wide)
 		/// </summary>
-		CardPaymentCheck = 1,
+		NotificationSend = 1,
+		
+		/// <summary>
+		/// Hot wallet operation initiation mutex (user-wide)
+		/// </summary>
+		UserHwOperation,
 
 		/// <summary>
-		/// Lock should be set while new deposit creation to check limits (user-wide)
+		/// Processing GOLD transferring transaction (tx-wide)
 		/// </summary>
-		DepositEnqueue,
+		GoldHwTransTx,
 
 		/// <summary>
-		/// Lock should be set while updating deposit (deposit-wide)
+		/// Changing buying request state (request-wide)
 		/// </summary>
-		DepositCheck,
+		GoldBuyingReq,
 
 		/// <summary>
-		/// Lock should be set while new withdraw creation to check limits (user-wide)
+		/// Processing GOLD issuing transaction (tx-wide)
 		/// </summary>
-		WithdrawEnqueue,
+		GoldIssuingTx,
 
-		/// <summary>
-		/// Lock should be set while updating withdraw (withdraw-wide)
-		/// </summary>
-		WithdrawCheck,
-
-		/// <summary>
-		/// Lock should be set while sending a notification (notification-wide)
-		/// </summary>
-		NotificationSend,
-
-		/// <summary>
-		/// Lock should be set while changing buying request state
-		/// </summary>
-		EthBuyRequest,
-
-		/// <summary>
-		/// Lock should be set while changing selling request state
-		/// </summary>
-		EthSellRequest,
-
-		/// <summary>
-		/// Hot wallet operation initiation mutex
-		/// </summary>
-		HWOperation,
-
-		/// <summary>
-		/// Lock should be set while buying gold to hot wallet
-		/// </summary>
-		HWBuyRequest,
-
-		/// <summary>
-		/// Lock should be set while selling gold from hot wallet
-		/// </summary>
-		HWSellRequest,
-
-		/// <summary>
-		/// Lock should be set while transferring gold from hot wallet
-		/// </summary>
-		HWTransferRequest,
-
-		/// <summary>
-		/// Support team should lock SWIFT request record before it could be processed
-		/// </summary>
-		SupportSwiftRequestProc,
-
-		/// <summary>
-		/// Lock should be set while changing deposit request state
-		/// </summary>
-		CryptoDepositRequest,
-
-		/// <summary>
-		/// Lock should be set while confirming cryptoexchange opertations (crypto-deposit/crypto-withdraw)
-		/// </summary>
-		CryptoExchangeConfirm,
+		
+		
+		
 	}
 
 	public enum NotificationType {

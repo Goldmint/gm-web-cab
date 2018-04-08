@@ -13,12 +13,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 	public class EthereumReader : EthereumBaseClient, IEthereumReader {
 
-		private const int TransactionMinConfirmationsCount = 2;
-
 		public EthereumReader(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 		}
 
-		public async Task<EthTransactionStatus> CheckTransaction(string transactionId) {
+		public async Task<EthTransactionStatus> CheckTransaction(string transactionId, int confirmations) {
 
 			if (string.IsNullOrWhiteSpace(transactionId)) {
 				throw new ArgumentException("Invalid transaction format");
@@ -30,7 +28,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			if (txinfo != null) {
 
 				var lastBlockNum = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
-				var threshold = BigInteger.One * TransactionMinConfirmationsCount;
+				var threshold = BigInteger.One * Math.Max(2, confirmations);
 
 				if (
 					txinfo.BlockNumber.HexValue != null && // got into block

@@ -25,7 +25,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user);
 
 			// user challenges
-			// TODO: move to challenges subsystem
 			var challenges = new List<string>();
 			if (!user.UserOptions.InitialTfaQuest && !user.TwoFactorEnabled) challenges.Add("2fa");
 

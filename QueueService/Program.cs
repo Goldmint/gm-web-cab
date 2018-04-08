@@ -21,7 +21,7 @@ namespace Goldmint.QueueService {
 		[Flags]
 		public enum WorkingMode : int {
 			Worker = 1,
-			Service = 2,
+			Core = 2,
 		}
 
 		private const string IpcPipeName = "gm.queueservice.ipc";
@@ -55,7 +55,7 @@ namespace Goldmint.QueueService {
 			// resolve working mode
 			var workingModeRaw = Environment.GetEnvironmentVariable("ASPNETCORE_MODE") ?? "";
 			if (workingModeRaw.Contains("worker")) Mode |= WorkingMode.Worker;
-			if (workingModeRaw.Contains("service")) Mode |= WorkingMode.Service;
+			if (workingModeRaw.Contains("core")) Mode |= WorkingMode.Core;
 			if (Mode == 0) {
 				throw new Exception("Mode must be specified in args");
 			}

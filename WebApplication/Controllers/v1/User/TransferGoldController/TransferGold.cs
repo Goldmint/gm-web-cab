@@ -14,7 +14,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	[Route("api/v1/user/gold/transfer")]
 	public class TransferGoldController : BaseController {
 
-		// TODO: move
+		// TODO: move/constants
 		public static readonly TimeSpan HwOperationTimeLimit = TimeSpan.FromSeconds(1800);
 
 		/// <summary>
@@ -52,7 +52,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var mutexBuilder =
 				new MutexBuilder(MutexHolder)
-				.Mutex(MutexEntity.HWOperation, user.Id)
+				.Mutex(MutexEntity.UserHwOperation, user.Id)
 			;
 
 			// get into mutex
@@ -89,9 +89,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					await DbContext.SaveChangesAsync();
 
 					// request
-					var request = new DAL.Models.TransferGoldRequest() {
+					var request = new DAL.Models.TransferGoldTransaction() {
 
-						Status = TransferGoldRequestStatus.Prepared,
+						Status = EthereumOperationStatus.Prepared,
 
 						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
@@ -105,7 +105,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					// save
 					finHistory.Status = UserFinHistoryStatus.Processing;
-					DbContext.TransferGoldRequest.Add(request);
+					DbContext.TransferGoldTransaction.Add(request);
 					await DbContext.SaveChangesAsync();
 
 					// update comment
@@ -118,7 +118,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					catch {
 					}
 
-					// TODO: email notification?
+					// TODO: email
 
 					user.UserOptions.HotWalletTransferLastTime = DateTime.UtcNow;
 					await DbContext.SaveChangesAsync();

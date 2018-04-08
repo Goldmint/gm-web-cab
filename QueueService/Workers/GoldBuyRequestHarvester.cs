@@ -7,8 +7,8 @@ using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
-	/*
-	public class CryptoExchangeRequestHarvester : BaseWorker {
+	
+	public class GoldBuyRequestHarvester : BaseWorker {
 
 		private readonly BigInteger _blocksPerRound;
 		private readonly BigInteger _confirmationsRequired;
@@ -20,7 +20,7 @@ namespace Goldmint.QueueService.Workers {
 		private BigInteger _lastBlock;
 		private BigInteger _lastSavedBlock;
 		
-		public CryptoExchangeRequestHarvester(int blocksPerRound, int confirmationsRequired) {
+		public GoldBuyRequestHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = new BigInteger(Math.Max(1, blocksPerRound));
 			_confirmationsRequired = new BigInteger(Math.Max(1, confirmationsRequired));
 			_lastBlock = BigInteger.Zero;
@@ -44,7 +44,7 @@ namespace Goldmint.QueueService.Workers {
 			}
 
 			// get last block from db; remember last saved block
-			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.LastCryptoExchangeBlockChecked, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
+			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.LastBuyRequestBlockChecked, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
 				_lastBlock = lbDb;
 				_lastSavedBlock = lbDb;
 
@@ -62,7 +62,7 @@ namespace Goldmint.QueueService.Workers {
 
 			Logger.Info(
 				(log.Events.Length > 0
-					? $"{log.Events.Length} deposit(s) found (new or processed previously)"
+					? $"{log.Events.Length} request(s) found (new or processed previously)"
 					: "Nothing found"
 				) + $" in blocks [{log.FromBlock} - {log.ToBlock}]"
 			);
@@ -71,16 +71,15 @@ namespace Goldmint.QueueService.Workers {
 
 				_dbContext.DetachEverything();
 
-				Logger.Info($"Trying to prepare deposit #{v.RequestId}");
+				Logger.Info($"Trying to prepare request #{v.RequestId}");
 
 				if (v.RequestId < long.MinValue || v.RequestId > long.MaxValue || !long.TryParse(v.RequestId.ToString(), out var innerRequestId)) {
 					Logger.Error($"Cant handle {v.RequestId} in long-value");
 					continue;
 				}
 
-				var pdResult = await CryptoExchangeQueue.PrepareDepositRequest(
+				var pdResult = await CoreLogic.Finance.GoldToken.ProcessBuyRequest(
 					services: _services,
-					asset: CryptoExchangeAsset.ETH,
 					internalRequestId: innerRequestId,
 					address: v.Address,
 					amount: v.EthAmount,
@@ -88,20 +87,18 @@ namespace Goldmint.QueueService.Workers {
 				);
 
 				Logger.Info(
-					pdResult == CryptoExchangeQueue.DepositWithdrawPreparationResult.NotFound
-					? $"Deposit #{v.RequestId} result is {pdResult.ToString()}. User's request is invalid or request is already prepared"
-					: $"Deposit #{v.RequestId} result is {pdResult.ToString()}"
+					$"Request #{v.RequestId} result is {pdResult.ToString()}"
 				);
 			}
 
 			// save last index to settings
 			if (_lastSavedBlock != _lastBlock) {
-				if (await _dbContext.SaveDbSetting(DbSetting.LastCryptoExchangeBlockChecked, _lastBlock.ToString())) {
+				if (await _dbContext.SaveDbSetting(DbSetting.LastBuyRequestBlockChecked, _lastBlock.ToString())) {
 					_lastSavedBlock = _lastBlock;
 					Logger.Info($"Last block #{_lastBlock} saved to DB");
 				}
 			}
 			
 		}
-	}*/
+	}
 }

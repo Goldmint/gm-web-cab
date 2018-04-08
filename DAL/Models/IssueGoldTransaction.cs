@@ -5,23 +5,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_trans_gold_request")]
-	public class TransferGoldRequest : BaseUserFinHistoryEntity, IConcurrentUpdate {
+	[Table("gm_issue_gold_tx")]
+	public class IssueGoldTransaction : BaseUserFinHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
-		public TransferGoldRequestStatus Status { get; set; }
+		public EthereumOperationStatus Status { get; set; }
 
-		[Column("address"), MaxLength(FieldMaxLength.BlockchainMaxAddress), Required]
+		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
 		public string DestinationAddress { get; set; }
 
-		[Column("amount_wei"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
-		public string AmountWei { get; set; }
+		[Column("amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
+		public string Amount { get; set; }
 
-		[Column("eth_transaction_id"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
+		[Column("eth_txid"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
 		public string EthTransactionId { get; set; }
 
 		[Column("desk_ticket_id"), MaxLength(FieldMaxLength.Guid), Required]
 		public string DeskTicketId { get; set; }
+
+		[Column("origin"), Required]
+		public IssueGoldOrigin Origin { get; set; }
+
+		[Column("origin_id"), Required]
+		public long OriginId { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

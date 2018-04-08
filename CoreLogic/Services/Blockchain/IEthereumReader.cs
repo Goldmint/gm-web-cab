@@ -11,7 +11,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Check chain transaction by it's ID
 		/// </summary>
 		/// <returns>Transaction status by ID</returns>
-		Task<EthTransactionStatus> CheckTransaction(string transactionId);
+		Task<EthTransactionStatus> CheckTransaction(string transactionId, int confirmations);
 
 		/// <summary>
 		/// Get user's Mint balance

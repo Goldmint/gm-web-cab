@@ -59,7 +59,7 @@
 		/// <summary>
 		/// Account must be verified before action
 		/// </summary>
-		AccountNotVerified = 1003, // TODO: rename AccountTierLimit / AccountLowTier
+		AccountNotVerified = 1003,
 
 		/// <summary>
 		/// Specified email is already taken

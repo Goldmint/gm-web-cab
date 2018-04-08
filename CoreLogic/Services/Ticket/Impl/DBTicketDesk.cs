@@ -1,7 +1,4 @@
 ﻿using Goldmint.Common;
-using Goldmint.DAL;
-using Goldmint.DAL.Models;
-using Goldmint.DAL.Models.Identity;
 using NLog;
 using System;
 using System.Threading.Tasks;
@@ -14,10 +11,12 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 
 	public class DBTicketDesk : ITicketDesk {
 
-		private ApplicationDbContext _dbContext;
-		private ILogger _logger;
+		// TODO: use logger
 
-		public DBTicketDesk(ApplicationDbContext dbContext, LogFactory logFactory) {
+		private readonly DAL.ApplicationDbContext _dbContext;
+		private ILogger _logger; 
+
+		public DBTicketDesk(DAL.ApplicationDbContext dbContext, LogFactory logFactory) {
 			_dbContext = dbContext;
 			_logger = logFactory.GetLoggerFor(this);
 		}
@@ -25,7 +24,7 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 		// ---
 
 		private async Task<string> CreateTicket(long userId, string message, long? refId = null, UserOpLogStatus status = UserOpLogStatus.Pending) {
-			var op = new UserOpLog() {
+			var op = new DAL.Models.UserOpLog() {
 				Status = status,
 				UserId = userId,
 				RefId = refId,

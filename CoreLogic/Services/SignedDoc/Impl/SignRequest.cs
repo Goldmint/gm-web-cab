@@ -202,7 +202,6 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 
 		private bool CheckCallbackSignature(CallbackJsonData data, string tokenUsed) {
 			if (string.IsNullOrWhiteSpace(data?.event_hash)) return false;
-			// TODO: signature source doesnt contain some document ID
 			var chk = (data?.event_time ?? "") + (data?.event_type ?? "");
 			return Common.Hash.HMACSHA256(chk, tokenUsed) == data.event_hash;
 		}

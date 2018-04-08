@@ -8,9 +8,10 @@ namespace Goldmint.QueueService {
 
 	public partial class Program {
 
-		private static readonly int DefaultWorkerRowsPerRound = 100; // TODO: move to args
-		// private static readonly int DefaultCryptoHarvesterBlocksPerRound = 10; // TODO: move to args
-		// private static readonly int DefaultCryptoHarvesterConfirmationsRequired = 2; // TODO: move to args
+		// TODO: move/constants
+		private static readonly int DefaultWorkerRowsPerRound = 100;
+		private static readonly int DefaultCryptoHarvesterBlocksPerRound = 10;
+		private static readonly int DefaultCryptoHarvesterConfirmationsRequired = 2;
 
 		/// <summary>
 		/// Launch workers
@@ -34,18 +35,18 @@ namespace Goldmint.QueueService {
 				});
 			}
 
-			// service workers
-			if (Mode.HasFlag(WorkingMode.Service)) {
+			// core workers
+			if (Mode.HasFlag(WorkingMode.Core)) {
 				workers.AddRange(new List<IWorker>() { 
 
 					// does require ethereum (reader)
 					//new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(15)),
-					//new CryptoExchangeRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(3)),
+					new GoldBuyRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(5)),
 
 					// does require ethereum (writer and reader)
 					//new DepositUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					//new WithdrawUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					//new BuyingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					new GoldIssueTransactionProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new TransferRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					//new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					//new CryptoDepositRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),

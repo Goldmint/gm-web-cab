@@ -119,8 +119,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				Crypto = new FeesViewCurrency[0],
 			};
 
-			// TODO: DB hit, cache response for some period
-			// TODO: ser/deser via common structure
+			// TODO: DB hit, cache response for some period + ser/deser via common structure
 
 			var json = await DbContext.GetDBSetting(DbSetting.FeesTable, null);
 			if (json != null) {

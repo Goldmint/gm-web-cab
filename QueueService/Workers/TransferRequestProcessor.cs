@@ -33,9 +33,9 @@ namespace Goldmint.QueueService.Workers {
 			var nowTime = DateTime.UtcNow;
 
 			var rows = await (
-				from r in _dbContext.TransferGoldRequest
+				from r in _dbContext.TransferGoldTransaction
 				where 
-				(r.Status == TransferGoldRequestStatus.Prepared || r.Status == TransferGoldRequestStatus.BlockchainConfirm) &&
+				(r.Status == EthereumOperationStatus.Prepared || r.Status == EthereumOperationStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
 				select new { Id = r.Id }
 			)
@@ -50,7 +50,7 @@ namespace Goldmint.QueueService.Workers {
 
 				_dbContext.DetachEverything();
 
-				await CoreLogic.Finance.GoldToken.ProcessHwTransferRequest(_services, row.Id);
+				await CoreLogic.Finance.GoldToken.ProcessTransferGoldHwTransaction(_services, row.Id);
 			}
 		}
 	}

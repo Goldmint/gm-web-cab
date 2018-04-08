@@ -7,8 +7,9 @@ namespace Goldmint.DAL.Models {
     public static class FieldMaxLength {
 
 	    public const int BlockchainCurrencyAmount = 64;
-	    public const int BlockchainMaxAddress = 256;
+	    public const int BlockchainAddress = 128;
 		public const int EthereumTransactionHash = 66;
+	    public const int TransparencyTransactionHash = 128;
 
 		public const int Guid = 32;
 		public const int Ip = 32;

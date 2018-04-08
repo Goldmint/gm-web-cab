@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SettingsController : BaseController {
 
-		// TODO: move to app settings
+		// TODO: move/constants
 		private static readonly TimeSpan AllowedPeriodBetweenKYCRequests = TimeSpan.FromMinutes(30);
 		private static readonly TimeSpan AllowedPeriodBetweenAgreementRequests = TimeSpan.FromMinutes(30);
 

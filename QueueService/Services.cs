@@ -80,14 +80,9 @@ namespace Goldmint.QueueService {
 
 				// rates
 				services.AddSingleton<IGoldRateProvider>(new LocalGoldRateProvider());
-
-				// rpc server
-				// var rpcSvc = new WorkerRpcService(_loggerFactory);
-				// _defaultRpcServer = new JsonRPCServer<WorkerRpcService>(rpcSvc, _loggerFactory);
-				// _defaultRpcServer.Start(Environment.GetEnvironmentVariable("ASPNETCORE_RPC"));
 			}
 
-			if (Mode.HasFlag(WorkingMode.Service)) {
+			if (Mode.HasFlag(WorkingMode.Core)) {
 
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, EthereumWriter>();

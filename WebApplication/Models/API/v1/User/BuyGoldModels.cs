@@ -71,7 +71,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 
 	// ---
 
-	public class ForAssetEthModel : BaseValidableModel {
+	public class AssetEthModel : BaseValidableModel {
 
 		/// <summary>
 		/// Address
@@ -88,7 +88,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ForAssetEthModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+			var v = new InlineValidator<AssetEthModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.EthAddress)
 				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
@@ -102,7 +102,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		}
 	}
 
-	public class ForAssetEthView {
+	public class AssetEthView {
 
 		/// <summary>
 		/// Request ID

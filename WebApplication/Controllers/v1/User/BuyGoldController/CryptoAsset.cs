@@ -17,8 +17,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
-		[ProducesResponseType(typeof(ForAssetEthView), 200)]
-		public async Task<APIResponse> ForAssetEth([FromBody] ForAssetEthModel model) {
+		[ProducesResponseType(typeof(AssetEthView), 200)]
+		public async Task<APIResponse> ForAssetEth([FromBody] AssetEthModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -43,7 +43,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var currency = FiatCurrency.USD;
 
-			// TODO: apply GM fee
+			// TODO: use safe rate provider
 			var ethRate = await CryptoassetRateProvider.GetRate(CryptoCurrency.ETH, currency);
 			var goldRate = await GoldRateProvider.GetRate(currency);
 
@@ -81,7 +81,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var request = new DAL.Models.BuyGoldRequest() {
 
 				Status = BuyGoldRequestStatus.Unconfirmed,
-				Input = BuyGoldRequestInput.EthereumDirectPayment,
+				Input = BuyGoldRequestInput.EthereumContractPayment,
 				Destination = BuyGoldRequestDestination.EthereumAddress,
 				DestinationAddress = model.EthAddress,
 
@@ -106,10 +106,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(goldRate, currency)} per GOLD, {TextFormatter.FormatAmount(ethRate, currency)} per ETH,";
 			await DbContext.SaveChangesAsync();
 
-			// TODO: email notification?
+			// TODO: email
 
 			return APIResponse.Success(
-				new ForAssetEthView() {
+				new AssetEthView() {
 					RequestId = request.Id,
 					EthRate = ethRate / 100d,
 					GoldRate = goldRate / 100d,
@@ -120,7 +120,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/*
-				// TODO: move to app settings constants
 				private static readonly TimeSpan HWOperationTimeLimit = TimeSpan.FromMinutes(30);
 				private static readonly TimeSpan ExchangeConfirmationTimeout = TimeSpan.FromMinutes(2);
 

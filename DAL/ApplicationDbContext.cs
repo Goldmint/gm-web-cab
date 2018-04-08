@@ -15,12 +15,13 @@ namespace Goldmint.DAL {
 
 		public DbSet<BannedCountry> BannedCountry { get; set; }
 		public DbSet<BuyGoldRequest> BuyGoldRequest { get; set; }
+		public DbSet<IssueGoldTransaction> IssueGoldTransaction { get; set; }
 		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
 		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<Notification> Notification { get; set; }
 		public DbSet<Settings> Settings { get; set; }
 		public DbSet<SignedDocument> SignedDocument { get; set; }
-		public DbSet<TransferGoldRequest> TransferGoldRequest { get; set; }
+		public DbSet<TransferGoldTransaction> TransferGoldTransaction { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<TransparencyStat> TransparencyStat { get; set; }
 		public DbSet<UserActivity> UserActivity { get; set; }

@@ -33,6 +33,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			// TODO: use GoldToken safe estimation
+
 			FiatCurrency? fiatCurrency = null;
 			CryptoCurrency? cryptoCurrency = null;
 			var inputRate = 0L;
@@ -73,8 +75,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var goldRate = await GoldRateCached.GetGoldRate(exchangeCurrency);
 
 			// ---
-
-			// TODO: fee
 
 			var exchangeAmount = inputAmount * new BigInteger(inputRate);
 			var goldAmount = exchangeAmount * BigInteger.Pow(10, Tokens.GOLD.Decimals) / goldRate / BigInteger.Pow(10, inputDecimals);

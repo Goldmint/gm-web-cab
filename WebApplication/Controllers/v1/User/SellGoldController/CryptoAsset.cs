@@ -3,7 +3,6 @@
 	public partial class SellGoldController : BaseController {
 
 /*
-		// TODO: move to app settings constants
 		private static readonly TimeSpan HWOperationTimeLimit = TimeSpan.FromMinutes(30);
 		private static readonly TimeSpan ExchangeConfirmationTimeout = TimeSpan.FromMinutes(2);
 
