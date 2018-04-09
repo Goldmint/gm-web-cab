@@ -45,7 +45,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var goldBalance = await EthereumObserver.GetUserGoldBalance(user.UserName);
+			var goldBalance = await EthereumObserver.GetHotWalletGoldBalance(user.UserName);
 			if (amountWei > goldBalance) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
@@ -79,7 +79,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Destination = TextFormatter.MaskBlockchainAddress(model.EthAddress),
 						Comment = "", // see below
 
-						DeskTicketId = ticket,
+						OplogId = ticket,
 						TimeCreated = timeNow,
 						UserId = user.Id,
 					};
@@ -95,7 +95,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 						DestinationAddress = model.EthAddress,
 						AmountWei = amountWei.ToString(),
-						DeskTicketId = ticket,
+						OplogId = ticket,
 						TimeCreated = timeNow,
 						TimeNextCheck = timeNow,
 

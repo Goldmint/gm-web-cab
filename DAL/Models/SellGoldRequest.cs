@@ -5,26 +5,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_buy_gold_request")]
-	public class BuyGoldRequest : BaseUserFinHistoryEntity, IConcurrentUpdate {
+	[Table("gm_sell_gold_request")]
+	public class SellGoldRequest : BaseUserFinHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
-		public BuyGoldRequestStatus Status { get; set; }
+		public SellGoldRequestStatus Status { get; set; }
 
 		[Column("input"), Required]
-		public BuyGoldRequestInput Input { get; set; }
+		public SellGoldRequestInput Input { get; set; }
 
 		[Column("output"), Required]
-		public BuyGoldRequestOutput Output { get; set; }
+		public SellGoldRequestOutput Output { get; set; }
 
-		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
-		public string Address { get; set; }
+		[Column("output_address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
+		public string OutputAddress { get; set; }
 
 		[Column("exchange_currency"), Required]
 		public FiatCurrency ExchangeCurrency { get; set; }
 
-		[Column("input_rate"), Required]
-		public long InputRateCents { get; set; }
+		[Column("output_rate"), Required]
+		public long OutputRateCents { get; set; }
 
 		[Column("gold_rate"), Required]
 		public long GoldRateCents { get; set; }

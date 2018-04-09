@@ -219,7 +219,7 @@ namespace Goldmint.Common {
 			public class TimeLimitsSection {
 
 				public long BuyGoldForEthRequestTimeoutSec { get; set; } = 1800;
-				//public long CryptoExchangeRequestExpireSec { get; set; } = 3600;
+				public long SellGoldForEthRequestTimeoutSec { get; set; } = 1800;
 			}
 
 			public CryptoCapitalDataSection CryptoCapitalData { get; set; } = new CryptoCapitalDataSection();

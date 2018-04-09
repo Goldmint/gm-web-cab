@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
 	
-	public class GoldBuyRequestHarvester : BaseWorker {
+	public class ContractSellingEventHarvester : BaseWorker {
 
 		private readonly BigInteger _blocksPerRound;
 		private readonly BigInteger _confirmationsRequired;
@@ -20,16 +20,16 @@ namespace Goldmint.QueueService.Workers {
 		private BigInteger _lastBlock;
 		private BigInteger _lastSavedBlock;
 		
-		public GoldBuyRequestHarvester(int blocksPerRound, int confirmationsRequired) {
+		public ContractSellingEventHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = new BigInteger(Math.Max(1, blocksPerRound));
 			_confirmationsRequired = new BigInteger(Math.Max(1, confirmationsRequired));
 			_lastBlock = BigInteger.Zero;
 			_lastSavedBlock = BigInteger.Zero;
-
-			Logger.Info($"{_confirmationsRequired} confirmations required to process deposit");
 		}
 
 		protected override async Task OnInit(IServiceProvider services) {
+
+			Logger.Info($"{_confirmationsRequired} confirmations required for selling at contract");
 
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -44,7 +44,7 @@ namespace Goldmint.QueueService.Workers {
 			}
 
 			// get last block from db; remember last saved block
-			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.LastBuyRequestBlockChecked, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
+			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.LastContractSellingBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
 				_lastBlock = lbDb;
 				_lastSavedBlock = lbDb;
 
@@ -57,7 +57,7 @@ namespace Goldmint.QueueService.Workers {
 			_dbContext.DetachEverything();
 
 			// get events
-			var log = await _ethereumReader.GetEthDepositedEvent(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
+			var log = await _ethereumReader.GatherGoldSoldForEthEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
 			_lastBlock = log.ToBlock;
 
 			Logger.Info(
@@ -78,11 +78,11 @@ namespace Goldmint.QueueService.Workers {
 					continue;
 				}
 
-				var pdResult = await CoreLogic.Finance.GoldToken.ProcessBuyRequest(
+				var pdResult = await CoreLogic.Finance.GoldToken.ProcessContractSellRequest(
 					services: _services,
 					internalRequestId: innerRequestId,
 					address: v.Address,
-					amount: v.EthAmount,
+					amount: v.GoldAmount,
 					transactionId: v.TransactionId
 				);
 
@@ -93,7 +93,7 @@ namespace Goldmint.QueueService.Workers {
 
 			// save last index to settings
 			if (_lastSavedBlock != _lastBlock) {
-				if (await _dbContext.SaveDbSetting(DbSetting.LastBuyRequestBlockChecked, _lastBlock.ToString())) {
+				if (await _dbContext.SaveDbSetting(DbSetting.LastContractSellingBlock, _lastBlock.ToString())) {
 					_lastSavedBlock = _lastBlock;
 					Logger.Info($"Last block #{_lastBlock} saved to DB");
 				}

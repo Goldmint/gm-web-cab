@@ -1,15 +1,15 @@
 ﻿using System.Numerics;
 
-namespace Goldmint.CoreLogic.Services.Blockchain {
+namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 
-	public sealed class EthDepositedResult {
+	public sealed class GatheredGoldSoldForEthEvent {
 		
 		public BigInteger FromBlock { get; set; }
 		public BigInteger ToBlock { get; set; }
-		public EthDepositedEventData[] Events { get; set; }
+		public GoldSoldForEthEvent[] Events { get; set; }
 	}
 
-	public sealed class EthDepositedEventData {
+	public sealed class GoldSoldForEthEvent {
 
 		/// <summary>
 		/// User address
@@ -17,9 +17,9 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		public string Address { get; set; }
 
 		/// <summary>
-		/// Ethereum amount
+		/// GOLD amount
 		/// </summary>
-		public BigInteger EthAmount { get; set; }
+		public BigInteger GoldAmount { get; set; }
 
 		/// <summary>
 		/// Request ID

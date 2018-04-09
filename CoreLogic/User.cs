@@ -15,10 +15,10 @@ namespace Goldmint.CoreLogic {
 
 		public static bool HasSignedDpa(DAL.Models.UserOptions data) {
 			return
-				data?.DPADocument != null &&
-				data.DPADocument.Type == SignedDocumentType.Dpa &&
-				data.DPADocument.TimeCompleted != null &&
-				data.DPADocument.IsSigned
+				data?.DpaDocument != null &&
+				data.DpaDocument.Type == SignedDocumentType.Dpa &&
+				data.DpaDocument.TimeCompleted != null &&
+				data.DpaDocument.IsSigned
 			;
 		}
 

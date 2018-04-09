@@ -8,7 +8,7 @@ using System.Text;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_user_finhistory")]
-	public class UserFinHistory : BaseUserEntity, IConcurrentUpdate {
+	public class UserFinHistory : BaseUserLoggingEntity, IConcurrentUpdate {
 
 		[Column("type"), Required]
 		public UserFinHistoryType Type { get; set; }
@@ -27,9 +27,6 @@ namespace Goldmint.DAL.Models {
 
 		[Column("rel_eth_transaction_id"), MaxLength(66)]
 		public string RelEthTransactionId { get; set; }
-
-		[Column("desk_ticket_id"), MaxLength(32), Required]
-		public string DeskTicketId { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

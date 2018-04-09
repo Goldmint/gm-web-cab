@@ -172,7 +172,7 @@ namespace Goldmint.WebApplication.Core {
 			await dbContext.SaveChangesAsync();
 
 			// set new unverified agreement 
-			user.UserOptions.DPADocumentId = request.Id;
+			user.UserOptions.DpaDocumentId = request.Id;
 			dbContext.Update(user.UserOptions);
 			await dbContext.SaveChangesAsync();
 

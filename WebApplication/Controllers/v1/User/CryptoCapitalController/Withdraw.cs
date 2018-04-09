@@ -7,7 +7,6 @@ using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.v1.User.CryptoCapitalModels;
 using Microsoft.AspNetCore.Mvc;
 /*
 namespace Goldmint.WebApplication.Controllers.v1.User {

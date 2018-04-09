@@ -103,120 +103,122 @@ namespace Goldmint.Common {
 	#endregion
 
 
-	#region Credit Card / Bank Account
-	// REMOVE
-	public enum CardState {
+	#region Buy GOLD
+
+	public enum BuyGoldRequestInput {
 
 		/// <summary>
-		/// User should provide card data for deposit operations
+		/// User sends ETH to Ethereum contact
 		/// </summary>
-		InputDepositData = 1,
-
-		/// <summary>
-		/// User should provide card data for withdraw operations
-		/// </summary>
-		InputWithdrawData,
-
-		/// <summary>
-		/// Sending verification payment
-		/// </summary>
-		Payment,
-
-		/// <summary>
-		/// Awaiting for code from bank statement
-		/// </summary>
-		Verification,
-
-		/// <summary>
-		/// Verified
-		/// </summary>
-		Verified,
-
-		/// <summary>
-		/// Disabled by system
-		/// </summary>
-		Disabled,
-
-		/// <summary>
-		/// Deleted
-		/// </summary>
-		Deleted,
+		ContractEthPayment = 1,
 	}
 
-	public enum CardPaymentType {
+	public enum BuyGoldRequestOutput {
 
 		/// <summary>
-		/// Card verification
+		/// Issue gold to the Ethereum address
 		/// </summary>
-		Verification = 1,
+		EthereumAddress = 1,
 
 		/// <summary>
-		/// User's deposit payment
+		/// Issue gold to the internal Hot Wallet
 		/// </summary>
-		Deposit,
-
-		/// <summary>
-		/// Card deposit refund on limit
-		/// </summary>
-		Refund,
-
-		/// <summary>
-		/// Withdraw operation
-		/// </summary>
-		Withdraw,
-
-		/// <summary>
-		/// Not payment actually but needed to control card addition
-		/// </summary>
-		CardDataInputSMS = 10,
-		CardDataInputCRD,
-		CardDataInputP2P,
+		HotWallet,
 	}
 
-	public enum CardGatewayTransactionStatus {
+	public enum BuyGoldRequestStatus {
 
 		/// <summary>
-		/// Processing
+		/// Just created
 		/// </summary>
-		Pending = 1,
+		Unconfirmed = 1,
 
 		/// <summary>
-		/// Finally successful
+		/// Confirmed by user
+		/// </summary>
+		Confirmed,
+
+		/// <summary>
+		/// Final success
 		/// </summary>
 		Success,
 
 		/// <summary>
-		/// Completely failed
+		/// Expired
+		/// </summary>
+		Expired,
+
+		/// <summary>
+		/// Final failure
 		/// </summary>
 		Failed,
-
-		/// <summary>
-		/// Not found on GW side
-		/// </summary>
-		NotFound
 	}
 
-	public enum CardPaymentStatus {
+	#endregion
+
+
+	#region Sell GOLD
+
+	public enum SellGoldRequestInput {
 
 		/// <summary>
-		/// Initial state, just enqueued
+		/// User burns GOLD at Ethereum contract
 		/// </summary>
-		Pending = 1,
+		ContractGoldBurning = 1,
+	}
+
+	public enum SellGoldRequestOutput {
 
 		/// <summary>
-		/// There is an attempt to charge
+		/// Get ETH
 		/// </summary>
-		Charging,
+		Eth = 1,
+	}
+
+	public enum SellGoldRequestStatus {
 
 		/// <summary>
-		/// Final success, finalized
+		/// Just created
+		/// </summary>
+		Unconfirmed = 1,
+
+		/// <summary>
+		/// Confirmed by user
+		/// </summary>
+		Confirmed,
+
+		/// <summary>
+		/// Final success
 		/// </summary>
 		Success,
 
 		/// <summary>
-		/// Final failure, finalized
+		/// Expired
+		/// </summary>
+		Expired,
+
+		/// <summary>
+		/// Final failure
 		/// </summary>
 		Failed,
+	}
+
+	#endregion
+
+
+	#region Support
+
+	public enum SupportRequestStatus {
+
+		/// <summary>
+		/// Pending
+		/// </summary>
+		Pending = 1,
+
+		/// <summary>
+		/// Completed
+		/// </summary>
+		Success,
 
 		/// <summary>
 		/// Cancelled
@@ -227,7 +229,7 @@ namespace Goldmint.Common {
 	#endregion
 
 
-	#region GOLD
+	#region Blockchain
 
 	public enum EthereumOperationStatus {
 
@@ -261,211 +263,6 @@ namespace Goldmint.Common {
 		/// </summary>
 		Failed,
 	}
-
-	public enum BuyGoldRequestInput {
-
-		EthereumContractPayment = 1,
-	}
-
-	public enum BuyGoldRequestDestination {
-
-		/// <summary>
-		/// Buy to Ethereum address
-		/// </summary>
-		EthereumAddress = 1,
-
-		/// <summary>
-		/// Buy to internal Hot Wallet
-		/// </summary>
-		EthereumHotWallet,
-	}
-
-	public enum BuyGoldRequestStatus {
-
-		/// <summary>
-		/// Just created
-		/// </summary>
-		Unconfirmed = 1,
-
-		/// <summary>
-		/// Confirmed by user
-		/// </summary>
-		Confirmed,
-
-		/// <summary>
-		/// Final success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Expired
-		/// </summary>
-		Expired,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Failed,
-	}
-
-	public enum IssueGoldOrigin {
-
-		BuyingRequest = 1,
-	}
-
-	/*
-	public enum SwiftPaymentType {
-
-		/// <summary>
-		/// Deposit
-		/// </summary>
-		Deposit = 1,
-
-		/// <summary>
-		/// Withdraw
-		/// </summary>
-		Withdraw
-	}
-
-	public enum SwiftPaymentStatus {
-
-		/// <summary>
-		/// Awaiting payment
-		/// </summary>
-		Pending = 1,
-
-		/// <summary>
-		/// Completed
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Cancelled by support
-		/// </summary>
-		Cancelled,
-	}
-
-	public enum DepositSource {
-
-		/// <summary>
-		/// Deposit comes from credit card
-		/// </summary>
-		CreditCard = 1,
-
-		/// <summary>
-		/// Deposit comes from bank transaction
-		/// </summary>
-		SwiftRequest,
-
-		/// <summary>
-		/// Deposit comes from failed withdrawal
-		/// </summary>
-		FailedWithdraw,
-
-		/// <summary>
-		/// Deposit initiated with cryptoasset's selling
-		/// </summary>
-		CryptoDeposit,
-	}
-
-	
-
-	public enum WithdrawDestination {
-
-		/// <summary>
-		/// Destination is credit card
-		/// </summary>
-		CreditCard = 1,
-
-		/// <summary>
-		/// Destination is bank transaction
-		/// </summary>
-		Swift,
-
-		/// <summary>
-		/// Destination is cryptoasset's transfer
-		/// </summary>
-		CryptoExchange,
-	}
-
-	public enum WithdrawStatus {
-
-		/// <summary>
-		/// Initially enqueued
-		/// </summary>
-		Initial = 1,
-
-		/// <summary>
-		/// Sending request to blockchain
-		/// </summary>
-		BlockchainInit,
-
-		/// <summary>
-		/// Waiting confirmation from blockchain
-		/// </summary>
-		BlockchainConfirm,
-
-		/// <summary>
-		/// Payment processing (actually used by card payment to wait for payment success)
-		/// </summary>
-		Processing,
-
-		/// <summary>
-		/// Final success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Failed,
-	}
-
-	public enum BuyGoldForAssetOrigin {
-
-		/// <summary>
-		/// Ethereum
-		/// </summary>
-		ETH = 1,
-	}
-
-	public enum CryptoDepositStatus {
-
-		/// <summary>
-		/// Just created, unconfirmed
-		/// </summary>
-		Unconfirmed = 1,
-
-		/// <summary>
-		/// Confirmed, awaiting for transaction
-		/// </summary>
-		Confirmed,
-		
-		/// <summary>
-		/// Prepared for processing
-		/// </summary>
-		Prepared,
-
-		/// <summary>
-		/// Prepared for processing
-		/// </summary>
-		Processing,
-
-		/// <summary>
-		/// Success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Cancelled
-		/// </summary>
-		Failed,
-	}
-	*/
-	#endregion
-
-
-	#region Blockchain
 
 	public enum EthTransactionStatus {
 
@@ -587,6 +384,7 @@ namespace Goldmint.Common {
 
 	#endregion
 
+
 	public enum CryptoCurrency {
 
 		ETH = 1,
@@ -599,10 +397,10 @@ namespace Goldmint.Common {
 
 	public enum DbSetting {
 
-		LastExchangeIndex = 1,
-		LastBuyRequestBlockChecked,
-		FeesTable,
+		FeesTable = 1,
 		CryptoCapitalDepositData,
+		LastContractBuyingBlock,
+		LastContractSellingBlock,
 	}
 
 	public enum MutexEntity {
@@ -628,13 +426,9 @@ namespace Goldmint.Common {
 		GoldBuyingReq,
 
 		/// <summary>
-		/// Processing GOLD issuing transaction (tx-wide)
+		/// Changing selling request state (request-wide)
 		/// </summary>
-		GoldIssuingTx,
-
-		
-		
-		
+		GoldSellingReq,
 	}
 
 	public enum NotificationType {

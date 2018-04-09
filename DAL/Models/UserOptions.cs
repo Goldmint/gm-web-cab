@@ -13,9 +13,9 @@ namespace Goldmint.DAL.Models {
 		public bool InitialTfaQuest { get; set; }
 
 		[Column("dpa_document_id")]
-		public long? DPADocumentId { get; set; }
-		[ForeignKey(nameof(DPADocumentId))]
-		public virtual SignedDocument DPADocument { get; set; }
+		public long? DpaDocumentId { get; set; }
+		[ForeignKey(nameof(DpaDocumentId))]
+		public virtual SignedDocument DpaDocument { get; set; }
 
 		[Column("hw_buying_stamp")]
 		public DateTime? HotWalletBuyingLastTime { get; set; }

@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 
-namespace Goldmint.CoreLogic.Services.Blockchain {
+namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 
-	public sealed class ExchangeRequestData {
+	public sealed class GoldFiatExchangeRequest {
 
 		/// <summary>
 		/// Index

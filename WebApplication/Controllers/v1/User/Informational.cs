@@ -33,7 +33,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Id = user.UserName,
 					Name = CoreLogic.User.HasFilledPersonalData(user.UserVerification) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
 					Email = user.Email ?? "",
-					DpaSigned = user.UserOptions.DPADocument?.IsSigned ?? false,
+					DpaSigned = user.UserOptions.DpaDocument?.IsSigned ?? false,
 					TfaEnabled = user.TwoFactorEnabled,
 					VerifiedL0 = userTier >= UserTier.Tier1,
 					VerifiedL1 = userTier >= UserTier.Tier2,

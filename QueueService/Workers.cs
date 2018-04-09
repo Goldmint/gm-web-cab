@@ -40,17 +40,11 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// does require ethereum (reader)
-					//new ExchangeRequestHarvester().Period(TimeSpan.FromSeconds(15)),
-					new GoldBuyRequestHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(5)),
+					new ContractBuyingEventHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(10)),
+					new ContractSellingEventHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(10)),
 
 					// does require ethereum (writer and reader)
-					//new DepositUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					//new WithdrawUpdater(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					new GoldIssueTransactionProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
 					new TransferRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					//new SellingRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-					//new CryptoDepositRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
-
 				});
 			}
 

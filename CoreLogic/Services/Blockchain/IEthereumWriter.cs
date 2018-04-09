@@ -7,33 +7,37 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 	public interface IEthereumWriter {
 
 		/// <summary>
-		/// Change balance on deposit/withdraw ops
+		/// Transfer GOLD from hot wallet to an address
 		/// </summary>
 		/// <returns>Transaction ID</returns>
-		Task<string> ChangeUserFiatBalance(string userId, FiatCurrency currency, long amountCents);
+		Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount);
+
+		#region GOLD / Fiat
 
 		/// <summary>
-		/// Process exchange request by it's index
+		/// Change user fiat balance
 		/// </summary>
 		/// <returns>Transaction ID</returns>
-		Task<string> ProcessExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken);
+		Task<string> ChangeFiatBalance(string userId, FiatCurrency currency, long amountCents);
 
 		/// <summary>
-		/// Cancel exchange request by it's index
+		/// Process GOLD buying request by it's index
 		/// </summary>
 		/// <returns>Transaction ID</returns>
-		Task<string> CancelExchangeRequest(BigInteger requestIndex);
-		
+		Task<string> PerformGoldFiatExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken);
+
+		/// <summary>
+		/// Cancel GOLD buying request by it's index
+		/// </summary>
+		/// <returns>Transaction ID</returns>
+		Task<string> CancelGoldFiatExchangeRequest(BigInteger requestIndex);
+
 		/// <summary>
 		/// Process hot wallet exchange request
 		/// </summary>
 		/// <returns>Transaction ID</returns>
-		Task<string> ProcessHotWalletExchangeRequest(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken);
-		
-		/// <summary>
-		/// Transfer GOLD from hot wallet to address
-		/// </summary>
-		/// <returns>Transaction ID</returns>
-		Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount);
+		Task<string> ExchangeGoldFiatOnHotWallet(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken);
+
+		#endregion
 	}
 }

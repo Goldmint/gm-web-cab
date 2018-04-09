@@ -2,6 +2,7 @@
 using Goldmint.Common;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Blockchain.Models;
 
 namespace Goldmint.CoreLogic.Services.Blockchain {
 
@@ -14,45 +15,59 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		Task<EthTransactionStatus> CheckTransaction(string transactionId, int confirmations);
 
 		/// <summary>
-		/// Get user's Mint balance
+		/// Get MNTP balance
 		/// </summary>
 		/// <returns>MNTP amount at specified address</returns>
 		Task<BigInteger> GetAddressMntpBalance(string address);
 
 		/// <summary>
-		/// Get user's Gold balance
+		/// Get GOLD balance
 		/// </summary>
 		/// <returns>GOLD amount at specified address</returns>
 		Task<BigInteger> GetAddressGoldBalance(string address);
+
+		/// <summary>
+		/// Get hot wallet GOLD balance
+		/// </summary>
+		/// <returns>User GOLD amount</returns>
+		Task<BigInteger> GetHotWalletGoldBalance(string userId);
+
+		#region GOLD / ETH
+
+		/// <summary>
+		/// Get event in a range of blocks
+		/// </summary>
+		/// <returns>Events</returns>
+		Task<GatheredGoldBoughtWithEthEvent> GatherGoldBoughtWithEthEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+
+		/// <summary>
+		/// Get event in a range of blocks
+		/// </summary>
+		/// <returns>Events</returns>
+		Task<GatheredGoldSoldForEthEvent> GatherGoldSoldForEthEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+
+		#endregion
+
+		#region GOLD / Fiat
 
 		/// <summary>
 		/// Get user's fiat balance in cents
 		/// </summary>
 		/// <returns>User fiat amount</returns>
 		Task<long> GetUserFiatBalance(string userId, FiatCurrency currency);
-		
-		/// <summary>
-		/// Get user's gold balance
-		/// </summary>
-		/// <returns>User fiat amount</returns>
-		Task<BigInteger> GetUserGoldBalance(string userId);
 
 		/// <summary>
-		/// Gold exchange total requests count
+		/// GOLD exchange total requests count
 		/// </summary>
 		/// <returns>Requests count</returns>
-		Task<BigInteger> GetExchangeRequestsCount();
+		Task<BigInteger> GetGoldFiatExchangeRequestsCount();
 
 		/// <summary>
-		/// Exchange request data by it's index
+		/// GOLD buy/sell request data by it's index
 		/// </summary>
 		/// <returns>Request data and status</returns>
-		Task<ExchangeRequestData> GetExchangeRequestByIndex(BigInteger requestIndex);
+		Task<GoldFiatExchangeRequest> GetGoldFiatExchangeRequestByIndex(BigInteger requestIndex);
 
-		/// <summary>
-		/// Get EthDeposited event in a range of blocks
-		/// </summary>
-		/// <returns>Events</returns>
-		Task<EthDepositedResult> GetEthDepositedEvent(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		#endregion
 	}
 }

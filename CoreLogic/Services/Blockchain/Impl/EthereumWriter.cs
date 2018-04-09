@@ -25,7 +25,38 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		// ---
 
-		public async Task<string> ChangeUserFiatBalance(string userId, FiatCurrency currency, long amountCents) {
+		public async Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount) {
+
+			if (string.IsNullOrWhiteSpace(userId)) {
+				throw new ArgumentException("Invalid user id");
+			}
+			if (amount < 1) {
+				throw new ArgumentException("Amount is equal to 0");
+			}
+			if (!ValidationRules.BeValidEthereumAddress(toAddress)) {
+				throw new ArgumentException("Invalid eth address");
+			}
+
+			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
+			var contract = web3.Eth.GetContract(
+				FiatContractAbi,
+				FiatContractAddress
+			);
+			var func = contract.GetFunction("transferGoldFromHotWallet");
+
+			return await func.SendTransactionAsync(
+				_gmAccount.Address,
+				_defaultGas,
+				new HexBigInteger(0),
+				toAddress, amount, userId
+			);
+		}
+
+		#region GOLD / Fiat
+
+		public async Task<string> ChangeFiatBalance(string userId, FiatCurrency currency, long amountCents) {
 
 			if (string.IsNullOrWhiteSpace(userId)) {
 				throw new ArgumentException("Invalid user ID");
@@ -56,7 +87,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			throw new NotImplementedException("Currency not implemented");
 		}
 
-		public async Task<string> ProcessExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken) {
+		public async Task<string> PerformGoldFiatExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken) {
 
 			if (requestIndex < 0) {
 				throw new ArgumentException("Invalid request index");
@@ -90,7 +121,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			throw new NotImplementedException("Currency not implemented");
 		}
 
-		public async Task<string> CancelExchangeRequest(BigInteger requestIndex) {
+		public async Task<string> CancelGoldFiatExchangeRequest(BigInteger requestIndex) {
 
 			var web3 = new Web3(_gmAccount, JsonRpcClient);
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
@@ -110,7 +141,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		}
 
-		public async Task<string> ProcessHotWalletExchangeRequest(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken) {
+		public async Task<string> ExchangeGoldFiatOnHotWallet(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken) {
 
 			if (string.IsNullOrWhiteSpace(userId)) {
 				throw new ArgumentException("Invalid user id");
@@ -144,33 +175,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			throw new NotImplementedException("Currency not implemented");
 		}
 
-		public async Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount) {
+		#endregion
 
-			if (string.IsNullOrWhiteSpace(userId)) {
-				throw new ArgumentException("Invalid user id");
-			}
-			if (amount < 1) {
-				throw new ArgumentException("Amount is equal to 0");
-			}
-			if (!ValidationRules.BeValidEthereumAddress(toAddress)) {
-				throw new ArgumentException("Invalid eth address");
-			}
-
-			var web3 = new Web3(_gmAccount, JsonRpcClient);
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
-
-			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
-			);
-			var func = contract.GetFunction("transferGoldFromHotWallet");
-
-			return await func.SendTransactionAsync(
-				_gmAccount.Address,
-				_defaultGas,
-				new HexBigInteger(0),
-				toAddress, amount, userId
-			);
-		}
 	}
 }

@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180409144648_fiatless-downgrade-2")]
+    partial class fiatlessdowngrade2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,11 +58,6 @@ namespace Goldmint.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AmountWei")
-                        .IsRequired()
-                        .HasColumnName("amount")
-                        .HasMaxLength(64);
 
                     b.Property<long>("BuyGoldRequestId")
                         .HasColumnName("buy_gold_request_id");
@@ -521,11 +517,6 @@ namespace Goldmint.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AmountWei")
-                        .IsRequired()
-                        .HasColumnName("amount")
-                        .HasMaxLength(64);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()

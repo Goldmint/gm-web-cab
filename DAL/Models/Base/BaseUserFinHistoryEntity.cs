@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	public abstract class BaseUserFinHistoryEntity : BaseUserEntity {
+	public abstract class BaseUserFinHistoryEntity : BaseUserLoggingEntity {
 
 		[Column("ref_user_finhistory"), Required]
 		public long RefUserFinHistoryId { get; set; }
