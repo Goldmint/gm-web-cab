@@ -99,7 +99,7 @@ export class WithdrawPageComponent implements OnInit {
         }
       });
 
-      this._ethService.getObservableUsdBalance().subscribe(balance => {
+      /*this._ethService.getObservableUsdBalance().subscribe(balance => {
         this.userUsdBalance = balance;
         this.maxBankTransferAmount = Math.min(this.userUsdBalance, this.limits.paymentMethod.swift.withdraw.max,
           this.limits.current.withdraw.day);
@@ -112,7 +112,7 @@ export class WithdrawPageComponent implements OnInit {
 
         this.loading = false;
         this._cdRef.markForCheck();
-      });
+      });*/
 
       this.minAmount = this.limits.paymentMethod.card.withdraw.min;
       this.maxAmount = this.limits.current.withdraw.minimal;

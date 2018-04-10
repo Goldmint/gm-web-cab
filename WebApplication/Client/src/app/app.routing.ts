@@ -36,6 +36,8 @@ import { TransparencyPageComponent } from './pages/transparency-page/transparenc
 import { StaticPagesComponent } from "./pages/static-pages/static-pages.component";
 import { LegalSecurityPageComponent } from "./pages/legal-security-page/legal-security-page.component";
 import {SettingsFeesPageComponent} from "./pages/settings-page/settings-fees-page/settings-fees-page.component";
+import {BuyCryptocurrencyPageComponent} from "./pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component";
+import {SellCryptocurrencyPageComponent} from "./pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component";
 
 
 const appRoutes: Routes = [
@@ -52,8 +54,10 @@ const appRoutes: Routes = [
   { path: 'signup/emailTaken', component: RegisterEmailTakenPageComponent },
   { path: 'signup/2fa', component: RegisterTfaPageComponent },
   { path: 'home', component: HomePageComponent, canActivate: [AuthGuard] },
-  { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },
   { path: 'buy', component: BuyPageComponent, canActivate: [AuthGuard] },
+  { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },
+  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
