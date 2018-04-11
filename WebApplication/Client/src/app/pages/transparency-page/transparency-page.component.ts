@@ -48,6 +48,21 @@ export class TransparencyPageComponent implements OnInit {
       this.locale = currentLocale;
     });
 
+    this.summary = {
+      issued:      {"amount": 0, "suffix": " GOLD"},
+      burnt:       {"amount": 0, "suffix": " GOLD"},
+      circulation: {"amount": 0, "suffix": " GOLD"}
+    };
+
+    this._ethService.getObservableTotalGoldBalances().subscribe(data => {
+      if (data) {
+        this.summary.issued.amount = data['issued'].div(new BigNumber(10).pow(18)).toFixed(2);
+        this.summary.burnt.amount = data['burnt'].div(new BigNumber(10).pow(18)).toFixed(2);
+        this.summary.circulation.amount = this.summary.issued.amount - this.summary.burnt.amount;
+        this.cdRef.detectChanges();
+      }
+   });
+
     this.setPage({ offset: 0 });
   }
 
