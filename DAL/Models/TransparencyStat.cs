@@ -21,6 +21,12 @@ namespace Goldmint.DAL.Models {
 		[Column("gold"), MaxLength(MaxJsonFieldLength), Required]
 		public string GoldArray { get; set; }
 
+		[Column("total_oz"), MaxLength(MaxTotalFieldLength), Required]
+		public string TotalOz { get; set; }
+
+		[Column("total_usd"), MaxLength(MaxTotalFieldLength), Required]
+		public string TotalUsd { get; set; }
+
 		[Column("data_timestamp"), Required]
 		public DateTime DataTimestamp { get; set; }
 
@@ -33,5 +39,6 @@ namespace Goldmint.DAL.Models {
 		// ---
 
 		public const int MaxJsonFieldLength = 2048;
+		public const int MaxTotalFieldLength = 128;
 	}
 }

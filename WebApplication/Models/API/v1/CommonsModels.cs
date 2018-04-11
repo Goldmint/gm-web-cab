@@ -91,6 +91,18 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		public TransparencyViewStatItem[] Gold { get; set; }
 
 		/// <summary>
+		/// Total oz
+		/// </summary>
+		[Required]
+		public string TotalOz { get; set; }
+
+		/// <summary>
+		/// Total USD
+		/// </summary>
+		[Required]
+		public string TotalUsd { get; set; }
+
+		/// <summary>
 		/// Data provided time (unix)
 		/// </summary>
 		[Required]

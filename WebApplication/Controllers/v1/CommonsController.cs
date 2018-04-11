@@ -70,6 +70,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var statBonds = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.BondsArray ?? "[]");
 			var statFiat = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.FiatArray ?? "[]");
 			var statGold = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.GoldArray ?? "[]");
+			var statTotalOz = stat?.TotalOz ?? "";
+			var statTotalUsd = stat?.TotalUsd ?? "";
 			var statDataTime = stat?.DataTimestamp ?? DateTime.UtcNow;
 			var statAuditTime = stat?.AuditTimestamp ?? DateTime.UtcNow;
 
@@ -80,6 +82,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						Bonds = statBonds,
 						Fiat = statFiat,
 						Gold = statGold,
+						TotalOz = statTotalOz,
+						TotalUsd = statTotalUsd,
 						DataTimestamp = ((DateTimeOffset)statDataTime).ToUnixTimeSeconds(),
 						AuditTimestamp = ((DateTimeOffset)statAuditTime).ToUnixTimeSeconds(),
 					},

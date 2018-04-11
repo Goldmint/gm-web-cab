@@ -78,6 +78,18 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 		public Item[] Gold { get; set; }
 
 		/// <summary>
+		/// Total oz field
+		/// </summary>
+		[Required]
+		public string TotalOz { get; set; }
+
+		/// <summary>
+		/// Total USD field
+		/// </summary>
+		[Required]
+		public string TotalUsd { get; set; }
+
+		/// <summary>
 		/// Data timestamp (unix)
 		/// </summary>
 		[Required]
@@ -122,6 +134,14 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 				;
 			v.RuleForEach(_ => _.Gold)
 				.Must(_ => !string.IsNullOrWhiteSpace(_.K) && !string.IsNullOrWhiteSpace(_.V)).WithMessage("Empty")
+				;
+
+			v.RuleFor(_ => _.TotalOz)
+				.NotEmpty().WithMessage("Empty")
+				;
+
+			v.RuleFor(_ => _.TotalUsd)
+				.NotEmpty().WithMessage("Empty")
 				;
 
 			v.RuleFor(_ => _.DataTimestamp)

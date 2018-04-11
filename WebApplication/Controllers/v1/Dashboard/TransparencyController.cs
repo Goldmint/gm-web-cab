@@ -67,6 +67,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					BondsArray = Common.Json.Stringify(model.Bonds),
 					FiatArray = Common.Json.Stringify(model.Fiat),
 					GoldArray = Common.Json.Stringify(model.Gold),
+					TotalOz = Common.Json.Stringify(model.TotalOz),
+					TotalUsd = Common.Json.Stringify(model.TotalUsd),
 					DataTimestamp = DateTimeOffset.FromUnixTimeSeconds(model.DataTimestamp).UtcDateTime,
 					AuditTimestamp = DateTimeOffset.FromUnixTimeSeconds(model.AuditTimestamp).UtcDateTime,
 					UserId = user.Id,
