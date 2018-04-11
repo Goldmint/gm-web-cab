@@ -40,10 +40,10 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 	public class TransparencyViewItem {
 
 		/// <summary>
-		/// Amount in USD
+		/// Amount
 		/// </summary>
 		[Required]
-		public double Amount { get; set; }
+		public string Amount { get; set; }
 
 		/// <summary>
 		/// Link to document

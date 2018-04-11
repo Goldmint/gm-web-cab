@@ -39,6 +39,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
+			// if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
+			// 	return APIResponse.BadRequest(nameof(model.Code), "Invalid code");
+			// }
+
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
 			}

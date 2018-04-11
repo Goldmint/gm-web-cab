@@ -2,35 +2,31 @@
 using Goldmint.Common;
 using System.ComponentModel.DataAnnotations;
 
-namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
+namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SupportCryptoExchangeModels {
 
-	public class ListModel : BasePagerModel {
-
-		/// <summary>
-		/// Filter query, optional, 64 max
-		/// </summary>
-		public string Filter { get; set; }
+	public class ListBuyingModel : BasePagerModel {
 
 		/// <summary>
 		/// Exclude completed requests, optional
 		/// </summary>
 		public bool ExcludeCompleted { get; set; }
 
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<ListBuyingModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
+			return v.Validate(this);
+		}
+	}
+
+	public class ListSellingModel : BasePagerModel {
+
 		/// <summary>
-		/// Request type, optional: 0 - both (default), 1 - deposit, 2 - withdraw
+		/// Exclude completed requests, optional
 		/// </summary>
-		public int Type { get; set; }
+		public bool ExcludeCompleted { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
-			var v = new InlineValidator<ListModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
-
-			v.RuleFor(_ => _.Filter)
-				.MaximumLength(64).WithMessage("Invalid length")
-			;
-
-			v.RuleFor(_ => _.Type)
-				.InclusiveBetween(0, 2).WithMessage("Invalid format")
-				;
+			var v = new InlineValidator<ListSellingModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			return v.Validate(this);
 		}
@@ -48,28 +44,28 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		public long Id { get; set; }
 
 		/// <summary>
-		/// Request type: 1 - deposit, 2 - withdraw
-		/// </summary>
-		[Required]
-		public int Type { get; set; }
-
-		/// <summary>
 		/// Status: 1 - pending, 2 - success, 3 - cancelled
 		/// </summary>
 		[Required]
 		public int Status { get; set; }
 
 		/// <summary>
-		/// Amount
+		/// Amount in wei
 		/// </summary>
 		[Required]
-		public double Amount { get; set; }
+		public string Amount { get; set; }
 
 		/// <summary>
-		/// Payment reference
+		/// Exchange fiat currency
 		/// </summary>
 		[Required]
-		public string PaymentReference { get; set; }
+		public string ExchangeCurrency { get; set; }
+
+		/// <summary>
+		/// Exchange cryptoasset
+		/// </summary>
+		[Required]
+		public string CryptoAsset { get; set; }
 
 		/// <summary>
 		/// User-initiator data
@@ -140,19 +136,13 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 		}
 	}
 
-	public class LockDepositView {
+	public class LockBuyingView {
 		
 		/// <summary>
 		/// User-initiator data
 		/// </summary>
 		[Required]
 		public UserData User { get; set; }
-
-		/// <summary>
-		/// Bank info
-		/// </summary>
-		[Required]
-		public BankInfoData BankInfo { get; set; }
 
 		// ---
 
@@ -163,62 +153,31 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 			/// </summary>
 			[Required]
 			public string Username { get; set; }
+		}
+		
+	}
+
+	public class LockSellingView : LockBuyingView {
+		
+		/// <summary>
+		/// User-initiator data
+		/// </summary>
+		[Required]
+		public UserData User { get; set; }
+
+		// ---
+
+		public class UserData {
 
 			/// <summary>
-			/// Fiat limits
+			/// Username (u000000)
 			/// </summary>
 			[Required]
-			public PeriodLimitItem FiatLimits { get; set; }
-
-			// ---
-
-			public class PeriodLimitItem {
-
-				/// <summary>
-				/// Current limit (this-day-limit actually)
-				/// </summary>
-				[Required]
-				public double Minimal { get; set; }
-
-				/// <summary>
-				/// This day limit
-				/// </summary>
-				[Required]
-				public double Day { get; set; }
-
-				/// <summary>
-				/// This month limit
-				/// </summary>
-				[Required]
-				public double Month { get; set; }
-			}
-		}
-
-		public class BankInfoData {
-
-			[Required]
-			public string Name { get; set; }
-
-			[Required]
-			public string Address { get; set; }
-
-			[Required]
-			public string Iban { get; set; }
-
-			[Required]
-			public string BankName { get; set; }
-
-			[Required]
-			public string BankAddress { get; set; }
-
-			[Required]
-			public string Swift { get; set; }
+			public string Username { get; set; }
 		}
 	}
 
-	public class LockWithdrawView : LockDepositView {
-	}
-
+	/*
 	// ---
 
 	public class RefuseDepositModel : BaseValidableModel {
@@ -327,5 +286,5 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SwiftModels {
 
 	public class AcceptDepositView {
 	}
-
+	*/
 }

@@ -9,8 +9,8 @@ namespace Goldmint.DAL.Models {
 	[Table("gm_transparency")]
 	public class Transparency : BaseUserEntity {
 
-		[Column("amount"), Required]
-		public long Amount { get; set; }
+		[Column("amount"), MaxLength(FieldMaxLength.Comment)]
+		public string Amount { get; set; }
 
 		[Column("hash"), MaxLength(FieldMaxLength.TransparencyTransactionHash), Required]
 		public string Hash { get; set; }

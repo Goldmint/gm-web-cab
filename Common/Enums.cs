@@ -69,6 +69,16 @@ namespace Goldmint.Common {
 		DashboardReadAccess = 0x2L,
 
 		/// <summary>
+		/// Dashboard: buy requests write access
+		/// </summary>
+		BuyRequestsWriteAccess = 0x2000000L,
+		
+		/// <summary>
+		/// Dashboard: sell requests write access
+		/// </summary>
+		SellRequestsWriteAccess = 0x4000000L,
+		
+		/// <summary>
 		/// Dashboard: swift tab write access
 		/// </summary>
 		SwiftDepositWriteAccess = 0x8000000L,
@@ -429,6 +439,12 @@ namespace Goldmint.Common {
 		/// Changing selling request state (request-wide)
 		/// </summary>
 		GoldSellingReq,
+
+		/// <summary>
+		/// Support exchange request state (request-wide)
+		/// </summary>
+		SupportBuyRequestProc,
+		SupportSellRequestProc,
 	}
 
 	public enum NotificationType {

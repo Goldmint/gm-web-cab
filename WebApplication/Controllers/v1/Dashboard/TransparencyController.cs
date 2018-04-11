@@ -26,14 +26,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var amountCents = (long)Math.Floor(model.Amount * 100);
-
 			var user = await GetUserFromDb();
 
 			DbContext.Transparency.Add(
 				new Transparency() {
 					UserId = user.Id,
-					Amount = amountCents,
+					Amount = model.Amount,
 					Hash = model.Hash,
 					Comment = model.Comment,
 					TimeCreated = DateTime.UtcNow,

@@ -38,8 +38,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		public async Task<APIResponse> Transparency([FromBody] TransparencyModel model) {
 
 			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.Transparency, object>>>() {
-				{ "date",   _ => _.TimeCreated },
-				{ "amount", _ => _.Amount },
+				{ "date",   _ => _.TimeCreated }
 			};
 
 			// validate
@@ -60,7 +59,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				from i in page.Selected
 				select new TransparencyViewItem() {
 					Comment = i.Comment,
-					Amount = i.Amount / 100d,
+					Amount = i.Amount,
 					Link = string.Format("https://ipfs.io/ipfs/{0}", i.Hash),
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
 				}

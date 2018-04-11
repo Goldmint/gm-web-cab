@@ -9,7 +9,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 		/// Fiat amount
 		/// </summary>
 		[Required]
-		public double Amount { get; set; }
+		public string Amount { get; set; }
 
 		/// <summary>
 		/// Document hash (IPFS hash)
@@ -27,17 +27,18 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 			var v = new InlineValidator<AddModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Amount)
-				.GreaterThanOrEqualTo(0.01).WithMessage("Invalid amount")
+				.NotNull().WithMessage("Invalid amount")
+				.MaximumLength(DAL.Models.FieldMaxLength.Comment).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Hash)
 				.NotEmpty().WithMessage("Empty")
-				.MaximumLength(128).WithMessage("Invalid length")
+				.MaximumLength(DAL.Models.FieldMaxLength.TransparencyTransactionHash).WithMessage("Invalid length")
 			;
 
 			v.RuleFor(_ => _.Comment)
 				.NotEmpty().WithMessage("Empty")
-				.MaximumLength(512).WithMessage("Invalid length")
+				.MaximumLength(DAL.Models.FieldMaxLength.Comment).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
