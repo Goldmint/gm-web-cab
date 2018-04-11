@@ -1,7 +1,6 @@
-import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {APIService, EthereumService, GoldrateService, MessageBoxService, UserService} from "../../../services";
 import {TFAInfo} from "../../../interfaces";
-import {Subscription} from "rxjs/Subscription";
 import {User} from "../../../interfaces/user";
 import {Subject} from "rxjs/Subject";
 import {BigNumber} from "bignumber.js";
@@ -16,6 +15,9 @@ import {TranslateService} from "@ngx-translate/core";
 export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
+  @ViewChild('cryptoCurrencyForm') cryptoCurrencyForm;
+  @ViewChild('cCurrencyGoldAmount') cCurrencyGoldAmount;
+
   public loading = false;
   public progress: boolean = false;
   public isBalancesLoaded: boolean = false;
@@ -24,14 +26,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public user: User;
   public tfaInfo: TFAInfo;
 
-  public goldUsdRate: number = 0;
   public goldBalance: BigNumber = null;
   public hotGoldBalance: BigNumber = null;
   public mntpBalance: BigNumber = null;
   public ethAddress: string = '';
   public selectedWallet = 0;
-
-  private sub1: Subscription;
 
   // public toSell: BigNumber = new BigNumber(0);
   // public toSellVal: string = "";
@@ -44,13 +43,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   // public discountUSDArray: number[] = [0, 0, 0, 0];
   // public sellAmountChecked: boolean = true;
 
-  public coinList = ['btc', 'eth']
+  public coinList = ['BTC', 'ETH']
   public currentCoin = this.coinList[1];
-  public cCurrencyGoldAmount: any = null;
+  public cCurrencyCoinAmount: any = null;
   public cCurrencyAmountView = 0;
   public cCurrencyEstimateAmount = 0;
-  public ethRate: number = 450;
-  public invalidBalance: boolean = false;
+  public invalidBalance = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -65,6 +63,21 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.loading = true;
+    this.cCurrencyGoldAmount.valueChanges
+      .debounceTime(750)
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (value) {
+          this.onCCurrencyChanged(value.toString());
+        } else {
+          this.cCurrencyEstimateAmount = 0;
+          this.invalidBalance = true;
+          this.loading = false;
+          this._cdRef.markForCheck();
+        }
+      });
+
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._userService.currentUser
@@ -79,52 +92,37 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     Observable.combineLatest(
       this._ethService.getObservableGoldBalance(),
       this._ethService.getObservableMntpBalance()
-      // this._apiService.getEthereumRate()
     )
       .takeUntil(this.destroy$).subscribe((data) => {
       if (data[0] !== null && (this.goldBalance === null || !this.goldBalance.eq(data[0]))
-        && data[1] !== null && (this.mntpBalance === null || !this.mntpBalance.eq(data[0]))
+        && data[1] !== null && (this.mntpBalance === null || !this.mntpBalance.eq(data[1]))
       ) {
         this.goldBalance = data[0];
         this.mntpBalance = data[1];
+        this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
         this.setCCurrencyGoldBalance();
       }
-      // this.ethRate = data[2].data.usd;
     });
 
-    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(data => {
+    this._ethService.getObservableHotGoldBalance().subscribe(data => {
       if (data !== null && (this.hotGoldBalance === null || !this.hotGoldBalance.eq(data))) {
         this.hotGoldBalance = data;
         this.setCCurrencyGoldBalance();
       }
-    });
-
-    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(rate => {
-      if (rate > 0 && rate !== this.goldUsdRate) {
-        this.goldUsdRate = rate;
-        if (this.cCurrencyGoldAmount !== null) {
-          this.cCurrencyEstimateAmount = this.calculationCCurrencyAmount();
-          this._cdRef.markForCheck();
-        }
-      }
-    });
+    })
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
-      if (!this.ethAddress) {
+      if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
         this.selectedWallet = 0;
         this.setCCurrencyGoldBalance();
       }
     });
 
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-    this.setCCurrencyGoldBalance();
-
     this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
       this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
       this.setCCurrencyGoldBalance();
     });
-
   }
 
   chooseCurrentCoin(coin) {
@@ -133,137 +131,83 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  changeValue() {
+    this.loading = true;
+  }
+
   onCCurrencyChanged(value: string) {
     this.invalidBalance = false;
+
     const testValue = value != null && value.length > 0 ? new BigNumber(value) : new BigNumber(0);
-    this.cCurrencyGoldAmount = new BigNumber(0);
+    this.cCurrencyCoinAmount = new BigNumber(0);
 
-    if (testValue.gt(0)) {
-      this.cCurrencyGoldAmount = new BigNumber(value);
-      this.cCurrencyGoldAmount = this.cCurrencyGoldAmount.decimalPlaces(6, BigNumber.ROUND_DOWN);
-    }
-    this.cCurrencyEstimateAmount = this.calculationCCurrencyAmount();
-    if (this.selectedWallet === 0 && +value > this.hotGoldBalance.toNumber()) {
-      this.invalidBalance = true;
-    } else if (this.selectedWallet === 1 && +value > this.goldBalance.toNumber()) {
-      this.invalidBalance = true;
-    }
+    const currentBalance = this.selectedWallet === 0 ? this.hotGoldBalance : this.goldBalance;
+    if (testValue.gt(0) && +value <= currentBalance.toNumber()) {
+      this.cCurrencyCoinAmount = new BigNumber(value);
+      this.cCurrencyCoinAmount = this.cCurrencyCoinAmount.decimalPlaces(6, BigNumber.ROUND_DOWN);
 
+      const wei = new BigNumber(this.cCurrencyCoinAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+      this._apiService.goldSellEstimate(this.currentCoin, wei.toString())
+        .finally(() => {
+          this.loading = false;
+          this._cdRef.markForCheck();
+        }).subscribe(data => {
+        this.cCurrencyEstimateAmount = data.data.amount / Math.pow(10, 18);
+      });
+    } else {
+      this.cCurrencyEstimateAmount = 0;
+      this.loading = false;
+      this.invalidBalance = true;
+    }
     this._cdRef.markForCheck();
   }
 
   setCCurrencyGoldBalance(percent: number = 1) {
-    let goldBalance = this.selectedWallet == 0 ? this.hotGoldBalance : this.goldBalance;
-    if (!goldBalance) {
-      return;
+    if (this.hotGoldBalance === null) {
+      return
     }
-    goldBalance = new BigNumber(goldBalance.times(percent));
-    // got gold balance first time
-    if (goldBalance.gt(0)) {
-      this.cCurrencyGoldAmount = goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
-      this.cCurrencyEstimateAmount = this.calculationCCurrencyAmount();
-      this.cCurrencyAmountView = this.cCurrencyGoldAmount.toNumber();
-      this.invalidBalance = false;
-    } else {
-      this.cCurrencyEstimateAmount = this.cCurrencyAmountView = 0;
-      this.cCurrencyGoldAmount = new BigNumber(0);
-      this.invalidBalance = true;
-    }
-    this._cdRef.markForCheck();
-  }
+    this.loading = true;
 
-  calculationCCurrencyAmount() {
-    return +(this.cCurrencyGoldAmount.toNumber() * (this.goldUsdRate / this.ethRate)).toFixed(6)
+    let goldBalance = this.selectedWallet === 0 ? this.hotGoldBalance : this.goldBalance;
+    goldBalance = new BigNumber(goldBalance.times(percent));
+    this.cCurrencyCoinAmount = goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+    this.cCurrencyAmountView = this.cCurrencyCoinAmount;
+
+    this._cdRef.markForCheck();
   }
 
   onCryptoCurrencySubmit() {
     this.loading = true;
-    if (this.selectedWallet == 0) {
+    if (this.selectedWallet === 0) {
 
     } else {
-      this._apiService.goldSellAsset(this.ethAddress, this.cCurrencyGoldAmount)
+      this.loading = true;
+      this._apiService.goldSellAsset(this.ethAddress, this.cCurrencyCoinAmount)
         .finally(() => {
           this.loading = false;
           this._cdRef.markForCheck();
         })
         .subscribe(res => {
-          const amount = +(this.cCurrencyGoldAmount * (res.data.goldRate /res.data.ethRate)).toFixed(6);
-          this._translate.get('MessageBox.EthWithdraw',
-            {coinAmount: this.cCurrencyGoldAmount, goldAmount: amount, ethRate: res.data.ethRate}
-          ).subscribe(phrase => {
-            this._messageBox.confirm(phrase).subscribe(ok => {
-              if (ok) {
-                this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
-                  console.log('confirmed');
-                  // this._ethService.sendBuyRequest(this.ethAddress, res.data.requestId, this.cCurrencyCoinAmount);
+          const wei = new BigNumber(this.cCurrencyCoinAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+          this._apiService.goldSellEstimate(this.currentCoin, wei.toString())
+            .subscribe(data => {
+              const amount = data.data.amount / Math.pow(10, 18);
+              this._translate.get('MessageBox.EthWithdraw',
+                {coinAmount: this.cCurrencyCoinAmount, goldAmount: amount.toFixed(6), ethRate: res.data.ethRate}
+              ).subscribe(phrase => {
+                this._messageBox.confirm(phrase).subscribe(ok => {
+                  if (ok) {
+                    this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
+                      this._ethService.sendSellRequest(this.ethAddress, res.data.requestId, this.cCurrencyCoinAmount);
+                      this.cryptoCurrencyForm.reset();
+                    });
+                  }
                 });
-              }
+              });
             });
-          });
         });
     }
   }
-
-  // onSell() {
-  //   this.progress = true;
-  //   this._cdRef.markForCheck();
-  //
-  //   if (this.selectedWallet == 0) {
-  //     this._apiService.goldSellHwRequest(this.toSell)
-  //       .finally(() => {
-  //         this.progress = false;
-  //         this._cdRef.markForCheck();
-  //       })
-  //       .subscribe(res => {
-  //         const amount = new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))
-  //         this.confirmation = true;
-  //         this._cdRef.markForCheck();
-  //
-  //         this._translate.get('MessageBox.GoldSell',
-  //           {goldAmount: amount, fiatAmount: res.data.fiatAmount, feeAmount: res.data.feeAmount, goldRate: res.data.goldRate}
-  //         ).subscribe(phrase => {
-  //           this._messageBox.confirm(phrase).subscribe(ok => {
-  //             this.confirmation = false;
-  //             if (ok) {
-  //               this._apiService.confirmHwRequest(false, res.data.requestId).subscribe(() => {
-  //                 this._translate.get('MessageBox.RequestProgress' ).subscribe(phrase => {
-  //                   this._messageBox.alert(phrase).subscribe(() => {
-  //                     this.router.navigate(['/finance/history']);
-  //                   });
-  //                 });
-  //               });
-  //             }
-  //             this._cdRef.markForCheck();
-  //           });
-  //         });
-  //       });
-  //   } else {
-  //     this._apiService.goldSellRequest(this.ethAddress, this.toSell)
-  //       .finally(() => {
-  //         this.progress = false;
-  //         this._cdRef.markForCheck();
-  //       })
-  //       .subscribe(res => {
-  //         const amount = new BigNumber(res.data.goldAmount).dividedBy(new BigNumber(10).pow(18))
-  //         this.confirmation = true;
-  //         this._cdRef.markForCheck();
-  //
-  //         this._translate.get('MessageBox.GoldSell',
-  //           {goldAmount: amount, fiatAmount: res.data.fiatAmount, feeAmount: res.data.feeAmount, goldRate: res.data.goldRate}
-  //         ).subscribe(phrase => {
-  //           this._messageBox.confirm(phrase).subscribe(ok => {
-  //             this.confirmation = false;
-  //             if (ok) {
-  //               this._apiService.confirmMMRequest(false, res.data.requestId).subscribe(() => {
-  //                 // this._ethService.sendSellRequest(this.ethAddress, res.data.payload);
-  //               });
-  //             }
-  //             this._cdRef.markForCheck();
-  //           });
-  //         });
-  //       });
-  //   }
-  // }
 
   // recalcCommission() {
   //   if (!this.goldUsdRate) {

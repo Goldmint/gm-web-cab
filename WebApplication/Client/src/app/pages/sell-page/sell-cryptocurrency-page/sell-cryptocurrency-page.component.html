@@ -18,7 +18,7 @@
             </div>
 
             <div class="pt-4">
-              <form #CryptoCurrencyFrom="ngForm">
+              <form #cryptoCurrencyForm="ngForm">
                 <div class="row align-items-start">
                   <div class="col-12">
                     <div class="from-row form-group">
@@ -34,7 +34,7 @@
                                step="0.1"
                                [(ngModel)]="cCurrencyAmountView"
                                #cCurrencyGoldAmount="ngModel"
-                               (input)="onCCurrencyChanged($event.target.value)"
+                               (input)="changeValue()"
                                [ngClass]="{'is-invalid': (!cCurrencyAmountView || invalidBalance) && cCurrencyGoldAmount.dirty}"
                         >
                       </div>
@@ -60,16 +60,16 @@
                             <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
                           </svg>
                         </div>
-                        <input type="text" class="form-control" id="cCurrencyEstimateAmount" name="cCurrencyEstimateAmount" readonly [value]="cCurrencyEstimateAmount">
+                        <input type="text" class="form-control" id="cCurrencyEstimateAmount" ngModel name="cCurrencyEstimateAmount" readonly [value]="cCurrencyEstimateAmount | number:'1.1-6':locale">
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-12 pb-4">
+                  <!--<div class="col-12 pb-4">
                     <div class="form-group">
                       <label for="cCurrencyCode">Two-factor authentication code</label>
                       <div class="d-flex align-items-center">
-                        <div class="form-currency form-currency--usd">
+                        <div class="form-currency form-currency&#45;&#45;usd">
                           <svg class="icon" width="30">
                             <use xlink:href="#verify-secure"></use>
                           </svg>
@@ -84,10 +84,10 @@
                         Code should be 6-digits length
                       </div>
                     </div>
-                  </div>
+                  </div>-->
 
                   <div class="mb-5">
-                    <button type="submit" (click)="onCryptoCurrencySubmit()" class="btn btn-primary" [disabled]="!cCurrencyAmountView || invalidBalance || cCurrencyCode.invalid || loading">Sell now</button>
+                    <button type="submit" (click)="onCryptoCurrencySubmit()" class="btn btn-primary" [disabled]="!cCurrencyAmountView || invalidBalance || loading">Sell now</button>
                     <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                   </div>
                 </div>
