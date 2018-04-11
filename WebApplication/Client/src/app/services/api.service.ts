@@ -420,7 +420,16 @@ export class APIService {
         shareReplay(),
       );
   }
-  // -----
+
+  goldSellEstimate(currency: string, amount: string) {
+    return this._http
+      .post(`${this._baseUrl}/user/gold/sell/estimate`, { currency, amount }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
   goldTransferHwRequest(ethAddress: string, amount: BigNumber): Observable<APIResponse<GoldHwTransferResponse>> {
     var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http

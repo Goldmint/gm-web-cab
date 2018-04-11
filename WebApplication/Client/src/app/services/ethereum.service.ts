@@ -32,6 +32,7 @@ export class EthereumService {
   public _contractHotGold: any;
   private _contractMntp: any;
   private _contactsInitted: boolean = false;
+  private _totalGoldBalances = {issued: null, burnt: null};
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -43,6 +44,8 @@ export class EthereumService {
   private _obsHotGoldBalance: Observable<BigNumber> = this._obsHotGoldBalanceSubject.asObservable();
   private _obsEthBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsEthBalance: Observable<BigNumber> = this._obsEthBalanceSubject.asObservable();
+  private _obsTotalGoldBalancesSubject = new BehaviorSubject<Object>(null);
+  private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
 
   constructor(
     private _userService: UserService
@@ -106,6 +109,7 @@ export class EthereumService {
     }
 
     this.checkHotBalance();
+    this.updateTotalGoldBalances();
   }
 
   private checkHotBalance() {
@@ -151,6 +155,23 @@ export class EthereumService {
     }
   }
 
+  private updateTotalGoldBalances() {
+    if (this._contractHotGold) {
+        this._contractHotGold.getTotalBurnt((err, res) => {
+        if (!this._totalGoldBalances.burnt || !this._totalGoldBalances.burnt.eq(res)) {
+          this._totalGoldBalances.burnt = res;
+          this._totalGoldBalances.issued && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
+        }
+      });
+      this._contractHotGold.getTotalIssued((err, res) => {
+        if (!this._totalGoldBalances.issued || !this._totalGoldBalances.issued.eq(res)) {
+          this._totalGoldBalances.issued = res;
+          this._totalGoldBalances.burnt && this._obsTotalGoldBalancesSubject.next(this._totalGoldBalances);
+        }
+      });
+    }
+  }
+
   // ---
 
   public isValidAddress(addr: string): boolean {
@@ -181,23 +202,22 @@ export class EthereumService {
     return this._obsEthBalance;
   }
 
-  // ---
+  public getObservableTotalGoldBalances(): Observable<Object> {
+    return this._obsTotalGoldBalances;
+  }
 
-  // public sendBuyRequest(fromAddr: string, payload: any[]) {
-  //   if (this._contractMetamask == null) return;
-  //   this._contractMetamask.addBuyTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
-  // }
-  //
-  // public sendSellRequest(fromAddr: string, payload: any[]) {
-  //   if (this._contractFiatMetamask == null) return;
-  //   this._contractFiatMetamask.addSellTokensRequest.sendTransaction(payload[0], payload[1], { from: fromAddr, value: 0 }, (err, res) => { });
-  // }
-  //
-  // public ethDepositRequest(fromAddr: string, requestId: number, amount: BigNumber) {
-  //   if (this._contractFiatMetamask == null) return;
-  //   const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-  //   this._contractFiatMetamask.depositEth.sendTransaction(requestId, { from: fromAddr, value: wei.toString() }, (err, res) => { });
-  // }
+  // ---
+  public sendBuyRequest(fromAddr: string, requestId: number, amount: BigNumber) {
+    if (this._contractMetamask == null) return;
+    const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    this._contractMetamask.buyGoldWithEth(requestId, { from: fromAddr, value: wei.toString() }, (err, res) => { });
+  }
+
+  public sendSellRequest(fromAddr: string, requestId: number, amount: BigNumber) {
+    if (this._contractMetamask == null) return;
+    const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    this._contractMetamask.sellGoldWithEth(requestId, wei.toString(), { from: fromAddr, value: 0 }, (err, res) => { });
+  }
 
   public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
     if (this._contractGold == null) return;
