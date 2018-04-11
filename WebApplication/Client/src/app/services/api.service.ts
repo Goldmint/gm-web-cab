@@ -207,7 +207,7 @@ export class APIService {
   getHistory(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc'): Observable<APIPagedResponse<HistoryRecord[]>> {
 
     return this._http
-      .post(`${this._baseUrl}/user/fiat/history`, { offset: offset, limit: limit, sort: sort, ascending: order === 'asc' }, this.jwt())
+      .post(`${this._baseUrl}/user/history`, { offset: offset, limit: limit, sort: sort, ascending: order === 'asc' }, this.jwt())
       .pipe(
       catchError(this._handleError),
       tap(response => {
@@ -373,7 +373,54 @@ export class APIService {
         shareReplay(),
       );
   }
+  // -------
+  goldBuyAsset(ethAddress: string, amount: BigNumber) {
+    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    return this._http
+      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
 
+  goldBuyConfirm(requestId: number) {
+    return this._http
+      .post(`${this._baseUrl}/user/gold/buy/confirm`, { requestId }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
+  goldBuyEstimate(currency: string, amount: string) {
+    return this._http
+      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
+  goldSellAsset(ethAddress: string, amount: BigNumber) {
+    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    return this._http
+      .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
+  goldSellConfirm(requestId: number) {
+    return this._http
+      .post(`${this._baseUrl}/user/gold/sell/confirm`, { requestId }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+  // -----
   goldTransferHwRequest(ethAddress: string, amount: BigNumber): Observable<APIResponse<GoldHwTransferResponse>> {
     var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http

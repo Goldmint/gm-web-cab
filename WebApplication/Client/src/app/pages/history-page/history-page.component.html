@@ -10,7 +10,7 @@
 
 <!-- [scrollbarH]="scrollbarHorizontal" -->
     <div class="section__content">
-      <ngx-datatable class="table" #table
+      <ngx-datatable class="table history-table" #table
         [rows]="rows"
 
         [columnMode]="'force'"
@@ -42,33 +42,7 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="120">
-          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-            <span class="datatable-header-cell-wrapper" (click)="sort()">
-              {{ "PAGES.History.Table.Columns.Amount" | translate }}
-            </span>
-          </ng-template>
-
-          <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-            <div class="d-flex">
-              <span *ngIf="row.type === 'hwtransfer'; else usdIcon">
-                <svg class="icon-gold-color" width="15" height="15">
-                  <use xlink:href="#cur-gold"></use>
-                </svg>
-              </span>
-
-              <ng-template #usdIcon>
-                <svg class="icon-gold-color" width="15" height="15">
-                  <use xlink:href="#cur-usd"></use>
-                </svg>
-              </ng-template>
-
-              <span class="pl-1"> {{ amount | number:'1.2-2':locale }}</span>
-            </div>
-          </ng-template>
-        </ngx-datatable-column>
-
-        <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [width]="100">
+        <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [width]="120">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper ml-3" (click)="sort()">
               {{ "PAGES.History.Table.Columns.Type" | translate }}
@@ -112,24 +86,23 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column prop="fee" [draggable]="false" [resizeable]="false" [width]="60">
+        <ngx-datatable-column prop="fee" [draggable]="false" [resizeable]="false" [sortable]="false">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
-              {{ "PAGES.History.Table.Columns.Fee" | translate }}
+              Destination
             </span>
           </ng-template>
 
-          <ng-template let-fee="value" let-row="row" ngx-datatable-cell-template>
-            <span class="d-flex" *ngIf="fee && fee > 0; else noFeeBlock">
-              <svg class="icon-gold-color" width="15" height="15">
-                <use xlink:href="#cur-usd"></use>
-              </svg>
-              <span class="pl-1">{{ fee | number:'1.0-2':locale }}</span>
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <svg class="icon history-icon" width="20" height="20" *ngIf="row.src === 'ETH'">
+              <use xlink:href="#etherium"></use>
+            </svg>
+            <svg class="icon history-icon" width="20" height="15" *ngIf="row.src === 'GOLD'">
+              <use xlink:href="#cur-gold"></use>
+            </svg>
+            <span class="pl-2">
+              {{ row.src }} => {{ row.dst }}
             </span>
-
-            <ng-template #noFeeBlock>
-              <div class="text-center free-cell-width">-</div>
-            </ng-template>
           </ng-template>
         </ngx-datatable-column>
 

@@ -28,7 +28,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public metamaskAccount: string = null;
   public goldBalance: string|null = null;
   public hotGoldBalance: string|null = null;
-  public usdBalance: number|null = null;
   public shortAdr: string;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -81,11 +80,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
         this._cdRef.detectChanges();
       }
-    });
-
-    this._ethService.getObservableUsdBalance().takeUntil(this.destroy$).subscribe(bal => {
-      this.usdBalance = bal;
-      this._cdRef.detectChanges();
     });
 
     this._userService.currentWallet = this.activeWallet;

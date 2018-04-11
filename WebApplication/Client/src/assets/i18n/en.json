@@ -1052,7 +1052,8 @@
     "GoldSell": "GOLD to sell: {{ goldAmount }} GOLD <br> You will get: $ {{ fiatAmount }} ($ {{ feeAmount }} fee) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "GOLD to buy: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Target address: {{ address }} <br> GOLD amount: {{ amount }} GOLD",
-    "EthDeposit": "Eth to deposit: {{ coinAmount }} Eth <br> Estimates Amount: $ {{ usdAmount }} <br> Eth/USD: {{ ethRate }}",
+    "EthDeposit": "Gold to buy: {{ coinAmount }} Eth <br> Estimates Amount: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
+    "EthWithdraw": "Gold to sell: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Password successfully changed",
     "InvalidCode": "Invalid code",
     "ConnectionError": {

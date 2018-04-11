@@ -209,7 +209,7 @@ export class DepositPageComponent implements OnInit {
           this._messageBox.confirm(phrase).subscribe(ok => {
             if (ok) {
               this._apiService.confirmEthDepositRequest(true, res.data.requestId).subscribe(() => {
-                this._ethService.ethDepositRequest(this.ethAddress, res.data.requestId, this.cryptoCurrencyAmount);
+                // this._ethService.ethDepositRequest(this.ethAddress, res.data.requestId, this.cryptoCurrencyAmount);
               });
             }
           });
