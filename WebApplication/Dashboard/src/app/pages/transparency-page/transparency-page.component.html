@@ -135,23 +135,44 @@
     </div>
 
     <div class="trn-info">
-      <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" (ngSubmit)="upload()">
+      <div class="col-6 px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--plus">
+          <svg class="icon" width="8px" height="8px">
+            <use xlink:href="#amount-plus"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">Total OZ</div>
+        <div class="trn-info__value">
+          <input type="number" class="form-control m-0" value="0">
+        </div>
+      </div>
+      <div class="col-6 px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--plus">
+          <svg class="icon" width="8px" height="8px">
+            <use xlink:href="#amount-plus"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">Total USD</div>
+        <div class="trn-info__value">
+          <input type="number" class="form-control m-0" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="trn-info">
+      <form class="w-100 transparency-form" [formGroup]="form" (ngSubmit)="upload()">
 
         <div class="row align-items-start">
 
-          <div class="col-lg-auto pt-4">
+          <div class="col-lg pt-4">
             <div class="from-row form-group">
-              <label class="file-upload-btn">
-                <input type="file" name="file" accept="image/*" (change)="onChangeFile($event)" #file formControlName="realFile">
-                <input type="hidden" name="hiddenFile" formControlName="file">
-                <span class="btn btn-sm btn-primary btn-block">Document</span>
-              </label>
+              <input type="text" class="form-control" placeholder="Link" formControlName="link">
             </div>
           </div>
 
           <div class="col-lg pt-4">
             <div class="from-row form-group">
-              <input type="number" min="0" class="form-control" [value]="amount" (input)="onAmountChanged($event.target.value)" placeholder="Amount" formControlName="amount">
+              <input type="text" class="form-control" placeholder="Amount" formControlName="amount">
             </div>
           </div>
 
@@ -162,7 +183,7 @@
           </div>
 
           <div class="col-lg-auto pb-3 pt-3">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || formDir.submitted">Upload</button>
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || processing">Upload</button>
           </div>
 
         </div>

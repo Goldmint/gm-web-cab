@@ -22,6 +22,7 @@ import { DatePipe } from '@angular/common';
 export class TransparencyPageComponent implements OnInit {
   public locale: string;
   public loading: boolean;
+  public processing = false;
   public page = new Page();
   public isDataLoaded = false;
 
@@ -52,10 +53,9 @@ export class TransparencyPageComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.formBuilder.group({
+      'link': ['', Validators.required],
       'amount': ['', Validators.required],
-      'comment': ['', Validators.required],
-      'file': ['', Validators.required],
-      'realFile': ['']
+      'comment': ['', Validators.required]
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -110,19 +110,6 @@ export class TransparencyPageComponent implements OnInit {
         });
   }
 
-  onAmountChanged(value) {
-    this.amount = null;
-    if (value != '') {
-      this.amount = new BigNumber(value);
-      this.amount = this.amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
-    }
-  }
-
-  onChangeFile(event) {
-    let file = event.target.files[0];
-    this.form.controls['file'].setValue(file ? file.name : '');
-  }
-
   updateStat() {
     this.loading = true;
 
@@ -149,37 +136,26 @@ export class TransparencyPageComponent implements OnInit {
   }
 
   upload() {
-    let fileBrowser = this.selectedFile.nativeElement;
-    if (fileBrowser.files && fileBrowser.files[0]) {
-      this.form.disable();
+    this.form.disable();
+    this.processing = true;
 
-      const formData = new FormData();
-      formData.append("arg", fileBrowser.files[0]);
+    let errorFn = () => {
+      this._messageBox.alert('Something went wrong, transparency has not been added! Sorry :(').subscribe();
+      this.processing = false;
+      this.form.enable();
+    };
 
-      let errorFn = () => {
-        this._messageBox.alert('Something went wrong, transparency has not been added! Sorry :(').subscribe();
-        this.formDir.submitted = false;
-        this.form.enable();
-      };
-
-      this.apiService.addIPFSFile(formData)
-        .subscribe(
-          data => {
-            this.apiService.addTransparency(data['Hash'], this.form.value.amount, this.form.value.comment).subscribe(
-              () => {
-                this._messageBox.alert('Transparency has been added!').subscribe(() => {
-                  this.formDir.submitted = false;
-                  this.form.reset();
-                  this.form.enable();
-                });
-                this.setPage({ offset: this.page.pageNumber });
-              },
-              errorFn
-            );
-          },
-          errorFn
-        )
-    }
+    this.apiService.addTransparency(this.form.value.link, this.form.value.amount, this.form.value.comment).subscribe(
+      () => {
+        this._messageBox.alert('Transparency has been added!').subscribe(() => {
+          this.processing = false;
+          this.form.reset();
+          this.form.enable();
+        });
+        this.setPage({ offset: this.page.pageNumber });
+      },
+      errorFn
+    );
   }
 
 }

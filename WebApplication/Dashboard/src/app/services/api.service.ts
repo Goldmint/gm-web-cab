@@ -186,9 +186,9 @@ export class APIService {
       );
   }
 
-  addTransparency(hash: string, amount: number, comment: string) {
+  addTransparency(link: string, amount: string, comment: string) {
     return this._http
-      .post(`${this._baseUrl}/dashboard/transparency/add`, {hash, amount, comment}, this.jwt())
+      .post(`${this._baseUrl}/dashboard/transparency/add`, {link, amount, comment}, this.jwt())
       .pipe(
         catchError(this._handleError)
       );
