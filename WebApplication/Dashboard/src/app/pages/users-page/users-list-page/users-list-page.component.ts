@@ -23,8 +23,7 @@ export class UsersListPageComponent implements OnInit {
   public form: FormGroup;
 
   public currentUser = {};
-
-  private filterValue = '';
+  public filterValue = '';
 
   @ViewChild('formDir') formDir;
 
@@ -53,20 +52,20 @@ export class UsersListPageComponent implements OnInit {
       this.locale = currentLocale;
     });
 
-    this.setPage({ offset: 0 }, this.filterValue);
+    this.setPage({ offset: 0 });
   }
 
   onSort(event) {
     this.sorts = event.sorts;
-    this.setPage({ offset: 0 }, this.filterValue);
+    this.setPage({ offset: 0 });
   }
 
-  setPage(pageInfo, filter) {
+  setPage(pageInfo) {
     this.loading = true;
     this.cdRef.detectChanges();
     this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getUsersList(filter, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getUsersList(this.filterValue, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
           this.rows = data.data.items;
@@ -86,6 +85,6 @@ export class UsersListPageComponent implements OnInit {
 
   userFilter() {
     this.filterValue = this.form.controls.filter.value;
-    this.setPage({ offset: 0 }, this.filterValue);
+    this.setPage({ offset: 0 });
   }
 }

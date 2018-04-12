@@ -9,9 +9,9 @@ import { MessageType } from './message-box.enum';
   templateUrl: './message-box.component.html'
 })
 export class MessageBoxComponent {
-  private _types = MessageType;
-  /*private _*/onClose: Subject<boolean|string|null>;
-  private _promptValue: string;
+  public types = MessageType;
+  public onClose: Subject<boolean|string|null>;
+  public promptValue: string;
 
   public id: string;
   public title: string;
@@ -29,7 +29,7 @@ export class MessageBoxComponent {
   public onConfirm(): void {
     switch (this.messageType) {
       case MessageType.Prompt:
-        this.onClose.next(this._promptValue && this._promptValue.length ? this._promptValue : null);
+        this.onClose.next(this.promptValue && this.promptValue.length ? this.promptValue : null);
         break;
 
       case MessageType.Confirm:

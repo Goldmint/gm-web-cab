@@ -11,18 +11,18 @@
   <p [innerHTML]="message"></p>
 
   <input type="text" name="promptValue" class="form-control mb-0"
-         *ngIf="messageType === _types.Prompt"
-         [(ngModel)]="_promptValue" />
+         *ngIf="messageType === types.Prompt"
+         [(ngModel)]="promptValue" />
 </div>
 
 <div class="message-box__footer">
   <button type="button" class="btn btn-primary btn-sm mx-1"
-          [disabled]="messageType === _types.Prompt && !_promptValue"
+          [disabled]="messageType === types.Prompt && !promptValue"
           (click)="onConfirm()">OK</button>
   <button type="button" class="btn btn-primary btn-sm mx-1"
-          *ngIf="messageType === _types.Confirm"
+          *ngIf="messageType === types.Confirm"
           (click)="onCancel()">Cancel</button>
   <button type="button" class="btn btn-primary btn-sm mx-1"
-          *ngIf="messageType === _types.Prompt"
+          *ngIf="messageType === types.Prompt"
           (click)="onCancel()">Close</button>
 </div>

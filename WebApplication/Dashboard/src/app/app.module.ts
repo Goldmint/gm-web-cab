@@ -39,7 +39,7 @@ import { EqualValidatorDirective } from './directives/equal-validator.directive'
  */
 import { BsDropdownModule, ModalModule, ButtonsModule, TabsModule } from 'ngx-bootstrap';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
+
 
 /*
   Blocks
@@ -90,7 +90,6 @@ export function getGoldmintToken() {
     ButtonsModule.forRoot(),
     TabsModule.forRoot(),
     NgxDatatableModule,
-    NgxQRCodeModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {
