@@ -22,6 +22,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public progress: boolean = false;
   public isBalancesLoaded: boolean = false;
   public confirmation: boolean = false;
+  public locale: string;
 
   public user: User;
   public tfaInfo: TFAInfo;
@@ -102,6 +103,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
         this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
         this.setCCurrencyGoldBalance();
       }
+    });
+
+    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
+      this.locale = currentLocale;
     });
 
     this._ethService.getObservableHotGoldBalance().subscribe(data => {

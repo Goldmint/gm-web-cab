@@ -22,6 +22,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public loading = false;
   public confirmation = false;
   public progress = false;
+  public locale: string;
 
   public ethAddress: string = '';
   public selectedWallet = 0;
@@ -75,6 +76,10 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
         this.user = res[1];
         this._cdRef.markForCheck();
       });
+
+    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
+      this.locale = currentLocale;
+    });
 
     this._ethService.getObservableEthBalance().takeUntil(this.destroy$).subscribe(balance => {
      if (this.ethBalance === null || !this.ethBalance.eq(balance)) {
