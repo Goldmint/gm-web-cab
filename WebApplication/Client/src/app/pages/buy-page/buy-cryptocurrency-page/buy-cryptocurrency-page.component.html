@@ -37,7 +37,7 @@
                                step="0.1"
                                [(ngModel)]="cCurrencyAmountView"
                                #cCurrencyEthAmount="ngModel"
-                               (input)="onCCurrencyChanged($event.target.value)"
+                               (input)="changeValue()"
                                [ngClass]="{'is-invalid': (!cCurrencyAmountView || invalidBalance) && cCurrencyEthAmount.dirty}"
                         >
                       </div>
@@ -62,7 +62,7 @@
                             <use xlink:href="#cur-gold"></use>
                           </svg>
                         </div>
-                        <input type="text" class="form-control" id="input_EstimateAmount" name="estimates-amount" readonly [value]="cCurrencyEstimateAmount | number:'1.1-6':locale">
+                        <input type="text" class="form-control" id="input_EstimateAmount" ngModel name="estimates-amount" readonly [value]="cCurrencyEstimateAmount | number:'1.1-6':locale">
                       </div>
                     </div>
                   </div>

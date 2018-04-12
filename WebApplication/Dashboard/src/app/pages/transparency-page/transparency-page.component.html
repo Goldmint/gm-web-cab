@@ -117,41 +117,63 @@
           <tr class="fees-datatable-body-row fees-border-bottom">
             <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.DataProvided" | translate }}</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" class="form-control m-0" [(ngModel)]="statData.viewDataTimestamp" pattern="^\d\d\.\d\d\.\d\d$" name="dataTimestamp">
+              <input type="text" class="form-control m-0" [(ngModel)]="statData.viewDataTimestamp" pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$" name="dataTimestamp">
             </td>
           </tr>
           <tr class="fees-datatable-body-row fees-border-bottom">
             <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Report" | translate }}</td>
             <td class="fees-datatable-body-cell w-50 align-middle">
-              <input type="text" class="form-control m-0" [(ngModel)]="statData.viewAuditTimestamp" pattern="^\d\d\.\d\d\.\d\d$" name="auditTimestamp">
+              <input type="text" class="form-control m-0" [(ngModel)]="statData.viewAuditTimestamp" pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$" name="auditTimestamp">
             </td>
           </tr>
           </tbody>
         </table>
+
+      <div class="trn-info">
+        <div class="col-6 px-5 trn-info__block">
+          <div class="trn-info__icon trn-info__icon--plus">
+            <svg class="icon" width="8px" height="8px">
+              <use xlink:href="#amount-plus"></use>
+            </svg>
+          </div>
+          <div class="trn-info__label">Total OZ</div>
+          <div class="trn-info__value">
+            <input type="number" class="form-control m-0" [(ngModel)]="statData.TotalOz" name="TotalOz">
+          </div>
+        </div>
+        <div class="col-6 px-5 trn-info__block">
+          <div class="trn-info__icon trn-info__icon--plus">
+            <svg class="icon" width="8px" height="8px">
+              <use xlink:href="#amount-plus"></use>
+            </svg>
+          </div>
+          <div class="trn-info__label">Total USD</div>
+          <div class="trn-info__value">
+            <input type="number" class="form-control m-0" [(ngModel)]="statData.TotalUsd" name="TotalUsd">
+          </div>
+        </div>
+      </div>
 
         <div class="col pb-3 pt-3 text-right">
             <button class="btn btn-primary" type="submit" (click)="updateStat()" [disabled]="loading || statDataForm.invalid">Save</button>
         </div>
     </div>
 
+
     <div class="trn-info">
-      <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" (ngSubmit)="upload()">
+      <form class="w-100 transparency-form" [formGroup]="form" (ngSubmit)="upload()">
 
         <div class="row align-items-start">
 
-          <div class="col-lg-auto pt-4">
+          <div class="col-lg pt-4">
             <div class="from-row form-group">
-              <label class="file-upload-btn">
-                <input type="file" name="file" accept="image/*" (change)="onChangeFile($event)" #file formControlName="realFile">
-                <input type="hidden" name="hiddenFile" formControlName="file">
-                <span class="btn btn-sm btn-primary btn-block">Document</span>
-              </label>
+              <input type="text" class="form-control" placeholder="Link" formControlName="link">
             </div>
           </div>
 
           <div class="col-lg pt-4">
             <div class="from-row form-group">
-              <input type="number" min="0" class="form-control" [value]="amount" (input)="onAmountChanged($event.target.value)" placeholder="Amount" formControlName="amount">
+              <input type="text" class="form-control" placeholder="Amount" formControlName="amount">
             </div>
           </div>
 
@@ -162,7 +184,7 @@
           </div>
 
           <div class="col-lg-auto pb-3 pt-3">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || formDir.submitted">Upload</button>
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || processing">Upload</button>
           </div>
 
         </div>
@@ -204,7 +226,7 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [maxWidth]="160">
+          <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 {{ "PAGES.Transparency.Table.Amount" | translate }}
@@ -212,7 +234,7 @@
             </ng-template>
 
             <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-                {{ amount | number:'1.2-2':locale }}
+                {{ amount }}
             </ng-template>
           </ngx-datatable-column>
 
