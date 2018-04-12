@@ -1,9 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Observable";
-import { interval } from "rxjs/observable/interval";
-
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { APIService } from "./api.service";
+import "../../assets/functions/trading-view.js"
 
 @Injectable()
 export class GoldrateService {
@@ -11,24 +9,25 @@ export class GoldrateService {
   private _obsRateSubject = new BehaviorSubject<number | null>(null);
   private _obsRate: Observable<number|null> = this._obsRateSubject.asObservable();
 
-  constructor(
-    private _apiService: APIService
-  ) {
+  constructor() {
+    new window['TradingView'].QuotesProvider({
+      container_id: 'hif',
+      symbols: [
+        {'symbol' : 'FX_IDC:XAUUSD', success: (data) => {
+          let value = data.last_price.toString();
+          let point = value.indexOf('.');
+          if (point < 0) {
+            value += '.00';
+          } else {
+            value = value.substr(0, point + 3);
+            value.length === point + 2 && (value += '0');
+          }
 
-    console.log('GoldrateService constructor');
-
-    this.checkBalance();
-    interval(5000)
-      .subscribe(time => {
-        this.checkBalance();
-      })
-      ;
-  }
-  
-  private checkBalance() {
-    this._apiService.getGoldRate().subscribe(res => {
-      this._obsRateSubject.next(res.data.rate);
+          this._obsRateSubject.next(value);
+        }, error : function() {}}
+      ]
     });
+    console.log('GoldrateService constructor');
   }
   
   public getObservableRate(): Observable<number|null> {
