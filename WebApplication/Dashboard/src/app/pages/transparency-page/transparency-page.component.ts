@@ -93,8 +93,11 @@ export class TransparencyPageComponent implements OnInit {
             this.statData[field] = object;
           });
 
-          this.statData['viewDataTimestamp'] = this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'dd.MM.yy');
-          this.statData['viewAuditTimestamp'] = this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'dd.MM.yy');
+          this.statData['viewDataTimestamp'] = this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'd.M.yy');
+          this.statData['viewAuditTimestamp'] = this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'd.M.yy');
+
+          this.statData['TotalOz'] = this.statData['totalOz'];
+          this.statData['TotalUsd'] = this.statData['totalUsd'];
 
           this.page.totalElements = data.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
