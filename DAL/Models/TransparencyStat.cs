@@ -27,11 +27,11 @@ namespace Goldmint.DAL.Models {
 		[Column("total_usd"), MaxLength(MaxTotalFieldLength), Required]
 		public string TotalUsd { get; set; }
 
-		[Column("data_timestamp"), Required]
-		public DateTime DataTimestamp { get; set; }
+		[Column("data_timestamp")]
+		public DateTime? DataTimestamp { get; set; }
 
-		[Column("audit_timestamp"), Required]
-		public DateTime AuditTimestamp { get; set; }
+		[Column("audit_timestamp")]
+		public DateTime? AuditTimestamp { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
