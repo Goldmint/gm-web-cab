@@ -93,8 +93,10 @@ export class TransparencyPageComponent implements OnInit {
             this.statData[field] = object;
           });
 
-          this.statData['viewDataTimestamp'] = this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'd.M.yy');
-          this.statData['viewAuditTimestamp'] = this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'd.M.yy');
+          this.statData['viewDataTimestamp'] = this.statData['dataTimestamp']
+            ? this.datePipe.transform(this.statData['dataTimestamp'] * 1000, 'd.M.yy') : '';
+          this.statData['viewAuditTimestamp'] = this.statData['auditTimestamp']
+            ? this.datePipe.transform(this.statData['auditTimestamp'] * 1000, 'd.M.yy') : '';
 
           this.statData['TotalOz'] = this.statData['totalOz'];
           this.statData['TotalUsd'] = this.statData['totalUsd'];
@@ -121,13 +123,21 @@ export class TransparencyPageComponent implements OnInit {
     let dataTimestamp = data['viewDataTimestamp'].split('.');
     let auditTimestamp = data['viewAuditTimestamp'].split('.');
 
-    data['dataTimestamp'] = Math.ceil(Date.UTC(+dataTimestamp[2] + 2000, dataTimestamp[1], dataTimestamp[0]) / 1000);
-    data['auditTimestamp'] = Math.ceil(Date.UTC(+auditTimestamp[2] + 2000, auditTimestamp[1], auditTimestamp[0]) / 1000);
+    if (data['viewDataTimestamp']) {
+      data['dataTimestamp'] = Math.ceil(Date.UTC(+dataTimestamp[2] + 2000, dataTimestamp[1] - 1, dataTimestamp[0]) / 1000);
+    } else {
+      data['dataTimestamp'] = null;
+    }
+    if (data['viewAuditTimestamp']) {
+      data['auditTimestamp'] = Math.ceil(Date.UTC(+auditTimestamp[2] + 2000, auditTimestamp[1] - 1, auditTimestamp[0]) / 1000);
+    } else {
+      data['auditTimestamp'] = null;
+    }
 
     ['assets', 'bonds', 'fiat', 'gold'].forEach(field => {
       let array = [];
       for (let i in data[field]) {
-        data[field].hasOwnProperty(i) && array.push({k: i, v: data[field][i]});
+        data[field][i] && data[field].hasOwnProperty(i) && array.push({k: i, v: data[field][i]});
       }
       data[field] = array;
     });
@@ -135,6 +145,8 @@ export class TransparencyPageComponent implements OnInit {
     this.apiService.updateStatTransparency(data).subscribe(() => {
       this._messageBox.alert('Changes saved');
       this.loading = false;
+    }, error => {
+      this._messageBox.alert('Error');
     });
   }
 
