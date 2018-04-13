@@ -72,8 +72,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var statGold = Common.Json.Parse<TransparencyViewStatItem[]>(stat?.GoldArray ?? "[]");
 			var statTotalOz = stat?.TotalOz ?? "";
 			var statTotalUsd = stat?.TotalUsd ?? "";
-			var statDataTime = stat?.DataTimestamp ?? DateTime.UtcNow;
-			var statAuditTime = stat?.AuditTimestamp ?? DateTime.UtcNow;
+			var statDataTime = stat?.DataTimestamp != null? ((DateTimeOffset)stat.DataTimestamp).ToUnixTimeSeconds(): (long?)null;
+			var statAuditTime = stat?.AuditTimestamp != null? ((DateTimeOffset)stat.AuditTimestamp).ToUnixTimeSeconds(): (long?)null;
 
 			return APIResponse.Success(
 				new TransparencyView() {
@@ -84,8 +84,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						Gold = statGold,
 						TotalOz = statTotalOz,
 						TotalUsd = statTotalUsd,
-						DataTimestamp = ((DateTimeOffset)statDataTime).ToUnixTimeSeconds(),
-						AuditTimestamp = ((DateTimeOffset)statAuditTime).ToUnixTimeSeconds(),
+						DataTimestamp = statDataTime,
+						AuditTimestamp = statAuditTime,
 					},
 					Items = list.ToArray(),
 					Limit = model.Limit,

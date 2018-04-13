@@ -103,16 +103,14 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		public string TotalUsd { get; set; }
 
 		/// <summary>
-		/// Data provided time (unix)
+		/// Data provided time (unix, optional)
 		/// </summary>
-		[Required]
-		public long DataTimestamp { get; set; }
+		public long? DataTimestamp { get; set; }
 
 		/// <summary>
-		/// Audit time (unix)
+		/// Audit time (unix, optional)
 		/// </summary>
-		[Required]
-		public long AuditTimestamp { get; set; }
+		public long? AuditTimestamp { get; set; }
 	}
 
 	public class TransparencyViewStatItem {

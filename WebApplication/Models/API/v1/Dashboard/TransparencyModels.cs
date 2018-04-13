@@ -90,16 +90,14 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 		public string TotalUsd { get; set; }
 
 		/// <summary>
-		/// Data timestamp (unix)
+		/// Data timestamp (unix, optional)
 		/// </summary>
-		[Required]
-		public long DataTimestamp { get; set; }
+		public long? DataTimestamp { get; set; }
 
 		/// <summary>
-		/// Audit timestamp (unix)
+		/// Audit timestamp (unix, optional)
 		/// </summary>
-		[Required]
-		public long AuditTimestamp { get; set; }
+		public long? AuditTimestamp { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<UpdateStatModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
@@ -146,10 +144,12 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 
 			v.RuleFor(_ => _.DataTimestamp)
 				.GreaterThan(0).WithMessage("Invalid timestamp")
+				.When(_ => _.DataTimestamp != null)
 				;
 
 			v.RuleFor(_ => _.AuditTimestamp)
 				.GreaterThan(0).WithMessage("Invalid timestamp")
+				.When(_ => _.AuditTimestamp != null)
 				;
 
 			return v.Validate(this);

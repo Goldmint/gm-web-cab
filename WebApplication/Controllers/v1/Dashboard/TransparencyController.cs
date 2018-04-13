@@ -69,8 +69,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 					GoldArray = Common.Json.Stringify(model.Gold),
 					TotalOz = model.TotalOz,
 					TotalUsd = model.TotalUsd,
-					DataTimestamp = DateTimeOffset.FromUnixTimeSeconds(model.DataTimestamp).UtcDateTime,
-					AuditTimestamp = DateTimeOffset.FromUnixTimeSeconds(model.AuditTimestamp).UtcDateTime,
+					DataTimestamp = model.DataTimestamp != null? DateTimeOffset.FromUnixTimeSeconds(model.DataTimestamp.Value).UtcDateTime: (DateTime?)null,
+					AuditTimestamp = model.AuditTimestamp != null? DateTimeOffset.FromUnixTimeSeconds(model.AuditTimestamp.Value).UtcDateTime: (DateTime?)null,
 					UserId = user.Id,
 					TimeCreated = DateTime.UtcNow,
 				}
