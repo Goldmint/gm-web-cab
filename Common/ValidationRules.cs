@@ -1,7 +1,6 @@
 ﻿using PhoneNumbers;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -14,7 +13,7 @@ namespace Goldmint.Common {
 
 		public static readonly Regex RexUsernameChars = new Regex("^u[0-9]+$");
 		public static readonly Regex RexNameChars = new Regex("^[a-zA-Z]{2,32}$");
-		public static readonly Regex RexTFAToken = new Regex("^[0-9]{6}$");
+		public static readonly Regex RexTfaToken = new Regex("^[0-9]{6}$");
 		public static readonly Regex RexLatinAndPuncts = new Regex(@"^[a-zA-Z0-9]+[a-zA-Z0-9 \-\,\.\(\)]*$");
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");
 		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
@@ -66,7 +65,7 @@ namespace Goldmint.Common {
 		}
 
 		public static bool BeValidTfaCode(string x) {
-			return x != null && RexTFAToken.IsMatch(x);
+			return x != null && RexTfaToken.IsMatch(x);
 		}
 
 		public static bool BeValidName(string x) {
@@ -74,7 +73,7 @@ namespace Goldmint.Common {
 		}
 
 		public static bool BeValidDate(string x) {
-			return x != null && DateTime.TryParseExact(x, "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var dt);
+			return x != null && DateTime.TryParseExact(x, "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var _);
 		}
 
 		public static bool BeValidCountryCodeAlpha2(string x) {

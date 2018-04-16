@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
 
-	public class GoldRateUpdater : BaseWorker {
+	public class CryptoRateUpdater : BaseWorker {
 
 		private TimeSpan _requestTimeout;
 		
 		private IServiceProvider _services;
-		private IGoldRateProvider _goldRateProvider;
+		private ICryptoCurrencyRateProvider _cryptoCurrencyRateProvider;
 		private IAggregatedRatesDispatcher _aggregatedRatesDispatcher;
 
-		public GoldRateUpdater() {
+		public CryptoRateUpdater() {
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
-			_goldRateProvider = _services.GetRequiredService<IGoldRateProvider>();
+			_cryptoCurrencyRateProvider = _services.GetRequiredService<ICryptoCurrencyRateProvider>();
 			_aggregatedRatesDispatcher = _services.GetRequiredService<IAggregatedRatesDispatcher>();
 
 			_requestTimeout = TimeSpan.FromSeconds(10);
@@ -29,10 +29,10 @@ namespace Goldmint.QueueService.Workers {
 		protected override async Task Loop() {
 			try {
 	
-				var rate = await _goldRateProvider.RequestGoldRate(_requestTimeout);
-				Logger.Trace($"Current gold rate {rate}");
+				var rate = await _cryptoCurrencyRateProvider.RequestCryptoRate(_requestTimeout);
+				Logger.Trace($"Current crypto rate {rate}");
 
-				_aggregatedRatesDispatcher.OnGoldRate(rate, GetPeriod());
+				_aggregatedRatesDispatcher.OnCryptoRate(rate, GetPeriod());
 			} catch (Exception e) {
 				Logger.Error(e);
 			}

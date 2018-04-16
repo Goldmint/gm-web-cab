@@ -9,7 +9,6 @@ namespace Goldmint.Common.WebRequest {
 
 	public sealed class Result : IDisposable {
 
-		private bool _disposed;
 		private HttpResponseMessage _responseRef;
 		private HttpContent _contentRef;
 		private HttpContent _content;
@@ -25,34 +24,21 @@ namespace Goldmint.Common.WebRequest {
 		}
 
 		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
+			DisposeManaged();
 		}
 
-		private void Dispose(bool disposing) {
-			if (disposing) {
-				if (_responseRef != null) _responseRef.Dispose();
-				if (_contentRef != null) _contentRef.Dispose();
-			}
-			_disposed = true;
+		private void DisposeManaged() {
+			_responseRef?.Dispose();
+			_contentRef?.Dispose();
 		}
 
 		// ---
 
-		private void AssertDisposed() {
-			if (_disposed) {
-				throw new Exception("Oups, disposed");
-			}
-		}
-
 		public HttpStatusCode? GetHttpStatus() {
-			AssertDisposed();
 			return _responseRef?.StatusCode;
 		}
 
 		public async Task<string> ToRawString() {
-			AssertDisposed();
-
 			return await _content.ReadAsStringAsync();
 		}
 

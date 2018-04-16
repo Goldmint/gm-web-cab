@@ -10,13 +10,13 @@ using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.OpenStorage;
-using Goldmint.CoreLogic.Services.Rate;
-using Goldmint.CoreLogic.Services.Rate.Impl;
+using Goldmint.CoreLogic.Services.OpenStorage.Impl;
+using Goldmint.CoreLogic.Services.SignedDoc;
+using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.CoreLogic.Services.Ticket.Impl;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
-using Goldmint.WebApplication.Services.Cache;
 using Goldmint.WebApplication.Services.OAuth.Impl;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -27,9 +27,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using Goldmint.CoreLogic.Services.OpenStorage.Impl;
-using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 
 namespace Goldmint.WebApplication {
 
@@ -193,15 +190,10 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// public cached rates
-			services.AddSingleton<CachedGoldRate>();
+			// services.AddSingleton<CachedGoldRate>();
 
 			// rates
-			services.AddSingleton<ICryptoassetRateProvider>(fac => new CoinbaseRateProvider(_loggerFactory));
-#if DEBUG
-			services.AddSingleton<IGoldRateProvider>(fac => new DebugGoldRateProvider());
-#else
-			services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
-#endif
+			
 
 			// open storage
 			services.AddSingleton<IOpenStorageProvider>(fac => 

@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreLogic", "CoreLogic\Core
 		{DE219CE5-ECBC-488E-B2B0-DFF1AF5D512B} = {DE219CE5-ECBC-488E-B2B0-DFF1AF5D512B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "Migrations\Migrations.csproj", "{57937CE6-B3ED-4044-87CD-B3E4B7B14704}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Migrations", "Migrations\Migrations.csproj", "{57937CE6-B3ED-4044-87CD-B3E4B7B14704}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreLogicTests", "CoreLogicTests\CoreLogicTests.csproj", "{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{57937CE6-B3ED-4044-87CD-B3E4B7B14704}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57937CE6-B3ED-4044-87CD-B3E4B7B14704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57937CE6-B3ED-4044-87CD-B3E4B7B14704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

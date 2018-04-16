@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Goldmint.Common.WebRequest {
@@ -21,21 +22,21 @@ namespace Goldmint.Common.WebRequest {
 		private Func<Result, Task> _callbackFnc;
 		private Action<Result> _callbackAct;
 		private ILogger _logger;
+		private CancellationTokenSource _cancellationTokenSource;
 
 		public Request(ILogger logger) {
 			_logger = logger;
 			_hdrAccept = new List<MediaTypeWithQualityHeaderValue>();
+			_cancellationTokenSource = new CancellationTokenSource();
 		}
 
 		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
+			DisposeManaged();
 		}
 
-		private void Dispose(bool disposing) {
-			if (disposing) {
-				_body?.Dispose();
-			}
+		private void DisposeManaged() {
+			_cancellationTokenSource?.Dispose();
+			_body?.Dispose();
 		}
 
 		// ---
@@ -87,15 +88,15 @@ namespace Goldmint.Common.WebRequest {
 
 		// ---
 
-		public async Task<bool> SendGet(string url, TimeSpan? timeout = null) {
-			return await Send(false, url, timeout ?? Timeout10);
+		public async Task<bool> SendGet(string url, TimeSpan? timeout = null, CancellationToken? ct = null) {
+			return await Send(false, url, timeout ?? Timeout10, ct ?? _cancellationTokenSource.Token);
 		}
 
-		public async Task<bool> SendPost(string url, TimeSpan? timeout = null) {
-			return await Send(true, url, timeout ?? Timeout30);
+		public async Task<bool> SendPost(string url, TimeSpan? timeout = null, CancellationToken? ct = null) {
+			return await Send(true, url, timeout ?? Timeout30, ct ?? _cancellationTokenSource.Token);
 		}
 
-		private async Task<bool> Send(bool post, string url, TimeSpan timeout) {
+		private async Task<bool> Send(bool post, string url, TimeSpan timeout, CancellationToken ct) {
 
 			var urlb = new UriBuilder(url);
 			urlb.Query = _query;
@@ -116,13 +117,13 @@ namespace Goldmint.Common.WebRequest {
 					_logger?.Trace($"Sending request to `{url}`");
 
 					if (post) {
-						using (var res = new Result(await client.PostAsync(url, _body))) {
+						using (var res = new Result(await client.PostAsync(url, _body, ct))) {
 							if (_callbackFnc != null) await _callbackFnc(res);
 							_callbackAct?.Invoke(res);
 						}
 					}
 					else {
-						using (var res = new Result(await client.GetAsync(url))) {
+						using (var res = new Result(await client.GetAsync(url, ct))) {
 							if (_callbackFnc != null) await _callbackFnc(res);
 							_callbackAct?.Invoke(res);
 						}

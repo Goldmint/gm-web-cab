@@ -31,7 +31,8 @@ namespace Goldmint.QueueService {
 
 					// doesn't require ethereum at all
 					new NotificationSender(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(3)),
-					new GoldRateUpdater().Period(TimeSpan.FromSeconds(3)),
+					new GoldRateUpdater().Period(TimeSpan.FromSeconds(5)),
+					new CryptoRateUpdater().Period(TimeSpan.FromSeconds(5)),
 				});
 			}
 

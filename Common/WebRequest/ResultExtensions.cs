@@ -17,10 +17,5 @@ namespace Goldmint.Common.WebRequest {
 			var raw = await res.ToRawString();
 			return Json.Parse<TJsonHolder>(raw);
 		}
-
-		public static async Task<AustinHarris.JsonRpc.JsonResponse<TResult>> ToJsonRpcResult<TResult>(this Result res) {
-			var raw = await res.ToRawString();
-			return Json.Parse<AustinHarris.JsonRpc.JsonResponse<TResult>>(raw);
-		}
 	}
 }

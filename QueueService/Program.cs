@@ -4,15 +4,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using NLog.Extensions.Logging;
-using NLog.Web;
 using System;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using Newtonsoft.Json;
 
 namespace Goldmint.QueueService {
 
@@ -108,13 +106,8 @@ namespace Goldmint.QueueService {
 			var services = servicesCollection.BuildServiceProvider();
 
 			// setup ms logger
-			services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>()
-				.AddNLog()
-				.ConfigureNLog(nlogConfig)
-			;
-
-			// rpc
-			SetupRpc(services);
+			services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
+			LogManager.Configuration = nlogConfig;
 
 			// setup workers and wait
 			Task.WaitAll(SetupWorkers(services).ToArray());
@@ -126,13 +119,6 @@ namespace Goldmint.QueueService {
 		}
 
 		private static void OnStopped() {
-
-			// stop rpc servers
-			if (_rpcServers != null) {
-				foreach (var v in _rpcServers) {
-					v.Stop();
-				}
-			}
 		}
 
 		// ---

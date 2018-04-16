@@ -1,20 +1,16 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
-using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
-using Goldmint.DAL.Models.Identity;
+using Goldmint.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Goldmint.CoreLogic.Services.Blockchain;
-using Goldmint.DAL.Models;
+using System.Numerics;
+using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Finance {
 

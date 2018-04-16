@@ -18,7 +18,7 @@ namespace Goldmint.QueueService.Workers {
 		protected ILogger Logger { get; private set; }
 		protected long LoopNumber { get; private set; }
 
-		public BaseWorker() {
+		protected BaseWorker() {
 			_period = TimeSpan.FromSeconds(10);
 			_initialDelay = TimeSpan.Zero;
 		}
@@ -105,6 +105,10 @@ namespace Goldmint.QueueService.Workers {
 
 		protected void SelfStop() {
 			_selfStop = true;
+		}
+
+		protected TimeSpan GetPeriod() {
+			return _period;
 		}
 
 		protected virtual void OnException(Exception e) {

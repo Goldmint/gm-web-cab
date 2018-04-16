@@ -1,4 +1,5 @@
-﻿using Goldmint.CoreLogic.Services.Blockchain;
+﻿using Goldmint.CoreLogic.Services.Bus.Publisher;
+using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
@@ -8,25 +9,25 @@ using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
-using Goldmint.CoreLogic.Services.RPC;
-using Goldmint.CoreLogic.Services.RPC.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.CoreLogic.Services.Ticket.Impl;
 using Goldmint.DAL;
-using Goldmint.QueueService.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
+using Goldmint.CoreLogic.Services.Bus.Subscriber;
 
 namespace Goldmint.QueueService {
 
 	public partial class Program {
 
-		private static List<IRPCServer> _rpcServers = new List<IRPCServer>();
+		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
+		private static SafeRatesPublisher _busSafeRatesPublisher;
+		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
+		private static SafeRatesSubscriber _busSafeRatesSubscriber;
+		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 
 		/// <summary>
 		/// DI services
@@ -63,8 +64,7 @@ namespace Goldmint.QueueService {
 			// blockchain reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
-			// rate
-			services.AddSingleton<ICryptoassetRateProvider>(fac => new CoinbaseRateProvider(_loggerFactory));
+			
 
 			// ---
 
@@ -78,8 +78,25 @@ namespace Goldmint.QueueService {
 					services.AddSingleton<IEmailSender, NullEmailSender>();
 				}
 
-				// rates
-				services.AddSingleton<IGoldRateProvider>(new LocalGoldRateProvider());
+				// rate providers
+				services.AddSingleton<IGoldRateProvider>(fac => new DebugRateProvider());
+				services.AddSingleton<ICryptoCurrencyRateProvider>(fac => new DebugRateProvider());
+
+				// rates publisher
+				_busSafeRatesPublisher = new SafeRatesPublisher(
+					new Uri(_appConfig.Bus.WorkerRates.Url),
+					_loggerFactory
+				);
+				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(
+					_busSafeRatesPublisher,
+					_loggerFactory
+				);
+
+				// rates dispatcher
+				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(_busSafeRatesPublisherWrapper, _loggerFactory);
+				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
+				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
+				services.AddSingleton<IAggregatedSafeRatesPublisher>(_ => _busSafeRatesPublisherWrapper);
 			}
 
 			if (Mode.HasFlag(WorkingMode.Core)) {
@@ -87,29 +104,20 @@ namespace Goldmint.QueueService {
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, EthereumWriter>();
 
-				// rates (could be added in section above)
-				if (services.Count(x => x.ServiceType == typeof(IGoldRateProvider)) == 0) {
-					services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
+				// aggregated rates source (could be added in section above)
+				if (services.Count(x => x.ServiceType == typeof(IAggregatedSafeRatesSource)) == 0) {
+
+					_busSafeRatesSubscriber = new SafeRatesSubscriber(
+						new Uri(_appConfig.Bus.WorkerRates.Url),
+						_loggerFactory
+					);
+					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(
+						_busSafeRatesSubscriber,
+						TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.ExpireTimeoutSec),
+						_loggerFactory
+					);
+					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
 				}
-			}
-		}
-
-		/// <summary>
-		/// Launch RPC servers
-		/// </summary>
-		private static void SetupRpc(IServiceProvider services) {
-
-			// worker rpc
-			if (Mode.HasFlag(WorkingMode.Worker)) {
-
-				var rpcSvc = new WorkerRpcService(
-					services.CreateScope().ServiceProvider, 
-					_loggerFactory
-				);
-				var rpcSrv = new JsonRPCServer<WorkerRpcService>(rpcSvc, _loggerFactory);
-				rpcSrv.Start(Environment.GetEnvironmentVariable("ASPNETCORE_RPC"));
-
-				_rpcServers.Add(rpcSrv);
 			}
 		}
 	}

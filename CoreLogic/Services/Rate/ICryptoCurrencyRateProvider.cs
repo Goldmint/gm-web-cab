@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
-	public interface IGoldRateProvider {
+	public interface ICryptoCurrencyRateProvider {
 
-		Task<GoldRate> RequestGoldRate(TimeSpan timeout);
+		Task<CryptoRate> RequestCryptoRate(TimeSpan timeout);
 	}
 }

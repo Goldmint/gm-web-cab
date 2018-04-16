@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace Goldmint.CoreLogic.Finance.Tokens {
+namespace Goldmint.CoreLogic.Finance {
 
 /*
 	public static class MntpToken {

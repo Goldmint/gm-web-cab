@@ -4,13 +4,13 @@ using System.Text;
 
 namespace Goldmint.Common {
 
-	public class SecureRandom {
+	public static class SecureRandom {
 
-		private readonly static string DICT_AZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		private readonly static string DICT_az = "abcdefghijklmnopqrstuvwxyz";
-		private readonly static string DICT_af = "abcdef";
-		private readonly static string DICT_09 = "0123456789";
-		private readonly static string DICT_Spec = "!@#$%^&*()_-+=[]{}<>~";
+		private const string DICT_AZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		private const string DICT_az = "abcdefghijklmnopqrstuvwxyz";
+		private const string DICT_af = "abcdef";
+		private const string DICT_09 = "0123456789";
+		private const string DICT_Spec = "!@#$%^&*()_-+=[]{}<>~";
 
 		private readonly static char[] PATTERN_09azAZSpecs = (DICT_09 + DICT_az + DICT_AZ + DICT_Spec).ToCharArray();
 		private readonly static char[] PATTERN_09azAZ = (DICT_09 + DICT_az + DICT_AZ).ToCharArray();
