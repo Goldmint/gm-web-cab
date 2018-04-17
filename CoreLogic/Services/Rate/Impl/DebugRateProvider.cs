@@ -5,21 +5,28 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
-	public sealed class DebugRateProvider : IGoldRateProvider, ICryptoCurrencyRateProvider {
+	public sealed class DebugRateProvider : IGoldRateProvider, IEthRateProvider {
 
 		private double _defaultDeltaMult = 0.01d;
 
-		public Task<GoldRate> RequestGoldRate(TimeSpan timeout) {
-			return Task.FromResult(new GoldRate() {
-				Usd = DefaultValue(133000L),
-			});
+		public Task<CurrencyRate> RequestGoldRate(TimeSpan timeout) {
+			return Task.FromResult(
+				new CurrencyRate(
+					cur: CurrencyRateType.Gold,
+					stamp: DateTime.UtcNow,
+					usd: DefaultValue(133000L)
+				)
+			);
 		}
 
-		public Task<CryptoRate> RequestCryptoRate(TimeSpan timeout) {
-			var ret = new CryptoRate() {
-				EthUsd = DefaultValue(45000L),
-			};
-			return Task.FromResult(ret);
+		public Task<CurrencyRate> RequestEthRate(TimeSpan timeout) {
+			return Task.FromResult(
+				new CurrencyRate(
+					cur: CurrencyRateType.Eth,
+					stamp: DateTime.UtcNow,
+					usd: DefaultValue(45000L)
+				)
+			);
 		}
 
 		// ---

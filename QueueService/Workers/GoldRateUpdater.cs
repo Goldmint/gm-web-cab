@@ -32,7 +32,7 @@ namespace Goldmint.QueueService.Workers {
 				var rate = await _goldRateProvider.RequestGoldRate(_requestTimeout);
 				Logger.Trace($"Current gold rate {rate}");
 
-				_aggregatedRatesDispatcher.OnGoldRate(rate, GetPeriod());
+				_aggregatedRatesDispatcher.OnProviderCurrencyRate(rate, GetPeriod());
 			} catch (Exception e) {
 				Logger.Error(e);
 			}

@@ -9,6 +9,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 	public abstract class BaseSubscriber: IDisposable {
 
+		// TODO: run custom task for reading, get rid of poller
+
 		protected readonly ILogger Logger;
 		protected readonly SubscriberSocket SubscriberSocket;
 		protected readonly NetMQPoller Poller;
@@ -29,7 +31,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			SubscriberSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(60);
 			SubscriberSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(60);
 
-			SubscriberSocket.ReceiveReady += OnReceiveReady;
+			SubscriberSocket.ReceiveReady += OnSocketReceiveReady;
 		}
 
 		public void Dispose() {
@@ -57,25 +59,42 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			return Poller.IsRunning;
 		}
 
-		protected abstract void OnMessage(string topic, DateTime stamp, Stream message);
+		// ---
 
-		private void OnReceiveReady(object sender, NetMQSocketEventArgs netMqSocketEventArgs) {
+		protected abstract void OnNewMessage(string topic, DateTime stamp, byte[] message);
+
+		protected bool Receive(out string topic, out DateTime stamp, out byte[] message) {
+			topic = null;
+			stamp = DateTime.UtcNow;
+			message = null;
+
+			var hm = false;
+			var tmptopic = SubscriberSocket.ReceiveFrameString();
+			var tmpstamp = SubscriberSocket.ReceiveFrameString();
+			var tmpmessage = SubscriberSocket.ReceiveFrameBytes(out hm);
+
+			if (hm) {
+				Stop();
+				throw new Exception("There is some data after message. Invalid message format?");
+			}
+
+			if (tmptopic != null && tmpmessage != null && long.TryParse(tmpstamp, out var stampUnix)) {
+				topic = tmptopic;
+				stamp = DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime;
+				message = tmpmessage;
+
+				Logger.Debug($"Message received: { topic } / { stamp } / { message.Length }b");
+				return true;
+			}
+
+			Logger.Error($"Message received: { tmptopic } / { tmpstamp } / { tmpmessage?.Length }b");
+			return false;
+		}
+
+		private void OnSocketReceiveReady(object sender, NetMQSocketEventArgs netMqSocketEventArgs) {
 			if (netMqSocketEventArgs.Socket == SubscriberSocket) {
-
-				var topic = SubscriberSocket.ReceiveFrameString();
-				Logger.Debug($"Message received: { topic }");
-
-				var stamp = SubscriberSocket.ReceiveFrameString();
-				var message = SubscriberSocket.ReceiveFrameBytes();
-
-				if (long.TryParse(stamp, out var stampUnix)) {
-					using (var ms = new MemoryStream(message, false)) {
-						ms.Position = 0;
-						OnMessage(topic, DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime, ms);
-					}
-				}
-				else {
-					Logger.Error($"Failed to parse timestamp: { stamp }");
+				if (Receive(out var topic, out var stamp, out var message)) {
+					OnNewMessage(topic, stamp, message);
 				}
 			}
 		}

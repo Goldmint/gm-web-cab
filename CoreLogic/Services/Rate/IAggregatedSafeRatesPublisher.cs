@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Rate.Models;
-using System;
+﻿using Goldmint.CoreLogic.Services.Rate.Models;
+using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
 	public interface IAggregatedSafeRatesPublisher {
 
-		Task PublishRates(DateTime timestamp, SafeGoldRate goldRate, SafeCryptoRate cryptoRate);
+		Task PublishRates(SafeCurrencyRate[] currencies);
 	}
 }

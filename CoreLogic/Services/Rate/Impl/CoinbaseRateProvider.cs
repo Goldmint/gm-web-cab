@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
-	public sealed class CoinbaseRateProvider : ICryptoCurrencyRateProvider {
+	public sealed class CoinbaseRateProvider : IEthRateProvider {
 
 		private readonly ILogger _logger;
 
@@ -16,7 +16,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
-		public async Task<CryptoRate> RequestCryptoRate(TimeSpan timeout) {
+		public async Task<CurrencyRate> RequestEthRate(TimeSpan timeout) {
 			return await PerformRequest(timeout);
 		}
 
@@ -31,7 +31,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			return (long)Math.Round(dval * 100);
 		}
 
-		private async Task<CryptoRate> PerformRequest(TimeSpan timeout) {
+		private async Task<CurrencyRate> PerformRequest(TimeSpan timeout) {
 
 			CoinbaseResponse result = null;
 
@@ -55,9 +55,11 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				throw ex;
 			}
 
-			return new CryptoRate() {
-				EthUsd = ParseCents(result.data.rates.USD),
-			};
+			return new CurrencyRate(
+				cur: CurrencyRateType.Eth,
+				stamp: DateTime.UtcNow,
+				usd: ParseCents(result.data.rates.USD)
+			);
 		}
 
 		internal class CoinbaseResponse {

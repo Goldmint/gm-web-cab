@@ -1,10 +1,10 @@
-﻿using Goldmint.CoreLogic.Services.Rate.Models;
+﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Rate.Models;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
 	public interface IAggregatedSafeRatesSource {
 
-		SafeGoldRate GetGoldRate();
-		SafeCryptoRate GetCryptoRate();
+		SafeCurrencyRate GetRate(CurrencyRateType cur);
 	}
 }

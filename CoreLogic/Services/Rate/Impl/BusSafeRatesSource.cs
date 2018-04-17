@@ -1,35 +1,25 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Bus.Proto;
-using Goldmint.CoreLogic.Services.Bus.Subscriber;
 using Goldmint.CoreLogic.Services.Rate.Models;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public sealed class BusSafeRatesSource : IDisposable, IAggregatedSafeRatesSource {
 
-		private readonly SafeRatesSubscriber _busSubscriber;
 		private readonly ILogger _logger;
-		private readonly ReaderWriterLockSlim _mutex;
-		private readonly TimeSpan _freshDataTimeout;
 
-		private DateTime _curRatesStamp;
-		private SafeGoldRate _curSafeGoldRate;
-		private SafeCryptoRate _curSafeCryptoRate;
+		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
+		private Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public BusSafeRatesSource(SafeRatesSubscriber busSubscriber, TimeSpan freshDataTimeout, LogFactory logFactory) {
+		public BusSafeRatesSource(Bus.Subscriber.DefaultSubscriber<Bus.Proto.SafeRatesMessage> busSubscriber, LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
-			_mutex = new ReaderWriterLockSlim();
-			_freshDataTimeout = freshDataTimeout;
-			_busSubscriber = busSubscriber;
-			_busSubscriber.SetCallback(OnNewRates);
+			_mutexRatesUpdate = new ReaderWriterLockSlim();
+			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
 
-			// unsafe
-			_curRatesStamp = (DateTimeOffset.FromUnixTimeSeconds(0)).UtcDateTime;
-			_curSafeGoldRate = new SafeGoldRate();
-			_curSafeCryptoRate = new SafeCryptoRate();
+			busSubscriber.SetCallback(OnNewRates);
 		}
 
 		public void Dispose() {
@@ -37,63 +27,38 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		}
 
 		private void DisposeManaged() {
-			_mutex?.Dispose();
+			_mutexRatesUpdate?.Dispose();
 		}
 
 		// ---
 
-		private void OnNewRates(SafeRatesSubscriber safeRatesSubscriber, SafeRates safeRates) {
-			_mutex.EnterWriteLock();
+		public void OnNewRates(Bus.Subscriber.DefaultSubscriber<Bus.Proto.SafeRatesMessage> safeRatesSubscriber, Bus.Proto.SafeRatesMessage safeRatesMessage) {
+			_mutexRatesUpdate.EnterWriteLock();
 			try {
-				_curRatesStamp = (DateTimeOffset.FromUnixTimeSeconds(safeRates.Stamp)).UtcDateTime;
-
-				_curSafeGoldRate = new SafeGoldRate() {
-					Usd = safeRates.Gold?.Usd ?? 0,
-					IsSafeForBuy = safeRates.Gold?.IsSafeForBuy ?? false,
-					IsSafeForSell = safeRates.Gold?.IsSafeForSell ?? false,
-				};
-
-				_curSafeCryptoRate = new SafeCryptoRate() {
-					EthUsd = safeRates.Crypto?.EthUsd ?? 0,
-					IsSafeForBuy = safeRates.Crypto?.IsSafeForBuy ?? false,
-					IsSafeForSell = safeRates.Crypto?.IsSafeForSell ?? false,
-				};
-
-				_logger.Trace($"Received rates: stamp={ _curRatesStamp } / { _curSafeGoldRate } / { _curSafeCryptoRate }");
-			}
-			finally {
-				_mutex.ExitWriteLock();
-			}
-		}
-
-		public SafeCryptoRate GetCryptoRate() {
-			_mutex.EnterReadLock();
-			try {
-				if (DateTime.UtcNow - _curRatesStamp <= _freshDataTimeout) {
-					return _curSafeCryptoRate;
+				_logger.Trace($"Received { safeRatesMessage.Rates.Length } rates");
+				foreach (var v in safeRatesMessage.Rates) {
+					var c = SafeCurrencyRate.BusDeserialize(v);
+					if (!_rates.TryGetValue(c.Currency, out var existing) || c.Stamp > existing.Stamp) {
+						_rates[c.Currency] = c;
+					}
 				}
-				// unsafe
-				return new SafeCryptoRate();
 			}
 			finally {
-				_mutex.ExitReadLock();
+				_mutexRatesUpdate.ExitWriteLock();
 			}
 		}
 
-		public SafeGoldRate GetGoldRate() {
-			_mutex.EnterReadLock();
+		public SafeCurrencyRate GetRate(CurrencyRateType cur) {
+			_mutexRatesUpdate.EnterReadLock();
 			try {
-				if (DateTime.UtcNow - _curRatesStamp <= _freshDataTimeout) {
-					return _curSafeGoldRate;
+				if (_rates.TryGetValue(cur, out var ret)) {
+					return ret;
 				}
-				// unsafe
-				return new SafeGoldRate();
+				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);
 			}
 			finally {
-				_mutex.ExitReadLock();
+				_mutexRatesUpdate.ExitReadLock();
 			}
 		}
-
-
 	}
 }

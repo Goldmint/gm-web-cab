@@ -9,10 +9,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public abstract class BasePublisher: IDisposable {
 
+		protected readonly Proto.Topic Topic;
 		protected readonly ILogger Logger;
 		protected readonly PublisherSocket PublisherSocket;
 
-		protected BasePublisher(int queueSize, LogFactory logFactory) {
+		protected BasePublisher(Proto.Topic topic, int queueSize, LogFactory logFactory) {
+			Topic = topic;
 			Logger = logFactory.GetLoggerFor(this);
 
 			PublisherSocket = new PublisherSocket();
@@ -37,25 +39,16 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 		// ---
 
-		protected abstract string PublisherTopic();
-
 		protected void PublishMessage(byte[] message) {
 			PublisherSocket
 				// topic
-				.SendMoreFrame(PublisherTopic())
+				.SendMoreFrame(Topic.ToString())
 				// stamp
 				.SendMoreFrame(((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds().ToString())
 				// body
 				.SendFrame(message)
 			;
-			Logger.Debug($"Message sent: { PublisherTopic() }");
-		}
-
-		protected void PublishMessage<T>(T message) {
-			using (var ms = new MemoryStream()) {
-				ProtoBuf.Serializer.Serialize(ms, message);
-				PublishMessage(ms.ToArray());
-			}
+			Logger.Debug($"Message sent: { Topic.ToString() }");
 		}
 	}
 }

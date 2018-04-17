@@ -1,9 +1,47 @@
-﻿using NLog.Config;
+﻿using System;
 
-namespace CoreLogicTests {
+namespace Goldmint.CoreLogicTests {
 
-	public static class Test {
+	public abstract class Test : IDisposable {
 
-		public static readonly NLog.LogFactory LogFactory = new NLog.LogFactory(new LoggingConfiguration());
+		private readonly Xunit.Abstractions.ITestOutputHelper _testOutput;
+		protected NLog.LogFactory LogFactory;
+		private NLog.Targets.MemoryTarget _memoryLogTarget;
+
+		protected Test(Xunit.Abstractions.ITestOutputHelper testOutput) {
+			_testOutput = testOutput;
+			SetupNLog();
+		}
+
+		public void Dispose() {
+			DisposeManaged();
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void DisposeManaged() {
+			if (_memoryLogTarget != null) {
+				foreach (var v in _memoryLogTarget.Logs) {
+					_testOutput.WriteLine(v);
+				}
+				_memoryLogTarget?.Dispose();
+			}
+		}
+
+		// ---
+
+		private void SetupNLog() {
+
+			var config = new NLog.Config.LoggingConfiguration();
+
+			_memoryLogTarget = new NLog.Targets.MemoryTarget() {
+				Layout = @"${uppercase:${level}}|${logger}|${message} ${exception:format=toString,Data:maxInnerExceptionLevel=100}"
+			};
+			config.AddTarget("memory", _memoryLogTarget);
+
+			var ruleAll = new NLog.Config.LoggingRule("*", NLog.LogLevel.Trace, _memoryLogTarget);
+			config.LoggingRules.Add(ruleAll);
+
+			LogFactory = new NLog.LogFactory(config);
+		}
 	}
 }

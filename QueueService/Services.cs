@@ -1,5 +1,4 @@
-﻿using Goldmint.CoreLogic.Services.Bus.Publisher;
-using Goldmint.CoreLogic.Services.Blockchain;
+﻿using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
@@ -17,16 +16,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using Goldmint.CoreLogic.Services.Bus.Subscriber;
 
 namespace Goldmint.QueueService {
 
 	public partial class Program {
 
 		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
-		private static SafeRatesPublisher _busSafeRatesPublisher;
+		private static CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesPublisher;
 		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
-		private static SafeRatesSubscriber _busSafeRatesSubscriber;
+		private static CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesSubscriber;
 		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 
 		/// <summary>
@@ -80,10 +78,11 @@ namespace Goldmint.QueueService {
 
 				// rate providers
 				services.AddSingleton<IGoldRateProvider>(fac => new DebugRateProvider());
-				services.AddSingleton<ICryptoCurrencyRateProvider>(fac => new DebugRateProvider());
+				services.AddSingleton<IEthRateProvider>(fac => new DebugRateProvider());
 
 				// rates publisher
-				_busSafeRatesPublisher = new SafeRatesPublisher(
+				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+					CoreLogic.Services.Bus.Proto.Topic.FiatRates,
 					new Uri(_appConfig.Bus.WorkerRates.Url),
 					_loggerFactory
 				);
@@ -107,13 +106,13 @@ namespace Goldmint.QueueService {
 				// aggregated rates source (could be added in section above)
 				if (services.Count(x => x.ServiceType == typeof(IAggregatedSafeRatesSource)) == 0) {
 
-					_busSafeRatesSubscriber = new SafeRatesSubscriber(
+					_busSafeRatesSubscriber = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+						CoreLogic.Services.Bus.Proto.Topic.FiatRates,
 						new Uri(_appConfig.Bus.WorkerRates.Url),
 						_loggerFactory
 					);
 					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(
 						_busSafeRatesSubscriber,
-						TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.ExpireTimeoutSec),
 						_loggerFactory
 					);
 					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);

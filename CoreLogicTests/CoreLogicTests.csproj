@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyName>Goldmint.CoreLogicTests</AssemblyName>
+
+    <RootNamespace>Goldmint.CoreLogicTests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

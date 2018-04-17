@@ -405,6 +405,12 @@ namespace Goldmint.Common {
 		USD = 1,
 	}
 
+	public enum CurrencyRateType {
+		Unknown = 0,
+		Gold = 1,
+		Eth = 2,
+	}
+
 	public enum DbSetting {
 
 		FeesTable = 1,

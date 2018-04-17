@@ -2,7 +2,11 @@
 using Goldmint.CoreLogic.Services.Rate.Models;
 using NLog;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
@@ -10,22 +14,27 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		private readonly IAggregatedSafeRatesPublisher _publisher;
 		private readonly ILogger _logger;
-		private readonly ReaderWriterLockSlim _mutexGold;
-		private readonly ReaderWriterLockSlim _mutexCrypto;
+		
+		private readonly object _startStopMonitor;
+		private readonly CancellationTokenSource _workerCancellationTokenSource;
+		private Task _workerTask;
+		private TimeSpan _workerPeriod;
+		private readonly ConcurrentQueue<CurrencyRate> _workerQueue;
 
-		private SafeGoldRate _curSafeGoldRate;
-		private SafeCryptoRate _curSafeCryptoRate;
-
+		private readonly ReaderWriterLockSlim _mutexUpdate;
+		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
 		public SafeRatesDispatcher(IAggregatedSafeRatesPublisher publisher, LogFactory logFactory) {
 			_publisher = publisher;
 			_logger = logFactory.GetLoggerFor(this);
 
-			_mutexGold = new ReaderWriterLockSlim();
-			_mutexCrypto = new ReaderWriterLockSlim();
+			_startStopMonitor = new object();
+			_workerCancellationTokenSource = new CancellationTokenSource();
+			_mutexUpdate = new ReaderWriterLockSlim();
+			_workerQueue = new ConcurrentQueue<CurrencyRate>();
+			_workerPeriod = TimeSpan.FromSeconds(1);
 
-			_curSafeGoldRate = new SafeGoldRate();
-			_curSafeCryptoRate = new SafeCryptoRate();
+			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
 		}
 
 		public void Dispose() {
@@ -33,73 +42,124 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		}
 
 		private void DisposeManaged() {
-			_mutexGold?.Dispose();
-			_mutexCrypto?.Dispose();
+			_logger.Trace("Disposing");
+
+			Stop(true);
+			_workerCancellationTokenSource?.Dispose();
+			_workerTask?.Dispose();
+			_mutexUpdate?.Dispose();
 		}
 
 		// ---
 
-		public SafeCryptoRate GetCryptoRate() {
-			_mutexCrypto.EnterReadLock();
+		public void OnProviderCurrencyRate(CurrencyRate rate) {
+			_workerQueue.Enqueue(rate);
+		}
+
+		public SafeCurrencyRate GetRate(CurrencyRateType cur) {
+			_mutexUpdate.EnterReadLock();
 			try {
-				return _curSafeCryptoRate;
+				if (_rates.TryGetValue(cur, out var ret)) {
+					return ret;
+				}
+				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);
 			}
 			finally {
-				_mutexCrypto.ExitReadLock();
+				_mutexUpdate.ExitReadLock();
 			}
 		}
 
-		public SafeGoldRate GetGoldRate() {
-			_mutexGold.EnterReadLock();
-			try {
-				return _curSafeGoldRate;
-			}
-			finally {
-				_mutexGold.ExitReadLock();
-			}
-		}
+		// ---
 
-		public void OnCryptoRate(CryptoRate rate, TimeSpan expectedPeriod) {
+		public void Run(TimeSpan period) {
+			lock (_startStopMonitor) {
+				if (_workerTask == null) {
+					_workerPeriod = period;
 
-			// TODO: do not enter lock, use queue
-
-			var stamp = DateTime.UtcNow;
-			_mutexCrypto.EnterWriteLock();
-			try {
-
-				// TODO: checkCryptoRate();
-
-				_curSafeCryptoRate = new SafeCryptoRate() {
-					EthUsd = rate.EthUsd,
-					IsSafeForBuy = true,
-					IsSafeForSell = true,
-				};
-			}
-			finally {
-				_mutexCrypto.ExitWriteLock();
+					_logger.Trace($"Run() period={ period }");
+					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
+				}
 			}
 		}
 
-		public void OnGoldRate(GoldRate rate, TimeSpan expectedPeriod) {
-			
-			// TODO: dot not enter lock, use queue
+		public void Stop(bool blocking = false) {
+			lock (_startStopMonitor) {
 
-			var stamp = DateTime.UtcNow;
-			_mutexGold.EnterWriteLock();
-			try {
-				// TODO: checkGoldRate();
+				_logger.Trace("Stop(): send cancellation");
+				_workerCancellationTokenSource.Cancel();
 
-				_curSafeGoldRate = new SafeGoldRate() {
-					Usd = rate.Usd,
-					IsSafeForBuy = true,
-					IsSafeForSell = true,
-				};
-			}
-			finally {
-				_mutexGold.ExitWriteLock();
+				if (blocking && _workerTask != null) {
+					_logger.Trace("Stop(): wait for cancellation");
+					_workerTask.Wait();
+				}
 			}
 		}
+		
+		private void Worker() {
+			var ctoken = _workerCancellationTokenSource.Token;
 
-		// TODO: process queue, check latest values (by timestamp), verify expected period, check safety, publish latest rates with timestamp
+			while (!ctoken.IsCancellationRequested) {
+
+				var freshUnsafeRates = new Dictionary<CurrencyRateType, CurrencyRate>();
+
+				// get most fresh item
+				while (_workerQueue.TryDequeue(out var some)) {
+					if (!freshUnsafeRates.TryGetValue(some.Currency, out var existing) || some.Stamp > existing.Stamp) {
+						freshUnsafeRates[some.Currency] = some;
+					}
+				}
+
+				var freshSafeRates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
+
+				// resolve safety
+				foreach (var pair in freshUnsafeRates) {
+					var unsafeRate = pair.Value;
+					var curSafeRate = GetRate(unsafeRate.Currency);
+					if (unsafeRate.Stamp > curSafeRate.Stamp) {
+						InterpolateFreshRate(unsafeRate);
+						freshSafeRates[unsafeRate.Currency] = ResolveSafety(unsafeRate);
+					}
+				}
+
+				// update / publish
+				if (freshSafeRates.Count > 0) {
+
+					_mutexUpdate.EnterWriteLock();
+					try {
+						foreach (var pair in freshSafeRates) {
+							_rates[pair.Key] = pair.Value;
+						}
+
+						_publisher.PublishRates(_rates.Values.ToArray());
+					}
+					finally {
+						_mutexUpdate.ExitWriteLock();
+					}
+				}
+				
+				Thread.Sleep(_workerPeriod);
+			}
+
+			_logger.Trace("Worker(): cancelled");
+		}
+
+		private void InterpolateFreshRate(CurrencyRate unsafeRate) {
+
+			// TODO: interpolate
+		}
+
+		private SafeCurrencyRate ResolveSafety(CurrencyRate unsafeRate) {
+
+			// TODO: resolve safety
+
+			return new SafeCurrencyRate(
+				canBuy: true,
+				canSell: true,
+				ttl: TimeSpan.FromSeconds(30),
+				cur: unsafeRate.Currency,
+				stamp: unsafeRate.Stamp,
+				usd: unsafeRate.Usd
+			);
+		}
 	}
 }

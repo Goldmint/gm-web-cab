@@ -1,41 +1,27 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Bus.Proto;
-using Goldmint.CoreLogic.Services.Bus.Publisher;
 using Goldmint.CoreLogic.Services.Rate.Models;
 using NLog;
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public sealed class BusSafeRatesPublisher : IAggregatedSafeRatesPublisher {
 
-		private readonly SafeRatesPublisher _busPublisher;
+		private readonly Bus.Publisher.DefaultPublisher<Bus.Proto.SafeRatesMessage> _busPublisher;
 		private readonly ILogger _logger;
 
-		public BusSafeRatesPublisher(SafeRatesPublisher busPublisher, LogFactory logFactory) {
+		public BusSafeRatesPublisher(Bus.Publisher.DefaultPublisher<Bus.Proto.SafeRatesMessage> busPublisher, LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_busPublisher = busPublisher;
 		}
 
-		public Task PublishRates(DateTime timestamp, SafeGoldRate goldRate, SafeCryptoRate cryptoRate) {
+		public Task PublishRates(SafeCurrencyRate[] rates) {
 
-			_logger.Trace($"Publishing rates: stamp={ timestamp } / { goldRate } / { cryptoRate }");
+			_logger.Trace($"Publishing {rates.Length} rates");
 
-			_busPublisher.PublishRates(new SafeRates() {
-
-				Stamp = ((DateTimeOffset)timestamp).ToUnixTimeSeconds(),
-				Gold = new Gold() {
-					Usd = goldRate.Usd,
-					
-					IsSafeForBuy = goldRate.IsSafeForBuy,
-					IsSafeForSell = goldRate.IsSafeForSell,
-				},
-				Crypto = new Crypto() {
-					EthUsd = cryptoRate.EthUsd,
-					IsSafeForBuy = cryptoRate.IsSafeForBuy,
-					IsSafeForSell = cryptoRate.IsSafeForSell,
-				}
+			_busPublisher.PublishMessage(new Bus.Proto.SafeRatesMessage() {
+				Rates = rates.Select(SafeCurrencyRate.BusSerialize).ToArray(),
 			});
 
 			return Task.CompletedTask;

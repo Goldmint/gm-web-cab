@@ -6,6 +6,6 @@ namespace Goldmint.CoreLogic.Services.Rate {
 
 	public interface IGoldRateProvider {
 
-		Task<GoldRate> RequestGoldRate(TimeSpan timeout);
+		Task<CurrencyRate> RequestGoldRate(TimeSpan timeout);
 	}
 }
