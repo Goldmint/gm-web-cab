@@ -150,6 +150,12 @@ namespace Goldmint.Common {
 					public string Template { get; set; }
 				}
 			}
+
+			public DGCSCSection DGCSC { get; set; } = new DGCSCSection();
+			public class DGCSCSection {
+
+				public string GoldUrl { get; set; } = "";
+			}
 		}
 
 		// ---
@@ -160,8 +166,22 @@ namespace Goldmint.Common {
 			public WorkerRatesSection WorkerRates { get; set; } = new WorkerRatesSection();
 			public class WorkerRatesSection {
 
-				public string Url { get; set; }
-				public int ExpireTimeoutSec { get; set; } = 60;
+				public string PubUrl { get; set; } = "";
+				public int PubPeriodSec { get; set; } = 1;
+				public GoldSection Gold { get; set; } = new GoldSection();
+				public EthSection Eth { get; set; } = new EthSection();
+
+				public class GoldSection {
+
+					public int PeriodSec { get; set; } = 3600;
+					public int ValidForSec { get; set; } = 3666;
+				}
+
+				public class EthSection {
+
+					public int PeriodSec { get; set; } = 30;
+					public int ValidForSec { get; set; } = 60;
+				}
 			}
 		}
 

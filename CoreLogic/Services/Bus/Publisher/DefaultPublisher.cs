@@ -6,8 +6,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public sealed class DefaultPublisher<T> : BasePublisher {
 
-		public DefaultPublisher(Proto.Topic topic, Uri bindUri, LogFactory logFactory) : base(topic, 0xFFFF, logFactory) {
-			PublisherSocket.Bind(bindUri.Scheme + "://*:" + bindUri.Port);
+		public DefaultPublisher(Proto.Topic topic, Uri bindUri, LogFactory logFactory) : base(bindUri, topic, 0xFFFF, logFactory) {
 		}
 
 		// ---

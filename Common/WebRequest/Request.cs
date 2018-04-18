@@ -1,11 +1,13 @@
 ﻿using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage.Core;
 
 namespace Goldmint.Common.WebRequest {
 
@@ -97,9 +99,21 @@ namespace Goldmint.Common.WebRequest {
 
 		private async Task<bool> Send(bool post, string url, TimeSpan timeout, CancellationToken ct) {
 
-			var urlb = new UriBuilder(url);
-			urlb.Query = _query;
-			url = urlb.ToString();
+			var urlBuilder = new UriBuilder(url);
+			var urlQueryBuilder = new UriQueryBuilder();
+
+			var queryPart1 = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(urlBuilder.Query);
+			foreach (var pair in queryPart1) {
+				urlQueryBuilder.Add(pair.Key, pair.Value.FirstOrDefault());
+			}
+
+			var queryPart2 = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(_query);
+			foreach (var pair in queryPart2) {
+				urlQueryBuilder.Add(pair.Key, pair.Value.FirstOrDefault());
+			}
+
+			urlBuilder.Query = urlQueryBuilder.ToString();
+			url = urlBuilder.ToString();
 
 			using (var client = new HttpClient()) {
 

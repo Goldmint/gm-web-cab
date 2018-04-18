@@ -14,25 +14,32 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		private readonly IAggregatedSafeRatesPublisher _publisher;
 		private readonly ILogger _logger;
+		private readonly Options _opts;
 		
 		private readonly object _startStopMonitor;
 		private readonly CancellationTokenSource _workerCancellationTokenSource;
 		private Task _workerTask;
-		private TimeSpan _workerPeriod;
 		private readonly ConcurrentQueue<CurrencyRate> _workerQueue;
 
 		private readonly ReaderWriterLockSlim _mutexUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public SafeRatesDispatcher(IAggregatedSafeRatesPublisher publisher, LogFactory logFactory) {
+		public SafeRatesDispatcher(IAggregatedSafeRatesPublisher publisher, LogFactory logFactory, Action<Options> opts) {
+
 			_publisher = publisher;
 			_logger = logFactory.GetLoggerFor(this);
+
+			_opts = new Options() {
+				PublishPeriod = TimeSpan.FromSeconds(1),
+				GoldTtl = TimeSpan.FromSeconds(60),
+				EthTtl = TimeSpan.FromSeconds(60),
+			};
+			opts?.Invoke(_opts);
 
 			_startStopMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
 			_mutexUpdate = new ReaderWriterLockSlim();
 			_workerQueue = new ConcurrentQueue<CurrencyRate>();
-			_workerPeriod = TimeSpan.FromSeconds(1);
 
 			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
 		}
@@ -71,10 +78,10 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		// ---
 
-		public void Run(TimeSpan period) {
+		public void Run(TimeSpan? period = null) {
 			lock (_startStopMonitor) {
 				if (_workerTask == null) {
-					_workerPeriod = period;
+					if (period != null) _opts.PublishPeriod = period.Value;
 
 					_logger.Trace($"Run() period={ period }");
 					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
@@ -95,7 +102,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			}
 		}
 		
-		private void Worker() {
+		private async void Worker() {
 			var ctoken = _workerCancellationTokenSource.Token;
 
 			while (!ctoken.IsCancellationRequested) {
@@ -129,15 +136,16 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 						foreach (var pair in freshSafeRates) {
 							_rates[pair.Key] = pair.Value;
 						}
-
-						_publisher.PublishRates(_rates.Values.ToArray());
 					}
 					finally {
 						_mutexUpdate.ExitWriteLock();
 					}
 				}
+
+				// publish in any case
+				await _publisher.PublishRates(_rates.Values.ToArray());
 				
-				Thread.Sleep(_workerPeriod);
+				Thread.Sleep(_opts.PublishPeriod);
 			}
 
 			_logger.Trace("Worker(): cancelled");
@@ -152,14 +160,30 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			// TODO: resolve safety
 
+			TimeSpan ttl;
+			switch (unsafeRate.Currency) {
+				case CurrencyRateType.Gold: ttl = _opts.GoldTtl; break;
+				case CurrencyRateType.Eth: ttl = _opts.EthTtl; break;
+				default: throw new Exception($"Specify currency ttl { unsafeRate.Currency.ToString() }");
+			}
+
 			return new SafeCurrencyRate(
 				canBuy: true,
 				canSell: true,
-				ttl: TimeSpan.FromSeconds(30),
+				ttl: ttl,
 				cur: unsafeRate.Currency,
 				stamp: unsafeRate.Stamp,
 				usd: unsafeRate.Usd
 			);
+		}
+
+		// ---
+
+		public sealed class Options {
+
+			public TimeSpan PublishPeriod { get; set; }
+			public TimeSpan GoldTtl { get; set; }
+			public TimeSpan EthTtl { get; set; }
 		}
 	}
 }

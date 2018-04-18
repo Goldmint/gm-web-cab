@@ -62,8 +62,6 @@ namespace Goldmint.QueueService {
 			// blockchain reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
-			
-
 			// ---
 
 			if (Mode.HasFlag(WorkingMode.Worker)) {
@@ -77,22 +75,36 @@ namespace Goldmint.QueueService {
 				}
 
 				// rate providers
-				services.AddSingleton<IGoldRateProvider>(fac => new DebugRateProvider());
-				services.AddSingleton<IEthRateProvider>(fac => new DebugRateProvider());
+				services.AddSingleton<IGoldRateProvider>(
+					fac => new DGCSCGoldRateProvider(_loggerFactory, opts => { opts.GoldRateUrl = _appConfig.Services.DGCSC.GoldUrl; })
+				);
+				services.AddSingleton<IEthRateProvider>(
+					fac => new CoinbaseRateProvider(_loggerFactory)
+				);
 
 				// rates publisher
 				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
 					CoreLogic.Services.Bus.Proto.Topic.FiatRates,
-					new Uri(_appConfig.Bus.WorkerRates.Url),
+					new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 					_loggerFactory
 				);
 				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(
 					_busSafeRatesPublisher,
 					_loggerFactory
 				);
+				_busSafeRatesPublisher.Bind();
 
 				// rates dispatcher
-				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(_busSafeRatesPublisherWrapper, _loggerFactory);
+				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
+					_busSafeRatesPublisherWrapper, 
+					_loggerFactory, 
+					opts => {
+						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.PubPeriodSec);
+
+						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.ValidForSec);
+						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.ValidForSec);
+					}
+				);
 				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesPublisher>(_ => _busSafeRatesPublisherWrapper);
@@ -108,7 +120,7 @@ namespace Goldmint.QueueService {
 
 					_busSafeRatesSubscriber = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
 						CoreLogic.Services.Bus.Proto.Topic.FiatRates,
-						new Uri(_appConfig.Bus.WorkerRates.Url),
+						new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 						_loggerFactory
 					);
 					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(

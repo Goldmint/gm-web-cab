@@ -3,17 +3,20 @@ using NetMQ;
 using NetMQ.Sockets;
 using NLog;
 using System;
-using System.IO;
 
 namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public abstract class BasePublisher: IDisposable {
 
+		// TODO: run custom task for reading, get rid of poller
+
+		protected readonly string BindUri;
 		protected readonly Proto.Topic Topic;
 		protected readonly ILogger Logger;
 		protected readonly PublisherSocket PublisherSocket;
 
-		protected BasePublisher(Proto.Topic topic, int queueSize, LogFactory logFactory) {
+		protected BasePublisher(Uri bindUri, Proto.Topic topic, int queueSize, LogFactory logFactory) {
+			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
 			Topic = topic;
 			Logger = logFactory.GetLoggerFor(this);
 
@@ -24,8 +27,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			PublisherSocket.Options.Endian = Endianness.Big;
 
 			PublisherSocket.Options.TcpKeepalive = true;
-			PublisherSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(60);
-			PublisherSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(60);
+			PublisherSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
+			PublisherSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);
 		}
 
 		public void Dispose() {
@@ -38,6 +41,14 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		}
 
 		// ---
+
+		public void Bind() {
+			PublisherSocket.Bind(BindUri);
+		}
+
+		public void Unbind() {
+			PublisherSocket.Unbind(BindUri);
+		}
 
 		protected void PublishMessage(byte[] message) {
 			PublisherSocket

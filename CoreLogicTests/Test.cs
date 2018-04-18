@@ -6,11 +6,13 @@ namespace Goldmint.CoreLogicTests {
 
 		private readonly Xunit.Abstractions.ITestOutputHelper _testOutput;
 		protected NLog.LogFactory LogFactory;
+		protected NLog.ILogger Logger;
 		private NLog.Targets.MemoryTarget _memoryLogTarget;
 
 		protected Test(Xunit.Abstractions.ITestOutputHelper testOutput) {
 			_testOutput = testOutput;
 			SetupNLog();
+			Logger = LogFactory.GetCurrentClassLogger(this.GetType());
 		}
 
 		public void Dispose() {

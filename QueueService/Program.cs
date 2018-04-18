@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog.Web;
 
 namespace Goldmint.QueueService {
 
@@ -89,6 +90,7 @@ namespace Goldmint.QueueService {
 			// nlog
 			var nlogConfig = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
 			_loggerFactory = new LogFactory(nlogConfig);
+			LogManager.Configuration = nlogConfig;
 
 			var logger = _loggerFactory.GetLogger(typeof(Program).FullName);
 			logger.Info("Launched");
@@ -107,7 +109,6 @@ namespace Goldmint.QueueService {
 
 			// setup ms logger
 			services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
-			LogManager.Configuration = nlogConfig;
 
 			// setup workers and wait
 			Task.WaitAll(SetupWorkers(services).ToArray());

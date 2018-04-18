@@ -28,8 +28,11 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			SubscriberSocket.Options.Endian = Endianness.Big;
 
 			SubscriberSocket.Options.TcpKeepalive = true;
-			SubscriberSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(60);
-			SubscriberSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(60);
+			SubscriberSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
+			SubscriberSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);
+
+			SubscriberSocket.Options.ReconnectInterval = TimeSpan.FromSeconds(1);
+			SubscriberSocket.Options.ReconnectIntervalMax = TimeSpan.FromSeconds(5);
 
 			SubscriberSocket.ReceiveReady += OnSocketReceiveReady;
 		}

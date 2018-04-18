@@ -3,6 +3,8 @@ using Goldmint.CoreLogic.Services.Bus.Publisher;
 using Goldmint.CoreLogic.Services.Bus.Subscriber;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Goldmint.Common;
@@ -13,15 +15,23 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 	public sealed class SafeRatesBus : Test {
 
-		private readonly Uri _pubBind = new Uri("tcp://localhost:30666");
+		private int _portCounter = 45900;
+		private Uri GetNextSocketAddress => new Uri($"tcp://localhost:{ (++_portCounter) }");
 
 		public SafeRatesBus(ITestOutputHelper testOutput) : base(testOutput) {
 		}
 
+		// ---
+
 		[Fact]
 		public void PubSubSync() {
-			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
-				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+
+			var socket = GetNextSocketAddress;
+
+			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+				pub.Bind();
+
+				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
 
 					pub.PublishMessage(new SafeRatesMessage() {
 						Rates = new[] {
@@ -60,61 +70,17 @@ namespace Goldmint.CoreLogicTests.Bus {
 					Assert.True(ratesMessage.Rates.Length == 0);
 				}
 			}
-
-			Thread.Sleep(1000);
-		}
-
-		[Fact]
-		public void PubSubAsyncIntensive() {
-
-			var stopCts = new CancellationTokenSource();
-			var stopToken = stopCts.Token;
-			var received = 0;
-			var messages = 1000;
-
-			// pub part
-			var tp = Task.Factory.StartNew(() => {
-				using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
-					for (var i = 0; i < messages; ++i) {
-						switch (SecureRandom.GetPositiveInt() % 2) {
-							case 0: pub.PublishMessage(new SafeRatesMessage());
-								break;
-							case 1: pub.PublishMessage(new SafeRatesMessage() { Rates = new SafeRate[] { new SafeRate() { Currency = CurrencyRateType.Gold}, } });
-								break;
-						}
-					}
-				}
-			});
-
-			// sub part
-			var ts = Task.Factory.StartNew(() => {
-				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
-					sub.SetCallback((subscriber, message) => {
-						received++;
-						if (received >= messages) {
-							Assert.True(true, $"Got { received } messages");
-							subscriber.Stop();
-						}}
-					);
-					sub.Run();
-
-					while (sub.IsRunning()) {
-						Thread.Sleep(1);
-					}
-				}
-			});
-			stopCts.CancelAfter(5000);
-
-			Task.WaitAll(tp, ts);
-			stopCts.Dispose();
-
-			Thread.Sleep(1000);
 		}
 
 		[Fact]
 		public void PubSubAsync() {
-			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
-				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+
+			var socket = GetNextSocketAddress;
+
+			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+				pub.Bind();
+
+				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
 
 					Task.Factory.StartNew(() => {
 
@@ -173,15 +139,153 @@ namespace Goldmint.CoreLogicTests.Bus {
 					}
 				}
 			}
-
-			Thread.Sleep(1000);
 		}
+
+		[Fact]
+		public void PubSubAsyncIntensive() {
+
+			var socket = GetNextSocketAddress;
+			var stopCts = new CancellationTokenSource();
+			var received = 0;
+			var messages = 1000;
+
+			// pub part
+			var tp = Task.Factory.StartNew(() => {
+				using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+					pub.Bind();
+
+					for (var i = 0; i < messages; ++i) {
+						switch (SecureRandom.GetPositiveInt() % 2) {
+							case 0: pub.PublishMessage(new SafeRatesMessage());
+								break;
+							case 1: pub.PublishMessage(new SafeRatesMessage() { Rates = new SafeRate[] { new SafeRate() { Currency = CurrencyRateType.Gold}, } });
+								break;
+						}
+					}
+				}
+			});
+
+			// sub part
+			var ts = Task.Factory.StartNew(() => {
+				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+					sub.SetCallback((subscriber, message) => {
+						received++;
+						if (received >= messages) {
+							Assert.True(true, $"Got { received } messages");
+							subscriber.Stop();
+						}}
+					);
+					sub.Run();
+
+					while (sub.IsRunning()) {
+						Thread.Sleep(1);
+					}
+				}
+			});
+			stopCts.CancelAfter(5000);
+
+			Task.WaitAll(tp, ts);
+			stopCts.Dispose();
+		}
+
+		[Fact]
+		public void DispatcherRunStop() {
+
+			var socket = GetNextSocketAddress;
+			var randomRates = new DebugRateProvider();
+
+			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+				pub.Bind();
+
+				var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
+
+				using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory, null)) { }
+
+				using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory, null)) {
+					dispatcher.Run(TimeSpan.FromSeconds(0.02));
+
+					for (var k = 0; k < 100; k++) {
+						for (var i = 0; i < 100; i++) {
+							dispatcher.OnProviderCurrencyRate(randomRates.RequestGoldRate(TimeSpan.Zero).Result);
+							dispatcher.OnProviderCurrencyRate(randomRates.RequestEthRate(TimeSpan.Zero).Result);
+						}
+						Thread.Sleep(15);
+					}
+				}
+			}
+		}
+
+		[Fact]
+		public void SubReconnection() {
+
+			var socket = GetNextSocketAddress;
+			var testStop = new ManualResetEventSlim();
+
+			// pub part
+			var tp = Task.Factory.StartNew(() => {
+
+				for (var usd = 0; usd < 2; ++usd) {
+					using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+						pub.Bind();
+
+						var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
+						using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory, null)) {
+
+							var rate = new CoreLogic.Services.Rate.Models.CurrencyRate(
+								cur: CurrencyRateType.Gold,
+								stamp: DateTime.UtcNow,
+								usd: usd
+							);
+							dispatcher.OnProviderCurrencyRate(rate);
+
+							// send
+							dispatcher.Run(TimeSpan.FromSeconds(0.1));
+							Thread.Sleep(10000);
+						}
+					}
+					Thread.Sleep(15000);
+				}
+
+				testStop.Set();
+			});
+
+			// sub part
+			var hits = new Dictionary<long, long>();
+			var ts = Task.Factory.StartNew(() => {
+
+				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+					sub.SetCallback((subscriber, message) => {
+						var rate = message.Rates.First(_ => _.Currency == CurrencyRateType.Gold);
+
+						if (!hits.ContainsKey(rate.Usd)) {
+							hits[rate.Usd] = 0;
+						}
+						hits[rate.Usd]++;
+					});
+					sub.Run();
+
+					testStop.Wait();
+				}
+			});
+
+			Task.WaitAll(tp, ts);
+
+			foreach (var pair in hits) {
+				Logger.Debug($"Hits at { pair.Key } = { pair.Value }");
+			}
+			Assert.True(hits[0] > 0);
+			Assert.True(hits[1] > 0);
+		}
+
+		// ---
 
 		[Fact]
 		public void DefaultUnsafeRates() {
 
+			var socket = GetNextSocketAddress;
+
 			// subscriber source
-			using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+			using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
 				using (var source = new BusSafeRatesSource(sub, LogFactory)) {
 
 					var gold = source.GetRate(CurrencyRateType.Gold);
@@ -199,9 +303,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 			}
 
 			// dispatcher source
-			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+				pub.Bind();
+
 				var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
-				using (var source = new SafeRatesDispatcher(pubWrapper, LogFactory)) {
+				using (var source = new SafeRatesDispatcher(pubWrapper, LogFactory, null)) {
 
 					var gold = source.GetRate(CurrencyRateType.Gold);
 					Assert.True(gold != null);
@@ -216,18 +322,19 @@ namespace Goldmint.CoreLogicTests.Bus {
 					Assert.False(crypto.IsSafeForSell);
 				}
 			}
-
-			Thread.Sleep(1000);
 		}
 
 		[Fact]
 		public void FreshAndStaleRates() {
 
-			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
-				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+			var socket = GetNextSocketAddress;
+
+			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+				pub.Bind();
+
+				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
 					using (var source = new BusSafeRatesSource(sub, LogFactory)) {
 
-						var ratesMessage = (SafeRatesMessage)null;
 						var stamp = ((DateTimeOffset) DateTime.UtcNow).ToUnixTimeSeconds();
 						var freshFor = 2;
 
@@ -244,7 +351,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 								}
 							}
 						});
-						Assert.True(sub.ReceiveBlocking(out ratesMessage));
+						Assert.True(sub.ReceiveBlocking(out var ratesMessage));
 						source.OnNewRates(sub, ratesMessage);
 
 						// got fresh
@@ -310,38 +417,12 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 				}
 			}
-
-			Thread.Sleep(1000);
-		}
-
-		[Fact]
-		public void DispatcherRunStop() {
-
-			var randomRates = new DebugRateProvider();
-
-			using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
-				var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
-
-				using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory)) { }
-
-				using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory)) {
-					dispatcher.Run(TimeSpan.FromSeconds(0.02));
-
-					for (var k = 0; k < 100; k++) {
-						for (var i = 0; i < 100; i++) {
-							dispatcher.OnProviderCurrencyRate(randomRates.RequestGoldRate(TimeSpan.Zero).Result);
-							dispatcher.OnProviderCurrencyRate(randomRates.RequestEthRate(TimeSpan.Zero).Result);
-						}
-						Thread.Sleep(15);
-					}
-				}
-			}
-
-			Thread.Sleep(1000);
 		}
 
 		[Fact]
 		public void DispatcherRates() {
+
+			var socket = GetNextSocketAddress;
 
 			var randomRates = new DebugRateProvider();
 			var stopCts = new CancellationTokenSource();
@@ -349,9 +430,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			// pub part
 			var tp = Task.Factory.StartNew(() => {
-				using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+				using (var pub = new DefaultPublisher<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
+					pub.Bind();
+
 					var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
-					using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory)) {
+					using (var dispatcher = new SafeRatesDispatcher(pubWrapper, LogFactory, null)) {
 
 						dispatcher.Run(TimeSpan.FromSeconds(0.02));
 
@@ -369,7 +452,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			// sub part
 			var ts = Task.Factory.StartNew(() => {
-				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, _pubBind, LogFactory)) {
+				using (var sub = new DefaultSubscriber<SafeRatesMessage>(Topic.FiatRates, socket, LogFactory)) {
 					sub.Run();
 					using (var source = new BusSafeRatesSource(sub, LogFactory)) {
 
@@ -396,8 +479,10 @@ namespace Goldmint.CoreLogicTests.Bus {
 			
 			Task.WaitAll(tp, ts);
 			stopCts.Dispose();
-
-			Thread.Sleep(1000);
 		}
+
+		// ---
+
+		// TODO: dispatcher check (rate volatility)
 	}
 }
