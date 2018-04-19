@@ -1,3 +1,5 @@
 /.vs/
 /appsettings*
-.idea
+/.idea
+/**/obj
+/**/bin
