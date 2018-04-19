@@ -32,12 +32,12 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 			_ttl = ttl;
 		}
 
-		public bool IsSafeForBuy => _canBuy && !IsExpired;
-		public bool IsSafeForSell => _canSell && !IsExpired;
+		public bool CanBuy => _canBuy && !IsExpired;
+		public bool CanSell => _canSell && !IsExpired;
 		public bool IsExpired => DateTime.UtcNow > Stamp.Add(_ttl);
 
 		public override string ToString() {
-			return base.ToString() + $"sfb={ IsSafeForBuy };sfs={ IsSafeForSell };exp={ IsExpired };";
+			return base.ToString() + $"sfb={ CanBuy };sfs={ CanSell };exp={ IsExpired };";
 		}
 
 		// ---

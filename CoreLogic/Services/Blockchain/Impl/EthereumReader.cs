@@ -225,7 +225,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid user ID");
 			}
 
-			if (currency == FiatCurrency.USD) {
+			if (currency == FiatCurrency.Usd) {
 				var web3 = new Web3(JsonRpcClient);
 				var contract = web3.Eth.GetContract(
 					FiatContractAbi,

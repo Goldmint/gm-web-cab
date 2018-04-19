@@ -397,15 +397,16 @@ namespace Goldmint.Common {
 
 	public enum CryptoCurrency {
 
-		ETH = 1,
+		Eth = 1,
 	}
 
 	public enum FiatCurrency {
 
-		USD = 1,
+		Usd = 1,
 	}
 
 	public enum CurrencyRateType {
+
 		Unknown = 0,
 		Gold = 1,
 		Eth = 2,

@@ -6,6 +6,7 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate;
+using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.WebApplication.Models;
@@ -39,7 +40,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected IEthereumReader EthereumObserver { get; private set; }
 		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 		protected IDocSigningProvider DocSigningProvider { get; private set; }
-		protected IAggregatedSafeRatesSource RatesProvider { get; private set; }
+		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
 
 		protected BaseController() { }
 
@@ -59,7 +60,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
 			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
-			RatesProvider = services.GetRequiredService<IAggregatedSafeRatesSource>();
+			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
 		}
 
 		// ---

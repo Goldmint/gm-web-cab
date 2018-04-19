@@ -1,6 +1,7 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
+using Goldmint.CoreLogic.Services.Bus.Subscriber;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.KYC.Impl;
 using Goldmint.CoreLogic.Services.Localization;
@@ -11,6 +12,7 @@ using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.OpenStorage.Impl;
+using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
@@ -27,10 +29,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using Goldmint.CoreLogic.Services.Rate;
 
 namespace Goldmint.WebApplication {
 
 	public partial class Startup {
+
+		private DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesSubscriber;
+		private BusSafeRatesSource _busSafeRatesSource;
 
 		public IServiceProvider ConfigureServices(IServiceCollection services) {
 
@@ -190,7 +196,15 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rates
-			
+			_busSafeRatesSubscriber = new DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+				CoreLogic.Services.Bus.Proto.Topic.FiatRates,
+				new Uri(_appConfig.Bus.WorkerRates.PubUrl),
+				_loggerFactory
+			);
+			_busSafeRatesSubscriber.Run();
+			_busSafeRatesSource = new BusSafeRatesSource(_busSafeRatesSubscriber, _loggerFactory);
+			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
+			services.AddSingleton<SafeRatesFiatAdapter>();
 
 			// open storage
 			services.AddSingleton<IOpenStorageProvider>(fac => 

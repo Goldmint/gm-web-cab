@@ -62,6 +62,9 @@ namespace Goldmint.QueueService {
 			// blockchain reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
+			// rates helper
+			services.AddSingleton<SafeRatesFiatAdapter>();
+			
 			// ---
 
 			if (Mode.HasFlag(WorkingMode.Worker)) {
@@ -107,7 +110,7 @@ namespace Goldmint.QueueService {
 				);
 				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
-				services.AddSingleton<IAggregatedSafeRatesPublisher>(_ => _busSafeRatesPublisherWrapper);
+				services.AddSingleton<IAggregatedSafeRatesPublisher>(_busSafeRatesPublisherWrapper);
 			}
 
 			if (Mode.HasFlag(WorkingMode.Core)) {

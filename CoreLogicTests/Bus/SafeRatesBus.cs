@@ -291,14 +291,14 @@ namespace Goldmint.CoreLogicTests.Bus {
 					var gold = source.GetRate(CurrencyRateType.Gold);
 					Assert.True(gold != null);
 					Assert.True(gold.Usd == 0);
-					Assert.False(gold.IsSafeForBuy);
-					Assert.False(gold.IsSafeForSell);
+					Assert.False(gold.CanBuy);
+					Assert.False(gold.CanSell);
 
 					var crypto = source.GetRate(CurrencyRateType.Eth);
 					Assert.True(crypto != null);
 					Assert.True(crypto.Usd == 0);
-					Assert.False(crypto.IsSafeForBuy);
-					Assert.False(crypto.IsSafeForSell);
+					Assert.False(crypto.CanBuy);
+					Assert.False(crypto.CanSell);
 				}
 			}
 
@@ -312,14 +312,14 @@ namespace Goldmint.CoreLogicTests.Bus {
 					var gold = source.GetRate(CurrencyRateType.Gold);
 					Assert.True(gold != null);
 					Assert.True(gold.Usd == 0);
-					Assert.False(gold.IsSafeForBuy);
-					Assert.False(gold.IsSafeForSell);
+					Assert.False(gold.CanBuy);
+					Assert.False(gold.CanSell);
 
 					var crypto = source.GetRate(CurrencyRateType.Eth);
 					Assert.True(crypto != null);
 					Assert.True(crypto.Usd == 0);
-					Assert.False(crypto.IsSafeForBuy);
-					Assert.False(crypto.IsSafeForSell);
+					Assert.False(crypto.CanBuy);
+					Assert.False(crypto.CanSell);
 				}
 			}
 		}
@@ -356,18 +356,18 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 						// got fresh
 						Assert.True(source.GetRate(CurrencyRateType.Gold).Usd == 0xDEADBEEF);
-						Assert.True(source.GetRate(CurrencyRateType.Gold).IsSafeForBuy && source.GetRate(CurrencyRateType.Gold).IsSafeForSell);
+						Assert.True(source.GetRate(CurrencyRateType.Gold).CanBuy && source.GetRate(CurrencyRateType.Gold).CanSell);
 						Assert.True(source.GetRate(CurrencyRateType.Eth).Usd == 0xDEADBEEE);
-						Assert.True(source.GetRate(CurrencyRateType.Eth).IsSafeForBuy && source.GetRate(CurrencyRateType.Eth).IsSafeForSell);
+						Assert.True(source.GetRate(CurrencyRateType.Eth).CanBuy && source.GetRate(CurrencyRateType.Eth).CanSell);
 
 						// timeout
 						Thread.Sleep(freshFor * 1000 + 100);
 
 						// become stale/unsafe
 						Assert.True(source.GetRate(CurrencyRateType.Gold).Usd == 0xDEADBEEF);
-						Assert.True(!source.GetRate(CurrencyRateType.Gold).IsSafeForBuy && !source.GetRate(CurrencyRateType.Gold).IsSafeForSell);
+						Assert.True(!source.GetRate(CurrencyRateType.Gold).CanBuy && !source.GetRate(CurrencyRateType.Gold).CanSell);
 						Assert.True(source.GetRate(CurrencyRateType.Eth).Usd == 0xDEADBEEE);
-						Assert.True(!source.GetRate(CurrencyRateType.Eth).IsSafeForBuy && !source.GetRate(CurrencyRateType.Eth).IsSafeForSell);
+						Assert.True(!source.GetRate(CurrencyRateType.Eth).CanBuy && !source.GetRate(CurrencyRateType.Eth).CanSell);
 
 						// send stale
 						pub.PublishMessage(new SafeRatesMessage() {
@@ -387,9 +387,9 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 						// got stale
 						Assert.True(source.GetRate(CurrencyRateType.Gold).Usd == 0xDEADBEEF + 0xD);
-						Assert.True(!source.GetRate(CurrencyRateType.Gold).IsSafeForBuy && !source.GetRate(CurrencyRateType.Gold).IsSafeForSell);
+						Assert.True(!source.GetRate(CurrencyRateType.Gold).CanBuy && !source.GetRate(CurrencyRateType.Gold).CanSell);
 						Assert.True(source.GetRate(CurrencyRateType.Eth).Usd == 0xDEADBEEE + 0xD);
-						Assert.True(!source.GetRate(CurrencyRateType.Eth).IsSafeForBuy && !source.GetRate(CurrencyRateType.Eth).IsSafeForSell);
+						Assert.True(!source.GetRate(CurrencyRateType.Eth).CanBuy && !source.GetRate(CurrencyRateType.Eth).CanSell);
 
 						// send fresh again
 						stamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
@@ -410,9 +410,9 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 						// got fresh
 						Assert.True(source.GetRate(CurrencyRateType.Gold).Usd == 0xDEADBEEF + 0xDE);
-						Assert.True(!source.GetRate(CurrencyRateType.Gold).IsSafeForBuy && source.GetRate(CurrencyRateType.Gold).IsSafeForSell);
+						Assert.True(!source.GetRate(CurrencyRateType.Gold).CanBuy && source.GetRate(CurrencyRateType.Gold).CanSell);
 						Assert.True(source.GetRate(CurrencyRateType.Eth).Usd == 0xDEADBEEE + 0xDE);
-						Assert.True(source.GetRate(CurrencyRateType.Eth).IsSafeForBuy && !source.GetRate(CurrencyRateType.Eth).IsSafeForSell);
+						Assert.True(source.GetRate(CurrencyRateType.Eth).CanBuy && !source.GetRate(CurrencyRateType.Eth).CanSell);
 					}
 
 				}
@@ -463,10 +463,10 @@ namespace Goldmint.CoreLogicTests.Bus {
 							var goldRate = source.GetRate(CurrencyRateType.Gold);
 							var ethRate = source.GetRate(CurrencyRateType.Eth);
 
-							if (goldRate.IsSafeForBuy && goldRate.IsSafeForSell) {
+							if (goldRate.CanBuy && goldRate.CanSell) {
 								goldOk = true;
 							}
-							if (ethRate.IsSafeForBuy && ethRate.IsSafeForSell) {
+							if (ethRate.CanBuy && ethRate.CanSell) {
 								ethOk = true;
 							}
 							Thread.Sleep(10);

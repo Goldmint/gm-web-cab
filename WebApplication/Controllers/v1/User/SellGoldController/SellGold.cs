@@ -28,40 +28,24 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var exchangeCurrency = FiatCurrency.USD;
+			var exchangeCurrency = FiatCurrency.Usd;
 
 			// ---
 
-			// TODO: use GoldToken safe estimation
-
 			FiatCurrency? fiatCurrency = null;
 			CryptoCurrency? cryptoCurrency = null;
-			var outputRate = 0L;
 
 			// try parse fiat currency
 			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
 				fiatCurrency = fc;
 				exchangeCurrency = fc;
-				outputRate = 100; // 1:1
 			}
 			// or crypto currency
 			else if (Enum.TryParse(model.Currency, true, out CryptoCurrency cc)) {
 				cryptoCurrency = cc;
-				outputRate = await CryptoassetRateProvider.GetRate(cc, exchangeCurrency);
 			}
 			else {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
-			}
-
-			// ---
-
-			var outputDecimals = 0;
-
-			if (fiatCurrency != null) {
-				outputDecimals = 2;
-			}
-			else if (cryptoCurrency == CryptoCurrency.ETH) {
-				outputDecimals = Tokens.ETH.Decimals;
 			}
 
 			// ---
@@ -71,16 +55,38 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			var goldRate = await GoldRateCached.GetGoldRate(exchangeCurrency);
+			var allowed = false;
+			var resultAmount = "0";
 
-			// ---
+			if (fiatCurrency != null) {
+				var result = await CoreLogic.Finance.Estimation.SellGold(
+					services: HttpContext.RequestServices,
+					exchangeFiatCurrency: exchangeCurrency,
+					goldAmountToSell: goldAmount
+				);
 
-			var exchangeAmount = goldAmount * new BigInteger(goldRate);
-			var outputAmount = exchangeAmount * BigInteger.Pow(10, outputDecimals) / outputRate / BigInteger.Pow(10, Tokens.GOLD.Decimals);
+				allowed = result.Allowed;
+				resultAmount = result.ExchangeAmountCents.ToString();
+			}
+			else {
+				var result = await CoreLogic.Finance.Estimation.SellGold(
+					services: HttpContext.RequestServices,
+					exchangeFiatCurrency: exchangeCurrency,
+					forCryptoCurrency: cryptoCurrency.Value,
+					goldAmountToSell: goldAmount
+				);
+
+				allowed = result.Allowed;
+				resultAmount = result.CryptoAmount.ToString();
+			}
+
+			if (!allowed) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
 
 			return APIResponse.Success(
 				new EstimateView() {
-					Amount = outputAmount.ToString(),
+					Amount = resultAmount,
 				}
 			);
 		}

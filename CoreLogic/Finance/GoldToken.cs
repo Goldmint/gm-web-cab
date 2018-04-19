@@ -16,32 +16,6 @@ namespace Goldmint.CoreLogic.Finance {
 
 	public static class GoldToken {
 
-		public static Task<BigInteger> EstimateBuying(BigInteger amount, CryptoCurrency cur, long fixedGoldRate, FiatCurrency exchangeCurrency, long fixedCurrencyRate) {
-
-			// TODO: assert: amount <= 0
-			// TODO: safe rates
-			// TODO: compare actual and fixed rates
-			// TODO: fees
-
-			var curDecimals = 0;
-
-			if (cur == CryptoCurrency.ETH) {
-				curDecimals = Common.Tokens.ETH.Decimals;
-			}
-			else {
-				throw new NotImplementedException($"Estimation is not implemented for {cur.ToString()}");
-			}
-
-			// var goldRate = await GoldRate.GetGoldRate(exchangeCurrency);
-
-			var exchangeAmount = amount * new BigInteger(fixedCurrencyRate);
-			var goldAmount = exchangeAmount * BigInteger.Pow(10, Common.Tokens.GOLD.Decimals) / fixedGoldRate / BigInteger.Pow(10, curDecimals);
-
-			return Task.FromResult(goldAmount);
-		}
-
-		// ---
-
 		/// <summary>
 		/// Process GOLD buying request (core-worker harvester)
 		/// </summary>
