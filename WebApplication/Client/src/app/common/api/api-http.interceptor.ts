@@ -34,11 +34,18 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return Observable.throw('ohO_offline');
     }
     else {
-      return next.handle(req.clone({
-        setHeaders: {
-          'GM-LOCALE': localStorage.getItem('gmint_language') || ''
-        }
-      })).catch((error, caught) => {
+      let handle;
+      if (req.url.indexOf(environment.apiUrl) >= 0) {
+        handle = next.handle(req.clone({
+          setHeaders: {
+            'GM-LOCALE': localStorage.getItem('gmint_language') || ''
+          }
+        }));
+      } else {
+        handle =  next.handle(req);
+      }
+
+      return handle.catch((error, caught) => {
           let translateKey  = null,
               ignoredErrors = [ // ignore auto translation for these codes
 				100, 	// InvalidParameter

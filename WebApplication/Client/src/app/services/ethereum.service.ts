@@ -6,19 +6,21 @@ import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { UserService } from "./user.service";
 import { BigNumber } from 'bignumber.js'
 import {environment} from "../../environments/environment";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable()
 export class EthereumService {
   private _infuraUrl = environment.infuraUrl;
+  private _etherscanGetABIUrl = environment.etherscanGetABIUrl;
   // main contract
   private EthContractAddress = environment.EthContractAddress;
-  private EthContractABI = environment.EthContractABI;
+  private EthContractABI: string;
   // gold token
-  private EthGoldContractAddress = environment.EthGoldContractAddress;
-  private EthGoldContractABI = environment.EthGoldContractABI;
+  private EthGoldContractAddress: string
+  private EthGoldContractABI: string;
   // mntp token
-  private EthMntpContractAddress = environment.EthMntpContractAddress;
-  private EthMntpContractABI = environment.EthMntpContractABI;
+  private EthMntpContractAddress: string;
+  private EthMntpContractABI: string;
 
   private _web3Infura: Web3 = null;
   private _web3Metamask: Web3 = null;
@@ -48,7 +50,8 @@ export class EthereumService {
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
 
   constructor(
-    private _userService: UserService
+    private _userService: UserService,
+    private _http: HttpClient
   ) {
     console.log('EthereumService constructor');
 
@@ -61,20 +64,42 @@ export class EthereumService {
     interval(7500).subscribe(this.checkBalance.bind(this));
   }
 
+  getContractABI(address) {
+    return this._http.get(`${this._etherscanGetABIUrl}/api?module=contract&action=getabi&address=${address}&forma=raw`)
+  }
+
   private checkWeb3() {
 
     if (!this._web3Infura) {
       this._web3Infura = new Web3(new Web3.providers.HttpProvider(this._infuraUrl));
 
+      this.getContractABI(this.EthContractAddress).subscribe(abi => {
+        this.EthContractABI = abi['result'];
+
         if (this._web3Infura.eth) {
           this._contractInfura = this._web3Infura.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
-          this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
+
+          this._contractInfura.mntpToken((error, address) => {
+            this.EthMntpContractAddress = address;
+          });
+
+          this._contractInfura.goldToken((error, address) => {
+            this.EthGoldContractAddress = address;
+
+            this.getContractABI(this.EthGoldContractAddress).subscribe(abi => {
+              this.EthGoldContractABI = this.EthMntpContractABI = abi['result'];
+
+              this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
+            });
+         });
+
         } else {
           this._web3Infura = null;
         }
+      });
     }
 
-    if (!this._web3Metamask && window.hasOwnProperty('web3')) {
+    if (!this._web3Metamask && window.hasOwnProperty('web3') && this.EthGoldContractABI) {
       this._web3Metamask = new Web3(window['web3'].currentProvider);
 
       if (this._web3Metamask.eth) {

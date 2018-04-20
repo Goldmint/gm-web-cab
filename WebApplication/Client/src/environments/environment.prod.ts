@@ -3,10 +3,6 @@ export const environment = {
   apiUrl: 'https://app.goldmint.io/api/v1',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   infuraUrl: '',
-  EthContractAddress: '',
-  EthContractABI: '',
-  EthGoldContractAddress: '',
-  EthGoldContractABI: '',
-  EthMntpContractAddress: '',
-  EthMntpContractABI: ''
+  etherscanGetABIUrl: 'http://api.etherscan.io',
+  EthContractAddress: ''
 };
