@@ -29,26 +29,21 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 			
-			var exchangeCurrency = FiatCurrency.USD;
+			var exchangeCurrency = FiatCurrency.Usd;
 
 			// ---
 
-			// TODO: use GoldToken safe estimation
-
 			FiatCurrency? fiatCurrency = null;
 			CryptoCurrency? cryptoCurrency = null;
-			var inputRate = 0L;
 
 			// try parse fiat currency
 			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
 				fiatCurrency = fc;
 				exchangeCurrency = fc;
-				inputRate = 100; // 1:1
 			}
 			// or crypto currency
 			else if (Enum.TryParse(model.Currency, true, out CryptoCurrency cc)) {
 				cryptoCurrency = cc;
-				inputRate = await CryptoassetRateProvider.GetRate(cc, exchangeCurrency);
 			}
 			else {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
@@ -56,32 +51,36 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var inputDecimals = 0;
-
-			if (fiatCurrency != null) {
-				inputDecimals = 2;
-			}
-			else if (cryptoCurrency == CryptoCurrency.ETH) {
-				inputDecimals = Tokens.ETH.Decimals;
-			}
-
-			// ---
-
 			BigInteger.TryParse(model.Amount, out var inputAmount);
-			if (inputAmount <= 0) {
+			if (inputAmount <= 0 || (fiatCurrency != null && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			var goldRate = await GoldRateCached.GetGoldRate(exchangeCurrency);
+			CoreLogic.Finance.Estimation.BuyGoldResult result = null;
 
-			// ---
+			if (fiatCurrency != null) {
+				result = await CoreLogic.Finance.Estimation.BuyGold(
+					services: HttpContext.RequestServices,
+					exchangeFiatCurrency: exchangeCurrency,
+					fiatAmountCents: (long)inputAmount
+				);
+			}
+			else {
+				result = await CoreLogic.Finance.Estimation.BuyGold(
+					services: HttpContext.RequestServices,
+					exchangeFiatCurrency: exchangeCurrency,
+					cryptoCurrency: cryptoCurrency.Value,
+					cryptoAmountToSell: inputAmount
+				);
+			}
 
-			var exchangeAmount = inputAmount * new BigInteger(inputRate);
-			var goldAmount = exchangeAmount * BigInteger.Pow(10, Tokens.GOLD.Decimals) / goldRate / BigInteger.Pow(10, inputDecimals);
+			if (!result.Allowed) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
 
 			return APIResponse.Success(
 				new EstimateView() {
-					Amount = goldAmount.ToString(),
+					Amount = result.GoldAmount.ToString(),
 				}
 			);
 		}

@@ -1,13 +1,11 @@
-﻿using Goldmint.Common;
+﻿using Goldmint.CoreLogic.Services.Rate.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
 	public interface IGoldRateProvider {
 
-		/// <summary>
-		/// Price in cents per gold ounce
-		/// </summary>
-		Task<long> GetRate(FiatCurrency currency);
+		Task<CurrencyRate> RequestGoldRate(TimeSpan timeout);
 	}
 }

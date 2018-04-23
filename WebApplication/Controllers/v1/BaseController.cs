@@ -6,10 +6,10 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate;
+using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.WebApplication.Models;
-using Goldmint.WebApplication.Services.Cache;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -38,11 +38,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected ITemplateProvider TemplateProvider { get; private set; }
 		protected ITicketDesk TicketDesk { get; private set; }
 		protected IEthereumReader EthereumObserver { get; private set; }
-		protected IGoldRateProvider GoldRateProvider { get; private set; }
-		protected CachedGoldRate GoldRateCached { get; private set; }
 		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 		protected IDocSigningProvider DocSigningProvider { get; private set; }
-		protected ICryptoassetRateProvider CryptoassetRateProvider { get; private set; }
+		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
 
 		protected BaseController() { }
 
@@ -60,11 +58,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			TemplateProvider = services.GetRequiredService<ITemplateProvider>();
 			TicketDesk = services.GetRequiredService<ITicketDesk>();
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
-			GoldRateProvider = services.GetRequiredService<IGoldRateProvider>();
-			GoldRateCached = services.GetRequiredService<CachedGoldRate>();
 			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
-			CryptoassetRateProvider = services.GetRequiredService<ICryptoassetRateProvider>();
+			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
 		}
 
 		// ---

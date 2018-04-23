@@ -110,14 +110,6 @@ namespace Goldmint.Common {
 				public string CallbackSecret { get; set; } = "";
 			}
 
-			public The1StPaymentsSection The1StPayments { get; set; } = new The1StPaymentsSection();
-			public class The1StPaymentsSection {
-
-				public string MerchantGuid { get; set; } = "";
-				public string ProcessingPassword { get; set; } = "";
-				public string Gateway { get; set; } = "";
-			}
-
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
 			public class EthereumSection {
 
@@ -158,15 +150,39 @@ namespace Goldmint.Common {
 					public string Template { get; set; }
 				}
 			}
+
+			public GMRatesProviderSection GMRatesProvider { get; set; } = new GMRatesProviderSection();
+			public class GMRatesProviderSection {
+
+				public string GoldRateUrl { get; set; } = "";
+			}
 		}
 
 		// ---
 
-		public RpcServicesSection RpcServices { get; set; } = new RpcServicesSection();
-		public class RpcServicesSection {
+		public BusSection Bus { get; set; } = new BusSection();
+		public class BusSection {
 
-			public string GoldRateUsdUrl { get; set; } = "";
+			public WorkerRatesSection WorkerRates { get; set; } = new WorkerRatesSection();
+			public class WorkerRatesSection {
 
+				public string PubUrl { get; set; } = "";
+				public int PubPeriodSec { get; set; } = 1;
+				public GoldSection Gold { get; set; } = new GoldSection();
+				public EthSection Eth { get; set; } = new EthSection();
+
+				public class GoldSection {
+
+					public int PeriodSec { get; set; } = 3600;
+					public int ValidForSec { get; set; } = 3666;
+				}
+
+				public class EthSection {
+
+					public int PeriodSec { get; set; } = 30;
+					public int ValidForSec { get; set; } = 60;
+				}
+			}
 		}
 
 		// ---

@@ -16,20 +16,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 	public class CommonsController : BaseController {
 
 		/// <summary>
-		/// Price per gold ounce
-		/// </summary>
-		[AnonymousAccess]
-		[HttpGet, Route("goldRate")]
-		[ProducesResponseType(typeof(GoldRateView), 200)]
-		public async Task<APIResponse> GoldRate() {
-			return APIResponse.Success(
-				new GoldRateView() {
-					Rate = await GoldRateCached.GetGoldRate(Common.FiatCurrency.USD) / 100d,
-				}
-			);
-		}
-
-		/// <summary>
 		/// Transparency
 		/// </summary>
 		[AnonymousAccess]

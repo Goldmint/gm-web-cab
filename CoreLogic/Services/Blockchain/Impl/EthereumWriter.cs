@@ -65,7 +65,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Amount is equal to 0");
 			}
 
-			if (currency == FiatCurrency.USD) {
+			if (currency == FiatCurrency.Usd) {
 
 				var web3 = new Web3(_gmAccount, JsonRpcClient);
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
@@ -99,7 +99,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid gold token price");
 			}
 
-			if (currency == FiatCurrency.USD) {
+			if (currency == FiatCurrency.Usd) {
 
 				var web3 = new Web3(_gmAccount, JsonRpcClient);
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
@@ -153,7 +153,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid gold token price");
 			}
 
-			if (currency == FiatCurrency.USD) {
+			if (currency == FiatCurrency.Usd) {
 
 				var web3 = new Web3(_gmAccount, JsonRpcClient);
 				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);

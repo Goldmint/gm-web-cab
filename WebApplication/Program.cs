@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using System.IO.Pipes;
 using System.Linq;
+using System.Threading;
 
 namespace Goldmint.WebApplication {
 
@@ -21,6 +22,8 @@ namespace Goldmint.WebApplication {
 
 			_webHost = BuildWebHost(args);
 			_webHost.Run();
+
+			Thread.Sleep(10000);
 		}
 
 		public static IWebHost BuildWebHost(string[] args) {

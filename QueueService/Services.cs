@@ -8,29 +8,26 @@ using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
-using Goldmint.CoreLogic.Services.RPC;
-using Goldmint.CoreLogic.Services.RPC.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.CoreLogic.Services.Ticket.Impl;
 using Goldmint.DAL;
-using Goldmint.QueueService.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
+using Goldmint.Common;
 
 namespace Goldmint.QueueService {
 
 	public partial class Program {
 
-		private static List<IRPCServer> _rpcServers = new List<IRPCServer>();
+		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
+		private static CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesPublisher;
+		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
+		private static CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesSubscriber;
+		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 
-		/// <summary>
-		/// DI services
-		/// </summary>
 		private static void SetupCommonServices(ServiceCollection services) {
 
 			// app config
@@ -63,9 +60,9 @@ namespace Goldmint.QueueService {
 			// blockchain reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
-			// rate
-			services.AddSingleton<ICryptoassetRateProvider>(fac => new CoinbaseRateProvider(_loggerFactory));
-
+			// rates helper
+			services.AddSingleton<SafeRatesFiatAdapter>();
+			
 			// ---
 
 			if (Mode.HasFlag(WorkingMode.Worker)) {
@@ -78,8 +75,40 @@ namespace Goldmint.QueueService {
 					services.AddSingleton<IEmailSender, NullEmailSender>();
 				}
 
-				// rates
-				services.AddSingleton<IGoldRateProvider>(new LocalGoldRateProvider());
+				// rate providers
+				services.AddSingleton<IGoldRateProvider>(
+					fac => new GMGoldRateProvider(_loggerFactory, opts => { opts.Url = _appConfig.Services.GMRatesProvider.GoldRateUrl; })
+				);
+				services.AddSingleton<IEthRateProvider>(
+					fac => new CoinbaseRateProvider(_loggerFactory)
+				);
+
+				// rates publisher
+				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+					CoreLogic.Services.Bus.Proto.Topic.FiatRates,
+					new Uri(_appConfig.Bus.WorkerRates.PubUrl),
+					_loggerFactory
+				);
+				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(
+					_busSafeRatesPublisher,
+					_loggerFactory
+				);
+				_busSafeRatesPublisher.Bind();
+
+				// rates dispatcher
+				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
+					_busSafeRatesPublisherWrapper, 
+					_loggerFactory, 
+					opts => {
+						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.PubPeriodSec);
+						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.ValidForSec);
+						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.ValidForSec);
+					}
+				);
+				_safeAggregatedRatesDispatcher.Run();
+				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
+				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
+				services.AddSingleton<IAggregatedSafeRatesPublisher>(_busSafeRatesPublisherWrapper);
 			}
 
 			if (Mode.HasFlag(WorkingMode.Core)) {
@@ -87,30 +116,29 @@ namespace Goldmint.QueueService {
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, EthereumWriter>();
 
-				// rates (could be added in section above)
-				if (services.Count(x => x.ServiceType == typeof(IGoldRateProvider)) == 0) {
-					services.AddSingleton<IGoldRateProvider>(fac => new GoldRateRpcProvider(_appConfig.RpcServices.GoldRateUsdUrl, _loggerFactory));
+				// aggregated rates source (could be added in section above)
+				if (services.Count(x => x.ServiceType == typeof(IAggregatedSafeRatesSource)) == 0) {
+
+					_busSafeRatesSubscriber = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+						CoreLogic.Services.Bus.Proto.Topic.FiatRates,
+						new Uri(_appConfig.Bus.WorkerRates.PubUrl),
+						_loggerFactory
+					);
+					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(
+						_busSafeRatesSubscriber,
+						_loggerFactory
+					);
+					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
 				}
 			}
 		}
 
-		/// <summary>
-		/// Launch RPC servers
-		/// </summary>
-		private static void SetupRpc(IServiceProvider services) {
+		private static void StopCommonServices() {
+			var logger = _loggerFactory.GetCurrentClassLogger();
+			logger.Info("StopServices()");
 
-			// worker rpc
-			if (Mode.HasFlag(WorkingMode.Worker)) {
-
-				var rpcSvc = new WorkerRpcService(
-					services.CreateScope().ServiceProvider, 
-					_loggerFactory
-				);
-				var rpcSrv = new JsonRPCServer<WorkerRpcService>(rpcSvc, _loggerFactory);
-				rpcSrv.Start(Environment.GetEnvironmentVariable("ASPNETCORE_RPC"));
-
-				_rpcServers.Add(rpcSrv);
-			}
+			_safeAggregatedRatesDispatcher?.Dispose();
+			_busSafeRatesPublisher?.Dispose();
 		}
 	}
 }

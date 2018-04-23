@@ -41,22 +41,27 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var currency = FiatCurrency.USD;
-
-			// TODO: use safe rate provider
-			var ethRate = await CryptoassetRateProvider.GetRate(CryptoCurrency.ETH, currency);
-			var goldRate = await GoldRateProvider.GetRate(currency);
+			var currency = FiatCurrency.Usd;
+			var estimation = await CoreLogic.Finance.Estimation.SellGold(
+				services: HttpContext.RequestServices,
+				exchangeFiatCurrency: currency,
+				forCryptoCurrency: CryptoCurrency.Eth,
+				goldAmountToSell: amountWei
+			);
+			if (!estimation.Allowed) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
 
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(AppConfig.Constants.TimeLimits.SellGoldForEthRequestTimeoutSec);
 
 			var ticket = await TicketDesk.NewGoldSellingRequestForCryptoasset(
 				userId: user.Id,
-				cryptoCurrency: CryptoCurrency.ETH,
+				cryptoCurrency: CryptoCurrency.Eth,
 				destAddress: model.EthAddress,
 				fiatCurrency: currency,
-				outputRate: ethRate,
-				goldRate: goldRate
+				outputRate: estimation.CryptoRateCents,
+				goldRate: estimation.GoldRateCents
 			);
 
 			// history
@@ -87,8 +92,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				OutputAddress = model.EthAddress,
 
 				ExchangeCurrency = currency,
-				OutputRateCents = ethRate,
-				GoldRateCents = goldRate,
+				OutputRateCents = estimation.CryptoRateCents,
+				GoldRateCents = estimation.GoldRateCents,
 
 				OplogId = ticket,
 				TimeCreated = timeNow,
@@ -104,14 +109,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(goldRate, currency)} per GOLD, {TextFormatter.FormatAmount(ethRate, currency)} per ETH";
+			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(estimation.GoldRateCents, currency)} per GOLD, {TextFormatter.FormatAmount(estimation.CryptoRateCents, currency)} per ETH";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
 				new AssetEthView() {
 					RequestId = request.Id,
-					EthRate = ethRate / 100d,
-					GoldRate = goldRate / 100d,
+					EthRate = estimation.CryptoRateCents / 100d,
+					GoldRate = estimation.GoldRateCents / 100d,
 					Currency = currency.ToString().ToUpper(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}

@@ -38,6 +38,11 @@
 		/// Operation has rate limit; wait before next attempt
 		/// </summary>
 		RateLimit = 102,
+		
+		/// <summary>
+		/// Currently trading is not allowed
+		/// </summary>
+		TradingNotAllowed = 103,
 
 		/* [1000..1999] Account errors */
 
@@ -89,7 +94,7 @@
 		/// <summary>
 		/// TFA must be enabled
 		/// </summary>
-		AccountTFADisabled = 1009,
+		AccountTfaDisabled = 1009,
 
 		/// <summary>
 		/// User has pending operation. One of: buying, selling, deposit, withdraw, transfer, etc.

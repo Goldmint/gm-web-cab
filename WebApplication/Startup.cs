@@ -44,6 +44,7 @@ namespace Goldmint.WebApplication {
 
 				_nlogConfiguration = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
 				_loggerFactory = new LogFactory(_nlogConfiguration);
+				LogManager.Configuration = _nlogConfiguration;
 			} catch (Exception e) {
 				throw new Exception("Failed to get app settings", e);
 			}
@@ -61,11 +62,10 @@ namespace Goldmint.WebApplication {
 
 		public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime) {
 
+			applicationLifetime.ApplicationStopped.Register(StopServices);
+
 			// setup ms logger
-			app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>()
-				.AddNLog()
-				.ConfigureNLog(_nlogConfiguration)
-			;
+			app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
 
 			// nginx proxy
 			{

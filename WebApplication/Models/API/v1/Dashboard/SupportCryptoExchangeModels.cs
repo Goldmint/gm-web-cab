@@ -157,7 +157,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.SupportCryptoExchangeM
 		
 	}
 
-	public class LockSellingView : LockBuyingView {
+	public class LockSellingView {
 		
 		/// <summary>
 		/// User-initiator data
