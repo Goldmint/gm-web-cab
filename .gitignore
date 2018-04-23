@@ -1,5 +1,8 @@
 /.vs/
 /appsettings*
+/**/appsettings*
 /.idea
 /**/obj
 /**/bin
+/**/Properties
+/**/*.user
