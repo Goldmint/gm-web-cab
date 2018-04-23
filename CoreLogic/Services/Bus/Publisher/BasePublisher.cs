@@ -8,8 +8,6 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public abstract class BasePublisher: IDisposable {
 
-		// TODO: run custom task for reading, get rid of poller
-
 		protected readonly string BindUri;
 		protected readonly Proto.Topic Topic;
 		protected readonly ILogger Logger;
@@ -37,6 +35,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		}
 
 		protected virtual void DisposeManaged() {
+			Logger.Trace("Disposing");
 			PublisherSocket?.Dispose();
 		}
 
@@ -59,7 +58,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 				// body
 				.SendFrame(message)
 			;
-			Logger.Debug($"Message sent: { Topic.ToString() }");
+			Logger.Trace($"Message sent: { Topic.ToString() }");
 		}
 	}
 }

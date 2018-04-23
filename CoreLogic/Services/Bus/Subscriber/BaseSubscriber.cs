@@ -4,24 +4,27 @@ using NetMQ.Sockets;
 using NLog;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 	public abstract class BaseSubscriber: IDisposable {
 
-		// TODO: run custom task for reading, get rid of poller
-
 		protected readonly ILogger Logger;
 		protected readonly SubscriberSocket SubscriberSocket;
-		protected readonly NetMQPoller Poller;
+
+		private readonly object _startStopMonitor;
+		private readonly CancellationTokenSource _workerCancellationTokenSource;
+		private Task _workerTask;
 
 		protected BaseSubscriber(int queueSize, LogFactory logFactory) {
 			Logger = logFactory.GetLoggerFor(this);
 
 			SubscriberSocket = new SubscriberSocket();
 
-			Poller = new NetMQPoller();
-			Poller.Add(SubscriberSocket);
+			_startStopMonitor = new object();
+			_workerCancellationTokenSource = new CancellationTokenSource();
 
 			SubscriberSocket.Options.SendHighWatermark = queueSize;
 			SubscriberSocket.Options.ReceiveHighWatermark = queueSize;
@@ -43,23 +46,36 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		}
 
 		protected virtual void DisposeManaged() {
-			Poller?.Remove(SubscriberSocket);
-			Poller?.Dispose();
+			Logger.Trace("Disposing");
+			
+			Stop(true);
+			_workerCancellationTokenSource?.Dispose();
+			_workerTask?.Dispose();
 			SubscriberSocket?.Dispose();
 		}
 
 		// ---
 
 		public void Run() {
-			Poller.RunAsync();
+			lock (_startStopMonitor) {
+				if (_workerTask == null) {
+					Logger.Trace($"Run()");
+					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
+				}
+			}
 		}
 
-		public void Stop() {
-			Poller.StopAsync();
-		}
+		public void Stop(bool blocking = false) {
+			lock (_startStopMonitor) {
 
-		public bool IsRunning() {
-			return Poller.IsRunning;
+				Logger.Trace("Stop(): send cancellation");
+				_workerCancellationTokenSource.Cancel();
+
+				if (blocking && _workerTask != null) {
+					Logger.Trace("Stop(): wait for cancellation");
+					_workerTask.Wait();
+				}
+			}
 		}
 
 		// ---
@@ -86,7 +102,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 				stamp = DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime;
 				message = tmpmessage;
 
-				Logger.Debug($"Message received: { topic } / { stamp } / { message.Length }b");
+				Logger.Trace($"Message received: { topic } / { stamp } / { message.Length }b");
 				return true;
 			}
 
@@ -100,6 +116,19 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 					OnNewMessage(topic, stamp, message);
 				}
 			}
+		}
+
+		// ---
+
+		private async void Worker() {
+			var ctoken = _workerCancellationTokenSource.Token;
+
+			while (!ctoken.IsCancellationRequested) {
+				SubscriberSocket.Poll();
+				Thread.Sleep(TimeSpan.FromMilliseconds(200));
+			}
+
+			Logger.Trace("Worker(): cancelled");
 		}
 	}
 }

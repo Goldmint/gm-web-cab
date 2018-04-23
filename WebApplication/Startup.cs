@@ -62,6 +62,8 @@ namespace Goldmint.WebApplication {
 
 		public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime) {
 
+			applicationLifetime.ApplicationStopped.Register(StopServices);
+
 			// setup ms logger
 			app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
 

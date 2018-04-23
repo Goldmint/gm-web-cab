@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
-	public sealed class DGCSCGoldRateProvider : IGoldRateProvider {
+	public sealed class GMGoldRateProvider : IGoldRateProvider {
 
 		private readonly Options _opts;
 		private readonly ILogger _logger;
 
-		public DGCSCGoldRateProvider(LogFactory logFactory, Action<Options> opts) {
+		public GMGoldRateProvider(LogFactory logFactory, Action<Options> opts) {
 			_logger = logFactory.GetLoggerFor(this);
 			_opts = new Options() {
-				GoldRateUrl = "",
+				Url = "",
 			};
 			opts?.Invoke(_opts);
 		}
@@ -29,27 +29,22 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		// ---
 
-		private long ParseCents(string centsStr) {
-			if (!decimal.TryParse(centsStr, NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var dval)) {
-				var ex = new Exception($"Failed to parse cents from `{centsStr}`");
-				_logger.Error(ex);
-				throw ex;
-			}
-			return (long)Math.Round(dval * 100);
+		private long RoundCents(double value) {
+			return (long)Math.Round(value * 100);
 		}
 
 		private async Task<CurrencyRate> PerformRequest(TimeSpan timeout) {
 
-			DgcscResponse result = null;
+			SvcResponse result = null;
 
 			using (var req = new Request(_logger)) {
 				await req
 					.OnResult(async (res) => {
 						if (res.GetHttpStatus() == System.Net.HttpStatusCode.OK) {
-							result = await res.ToJson<DgcscResponse>();
+							result = await res.ToJson<SvcResponse>();
 						}
 					})
-					.SendGet(_opts.GoldRateUrl, timeout)
+					.SendGet(_opts.Url, timeout)
 				;
 			}
 
@@ -61,8 +56,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			return new CurrencyRate(
 				cur: CurrencyRateType.Gold,
-				stamp: DateTime.UtcNow,
-				usd: ParseCents(result.GoldPrice.USD.bid)
+				stamp: DateTimeOffset.FromUnixTimeSeconds(result.result.timestamp).UtcDateTime,
+				usd: RoundCents(result.result.usd)
 			);
 		}
 
@@ -70,21 +65,18 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		public sealed class Options {
 
-			public string GoldRateUrl { get; set; }
+			public string Url { get; set; }
 		}
 
-		internal sealed class DgcscResponse {
+		internal sealed class SvcResponse {
 
-			public GoldPriceData GoldPrice { get; set; }
+			public string message { get; set; }
+			public ResultData result { get; set; }
 
-			public sealed class GoldPriceData {
+			public sealed class ResultData {
 
-				public Currency USD { get; set; }
-
-				public class Currency {
-
-					public string bid { get; set; }
-				}
+				public long timestamp { get; set; }
+				public double usd { get; set; }
 			}
 		}
 	}

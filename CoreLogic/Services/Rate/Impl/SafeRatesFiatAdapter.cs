@@ -18,7 +18,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public long? GetRateForBuying(CurrencyRateType currency, FiatCurrency fiatCurrency) {
 			var rate = _source.GetRate(currency);
 
-			if (rate.CanBuy) return null;
+			if (!rate.CanBuy) return null;
 
 			switch (fiatCurrency) {
 				case FiatCurrency.Usd: return rate.Usd;
@@ -30,7 +30,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public long? GetRateForSelling(CurrencyRateType currency, FiatCurrency fiatCurrency) {
 			var rate = _source.GetRate(currency);
 
-			if (rate.CanSell) return null;
+			if (!rate.CanSell) return null;
 
 			switch (fiatCurrency) {
 				case FiatCurrency.Usd: return rate.Usd;

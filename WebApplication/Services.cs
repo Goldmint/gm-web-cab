@@ -233,5 +233,11 @@ namespace Goldmint.WebApplication {
 			return services.BuildServiceProvider();
 		}
 
+		public void StopServices() {
+			var logger = _loggerFactory.GetCurrentClassLogger();
+			logger.Info("StopServices()");
+
+			_busSafeRatesSubscriber?.Dispose();
+		}
 	}
 }

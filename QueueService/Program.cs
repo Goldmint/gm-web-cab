@@ -120,6 +120,7 @@ namespace Goldmint.QueueService {
 		}
 
 		private static void OnStopped() {
+			StopCommonServices();
 		}
 
 		// ---

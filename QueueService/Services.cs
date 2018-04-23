@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using Goldmint.Common;
 
 namespace Goldmint.QueueService {
 
@@ -27,9 +28,6 @@ namespace Goldmint.QueueService {
 		private static CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesSubscriber;
 		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 
-		/// <summary>
-		/// DI services
-		/// </summary>
 		private static void SetupCommonServices(ServiceCollection services) {
 
 			// app config
@@ -79,7 +77,7 @@ namespace Goldmint.QueueService {
 
 				// rate providers
 				services.AddSingleton<IGoldRateProvider>(
-					fac => new DGCSCGoldRateProvider(_loggerFactory, opts => { opts.GoldRateUrl = _appConfig.Services.DGCSC.GoldUrl; })
+					fac => new GMGoldRateProvider(_loggerFactory, opts => { opts.Url = _appConfig.Services.GMRatesProvider.GoldRateUrl; })
 				);
 				services.AddSingleton<IEthRateProvider>(
 					fac => new CoinbaseRateProvider(_loggerFactory)
@@ -103,11 +101,11 @@ namespace Goldmint.QueueService {
 					_loggerFactory, 
 					opts => {
 						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.PubPeriodSec);
-
 						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.ValidForSec);
 						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.ValidForSec);
 					}
 				);
+				_safeAggregatedRatesDispatcher.Run();
 				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesPublisher>(_busSafeRatesPublisherWrapper);
@@ -133,6 +131,14 @@ namespace Goldmint.QueueService {
 					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
 				}
 			}
+		}
+
+		private static void StopCommonServices() {
+			var logger = _loggerFactory.GetCurrentClassLogger();
+			logger.Info("StopServices()");
+
+			_safeAggregatedRatesDispatcher?.Dispose();
+			_busSafeRatesPublisher?.Dispose();
 		}
 	}
 }

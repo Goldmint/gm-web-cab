@@ -151,10 +151,10 @@ namespace Goldmint.Common {
 				}
 			}
 
-			public DGCSCSection DGCSC { get; set; } = new DGCSCSection();
-			public class DGCSCSection {
+			public GMRatesProviderSection GMRatesProvider { get; set; } = new GMRatesProviderSection();
+			public class GMRatesProviderSection {
 
-				public string GoldUrl { get; set; } = "";
+				public string GoldRateUrl { get; set; } = "";
 			}
 		}
 

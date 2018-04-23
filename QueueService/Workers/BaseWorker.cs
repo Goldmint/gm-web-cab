@@ -73,6 +73,8 @@ namespace Goldmint.QueueService.Workers {
 					break;
 				}
 			}
+
+			Logger?.Trace("Loop stopped");
 		}
 
 		// ---
