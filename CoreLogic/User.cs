@@ -37,13 +37,19 @@ namespace Goldmint.CoreLogic {
 			;
 		}
 
-		public static bool HasSignedAgreement(DAL.Models.UserVerification data) {
+		public static bool HasTosSigned(DAL.Models.UserVerification data) {
 			return
 				data?.LastAgreement != null &&
 				data.LastAgreement.Type == SignedDocumentType.Tos &&
 				data.LastAgreement.TimeCompleted != null &&
 				data.LastAgreement.IsSigned
 			;
+		}
+
+		public static bool HasProvedResidence(DAL.Models.UserVerification data) {
+			return
+				data?.ProvedResidence ?? false
+				;
 		}
 
 		// ---
@@ -57,11 +63,12 @@ namespace Goldmint.CoreLogic {
 			var hasDpa = HasSignedDpa(user?.UserOptions);
 			var hasPersData = HasFilledPersonalData(user?.UserVerification);
 			var hasKyc = HasKycVerification(user?.UserVerification);
-			var hasAgreement = HasSignedAgreement(user?.UserVerification);
+			var hasProvedResidence = HasProvedResidence(user?.UserVerification);
+			var hasAgreement = HasTosSigned(user?.UserVerification);
 
 			if (hasDpa && hasPersData) tier = UserTier.Tier1;
 
-			if (hasKyc && hasAgreement) tier = UserTier.Tier2;
+			if (hasKyc && hasProvedResidence && hasAgreement) tier = UserTier.Tier2;
 
 			return tier;
 		}

@@ -57,5 +57,8 @@ namespace Goldmint.DAL.Models {
 
 		[ForeignKey(nameof(LastAgreementId))]
 		public virtual SignedDocument LastAgreement { get; set; }
+
+		[Column("proved_residence")]
+		public bool? ProvedResidence { get; set; }
 	}
 }

@@ -113,14 +113,14 @@ namespace Goldmint.Common {
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
 			public class EthereumSection {
 
+				public string StorageControllerContractAbi { get; set; } = "";
+				public string StorageControllerContractAddress { get; set; } = "";
+				public string StorageControllerManagerPk { get; set; } = "";
+
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
 				public CryptoExchangeRequestSection CryptoExchangeRequest { get; set; } = new CryptoExchangeRequestSection();
-				public long DefaultGasPriceWei { get; set; } = 0;
-				public string RootAccountPrivateKey { get; set; } = "";
-				public string FiatContractAddress { get; set; } = "";
-				public string FiatContractAbi { get; set; } = "";
-
+				
 				public class CryptoExchangeRequestSection {
 
 					public string FromBlock { get; set; } = "0";

@@ -19,6 +19,7 @@ namespace Goldmint.DAL.Models {
 
 		[Column("sell_gold_request_id"), Required]
 		public long SellGoldRequestId { get; set; }
+
 		[ForeignKey(nameof(SellGoldRequestId))]
 		public virtual SellGoldRequest SellGoldRequest { get; set; }
 

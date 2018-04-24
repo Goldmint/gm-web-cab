@@ -16,8 +16,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SettingsController : BaseController {
 
-		// TODO: move/constants
-		private static readonly TimeSpan AllowedPeriodBetweenKYCRequests = TimeSpan.FromMinutes(30);
+		// TODO: constants
+		private static readonly TimeSpan AllowedPeriodBetweenKycRequests = TimeSpan.FromMinutes(30);
 		private static readonly TimeSpan AllowedPeriodBetweenAgreementRequests = TimeSpan.FromMinutes(30);
 
 		/// <summary>
@@ -158,7 +158,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
-		/// Step 3. Resend primary agreement to sign
+		/// Step 4. Resend primary agreement to sign
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("verification/resendAgreement")]
@@ -169,8 +169,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user);
 			var userLocale = GetUserLocale();
 
-			// on tier-1 + KYC completed + agreement is not signed
-			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKycVerification(user.UserVerification) || CoreLogic.User.HasSignedAgreement(user.UserVerification)) {
+			// on tier-1 + KYC completed + residence proved + agreement is not signed
+			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKycVerification(user.UserVerification) || !CoreLogic.User.HasProvedResidence(user.UserVerification) || CoreLogic.User.HasTosSigned(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -207,10 +207,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					!kycFinished &&
 					user.UserVerification?.LastKycTicket != null &&
 					user.UserVerification.LastKycTicket.TimeResponded == null &&
-					(DateTime.UtcNow - user.UserVerification.LastKycTicket.TimeCreated) < AllowedPeriodBetweenKYCRequests
+					(DateTime.UtcNow - user.UserVerification.LastKycTicket.TimeCreated) < AllowedPeriodBetweenKycRequests
 				;
 
-			var agrSigned = CoreLogic.User.HasSignedAgreement(user.UserVerification);
+			var residProved = CoreLogic.User.HasProvedResidence(user.UserVerification);
+			var residPending = !residProved && kycFinished;
+
+			var agrSigned = CoreLogic.User.HasTosSigned(user.UserVerification);
 			var agrPending =
 					!agrSigned &&
 					user.UserVerification?.LastAgreement != null &&
@@ -224,6 +227,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				IsKycPending = kycPending,
 				IsKycFinished = kycFinished,
+
+				IsResidencePending = residPending,
+				IsResidenceProved = residProved,
 
 				IsAgreementPending = agrPending,
 				IsAgreementSigned = agrSigned,

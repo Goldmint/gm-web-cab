@@ -8,6 +8,8 @@
 		public const string SignedIn = "SignedIn";
 		public const string TfaEnabled = "TfaEnabled";
 		public const string TfaDisabled = "TfaDisabled";
+		public const string ProofOfResidenceApproved = "ProofOfResidenceApproved";
+		public const string ProofOfResidenceRejected = "ProofOfResidenceRejected";
 		public const string SwiftDepositInvoice = "SwiftDepositInvoice";
 
 		public string Subject { get; set; }

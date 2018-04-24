@@ -3,7 +3,6 @@ using NetMQ;
 using NetMQ.Sockets;
 using NLog;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -65,6 +64,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			}
 		}
 
+		public bool IsRunning() {
+			lock (_startStopMonitor) {
+				return _workerTask != null;
+			}
+		}
+
 		public void Stop(bool blocking = false) {
 			lock (_startStopMonitor) {
 
@@ -74,6 +79,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 				if (blocking && _workerTask != null) {
 					Logger.Trace("Stop(): wait for cancellation");
 					_workerTask.Wait();
+					_workerTask = null;
 				}
 			}
 		}
@@ -120,7 +126,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 		// ---
 
-		private async void Worker() {
+		private void Worker() {
 			var ctoken = _workerCancellationTokenSource.Token;
 
 			while (!ctoken.IsCancellationRequested) {

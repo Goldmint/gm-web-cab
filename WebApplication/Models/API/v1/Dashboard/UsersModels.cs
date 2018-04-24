@@ -213,4 +213,35 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 
 	public class RightsView {
 	}
+
+	// ---
+
+	public class ProveResidenceModel : BaseValidableModel {
+
+		/// <summary>
+		/// User ID
+		/// </summary>
+		[Required]
+		public long Id { get; set; }
+
+		/// <summary>
+		/// Proved
+		/// </summary>
+		[Required]
+		public bool Proved { get; set; }
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<ProveResidenceModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
+			v.RuleFor(_ => _.Id)
+				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
+				;
+
+			return v.Validate(this);
+
+		}
+	}
+
+	public class ProveResidenceView {
+	}
 }

@@ -19,6 +19,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		// ---
 
+		public async Task<BigInteger> GetCurrentGasPrice() {
+			return (await GasPrice()).Value;
+		}
+
 		public async Task<EthTransactionStatus> CheckTransaction(string transactionId, int confirmations) {
 
 			if (string.IsNullOrWhiteSpace(transactionId)) {

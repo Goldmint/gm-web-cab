@@ -1,7 +1,9 @@
 ﻿using Goldmint.Common;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using NLog;
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
@@ -20,11 +22,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		// ---
 
-		public EthereumBaseClient(AppConfig appConfig, LogFactory logFactory) {
+		protected EthereumBaseClient(AppConfig appConfig, LogFactory logFactory) {
 			Logger = logFactory.GetLoggerFor(this);
 
-			FiatContractAddress = appConfig.Services.Ethereum.FiatContractAddress;
-			FiatContractAbi = appConfig.Services.Ethereum.FiatContractAbi;
+			FiatContractAddress = appConfig.Services.Ethereum.StorageControllerContractAddress;
+			FiatContractAbi = appConfig.Services.Ethereum.StorageControllerContractAbi;
 
 			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
 			JsonRpcLogsClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));
@@ -47,5 +49,9 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			}).Wait();
 		}
 
+		protected async Task<HexBigInteger> GasPrice() {
+			var web3 = new Web3(JsonRpcClient);
+			return (await web3.Eth.GasPrice.SendRequestAsync());
+		}
 	}
 }

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
+using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.CoreLogic.Services.Localization;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
@@ -94,6 +96,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			)
 				.AsNoTracking()
 					.Include(_ => _.UserVerification)
+					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
+					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
+					.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
 				.FirstOrDefaultAsync()
 			;
 
@@ -103,11 +108,19 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			// ---
 
+			const string yes = "OK";
+			const string no = "-";
+
 			var properties = new List<AccountView.PropertiesItem>() {
 				new AccountView.PropertiesItem(){ N = "ID", V = account.Id.ToString() },
 				new AccountView.PropertiesItem(){ N = "Username", V = account.UserName ?? "-" },
 				new AccountView.PropertiesItem(){ N = "Email", V = account.Email ?? "-" },
 				new AccountView.PropertiesItem(){ N = "Registered", V = account.TimeRegistered.ToString("yyyy MMMM dd") },
+				new AccountView.PropertiesItem(){ N = "DpaSigned", V = CoreLogic.User.HasSignedDpa(account.UserOptions) ? yes: no },
+				new AccountView.PropertiesItem(){ N = "PersonalDataFilled", V = CoreLogic.User.HasFilledPersonalData(account.UserVerification) ? yes: no },
+				new AccountView.PropertiesItem(){ N = "KycVerification", V = CoreLogic.User.HasKycVerification(account.UserVerification) ? yes: no },
+				new AccountView.PropertiesItem(){ N = "ProvedResidence", V = CoreLogic.User.HasProvedResidence(account.UserVerification) ? yes: no },
+				new AccountView.PropertiesItem(){ N = "TosSigned", V = CoreLogic.User.HasTosSigned(account.UserVerification) ? yes: no },
 			};
 
 			var accessRights = new List<AccountView.AccessRightsItem>();
@@ -244,6 +257,60 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			
 			return APIResponse.Success(
 				new RightsView() {
+				}
+			);
+		}
+
+		// ---
+
+		/// <summary>
+		/// Set proved residence flag
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.UsersWriteAccess)]
+		[HttpPost, Route("proveResidence")]
+		[ProducesResponseType(typeof(ProveResidenceView), 200)]
+		public async Task<APIResponse> SetProvedResidence([FromBody] ProveResidenceModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var account = await (
+				from a in DbContext.Users
+				where a.Id == model.Id
+				select a
+			)
+				.AsNoTracking()
+					.Include(_ => _.UserVerification)
+				.FirstOrDefaultAsync()
+			;
+
+			if (account == null) {
+				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
+			}
+
+			// ---
+
+			account.UserVerification.ProvedResidence = model.Proved;
+			await DbContext.SaveChangesAsync();
+
+			// notification
+			if (model.Proved) {
+				await EmailComposer
+					.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.ProofOfResidenceApproved, Locale.En))
+					.Send(account.Email, account.UserName, EmailQueue)
+				;
+			}
+			else {
+				await EmailComposer
+					.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.ProofOfResidenceRejected, Locale.En))
+					.Send(account.Email, account.UserName, EmailQueue)
+				;
+			}
+
+			return APIResponse.Success(
+				new ProveResidenceView() {
 				}
 			);
 		}

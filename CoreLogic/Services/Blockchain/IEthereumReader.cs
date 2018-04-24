@@ -15,6 +15,12 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		Task<EthTransactionStatus> CheckTransaction(string transactionId, int confirmations);
 
 		/// <summary>
+		/// Get current gas price
+		/// </summary>
+		/// <returns>Transaction status by ID</returns>
+		Task<BigInteger> GetCurrentGasPrice();
+
+		/// <summary>
 		/// Get MNTP balance
 		/// </summary>
 		/// <returns>MNTP amount at specified address</returns>

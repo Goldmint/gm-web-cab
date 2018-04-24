@@ -67,6 +67,8 @@ namespace Goldmint.Common {
 		/// Dashboard: general access, read access
 		/// </summary>
 		DashboardReadAccess = 0x2L,
+		
+		// ---
 
 		/// <summary>
 		/// Dashboard: buy requests write access
@@ -79,14 +81,14 @@ namespace Goldmint.Common {
 		SellRequestsWriteAccess = 0x4000000L,
 		
 		/// <summary>
-		/// Dashboard: swift tab write access
+		/// Dashboard: _
 		/// </summary>
-		SwiftDepositWriteAccess = 0x8000000L,
+		// _ = 0x8000000L,
 
 		/// <summary>
-		/// Dashboard: swift tab write access
+		/// Dashboard: user list write access
 		/// </summary>
-		SwiftWithdrawWriteAccess = 0x10000000L,
+		UsersWriteAccess = 0x10000000L,
 
 		/// <summary>
 		/// Dashboard: countries tab write access

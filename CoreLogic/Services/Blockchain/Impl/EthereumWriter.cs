@@ -11,16 +11,17 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 	public sealed class EthereumWriter : EthereumBaseClient, IEthereumWriter {
 
 		private readonly Nethereum.Web3.Accounts.Account _gmAccount;
-		private readonly HexBigInteger _defaultGas;
 
 		public EthereumWriter(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 
-			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.RootAccountPrivateKey);
-			
+			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.StorageControllerManagerPk);
+
 			// uses semaphore inside:
 			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, JsonRpcClient);
+		}
 
-			_defaultGas = new HexBigInteger(new BigInteger(appConfig.Services.Ethereum.DefaultGasPriceWei));
+		private async Task<HexBigInteger> GetWritingGasPrice() {
+			return await GasPrice();
 		}
 
 		// ---
@@ -38,6 +39,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			}
 
 			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var gas = await GetWritingGasPrice();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
@@ -48,7 +50,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			return await func.SendTransactionAsync(
 				_gmAccount.Address,
-				_defaultGas,
+				gas,
 				new HexBigInteger(0),
 				toAddress, amount, userId
 			);
@@ -65,11 +67,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Amount is equal to 0");
 			}
 
+			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var gas = await GetWritingGasPrice();
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
 			if (currency == FiatCurrency.Usd) {
-
-				var web3 = new Web3(_gmAccount, JsonRpcClient);
-				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
-
 				var contract = web3.Eth.GetContract(
 					FiatContractAbi,
 					FiatContractAddress
@@ -78,7 +80,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 				return await func.SendTransactionAsync(
 					_gmAccount.Address,
-					_defaultGas,
+					gas,
 					new HexBigInteger(0),
 					userId, new BigInteger(amountCents)
 				);
@@ -99,10 +101,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid gold token price");
 			}
 
-			if (currency == FiatCurrency.Usd) {
+			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var gas = await GetWritingGasPrice();
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
-				var web3 = new Web3(_gmAccount, JsonRpcClient);
-				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			if (currency == FiatCurrency.Usd) {
 
 				var contract = web3.Eth.GetContract(
 					FiatContractAbi,
@@ -112,7 +115,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 				return await func.SendTransactionAsync(
 					_gmAccount.Address,
-					_defaultGas,
+					gas,
 					new HexBigInteger(0),
 					requestIndex, new BigInteger(amountCents), new BigInteger(centsPerGoldToken)
 				);
@@ -124,6 +127,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		public async Task<string> CancelGoldFiatExchangeRequest(BigInteger requestIndex) {
 
 			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var gas = await GetWritingGasPrice();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
@@ -134,7 +138,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			return await func.SendTransactionAsync(
 				_gmAccount.Address,
-				_defaultGas,
+				gas,
 				new HexBigInteger(0),
 				requestIndex
 			);
@@ -153,11 +157,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid gold token price");
 			}
 
+			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var gas = await GetWritingGasPrice();
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
 			if (currency == FiatCurrency.Usd) {
-
-				var web3 = new Web3(_gmAccount, JsonRpcClient);
-				var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
-
 				var contract = web3.Eth.GetContract(
 					FiatContractAbi,
 					FiatContractAddress
@@ -166,7 +170,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 				return await func.SendTransactionAsync(
 					_gmAccount.Address,
-					_defaultGas,
+					gas,
 					new HexBigInteger(0),
 					userId, isBuying, new BigInteger(amountCents), new BigInteger(centsPerGoldToken)
 				);
