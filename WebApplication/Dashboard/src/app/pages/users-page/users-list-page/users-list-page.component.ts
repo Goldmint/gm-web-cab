@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {Page} from "../../../models/page";
-import {APIService, UserService} from "../../../services";
+import {APIService, MessageBoxService, UserService} from "../../../services";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
@@ -24,15 +24,19 @@ export class UsersListPageComponent implements OnInit {
 
   public currentUser = {};
   public filterValue = '';
+  public userIDForApprove: number;
+  public isModalShow = false;
 
   @ViewChild('formDir') formDir;
+  @ViewChild('proofResidency') proofResidency;
 
   constructor(
     private apiService: APIService,
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private _messageBox: MessageBoxService
   ) {
 
     this.page.pageNumber = 0;
@@ -58,6 +62,28 @@ export class UsersListPageComponent implements OnInit {
   onSort(event) {
     this.sorts = event.sorts;
     this.setPage({ offset: 0 });
+  }
+
+  showProvedResidenceModal(id) {
+    this.isModalShow = true;
+    this.userIDForApprove = id;
+
+    this.cdRef.markForCheck();
+  }
+
+  setProvedResidence() {
+    const link = this.proofResidency.value.ticketLink;
+    this.apiService.setProvedResidence(this.userIDForApprove, link)
+      .finally(() => {
+        this.proofResidency.reset();
+        this.cdRef.markForCheck();
+      })
+      .subscribe(() =>{
+        this._messageBox.alert('Approved');
+        this.isModalShow = false;
+    }, () => {
+      this._messageBox.alert('Error. Something went wrong');
+    });
   }
 
   setPage(pageInfo) {

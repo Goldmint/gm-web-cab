@@ -74,12 +74,20 @@
       </ngx-datatable-column>
 
       <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
-        <ng-template let-column="column" ngx-datatable-header-template>
-
-        </ng-template>
+        <ng-template let-column="column" ngx-datatable-header-template></ng-template>
 
         <ng-template ngx-datatable-cell-template let-row="row">
-            <a [routerLink]="['/users/' + row.id]" class="btn btn-sm btn-primary btn-block">{{ "PAGES.Users.Table.Click" | translate }}</a>
+          <div class="btn btn-sm btn-primary btn-block" (click)="showProvedResidenceModal(row.id)">
+              {{ "PAGES.Users.Table.Buttons.Approve" | translate }}
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
+        <ng-template let-column="column" ngx-datatable-header-template></ng-template>
+
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <a [routerLink]="['/users/' + row.id]" class="btn btn-sm btn-primary btn-block">{{ "PAGES.Users.Table.Buttons.Click" | translate }}</a>
         </ng-template>
       </ngx-datatable-column>
 
@@ -104,3 +112,34 @@
 
   </div>
 </section>
+
+<div class="modal fade show" role="dialog" tabindex="-1" [ngClass]="{'showRegModal': isModalShow}">
+  <div role="document" class="modal-dialog message-box">
+    <div class="modal-content">
+
+      <div class="message-box__header">
+        <h4 class="modal-title pull-left">GoldMint.io</h4>
+        <button class="message-box__close" type="button" (click)="isModalShow = false">
+          <svg class="icon">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#close"></use>
+          </svg>
+        </button>
+      </div>
+      <form #proofResidency="ngForm">
+        <div class="message-box__body">
+          <div class="form-group">
+            <label for="ticketLink">{{ "PAGES.Users.Modal.Label" | translate }}</label>
+            <input type="text" class="form-control" name="ticketLink" id="ticketLink" ngModel required>
+          </div>
+        </div>
+
+        <div class="message-box__footer">
+          <button class="btn btn-primary btn-sm mx-1" type="button" (click)="setProvedResidence()" [disabled]="proofResidency.invalid">
+            {{ "PAGES.Users.Modal.Button" | translate }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

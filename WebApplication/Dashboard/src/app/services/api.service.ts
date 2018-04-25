@@ -99,6 +99,21 @@ export class APIService {
       );
   }
 
+  setProvedResidence(id: number, link: string) {
+
+    let params = {id: id, proved: true, link: link};
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/users/proveResidence`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   getOplog(id: number, filter: string, offset: number = 0, limit: number = 5,
                sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
     let params = {id, filter, offset, limit, sort, ascending: ascending === 'asc'};
