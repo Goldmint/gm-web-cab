@@ -19,51 +19,51 @@
       </div>
     </div>
 
-    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0] && isDataLoaded">
-      <thead class="fees-datatable-header">
-        <tr class="fees-datatable-header fees-border-bottom">
-          <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Currency" | translate }}</td>
-          <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.PaymentMethod" | translate }}</td>
-          <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Deposit" | translate }}</td>
-          <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Withdrawal" | translate }}</td>
+    <table class="main-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0] && isDataLoaded">
+      <thead class="main-datatable-header">
+        <tr class="main-datatable-header main-border-bottom">
+          <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Currency" | translate }}</td>
+          <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.PaymentMethod" | translate }}</td>
+          <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Deposit" | translate }}</td>
+          <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Withdrawal" | translate }}</td>
         </tr>
       </thead>
-      <tbody class="fees-datatable-body fees-border-bottom" *ngFor="let item of fees.fiat">
+      <tbody class="main-datatable-body main-border-bottom" *ngFor="let item of fees.fiat">
 
-        <tr class="fees-datatable-body-row" *ngFor="let method of item.methods; let i = index">
-          <td class="fees-datatable-body-cell align-middle text-center align-middle" [attr.rowspan]="item.methods.length" *ngIf="!i">
+        <tr class="main-datatable-body-row" *ngFor="let method of item.methods; let i = index">
+          <td class="main-datatable-body-cell align-middle text-center align-middle" [attr.rowspan]="item.methods.length" *ngIf="!i">
             <svg class="icon" width="35" height="52">
               <use [attr.xlink:href]="'#fee-' + item.name"></use>
             </svg>
             <div class="mt-2 font-weight-bold">{{ item.name.toUpperCase() }}</div>
           </td>
-          <td class="fees-datatable-body-cell align-middle">{{ method.name }}</td>
-          <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.deposit"></td>
-          <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.withdraw"></td>
+          <td class="main-datatable-body-cell align-middle">{{ method.name }}</td>
+          <td class="main-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.deposit"></td>
+          <td class="main-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.withdraw"></td>
         </tr>
       </tbody>
     </table>
 
-    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[1] && isDataLoaded">
+    <table class="main-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[1] && isDataLoaded">
 
-      <thead class="fees-datatable-header">
-      <tr class="fees-datatable-header fees-border-bottom">
-        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Currency" | translate }}</td>
-        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Deposit" | translate }}</td>
-        <td class="fees-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Withdrawal" | translate }}</td>
+      <thead class="main-datatable-header">
+      <tr class="main-datatable-header main-border-bottom">
+        <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Currency" | translate }}</td>
+        <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Deposit" | translate }}</td>
+        <td class="main-datatable-header-cell">{{ "PAGES.Fees.Table.Head.Withdrawal" | translate }}</td>
       </tr>
       </thead>
-      <tbody class="fees-datatable-body fees-border-bottom" *ngFor="let item of fees.crypto">
+      <tbody class="main-datatable-body main-border-bottom" *ngFor="let item of fees.crypto">
 
-      <tr class="fees-datatable-body-row" *ngFor="let method of item.methods; let i = index">
-        <td class="fees-datatable-body-cell align-middle text-center align-middle" [attr.rowspan]="item.methods.length" *ngIf="!i">
+      <tr class="main-datatable-body-row" *ngFor="let method of item.methods; let i = index">
+        <td class="main-datatable-body-cell align-middle text-center align-middle" [attr.rowspan]="item.methods.length" *ngIf="!i">
           <svg class="icon" width="35" height="52">
             <use [attr.xlink:href]="'#fee-' + item.name"></use>
           </svg>
           <div class="mt-2 font-weight-bold">{{ item.name.toUpperCase() }}</div>
         </td>
-        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.deposit"></td>
-        <td class="fees-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.withdraw"></td>
+        <td class="main-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.deposit"></td>
+        <td class="main-datatable-body-cell align-middle"><input type="text" class="form-control m-0" [(ngModel)]="method.withdraw"></td>
       </tr>
       </tbody>
     </table>

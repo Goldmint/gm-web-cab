@@ -82,7 +82,14 @@
         "ID": "ID",
         "UserName": "User name",
         "Name": "Name",
-        "Click": "Show"
+        "Buttons": {
+          "Click": "Show",
+          "Approve": "Approve"
+        }
+      },
+      "Modal": {
+        "Label": "Link to ticket",
+        "Button": "Approve"
       },
       "User": {
         "Title": "Account info",

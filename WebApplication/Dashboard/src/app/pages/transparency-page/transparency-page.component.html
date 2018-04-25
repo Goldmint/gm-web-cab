@@ -5,62 +5,62 @@
 
     <div *ngIf="isDataLoaded" #statDataForm="ngForm" ngForm>
         <div class="d-flex">
-          <table class="fees-ngx-datatable w-50 mr-2">
-            <thead class="fees-datatable-header">
-            <tr class="fees-datatable-header fees-border-bottom">
-              <td class="fees-datatable-header-cell trn-info__label" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.Assets" | translate }}</td>
+          <table class="main-ngx-datatable w-50 mr-2">
+            <thead class="main-datatable-header">
+            <tr class="main-datatable-header main-border-bottom">
+              <td class="main-datatable-header-cell trn-info__label" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.Assets" | translate }}</td>
             </tr>
             </thead>
-            <tbody class="fees-datatable-body">
-            <tr class="fees-datatable-body-row fees-border-bottom">
-              <td class="fees-datatable-body-cell align-middle" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.MoneyInBanks" | translate }}</td>
+            <tbody class="main-datatable-body">
+            <tr class="main-datatable-body-row main-border-bottom">
+              <td class="main-datatable-body-cell align-middle" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.MoneyInBanks" | translate }}</td>
             </tr>
-            <tr class="fees-datatable-body-row">
-              <td class="fees-datatable-body-cell align-middle">1 USD</td>
-              <td class="fees-datatable-body-cell align-middle">
+            <tr class="main-datatable-body-row">
+              <td class="main-datatable-body-cell align-middle">1 USD</td>
+              <td class="main-datatable-body-cell align-middle">
                 <input type="text" class="form-control m-0" [(ngModel)]="statData.assets.usd" name="assets_usd">
               </td>
             </tr>
-            <tr class="fees-datatable-body-row">
-              <td class="fees-datatable-body-cell align-middle">2 EUR</td>
-              <td class="fees-datatable-body-cell align-middle">
+            <tr class="main-datatable-body-row">
+              <td class="main-datatable-body-cell align-middle">2 EUR</td>
+              <td class="main-datatable-body-cell align-middle">
                 <input type="text" class="form-control m-0" [(ngModel)]="statData.assets.eur" name="assets_eur">
               </td>
             </tr>
-            <tr class="fees-datatable-body-row fees-border-bottom">
-              <td class="fees-datatable-body-cell align-middle">3 SGD</td>
-              <td class="fees-datatable-body-cell align-middle">
+            <tr class="main-datatable-body-row main-border-bottom">
+              <td class="main-datatable-body-cell align-middle">3 SGD</td>
+              <td class="main-datatable-body-cell align-middle">
                 <input type="text" class="form-control m-0" [(ngModel)]="statData.assets.sgd" name="assets_sgb">
               </td>
             </tr>
             </tbody>
           </table>
 
-          <table class="fees-ngx-datatable w-50 ml-2">
-            <thead class="fees-datatable-header">
-            <tr class="fees-datatable-header fees-border-bottom">
-              <td class="fees-datatable-header-cell trn-info__label" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.Liabilities" | translate }}</td>
+          <table class="main-ngx-datatable w-50 ml-2">
+            <thead class="main-datatable-header">
+            <tr class="main-datatable-header main-border-bottom">
+              <td class="main-datatable-header-cell trn-info__label" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.Liabilities" | translate }}</td>
             </tr>
             </thead>
-            <tbody class="fees-datatable-body">
-            <tr class="fees-datatable-body-row fees-border-bottom">
-              <td class="fees-datatable-body-cell align-middle" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.Distribution" | translate }}</td>
+            <tbody class="main-datatable-body">
+            <tr class="main-datatable-body-row main-border-bottom">
+              <td class="main-datatable-body-cell align-middle" colspan="2">{{ "PAGES.Transparency.TableInfo.Headings.Distribution" | translate }}</td>
             </tr>
-            <tr class="fees-datatable-body-row">
-              <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Borrowings" | translate }}</td>
-              <td class="fees-datatable-body-cell align-middle">
+            <tr class="main-datatable-body-row">
+              <td class="main-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Borrowings" | translate }}</td>
+              <td class="main-datatable-body-cell align-middle">
                 <input type="text" class="form-control m-0" [(ngModel)]="statData.bonds.borrowings" name="liabilities_usd">
               </td>
             </tr>
-            <tr class="fees-datatable-body-row">
-              <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Capital" | translate }}</td>
-              <td class="fees-datatable-body-cell align-middle">
+            <tr class="main-datatable-body-row">
+              <td class="main-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Capital" | translate }}</td>
+              <td class="main-datatable-body-cell align-middle">
                 <input type="text" class="form-control m-0" [(ngModel)]="statData.bonds.capital" name="liabilities_eur">
               </td>
             </tr>
-            <tr class="fees-datatable-body-row fees-border-bottom">
-              <td class="fees-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Profits" | translate }}</td>
-              <td class="fees-datatable-body-cell align-middle">
+            <tr class="main-datatable-body-row main-border-bottom">
+              <td class="main-datatable-body-cell align-middle">{{ "PAGES.Transparency.TableInfo.TableCell.Profits" | translate }}</td>
+              <td class="main-datatable-body-cell align-middle">
                 <input type="text" class="form-control m-0" [(ngModel)]="statData.bonds.profits" name="liabilities_sgb">
               </td>
             </tr>
@@ -68,61 +68,61 @@
           </table>
         </div>
 
-        <table class="fees-ngx-datatable w-100 mt-5">
-          <tbody class="fees-datatable-body">
-          <tr class="fees-datatable-body-row fees-border-top fees-border-bottom">
-            <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Exchange" | translate }}</td>
-            <td class="fees-datatable-body-cell w-50 align-middle"></td>
+        <table class="main-ngx-datatable w-100 mt-5">
+          <tbody class="main-datatable-body">
+          <tr class="main-datatable-body-row main-border-top main-border-bottom">
+            <td class="main-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Exchange" | translate }}</td>
+            <td class="main-datatable-body-cell w-50 align-middle"></td>
           </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell w-50 align-middle">1 Wedbush</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row">
+            <td class="main-datatable-body-cell w-50 align-middle">1 Wedbush</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.fiat.wedbush" name="fiat_1">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell w-50 align-middle">2 SGPMX</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row">
+            <td class="main-datatable-body-cell w-50 align-middle">2 SGPMX</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.fiat.sgpmx" name="fiat_2">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell w-50 align-middle">3 Saxobank</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row main-border-bottom">
+            <td class="main-datatable-body-cell w-50 align-middle">3 Saxobank</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.fiat.saxobank" name="fiat_3">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Storage" | translate }}</td>
-            <td class="fees-datatable-body-cell w-50 align-middle"></td>
+          <tr class="main-datatable-body-row main-border-bottom">
+            <td class="main-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Storage" | translate }}</td>
+            <td class="main-datatable-body-cell w-50 align-middle"></td>
           </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell w-50 align-middle">SGPMX</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row">
+            <td class="main-datatable-body-cell w-50 align-middle">SGPMX</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.gold.sgpmx" name="gold_1">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row">
-            <td class="fees-datatable-body-cell w-50 align-middle">Brinks</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row">
+            <td class="main-datatable-body-cell w-50 align-middle">Brinks</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.gold.brinks" name="gold_2">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell w-50 align-middle">FRBNY</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row main-border-bottom">
+            <td class="main-datatable-body-cell w-50 align-middle">FRBNY</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.gold.frbny" name="gold_3">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.DataProvided" | translate }}</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row main-border-bottom">
+            <td class="main-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.DataProvided" | translate }}</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.viewDataTimestamp" pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$" name="dataTimestamp">
             </td>
           </tr>
-          <tr class="fees-datatable-body-row fees-border-bottom">
-            <td class="fees-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Report" | translate }}</td>
-            <td class="fees-datatable-body-cell w-50 align-middle">
+          <tr class="main-datatable-body-row main-border-bottom">
+            <td class="main-datatable-body-cell w-50 align-middle trn-info__label">{{ "PAGES.Transparency.TableInfo.Headings.Report" | translate }}</td>
+            <td class="main-datatable-body-cell w-50 align-middle">
               <input type="text" class="form-control m-0" [(ngModel)]="statData.viewAuditTimestamp" pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$" name="auditTimestamp">
             </td>
           </tr>
@@ -193,7 +193,7 @@
 
     <section class="section section--table">
 
-      <div class="section__content">
+      <div class="section__content transparency-table">
         <ngx-datatable class="table table--no-footer" #table
           [rows]="rows"
 
