@@ -2,6 +2,8 @@ export class KYCProfile {
   isFormFilled?: boolean = false;
   isKycPending?: boolean = false;
   isKycFinished?: boolean = false;
+  isResidencePending?: boolean = false;
+  isResidenceProved?: boolean = false;
   isAgreementPending?: boolean = false;
   isAgreementSigned?: boolean = false;
 

@@ -109,6 +109,28 @@
   </section>
 </ng-container>
 
+<!--RESIDENCE PROVIDE-->
+<ng-container *ngIf="kycProfile.isKycFinished && kycProfile.isResidencePending">
+  <section class="section section--no-bottom">
+    <h2 class="section__title">
+      <span>{{ "PAGES.Settings.KYC.ProofResidency.Heading" | translate }}</span>
+    </h2>
+
+    <div class="pt-2">
+      <p class="mt-3 mb-3 lead loc-verification-note red">
+        {{ "PAGES.Settings.KYC.ProofResidency.Text.FirstPart" | translate }}
+        <a href="mailto:support@goldmint.io" target="_blank">support@goldmint.io</a>
+        {{ "PAGES.Settings.KYC.ProofResidency.Text.SecondPart" | translate }}
+      </p>
+
+      <div class="text-center">
+        <a href='https://support.goldmint.io/hc/en-us/requests/new?ticket_form_id=360000060753&userEmail={{userData.email}}&userId={{userData.id}}' class="btn btn-primary mt-3 mb-5" target="_blank">
+          ОК
+        </a>
+      </div>
+    </div>
+  </section>
+</ng-container>
 
 <!--AGREEMENT-->
 <ng-container *ngIf="phase == _phase.Agreement">
@@ -168,7 +190,7 @@
 
 
 <!--FINISHED-->
-<ng-container *ngIf="phase == _phase.Finished">
+<ng-container *ngIf="phase == _phase.Finished && kycProfile.isResidenceProved">
   <section class="section section--no-bottom">
     <h2 class="section__title">
       <span>{{ "PAGES.Settings.KYC.FinishedSection.Title" | translate }}</span>

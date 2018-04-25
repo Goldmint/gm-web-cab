@@ -737,6 +737,13 @@
             "Resend": "Send agreement"
           }
         },
+        "ProofResidency": {
+          "Heading": "Proof of Residency",
+          "Text": {
+            "FirstPart": "In order to verify your residency you need to send a letter to email",
+            "SecondPart": "and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement."
+          }
+        },
         "FinishedSection": {
           "Title": "Advanced verification",
           "StatusText": "Advanced verification completed",

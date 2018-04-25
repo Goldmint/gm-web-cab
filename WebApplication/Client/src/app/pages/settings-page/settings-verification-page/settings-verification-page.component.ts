@@ -1,19 +1,21 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 // import { PhoneNumberComponent } from 'ngx-international-phone-number';
 import 'rxjs/add/operator/finally';
 
-import { APIResponse, Country, Region, KYCStart, KYCAgreementResend } from '../../../interfaces';
-import { APIService, MessageBoxService } from '../../../services';
+import {APIResponse, Country, Region, KYCStart, KYCAgreementResend, User} from '../../../interfaces';
+import {APIService, MessageBoxService, UserService} from '../../../services';
 import { KYCProfile } from '../../../models/kyc-profile';
 
 import * as countries from '../../../../assets/data/countries.json';
+import {Observable} from "rxjs/Observable";
 
 enum Phase { Start, Basic, Kyc, KycPending, Agreement, AgreementPending, Finished }
 
 @Component({
   selector: 'app-settings-verification-page',
   templateUrl: './settings-verification-page.component.html',
+  styleUrls: ['./settings-verification-page.component.sass'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -34,11 +36,13 @@ export class SettingsVerificationPageComponent implements OnInit {
   public kycProfile = new KYCProfile();
   public dateOfBirth: { day: number, month: number, year: number | '' };
   public minBirthYear = 1999;
+  public userData: User;
 
   private selectedCountry;
 
   constructor(
     private _apiService: APIService,
+    private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
     private _messageBox: MessageBoxService) {
 
@@ -200,12 +204,12 @@ export class SettingsVerificationPageComponent implements OnInit {
   }
 
   private getData() {
-    this._apiService.getKYCProfile()
-      .finally(() => {
-      })
-      .subscribe(
-        (res: APIResponse<KYCProfile>) => {
-          this.kycProfile = res.data;
+    Observable.combineLatest(
+      this._apiService.getKYCProfile(),
+      this._userService.currentUser
+    ).subscribe(res => {
+          this.kycProfile = res[0].data;
+          this.userData = res[1];
 
           if (this.kycProfile.dob) {
             this.dateOfBirth = {
