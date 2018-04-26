@@ -4,13 +4,13 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
-using Goldmint.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Rate;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -19,18 +19,20 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// Process GOLD buying request (core-worker harvester)
 		/// </summary>
-		public static async Task<BuySellRequestProcessingResult> ProcessContractBuyRequest(IServiceProvider services, long internalRequestId, string address, BigInteger amount, string transactionId) {
+		public static async Task<BuySellRequestProcessingResult> ProcessContractBuyRequest(IServiceProvider services, BigInteger requestIndex, long internalRequestId, string address, BigInteger amountEth, string txId, int txConfirmationsRequired) {
 
 			if (internalRequestId <= 0) return BuySellRequestProcessingResult.InvalidArgs;
 			if (string.IsNullOrWhiteSpace(address)) return BuySellRequestProcessingResult.InvalidArgs;
-			if (amount < 0) return BuySellRequestProcessingResult.InvalidArgs;
-			if (string.IsNullOrWhiteSpace(transactionId)) return BuySellRequestProcessingResult.InvalidArgs;
+			if (amountEth < 0) return BuySellRequestProcessingResult.InvalidArgs;
+			if (string.IsNullOrWhiteSpace(txId)) return BuySellRequestProcessingResult.InvalidArgs;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+			var safeRates = services.GetRequiredService<IAggregatedSafeRatesSource>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
 			var query =
 				from r in dbContext.BuyGoldRequest
@@ -39,7 +41,7 @@ namespace Goldmint.CoreLogic.Finance {
 					r.Id == internalRequestId &&
 					r.Status == BuyGoldRequestStatus.Confirmed &&
 					r.Output == BuyGoldRequestOutput.EthereumAddress &&
-					r.Address == address
+					r.InputAddress == address
 				select r
 			;
 
@@ -63,42 +65,73 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 
 					try {
-						await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amount, Common.Tokens.ETH.Decimals) }` ETH is `{transactionId}`");
+						await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amountEth, Common.Tokens.ETH.Decimals) }` ETH is `{txId}`");
 					}
 					catch { }
 
 					try {
 
+						// get tx info
+						var txInfo = await ethereumReader.CheckTransaction(txId, txConfirmationsRequired);
+						if (txInfo.Status != EthTransactionStatus.Success || txInfo.Time == null) {
+							return BuySellRequestProcessingResult.InvalidArgs;
+						}
+
 						var timeNow = DateTime.UtcNow;
 
 						// ok
-						if (request.TimeExpires > timeNow) {
+						if (request.TimeExpires > txInfo.Time.Value) {
 
-							var suppRequest = new BuyGoldCryptoSupportRequest() {
+							var ethPerGoldFixedRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.InputRateCents, request.GoldRateCents);
+							var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
+							var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
-								Status = SupportRequestStatus.Pending,
-								AmountWei = amount.ToString(),
-								BuyGoldRequestId = request.Id,
+							var cancel =
+								ethPerGoldFixedRate <= 0 || !ethActualRate.CanSell || !goldActualRate.CanBuy ||
+								Estimation.IsFixedRateThresholdExceeded(request.InputRateCents, ethActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Eth.Sell) ||
+								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Gold.Buy)
+							;
+
+							if (cancel) {
+								try {
+									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
+								}
+								catch { }
+							}
+
+							// eth operation
+							var ethOp = new DAL.Models.EthereumOperation() {
+
+								Type = cancel? EthereumOperationType.ContractCancelBuySellRequest: EthereumOperationType.ContractProcessBuySellRequest,
+								Status = EthereumOperationStatus.Initial,
+
+								DestinationAddress = request.InputAddress,
+								Rate = ethPerGoldFixedRate.ToString(),
+								EthRequestIndex = requestIndex.ToString(),
+								OplogId = request.OplogId,
 								TimeCreated = timeNow,
+								TimeNextCheck = timeNow,
 
 								UserId = request.UserId,
-								OplogId = request.OplogId,
 								RefUserFinHistoryId = request.RefUserFinHistoryId,
 							};
-							dbContext.BuyGoldCryptoSupportRequest.Add(suppRequest);
+							dbContext.EthereumOperation.Add(ethOp);
+							await dbContext.SaveChangesAsync();
 
-							request.Status = BuyGoldRequestStatus.Success;
+							// done
+							ethOp.Status = EthereumOperationStatus.Prepared;
+							request.Status = cancel? BuyGoldRequestStatus.Cancelled: BuyGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. New support request #{suppRequest.Id} enqueued");
+								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
 							}
 							catch {
 							}
 
-							return BuySellRequestProcessingResult.Success;
+							return cancel? BuySellRequestProcessingResult.Cancelled: BuySellRequestProcessingResult.Success;
 						}
 
 						// expired
@@ -129,18 +162,20 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// Process GOLD selling request (core-worker harvester)
 		/// </summary>
-		public static async Task<BuySellRequestProcessingResult> ProcessContractSellRequest(IServiceProvider services, long internalRequestId, string address, BigInteger amount, string transactionId) {
+		public static async Task<BuySellRequestProcessingResult> ProcessContractSellRequest(IServiceProvider services, BigInteger requestIndex, long internalRequestId, string address, BigInteger amountGold, string txId, int txConfirmationsRequired) {
 
 			if (internalRequestId <= 0) return BuySellRequestProcessingResult.InvalidArgs;
 			if (string.IsNullOrWhiteSpace(address)) return BuySellRequestProcessingResult.InvalidArgs;
-			if (amount < 0) return BuySellRequestProcessingResult.InvalidArgs;
-			if (string.IsNullOrWhiteSpace(transactionId)) return BuySellRequestProcessingResult.InvalidArgs;
+			if (amountGold < 0) return BuySellRequestProcessingResult.InvalidArgs;
+			if (string.IsNullOrWhiteSpace(txId)) return BuySellRequestProcessingResult.InvalidArgs;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+			var safeRates = services.GetRequiredService<IAggregatedSafeRatesSource>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
 			var query =
 				from r in dbContext.SellGoldRequest
@@ -173,42 +208,73 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 
 					try {
-						await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amount, Common.Tokens.GOLD.Decimals) }` GOLD is `{transactionId}`");
+						await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amountGold, Common.Tokens.GOLD.Decimals) }` GOLD is `{txId}`");
 					}
 					catch { }
 
 					try {
 
+						// get tx info
+						var txInfo = await ethereumReader.CheckTransaction(txId, txConfirmationsRequired);
+						if (txInfo.Status != EthTransactionStatus.Success || txInfo.Time == null) {
+							return BuySellRequestProcessingResult.InvalidArgs;
+						}
+
 						var timeNow = DateTime.UtcNow;
 
 						// ok
-						if (request.TimeExpires > timeNow) {
+						if (request.TimeExpires > txInfo.Time.Value) {
 
-							var suppRequest = new SellGoldCryptoSupportRequest() {
+							var ethPerGoldFixedRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
+							var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
+							var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
-								Status = SupportRequestStatus.Pending,
-								AmountWei = amount.ToString(),
-								SellGoldRequestId = request.Id,
+							var cancel =
+								ethPerGoldFixedRate <= 0 || !ethActualRate.CanBuy || !goldActualRate.CanSell ||
+								Estimation.IsFixedRateThresholdExceeded(request.OutputRateCents, ethActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Eth.Buy) ||
+								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Gold.Sell)
+							;
+
+							if (cancel) {
+								try {
+									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
+								}
+								catch { }
+							}
+
+							// eth operation
+							var ethOp = new DAL.Models.EthereumOperation() {
+
+								Type = cancel ? EthereumOperationType.ContractCancelBuySellRequest : EthereumOperationType.ContractProcessBuySellRequest,
+								Status = EthereumOperationStatus.Initial,
+
+								DestinationAddress = request.OutputAddress,
+								Rate = ethPerGoldFixedRate.ToString(),
+								EthRequestIndex = requestIndex.ToString(),
+								OplogId = request.OplogId,
 								TimeCreated = timeNow,
+								TimeNextCheck = timeNow,
 
 								UserId = request.UserId,
-								OplogId = request.OplogId,
 								RefUserFinHistoryId = request.RefUserFinHistoryId,
 							};
-							dbContext.SellGoldCryptoSupportRequest.Add(suppRequest);
+							dbContext.EthereumOperation.Add(ethOp);
+							await dbContext.SaveChangesAsync();
 
-							request.Status = SellGoldRequestStatus.Success;
+							// done
+							ethOp.Status = EthereumOperationStatus.Prepared;
+							request.Status = cancel ? SellGoldRequestStatus.Cancelled : SellGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. New support request #{suppRequest.Id} enqueued");
+								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
 							}
 							catch {
 							}
 
-							return BuySellRequestProcessingResult.Success;
+							return cancel ? BuySellRequestProcessingResult.Cancelled : BuySellRequestProcessingResult.Success;
 						}
 
 						// expired
@@ -236,152 +302,10 @@ namespace Goldmint.CoreLogic.Finance {
 			});
 		}
 
-		/// <summary>
-		/// Process HW GOLD transferring transaction (core-worker queue)
-		/// </summary>
-		public static async Task<bool> ProcessTransferGoldHwTransaction(IServiceProvider services, long requestId) {
-
-			// TODO: move to appconfig (debug/staging/prod)
-			var confirmationsNeeded = 4;
-
-			var logger = services.GetLoggerFor(typeof(GoldToken));
-			var appConfig = services.GetRequiredService<AppConfig>();
-			var mutexHolder = services.GetRequiredService<IMutexHolder>();
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var ethereumReader = services.GetRequiredService<IEthereumReader>();
-			var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
-			var ticketDesk = services.GetRequiredService<ITicketDesk>();
-
-			var mutexBuilder =
-				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.GoldHwTransTx, requestId)
-			;
-
-			return await mutexBuilder.CriticalSection(async (ok) => {
-				if (ok) {
-
-					var request = await (
-						from r in dbContext.TransferGoldTransaction
-						where
-							r.Id == requestId &&
-							(r.Status == EthereumOperationStatus.Prepared || r.Status == EthereumOperationStatus.BlockchainConfirm)
-						select r
-					)
-						.Include(_ => _.User)
-						.Include(_ => _.RefUserFinHistory)
-						.AsTracking()
-						.FirstOrDefaultAsync()
-					;
-
-					if (request == null) {
-						return false;
-					}
-
-					try {
-
-						// set next check time
-						request.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(request.TimeCreated, TimeSpan.FromSeconds(15), confirmationsNeeded);
-
-						// initiate blockchain transaction
-						if (request.Status == EthereumOperationStatus.Prepared) {
-
-							var amount = BigInteger.Parse(request.AmountWei);
-							var goldBalance = await ethereumReader.GetHotWalletGoldBalance(request.User.UserName);
-
-							// valid?
-							if (amount < 1 || amount > goldBalance) {
-
-								request.Status = EthereumOperationStatus.Failed;
-								await dbContext.SaveChangesAsync();
-
-								try {
-									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Failed, "Request failed. Invalid amount specified");
-								}
-								catch { }
-
-								return false;
-							}
-
-							// update status to prevent double spending
-							request.Status = EthereumOperationStatus.BlockchainInit;
-							await dbContext.SaveChangesAsync();
-
-							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, "Blockchain transaction init");
-							}
-							catch { }
-
-							// save eth transaction
-							request.EthTransactionId = await ethereumWriter.TransferGoldFromHotWallet(
-								toAddress: request.DestinationAddress,
-								amount: amount,
-								userId: request.User.UserName
-							);
-							request.RefUserFinHistory.RelEthTransactionId = request.EthTransactionId;
-
-							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Blockchain transaction is {request.EthTransactionId}");
-							}
-							catch { }
-
-							// set new status
-							request.Status = EthereumOperationStatus.BlockchainConfirm;
-							await dbContext.SaveChangesAsync();
-
-							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
-							}
-							catch { }
-
-							return true;
-						}
-
-						if (request.Status == EthereumOperationStatus.BlockchainConfirm) {
-
-							var result = await ethereumReader.CheckTransaction(request.EthTransactionId, confirmationsNeeded);
-
-							// final
-							if (result == EthTransactionStatus.Success || result == EthTransactionStatus.Failed) {
-
-								var success = result == EthTransactionStatus.Success;
-
-								request.Status = success ? EthereumOperationStatus.Success : EthereumOperationStatus.Failed;
-								request.TimeCompleted = DateTime.UtcNow;
-
-								request.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
-								request.RefUserFinHistory.TimeCompleted = request.TimeCompleted;
-
-								await dbContext.SaveChangesAsync();
-
-								try {
-									if (request.Status == EthereumOperationStatus.Success) {
-										await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
-									}
-									if (request.Status == EthereumOperationStatus.Failed) {
-										await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
-									}
-								}
-								catch { }
-
-								// TODO: failure logic?
-							}
-
-							return request.Status == EthereumOperationStatus.Success;
-						}
-
-					}
-					catch (Exception e) {
-						logger.Error(e, $"Failed to process hw transferring request #{request.Id}");
-					}
-				}
-
-				return false;
-			});
-		}
-
 		// ---
 
 		public enum BuySellRequestProcessingResult {
+			Cancelled,
 			Success,
 			Expired,
 			InvalidArgs,

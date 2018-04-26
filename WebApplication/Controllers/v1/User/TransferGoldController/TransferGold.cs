@@ -39,9 +39,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
-			// if (!Core.Tokens.GoogleAuthenticator.Validate(model.Code, user.TFASecret)) {
-			// 	return APIResponse.BadRequest(nameof(model.Code), "Invalid code");
-			// }
+			if (!Core.Tokens.GoogleAuthenticator.Validate(model.TfaCode, user.TfaSecret)) {
+				return APIResponse.BadRequest(nameof(model.TfaCode), "Invalid code");
+			}
 
 			if (await CoreLogic.User.HasPendingBlockchainOps(HttpContext.RequestServices, user.Id)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountPendingBlockchainOperation);
@@ -92,13 +92,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					DbContext.UserFinHistory.Add(finHistory);
 					await DbContext.SaveChangesAsync();
 
-					// request
-					var request = new DAL.Models.TransferGoldTransaction() {
+					// operation
+					var request = new DAL.Models.EthereumOperation() {
 
+						Type = EthereumOperationType.TransferGoldFromHw,
 						Status = EthereumOperationStatus.Prepared,
 
 						DestinationAddress = model.EthAddress,
-						AmountWei = amountWei.ToString(),
+						Rate = amountWei.ToString(),
 						OplogId = ticket,
 						TimeCreated = timeNow,
 						TimeNextCheck = timeNow,
@@ -109,7 +110,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					// save
 					finHistory.Status = UserFinHistoryStatus.Processing;
-					DbContext.TransferGoldTransaction.Add(request);
+					DbContext.EthereumOperation.Add(request);
 					await DbContext.SaveChangesAsync();
 
 					// update comment

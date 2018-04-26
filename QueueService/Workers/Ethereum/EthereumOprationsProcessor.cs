@@ -6,17 +6,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common;
 
-namespace Goldmint.QueueService.Workers {
+namespace Goldmint.QueueService.Workers.Ethereum {
 	
-	public class TransferRequestProcessor : BaseWorker {
+	public sealed class EthereumOprationsProcessor : BaseWorker {
 
 		private readonly int _rowsPerRound;
+		private readonly int _ethConfirmations;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
 		
-		public TransferRequestProcessor(int rowsPerRound) {
+		public EthereumOprationsProcessor(int rowsPerRound, int ethConfirmations) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
+			_ethConfirmations = Math.Max(2, ethConfirmations);
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -26,14 +28,14 @@ namespace Goldmint.QueueService.Workers {
 			return Task.CompletedTask;
 		}
 
-		protected override async Task Loop() {
+		protected override async Task OnUpdate() {
 
 			_dbContext.DetachEverything();
 
 			var nowTime = DateTime.UtcNow;
 
 			var rows = await (
-				from r in _dbContext.TransferGoldTransaction
+				from r in _dbContext.EthereumOperation
 				where 
 				(r.Status == EthereumOperationStatus.Prepared || r.Status == EthereumOperationStatus.BlockchainConfirm) &&
 				r.TimeNextCheck <= nowTime
@@ -50,7 +52,7 @@ namespace Goldmint.QueueService.Workers {
 
 				_dbContext.DetachEverything();
 
-				await CoreLogic.Finance.GoldToken.ProcessTransferGoldHwTransaction(_services, row.Id);
+				await CoreLogic.Finance.EthereumContract.ExecuteOperation(_services, row.Id, _ethConfirmations);
 			}
 		}
 	}

@@ -230,11 +230,23 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		[Required]
 		public bool Proved { get; set; }
 
+		/// <summary>
+		/// Link, /.{1,512}/ or null if unproved
+		/// </summary>
+		[Required]
+		public string Link { get; set; }
+
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<ProveResidenceModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Id)
 				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
+				;
+
+			v.RuleFor(_ => _.Link)
+				.Must(ValidationRules.BeValidUrl).WithMessage("Invalid format")
+				.MaximumLength(DAL.Models.FieldMaxLength.Comment).WithMessage("Invalid length")
+				.When(_ => _.Proved)
 				;
 
 			return v.Validate(this);

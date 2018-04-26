@@ -47,7 +47,7 @@
 		/* [1000..1999] Account errors */
 
 		/// <summary>
-		/// Account locked (automatic lockout)
+		/// Account not found
 		/// </summary>
 		AccountNotFound = 1000,
 

@@ -163,7 +163,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Final failure
 		/// </summary>
-		Failed,
+		Cancelled,
 	}
 
 	#endregion
@@ -212,7 +212,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Final failure
 		/// </summary>
-		Failed,
+		Cancelled,
 	}
 
 	#endregion
@@ -241,7 +241,25 @@ namespace Goldmint.Common {
 	#endregion
 
 
-	#region Blockchain
+	#region Ethereum blockchain
+
+	public enum EthereumOperationType {
+
+		/// <summary>
+		/// Transfer GOLD from HW to client address
+		/// </summary>
+		TransferGoldFromHw = 1,
+
+		/// <summary>
+		/// Call contract for request processing
+		/// </summary>
+		ContractProcessBuySellRequest,
+
+		/// <summary>
+		/// Call contract for request cancellation
+		/// </summary>
+		ContractCancelBuySellRequest,
+	}
 
 	public enum EthereumOperationStatus {
 
@@ -418,8 +436,8 @@ namespace Goldmint.Common {
 
 		FeesTable = 1,
 		CryptoCapitalDepositData,
-		LastContractBuyingBlock,
-		LastContractSellingBlock,
+		GoldEthBuyHarvLastBlock,
+		GoldEthSellHarvLastBlock,
 	}
 
 	public enum MutexEntity {
@@ -435,9 +453,9 @@ namespace Goldmint.Common {
 		UserHwOperation,
 
 		/// <summary>
-		/// Processing GOLD transferring transaction (tx-wide)
+		/// Processing ethereum opration (operation-wide)
 		/// </summary>
-		GoldHwTransTx,
+		EthOpration,
 
 		/// <summary>
 		/// Changing buying request state (request-wide)

@@ -60,8 +60,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				cryptoCurrency: CryptoCurrency.Eth,
 				destAddress: model.EthAddress,
 				fiatCurrency: currency,
-				inputRate: estimation.CryptoRateCents,
-				goldRate: estimation.GoldRateCents
+				inputRate: estimation.CentsPerAssetRate,
+				goldRate: estimation.CentsPerGoldRate
 			);
 
 			// history
@@ -88,11 +88,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = BuyGoldRequestStatus.Unconfirmed,
 				Input = BuyGoldRequestInput.ContractEthPayment,
 				Output = BuyGoldRequestOutput.EthereumAddress,
-				Address = model.EthAddress,
+				InputAddress = model.EthAddress,
 
 				ExchangeCurrency = currency,
-				InputRateCents = estimation.CryptoRateCents,
-				GoldRateCents = estimation.GoldRateCents,
+				InputRateCents = estimation.CentsPerAssetRate,
+				GoldRateCents = estimation.CentsPerGoldRate,
 				
 				OplogId = ticket,
 				TimeCreated = timeNow,
@@ -108,14 +108,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(estimation.GoldRateCents, currency)} per GOLD, {TextFormatter.FormatAmount(estimation.CryptoRateCents, currency)} per ETH";
+			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(estimation.CentsPerGoldRate, currency)} per GOLD, {TextFormatter.FormatAmount(estimation.CentsPerAssetRate, currency)} per ETH";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
 				new AssetEthView() {
 					RequestId = request.Id,
-					EthRate = estimation.CryptoRateCents / 100d,
-					GoldRate = estimation.GoldRateCents / 100d,
+					EthRate = estimation.CentsPerAssetRate / 100d,
+					GoldRate = estimation.CentsPerGoldRate / 100d,
 					Currency = currency.ToString().ToUpper(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}

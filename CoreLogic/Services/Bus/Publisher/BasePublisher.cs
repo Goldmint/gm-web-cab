@@ -24,6 +24,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			PublisherSocket.Options.ReceiveHighWatermark = queueSize;
 			PublisherSocket.Options.Endian = Endianness.Big;
 
+			// crashes in linux env (24 apr 2018)
 			PublisherSocket.Options.TcpKeepalive = false;
 			// PublisherSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
 			// PublisherSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);

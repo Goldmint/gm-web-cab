@@ -190,9 +190,7 @@ namespace Goldmint.Common {
 		public ConstantsSection Constants { get; set; } = new ConstantsSection();
 		public class ConstantsSection {
 
-			public double ExchangeThreshold { get; set; } = 0.5d;
-
-			public FiatLimitsSection FiatAccountLimitsUsd { get; set; } = new FiatLimitsSection();
+			/*public FiatLimitsSection FiatAccountLimitsUsd { get; set; } = new FiatLimitsSection();
 			public class FiatLimitsSection {
 
 				public Limits Tier1 { get; set; } = new Limits();
@@ -204,18 +202,18 @@ namespace Goldmint.Common {
 					public long DayWithdraw { get; set; } = 0;
 					public long MonthWithdraw { get; set; } = 0;
 				}
-			}
+			}*/
 
-			public CardPaymentDataSection CardPaymentData { get; set; } = new CardPaymentDataSection();
+			/*public CardPaymentDataSection CardPaymentData { get; set; } = new CardPaymentDataSection();
 			public class CardPaymentDataSection {
 
 				public long DepositMin { get; set; } = 1;
 				public long DepositMax { get; set; } = 0;
 				public long WithdrawMin { get; set; } = 1;
 				public long WithdrawMax { get; set; } = 0;
-			}
+			}*/
 
-			public SwiftDataSection SwiftData { get; set; } = new SwiftDataSection();
+			/*public SwiftDataSection SwiftData { get; set; } = new SwiftDataSection();
 			public class SwiftDataSection {
 
 				public long DepositMin { get; set; } = 1;
@@ -229,22 +227,50 @@ namespace Goldmint.Common {
 				public string BenBankName { get; set; } = "";
 				public string BenBankAddress { get; set; } = "";
 				public string BenSwift { get; set; } = "";
-			}
+			}*/
 
-			public TimeLimitsSection TimeLimits { get; set; } = new TimeLimitsSection();
-			public class TimeLimitsSection {
-
-				public long BuyGoldForEthRequestTimeoutSec { get; set; } = 1800;
-				public long SellGoldForEthRequestTimeoutSec { get; set; } = 1800;
-			}
-
-			public CryptoCapitalDataSection CryptoCapitalData { get; set; } = new CryptoCapitalDataSection();
+			/*public CryptoCapitalDataSection CryptoCapitalData { get; set; } = new CryptoCapitalDataSection();
 			public class CryptoCapitalDataSection {
 
 				public long DepositMin { get; set; } = 1;
 				public long DepositMax { get; set; } = 0;
 				public long WithdrawMin { get; set; } = 1;
 				public long WithdrawMax { get; set; } = 0;
+			}*/
+
+			public SafeExchangeFixedRateThresholdSection SafeExchangeFixedRateThreshold { get; set; } = new SafeExchangeFixedRateThresholdSection();
+			public class SafeExchangeFixedRateThresholdSection {
+
+				public Asset Gold { get; set; } = new Asset();
+				public Asset Eth { get; set; } = new Asset();
+
+				public class Asset {
+
+					public double Buy { get; set; } = 0.1d;
+					public double Sell { get; set; } = 0.1d;
+				}
+			}
+
+			public TimeLimitsSection TimeLimits { get; set; } = new TimeLimitsSection();
+			public class TimeLimitsSection {
+
+				public int BuyGoldForEthRequestTimeoutSec { get; set; } = 1800;
+				public int SellGoldForEthRequestTimeoutSec { get; set; } = 1800;
+			}
+
+			public WorkersSection Workers { get; set; } = new WorkersSection();
+			public class WorkersSection {
+
+				public WorkerSettings Notifications { get; set; } = new WorkerSettings();
+				public WorkerSettings EthEventsHarvester { get; set; } = new WorkerSettings();
+				public WorkerSettings EthereumOprations { get; set; } = new WorkerSettings();
+
+				public class WorkerSettings {
+
+					public int PeriodSec { get; set; } = 10;
+					public int ItemsPerRound { get; set; } = 100;
+					public int EthConfirmations { get; set; } = 6;
+				}
 			}
 		}
 	}

@@ -5,8 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_transfer_gold_tx")]
-	public class TransferGoldTransaction : BaseUserFinHistoryEntity, IConcurrentUpdate {
+	[Table("gm_eth_operation")]
+	public class EthereumOperation: BaseUserFinHistoryEntity, IConcurrentUpdate {
+
+		[Column("type"), Required]
+		public EthereumOperationType Type { get; set; }
 
 		[Column("status"), Required]
 		public EthereumOperationStatus Status { get; set; }
@@ -14,8 +17,11 @@ namespace Goldmint.DAL.Models {
 		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
 		public string DestinationAddress { get; set; }
 
-		[Column("amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
-		public string AmountWei { get; set; }
+		[Column("rate"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
+		public string Rate { get; set; }
+
+		[Column("eth_request_index"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount)]
+		public string EthRequestIndex { get; set; }
 
 		[Column("eth_txid"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
 		public string EthTransactionId { get; set; }

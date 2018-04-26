@@ -12,6 +12,7 @@ using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.Localization;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
@@ -290,9 +291,14 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(nameof(model.Id), "Invalid id");
 			}
 
+			if (!CoreLogic.User.HasKycVerification(account.UserVerification)) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified, "This account hasn't KYC verification");
+			}
+
 			// ---
 
 			account.UserVerification.ProvedResidence = model.Proved;
+			account.UserVerification.ProvedResidenceLink = model.Link?.LimitLength(DAL.Models.FieldMaxLength.Comment);
 			await DbContext.SaveChangesAsync();
 
 			// notification

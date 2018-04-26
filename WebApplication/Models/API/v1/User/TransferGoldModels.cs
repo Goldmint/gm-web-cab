@@ -17,6 +17,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.TransferGoldModels {
 		[Required]
 		public string Amount { get; set; }
 
+		/// <summary>
+		/// Two factor auth code /[0-9]{6}/, optional
+		/// </summary>
+		[Required]
+		public string TfaCode { get; set; }
+
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -28,6 +34,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.TransferGoldModels {
 
 			v.RuleFor(_ => _.Amount)
 				.NotEmpty().WithMessage("Invalid amount")
+				;
+
+			v.RuleFor(_ => _.TfaCode)
+				.Must(Common.ValidationRules.BeValidTfaCode).WithMessage("Invalid format")
+				.When(_ => _.TfaCode != null)
 				;
 
 			return v.Validate(this);

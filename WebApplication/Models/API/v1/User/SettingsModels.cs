@@ -292,6 +292,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 				.Must(Common.ValidationRules.BeValidPasswordLength).WithMessage("Invalid length")
 				;
 
+			v.RuleFor(_ => _.TfaCode)
+				.Must(Common.ValidationRules.BeValidTfaCode).WithMessage("Invalid format")
+				.When(_ => _.TfaCode != null)
+				;
+
 			return v.Validate(this);
 		}
 	}

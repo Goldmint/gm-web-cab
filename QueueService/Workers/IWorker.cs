@@ -6,7 +6,7 @@ namespace Goldmint.QueueService.Workers {
 
 	public interface IWorker {
 
-		Task Launch(CancellationToken ct);
+		Task Loop(CancellationToken ct);
 		Task Init(IServiceProvider services);
 	}
 }

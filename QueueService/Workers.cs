@@ -8,11 +8,6 @@ namespace Goldmint.QueueService {
 
 	public partial class Program {
 
-		// TODO: move/constants
-		private static readonly int DefaultWorkerRowsPerRound = 100;
-		private static readonly int DefaultCryptoHarvesterBlocksPerRound = 10;
-		private static readonly int DefaultCryptoHarvesterConfirmationsRequired = 2;
-
 		/// <summary>
 		/// Launch workers
 		/// </summary>
@@ -30,9 +25,9 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// doesn't require ethereum at all
-					new NotificationSender(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(3)),
-					new GoldRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.PeriodSec)),
-					new CryptoRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.PeriodSec)),
+					new NotificationSender(_appConfig.Constants.Workers.Notifications.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.Notifications.PeriodSec)),
+					new Workers.Rates.GoldRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.PeriodSec)),
+					new Workers.Rates.CryptoRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.PeriodSec)),
 				});
 			}
 
@@ -41,11 +36,11 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// does require ethereum (reader)
-					// new ContractBuyingEventHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(10)),
-					// new ContractSellingEventHarvester(DefaultCryptoHarvesterBlocksPerRound, DefaultCryptoHarvesterConfirmationsRequired).Period(TimeSpan.FromSeconds(10)),
+					new Workers.Ethereum.BuyRequestsHarvester(_appConfig.Constants.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Constants.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthEventsHarvester.PeriodSec)),
+					new Workers.Ethereum.SellRequestsHarvester(_appConfig.Constants.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Constants.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthEventsHarvester.PeriodSec)),
 
 					// does require ethereum (writer and reader)
-					new TransferRequestProcessor(DefaultWorkerRowsPerRound).Period(TimeSpan.FromSeconds(10)),
+					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Constants.Workers.EthereumOprations.ItemsPerRound, _appConfig.Constants.Workers.EthereumOprations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthereumOprations.PeriodSec)),
 				});
 			}
 
@@ -58,7 +53,7 @@ namespace Goldmint.QueueService {
 			// launch
 			var workerTasks = new List<Task>();
 			foreach (var w in workers) {
-				workerTasks.Add(Task.Run(async () => await w.Launch(_shutdownToken.Token)));
+				workerTasks.Add(Task.Run(async () => await w.Loop(_shutdownToken.Token)));
 			}
 
 			return workerTasks;

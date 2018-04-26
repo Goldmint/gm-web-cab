@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using Goldmint.Common;
+﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Blockchain.Models;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Blockchain.Models;
 
 namespace Goldmint.CoreLogic.Services.Blockchain {
 
@@ -12,7 +11,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Check chain transaction by it's ID
 		/// </summary>
 		/// <returns>Transaction status by ID</returns>
-		Task<EthTransactionStatus> CheckTransaction(string transactionId, int confirmations);
+		Task<TransactionInfo> CheckTransaction(string txid, int confirmationsRequired);
 
 		/// <summary>
 		/// Get current gas price
@@ -38,42 +37,28 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// <returns>User GOLD amount</returns>
 		Task<BigInteger> GetHotWalletGoldBalance(string userId);
 
-		#region GOLD / ETH
-
+		// ---
+		
 		/// <summary>
-		/// Get event in a range of blocks
-		/// </summary>
-		/// <returns>Events</returns>
-		Task<GatheredGoldBoughtWithEthEvent> GatherGoldBoughtWithEthEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
-
-		/// <summary>
-		/// Get event in a range of blocks
-		/// </summary>
-		/// <returns>Events</returns>
-		Task<GatheredGoldSoldForEthEvent> GatherGoldSoldForEthEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
-
-		#endregion
-
-		#region GOLD / Fiat
-
-		/// <summary>
-		/// Get user's fiat balance in cents
-		/// </summary>
-		/// <returns>User fiat amount</returns>
-		Task<long> GetUserFiatBalance(string userId, FiatCurrency currency);
-
-		/// <summary>
-		/// GOLD exchange total requests count
+		/// Buy/sell ETH requests current count
 		/// </summary>
 		/// <returns>Requests count</returns>
-		Task<BigInteger> GetGoldFiatExchangeRequestsCount();
+		Task<BigInteger> GetBuySellRequestsCount();
 
 		/// <summary>
 		/// GOLD buy/sell request data by it's index
 		/// </summary>
 		/// <returns>Request data and status</returns>
-		Task<GoldFiatExchangeRequest> GetGoldFiatExchangeRequestByIndex(BigInteger requestIndex);
+		Task<GoldEthExchangeRequest> GetBuySellRequestByIndex(BigInteger requestIndex);
 
-		#endregion
+		/// <summary>
+		/// Get `TokenBuyRequest` events
+		/// </summary>
+		Task<GatheredGoldBoughtWithEthEvent> GatherTokenBuyRequestEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+
+		/// <summary>
+		/// Get `TokenSellRequest` events
+		/// </summary>
+		Task<GatheredGoldSoldForEthEvent> GatherTokenSellRequestEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 	}
 }

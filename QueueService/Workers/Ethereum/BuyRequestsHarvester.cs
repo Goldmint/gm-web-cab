@@ -6,12 +6,12 @@ using System;
 using System.Numerics;
 using System.Threading.Tasks;
 
-namespace Goldmint.QueueService.Workers {
-	
-	public class ContractBuyingEventHarvester : BaseWorker {
+namespace Goldmint.QueueService.Workers.Ethereum {
 
-		private readonly BigInteger _blocksPerRound;
-		private readonly BigInteger _confirmationsRequired;
+	public sealed class BuyRequestsHarvester : BaseWorker {
+
+		private readonly int _blocksPerRound;
+		private readonly int _confirmationsRequired;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
@@ -19,10 +19,10 @@ namespace Goldmint.QueueService.Workers {
 
 		private BigInteger _lastBlock;
 		private BigInteger _lastSavedBlock;
-		
-		public ContractBuyingEventHarvester(int blocksPerRound, int confirmationsRequired) {
-			_blocksPerRound = new BigInteger(Math.Max(1, blocksPerRound));
-			_confirmationsRequired = new BigInteger(Math.Max(1, confirmationsRequired));
+
+		public BuyRequestsHarvester(int blocksPerRound, int confirmationsRequired) {
+			_blocksPerRound = Math.Max(1, blocksPerRound);
+			_confirmationsRequired = Math.Max(2, confirmationsRequired);
 			_lastBlock = BigInteger.Zero;
 			_lastSavedBlock = BigInteger.Zero;
 		}
@@ -44,7 +44,7 @@ namespace Goldmint.QueueService.Workers {
 			}
 
 			// get last block from db; remember last saved block
-			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.LastContractBuyingBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
+			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.GoldEthBuyHarvLastBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
 				_lastBlock = lbDb;
 				_lastSavedBlock = lbDb;
 
@@ -52,15 +52,15 @@ namespace Goldmint.QueueService.Workers {
 			}
 		}
 
-		protected override async Task Loop() {
+		protected override async Task OnUpdate() {
 
 			_dbContext.DetachEverything();
 
 			// get events
-			var log = await _ethereumReader.GatherGoldBoughtWithEthEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
+			var log = await _ethereumReader.GatherTokenBuyRequestEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
 			_lastBlock = log.ToBlock;
 
-			Logger.Info(
+			Logger.Debug(
 				(log.Events.Length > 0
 					? $"{log.Events.Length} request(s) found (new or processed previously)"
 					: "Nothing found"
@@ -71,34 +71,40 @@ namespace Goldmint.QueueService.Workers {
 
 				_dbContext.DetachEverything();
 
-				Logger.Info($"Trying to prepare request #{v.RequestId}");
+				Logger.Debug($"Trying to prepare request #{v.Reference}");
 
-				if (v.RequestId < long.MinValue || v.RequestId > long.MaxValue || !long.TryParse(v.RequestId.ToString(), out var innerRequestId)) {
-					Logger.Error($"Cant handle {v.RequestId} in long-value");
+				if (v.Reference <= 0 || v.Reference > long.MaxValue) {
+					Logger.Warn($"Invalid reference specified by user: {v.Reference}");
+					continue;
+				}
+				if (v.RequestIndex < 0) {
+					Logger.Warn($"Invalid request index: {v.RequestIndex}");
 					continue;
 				}
 
 				var pdResult = await CoreLogic.Finance.GoldToken.ProcessContractBuyRequest(
 					services: _services,
-					internalRequestId: innerRequestId,
+					requestIndex: v.RequestIndex,
+					internalRequestId: (long)v.Reference,
 					address: v.Address,
-					amount: v.EthAmount,
-					transactionId: v.TransactionId
+					amountEth: v.EthAmount,
+					txId: v.TransactionId,
+					txConfirmationsRequired: _confirmationsRequired
 				);
 
 				Logger.Info(
-					$"Request #{v.RequestId} result is {pdResult.ToString()}"
+					$"Request #{v.Reference} result is {pdResult.ToString()}"
 				);
 			}
 
 			// save last index to settings
 			if (_lastSavedBlock != _lastBlock) {
-				if (await _dbContext.SaveDbSetting(DbSetting.LastContractBuyingBlock, _lastBlock.ToString())) {
+				if (await _dbContext.SaveDbSetting(DbSetting.GoldEthBuyHarvLastBlock, _lastBlock.ToString())) {
 					_lastSavedBlock = _lastBlock;
 					Logger.Info($"Last block #{_lastBlock} saved to DB");
 				}
 			}
-			
+
 		}
 	}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
 
-	public class DebugWorker : BaseWorker {
+	public sealed class DebugWorker : BaseWorker {
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
@@ -23,7 +23,7 @@ namespace Goldmint.QueueService.Workers {
 			return Task.CompletedTask;
 		}
 
-		protected override Task Loop() {
+		protected override Task OnUpdate() {
 			try {
 			} catch (Exception e) {
 				Logger.Error(e);

@@ -80,7 +80,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			return APIResponse.Success(
 				new EstimateView() {
-					Amount = result.GoldAmount.ToString(),
+					Amount = result.TotalGoldAmount.ToString(),
 				}
 			);
 		}
