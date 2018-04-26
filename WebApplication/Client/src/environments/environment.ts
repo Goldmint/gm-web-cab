@@ -4,5 +4,5 @@ export const environment = {
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   infuraUrl: 'https://rinkeby.infura.io/ErpvjHXqcahfBLahHPfh',
   etherscanGetABIUrl: 'http://api-rinkeby.etherscan.io',
-  EthContractAddress: '0x58d8010e23cB3E9c1342c201Bb96CbE6b0E01f20'
+  EthContractAddress: '0x592eE6BE22d5Bb3274AAE38dDA63b9e9545bFf4f'
 };
