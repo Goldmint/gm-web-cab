@@ -281,10 +281,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				where a.Id == model.Id
 				select a
 			)
-				.AsNoTracking()
-					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
-					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
-					.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
+				.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
+				.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
+				.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
 				.FirstOrDefaultAsync()
 			;
 
