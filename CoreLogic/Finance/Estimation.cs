@@ -51,7 +51,7 @@ namespace Goldmint.CoreLogic.Finance {
 				);
 			}
 
-			var goldAmount = fiatAmountCents * BigInteger.Pow(10, Tokens.GOLD.Decimals) / goldRate.Value / BigInteger.Pow(10, 2);
+			var goldAmount = fiatAmountCents * BigInteger.Pow(10, Tokens.GOLD.Decimals) / goldRate.Value;
 
 			return Task.FromResult(
 				new BuyGoldResult() {

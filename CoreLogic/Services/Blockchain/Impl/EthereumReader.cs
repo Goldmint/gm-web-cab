@@ -187,10 +187,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var logs = await evnt.GetAllChanges<TokenBuyRequestEventMapping>(filter);
 
 			foreach (var v in logs) {
-				if (!v.Log.Removed && v.Log.Type?.ToLower() == "mined") {
+				if (!v.Log.Removed) {
 					events.Add(new GoldBoughtWithEthEvent() {
 						Address = v.Event.From,
 						EthAmount = v.Event.Amount,
+						// UserId = v.Event.UserId,
 						Reference = v.Event.Reference,
 						RequestIndex = v.Event.Index,
 						BlockNumber = v.Log.BlockNumber,
@@ -231,14 +232,17 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var logs = await evnt.GetAllChanges<TokenSellRequestEventMapping>(filter);
 
 			foreach (var v in logs) {
-				events.Add(new GoldSoldForEthEvent() {
-					Address = v.Event.From,
-					GoldAmount = v.Event.Amount,
-					Reference = v.Event.Reference,
-					RequestIndex = v.Event.Index,
-					BlockNumber = v.Log.BlockNumber,
-					TransactionId = v.Log.TransactionHash,
-				});
+				if (!v.Log.Removed) {
+					events.Add(new GoldSoldForEthEvent() {
+						Address = v.Event.From,
+						GoldAmount = v.Event.Amount,
+						// UserId = v.Event.UserId,
+						Reference = v.Event.Reference,
+						RequestIndex = v.Event.Index,
+						BlockNumber = v.Log.BlockNumber,
+						TransactionId = v.Log.TransactionHash,
+					});
+				}
 			}
 
 			return new GatheredGoldSoldForEthEvent() {
@@ -287,7 +291,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("uint", "_amount", 4, false)]
 			public BigInteger Amount { get; set; }
 
-			[Parameter("uint", "_intex", 5, false)]
+			[Parameter("uint", "_index", 5, false)]
 			public BigInteger Index { get; set; }
 		}
 
@@ -305,7 +309,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("uint", "_amount", 4, false)]
 			public BigInteger Amount { get; set; }
 
-			[Parameter("uint", "_intex", 5, false)]
+			[Parameter("uint", "_index", 5, false)]
 			public BigInteger Index { get; set; }
 		}
 	}
