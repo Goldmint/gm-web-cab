@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 
 import { MessageBoxService } from '../../services/message-box.service';
 import {TranslateService} from "@ngx-translate/core";
+import {Router} from "@angular/router";
 
 @Injectable()
 export class APIHttpInterceptor implements HttpInterceptor {
@@ -16,6 +17,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
   constructor(
     private _messageBox: MessageBoxService,
     private _translate: TranslateService,
+    private _router: Router
   ) {
     Observable.merge(
       Observable.of(navigator.onLine),
@@ -48,6 +50,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return handle.catch((error, caught) => {
           let translateKey  = null,
               ignoredErrors = [ // ignore auto translation for these codes
+        50,   // Unauthorized
 				100, 	// InvalidParameter
 				1000,	// AccountNotFound
 				1011,	// AccountDpaNotSigned
@@ -55,6 +58,13 @@ export class APIHttpInterceptor implements HttpInterceptor {
 
           if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
             translateKey = 'notFound';
+          } else if (error.error.errorCode === 50) {
+            try { // Safari in incognito mode doesn't have storage objects
+              localStorage.removeItem('gmint_token');
+              localStorage.removeItem('gmint_2fa');
+              sessionStorage.removeItem('gmint_uc_2fa');
+            } catch(e) {}
+            this._router.navigate(['/signin']);
           } else {
             let errorCode = parseInt(error.error.errorCode, 10);
             ignoredErrors.indexOf(errorCode) < 0 && (translateKey = errorCode);

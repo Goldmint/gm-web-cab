@@ -171,7 +171,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     if (this.hotGoldBalance === null) {
       return
     }
-    this.loading = true;
+    !this.invalidBalance && (this.loading = true);
 
     let goldBalance = this.selectedWallet === 0 ? this.hotGoldBalance : this.goldBalance;
     goldBalance = new BigNumber(goldBalance.times(percent));
@@ -204,7 +204,6 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
                   if (ok) {
                     this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
                       this._ethService.sendSellRequest(this.ethAddress, res.data.requestId, this.cCurrencyCoinAmount);
-                      this.cryptoCurrencyForm.reset();
                     });
                   }
                 });
