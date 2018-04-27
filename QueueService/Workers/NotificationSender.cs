@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers {
 
-	public class NotificationSender : BaseWorker {
+	public sealed class NotificationSender : BaseWorker {
 
 		private readonly int _rowsPerRound;
 
@@ -37,7 +37,7 @@ namespace Goldmint.QueueService.Workers {
 			return Task.CompletedTask;
 		}
 
-		protected override async Task Loop() {
+		protected override async Task OnUpdate() {
 
 			_dbContext.DetachEverything();
 

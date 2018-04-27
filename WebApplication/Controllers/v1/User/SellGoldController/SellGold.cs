@@ -66,7 +66,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				);
 
 				allowed = result.Allowed;
-				resultAmount = result.ExchangeAmountCents.ToString();
+				resultAmount = result.TotalCentsForGold.ToString();
 			}
 			else {
 				var result = await CoreLogic.Finance.Estimation.SellGold(
@@ -77,7 +77,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				);
 
 				allowed = result.Allowed;
-				resultAmount = result.CryptoAmount.ToString();
+				resultAmount = result.TotalAssetAmount.ToString();
 			}
 
 			if (!allowed) {

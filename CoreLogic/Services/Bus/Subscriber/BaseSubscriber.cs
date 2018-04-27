@@ -29,6 +29,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			SubscriberSocket.Options.ReceiveHighWatermark = queueSize;
 			SubscriberSocket.Options.Endian = Endianness.Big;
 
+			// crashes in linux env (24 apr 2018)
 			SubscriberSocket.Options.TcpKeepalive = false;
 			// SubscriberSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
 			// SubscriberSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);

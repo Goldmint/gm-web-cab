@@ -235,7 +235,7 @@ namespace Goldmint.WebApplication {
 
 		public void StopServices() {
 			var logger = _loggerFactory.GetCurrentClassLogger();
-			logger.Info("StopServices()");
+			logger.Info("Stop services");
 
 			_busSafeRatesSubscriber?.Dispose();
 		}

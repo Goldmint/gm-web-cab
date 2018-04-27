@@ -60,5 +60,8 @@ namespace Goldmint.DAL.Models {
 
 		[Column("proved_residence")]
 		public bool? ProvedResidence { get; set; }
+
+		[Column("proved_residence_link"), MaxLength(FieldMaxLength.Comment)]
+		public string ProvedResidenceLink { get; set; }
 	}
 }

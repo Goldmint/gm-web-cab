@@ -30,7 +30,7 @@ namespace Goldmint.QueueService.Workers {
 			await OnInit(services);
 		}
 
-		public async Task Launch(CancellationToken ct) {
+		public async Task Loop(CancellationToken ct) {
 			if (_launched) throw new InvalidOperationException();
 			_launched = true;
 
@@ -46,7 +46,7 @@ namespace Goldmint.QueueService.Workers {
 				try {
 
 					lastLoopStart = DateTime.UtcNow;
-					await Loop();
+					await OnUpdate();
 				}
 				catch (Exception e) {
 					Logger?.Error(e, "loop failure");
@@ -117,6 +117,6 @@ namespace Goldmint.QueueService.Workers {
 		}
 
 		protected abstract Task OnInit(IServiceProvider services);
-		protected abstract Task Loop();
+		protected abstract Task OnUpdate();
 	}
 }

@@ -12,32 +12,14 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// <returns>Transaction ID</returns>
 		Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount);
 
-		#region GOLD / Fiat
+		/// <summary>
+		/// GOLD/ETH buy/sell request processing
+		/// </summary>
+		Task<string> ProcessBuySellRequest(BigInteger requestIndex, BigInteger ethPerGold);
 
 		/// <summary>
-		/// Change user fiat balance
+		/// GOLD/ETH buy/sell request cancellation
 		/// </summary>
-		/// <returns>Transaction ID</returns>
-		Task<string> ChangeFiatBalance(string userId, FiatCurrency currency, long amountCents);
-
-		/// <summary>
-		/// Process GOLD buying request by it's index
-		/// </summary>
-		/// <returns>Transaction ID</returns>
-		Task<string> PerformGoldFiatExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken);
-
-		/// <summary>
-		/// Cancel GOLD buying request by it's index
-		/// </summary>
-		/// <returns>Transaction ID</returns>
-		Task<string> CancelGoldFiatExchangeRequest(BigInteger requestIndex);
-
-		/// <summary>
-		/// Process hot wallet exchange request
-		/// </summary>
-		/// <returns>Transaction ID</returns>
-		Task<string> ExchangeGoldFiatOnHotWallet(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken);
-
-		#endregion
+		Task<string> CancelBuySellRequest(BigInteger requestIndex);
 	}
 }

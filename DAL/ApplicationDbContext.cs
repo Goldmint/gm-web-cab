@@ -23,7 +23,7 @@ namespace Goldmint.DAL {
 		public DbSet<Notification> Notification { get; set; }
 		public DbSet<Settings> Settings { get; set; }
 		public DbSet<SignedDocument> SignedDocument { get; set; }
-		public DbSet<TransferGoldTransaction> TransferGoldTransaction { get; set; }
+		public DbSet<EthereumOperation> EthereumOperation { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<TransparencyStat> TransparencyStat { get; set; }
 		public DbSet<UserActivity> UserActivity { get; set; }

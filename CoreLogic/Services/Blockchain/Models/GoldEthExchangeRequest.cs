@@ -2,7 +2,7 @@
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 
-	public sealed class GoldFiatExchangeRequest {
+	public sealed class GoldEthExchangeRequest {
 
 		/// <summary>
 		/// Index
@@ -22,7 +22,12 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 		/// <summary>
 		/// Request payload
 		/// </summary>
-		public string Payload { get; set; }
+		public BigInteger Reference { get; set; }
+		
+		/// <summary>
+		/// Request amount
+		/// </summary>
+		public BigInteger Amount { get; set; }
 
 		/// <summary>
 		/// Is buy request
@@ -30,18 +35,23 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 		public bool IsBuyRequest { get; set; }
 
 		/// <summary>
+		/// Is pending
+		/// </summary>
+		public bool IsPending { get; set; }
+
+		/// <summary>
 		/// Is succeeded
 		/// </summary>
 		public bool IsSucceeded { get; set; }
 
 		/// <summary>
-		/// Is failed
+		/// Is cancelled
 		/// </summary>
 		public bool IsCancelled { get; set; }
-
+		
 		/// <summary>
-		/// Is pending
+		/// Is failed
 		/// </summary>
-		public bool IsPending { get; set; }
+		public bool IsFailed { get; set; }
 	}
 }

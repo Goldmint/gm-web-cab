@@ -8,7 +8,7 @@ namespace Goldmint.WebApplication {
 
 	public class Program {
 
-		private const string IPCPipeName = "gm.webapplication.ipc";
+		private const string IpcPipeName = "gm.webapplication.ipc";
 
 		private static IWebHost _webHost;
 		private static NamedPipeServerStream _ipcServer;
@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication {
 
 		public static void Main(string[] args) {
 
-			if (SetupIPC(args)) {
+			if (SetupIpc(args)) {
 				return;
 			}
 
@@ -40,14 +40,14 @@ namespace Goldmint.WebApplication {
 			;
 		}
 
-		private static bool SetupIPC(string[] args) {
+		private static bool SetupIpc(string[] args) {
 
 			bool isClient = args.Contains("ipc-stop");
 
 			if (!isClient) {
 
 				_ipcServerMonitor = new object();
-				_ipcServer = new NamedPipeServerStream(IPCPipeName);
+				_ipcServer = new NamedPipeServerStream(IpcPipeName);
 
 				_ipcServer.BeginWaitForConnection(
 					(result) => {
@@ -68,7 +68,7 @@ namespace Goldmint.WebApplication {
 			if (isClient) {
 
 				try {
-					using (var pipe = new NamedPipeClientStream(IPCPipeName)) {
+					using (var pipe = new NamedPipeClientStream(IpcPipeName)) {
 						pipe.Connect(60000);
 						pipe.ReadByte();
 					}

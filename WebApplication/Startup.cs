@@ -62,7 +62,8 @@ namespace Goldmint.WebApplication {
 
 		public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime) {
 
-			applicationLifetime.ApplicationStopped.Register(StopServices);
+			applicationLifetime.ApplicationStopping.Register(OnServerStopRequested);
+			applicationLifetime.ApplicationStopped.Register(OnServerStopped);
 
 			// setup ms logger
 			app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
@@ -140,6 +141,19 @@ namespace Goldmint.WebApplication {
 			);
 
 			app.UseMvc();
+		}
+
+		public void OnServerStopRequested() {
+			var logger = _loggerFactory.GetCurrentClassLogger();
+			logger.Info("Webserver stop requested");
+
+		}
+
+		public void OnServerStopped() {
+			var logger = _loggerFactory.GetCurrentClassLogger();
+			logger.Info("Webserver stopped");
+
+			StopServices();
 		}
 	}
 }

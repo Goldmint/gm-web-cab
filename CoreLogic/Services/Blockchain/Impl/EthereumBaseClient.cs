@@ -10,13 +10,13 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 	public abstract class EthereumBaseClient {
 
-		protected ILogger Logger { get; private set; }
+		protected ILogger Logger { get; }
 
-		protected Nethereum.JsonRpc.Client.IClient JsonRpcClient { get; private set; }
-		protected Nethereum.JsonRpc.Client.IClient JsonRpcLogsClient { get; private set; }
+		protected Nethereum.JsonRpc.Client.IClient EthProvider { get; }
+		protected Nethereum.JsonRpc.Client.IClient EthLogsProvider { get; }
 
-		protected string FiatContractAddress { get; private set; }
-		protected string FiatContractAbi { get; private set; }
+		protected string FiatContractAddress { get; }
+		protected string FiatContractAbi { get; }
 		protected string GoldTokenContractAddress { get; private set; }
 		protected string MntpTokenContractAddress { get; private set; }
 
@@ -28,13 +28,13 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			FiatContractAddress = appConfig.Services.Ethereum.StorageControllerContractAddress;
 			FiatContractAbi = appConfig.Services.Ethereum.StorageControllerContractAbi;
 
-			JsonRpcClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
-			JsonRpcLogsClient = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));
+			EthProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
+			EthLogsProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));
 
 			// obtain additional info from contract
 			Task.Run(async () => {
 
-				var web3 = new Web3(JsonRpcClient);
+				var web3 = new Web3(EthProvider);
 				var contract = web3.Eth.GetContract(
 					FiatContractAbi,
 					FiatContractAddress
@@ -50,7 +50,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		}
 
 		protected async Task<HexBigInteger> GasPrice() {
-			var web3 = new Web3(JsonRpcClient);
+			var web3 = new Web3(EthProvider);
 			return (await web3.Eth.GasPrice.SendRequestAsync());
 		}
 	}

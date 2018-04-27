@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180426111211_proof-of-residence-link")]
+    partial class proofofresidencelink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,6 +119,11 @@ namespace Goldmint.DAL.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnName("address")
+                        .HasMaxLength(128);
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnName("concurrency_stamp")
@@ -131,11 +137,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<int>("Input")
                         .HasColumnName("input");
-
-                    b.Property<string>("InputAddress")
-                        .IsRequired()
-                        .HasColumnName("address")
-                        .HasMaxLength(128);
 
                     b.Property<long>("InputRateCents")
                         .HasColumnName("input_rate");
@@ -176,71 +177,6 @@ namespace Goldmint.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("gm_buy_gold_request");
-                });
-
-            modelBuilder.Entity("Goldmint.DAL.Models.EthereumOperation", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnName("concurrency_stamp")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("DestinationAddress")
-                        .IsRequired()
-                        .HasColumnName("address")
-                        .HasMaxLength(128);
-
-                    b.Property<string>("EthRequestIndex")
-                        .HasColumnName("eth_request_index")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("EthTransactionId")
-                        .HasColumnName("eth_txid")
-                        .HasMaxLength(66);
-
-                    b.Property<string>("OplogId")
-                        .IsRequired()
-                        .HasColumnName("oplog_id")
-                        .HasMaxLength(32);
-
-                    b.Property<string>("Rate")
-                        .IsRequired()
-                        .HasColumnName("rate")
-                        .HasMaxLength(64);
-
-                    b.Property<long>("RefUserFinHistoryId")
-                        .HasColumnName("ref_user_finhistory");
-
-                    b.Property<int>("Status")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime?>("TimeCompleted")
-                        .HasColumnName("time_completed");
-
-                    b.Property<DateTime>("TimeCreated")
-                        .HasColumnName("time_created");
-
-                    b.Property<DateTime>("TimeNextCheck")
-                        .HasColumnName("time_next_check");
-
-                    b.Property<int>("Type")
-                        .HasColumnName("type");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RefUserFinHistoryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("gm_eth_operation");
                 });
 
             modelBuilder.Entity("Goldmint.DAL.Models.Identity.Role", b =>
@@ -780,6 +716,64 @@ namespace Goldmint.DAL.Migrations
                     b.ToTable("gm_signed_document");
                 });
 
+            modelBuilder.Entity("Goldmint.DAL.Models.TransferGoldTransaction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AmountWei")
+                        .IsRequired()
+                        .HasColumnName("amount")
+                        .HasMaxLength(64);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnName("concurrency_stamp")
+                        .HasMaxLength(64);
+
+                    b.Property<string>("DestinationAddress")
+                        .IsRequired()
+                        .HasColumnName("address")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("EthTransactionId")
+                        .HasColumnName("eth_txid")
+                        .HasMaxLength(66);
+
+                    b.Property<string>("OplogId")
+                        .IsRequired()
+                        .HasColumnName("oplog_id")
+                        .HasMaxLength(32);
+
+                    b.Property<long>("RefUserFinHistoryId")
+                        .HasColumnName("ref_user_finhistory");
+
+                    b.Property<int>("Status")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("TimeCompleted")
+                        .HasColumnName("time_completed");
+
+                    b.Property<DateTime>("TimeCreated")
+                        .HasColumnName("time_created");
+
+                    b.Property<DateTime>("TimeNextCheck")
+                        .HasColumnName("time_next_check");
+
+                    b.Property<long>("UserId")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RefUserFinHistoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("gm_transfer_gold_tx");
+                });
+
             modelBuilder.Entity("Goldmint.DAL.Models.Transparency", b =>
                 {
                     b.Property<long>("Id")
@@ -1176,19 +1170,6 @@ namespace Goldmint.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Goldmint.DAL.Models.EthereumOperation", b =>
-                {
-                    b.HasOne("Goldmint.DAL.Models.UserFinHistory", "RefUserFinHistory")
-                        .WithMany()
-                        .HasForeignKey("RefUserFinHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("Goldmint.DAL.Models.Identity.RoleClaim", b =>
                 {
                     b.HasOne("Goldmint.DAL.Models.Identity.Role")
@@ -1281,6 +1262,19 @@ namespace Goldmint.DAL.Migrations
                 {
                     b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
                         .WithMany("SignedDocument")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Goldmint.DAL.Models.TransferGoldTransaction", b =>
+                {
+                    b.HasOne("Goldmint.DAL.Models.UserFinHistory", "RefUserFinHistory")
+                        .WithMany()
+                        .HasForeignKey("RefUserFinHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

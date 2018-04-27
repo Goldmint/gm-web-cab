@@ -18,7 +18,7 @@ namespace Goldmint.DAL.Models {
 		public BuyGoldRequestOutput Output { get; set; }
 
 		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
-		public string Address { get; set; }
+		public string InputAddress { get; set; }
 
 		[Column("exchange_currency"), Required]
 		public FiatCurrency ExchangeCurrency { get; set; }

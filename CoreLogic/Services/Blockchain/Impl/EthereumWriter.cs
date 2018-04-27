@@ -17,7 +17,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.StorageControllerManagerPk);
 
 			// uses semaphore inside:
-			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, JsonRpcClient);
+			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, EthProvider);
 		}
 
 		private async Task<HexBigInteger> GetWritingGasPrice() {
@@ -38,7 +38,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid eth address");
 			}
 
-			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var web3 = new Web3(_gmAccount, EthProvider);
 			var gas = await GetWritingGasPrice();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
@@ -56,77 +56,36 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 		}
 
-		#region GOLD / Fiat
-
-		public async Task<string> ChangeFiatBalance(string userId, FiatCurrency currency, long amountCents) {
-
-			if (string.IsNullOrWhiteSpace(userId)) {
-				throw new ArgumentException("Invalid user ID");
-			}
-			if (amountCents == 0) {
-				throw new ArgumentException("Amount is equal to 0");
-			}
-
-			var web3 = new Web3(_gmAccount, JsonRpcClient);
-			var gas = await GetWritingGasPrice();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
-
-			if (currency == FiatCurrency.Usd) {
-				var contract = web3.Eth.GetContract(
-					FiatContractAbi,
-					FiatContractAddress
-				);
-				var func = contract.GetFunction("addFiatTransaction");
-
-				return await func.SendTransactionAsync(
-					_gmAccount.Address,
-					gas,
-					new HexBigInteger(0),
-					userId, new BigInteger(amountCents)
-				);
-			}
-
-			throw new NotImplementedException("Currency not implemented");
-		}
-
-		public async Task<string> PerformGoldFiatExchangeRequest(BigInteger requestIndex, FiatCurrency currency, long amountCents, long centsPerGoldToken) {
+		public async Task<string> ProcessBuySellRequest(BigInteger requestIndex, BigInteger ethPerGold) {
 
 			if (requestIndex < 0) {
 				throw new ArgumentException("Invalid request index");
 			}
-			if (amountCents <= 0) {
-				throw new ArgumentException("Amount is equal to 0");
-			}
-			if (centsPerGoldToken <= 0) {
-				throw new ArgumentException("Invalid gold token price");
+			if (ethPerGold <= 0) {
+				throw new ArgumentException("Invalid rate");
 			}
 
-			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var web3 = new Web3(_gmAccount, EthProvider);
 			var gas = await GetWritingGasPrice();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
-			if (currency == FiatCurrency.Usd) {
+			var contract = web3.Eth.GetContract(
+				FiatContractAbi,
+				FiatContractAddress
+			);
+			var func = contract.GetFunction("processRequest");
 
-				var contract = web3.Eth.GetContract(
-					FiatContractAbi,
-					FiatContractAddress
-				);
-				var func = contract.GetFunction("processRequest");
-
-				return await func.SendTransactionAsync(
-					_gmAccount.Address,
-					gas,
-					new HexBigInteger(0),
-					requestIndex, new BigInteger(amountCents), new BigInteger(centsPerGoldToken)
-				);
-			}
-
-			throw new NotImplementedException("Currency not implemented");
+			return await func.SendTransactionAsync(
+				_gmAccount.Address,
+				gas,
+				new HexBigInteger(0),
+				requestIndex, ethPerGold
+			);
 		}
 
-		public async Task<string> CancelGoldFiatExchangeRequest(BigInteger requestIndex) {
+		public async Task<string> CancelBuySellRequest(BigInteger requestIndex) {
 
-			var web3 = new Web3(_gmAccount, JsonRpcClient);
+			var web3 = new Web3(_gmAccount, EthProvider);
 			var gas = await GetWritingGasPrice();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
@@ -142,44 +101,6 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				new HexBigInteger(0),
 				requestIndex
 			);
-
 		}
-
-		public async Task<string> ExchangeGoldFiatOnHotWallet(string userId, bool isBuying, FiatCurrency currency, long amountCents, long centsPerGoldToken) {
-
-			if (string.IsNullOrWhiteSpace(userId)) {
-				throw new ArgumentException("Invalid user id");
-			}
-			if (amountCents <= 0) {
-				throw new ArgumentException("Amount is equal to 0");
-			}
-			if (centsPerGoldToken <= 0) {
-				throw new ArgumentException("Invalid gold token price");
-			}
-
-			var web3 = new Web3(_gmAccount, JsonRpcClient);
-			var gas = await GetWritingGasPrice();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
-
-			if (currency == FiatCurrency.Usd) {
-				var contract = web3.Eth.GetContract(
-					FiatContractAbi,
-					FiatContractAddress
-				);
-				var func = contract.GetFunction("processInternalRequest");
-
-				return await func.SendTransactionAsync(
-					_gmAccount.Address,
-					gas,
-					new HexBigInteger(0),
-					userId, isBuying, new BigInteger(amountCents), new BigInteger(centsPerGoldToken)
-				);
-			}
-
-			throw new NotImplementedException("Currency not implemented");
-		}
-
-		#endregion
-
 	}
 }

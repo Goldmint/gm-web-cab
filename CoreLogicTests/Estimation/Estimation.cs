@@ -1,12 +1,3 @@
-using Goldmint.CoreLogic.Services.Bus.Proto;
-using Goldmint.CoreLogic.Services.Bus.Publisher;
-using Goldmint.CoreLogic.Services.Bus.Subscriber;
-using Goldmint.CoreLogic.Services.Rate.Impl;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Goldmint.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,6 +10,24 @@ namespace Goldmint.CoreLogicTests.Estimation {
 		}
 
 		// ---
+
+		[Fact]
+		public void AssetPerGold() {
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 100000, 100000).ToString() == "1000000000000000000");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 50000, 100000).ToString() == "2000000000000000000");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 300000, 100000).ToString() == "333333333333333333");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 30000, 100000).ToString() == "3333333333333333333");
+		}
+
+		[Fact]
+		public void IsFixedRateThresholdExceeded() {
+			Assert.False(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(3333, 3666, 0.1d));
+			Assert.False(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(3666, 3333, 0.1d));
+			Assert.True(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(3666, 3200, 0.1d));
+			Assert.True(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(3200, 3666, 0.1d));
+			Assert.False(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(100000, 120000, 0.2d));
+			Assert.True(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(100000, 80000, 0.15d));
+		}
 
 		// TODO: CoreLogic.Finance.Estimation.* methods - valid/invalid values, valid/invalid rates, allow/disallow trading
 
