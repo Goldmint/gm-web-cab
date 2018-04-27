@@ -235,7 +235,7 @@ export class EthereumService {
   public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
     if (this._contractMetamask == null) return;
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    const reference = new BigNumber(requestId).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    const reference = new BigNumber(requestId);
 
     this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString() }, (err, res) => { });
   }
@@ -243,7 +243,7 @@ export class EthereumService {
   public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
     if (this._contractMetamask == null) return;
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    const reference = new BigNumber(requestId).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    const reference = new BigNumber(requestId);
 
     this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0 }, (err, res) => { });
   }
