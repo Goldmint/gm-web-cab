@@ -21,7 +21,6 @@ const appRoutes: Routes = [
 
   { path: 'signin', component: LoginPageComponent },
   { path: 'transparency', component: TransparencyPageComponent, canActivate: [AuthGuard] },
-  { path: 'swift', component: SwiftPageComponent, canActivate: [AuthGuard] },
   { path: 'countries', component: CountriesPageComponent, canActivate: [AuthGuard] },
   { path: 'fees', component: FeesPageComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersPageComponent, canActivate: [AuthGuard],

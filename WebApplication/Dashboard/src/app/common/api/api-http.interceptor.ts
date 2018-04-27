@@ -5,13 +5,16 @@ import 'rxjs/add/observable/throw'
 import 'rxjs/add/operator/catch';
 
 import { MessageBoxService } from '../../services/message-box.service';
+import {Router} from "@angular/router";
 
 @Injectable()
 export class APIHttpInterceptor implements HttpInterceptor {
 
   private _isOnline: boolean;
 
-  constructor(private _messageBox: MessageBoxService) {
+  constructor(
+    private _messageBox: MessageBoxService,
+    private _router: Router) {
     Observable.merge(
       Observable.of(navigator.onLine),
       Observable.fromEvent(window, 'online').map(()  => true),
@@ -36,6 +39,14 @@ export class APIHttpInterceptor implements HttpInterceptor {
       })).catch((error, caught) => {
           if (error.status === 404) {
             this._messageBox.alert('Goldmint server does not respond. Please try again in few minutes.', 'Connection error');
+          } else if (error.error.errorCode === 50) {
+            try { // Safari in incognito mode doesn't have storage objects
+              localStorage.removeItem('gmint_token');
+              localStorage.removeItem('gmint_2fa');
+              sessionStorage.removeItem('gmint_uc_2fa');
+            } catch (e) {
+            }
+            this._router.navigate(['/signin']);
           }
 
           return Observable.throw(error);
