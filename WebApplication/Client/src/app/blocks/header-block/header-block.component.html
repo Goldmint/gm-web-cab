@@ -28,7 +28,7 @@
 
                 <ul *dropdownMenu class="dropdown-menu" role="menu">
                   <li role="menuitem" *ngFor="let item of wallets">
-                    <a class="dropdown-item" (click)="onWalletSwitch(item)" href="javascript:void(0)">{{ item.name + item.account }}</a>
+                    <a class="dropdown-item" href="javascript:void(0)">{{ item.name + item.account }}</a>
                   </li>
                 </ul>
               </div>
