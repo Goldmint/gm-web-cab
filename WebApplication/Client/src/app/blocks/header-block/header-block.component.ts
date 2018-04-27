@@ -20,13 +20,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public user: User;
   public locale: string;
   public wallets = [
-    {id: 'hot', name: 'HOT WALLET', account: ''},
-    {id: 'metamask', name: 'METAMASK', account: ''},
+    {id: 'metamask', name: 'METAMASK', account: ''}
   ];
   public activeWallet: Object = this.wallets[0];
 
   public metamaskAccount: string = null;
-  public goldBalance: string|null = null;
+  public goldBalance: string|null = '0';
   public hotGoldBalance: string|null = null;
   public shortAdr: string;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -43,6 +42,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    if (!window.hasOwnProperty('web3')) {
+      this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
+        this._messageBox.alert(phrase.Text, phrase.Heading);
+      });
+    }
+
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
       this.gold_usd_rate = data;
       this._cdRef.detectChanges();
@@ -59,8 +64,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     });
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      if (this.metamaskAccount && !ethAddr) {
+        this.goldBalance = '0';
+      }
       this.metamaskAccount = ethAddr;
-      !this.metamaskAccount && this.activeWallet['id'] === 'metamask' && (this.activeWallet = this.wallets[0]);
+      this.activeWallet = this.wallets[0];
+      // !this.metamaskAccount && this.activeWallet['id'] === 'metamask' && (this.activeWallet = this.wallets[0]);
       this.showShortAccount();
       this.wallets.forEach(item => {
         item.account = item.id === 'metamask' ? this.shortAdr : '';
@@ -86,7 +95,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this._cdRef.detectChanges();
   }
 
-  onWalletSwitch(wallet) {
+  /*onWalletSwitch(wallet) {
     if (wallet.id === 'metamask' && !this.metamaskAccount) {
       this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
         this._messageBox.alert(phrase.Text, phrase.Heading);
@@ -99,7 +108,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this.showShortAccount();
     this._cdRef.detectChanges();
-  }
+  }*/
 
   showShortAccount() {
     this.shortAdr = this.metamaskAccount ? ' (' + this.metamaskAccount.slice(0, 5) + ')...' : '';

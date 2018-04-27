@@ -83,11 +83,17 @@
 
             <div class="col col-xl-3 form-group text-center">
               <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
-              <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency">
+              <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
+                      [disabled]="!this.selectedWallet || !isMetamask">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-crypto"></use>
                 </svg>
               </button>
+              <div *ngIf="!this.selectedWallet || !isMetamask">
+                <div class="text-left pt-1 blocked-notification text-center">
+                  Use metamask
+                </div>
+              </div>
             </div>
 
             <div class="col col-xl-3 form-group text-center">

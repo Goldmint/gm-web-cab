@@ -6,6 +6,7 @@ import {Subject} from "rxjs/Subject";
 import {BigNumber} from "bignumber.js";
 import {Observable} from "rxjs/Observable";
 import {TranslateService} from "@ngx-translate/core";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-sell-cryptocurrency-page',
@@ -60,7 +61,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     private _ethService: EthereumService,
     private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef,
-    private _translate: TranslateService
+    private _translate: TranslateService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -120,7 +122,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
         this.selectedWallet = 0;
-        this.setCCurrencyGoldBalance();
+        this.router.navigate(['sell']);
+        // this.setCCurrencyGoldBalance();
       }
     });
 
@@ -203,7 +206,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
                 this._messageBox.confirm(phrase).subscribe(ok => {
                   if (ok) {
                     this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
-                      this._ethService.sendSellRequest(this.ethAddress, res.data.requestId, this.cCurrencyCoinAmount);
+                      this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, this.cCurrencyCoinAmount);
                     });
                   }
                 });

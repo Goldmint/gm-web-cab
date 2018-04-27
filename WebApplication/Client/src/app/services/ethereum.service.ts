@@ -232,16 +232,20 @@ export class EthereumService {
   }
 
   // ---
-  public sendBuyRequest(fromAddr: string, requestId: number, amount: BigNumber) {
+  public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
     if (this._contractMetamask == null) return;
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    this._contractMetamask.buyGoldWithEth(requestId, { from: fromAddr, value: wei.toString() }, (err, res) => { });
+    const reference = new BigNumber(requestId).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+
+    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString() }, (err, res) => { });
   }
 
-  public sendSellRequest(fromAddr: string, requestId: number, amount: BigNumber) {
+  public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
     if (this._contractMetamask == null) return;
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    this._contractMetamask.sellGoldWithEth(requestId, wei.toString(), { from: fromAddr, value: 0 }, (err, res) => { });
+    const reference = new BigNumber(requestId).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+
+    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0 }, (err, res) => { });
   }
 
   public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
