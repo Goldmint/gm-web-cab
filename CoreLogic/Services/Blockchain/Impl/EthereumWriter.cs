@@ -28,7 +28,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		public async Task<string> SendTransaction(Nethereum.Contracts.Function function, string from, HexBigInteger gas, HexBigInteger value, params object[] functionInput) {
 			
-			name is invalid, gas is invalid
+			// TODO: name is invalid, gas is invalid
 			var fname = function.ToString();
 
 			Logger.Info($"Calling {fname}() at gas {gas.Value.ToString()}");

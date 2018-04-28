@@ -11,6 +11,7 @@ namespace Goldmint.QueueService.Workers {
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
 		private IEthereumReader _ethereumReader;
+		private IEthereumWriter _ethereumWriter;
 
 		public DebugWorker() {
 		}
@@ -19,6 +20,7 @@ namespace Goldmint.QueueService.Workers {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethereumReader = services.GetRequiredService<IEthereumReader>();
+			_ethereumWriter = services.GetRequiredService<IEthereumWriter>();
 
 			return Task.CompletedTask;
 		}
