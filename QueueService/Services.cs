@@ -128,6 +128,8 @@ namespace Goldmint.QueueService {
 						_busSafeRatesSubscriber,
 						_loggerFactory
 					);
+					_busSafeRatesSubscriber.Run();
+
 					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
 				}
 			}
@@ -139,6 +141,7 @@ namespace Goldmint.QueueService {
 
 			_safeAggregatedRatesDispatcher?.Dispose();
 			_busSafeRatesPublisher?.Dispose();
+			_busSafeRatesSubscriber?.Dispose();
 		}
 	}
 }
