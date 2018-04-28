@@ -11,17 +11,36 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 	public sealed class EthereumWriter : EthereumBaseClient, IEthereumWriter {
 
 		private readonly Nethereum.Web3.Accounts.Account _gmAccount;
+		private BigInteger _writingGas;
 
 		public EthereumWriter(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 
+			_writingGas = new BigInteger(appConfig.Services.Ethereum.MinimalGasLimit);
 			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.StorageControllerManagerPk);
 
 			// uses semaphore inside:
 			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, EthProvider);
 		}
 
-		private async Task<HexBigInteger> GetWritingGasPrice() {
-			return await GasPrice();
+		private Task<HexBigInteger> GetWritingGas() {
+			return Task.FromResult(new HexBigInteger(_writingGas));
+		}
+
+		public async Task<string> SendTransaction(Nethereum.Contracts.Function function, string from, HexBigInteger gas, HexBigInteger value, params object[] functionInput) {
+			
+			name is invalid, gas is invalid
+			var fname = function.ToString();
+
+			Logger.Info($"Calling {fname}() at gas {gas.Value.ToString()}");
+
+			try {
+				return await function.SendTransactionAsync(from, gas, value, functionInput);
+			}
+			catch (Exception e) {
+				Logger.Error(e, $"Failed to call {fname}() at gas {gas}");
+			}
+
+			return null;
 		}
 
 		// ---
@@ -39,16 +58,16 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			}
 
 			var web3 = new Web3(_gmAccount, EthProvider);
-			var gas = await GetWritingGasPrice();
+			var gas = await GetWritingGas();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
 				FiatContractAbi,
 				FiatContractAddress
 			);
-			var func = contract.GetFunction("transferGoldFromHotWallet");
 
-			return await func.SendTransactionAsync(
+			return await SendTransaction(
+				contract.GetFunction("transferGoldFromHotWallet"),
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
@@ -66,16 +85,16 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			}
 
 			var web3 = new Web3(_gmAccount, EthProvider);
-			var gas = await GetWritingGasPrice();
+			var gas = await GetWritingGas();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
 				FiatContractAbi,
 				FiatContractAddress
 			);
-			var func = contract.GetFunction("processRequest");
 
-			return await func.SendTransactionAsync(
+			return await SendTransaction(
+				contract.GetFunction("processRequest"),
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
@@ -86,16 +105,16 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		public async Task<string> CancelBuySellRequest(BigInteger requestIndex) {
 
 			var web3 = new Web3(_gmAccount, EthProvider);
-			var gas = await GetWritingGasPrice();
+			var gas = await GetWritingGas();
 			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
 
 			var contract = web3.Eth.GetContract(
 				FiatContractAbi,
 				FiatContractAddress
 			);
-			var func = contract.GetFunction("cancelRequest");
 
-			return await func.SendTransactionAsync(
+			return await SendTransaction(
+				contract.GetFunction("cancelRequest"),
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),

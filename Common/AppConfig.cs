@@ -119,6 +119,7 @@ namespace Goldmint.Common {
 
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
+				public long MinimalGasLimit { get; set; } = 300000;
 				public CryptoExchangeRequestSection CryptoExchangeRequest { get; set; } = new CryptoExchangeRequestSection();
 				
 				public class CryptoExchangeRequestSection {

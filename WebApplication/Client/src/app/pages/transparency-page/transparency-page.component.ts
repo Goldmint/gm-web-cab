@@ -58,7 +58,7 @@ export class TransparencyPageComponent implements OnInit {
       if (data) {
         this.summary.issued.amount = data['issued'].div(new BigNumber(10).pow(18)).toFixed(2);
         this.summary.burnt.amount = data['burnt'].div(new BigNumber(10).pow(18)).toFixed(2);
-        this.summary.circulation.amount = this.summary.issued.amount - this.summary.burnt.amount;
+        this.summary.circulation.amount = +(this.summary.issued.amount - this.summary.burnt.amount).toFixed(2);
         this.cdRef.detectChanges();
       }
    });

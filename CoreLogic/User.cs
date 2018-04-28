@@ -111,15 +111,16 @@ namespace Goldmint.CoreLogic {
 		}
 
 		/// <summary>
-		/// User ID to long value: "u0001" => 1L, "2" => 2L
+		/// User ID to long value: u0001 => 1
 		/// </summary>
-		public static long ExtractId(string data) {
-			var ret = 0L;
-			if (!string.IsNullOrWhiteSpace(data) && (data[0] == 'u' || char.IsDigit(data[0]))) {
-				var digits = string.Join("", data.Where(char.IsDigit).Select(c => c.ToString()).ToArray()).TrimStart('0');
-				long.TryParse(digits, out ret);
+		public static long? ExtractId(string data) {
+			if (!Common.ValidationRules.BeValidUsername(data)) {
+				return null;
 			}
-			return ret;
+			if (long.TryParse(data.Substring(1), out var retid)) {
+				return retid;
+			}
+			return null;
 		}
 
 	}

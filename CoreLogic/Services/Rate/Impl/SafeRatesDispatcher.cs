@@ -101,54 +101,63 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				}
 			}
 		}
-		
-		private async void Worker() {
+
+		public async Task ForceUpdate() {
+			await Update();
+		}
+
+		private async Task Worker() {
 			var ctoken = _workerCancellationTokenSource.Token;
 
 			while (!ctoken.IsCancellationRequested) {
-
-				var freshUnsafeRates = new Dictionary<CurrencyRateType, CurrencyRate>();
-
-				// get most fresh item
-				while (_workerQueue.TryDequeue(out var some)) {
-					if (!freshUnsafeRates.TryGetValue(some.Currency, out var existing) || some.Stamp > existing.Stamp) {
-						freshUnsafeRates[some.Currency] = some;
-					}
-				}
-
-				var freshSafeRates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
-
-				// resolve safety
-				foreach (var pair in freshUnsafeRates) {
-					var unsafeRate = pair.Value;
-					var curSafeRate = GetRate(unsafeRate.Currency);
-					if (unsafeRate.Stamp > curSafeRate.Stamp) {
-						InterpolateFreshRate(unsafeRate);
-						freshSafeRates[unsafeRate.Currency] = ResolveSafety(unsafeRate);
-					}
-				}
-
-				// update / publish
-				if (freshSafeRates.Count > 0) {
-
-					_mutexUpdate.EnterWriteLock();
-					try {
-						foreach (var pair in freshSafeRates) {
-							_rates[pair.Key] = pair.Value;
-						}
-					}
-					finally {
-						_mutexUpdate.ExitWriteLock();
-					}
-				}
-
-				// publish in any case
-				await _publisher.PublishRates(_rates.Values.ToArray());
-				
+				await Update();
 				Thread.Sleep(_opts.PublishPeriod);
 			}
 
 			_logger.Trace("Worker(): cancelled");
+		}
+
+		private async Task Update() {
+
+			var freshUnsafeRates = new Dictionary<CurrencyRateType, CurrencyRate>();
+
+			// get most fresh item
+			while (_workerQueue.TryDequeue(out var some)) {
+				if (!freshUnsafeRates.TryGetValue(some.Currency, out var existing) || some.Stamp > existing.Stamp) {
+					freshUnsafeRates[some.Currency] = some;
+				}
+			}
+
+			var freshSafeRates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
+
+			// resolve safety
+			foreach (var pair in freshUnsafeRates) {
+				var unsafeRate = pair.Value;
+				var curSafeRate = GetRate(unsafeRate.Currency);
+				if (unsafeRate.Stamp > curSafeRate.Stamp) {
+					InterpolateFreshRate(unsafeRate);
+					freshSafeRates[unsafeRate.Currency] = ResolveSafety(unsafeRate);
+				}
+			}
+
+			// update / publish
+			if (freshSafeRates.Count > 0) {
+
+				_mutexUpdate.EnterWriteLock();
+				try {
+					foreach (var pair in freshSafeRates) {
+						_rates[pair.Key] = pair.Value;
+					}
+				}
+				finally {
+					_mutexUpdate.ExitWriteLock();
+				}
+			}
+
+			// publish in any case
+			if (_publisher != null) {
+				await _publisher.PublishRates(_rates.Values.ToArray());
+			}
 		}
 
 		private void InterpolateFreshRate(CurrencyRate unsafeRate) {

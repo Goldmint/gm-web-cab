@@ -12,6 +12,7 @@ using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Numerics;
+using NLog;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -83,7 +84,7 @@ namespace Goldmint.CoreLogic.Finance {
 								default:
 									logger.Error($"Ethereum contract processor is not implemented for type {op.Type.ToString()} of operation #{op.Id}");
 
-									op.Status = EthereumOperationStatus.Failed;
+									FinalizeOperation(op, logger, false);
 									await dbContext.SaveChangesAsync();
 									try {
 										await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Ethereum contract unknown operation");
@@ -98,7 +99,7 @@ namespace Goldmint.CoreLogic.Finance {
 							if (!procCheck.Success) {
 								logger.Warn($"Check failed for #{operationId}: " + procCheck.TicketErrorDesc);
 
-								op.Status = EthereumOperationStatus.Failed;
+								FinalizeOperation(op, logger, false);
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -122,13 +123,13 @@ namespace Goldmint.CoreLogic.Finance {
 							logger.Trace($"Executing #{operationId}");
 							var procExec = await processor.Exec(services, op);
 							if (!procExec.Success) {
-								logger.Warn($"Exec failed for #{operationId}: " + procExec.TicketErrorDesc);
+								logger.Warn($"Exec failed for #{operationId} (out of gas?)");
 
-								op.Status = EthereumOperationStatus.Failed;
+								FinalizeOperation(op, logger, false);
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Failure while executing operation: " + procExec.TicketErrorDesc);
+									await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Failure while executing operation. See logs");
 								}
 								catch { }
 
@@ -144,6 +145,7 @@ namespace Goldmint.CoreLogic.Finance {
 								await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Pending, $"Blockchain transaction is {op.EthTransactionId}");
 							}
 							catch { }
+
 							op.Status = EthereumOperationStatus.BlockchainConfirm;
 							logger.Trace($"Changing status to {op.Status.ToString()} for #{operationId}");
 							await dbContext.SaveChangesAsync();
@@ -167,13 +169,13 @@ namespace Goldmint.CoreLogic.Finance {
 
 								var success = txInfo.Status == EthTransactionStatus.Success;
 
-								op.Status = success ? EthereumOperationStatus.Success : EthereumOperationStatus.Failed;
-								op.TimeCompleted = DateTime.UtcNow;
+								FinalizeOperation(op, logger, success);
 
-								op.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
-								op.RefUserFinHistory.TimeCompleted = op.TimeCompleted;
+								// request cancellation => finhistory should fail anyway
+								if (op.Type == EthereumOperationType.ContractCancelBuySellRequest) {
+									op.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
+								}
 
-								logger.Trace($"Changing status to {op.Status.ToString()} for #{operationId}");
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -188,6 +190,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								if (!success) {
 									logger.Warn($"Operation #{operationId} failed");
+
 									// TODO: failure logic?
 								}
 							}
@@ -198,6 +201,8 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process #{op.Id}");
+
+						// TODO: alert
 					}
 				}
 				else {
@@ -206,6 +211,17 @@ namespace Goldmint.CoreLogic.Finance {
 
 				return false;
 			});
+		}
+
+		private static void FinalizeOperation(DAL.Models.EthereumOperation op, ILogger logger, bool success) {
+
+			op.Status = success ? EthereumOperationStatus.Success : EthereumOperationStatus.Failed;
+			op.TimeCompleted = DateTime.UtcNow;
+
+			op.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
+			op.RefUserFinHistory.TimeCompleted = op.TimeCompleted;
+
+			logger.Trace($"Changing status to {op.Status.ToString()} for #{op.Id}");
 		}
 
 		// ---
@@ -260,7 +276,7 @@ namespace Goldmint.CoreLogic.Finance {
 				);
 
 				return new ExecResult() {
-					Success = true,
+					Success = txid != null,
 					TxId = txid,
 				};
 			}
@@ -306,7 +322,7 @@ namespace Goldmint.CoreLogic.Finance {
 				);
 
 				return new ExecResult() {
-					Success = true,
+					Success = txid != null,
 					TxId = txid,
 				};
 			}
@@ -343,7 +359,7 @@ namespace Goldmint.CoreLogic.Finance {
 				);
 
 				return new ExecResult() {
-					Success = true,
+					Success = txid != null,
 					TxId = txid,
 				};
 			}
@@ -360,7 +376,6 @@ namespace Goldmint.CoreLogic.Finance {
 		internal class ExecResult {
 
 			public bool Success { get; internal set; }
-			public string TicketErrorDesc { get; internal set; }
 			public string TxId { get; internal set; }
 		}
 	}

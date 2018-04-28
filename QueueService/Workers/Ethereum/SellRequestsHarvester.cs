@@ -62,7 +62,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			Logger.Debug(
 				(log.Events.Length > 0
-					? $"{log.Events.Length} request(s) found (new or processed previously)"
+					? $"{log.Events.Length} request(s) found"
 					: "Nothing found"
 				) + $" in blocks [{log.FromBlock} - {log.ToBlock}]"
 			);
@@ -81,6 +81,12 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 					Logger.Warn($"Invalid request index: {v.RequestIndex}");
 					continue;
 				}
+
+				/*var reqUserId = CoreLogic.User.ExtractId(v.UserId);
+				if (reqUserId == null) {
+					Logger.Warn($"Invalid user id: {v.UserId}");
+					continue;
+				}*/
 
 				var pdResult = await CoreLogic.Finance.GoldToken.ProcessContractSellRequest(
 					services: _services,

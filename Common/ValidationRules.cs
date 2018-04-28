@@ -53,7 +53,7 @@ namespace Goldmint.Common {
 		}
 
 		public static bool BeValidUsername(string x) {
-			return x != null && x.Trim().Length >= 1 && x.Trim().Length <= 64 && RexUsernameChars.IsMatch(x);
+			return x != null && x.Length > 1 && x.Length <= 64 && RexUsernameChars.IsMatch(x);
 		}
 
 		public static bool BeValidId(long x) {

@@ -172,8 +172,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
               this._messageBox.confirm(phrase).subscribe(ok => {
                 if (ok) {
                   this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
-                    this._ethService.sendBuyRequest(this.ethAddress, res.data.requestId, this.cCurrencyCoinAmount);
-                    this.cryptoCurrencyForm.reset();
+                    this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, this.cCurrencyCoinAmount);
                   });
                 }
               });

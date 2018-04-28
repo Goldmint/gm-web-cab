@@ -42,10 +42,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 				var func = contract.GetFunction("goldToken");
 				GoldTokenContractAddress = await func.CallAsync<string>();
+				Logger.Info("GOLD token address is " + GoldTokenContractAddress);
 
 				func = contract.GetFunction("mntpToken");
 				MntpTokenContractAddress = await func.CallAsync<string>();
-
+				Logger.Info("MNTP token address is " + GoldTokenContractAddress);
 			}).Wait();
 		}
 
