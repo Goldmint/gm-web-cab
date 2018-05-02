@@ -17,6 +17,7 @@ import {TranslateService} from "@ngx-translate/core";
 export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   public gold_usd_rate: number;
+  public gold_eth_rate: number;
   public user: User;
   public locale: string;
   public wallets = [
@@ -49,7 +50,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     }
 
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
-      this.gold_usd_rate = data;
+      data && (this.gold_usd_rate = data.gold) && (this.gold_eth_rate = data.eth);
       this._cdRef.detectChanges();
     });
 

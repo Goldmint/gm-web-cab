@@ -15,7 +15,8 @@
       </div>
 
       <div class="col mr-auto">
-        <span class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value" (click)="showGoldRateInfo()">{{gold_usd_rate | number:'1.2-2':locale}}</span></span>
+        <div class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value" (click)="showGoldRateInfo()">{{gold_usd_rate | number:'1.2-2':locale}}</span></div>
+        <div class="rate" *ngIf="gold_eth_rate">Gold/ETH = <span class="rate__value">{{gold_eth_rate | number:'1.2-2':locale}}</span></div>
       </div>
 
       <div class="col-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">

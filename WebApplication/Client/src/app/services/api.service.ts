@@ -155,12 +155,12 @@ export class APIService {
   //     );
   // }
 
-  getGoldRate(): Observable<APIResponse<GoldRate>> {
+  getGoldRate(): Observable<object> {
     return this._http
-      .get(`${this._baseUrl}/commons/goldRate`)
+      .get('https://service.goldmint.io/info/rate/v1/gold')
       .pipe(
-      catchError(this._handleError),
-      shareReplay()
+        catchError(this._handleError),
+        shareReplay()
       );
   }
 
