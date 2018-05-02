@@ -6,7 +6,6 @@ import { AuthGuard } from './guards/index';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { SellPageComponent } from './pages/sell-page/sell-page.component';
 import { BuyPageComponent } from './pages/buy-page/buy-page.component';
-import { TransferPageComponent } from './pages/transfer-page/transfer-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { DepositPageComponent } from './pages/deposit-page/deposit-page.component';
 import { WithdrawPageComponent } from './pages/withdraw-page/withdraw-page.component';
@@ -29,7 +28,6 @@ import { SettingsPageComponent } from './pages/settings-page/settings-page.compo
 import { SettingsProfilePageComponent } from './pages/settings-page/settings-profile-page/settings-profile-page.component';
 import { SettingsVerificationPageComponent } from './pages/settings-page/settings-verification-page/settings-verification-page.component';
 import { SettingsTFAPageComponent } from './pages/settings-page/settings-tfa-page/settings-tfa-page.component';
-import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards-page/settings-cards-page.component';
 import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
@@ -58,7 +56,6 @@ const appRoutes: Routes = [
   { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },
   { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
-  { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {
@@ -78,8 +75,6 @@ const appRoutes: Routes = [
       { path: 'profile', component: SettingsProfilePageComponent },
       { path: 'verification', component: SettingsVerificationPageComponent },
       { path: '2fa', component: SettingsTFAPageComponent },
-      { path: 'cards', component: SettingsCardsPageComponent },
-      { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
       { path: 'limits', component: LimitsPageComponent },
