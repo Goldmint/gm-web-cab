@@ -10,7 +10,7 @@ import { KYCProfile } from '../../../models/kyc-profile';
 import * as countries from '../../../../assets/data/countries.json';
 import {Observable} from "rxjs/Observable";
 
-enum Phase { Start, Basic, Kyc, KycPending, Agreement, AgreementPending, Finished }
+enum Phase { Start, Basic, Kyc, KycPending, ResidencePending, ResidenceProved, Agreement, AgreementPending, Finished }
 
 @Component({
   selector: 'app-settings-verification-page',
@@ -68,8 +68,11 @@ export class SettingsVerificationPageComponent implements OnInit {
     else if (this.kycProfile.isAgreementPending) {
       this.phase = Phase.AgreementPending;
     }
-    else if (this.kycProfile.isKycFinished) {
+    else if (this.kycProfile.isResidenceProved) {
       this.phase = Phase.Agreement;
+    }
+    else if (this.kycProfile.isKycFinished) {
+      this.phase = Phase.ResidencePending;
     }
     else if (this.kycProfile.isKycPending) {
       this.phase = Phase.KycPending;

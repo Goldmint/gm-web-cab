@@ -110,7 +110,7 @@
 </ng-container>
 
 <!--RESIDENCE PROVIDE-->
-<ng-container *ngIf="kycProfile.isKycFinished && kycProfile.isResidencePending">
+<ng-container *ngIf="phase == _phase.ResidencePending">
   <section class="section section--no-bottom">
     <h2 class="section__title">
       <span>{{ "PAGES.Settings.KYC.ProofResidency.Heading" | translate }}</span>
@@ -190,7 +190,7 @@
 
 
 <!--FINISHED-->
-<ng-container *ngIf="phase == _phase.Finished && kycProfile.isResidenceProved">
+<ng-container *ngIf="phase == _phase.Finished">
   <section class="section section--no-bottom">
     <h2 class="section__title">
       <span>{{ "PAGES.Settings.KYC.FinishedSection.Title" | translate }}</span>
