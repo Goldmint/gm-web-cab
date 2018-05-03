@@ -97,6 +97,6 @@
       </svg>
     </div>
 
-    <app-navbar class="d-none d-sm-flex" [ngClass]="{'show-mobile-menu': isShowMobileMenu}"></app-navbar>
+    <app-navbar (onChanged)="hideMobileMenu($event)" class="d-none d-sm-flex" [ngClass]="{'show-mobile-menu': isShowMobileMenu}"></app-navbar>
   </div>
 </header>

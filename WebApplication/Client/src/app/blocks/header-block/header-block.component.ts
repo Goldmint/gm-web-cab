@@ -139,6 +139,10 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     return this._userService.isAuthenticated();
   }
 
+  hideMobileMenu(status: boolean) {
+    this.isShowMobileMenu = !status;
+  }
+
   ngOnDestroy() {
     this.destroy$.next(true);
   }

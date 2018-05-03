@@ -10,6 +10,7 @@
     text-transform: uppercase
     margin-bottom: 0
     min-height: 92px
+    padding-bottom: 45px
 
   &__jumbotron
     .page--auth &
@@ -47,3 +48,23 @@
     line-height: rem(14px)
     display: inline-block
     color: $color-gray-1
+
+@media only screen and (max-width: 1199px)
+  .lead
+    font-size: 1rem
+
+  .section__title > span
+    font-size: 1rem
+    line-height: 1rem !important
+
+@media only screen and (max-width: 767px)
+  .page__sidebar
+    padding-top: 0
+
+@media only screen and (max-width: 576px)
+  h1.page__heading
+    font-size: 1.75rem
+    min-height: 75px
+    padding-bottom: 45px
+
+
