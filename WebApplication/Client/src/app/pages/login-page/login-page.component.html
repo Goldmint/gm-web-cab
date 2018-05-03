@@ -2,12 +2,12 @@
   <section class="page__section page__section--bottom-border">
 
     <div class="page__jumbotron">
-      <img src="assets/img/logotype.svg" alt="GoldMint" width="359" height="162">
+      <img class="w-100" src="assets/img/logotype.svg" alt="GoldMint" width="359" height="162">
       <div class="page__subtitle">Web Application</div>
     </div>
 
     <div class="row">
-      <div class="col-6 pr-3">
+      <div class="col-md-6 pr-3">
         <section class="section section--no-bottom">
           <h2 class="section__title">{{ "PAGES.Login.SectionTitles.Login" | translate }}</h2>
 
@@ -18,7 +18,7 @@
                 <label for="inputUsername">{{ "PAGES.Login.Labels.Username" | translate }}</label>
                 <input type="text" id="inputUsername" required minlength="5"  maxlength="256" autocomplete="username"
                        name="username" [(ngModel)]="loginModel.username" #username="ngModel"
-                       class="form-control col-7"
+                       class="form-control col-12 col-md-7"
                        [ngClass]="{'is-invalid': (errors?.Username || !username.valid) && (loginForm.submitted || !password.pristine) && username.touched}"
                        (ngModelChange)="errors.Username = false"
                        [readonly]="loading">
@@ -41,7 +41,7 @@
                 <label for="inputPassword">{{ "PAGES.Login.Labels.Password" | translate }}</label>
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" autocomplete="password"
                        name="password" [(ngModel)]="loginModel.password" #password="ngModel"
-                       class="form-control col-7"
+                       class="form-control col-12 col-md-7"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (loginForm.submitted || !password.pristine) && password.touched}"
                        (ngModelChange)="errors.Password = false"
                        [readonly]="loading">
@@ -117,7 +117,7 @@
         </section>
       </div>
 
-      <div class="col-6 pl-3">
+      <div class="col-md-6 pl-3">
         <section class="section section--no-bottom">
           <h2 class="section__title">{{ "PAGES.Login.SectionTitles.Social" | translate }}</h2>
           <div class="section__content row pt-5">

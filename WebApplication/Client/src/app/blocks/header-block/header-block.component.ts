@@ -29,6 +29,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public goldBalance: string|null = '0';
   public hotGoldBalance: string|null = null;
   public shortAdr: string;
+  public isShowMobileMenu: boolean = false;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
 
@@ -111,11 +112,11 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this._cdRef.detectChanges();
   }*/
 
-  showShortAccount() {
+  public showShortAccount() {
     this.shortAdr = this.metamaskAccount ? ' (' + this.metamaskAccount.slice(0, 5) + ')...' : '';
   }
 
-  showGoldRateInfo() {
+  public showGoldRateInfo() {
     this._messageBox.alert(`${this.gold_usd_rate}`);
     this._cdRef.detectChanges();
   }

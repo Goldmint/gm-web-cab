@@ -5,8 +5,8 @@
 
     <div *ngIf="isDataLoaded">
 
-      <div class="trn-info">
-        <div class="col-xl-4 px-5 trn-info__block">
+      <div class="trn-info flex-column flex-xl-row">
+        <div class="col-12 col-xl-4 px-5 trn-info__block">
           <div class="trn-info__icon trn-info__icon--plus">
             <svg class="icon" width="8px" height="8px">
               <use xlink:href="#amount-plus"></use>
@@ -20,7 +20,7 @@
           </div>
         </div>
 
-        <div class="col-xl-4 px-5 trn-info__block">
+        <div class="col-12 col-xl-4 px-5 trn-info__block">
           <div class="trn-info__icon trn-info__icon--minus">
             <svg class="icon" width="8px" height="2px">
               <use xlink:href="#amount-minus"></use>
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div class="col-xl-4 px-5 trn-info__block">
+        <div class="col-12 col-xl-4 px-5 trn-info__block">
           <div class="trn-info__icon trn-info__icon--circ">
             <svg class="icon" width="21px" height="16px">
               <use xlink:href="#circulation"></use>
@@ -150,8 +150,8 @@
         </tbody>
       </table>
 
-      <div class="trn-info pb-0">
-        <div class="col-6 px-5 trn-info__block">
+      <div class="trn-info flex-column flex-sm-row pb-0">
+        <div class="col-12 col-sm-6 px-5 trn-info__block">
           <div class="trn-info__icon trn-info__icon--plus">
             <svg class="icon" width="8px" height="8px">
               <use xlink:href="#amount-plus"></use>
@@ -160,7 +160,7 @@
           <div class="trn-info__label">Total OZ:</div>
           <div class="trn-info__value">{{ statData.totalOz }}</div>
         </div>
-        <div class="col-6 px-5 trn-info__block">
+        <div class="col-12 col-sm-6 px-5 trn-info__block">
           <div class="trn-info__icon trn-info__icon--plus">
             <svg class="icon" width="8px" height="8px">
               <use xlink:href="#amount-plus"></use>
@@ -195,7 +195,7 @@
                          (page)='setPage($event)'
                          [messages]="messages">
 
-            <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [maxWidth]="160">
+            <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false">
               <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                {{ "PAGES.Transparency.Table.TableCell.Date" | translate }}
@@ -207,7 +207,7 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
+            <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [sortable]="false">
               <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 {{ "PAGES.Transparency.Table.TableCell.Amount" | translate }}
@@ -219,7 +219,7 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
+            <ngx-datatable-column prop="link" [draggable]="false" [resizeable]="false" [sortable]="false">
               <ng-template ngx-datatable-header-template>
                 {{ "PAGES.Transparency.Table.TableCell.Document" | translate }}
               </ng-template>

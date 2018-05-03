@@ -3,12 +3,12 @@
   <section class="page__section page__section--bottom-border">
 
     <div class="page__jumbotron">
-      <img src="assets/img/logotype.svg" alt="GoldMint" width="359" height="162">
+      <img class="w-100" src="assets/img/logotype.svg" alt="GoldMint" width="359" height="162">
       <div class="page__subtitle">Web Application</div>
     </div>
 
     <div class="row">
-      <div class="col-6 pr-3">
+      <div class="col-md-6 pr-3">
         <section class="section section--no-bottom">
           <h2 class="section__title">{{ "PAGES.Register.SectionTitles.Register" | translate }}</h2>
 
@@ -18,7 +18,7 @@
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
                        name="email" [(ngModel)]="signupModel.email" #email="ngModel"
-                       class="form-control col-7"
+                       class="form-control col-12 col-md-7"
                        [ngClass]="{'is-invalid': (errors?.Email || !email.valid) && (signupForm.submitted || !email.pristine)}"
                        (ngModelChange)="errors.Email = false"
                        [readonly]="loading">
@@ -37,7 +37,7 @@
                 <label for="inputPassword">{{ "PAGES.Register.Labels.Password" | translate }}</label>
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" noAutoComplete
                        name="password" [(ngModel)]="signupModel.password" #password="ngModel"
-                       class="form-control col-7"
+                       class="form-control col-12 col-md-7"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (signupForm.submitted || !password.pristine)}"
                        (ngModelChange)="errors.Password = false"
                        [readonly]="loading || passwordChecking">
@@ -85,7 +85,7 @@
         </section>
       </div>
 
-      <div class="col-6 pl-3">
+      <div class="col-md-6 pl-3">
         <section class="section section--no-bottom">
           <h2 class="section__title">{{ "PAGES.Register.SectionTitles.Social" | translate }}</h2>
           <div class="section__content row pt-5">

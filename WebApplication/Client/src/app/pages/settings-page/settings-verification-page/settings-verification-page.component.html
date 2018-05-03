@@ -243,7 +243,7 @@
 
       <form name="kycForm" (ngSubmit)="kycForm.form.valid && submit(kycForm)" #kycForm="ngForm" novalidate>
         <div class="row mt-3">
-          <div class="col-6">
+          <div class="col-sm-6">
             <div class="form-group">
               <label for="inputFirstName">{{ "PAGES.Settings.KYC.FormSection.Labels.FirstName" | translate }}</label>
               <div class="kyc-required">
@@ -320,13 +320,13 @@
             </div>
           </div>
 
-          <div class="col-6">
+          <div class="col-sm-6">
             <div class="form-group">
               <label for="selectBirthMonth">{{ "PAGES.Settings.KYC.FormSection.Labels.BirthMonth" | translate }}</label>
               <div class="kyc-required">
                 <select id="selectBirthMonth" required
                         name="birthMonth" [(ngModel)]="dateOfBirth.month" #birthMonth="ngModel"
-                        class="form-control"
+                        class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.BirthMonth || !birthMonth.valid) && !birthMonth.pristine}"
                         (ngModelChange)="errors.BirthMonth = false"
                         [disabled]="kycProfile.isFormFilled === true || processing">
@@ -362,7 +362,7 @@
               <div class="kyc-required">
                 <select id="selectBirthDay" required
                         name="birthDay" [(ngModel)]="dateOfBirth.day" #birthDay="ngModel"
-                        class="form-control"
+                        class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.BirthDay || !birthDay.valid) && !birthDay.pristine}"
                         (ngModelChange)="errors.BirthDay = false"
                         [disabled]="kycProfile.isFormFilled === true || processing">
@@ -387,7 +387,7 @@
               <div class="kyc-required">
                 <select id="selectBirthYear" required
                         name="birthYear" [(ngModel)]="dateOfBirth.year" #birthYear="ngModel"
-                        class="form-control"
+                        class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.BirthYear || !birthYear.valid) && !birthYear.pristine}"
                         (ngModelChange)="errors.BirthYear = false"
                         [disabled]="kycProfile.isFormFilled === true || processing">
@@ -411,13 +411,13 @@
         </div>
 
         <div class="row">
-          <div class="col-6">
+          <div class="col-sm-6">
             <div class="form-group">
               <label for="selectCountry">{{ "PAGES.Settings.KYC.FormSection.Labels.Country" | translate }}</label>
               <div class="kyc-required">
                 <select id="selectCountry" required
                         name="country" [(ngModel)]="kycProfile.country" #country="ngModel" (change)="onCountrySelect()"
-                        class="form-control"
+                        class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.Country || !country.valid) && !country.pristine}"
                         (ngModelChange)="errors.Country = false"
                         [disabled]="kycProfile.isFormFilled === true || processing">
@@ -497,13 +497,13 @@
             </div>
           </div>
 
-          <div class="col-6">
+          <div class="col-sm-6">
             <div class="form-group">
               <label for="selectState">{{ "PAGES.Settings.KYC.FormSection.Labels.State" | translate }}</label>
               <div class="kyc-required">
                 <select id="selectState" required
                         name="state" [(ngModel)]="kycProfile.state" #state="ngModel"
-                        class="form-control"
+                        class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.State || !state.valid) && !state.pristine}"
                         (ngModelChange)="errors.State = false"
                         [disabled]="kycProfile.isFormFilled === true || processing || !kycProfile.country">

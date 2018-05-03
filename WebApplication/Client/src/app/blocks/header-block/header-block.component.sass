@@ -4,10 +4,6 @@
 .header
   background-color: $color-black
   color: $color-white
-  // position: fixed
-  // top: 0
-  // left: 0
-  // right: 0
   width: 100%
   height: $header-height
   display: flex
@@ -19,11 +15,12 @@
     display: flex
     flex-direction: column
     justify-content: space-between
+    position: relative
 
   &__row
     @include make-row()
-    height: 100%
     align-items: center
+    flex: 1 1 auto
 
 
 .rate
@@ -105,3 +102,22 @@
 
 .fiat
   cursor: pointer
+
+.mobile-menu-button
+  cursor: pointer
+  color: $color-brand
+
+.language-switcher
+  height: 25px
+
+@media only screen and (max-width: 576px)
+  .show-mobile-menu
+    display: block !important
+    position: absolute
+    bottom: -100%
+    width: 100%
+    left: 0
+    z-index: 100
+
+  .show-mobile-menu .navbar ul
+    flex-direction: column
