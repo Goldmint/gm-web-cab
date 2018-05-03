@@ -97,14 +97,18 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       this._ethService.getObservableMntpBalance()
     )
       .takeUntil(this.destroy$).subscribe((data) => {
-      if (data[0] !== null && (this.goldBalance === null || !this.goldBalance.eq(data[0]))
-        && data[1] !== null && (this.mntpBalance === null || !this.mntpBalance.eq(data[1]))
-      ) {
-        this.goldBalance = data[0];
-        this.mntpBalance = data[1];
-        this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-        this.setCCurrencyGoldBalance();
-      }
+       if(
+         (data[0] !== null && data[1] !== null) && (
+           (this.goldBalance === null || !this.goldBalance.eq(data[0]))
+           ||
+           (this.mntpBalance === null || !this.mntpBalance.eq(data[1]))
+         )
+       ) {
+          this.goldBalance = data[0];
+          this.mntpBalance = data[1];
+          this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
+          this.setCCurrencyGoldBalance();
+        }
     });
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
