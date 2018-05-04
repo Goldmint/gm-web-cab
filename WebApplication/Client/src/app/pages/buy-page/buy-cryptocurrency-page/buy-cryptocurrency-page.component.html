@@ -1,8 +1,8 @@
 <!-- host: .page -->
-<h1 class="page__heading">Cryptocurrency</h1>
+<h1 class="page__heading">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h1>
 
 <section class="page__section section">
-  <h2 class="section__title">Cryptocurrency</h2>
+  <h2 class="section__title">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h2>
 
   <div class="section__content">
     <form action="#" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
@@ -47,14 +47,14 @@
                         <button class="percent-btn" (click)="setCCurrencyEthBalance(1)">100%</button>
                       </div>
                       <div class="invalid-feedback" *ngIf="(!cCurrencyAmountView || invalidBalance) && cCurrencyEthAmount.dirty">
-                        Invalid eth amount
+                        {{ "PAGES.Buy.Errors.InvalidEth" | translate }}
                       </div>
                     </div>
                   </div>
 
                   <div class="col-12 pb-4">
                     <div class="from-row form-group ">
-                      <label for="input_EstimateAmount">{{ "PAGES.Deposit.CryptoCapital.Labels.EstimatesAmount" | translate }}</label>
+                      <label for="input_EstimateAmount">{{ "PAGES.Buy.CtyptoCurrency.Labels.Amount" | translate }}</label>
                       <div class="d-flex align-items-center">
                         <div class="form-currency">
                           <svg class="icon" width="30" height="30">
@@ -67,7 +67,7 @@
                   </div>
 
                   <div class="col-12 mb-5">
-                    <button type="submit" class="btn btn-primary" (click)="onCryptoCurrencySubmit()" [disabled]="cCurrencyCoinAmount == null || cCurrencyCoinAmount <= 0 || invalidBalance || loading">Buy now</button>
+                    <button type="submit" class="btn btn-primary" (click)="onCryptoCurrencySubmit()" [disabled]="cCurrencyCoinAmount == null || cCurrencyCoinAmount <= 0 || invalidBalance || loading">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
                     <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                   </div>
                 </div>

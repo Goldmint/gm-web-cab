@@ -82,7 +82,7 @@
           <div class="row mb-4 align-items-baseline">
 
             <div class="col col-xl-3 form-group text-center">
-              <label for="btnCryptoCapital">{{ "PAGES.Withdraw.Method.CryptoCapital" | translate }}</label>
+              <label for="btnCryptoCapital">{{ "PAGES.Sell.Method.CtyptoCurrency" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
                       [disabled]="!this.selectedWallet || !isMetamask">
                 <svg class="icon" width="56px" height="56px">
@@ -91,13 +91,13 @@
               </button>
               <div *ngIf="!this.selectedWallet || !isMetamask">
                 <div class="text-left pt-1 blocked-notification text-center">
-                  Use metamask
+                  {{ "PAGES.Sell.Errors.UseMM" | translate }}
                 </div>
               </div>
             </div>
 
             <div class="col col-xl-3 form-group text-center">
-              <label for="btnCapital">{{ "PAGES.Withdraw.Method.Crypto" | translate }}</label>
+              <label for="btnCapital">{{ "PAGES.Sell.Method.CryptoCapital" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnCapital"
               [disabled]="true">
                 <svg class="icon" width="56px" height="56px">

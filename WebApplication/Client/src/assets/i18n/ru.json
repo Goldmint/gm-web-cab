@@ -43,6 +43,17 @@
         "Buy": "Купить сейчас",
         "Get": "и получить"
       },
+      "Method": {
+        "CtyptoCurrency": "Криптовалюта",
+        "CryptoCapital": "CryptoCapital"
+      },
+      "CtyptoCurrency": {
+        "Heading": "Криптовалюта",
+        "Labels": {
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
+        }
+      },
       "SectionTitle": "Мгновенная продажа",
       "Discount": "Комиссия",
       "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
@@ -51,7 +62,8 @@
         "BuyMore": "Купить"
       },
       "Errors": {
-        "Invalid": "Недопустимое количество gold"
+        "Invalid": "Недопустимое количество gold",
+        "UseMM": "Используйте metamask"
       }
     },
     "Buy": {
@@ -59,6 +71,16 @@
       "SectionTitle": "Мгновенная покупка",
       "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
       "DepositDesc": "Для покупок создайте депозит в валюте fiat в своем аккаунте",
+      "Method": {
+        "CtyptoCurrency": "Криптовалюта",
+        "CryptoCapital": "CryptoCapital"
+      },
+      "CtyptoCurrency": {
+        "Heading": "Криптовалюта",
+        "Labels": {
+          "Amount": "Оценочная сумма"
+        }
+      },
       "Labels": {
         "Spend": "Потратить",
         "Estimate": "Оценочное количество *"
@@ -68,12 +90,13 @@
         "Deposit": "Депозит"
       },
       "Message": {
-        "Progress": "Your request is in progress now!"
+        "Progress": "Ваш запрос сейчас выполняется!"
       },
       "Errors": {
-        "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
-        "Pending": "Your previously blockchain operation is still pending",
-        "Invalid": "Недопустимое количество"
+        "Exceeded": "Вы превысили частоту запросов (один запрос в течение 30 минут). Пожалуйста, попробуйте позже",
+        "Pending": "Ваша предыдущая blockchain операция еще находится на рассмотрении",
+        "UseMM": "Используйте metamask",
+        "InvalidEth": "Недопустимое количество Eth"
       }
     },
     "Transfer": {
@@ -636,12 +659,12 @@
             "PrimaryEmail": "Основной Email адрес"
           },
           "Buttons": {
-            "Confirm": "Confirm"
+            "Confirm": "Подтвердить"
           },
           "Errors": {
             "Email": {
-              "required": "Email is required",
-              "email": "Should be a valid email"
+              "required": "Email обязательный",
+              "email": "Должнен быть действительный email"
             }
           }
         },
@@ -735,6 +758,13 @@
           "Widget": "Не подписано",
           "Buttons": {
             "Resend": "Повторно отправить соглашение"
+          }
+        },
+        "ProofResidency": {
+          "Heading": "Доказательство проживания",
+          "Text": {
+            "FirstPart": "Для проверки Вашего места жительства, Вам необходимо отправить письмо по электронной почте",
+            "SecondPart": "и предоставить один из следующих документов (датированных не позднее чем за последние 60 дней): счет за газ, счет за электричество, счет за кабельное телевидение, счет для налога на имущество, счет на нефть, счет на оплату услуг домашней телефонной связи, банковская выписка по Вашему активному счету."
           }
         },
         "FinishedSection": {
@@ -1052,7 +1082,8 @@
     "GoldSell": "Продать: {{ goldAmount }} GOLD <br> Вы получите: $ {{ fiatAmount }} ($ {{ feeAmount }} комиссия) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "Купить: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Целевой адрес: {{ address }} <br> GOLD количество: {{ amount }} GOLD",
-    "EthDeposit": "Eth для внесения: {{ coinAmount }} Eth <br> Оценочная сумма: $ {{ usdAmount }} <br> Eth/USD: {{ ethRate }}",
+    "EthDeposit": "Количество Eth: {{ coinAmount }} Eth <br> Оценочная сумма: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
+    "EthWithdraw": "Количество Gold: {{ coinAmount }} GOLD <br> Оценочная сумма: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Пароль успешно изменен",
     "InvalidCode": "Неверный код",
     "ConnectionError": {

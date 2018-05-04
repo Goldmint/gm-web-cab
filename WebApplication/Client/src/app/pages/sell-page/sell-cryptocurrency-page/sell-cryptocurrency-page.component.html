@@ -1,8 +1,8 @@
 <!-- host: .page -->
-<h1 class="page__heading">Cryptocurrency</h1>
+<h1 class="page__heading">{{ "PAGES.Sell.CtyptoCurrency.Heading" | translate }}</h1>
 
 <section class="page__section section">
-  <h2 class="section__title">Cryptocurrency</h2>
+  <h2 class="section__title">{{ "PAGES.Sell.CtyptoCurrency.Heading" | translate }}</h2>
 
   <div class="section__content">
     <form action="#">
@@ -22,7 +22,7 @@
                 <div>
                   <div class="col-12">
                     <div class="from-row form-group">
-                      <label for="cCurrencyGoldAmount">{{ "PAGES.Sell.Labels.Amount" | translate }}</label>
+                      <label for="cCurrencyGoldAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Amount" | translate }}</label>
                       <div class="d-flex align-items-center">
                         <div class="form-currency form-currency--gold">
                           <svg class="icon">
@@ -52,7 +52,7 @@
 
                   <div class="col-12">
                     <div class="from-row form-group ">
-                      <label for="cCurrencyEstimateAmount">{{ "PAGES.Withdraw.CryptoCapital.Labels.EstimatesAmount" | translate }}</label>
+                      <label for="cCurrencyEstimateAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Estimate" | translate }}</label>
                       <div class="d-flex align-items-center">
                         <div class="form-currency">
                           <svg class="icon" width="30" height="30">
@@ -87,7 +87,7 @@
                   </div>-->
 
                   <div class="col mb-5">
-                    <button type="submit" (click)="onCryptoCurrencySubmit()" class="btn btn-primary" [disabled]="!cCurrencyAmountView || invalidBalance || loading">Sell now</button>
+                    <button type="submit" (click)="onCryptoCurrencySubmit()" class="btn btn-primary" [disabled]="!cCurrencyAmountView || invalidBalance || loading">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
                     <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                   </div>
                 </div>

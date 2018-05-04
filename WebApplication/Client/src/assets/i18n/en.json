@@ -43,6 +43,17 @@
         "Buy": "Buy now",
         "Get": "and get"
       },
+      "Method": {
+        "CtyptoCurrency": "Cryptocurrency",
+        "CryptoCapital": "CryptoCapital"
+      },
+      "CtyptoCurrency": {
+        "Heading": "Cryptocurrency",
+        "Labels": {
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
+        }
+      },
       "SectionTitle": "Instant Sell",
       "Discount": "Fee",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
@@ -51,7 +62,8 @@
         "BuyMore": "Buy more"
       },
       "Errors": {
-        "Invalid": "Invalid gold amount"
+        "Invalid": "Invalid gold amount",
+        "UseMM": "Use metamask"
       }
     },
     "Buy": {
@@ -59,6 +71,16 @@
       "SectionTitle": "Instant Buy",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
 	  "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
+      "Method": {
+        "CtyptoCurrency": "Cryptocurrency",
+        "CryptoCapital": "CryptoCapital"
+      },
+      "CtyptoCurrency": {
+        "Heading": "Cryptocurrency",
+        "Labels": {
+          "Amount": "Estimates Amount"
+        }
+      },
       "Labels": {
         "Spend": "Spend",
         "Estimate": "Estimates Amount *"
@@ -73,7 +95,8 @@
       "Errors": {
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
         "Pending": "Your previously blockchain operation is still pending",
-        "Invalid": "Invalid amount"
+        "UseMM": "Use metamask",
+        "InvalidEth": "Invalid eth amount"
       }
     },
     "Transfer": {
@@ -726,7 +749,7 @@
 		  "Widget": "Not verified",
           "Text": "Unverified accounts cannot make any fiat operaions. You will be redirected to identity verification service.",
 		  "TextPending": "Advanced verification is still in progress. Please come back later or try to refresh this page.",
-		  "Button": "Get verification"
+		  "Button": "Get verified"
         },
 		"AgreementSection": {
           "Title": "Sign agreement",
@@ -1059,8 +1082,8 @@
     "GoldSell": "GOLD to sell: {{ goldAmount }} GOLD <br> You will get: $ {{ fiatAmount }} ($ {{ feeAmount }} fee) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "GOLD to buy: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Target address: {{ address }} <br> GOLD amount: {{ amount }} GOLD",
-    "EthDeposit": "Gold to buy: {{ coinAmount }} Eth <br> Estimates Amount: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
-    "EthWithdraw": "Gold to sell: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
+    "EthDeposit": "Eth amount: {{ coinAmount }} Eth <br> Estimates Amount: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
+    "EthWithdraw": "Gold amount: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Password successfully changed",
     "InvalidCode": "Invalid code",
     "ConnectionError": {
