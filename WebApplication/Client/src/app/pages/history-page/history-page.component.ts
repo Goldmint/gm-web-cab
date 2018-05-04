@@ -8,6 +8,7 @@ import { HistoryRecord } from '../../interfaces';
 import {UserService, APIService, EthereumService} from '../../services';
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
 
 
 @Component({
@@ -26,8 +27,9 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No data'};
   public etherscanLink: string = 'https://rinkeby.etherscan.io/tx/';
+  public isMobile: boolean;
   private destroy$: Subject<boolean> = new Subject<boolean>();
-  interval;
+  private interval: Subscription;
 
   constructor(
     private userService: UserService,
@@ -41,6 +43,12 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.isMobile = (window.innerWidth <= 576);
+    window.onresize = () => {
+      this.isMobile = window.innerWidth <= 576 ? true : false;
+      this.cdRef.markForCheck();
+    };
+
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
     });
@@ -50,6 +58,7 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
     });
 
     this.setPage({ offset: 0 });
+    this.cdRef.markForCheck();
   }
 
   onSort(event) {
@@ -73,7 +82,7 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
           this.interval = Observable.interval(30000).subscribe(() => {
             this.setPage({ offset: this.page.pageNumber });
           });
-          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
 
           const tableTitle = document.getElementById('pageSectionTitle');
           if (tableTitle && tableTitle.getBoundingClientRect().top < 0) {

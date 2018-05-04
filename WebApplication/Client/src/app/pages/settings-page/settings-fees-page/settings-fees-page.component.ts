@@ -14,16 +14,24 @@ export class SettingsFeesPageComponent implements OnInit {
   public currentCurrencyType = this.currencyTypeList[0];
   public isDataLoaded = false;
   public fees: object;
+  public isMobile: boolean;
 
   constructor(private _cdRef: ChangeDetectorRef,
               private _apiService: APIService,) { }
 
   ngOnInit() {
+    this.isMobile = (window.innerWidth <= 576);
+    window.onresize = () => {
+      this.isMobile = window.innerWidth <= 576 ? true : false;
+      this._cdRef.markForCheck();
+    };
+
     this._apiService.getFees().subscribe(data => {
       this.fees = data.data;
       this.isDataLoaded = true;
       this._cdRef.detectChanges();
-    })
+    });
+    this._cdRef.markForCheck();
   }
 
   chooseCurrencyType(type) {

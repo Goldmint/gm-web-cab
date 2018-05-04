@@ -44,6 +44,11 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    document.body.addEventListener('click', () => {
+      this.isShowMobileMenu = false;
+      this._cdRef.markForCheck();
+    });
+
     if (!window.hasOwnProperty('web3')) {
       this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
         this._messageBox.alert(phrase.Text, phrase.Heading);
@@ -139,8 +144,10 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     return this._userService.isAuthenticated();
   }
 
-  hideMobileMenu(status: boolean) {
-    this.isShowMobileMenu = !status;
+  toggleMobileMenu(e) {
+    this.isShowMobileMenu = !this.isShowMobileMenu;
+    e.stopPropagation();
+    this._cdRef.markForCheck();
   }
 
   ngOnDestroy() {

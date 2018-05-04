@@ -28,7 +28,27 @@
         </div>
       </div>
 
-    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0] && isDataLoaded">
+    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0] && isDataLoaded && isMobile">
+      <tbody class="fees-datatable-body fees-border-top fees-border-bottom" *ngFor="let item of fees.fiat">
+        <tr class="fees-datatable-body-row">
+          <div class="fees-datatable-body-cell align-middle text-center align-middle">
+            <svg class="icon" width="35" height="52">
+              <use [attr.xlink:href]="'#fee-' + item.name"></use>
+            </svg>
+            <div class="mt-2 font-weight-bold">{{ item.name.toUpperCase() }}</div>
+          </div>
+        </tr>
+        <tr class="fees-datatable-body-row" *ngFor="let method of item.methods">
+          <td class="fees-datatable-body-cell align-middle">
+            <div class="font-weight-500 mb-1">{{ method.name }}</div>
+            <div class="mb-1">{{ "PAGES.Settings.Fees.Table.Head.Deposit" | translate }}: {{ method.deposit }}</div>
+            <div class="mb-1">{{ "PAGES.Settings.Fees.Table.Head.Withdrawal" | translate }}: {{ method.withdraw }}</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="fees-ngx-datatable w-100" *ngIf="currentCurrencyType === currencyTypeList[0] && isDataLoaded && !isMobile">
       <thead class="fees-datatable-header">
       <tr class="fees-datatable-header fees-border-bottom">
         <td class="fees-datatable-header-cell">{{ "PAGES.Settings.Fees.Table.Head.Currency" | translate }}</td>

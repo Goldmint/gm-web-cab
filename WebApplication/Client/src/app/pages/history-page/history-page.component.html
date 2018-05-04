@@ -8,7 +8,6 @@
       <div class="container"></div>
     </div>
 
-<!-- [scrollbarH]="scrollbarHorizontal" -->
     <div class="section__content">
       <ngx-datatable class="table history-table" #table
         [rows]="rows"
@@ -26,36 +25,36 @@
         [externalSorting]="true"
         (sort)="onSort($event)"
         [externalPaging]="true"
-        [scrollbarH]="true"
         (page)='setPage($event)'
         [messages]="messages">
 
-        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [width]="80">
-          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+        <div *ngIf="!isMobile">
+          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [width]="80">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
               {{ "PAGES.History.Table.Columns.Date" | translate }}
             </span>
-          </ng-template>
+            </ng-template>
 
-          <ng-template let-timestamp="value" ngx-datatable-cell-template>
-            {{ timestamp * 1000 | date:'short':'':locale }}
-          </ng-template>
-        </ngx-datatable-column>
+            <ng-template let-timestamp="value" ngx-datatable-cell-template>
+              {{ timestamp * 1000 | date:'short':'':locale }}
+            </ng-template>
+          </ngx-datatable-column>
 
-        <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [width]="120">
-          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+          <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [width]="120">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper ml-3" (click)="sort()">
               {{ "PAGES.History.Table.Columns.Type" | translate }}
             </span>
-          </ng-template>
+            </ng-template>
 
-          <ng-template let-type="value" ngx-datatable-cell-template let-row="row">
-            <div class="d-flex">
+            <ng-template let-type="value" ngx-datatable-cell-template let-row="row">
+              <div class="d-flex">
               <span class="history-icon-container" *ngIf="row.status === 1">
                 <img alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif">
               </span>
 
-              <span class="history-icon-container" *ngIf="row.status !== 1 && row.status !== 3" [ngSwitch]="type.toLowerCase()">
+                <span class="history-icon-container" *ngIf="row.status !== 1 && row.status !== 3" [ngSwitch]="type.toLowerCase()">
                 <svg width="27" height="18" *ngSwitchCase="'deposit'">
                   <use xlink:href="#withdraw-history"></use>
                 </svg>
@@ -73,48 +72,126 @@
                 </svg>
               </span>
 
-              <span class="history-icon-container" *ngIf="row.status === 3">
+                <span class="history-icon-container" *ngIf="row.status === 3">
                 <svg class="icon-nok" width="17" height="15">
                   <use xlink:href="#nok"></use>
                 </svg>
               </span>
 
-              <span class="text-uppercase pl-2">
+                <span class="text-uppercase pl-2">
                 {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
               </span>
-            </div>
-          </ng-template>
-        </ngx-datatable-column>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
 
-        <ngx-datatable-column prop="fee" [draggable]="false" [resizeable]="false" [sortable]="false">
-          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+          <ngx-datatable-column prop="fee" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
-              Destination
+              {{ "PAGES.History.Table.Columns.Destination" | translate }}
+            </span>
+            </ng-template>
+
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <svg class="icon history-icon" width="20" height="20" *ngIf="row.src === 'ETH'">
+                <use xlink:href="#etherium"></use>
+              </svg>
+              <svg class="icon history-icon" width="20" height="15" *ngIf="row.src === 'GOLD'">
+                <use xlink:href="#cur-gold"></use>
+              </svg>
+              <span class="pl-2">
+              {{ row.src }} => {{ row.dst }}
+            </span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template ngx-datatable-header-template>
+              {{ "PAGES.History.Table.Columns.Comment" | translate }}
+            </ng-template>
+
+            <ng-template let-comment="value" ngx-datatable-cell-template let-row="row">
+              {{ comment }}
+              <span *ngIf="row.ethTxId">
+                <a href="{{ etherscanLink + row.ethTxId }}" target="_blank">{{ "PAGES.History.Table.Link" | translate }}</a>
+              </span>
+            </ng-template>
+          </ngx-datatable-column>
+        </div>
+
+        <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false">
+
+          <ng-template let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.Date" | translate }}
             </span>
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <svg class="icon history-icon" width="20" height="20" *ngIf="row.src === 'ETH'">
-              <use xlink:href="#etherium"></use>
-            </svg>
-            <svg class="icon history-icon" width="20" height="15" *ngIf="row.src === 'GOLD'">
-              <use xlink:href="#cur-gold"></use>
-            </svg>
-            <span class="pl-2">
-              {{ row.src }} => {{ row.dst }}
-            </span>
-          </ng-template>
-        </ngx-datatable-column>
+            <div class="font-weight-500 mt-1 mb-1">
+              {{ row.date * 1000 | date:'short':'':locale }}
+            </div>
 
-        <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
-          <ng-template ngx-datatable-header-template>
-            {{ "PAGES.History.Table.Columns.Comment" | translate }}
-          </ng-template>
+            <div class="d-flex align-items-center">
+              <div class="font-weight-500 mr-1">{{ "PAGES.History.Table.Columns.Type" | translate }}: </div>
+              <div class="d-flex align-items-center">
+               <span class="history-icon-container" *ngIf="row.status === 1">
+                 <img alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif">
+               </span>
 
-          <ng-template let-comment="value" ngx-datatable-cell-template let-row="row">
-            {{ comment }}
-            <div *ngIf="row.ethTxId">
-              <a href="{{ etherscanLink + row.ethTxId }}" target="_blank">{{ "PAGES.History.Table.Link" | translate }}</a>
+                <span class="history-icon-container" *ngIf="row.status !== 1 && row.status !== 3" [ngSwitch]="row.type.toLowerCase()">
+                 <svg width="27" height="18" *ngSwitchCase="'deposit'">
+                   <use xlink:href="#withdraw-history"></use>
+                 </svg>
+                 <svg width="27" height="18" *ngSwitchCase="'withdraw'">
+                   <use xlink:href="#deposit-history"></use>
+                 </svg>
+                 <svg width="20" height="20" *ngSwitchCase="'hwtransfer'">
+                   <use xlink:href="#hwtransfer-history"></use>
+                 </svg>
+                 <svg width="20" height="20" *ngSwitchCase="'goldsell'">
+                   <use xlink:href="#goldsell-history"></use>
+                 </svg>
+                 <svg width="20" height="20" *ngSwitchCase="'goldbuy'">
+                   <use xlink:href="#goldbuy-history"></use>
+                 </svg>
+               </span>
+
+                <span class="history-icon-container" *ngIf="row.status === 3">
+                 <svg class="icon-nok" width="17" height="15">
+                   <use xlink:href="#nok"></use>
+                 </svg>
+               </span>
+
+                <span class="text-uppercase pl-2">
+                 {{('PAGES.History.Types.' + row.type.toLowerCase()) | translate}}
+               </span>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+              <div class="font-weight-500 mr-1">{{ "PAGES.History.Table.Columns.Destination" | translate }}: </div>
+              <div class="d-flex align-items-center">
+                <svg class="icon history-icon" width="20" height="20" *ngIf="row.src === 'ETH'">
+                  <use xlink:href="#etherium"></use>
+                </svg>
+                <svg class="icon history-icon" width="20" height="15" *ngIf="row.src === 'GOLD'">
+                  <use xlink:href="#cur-gold"></use>
+                </svg>
+                <span class="pl-2">
+                  {{ row.src }} => {{ row.dst }}
+                </span>
+              </div>
+            </div>
+
+            <div class="d-flex">
+              <div class="font-weight-500 mr-1">{{ "PAGES.History.Table.Columns.Comment" | translate }}: </div>
+              <div>
+                {{ row.comment }}
+                <span *ngIf="row.ethTxId">
+                  <a href="{{ etherscanLink + row.ethTxId }}" target="_blank">{{ "PAGES.History.Table.Link" | translate }}</a>
+                </span>
+              </div>
             </div>
           </ng-template>
         </ngx-datatable-column>

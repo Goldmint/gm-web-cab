@@ -26,6 +26,7 @@ export class TransparencyPageComponent implements OnInit {
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No data'};
   public statData: object;
+  public isMobile: boolean;
 
   constructor(
     private apiService: APIService,
@@ -40,6 +41,12 @@ export class TransparencyPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.isMobile = (window.innerWidth <= 576);
+    window.onresize = () => {
+      this.isMobile = window.innerWidth <= 576 ? true : false;
+      this.cdRef.markForCheck();
+    };
+
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
     });
@@ -64,6 +71,7 @@ export class TransparencyPageComponent implements OnInit {
    });
 
     this.setPage({ offset: 0 });
+    this.cdRef.markForCheck();
   }
 
   onSort(event) {

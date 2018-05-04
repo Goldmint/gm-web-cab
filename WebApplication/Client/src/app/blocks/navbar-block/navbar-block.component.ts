@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
   selector: 'app-navbar',
@@ -8,14 +8,8 @@ import {Component, OnInit, ChangeDetectionStrategy, Output, EventEmitter} from '
 })
 export class NavbarBlockComponent implements OnInit {
 
-  @Output() onChanged = new EventEmitter<boolean>();
-
   constructor() { }
 
   ngOnInit() { }
-
-  hideMobileMenu(status: boolean) {
-    this.onChanged.emit(status);
-  }
 
 }

@@ -441,6 +441,7 @@
           "Date": "Date",
           "Amount": "Amount",
           "Balance": "Balance",
+          "Destination": "Destination",
           "Type": "Type",
           "Fee": "Fee",
           "Comment": "Comment"
@@ -762,10 +763,8 @@
         },
         "ProofResidency": {
           "Heading": "Proof of Residency",
-          "Text": {
-            "FirstPart": "In order to verify your residency you need to send a letter to email",
-            "SecondPart": "and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement."
-          }
+          "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
+          "Button": "Send a request"
         },
         "FinishedSection": {
           "Title": "Advanced verification",
