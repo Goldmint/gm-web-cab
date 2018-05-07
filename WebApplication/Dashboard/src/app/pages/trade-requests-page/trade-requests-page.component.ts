@@ -5,6 +5,7 @@ import {Page} from "../../models/page";
 import {BigNumber} from "bignumber.js";
 import {TransparencySummary} from "../../interfaces/transparency-summary";
 import {EthereumService} from "../../services/ethereum.service";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-trade-requests-page',
@@ -30,6 +31,7 @@ export class TradeRequestsPageComponent implements OnInit {
   public periodStart = null;
   public periodEnd = null;
   public degree = Math.pow(10, -18);
+  public etherscanUrl = environment.etherscanUrl;
 
   constructor(
     private apiService: APIService,
