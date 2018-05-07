@@ -6,6 +6,7 @@ import 'rxjs/add/operator/catch';
 
 import { MessageBoxService } from '../../services/message-box.service';
 import {Router} from "@angular/router";
+import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class APIHttpInterceptor implements HttpInterceptor {
@@ -32,11 +33,18 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return Observable.throw('ohO_offline');
     }
     else {
-      return next.handle(req.clone({
-        setHeaders: {
-          'GM-LOCALE': localStorage.getItem('gmint_language') || ''
-        }
-      })).catch((error, caught) => {
+      let handle;
+      if (req.url.indexOf(environment.apiUrl) >= 0) {
+        handle = next.handle(req.clone({
+          setHeaders: {
+            'GM-LOCALE': localStorage.getItem('gmint_language') || ''
+          }
+        }));
+      } else {
+        handle =  next.handle(req);
+      }
+
+      return handle.catch((error, caught) => {
           if (error.status === 404) {
             this._messageBox.alert('Goldmint server does not respond. Please try again in few minutes.', 'Connection error');
           } else if (error.error.errorCode === 50) {

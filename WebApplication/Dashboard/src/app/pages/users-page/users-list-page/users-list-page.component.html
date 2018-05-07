@@ -17,12 +17,26 @@
   </form>
 </div>
 
+<div>
+  <div class="custom-control custom-checkbox">
+    <input class="custom-control-input" id="onlyApproved" name="onlyApproved" type="checkbox"
+           (change)="onFilterProvedResidence(true)"
+           [(ngModel)]="filterProvedResidence.onlyApproved">
+    <label class="custom-control-label" for="onlyApproved">Only approved users</label>
+  </div>
+  <div class="custom-control custom-checkbox">
+    <input class="custom-control-input" id="onlyDisapprove" name="onlyDisapprove" type="checkbox"
+           (change)="onFilterProvedResidence(false)"
+           [(ngModel)]="filterProvedResidence.onlyDisapproved">
+    <label class="custom-control-label" for="onlyDisapprove">Only disapproved users</label>
+  </div>
+</div>
+
 <section class="section section--table">
 
   <div class="section__content user-list-section">
     <ngx-datatable class="table table--no-footer" #table
                    [rows]="rows"
-
                    [columnMode]="'force'"
                    [sorts]="sorts"
                    [headerHeight]="53"
