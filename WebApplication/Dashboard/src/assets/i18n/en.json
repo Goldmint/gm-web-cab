@@ -80,15 +80,17 @@
       "Users": "Users",
       "Table": {
         "ID": "ID",
-        "UserName": "User name",
-        "Name": "Name",
+        "Registered": "Registered",
+        "UserName": "User ID",
+        "Name": "User Name",
         "Buttons": {
           "Click": "Show",
+          "Refuse": "Refuse",
           "Approve": "Approve"
         }
       },
       "Modal": {
-        "Label": "Link to ticket",
+        "Label": "Comment:",
         "Button": "Approve"
       },
       "User": {

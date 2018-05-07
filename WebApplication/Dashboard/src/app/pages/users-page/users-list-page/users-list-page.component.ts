@@ -71,18 +71,52 @@ export class UsersListPageComponent implements OnInit {
     this.cdRef.markForCheck();
   }
 
+  closeProvedResidenceModal() {
+    this.isModalShow = false;
+    this.proofResidency.reset();
+
+    this.cdRef.markForCheck();
+  }
+
+
+  refuseProvedResidence(id: number) {
+   this.loading = true;
+   this.apiService.setProvedResidence(id, false, null)
+      .finally(() => {
+        this.loading = false;
+        this.cdRef.markForCheck();
+      })
+      .subscribe(() =>{
+        this._messageBox.alert('Refused');
+        this.setPage({ offset: this.page.pageNumber });
+      }, (error) => {
+        if (error.error.errorCode === 1003) {
+          this._messageBox.alert('Account Not Verified: This account hasn\'t KYC verification');
+        } else {
+          this._messageBox.alert('Error. Something went wrong');
+        }
+      });
+  }
+
   setProvedResidence() {
-    const link = this.proofResidency.value.ticketLink;
-    this.apiService.setProvedResidence(this.userIDForApprove, link)
+    this.loading = true;
+    const comment = this.proofResidency.value.comment;
+    this.apiService.setProvedResidence(this.userIDForApprove, true, comment)
       .finally(() => {
         this.proofResidency.reset();
+        this.loading = false;
         this.cdRef.markForCheck();
       })
       .subscribe(() =>{
         this._messageBox.alert('Approved');
+        this.setPage({ offset: this.page.pageNumber });
         this.isModalShow = false;
-    }, () => {
-      this._messageBox.alert('Error. Something went wrong');
+    }, (error) => {
+        if (error.error.errorCode === 1003) {
+          this._messageBox.alert('Account Not Verified: This account hasn\'t KYC verification');
+        } else {
+          this._messageBox.alert('Error. Something went wrong');
+        }
     });
   }
 
