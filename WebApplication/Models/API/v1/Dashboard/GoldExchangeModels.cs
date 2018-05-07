@@ -49,6 +49,16 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.GoldExchangeModels {
 	}
 	
 	public class ListView : BasePagerView<ListViewItem> {
+
+		/// <summary>
+		/// Total gold issued within specified period, optional
+		/// </summary>
+		public string TotalIssued { get; set; }
+
+		/// <summary>
+		/// Total gold burnt within specified period, optional
+		/// </summary>
+		public string TotalBurnt { get; set; }
 	}
 
 	public class ListViewItem {

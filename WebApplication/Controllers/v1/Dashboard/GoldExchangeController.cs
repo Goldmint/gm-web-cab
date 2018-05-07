@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
@@ -34,21 +35,42 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			BigInteger? totalGoldIssued = null, totalGoldBurnt = null;
 			var query = DbContext.EthereumOperation.AsQueryable();
 			
 			// processed
-			query = query.Where(_ =>
-				_.Status == EthereumOperationStatus.Success &&
-				(_.Type == EthereumOperationType.ContractProcessBuyRequest || _.Type == EthereumOperationType.ContractProcessSellRequest)
-			);
+			query = query
+				.Where(_ =>
+					_.Status == EthereumOperationStatus.Success &&
+					(_.Type == EthereumOperationType.ContractProcessBuyRequest || _.Type == EthereumOperationType.ContractProcessSellRequest)
+				)
+			;
 			if (model.FilterRequestId != null) {
-				query = query.Where(_ => _.RelatedRequestId != model.FilterRequestId);
+				query = query.Where(_ => _.RelatedRequestId == model.FilterRequestId);
 			}
 			if (model.PeriodStart != null) {
 				query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted >= DateTimeOffset.FromUnixTimeSeconds(model.PeriodStart.Value).UtcDateTime);
 			}
 			if (model.PeriodEnd != null) {
 				query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted <= DateTimeOffset.FromUnixTimeSeconds(model.PeriodEnd.Value).UtcDateTime);
+			}
+
+			// total gold amount
+			if (model.PeriodStart != null || model.PeriodEnd != null) {
+				var tgrows = await query.Select(_ => new {Type = _.Type, Amount = _.GoldAmount}).ToListAsync();
+
+				totalGoldIssued = new BigInteger(0);
+				totalGoldBurnt = new BigInteger(0);
+				
+				foreach (var v in tgrows) {
+					if (BigInteger.TryParse(v.Amount, out var amount))
+					if (v.Type == EthereumOperationType.ContractProcessBuyRequest) {
+						totalGoldIssued += amount;
+					}
+					if (v.Type == EthereumOperationType.ContractProcessSellRequest) {
+						totalGoldBurnt += amount;
+					}
+				}
 			}
 
 			query = query
@@ -78,6 +100,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			return APIResponse.Success(
 				new ListView() {
+					TotalIssued = totalGoldIssued?.ToString(),
+					TotalBurnt = totalGoldBurnt?.ToString(),
 					Items = list.ToArray(),
 					Limit = model.Limit,
 					Offset = model.Offset,

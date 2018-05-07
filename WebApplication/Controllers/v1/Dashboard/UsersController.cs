@@ -47,7 +47,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				query = query.Where(_ => _.UserName.Contains(model.Filter) || (_.UserVerification != null && (_.UserVerification.FirstName + " " + _.UserVerification.LastName).Contains(model.Filter)));
 			}
 			if (model.FilterProvedResidence != null) {
-				query = query.Where(_ => _.UserVerification.ProvedResidence != null && _.UserVerification.ProvedResidence.Value == model.FilterProvedResidence.Value);
+				if (model.FilterProvedResidence.Value) {
+					query = query.Where(_ => _.UserVerification.ProvedResidence != null && _.UserVerification.ProvedResidence.Value);
+				}
+				else {
+					query = query.Where(_ => _.UserVerification.ProvedResidence == null || !_.UserVerification.ProvedResidence.Value);
+				}
 			}
 
 			var page = await query.PagerAsync(model.Offset, model.Limit,
