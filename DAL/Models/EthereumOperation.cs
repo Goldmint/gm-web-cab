@@ -14,11 +14,17 @@ namespace Goldmint.DAL.Models {
 		[Column("status"), Required]
 		public EthereumOperationStatus Status { get; set; }
 
+		[Column("rel_request_id")]
+		public long? RelatedRequestId { get; set; }
+
 		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
 		public string DestinationAddress { get; set; }
 
 		[Column("rate"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
 		public string Rate { get; set; }
+
+		[Column("gold_amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
+		public string GoldAmount { get; set; }
 
 		[Column("eth_request_index"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount)]
 		public string EthRequestIndex { get; set; }

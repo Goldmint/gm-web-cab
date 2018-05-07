@@ -11,6 +11,11 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		/// </summary>
 		public string Filter { get; set; }
 
+		/// <summary>
+		/// Filter by proved residence, optional (null = ignore, true = approved, false = unapproved)
+		/// </summary>
+		public bool? FilterProvedResidence { get; set; }
+
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<ListModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 			return v.Validate(this);

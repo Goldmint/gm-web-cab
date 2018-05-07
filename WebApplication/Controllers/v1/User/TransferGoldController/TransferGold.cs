@@ -30,7 +30,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var amountWei) || amountWei < 1 || amountWei.ToString().Length > 64) {
+			if (!BigInteger.TryParse(model.Amount, out var amountWei) || amountWei < 1 || amountWei.ToString().Length > DAL.Models.FieldMaxLength.BlockchainCurrencyAmount) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -79,6 +79,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 						Status = UserFinHistoryStatus.Unconfirmed,
 						Type = UserFinHistoryType.HwTransfer,
+
 						Source = "HW",
 						Destination = TextFormatter.MaskBlockchainAddress(model.EthAddress),
 						Comment = "", // see below
@@ -99,7 +100,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Status = EthereumOperationStatus.Prepared,
 
 						DestinationAddress = model.EthAddress,
-						Rate = amountWei.ToString(),
+						Rate = "0",
+						GoldAmount = amountWei.ToString(),
 						OplogId = ticket,
 						TimeCreated = timeNow,
 						TimeNextCheck = timeNow,
