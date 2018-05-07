@@ -63,6 +63,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						i.UserVerification?.FirstName ?? "",
 						i.UserVerification?.LastName ?? ""
 					).Trim(' '),
+					ProvedResidence = CoreLogic.User.HasProvedResidence(i.UserVerification),
 					TimeRegistered = ((DateTimeOffset)i.TimeRegistered).ToUnixTimeSeconds(),
 				}
 			;
@@ -298,7 +299,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			// ---
 
 			account.UserVerification.ProvedResidence = model.Proved;
-			account.UserVerification.ProvedResidenceLink = model.Link?.LimitLength(DAL.Models.FieldMaxLength.Comment);
+			account.UserVerification.ProvedResidenceComment = model.Comment?.LimitLength(DAL.Models.FieldMaxLength.Comment);
 			await DbContext.SaveChangesAsync();
 
 			// notification

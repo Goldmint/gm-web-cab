@@ -39,6 +39,12 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		/// </summary>
 		[Required]
 		public string Name { get; set; }
+		
+		/// <summary>
+		/// Residence approved
+		/// </summary>
+		[Required]
+		public bool ProvedResidence { get; set; }
 
 		/// <summary>
 		/// Unixtime registered
@@ -231,10 +237,10 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public bool Proved { get; set; }
 
 		/// <summary>
-		/// Link, /.{1,512}/ or null if unproved
+		/// Link, /.{1,512}/
 		/// </summary>
 		[Required]
-		public string Link { get; set; }
+		public string Comment { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<ProveResidenceModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
@@ -243,10 +249,9 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 				.Must(ValidationRules.BeValidId).WithMessage("Invalid id")
 				;
 
-			v.RuleFor(_ => _.Link)
-				.Must(ValidationRules.BeValidUrl).WithMessage("Invalid format")
+			v.RuleFor(_ => _.Comment)
+				.MinimumLength(1).WithMessage("Invalid length")
 				.MaximumLength(DAL.Models.FieldMaxLength.Comment).WithMessage("Invalid length")
-				.When(_ => _.Proved)
 				;
 
 			return v.Validate(this);
