@@ -26,6 +26,11 @@ export class UsersListPageComponent implements OnInit {
   public filterValue = '';
   public userIDForApprove: number;
   public isModalShow = false;
+  public filterProvedResidence = {
+    onlyApproved: false,
+    onlyDisapproved: false
+  }
+  private currentFilterProved: boolean | null = null;
 
   @ViewChild('formDir') formDir;
   @ViewChild('proofResidency') proofResidency;
@@ -120,12 +125,25 @@ export class UsersListPageComponent implements OnInit {
     });
   }
 
+  onFilterProvedResidence(status) {
+    if (status && this.filterProvedResidence.onlyApproved) {
+      this.currentFilterProved = true;
+      this.filterProvedResidence.onlyDisapproved = false;
+    } else if (!status && this.filterProvedResidence.onlyDisapproved) {
+      this.currentFilterProved = this.filterProvedResidence.onlyApproved = false;
+    } else {
+      this.currentFilterProved = null;
+    }
+    this.setPage({ offset: 0 });
+    this.cdRef.markForCheck();
+  }
+
   setPage(pageInfo) {
     this.loading = true;
     this.cdRef.detectChanges();
     this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getUsersList(this.filterValue, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getUsersList(this.filterValue, this.currentFilterProved, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
           this.rows = data.data.items;

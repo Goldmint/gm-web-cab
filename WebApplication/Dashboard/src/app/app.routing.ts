@@ -16,6 +16,7 @@ import {AccessRightsPageComponent} from "./pages/users-page/access-rights-page/a
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
 import {FeesPageComponent} from "./pages/fees-page/fees-page.component";
 import {SwiftPageComponent} from "./pages/swift-page/swift-page.component";
+import {TradeRequestsPageComponent} from "./pages/trade-requests-page/trade-requests-page.component";
 
 const appRoutes: Routes = [
 
@@ -31,6 +32,7 @@ const appRoutes: Routes = [
       {path: ':id/access', component: AccessRightsPageComponent}
     ]
   },
+  { path: 'trade-requests', component: TradeRequestsPageComponent, canActivate: [AuthGuard] },
   {
     path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [

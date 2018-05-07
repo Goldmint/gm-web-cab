@@ -1,10 +1,5 @@
 export interface Price {
-  amount    : number;
+  amount    : number | BigNumber;
   prefix   ?: string;
   suffix   ?: string;
-  /* or */
-  // currency  : {
-  //   code    : string; // ex.: 'USD'
-  //   symbol  : string; // ex.: '$'
-  // }
 }

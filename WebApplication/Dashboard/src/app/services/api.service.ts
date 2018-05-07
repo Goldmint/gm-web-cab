@@ -84,9 +84,24 @@ export class APIService {
       );
   }
 
-  getUsersList(filter: string, offset: number = 0, limit: number = 5,
+  goldExchangeList(filterRequestId: number, periodStart: number, periodEnd: number, offset: number, limit: number, sort: string = 'id', ascending: 'asc' | 'desc' = 'desc') {
+
+    let params = {filterRequestId, periodStart, periodEnd, offset, limit, sort, ascending: ascending === 'asc'};
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/goldExchange/list`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  getUsersList(filter: string, filterProvedResidence: boolean | null, offset: number = 0, limit: number = 5,
                   sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
-    let params = {filter, offset, limit, sort, ascending: ascending === 'asc'};
+    let params = {filter, filterProvedResidence, offset, limit, sort, ascending: ascending === 'asc'};
 
    let httpOptions = {
       headers: this.jwt().headers.append('Content-Type', 'application/json')

@@ -68,6 +68,8 @@ import { UsersListPageComponent } from './pages/users-page/users-list-page/users
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
 import { FeesPageComponent } from './pages/fees-page/fees-page.component';
 import { SwiftPageComponent } from './pages/swift-page/swift-page.component';
+import { TradeRequestsPageComponent } from './pages/trade-requests-page/trade-requests-page.component';
+import {EthereumService} from "./services/ethereum.service";
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -129,6 +131,7 @@ export function getGoldmintToken() {
     UsersListPageComponent,
     FeesPageComponent,
     SwiftPageComponent,
+    TradeRequestsPageComponent,
   ],
   exports: [],
   providers: [
@@ -136,6 +139,7 @@ export function getGoldmintToken() {
     AuthGuard,
     MessageBoxService,
     APIService,
+    EthereumService,
     UserService,
     DatePipe,
     {

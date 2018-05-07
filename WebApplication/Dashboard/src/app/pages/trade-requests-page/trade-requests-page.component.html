@@ -1,0 +1,204 @@
+<div class="page">
+  <h1 class="page__heading">{{ "PAGES.TradeRequests.Heading" | translate }}</h1>
+
+  <div>
+    <div class="trn-info flex-column flex-xl-row">
+      <div class="col-12 col-xl-4 px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--plus">
+          <svg class="icon" width="8px" height="8px">
+            <use xlink:href="#amount-plus"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">{{ "PAGES.TradeRequests.Issued" | translate }}</div>
+        <div class="trn-info__value" *ngIf="isDataLoaded">
+          {{ summary.issued?.prefix }}
+          {{ summary.issued.amount }}
+          {{ summary.issued?.suffix }}
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4 px-5 trn-info__block">
+        <div class="trn-info__icon trn-info__icon--minus">
+          <svg class="icon" width="8px" height="2px">
+            <use xlink:href="#amount-minus"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">{{ "PAGES.TradeRequests.Burnt" | translate }}</div>
+        <div class="trn-info__value" *ngIf="isDataLoaded">
+          {{ summary.burnt?.prefix }}
+          {{ summary.burnt.amount }}
+          {{ summary.burnt?.suffix }}
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4 px-5 trn-info__block flex-wrap">
+        <div class="trn-info__icon trn-info__icon--circ">
+          <svg class="icon" width="21px" height="16px">
+            <use xlink:href="#circulation"></use>
+          </svg>
+        </div>
+        <div class="trn-info__label">{{ "PAGES.TradeRequests.Circulation" | translate }}</div>
+        <div class="trn-info__value" *ngIf="isDataLoaded">
+          {{ summary.circulation?.prefix }}
+          {{ summary.circulation.amount }}
+          {{ summary.circulation?.suffix }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page__section">
+
+    <form class="w-100" #searchByDateForm="ngForm">
+
+      <div class="row align-items-start">
+
+        <div class="col-lg-3 pt-3">
+          <div class="from-row form-group">
+            <label for="RequestID">Request ID</label>
+            <input type="number" class="form-control" id="RequestID" name="RequestID" [(ngModel)]="filterRequestId">
+          </div>
+        </div>
+
+        <div class="col-lg-3 pt-3">
+          <div class="from-row form-group">
+            <label for="periodStart">Period start</label>
+            <input type="text" class="form-control" id="periodStart" name="periodStart" placeholder="DD.M.YY"
+                   autocomplete="off" ngModel
+                   pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$">
+          </div>
+        </div>
+
+        <div class="col-lg-3 pt-3">
+          <div class="from-row form-group">
+            <label for="periodEnd">Period end</label>
+            <input type="text" class="form-control" id="periodEnd" name="periodEnd" placeholder="DD.M.YY"
+                   autocomplete="off" ngModel
+                   pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$">
+          </div>
+        </div>
+
+        <div class="col-lg-auto trade-search-button pb-3 pt-5">
+          <button type="submit" class="btn btn-sm btn-primary btn-block" (click)="searchByDate()"
+                  [disabled]="searchByDateForm.invalid">Search</button>
+        </div>
+
+        <div class="col-lg-auto trade-search-button pb-3 pt-5">
+          <button type="button" class="btn btn-sm btn-primary btn-block" (click)="resetSearchForm()">Reset</button>
+        </div>
+      </div>
+    </form>
+
+    <section class="section section--table">
+
+      <div class="section__content user-list-section">
+        <ngx-datatable class="table table--no-footer" #table
+                       [rows]="rows"
+                       [columnMode]="'force'"
+                       [sorts]="sorts"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="page.totalElements"
+                       [offset]="page.pageNumber"
+                       [limit]="page.size"
+                       [externalSorting]="true"
+                       (sort)="onSort($event)"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages">
+
+          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Date
+              </span>
+            </ng-template>
+
+            <ng-template let-dateCompleted="value" let-row="row" ngx-datatable-cell-template>
+              {{ row.dateCompleted * 1000 | date:'short':'':locale }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="isBuying" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Type
+              </span>
+            </ng-template>
+
+            <ng-template let-isBuying="value" ngx-datatable-cell-template>
+              {{ isBuying ? 'Buy' : 'Sell' }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="requestId" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Request ID
+              </span>
+            </ng-template>
+
+            <ng-template let-requestId="value" ngx-datatable-cell-template>
+              {{ requestId }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="user.username" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template ngx-datatable-header-template>
+              User
+            </ng-template>
+
+            <ng-template let-user="value" ngx-datatable-cell-template>
+              {{ user }}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template ngx-datatable-header-template>
+              Amount
+            </ng-template>
+
+            <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
+              <span [ngClass]="{'trade-color-red': row.isBuying}">
+                {{ amount * degree }}
+              </span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="ethTxId" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template ngx-datatable-header-template>
+              Link
+            </ng-template>
+
+            <ng-template let-ethTxId="value" ngx-datatable-cell-template>
+              <a href="{{ etherscanUrl + ethTxId }}" target="_blank">Link</a>
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+              <svg class="icon icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+              <svg class="icon icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+  </div>
+</div>

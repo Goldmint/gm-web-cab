@@ -13,7 +13,8 @@
       "Swift": "Swift",
       "Countries": "Countries",
       "Fees": "Withdraw/deposit fees",
-      "Users": "Users"
+      "Users": "Users",
+      "TradeRequests": "Trade Requests"
     }
   },
   "PAGES": {
@@ -121,6 +122,12 @@
           "Save": "Save"
         }
       }
+    },
+    "TradeRequests": {
+      "Heading": "Trade Requests",
+      "Issued": "Total issued:",
+      "Burnt": "Total burnt:",
+      "Circulation": "Total in circulation:"
     },
     "Login": {
       "SectionTitles": {
