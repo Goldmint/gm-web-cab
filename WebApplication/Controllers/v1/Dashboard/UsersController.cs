@@ -37,17 +37,18 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var query = (
-				string.IsNullOrWhiteSpace(model.Filter)
-					? from a in DbContext.Users select a
-					: from a in DbContext.Users where 
-						a.UserName.Contains(model.Filter) ||
-						(a.UserVerification != null && (a.UserVerification.FirstName + " " + a.UserVerification.LastName).Contains(model.Filter))
-					  select a
-			)
+			var query = DbContext.Users
 				.Include(user => user.UserOptions)
 				.Include(user => user.UserVerification)
-			;
+				.AsNoTracking()
+				.AsQueryable();
+
+			if (!string.IsNullOrWhiteSpace(model.Filter)) {
+				query = query.Where(_ => _.UserName.Contains(model.Filter) || (_.UserVerification != null && (_.UserVerification.FirstName + " " + _.UserVerification.LastName).Contains(model.Filter)));
+			}
+			if (model.FilterProvedResidence != null) {
+				query = query.Where(_ => _.UserVerification.ProvedResidence != null && _.UserVerification.ProvedResidence.Value == model.FilterProvedResidence.Value);
+			}
 
 			var page = await query.PagerAsync(model.Offset, model.Limit,
 				sortExpression.GetValueOrDefault(model.Sort), model.Ascending

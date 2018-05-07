@@ -75,10 +75,12 @@ namespace Goldmint.CoreLogic.Finance {
 								case EthereumOperationType.TransferGoldFromHw:
 									processor = new TransferOperation();
 									break;
-								case EthereumOperationType.ContractProcessBuySellRequest:
+								case EthereumOperationType.ContractProcessBuyRequest:
+								case EthereumOperationType.ContractProcessSellRequest:
 									processor = new ProcessRequestOperation();
 									break;
-								case EthereumOperationType.ContractCancelBuySellRequest:
+								case EthereumOperationType.ContractCancelBuyRequest:
+								case EthereumOperationType.ContractCancelSellRequest:
 									processor = new CancelRequestOperation();
 									break;
 								default:
@@ -172,7 +174,7 @@ namespace Goldmint.CoreLogic.Finance {
 								FinalizeOperation(op, logger, success);
 
 								// request cancellation => finhistory should fail anyway
-								if (op.Type == EthereumOperationType.ContractCancelBuySellRequest) {
+								if (op.Type == EthereumOperationType.ContractCancelBuyRequest) {
 									op.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
 								}
 
@@ -241,7 +243,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 				var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
-				if (!BigInteger.TryParse(op.Rate ?? "-1", out var amount) || amount < 1) {
+				if (!BigInteger.TryParse(op.GoldAmount ?? "-1", out var amount) || amount < 1) {
 					return new CheckResult() {
 						Success = false,
 						TicketErrorDesc = "Invalid amount format",
@@ -267,7 +269,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 				var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
 
-				var amount = BigInteger.Parse(op.Rate);
+				var amount = BigInteger.Parse(op.GoldAmount);
 
 				var txid = await ethereumWriter.TransferGoldFromHotWallet(
 					toAddress: op.DestinationAddress,

@@ -10,7 +10,7 @@ using Goldmint.CoreLogic.Services.Rate.Impl;
 
 namespace Goldmint.CoreLogic.Finance {
 
-	public static partial class Estimation {
+	public static class Estimation {
 
 		public static BigInteger AssetPerGold(CryptoCurrency cryptoCurrency, long centsPerAssetRate, long centsPerGoldRate) {
 
@@ -32,6 +32,24 @@ namespace Goldmint.CoreLogic.Finance {
 
 		#region Buy GOLD
 
+		public static BigInteger BuyGold(long fiatAmountCents, long knownGoldRateCents) {
+			return new BigInteger(fiatAmountCents) * BigInteger.Pow(10, Tokens.GOLD.Decimals) / new BigInteger(knownGoldRateCents);
+		}
+
+		public static BigInteger BuyGold(BigInteger cryptoAmountToSell, long knownGoldRateCents, long knownCryptoRateCents, int cryptoDecimals) {
+
+			if (cryptoAmountToSell <= 0 || knownCryptoRateCents <= 0 || knownGoldRateCents <= 0 || cryptoDecimals < 0) {
+				throw new Exception("Invalid args");
+			}
+
+			var exchangeAmount = cryptoAmountToSell * new BigInteger(knownCryptoRateCents) / BigInteger.Pow(10, cryptoDecimals);
+			if (exchangeAmount > long.MaxValue) {
+				throw new Exception("Long value overflow");
+			}
+
+			return BuyGold((long)exchangeAmount, knownGoldRateCents);
+		}
+
 		public static Task<BuyGoldResult> BuyGold(IServiceProvider services, FiatCurrency exchangeFiatCurrency, long fiatAmountCents) {
 
 			if (fiatAmountCents <= 0) {
@@ -51,7 +69,7 @@ namespace Goldmint.CoreLogic.Finance {
 				);
 			}
 
-			var goldAmount = fiatAmountCents * BigInteger.Pow(10, Tokens.GOLD.Decimals) / goldRate.Value;
+			var goldAmount = BuyGold(fiatAmountCents, goldRate.Value);
 
 			return Task.FromResult(
 				new BuyGoldResult() {

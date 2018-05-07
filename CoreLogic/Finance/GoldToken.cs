@@ -99,14 +99,23 @@ namespace Goldmint.CoreLogic.Finance {
 								catch { }
 							}
 
+							// estimated gold amount
+							var esimatedGoldAmount = Estimation.BuyGold(
+								cryptoAmountToSell: amountEth,
+								knownGoldRateCents: request.GoldRateCents,
+								knownCryptoRateCents: request.InputRateCents,
+								cryptoDecimals: Tokens.ETH.Decimals
+							);
+
 							// eth operation
 							var ethOp = new DAL.Models.EthereumOperation() {
-
-								Type = cancel? EthereumOperationType.ContractCancelBuySellRequest: EthereumOperationType.ContractProcessBuySellRequest,
+								Type = cancel? EthereumOperationType.ContractCancelBuyRequest: EthereumOperationType.ContractProcessBuyRequest,
 								Status = EthereumOperationStatus.Initial,
+								RelatedRequestId = request.Id,
 
 								DestinationAddress = request.InputAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
+								GoldAmount = esimatedGoldAmount.ToString(),
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
 								TimeCreated = timeNow,
@@ -244,12 +253,13 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// eth operation
 							var ethOp = new DAL.Models.EthereumOperation() {
-
-								Type = cancel ? EthereumOperationType.ContractCancelBuySellRequest : EthereumOperationType.ContractProcessBuySellRequest,
+								Type = cancel ? EthereumOperationType.ContractCancelSellRequest : EthereumOperationType.ContractProcessSellRequest,
 								Status = EthereumOperationStatus.Initial,
+								RelatedRequestId = request.Id,
 
 								DestinationAddress = request.OutputAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
+								GoldAmount = amountGold.ToString(),
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
 								TimeCreated = timeNow,

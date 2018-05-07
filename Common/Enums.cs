@@ -156,7 +156,7 @@ namespace Goldmint.Common {
 		Success,
 
 		/// <summary>
-		/// Expired
+		/// Final expired
 		/// </summary>
 		Expired,
 
@@ -253,12 +253,22 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Call contract for request processing
 		/// </summary>
-		ContractProcessBuySellRequest,
+		ContractProcessBuyRequest,
 
 		/// <summary>
 		/// Call contract for request cancellation
 		/// </summary>
-		ContractCancelBuySellRequest,
+		ContractCancelBuyRequest,
+
+		/// <summary>
+		/// Call contract for request processing
+		/// </summary>
+		ContractProcessSellRequest,
+
+		/// <summary>
+		/// Call contract for request cancellation
+		/// </summary>
+		ContractCancelSellRequest,
 	}
 
 	public enum EthereumOperationStatus {
