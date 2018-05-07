@@ -51,6 +51,18 @@
         </ng-template>
       </ngx-datatable-column>
 
+      <ngx-datatable-column prop="timeRegistered" [draggable]="false" [resizeable]="false" [maxWidth]="160" [sortable]="false">
+        <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.Users.Table.Registered" | translate }}
+              </span>
+        </ng-template>
+
+        <ng-template let-timeRegistered="value" ngx-datatable-cell-template>
+          {{ timeRegistered * 1000 | date:'short':'':locale }}
+        </ng-template>
+      </ngx-datatable-column>
+
       <ngx-datatable-column prop="username" [draggable]="false" [resizeable]="false" [maxWidth]="160">
         <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
@@ -77,9 +89,9 @@
         <ng-template let-column="column" ngx-datatable-header-template></ng-template>
 
         <ng-template ngx-datatable-cell-template let-row="row">
-          <div class="btn btn-sm btn-primary btn-block" (click)="showProvedResidenceModal(row.id)">
+          <button *ngIf="!row.provedResidence" type="button" class="btn btn-sm btn-primary btn-block" (click)="showProvedResidenceModal(row.id)" [disabled]="loading">
               {{ "PAGES.Users.Table.Buttons.Approve" | translate }}
-          </div>
+          </button>
         </ng-template>
       </ngx-datatable-column>
 
@@ -87,7 +99,17 @@
         <ng-template let-column="column" ngx-datatable-header-template></ng-template>
 
         <ng-template ngx-datatable-cell-template let-row="row">
-            <a [routerLink]="['/users/' + row.id]" class="btn btn-sm btn-primary btn-block">{{ "PAGES.Users.Table.Buttons.Click" | translate }}</a>
+          <button *ngIf="!row.provedResidence" type="button" class="btn btn-sm btn-primary btn-block" (click)="refuseProvedResidence(row.id)" [disabled]="loading">
+            {{ "PAGES.Users.Table.Buttons.Refuse" | translate }}
+          </button>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
+        <ng-template let-column="column" ngx-datatable-header-template></ng-template>
+
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <button type="button" [routerLink]="['/users/' + row.id]" class="btn btn-sm btn-primary btn-block" [disabled]="loading">{{ "PAGES.Users.Table.Buttons.Click" | translate }}</button>
         </ng-template>
       </ngx-datatable-column>
 
@@ -119,7 +141,7 @@
 
       <div class="message-box__header">
         <h4 class="modal-title pull-left">GoldMint.io</h4>
-        <button class="message-box__close" type="button" (click)="isModalShow = false">
+        <button class="message-box__close" type="button" (click)="closeProvedResidenceModal()">
           <svg class="icon">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#close"></use>
           </svg>
@@ -128,8 +150,8 @@
       <form #proofResidency="ngForm">
         <div class="message-box__body">
           <div class="form-group">
-            <label for="ticketLink">{{ "PAGES.Users.Modal.Label" | translate }}</label>
-            <input type="text" class="form-control" name="ticketLink" id="ticketLink" ngModel required>
+            <label for="comment">{{ "PAGES.Users.Modal.Label" | translate }}</label>
+            <textarea class="form-control" name="comment" id="comment" cols="30" rows="5" ngModel required></textarea>
           </div>
         </div>
 

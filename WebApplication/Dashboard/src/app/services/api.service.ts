@@ -99,9 +99,9 @@ export class APIService {
       );
   }
 
-  setProvedResidence(id: number, link: string) {
+  setProvedResidence(id: number, proved: boolean, comment: string | null) {
 
-    let params = {id: id, proved: true, link: link};
+    let params = {id: id, proved: proved, comment: comment};
 
     let httpOptions = {
       headers: this.jwt().headers.append('Content-Type', 'application/json')
