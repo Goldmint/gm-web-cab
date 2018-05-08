@@ -8,14 +8,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 	public sealed class DefaultSubscriber<T> : BaseSubscriber {
 
-		private readonly Proto.Topic _topic;
 		private Action<DefaultSubscriber<T>, T> _cbk;
 
-		public DefaultSubscriber(Proto.Topic topic, Uri connectUri, LogFactory logFactory) : base(0xFFFF, logFactory) {
-			_topic = topic;
-
-			SubscriberSocket.Subscribe(_topic.ToString());
-			SubscriberSocket.Connect(connectUri.ToString().TrimEnd('/'));
+		public DefaultSubscriber(Proto.Topic[] topics, Uri connectUri, LogFactory logFactory) : base(topics, connectUri, 0xFFFF, logFactory) {
 		}
 
 		// ---

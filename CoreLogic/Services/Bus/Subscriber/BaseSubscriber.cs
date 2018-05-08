@@ -10,6 +10,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 	public abstract class BaseSubscriber: IDisposable {
 
+		protected readonly Proto.Topic[] Topics;
+		protected readonly string ConnectUri;
 		protected readonly ILogger Logger;
 		protected readonly SubscriberSocket SubscriberSocket;
 
@@ -17,10 +19,14 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		private readonly CancellationTokenSource _workerCancellationTokenSource;
 		private Task _workerTask;
 
-		protected BaseSubscriber(int queueSize, LogFactory logFactory) {
+		protected BaseSubscriber(Proto.Topic[] topics, Uri connect, int queueSize, LogFactory logFactory) {
+			Topics = topics;
+			ConnectUri = connect.ToString().TrimEnd('/');
 			Logger = logFactory.GetLoggerFor(this);
-
 			SubscriberSocket = new SubscriberSocket();
+			foreach (var v in Topics) {
+				SubscriberSocket.Subscribe(v.ToString());
+			}
 
 			_startStopMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
@@ -48,7 +54,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		protected virtual void DisposeManaged() {
 			Logger.Trace("Disposing");
 			
-			Stop(true);
+			Stop();
 			_workerCancellationTokenSource?.Dispose();
 			_workerTask?.Dispose();
 			SubscriberSocket?.Dispose();
@@ -59,7 +65,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		public void Run() {
 			lock (_startStopMonitor) {
 				if (_workerTask == null) {
-					Logger.Trace($"Run()");
+					Logger.Trace($"Run worker");
 					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
 				}
 			}
@@ -71,17 +77,16 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			}
 		}
 
-		public void Stop(bool blocking = false) {
+		private void Stop() {
 			lock (_startStopMonitor) {
+				if (_workerTask != null) {
+					Logger.Trace("Send stop event");
+					_workerCancellationTokenSource.Cancel();
 
-				Logger.Trace("Stop(): send cancellation");
-				_workerCancellationTokenSource.Cancel();
-
-				if (blocking && _workerTask != null) {
-					Logger.Trace("Stop(): wait for cancellation");
+					Logger.Trace("Wait for worker");
 					_workerTask.Wait();
-					_workerTask = null;
 				}
+				_workerTask = null;
 			}
 		}
 
@@ -131,11 +136,16 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			var ctoken = _workerCancellationTokenSource.Token;
 
 			while (!ctoken.IsCancellationRequested) {
+
+				// TODO: ping + reconnect
+				// SubscriberSocket.Disconnect(ConnectUri);
+				// SubscriberSocket.Connect(ConnectUri);
+
 				SubscriberSocket.Poll();
 				Thread.Sleep(TimeSpan.FromMilliseconds(200));
 			}
 
-			Logger.Trace("Worker(): cancelled");
+			Logger.Trace("Worker stopped");
 		}
 	}
 }

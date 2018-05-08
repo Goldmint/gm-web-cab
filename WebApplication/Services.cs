@@ -238,6 +238,7 @@ namespace Goldmint.WebApplication {
 			logger.Info("Stop services");
 
 			_busSafeRatesSubscriber?.Dispose();
+			NetMQ.NetMQConfig.Cleanup(true);
 		}
 	}
 }
