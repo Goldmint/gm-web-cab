@@ -7,6 +7,7 @@ import { UserService } from "./user.service";
 import { BigNumber } from 'bignumber.js'
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class EthereumService {
@@ -48,6 +49,8 @@ export class EthereumService {
   private _obsEthBalance: Observable<BigNumber> = this._obsEthBalanceSubject.asObservable();
   private _obsTotalGoldBalancesSubject = new BehaviorSubject<Object>(null);
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
+  public getSuccessBuyRequestLink$ = new Subject();
+  public getSuccessSellRequestLink$ = new Subject();
 
   constructor(
     private _userService: UserService,
@@ -237,7 +240,9 @@ export class EthereumService {
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString() }, (err, res) => { });
+    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString() }, (err, res) => {
+      this.getSuccessBuyRequestLink$.next(res);
+    });
   }
 
   public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
@@ -245,7 +250,9 @@ export class EthereumService {
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0 }, (err, res) => { });
+    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0 }, (err, res) => {
+      this.getSuccessSellRequestLink$.next(res);
+    });
   }
 
   public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {

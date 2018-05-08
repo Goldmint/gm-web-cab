@@ -45,7 +45,7 @@
 
       <ng-template #blockMethods>
         <!-- TFA REQUIRED -->
-        <ng-container *ngIf="!tfaInfo.enabled">
+       <!-- <ng-container *ngIf="!tfaInfo.enabled">
 
           <p class="mb-5" [innerHTML]=" 'PAGES.Withdraw.TFA.Text' | translate "></p>
 
@@ -55,30 +55,30 @@
                 <use xlink:href="#verify-secure"></use>
               </svg>
               <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+              <p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
             </div>
             <div class="col-lg-3">
               <svg class="kyc-pros__icon" width="28px" height="44px">
                 <use xlink:href="#verify-simple"></use>
               </svg>
               <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+              <p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
             </div>
             <div class="col-lg-3">
               <svg class="kyc-pros__icon" width="36px" height="44px">
                 <use xlink:href="#verify-complaint"></use>
               </svg>
               <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+              <p class="kyc-pros__desc kyc-pros__desc&#45;&#45;small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
             </div>
             <div class="col-lg-3 pl-lg-4 ml-2 align-self-center pb-3">
               <a routerLink="/account/2fa" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.TFA.Button" | translate }}</a>
             </div>
           </div>
-        </ng-container>
+        </ng-container>-->
 
         <!-- WITHDRAWAL METHODS -->
-        <ng-container *ngIf="tfaInfo.enabled">
+        <ng-container>
           <div class="row mb-4 align-items-baseline">
 
             <div class="col col-xl-3 form-group text-center">

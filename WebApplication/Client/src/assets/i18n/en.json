@@ -52,6 +52,12 @@
         "Labels": {
           "Amount": "Amount",
           "Estimate": "Estimates Amount"
+        },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Steps": "Please wait at least 12 confirmation steps",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
         }
       },
       "SectionTitle": "Instant Sell",
@@ -79,6 +85,12 @@
         "Heading": "Cryptocurrency",
         "Labels": {
           "Amount": "Estimates Amount"
+        },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Steps": "Please wait at least 12 confirmation steps",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
         }
       },
       "Labels": {

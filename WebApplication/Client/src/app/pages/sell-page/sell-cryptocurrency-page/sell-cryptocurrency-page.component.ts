@@ -1,4 +1,12 @@
-import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostBinding,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {APIService, EthereumService, GoldrateService, MessageBoxService, UserService} from "../../../services";
 import {TFAInfo} from "../../../interfaces";
 import {User} from "../../../interfaces/user";
@@ -7,11 +15,14 @@ import {BigNumber} from "bignumber.js";
 import {Observable} from "rxjs/Observable";
 import {TranslateService} from "@ngx-translate/core";
 import {Router} from "@angular/router";
+import {environment} from "../../../../environments/environment";
+import {Subscription} from "rxjs/Subscription";
 
 @Component({
   selector: 'app-sell-cryptocurrency-page',
   templateUrl: './sell-cryptocurrency-page.component.html',
-  styleUrls: ['./sell-cryptocurrency-page.component.sass']
+  styleUrls: ['./sell-cryptocurrency-page.component.sass'],
+  encapsulation: ViewEncapsulation.None
 })
 export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
@@ -21,6 +32,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
   public loading = false;
   public progress: boolean = false;
+  public isFirstLoad = true;
   public isBalancesLoaded: boolean = false;
   public confirmation: boolean = false;
   public locale: string;
@@ -51,6 +63,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public cCurrencyAmountView = 0;
   public cCurrencyEstimateAmount = 0;
   public invalidBalance = false;
+  public etherscanUrl = environment.etherscanUrl;
+  public sub1: Subscription;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -107,7 +121,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           this.goldBalance = data[0];
           this.mntpBalance = data[1];
           this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-          this.setCCurrencyGoldBalance();
+          if (this.isFirstLoad) {
+            this.setCCurrencyGoldBalance();
+            this.isFirstLoad = false;
+          }
         }
     });
 
@@ -190,6 +207,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
   onCryptoCurrencySubmit() {
     this.loading = true;
+    this.sub1 && this.sub1.unsubscribe();
     if (this.selectedWallet === 0) {
 
     } else {
@@ -211,6 +229,23 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
                   if (ok) {
                     this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
                       this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, this.cCurrencyCoinAmount);
+
+                      this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
+                        if (hash) {
+                          this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+                            this._messageBox.alert(`
+                            <div class="text-center">
+                              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+                              <div>${phrases.Steps}</div>
+                              <div>${phrases.Hash}</div>
+                              <div class="mb-2 sell-hash">${hash}</div>
+                              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+                            </div>
+                          `);
+                          });
+                        }
+                      });
+
                     });
                   }
                 });
