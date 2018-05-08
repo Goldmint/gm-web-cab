@@ -21,7 +21,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
 
   public loading = true;
   public selectedWallet = 0;
-  public user: User;
+  public user;
   public tfaInfo: TFAInfo;
   public isMetamask = true;
 
@@ -39,13 +39,13 @@ export class SellPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._userService.currentUser
+      this._apiService.getProfile()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
-        this.user = res[1];
+        this.user = res[1].data;
         this.loading = false;
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       });
 
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;

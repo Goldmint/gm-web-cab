@@ -25,7 +25,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public loading = true;
   public selectedWallet = 0;
   public isMetamask = true;
-  public user: User;
+  public user;
   public tfaInfo: TFAInfo;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -42,11 +42,11 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._userService.currentUser
+      this._apiService.getProfile()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
-        this.user = res[1];
+        this.user = res[1].data;
         this.loading = false;
         this._cdRef.markForCheck();
       });
