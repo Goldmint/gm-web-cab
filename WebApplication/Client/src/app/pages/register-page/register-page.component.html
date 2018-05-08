@@ -7,7 +7,12 @@
       <div class="page__subtitle">Web Application</div>
     </div>
 
-    <div class="row">
+    <div class="text-center mt-5 mb-5" *ngIf="false">
+      <div class="register-paused">{{ "PAGES.Register.Paused" | translate }}</div>
+      <div routerLink="/signin" class="btn btn-primary mt-4">{{ "BUTTONS.Back" | translate }}</div>
+    </div>
+
+    <div class="row" *ngIf="true">
       <div class="col-md-6 pr-3">
         <section class="section section--no-bottom">
           <h2 class="section__title">{{ "PAGES.Register.SectionTitles.Register" | translate }}</h2>

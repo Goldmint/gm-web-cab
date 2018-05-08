@@ -47,6 +47,7 @@
         "CtyptoCurrency": "Cryptocurrency",
         "CryptoCapital": "CryptoCapital"
       },
+      "Paused": "Sell transactions are paused",
       "CtyptoCurrency": {
         "Heading": "Cryptocurrency",
         "Labels": {
@@ -81,6 +82,7 @@
         "CtyptoCurrency": "Cryptocurrency",
         "CryptoCapital": "CryptoCapital"
       },
+      "Paused": "Buy transactions are paused",
       "CtyptoCurrency": {
         "Heading": "Cryptocurrency",
         "Labels": {
@@ -564,6 +566,7 @@
         "Email": "Email",
         "Password": "Password"
       },
+      "Paused": "New accounts registration is temporary stopped",
       "Errors": {
         "Username": {
           "required": "Email or Username is required",
