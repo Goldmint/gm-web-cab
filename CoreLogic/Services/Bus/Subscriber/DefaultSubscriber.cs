@@ -25,6 +25,14 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			_cbk = cbk;
 		}
 
+		protected override void OnNewMessage(string topic, DateTime stamp, byte[] message) {
+			_cbk?.Invoke(this, Deserialize(message));
+		}
+
+		// ---
+
+#if DEBUG
+
 		public bool ReceiveBlocking(out T result) {
 			result = default(T);
 			if (Receive(out var topic, out var stamp, out var message)) {
@@ -33,9 +41,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			}
 			return false;
 		}
+#endif
 
-		protected override void OnNewMessage(string topic, DateTime stamp, byte[] message) {
-			_cbk?.Invoke(this, Deserialize(message));
-		}
 	}
 }

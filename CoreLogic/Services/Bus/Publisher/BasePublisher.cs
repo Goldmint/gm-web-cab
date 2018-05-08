@@ -14,16 +14,19 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		protected readonly ILogger Logger;
 		protected readonly PublisherSocket PublisherSocket;
 
-		private readonly object _startStopMonitor;
+		private readonly object _runStopMonitor;
 		private readonly CancellationTokenSource _workerCancellationTokenSource;
 		private Task _workerTask;
+
+		private bool _bound;
+		private bool _running;
 
 		protected BasePublisher(Uri bindUri, int queueSize, LogFactory logFactory) {
 			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
 			Logger = logFactory.GetLoggerFor(this);
 			PublisherSocket = new PublisherSocket();
 
-			_startStopMonitor = new object();
+			_runStopMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
 
 			PublisherSocket.Options.SendHighWatermark = queueSize;
@@ -45,6 +48,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			Logger.Trace("Disposing");
 
 			Stop();
+
 			_workerCancellationTokenSource?.Dispose();
 			_workerTask?.Dispose();
 			PublisherSocket?.Dispose();
@@ -53,37 +57,48 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		// ---
 
 		public void Run() {
-			lock (_startStopMonitor) {
+			lock (_runStopMonitor) {
 				if (_workerTask == null) {
 
-					Logger.Trace($"Bind to " + BindUri);
-					PublisherSocket.Bind(BindUri);
+					if (!_bound) {
+						Logger.Trace($"Bind to " + BindUri);
+						PublisherSocket.Bind(BindUri);
+						_bound = true;
+					}
 
 					Logger.Trace($"Run worker");
 					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
+					_running = _workerTask != null;
 				}
 			}
 		}
 
 		public bool IsRunning() {
-			lock (_startStopMonitor) {
-				return _workerTask != null;
-			}
+			return _running;
 		}
 
 		private void Stop() {
-			lock (_startStopMonitor) {
-				if (_workerTask != null) {
-					Logger.Trace("Send stop event");
-					_workerCancellationTokenSource.Cancel();
+			lock (_runStopMonitor) {
 
+				StopAsync();
+
+				if (_workerTask != null) {
 					Logger.Trace("Wait for worker");
 					_workerTask.Wait();
+				}
 
+				if (_bound) {
 					Logger.Trace("Unbind from " + BindUri);
 					PublisherSocket.Unbind(BindUri);
+					_bound = false;
 				}
-				_workerTask = null;
+			}
+		}
+
+		public void StopAsync() {
+			if (!_workerCancellationTokenSource.IsCancellationRequested) {
+				Logger.Trace("Send stop event");
+				_workerCancellationTokenSource.Cancel();
 			}
 		}
 
@@ -112,6 +127,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			}
 
 			Logger.Trace("Worker stopped");
+			_running = false;
 		}
 	}
 }

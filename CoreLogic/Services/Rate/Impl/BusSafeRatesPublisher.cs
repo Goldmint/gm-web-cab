@@ -20,7 +20,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			_logger.Trace($"Publishing {rates.Length} rates");
 
-			_busPublisher.PublishMessage(new Bus.Proto.SafeRatesMessage() {
+			_busPublisher.PublishMessage(Bus.Proto.Topic.FiatRates, new Bus.Proto.SafeRatesMessage() {
 				Rates = rates.Select(SafeCurrencyRate.BusSerialize).ToArray(),
 			});
 

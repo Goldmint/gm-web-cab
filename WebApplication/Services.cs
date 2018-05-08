@@ -197,7 +197,7 @@ namespace Goldmint.WebApplication {
 
 			// rates
 			_busSafeRatesSubscriber = new DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
-				CoreLogic.Services.Bus.Proto.Topic.FiatRates,
+				new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates },
 				new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 				_loggerFactory
 			);

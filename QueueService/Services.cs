@@ -85,7 +85,6 @@ namespace Goldmint.QueueService {
 
 				// rates publisher
 				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
-					CoreLogic.Services.Bus.Proto.Topic.FiatRates,
 					new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 					_loggerFactory
 				);
@@ -93,7 +92,7 @@ namespace Goldmint.QueueService {
 					_busSafeRatesPublisher,
 					_loggerFactory
 				);
-				_busSafeRatesPublisher.Bind();
+				_busSafeRatesPublisher.Run();
 
 				// rates dispatcher
 				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
@@ -120,7 +119,7 @@ namespace Goldmint.QueueService {
 				if (services.Count(x => x.ServiceType == typeof(IAggregatedSafeRatesSource)) == 0) {
 
 					_busSafeRatesSubscriber = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
-						CoreLogic.Services.Bus.Proto.Topic.FiatRates,
+						new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates },
 						new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 						_loggerFactory
 					);
