@@ -14,7 +14,8 @@
       "Countries": "Countries",
       "Fees": "Withdraw/deposit fees",
       "Users": "Users",
-      "TradeRequests": "Trade Requests"
+      "TradeRequests": "Trade Requests",
+      "Telemetry": "Telemetry"
     }
   },
   "PAGES": {
@@ -128,6 +129,9 @@
       "Issued": "Total issued:",
       "Burnt": "Total burnt:",
       "Circulation": "Total in circulation:"
+    },
+    "Telemetry": {
+      "Heading": "Telemetry"
     },
     "Login": {
       "SectionTitles": {

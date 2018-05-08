@@ -17,6 +17,7 @@ import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profi
 import {FeesPageComponent} from "./pages/fees-page/fees-page.component";
 import {SwiftPageComponent} from "./pages/swift-page/swift-page.component";
 import {TradeRequestsPageComponent} from "./pages/trade-requests-page/trade-requests-page.component";
+import {TelemetryPageComponent} from "./pages/telemetry-page/telemetry-page.component";
 
 const appRoutes: Routes = [
 
@@ -33,6 +34,7 @@ const appRoutes: Routes = [
     ]
   },
   { path: 'trade-requests', component: TradeRequestsPageComponent, canActivate: [AuthGuard] },
+  { path: 'telemetry', component: TelemetryPageComponent, canActivate: [AuthGuard] },
   {
     path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [
