@@ -21,6 +21,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 		public SafeRatesBus(ITestOutputHelper testOutput) : base(testOutput) {
 		}
 
+		protected override void DisposeManaged() {
+			NetMQ.NetMQConfig.Cleanup(true);
+			base.DisposeManaged();
+		}
+
 		// ---
 
 		[Fact]

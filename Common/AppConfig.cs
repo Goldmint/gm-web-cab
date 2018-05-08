@@ -156,6 +156,7 @@ namespace Goldmint.Common {
 			public class GMRatesProviderSection {
 
 				public string GoldRateUrl { get; set; } = "";
+				public string EthRateUrl { get; set; } = "";
 			}
 		}
 

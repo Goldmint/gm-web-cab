@@ -76,12 +76,12 @@ namespace Goldmint.QueueService {
 				}
 
 				// rate providers
-				services.AddSingleton<IGoldRateProvider>(
-					fac => new GMGoldRateProvider(_loggerFactory, opts => { opts.Url = _appConfig.Services.GMRatesProvider.GoldRateUrl; })
-				);
-				services.AddSingleton<IEthRateProvider>(
-					fac => new CoinbaseRateProvider(_loggerFactory)
-				);
+				var gmRateProvider = new GmRatesProvider(_loggerFactory, opts => {
+					opts.GoldUrl = _appConfig.Services.GMRatesProvider.GoldRateUrl;
+					opts.EthUrl = _appConfig.Services.GMRatesProvider.EthRateUrl;
+				});
+				services.AddSingleton<IGoldRateProvider>(gmRateProvider);
+				services.AddSingleton<IEthRateProvider>(gmRateProvider);
 
 				// rates publisher
 				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
@@ -142,6 +142,8 @@ namespace Goldmint.QueueService {
 			_safeAggregatedRatesDispatcher?.Dispose();
 			_busSafeRatesPublisher?.Dispose();
 			_busSafeRatesSubscriber?.Dispose();
+
+			NetMQ.NetMQConfig.Cleanup(true);
 		}
 	}
 }

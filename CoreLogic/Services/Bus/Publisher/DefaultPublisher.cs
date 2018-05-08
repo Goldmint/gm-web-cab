@@ -6,7 +6,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public sealed class DefaultPublisher<T> : BasePublisher {
 
-		public DefaultPublisher(Proto.Topic topic, Uri bindUri, LogFactory logFactory) : base(bindUri, topic, 0xFFFF, logFactory) {
+		public DefaultPublisher(Uri bindUri, LogFactory logFactory) : base(bindUri, 0xFFFF, logFactory) {
 		}
 
 		// ---
@@ -19,8 +19,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			}
 		}
 
-		public void PublishMessage(T message) {
-			PublishMessage(Serialize(message));
+		public void PublishMessage(Proto.Topic topic, T message) {
+			PublishMessage(topic, Serialize(message));
 		}
 	}
 }
