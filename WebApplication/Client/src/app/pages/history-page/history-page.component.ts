@@ -9,6 +9,7 @@ import {UserService, APIService, EthereumService} from '../../services';
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
+import {environment} from "../../../environments/environment";
 
 
 @Component({
@@ -26,7 +27,7 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   public rows:  Array<HistoryRecord> = [];
   public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No data'};
-  public etherscanLink: string = 'https://rinkeby.etherscan.io/tx/';
+  public etherscanUrl = environment.etherscanUrl;
   public isMobile: boolean;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
