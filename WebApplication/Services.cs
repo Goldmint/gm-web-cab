@@ -35,7 +35,7 @@ namespace Goldmint.WebApplication {
 
 	public partial class Startup {
 
-		private DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesSubscriber;
+		private DefaultSubscriber _busSafeRatesSubscriber;
 		private BusSafeRatesSource _busSafeRatesSource;
 
 		public IServiceProvider ConfigureServices(IServiceCollection services) {
@@ -196,7 +196,7 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rates
-			_busSafeRatesSubscriber = new DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+			_busSafeRatesSubscriber = new DefaultSubscriber(
 				new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates },
 				new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 				_loggerFactory

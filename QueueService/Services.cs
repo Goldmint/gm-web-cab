@@ -23,9 +23,9 @@ namespace Goldmint.QueueService {
 	public partial class Program {
 
 		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
-		private static CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesPublisher;
+		private static CoreLogic.Services.Bus.Publisher.DefaultPublisher _busSafeRatesPublisher;
 		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
-		private static CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage> _busSafeRatesSubscriber;
+		private static CoreLogic.Services.Bus.Subscriber.DefaultSubscriber _busSafeRatesSubscriber;
 		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 
 		private static void SetupCommonServices(ServiceCollection services) {
@@ -84,7 +84,7 @@ namespace Goldmint.QueueService {
 				services.AddSingleton<IEthRateProvider>(gmRateProvider);
 
 				// rates publisher
-				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+				_busSafeRatesPublisher = new CoreLogic.Services.Bus.Publisher.DefaultPublisher(
 					new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 					_loggerFactory
 				);
@@ -118,7 +118,7 @@ namespace Goldmint.QueueService {
 				// aggregated rates source (could be added in section above)
 				if (services.Count(x => x.ServiceType == typeof(IAggregatedSafeRatesSource)) == 0) {
 
-					_busSafeRatesSubscriber = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber<CoreLogic.Services.Bus.Proto.SafeRatesMessage>(
+					_busSafeRatesSubscriber = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber(
 						new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates },
 						new Uri(_appConfig.Bus.WorkerRates.PubUrl),
 						_loggerFactory

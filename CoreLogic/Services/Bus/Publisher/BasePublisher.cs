@@ -1,10 +1,12 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Bus.Proto;
 using NetMQ;
 using NetMQ.Sockets;
 using NLog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NetMQ.Monitoring;
 
 namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
@@ -12,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 		protected readonly string BindUri;
 		protected readonly ILogger Logger;
-		protected readonly PublisherSocket PublisherSocket;
+		protected readonly XPublisherSocket PublisherSocket;
 
 		private readonly object _runStopMonitor;
 		private readonly CancellationTokenSource _workerCancellationTokenSource;
@@ -24,7 +26,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		protected BasePublisher(Uri bindUri, int queueSize, LogFactory logFactory) {
 			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
 			Logger = logFactory.GetLoggerFor(this);
-			PublisherSocket = new PublisherSocket();
+			PublisherSocket = new XPublisherSocket();
+			
 
 			_runStopMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
@@ -37,6 +40,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			PublisherSocket.Options.TcpKeepalive = false;
 			// PublisherSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
 			// PublisherSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);
+
+			PublisherSocket.ReceiveReady += PublisherSocketOnReceiveReady;
 		}
 
 		public void Dispose() {
@@ -84,7 +89,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 				if (_workerTask != null) {
 					Logger.Trace("Wait for worker");
-					_workerTask.Wait();
+					while (_running) {
+						Thread.Sleep(50);
+					}
 				}
 
 				if (_bound) {
@@ -119,15 +126,45 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		// ---
 
 		private void Worker() {
-			var ctoken = _workerCancellationTokenSource.Token;
+			try {
+				var ctoken = _workerCancellationTokenSource.Token;
 
-			while (!ctoken.IsCancellationRequested) {
-				// TODO: send ping
-				Thread.Sleep(TimeSpan.FromMilliseconds(200));
+				var nextHbTime = DateTime.UtcNow;
+				var hbPayload = new byte[0];
+
+				while (!ctoken.IsCancellationRequested) {
+
+					var now = DateTime.UtcNow;
+
+					// heartbeat
+					if (now >= nextHbTime) {
+						PublishMessage(Topic.Hb, hbPayload);
+						nextHbTime = now.AddSeconds(2);
+					}
+
+					PublisherSocket.Poll(TimeSpan.FromMilliseconds(200));
+				}
+			}
+			finally {
+				Logger.Trace("Worker stopped");
+				_running = false;
+			}
+		}
+
+		private void PublisherSocketOnReceiveReady(object sender, NetMQSocketEventArgs netMqSocketEventArgs) {
+			if (PubSubCommon.ReceiveMessage(PublisherSocket, out var tmptopic, out var tmpstamp, out var tmpmessage)) {
+				return;
 			}
 
-			Logger.Trace("Worker stopped");
-			_running = false;
+			if (tmptopic != null && tmpmessage != null && long.TryParse(tmpstamp, out var stampUnix)) {
+				var topic = tmptopic;
+				var stamp = DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime;
+				var message = tmpmessage;
+
+				Logger.Trace($"Message received: { topic } / { stamp } / { message.Length }b");
+				
+				OnMessage
+			}
 		}
 	}
 }
