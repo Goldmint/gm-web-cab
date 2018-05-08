@@ -3,9 +3,9 @@ import { ActivatedRoute } from "@angular/router";
 
 enum Pages {termsOfUse, privacy, kycpolicy}
 let linksArray:[string] = [
-    'http://www.pdf995.com/samples/pdf.pdf',
-    'http://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf',
-    'http://gahp.net/wp-content/uploads/2017/09/sample.pdf',
+  'https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf',
+  'https://www.goldmint.io/media/documents/Consumer%20data%20privacy%20Policy.pdf',
+  'https://www.goldmint.io/media/documents/KYC&AML%20Policy.pdf'
 ];
 
 @Component({
