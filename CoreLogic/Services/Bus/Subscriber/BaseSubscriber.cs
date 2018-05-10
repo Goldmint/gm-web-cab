@@ -117,7 +117,10 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			stamp = DateTime.UtcNow;
 			message = null;
 
-			var hm = PubSubCommon.ReceiveMessage(SubscriberSocket, out var tmptopic, out var tmpstamp, out var tmpmessage);
+			var hm = false;
+			var tmptopic = SubscriberSocket.ReceiveFrameString();
+			var tmpstamp = SubscriberSocket.ReceiveFrameString();
+			var tmpmessage = SubscriberSocket.ReceiveFrameBytes(out hm);
 
 			if (hm) {
 				Stop();

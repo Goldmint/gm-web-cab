@@ -58,7 +58,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			}
 			return false;
 		}
-#endif
 
+#endif
 	}
 }

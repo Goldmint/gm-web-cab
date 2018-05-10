@@ -6,7 +6,6 @@ using NLog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NetMQ.Monitoring;
 
 namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
@@ -14,7 +13,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 		protected readonly string BindUri;
 		protected readonly ILogger Logger;
-		protected readonly XPublisherSocket PublisherSocket;
+		protected readonly PublisherSocket PublisherSocket;
 
 		private readonly object _runStopMonitor;
 		private readonly CancellationTokenSource _workerCancellationTokenSource;
@@ -26,7 +25,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		protected BasePublisher(Uri bindUri, int queueSize, LogFactory logFactory) {
 			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
 			Logger = logFactory.GetLoggerFor(this);
-			PublisherSocket = new XPublisherSocket();
+			PublisherSocket = new PublisherSocket();
 			
 
 			_runStopMonitor = new object();
@@ -40,8 +39,6 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			PublisherSocket.Options.TcpKeepalive = false;
 			// PublisherSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
 			// PublisherSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);
-
-			PublisherSocket.ReceiveReady += PublisherSocketOnReceiveReady;
 		}
 
 		public void Dispose() {
@@ -148,22 +145,6 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			finally {
 				Logger.Trace("Worker stopped");
 				_running = false;
-			}
-		}
-
-		private void PublisherSocketOnReceiveReady(object sender, NetMQSocketEventArgs netMqSocketEventArgs) {
-			if (PubSubCommon.ReceiveMessage(PublisherSocket, out var tmptopic, out var tmpstamp, out var tmpmessage)) {
-				return;
-			}
-
-			if (tmptopic != null && tmpmessage != null && long.TryParse(tmpstamp, out var stampUnix)) {
-				var topic = tmptopic;
-				var stamp = DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime;
-				var message = tmpmessage;
-
-				Logger.Trace($"Message received: { topic } / { stamp } / { message.Length }b");
-				
-				OnMessage
 			}
 		}
 	}

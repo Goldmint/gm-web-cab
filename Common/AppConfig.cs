@@ -185,6 +185,18 @@ namespace Goldmint.Common {
 					public int ValidForSec { get; set; } = 60;
 				}
 			}
+
+			public TelemetrySection Telemetry { get; set; } = new TelemetrySection();
+			public class TelemetrySection {
+
+				public ServerSection[] Servers { get; set; } = {};
+
+				public class ServerSection {
+
+					public string Name { get; set; } = "";
+					public string Endpoint { get; set; } = "";
+				}
+			}
 		}
 
 		// ---
