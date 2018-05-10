@@ -8,14 +8,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 	public sealed class DefaultSubscriber<T> : BaseSubscriber {
 
-		private readonly Proto.Topic _topic;
 		private Action<DefaultSubscriber<T>, T> _cbk;
 
-		public DefaultSubscriber(Proto.Topic topic, Uri connectUri, LogFactory logFactory) : base(0xFFFF, logFactory) {
-			_topic = topic;
-
-			SubscriberSocket.Subscribe(_topic.ToString());
-			SubscriberSocket.Connect(connectUri.ToString().TrimEnd('/'));
+		public DefaultSubscriber(Proto.Topic[] topics, Uri connectUri, LogFactory logFactory) : base(topics, connectUri, 0xFFFF, logFactory) {
 		}
 
 		// ---
@@ -30,6 +25,14 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			_cbk = cbk;
 		}
 
+		protected override void OnNewMessage(string topic, DateTime stamp, byte[] message) {
+			_cbk?.Invoke(this, Deserialize(message));
+		}
+
+		// ---
+
+#if DEBUG
+
 		public bool ReceiveBlocking(out T result) {
 			result = default(T);
 			if (Receive(out var topic, out var stamp, out var message)) {
@@ -38,9 +41,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			}
 			return false;
 		}
+#endif
 
-		protected override void OnNewMessage(string topic, DateTime stamp, byte[] message) {
-			_cbk?.Invoke(this, Deserialize(message));
-		}
 	}
 }

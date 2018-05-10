@@ -10,19 +10,30 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 	public abstract class BaseSubscriber: IDisposable {
 
+		protected readonly Proto.Topic[] Topics;
+		protected readonly string ConnectUri;
 		protected readonly ILogger Logger;
 		protected readonly SubscriberSocket SubscriberSocket;
 
-		private readonly object _startStopMonitor;
+		private readonly object _runStopMonitor;
+		private readonly object _connectMonitor;
 		private readonly CancellationTokenSource _workerCancellationTokenSource;
 		private Task _workerTask;
 
-		protected BaseSubscriber(int queueSize, LogFactory logFactory) {
+		private bool _running;
+		private bool _connected;
+
+		protected BaseSubscriber(Proto.Topic[] topics, Uri connect, int queueSize, LogFactory logFactory) {
+			Topics = topics;
+			ConnectUri = connect.ToString().TrimEnd('/');
 			Logger = logFactory.GetLoggerFor(this);
-
 			SubscriberSocket = new SubscriberSocket();
+			foreach (var v in Topics) {
+				SubscriberSocket.Subscribe(v.ToString());
+			}
 
-			_startStopMonitor = new object();
+			_runStopMonitor = new object();
+			_connectMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
 
 			SubscriberSocket.Options.SendHighWatermark = queueSize;
@@ -48,7 +59,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		protected virtual void DisposeManaged() {
 			Logger.Trace("Disposing");
 			
-			Stop(true);
+			Stop();
+			Disconnect();
+
 			_workerCancellationTokenSource?.Dispose();
 			_workerTask?.Dispose();
 			SubscriberSocket?.Dispose();
@@ -57,31 +70,35 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		// ---
 
 		public void Run() {
-			lock (_startStopMonitor) {
+			lock (_runStopMonitor) {
 				if (_workerTask == null) {
-					Logger.Trace($"Run()");
+					Logger.Trace($"Run worker");
 					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
+					_running = _workerTask != null;
 				}
 			}
 		}
 
 		public bool IsRunning() {
-			lock (_startStopMonitor) {
-				return _workerTask != null;
+			return _running;
+		}
+
+		private void Stop() {
+			lock (_runStopMonitor) {
+
+				StopAsync();
+
+				if (_workerTask != null) {
+					Logger.Trace("Wait for worker");
+					_workerTask.Wait();
+				}
 			}
 		}
 
-		public void Stop(bool blocking = false) {
-			lock (_startStopMonitor) {
-
-				Logger.Trace("Stop(): send cancellation");
+		public void StopAsync() {
+			if (!_workerCancellationTokenSource.IsCancellationRequested) {
+				Logger.Trace("Send stop event");
 				_workerCancellationTokenSource.Cancel();
-
-				if (blocking && _workerTask != null) {
-					Logger.Trace("Stop(): wait for cancellation");
-					_workerTask.Wait();
-					_workerTask = null;
-				}
 			}
 		}
 
@@ -130,12 +147,45 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		private void Worker() {
 			var ctoken = _workerCancellationTokenSource.Token;
 
+			Connect();
+
 			while (!ctoken.IsCancellationRequested) {
-				SubscriberSocket.Poll();
-				Thread.Sleep(TimeSpan.FromMilliseconds(200));
+
+				if (!_connected) {
+					Connect();
+				}
+
+				SubscriberSocket.Poll(TimeSpan.FromMilliseconds(200));
 			}
 
-			Logger.Trace("Worker(): cancelled");
+			Disconnect();
+
+			Logger.Trace("Worker stopped");
+			_running = false;
+		}
+
+		public bool Connect() {
+			lock (_connectMonitor) {
+				if (!_connected) {
+					SubscriberSocket.Connect(ConnectUri);
+					_connected = true;
+					return true;
+				}
+
+				return false;
+			}
+		}
+
+		public bool Disconnect() {
+			lock (_connectMonitor) {
+				if (_connected) {
+					SubscriberSocket.Disconnect(ConnectUri);
+					_connected = false;
+					return true;
+				}
+
+				return false;
+			}
 		}
 	}
 }

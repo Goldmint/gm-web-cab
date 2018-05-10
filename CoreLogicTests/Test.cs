@@ -8,6 +8,7 @@ namespace Goldmint.CoreLogicTests {
 		protected NLog.LogFactory LogFactory;
 		protected NLog.ILogger Logger;
 		private NLog.Targets.MemoryTarget _memoryLogTarget;
+		private NLog.Targets.ConsoleTarget _consoleTarget;
 
 		protected Test(Xunit.Abstractions.ITestOutputHelper testOutput) {
 			_testOutput = testOutput;
@@ -40,8 +41,16 @@ namespace Goldmint.CoreLogicTests {
 			};
 			config.AddTarget("memory", _memoryLogTarget);
 
-			var ruleAll = new NLog.Config.LoggingRule("*", NLog.LogLevel.Trace, _memoryLogTarget);
-			config.LoggingRules.Add(ruleAll);
+			_consoleTarget = new NLog.Targets.ConsoleTarget() {
+				Layout = @"${uppercase:${level}}|${logger}|${message} ${exception:format=toString,Data:maxInnerExceptionLevel=100}"
+			};
+			config.AddTarget("console", _consoleTarget);
+
+			var ruleMemory = new NLog.Config.LoggingRule("*", NLog.LogLevel.Trace, _memoryLogTarget);
+			config.LoggingRules.Add(ruleMemory);
+
+			var ruleConsole = new NLog.Config.LoggingRule("*", NLog.LogLevel.Trace, _consoleTarget);
+			config.LoggingRules.Add(ruleConsole);
 
 			LogFactory = new NLog.LogFactory(config);
 		}
