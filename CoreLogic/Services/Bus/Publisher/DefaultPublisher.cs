@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
-	public sealed class DefaultPublisher : BasePublisher {
+	public class DefaultPublisher : BasePublisher {
 
 		public DefaultPublisher(Uri bindUri, LogFactory logFactory) : base(bindUri, 0xFFFF, logFactory) {
 		}

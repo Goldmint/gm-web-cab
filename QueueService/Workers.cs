@@ -26,8 +26,9 @@ namespace Goldmint.QueueService {
 
 					// doesn't require ethereum at all
 					new NotificationSender(_appConfig.Constants.Workers.Notifications.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.Notifications.PeriodSec)),
-					new Workers.Rates.GoldRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.PeriodSec)),
-					new Workers.Rates.CryptoRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.PeriodSec)),
+					new Workers.Rates.GoldRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.GoldRateUpdater.PeriodSec)),
+					new Workers.Rates.CryptoRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.CryptoRateUpdater.PeriodSec)),
+					new Workers.Telemetry.Aggregator().Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.TelemetryAggregator.PeriodSec)),
 				});
 			}
 
@@ -40,7 +41,7 @@ namespace Goldmint.QueueService {
 					new Workers.Ethereum.SellRequestsHarvester(_appConfig.Constants.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Constants.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthEventsHarvester.PeriodSec)),
 
 					// does require ethereum (writer and reader)
-					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Constants.Workers.EthereumOprations.ItemsPerRound, _appConfig.Constants.Workers.EthereumOprations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthereumOprations.PeriodSec)),
+					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Constants.Workers.EthereumOperations.ItemsPerRound, _appConfig.Constants.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthereumOperations.PeriodSec)),
 				});
 			}
 

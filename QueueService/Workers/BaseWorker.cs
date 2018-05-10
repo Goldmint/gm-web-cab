@@ -74,7 +74,8 @@ namespace Goldmint.QueueService.Workers {
 				}
 			}
 
-			Logger?.Trace("Loop stopped");
+			Logger?.Trace("Loop stopped. Cleanup");
+			OnCleanup();
 		}
 
 		// ---
@@ -111,6 +112,9 @@ namespace Goldmint.QueueService.Workers {
 
 		protected TimeSpan GetPeriod() {
 			return _period;
+		}
+
+		protected virtual void OnCleanup() {
 		}
 
 		protected virtual void OnException(Exception e) {

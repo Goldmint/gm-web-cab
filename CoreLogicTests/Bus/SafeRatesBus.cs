@@ -113,7 +113,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 					});
 
 					var r = 0;
-					sub.Callback(Topic.FiatRates, (payload, self) => {
+					sub.SetTopicCallback(Topic.FiatRates, (payload, self) => {
 						if (!(payload is SafeRatesMessage ratesMessage)) return;
 
 						if (r == 0) {
@@ -176,7 +176,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 			var received = 0;
 			var ts = Task.Factory.StartNew(() => {
 				using (var sub = new DefaultSubscriber(new[] { Topic.FiatRates }, socket, LogFactory)) {
-					sub.Callback(Topic.FiatRates, (payload, self) => {
+					sub.SetTopicCallback(Topic.FiatRates, (payload, self) => {
 						if (!(payload is SafeRatesMessage ratesMessage)) return;
 
 						if (++received >= messages) {
@@ -277,7 +277,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 			var got2 = false;
 			var ts = Task.Factory.StartNew(() => {
 				using (var sub = new DefaultSubscriber(new[] { Topic.FiatRates }, socket, LogFactory)) {
-					sub.Callback(Topic.FiatRates, (payload, self) => {
+					sub.SetTopicCallback(Topic.FiatRates, (payload, self) => {
 						if (!(payload is SafeRatesMessage ratesMessage)) return;
 
 						if (pub1) {
@@ -309,7 +309,8 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			// subscriber source
 			using (var sub = new DefaultSubscriber(new []{ Topic.FiatRates }, socket, LogFactory)) {
-				using (var source = new BusSafeRatesSource(sub, LogFactory)) {
+				using (var source = new BusSafeRatesSource(LogFactory)) {
+					sub.SetTopicCallback(Topic.FiatRates, source.OnNewRates);
 
 					var gold = source.GetRate(CurrencyRateType.Gold);
 					Assert.True(gold != null);
@@ -356,7 +357,8 @@ namespace Goldmint.CoreLogicTests.Bus {
 				pub.Run();
 
 				using (var sub = new DefaultSubscriber(new []{ Topic.FiatRates }, socket, LogFactory)) {
-					using (var source = new BusSafeRatesSource(sub, LogFactory)) {
+					using (var source = new BusSafeRatesSource(LogFactory)) {
+						sub.SetTopicCallback(Topic.FiatRates, source.OnNewRates);
 						sub.Connect();
 
 						var stamp = ((DateTimeOffset) DateTime.UtcNow).ToUnixTimeSeconds();
@@ -480,7 +482,8 @@ namespace Goldmint.CoreLogicTests.Bus {
 				using (var sub = new DefaultSubscriber(new []{ Topic.FiatRates }, socket, LogFactory)) {
 					sub.Run();
 
-					source = new BusSafeRatesSource(sub, LogFactory);
+					source = new BusSafeRatesSource(LogFactory);
+					sub.SetTopicCallback(Topic.FiatRates, source.OnNewRates);
 
 					var goldOk = false;
 					var ethOk = false;

@@ -14,12 +14,10 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
 		private Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public BusSafeRatesSource(Bus.Subscriber.DefaultSubscriber busSubscriber, LogFactory logFactory) {
+		public BusSafeRatesSource(LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_mutexRatesUpdate = new ReaderWriterLockSlim();
 			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
-
-			busSubscriber.Callback(Bus.Proto.Topic.FiatRates, OnNewRates);
 		}
 
 		public void Dispose() {

@@ -1,7 +1,6 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
-using Goldmint.CoreLogic.Services.Bus.Subscriber;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.KYC.Impl;
 using Goldmint.CoreLogic.Services.Localization;
@@ -12,7 +11,7 @@ using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.OpenStorage.Impl;
-using Goldmint.CoreLogic.Services.Rate.Impl;
+using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
@@ -29,14 +28,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using Goldmint.CoreLogic.Services.Rate;
 
 namespace Goldmint.WebApplication {
 
 	public partial class Startup {
 
-		private DefaultSubscriber _busSafeRatesSubscriber;
-		private BusSafeRatesSource _busSafeRatesSource;
+		private CoreLogic.Services.Bus.Subscriber.CentralSubscriber _busCentralSubscriber;
+		private CoreLogic.Services.Bus.Publisher.ChildPublisher _busChildPublisher;
+		private CoreLogic.Services.Rate.Impl.BusSafeRatesSource _busSafeRatesSource;
 
 		public IServiceProvider ConfigureServices(IServiceCollection services) {
 
@@ -196,15 +195,18 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rates
-			_busSafeRatesSubscriber = new DefaultSubscriber(
+			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(_loggerFactory);
+			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
+			services.AddSingleton<CoreLogic.Services.Rate.Impl.SafeRatesFiatAdapter>();
+
+			// subscribe to central pub
+			_busCentralSubscriber = new CoreLogic.Services.Bus.Subscriber.CentralSubscriber(
 				new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates },
-				new Uri(_appConfig.Bus.WorkerRates.PubUrl),
+				new Uri(_appConfig.Bus.CentralPub.Endpoint),
 				_loggerFactory
 			);
-			_busSafeRatesSubscriber.Run();
-			_busSafeRatesSource = new BusSafeRatesSource(_busSafeRatesSubscriber, _loggerFactory);
-			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
-			services.AddSingleton<SafeRatesFiatAdapter>();
+			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, _busSafeRatesSource.OnNewRates);
+			_busCentralSubscriber.Run();
 
 			// open storage
 			services.AddSingleton<IOpenStorageProvider>(fac => 
@@ -230,6 +232,11 @@ namespace Goldmint.WebApplication {
 				return srv;
 			});
 
+			// launch child pub
+			_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(new Uri("tcp://*:6669"), _loggerFactory);
+			_busChildPublisher.Run();
+			services.AddSingleton(_busChildPublisher);
+
 			return services.BuildServiceProvider();
 		}
 
@@ -237,7 +244,10 @@ namespace Goldmint.WebApplication {
 			var logger = _loggerFactory.GetCurrentClassLogger();
 			logger.Info("Stop services");
 
-			_busSafeRatesSubscriber?.Dispose();
+			_busChildPublisher?.Dispose();
+			_busCentralSubscriber?.Dispose();
+			_busSafeRatesSource?.Dispose();
+
 			NetMQ.NetMQConfig.Cleanup(true);
 		}
 	}

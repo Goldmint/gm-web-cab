@@ -3,7 +3,10 @@
 	public enum Topic {
 
 		Hb,
-		ServerStatus,
 		FiatRates,
+
+		StatusApi,
+		StatusCore,
+		StatusOverall
 	}
 }

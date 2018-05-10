@@ -16,28 +16,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using Goldmint.Common;
-using System.Collections.Generic;
 
 namespace Goldmint.QueueService {
 
 	public partial class Program {
 
+		private static CoreLogic.Services.Bus.Publisher.CentralPublisher _busCentralPublisher;
+		private static CoreLogic.Services.Bus.Subscriber.CentralSubscriber _busCentralSubscriber;
+		private static CoreLogic.Services.Bus.Publisher.ChildPublisher _busChildPublisher;
+
 		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
 		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
 		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 
-		//private static CoreLogic.Services.Bus.Publisher.DefaultPublisher _busSafeRatesPublisher;
-		//private static CoreLogic.Services.Bus.Subscriber.DefaultSubscriber _busSafeRatesSubscriber;
-
-		private static List<CoreLogic.Services.Bus.Publisher.DefaultPublisher> _busPublishers;
-		private static List<CoreLogic.Services.Bus.Subscriber.DefaultSubscriber> _busSubscribers;
-
 		private static void SetupCommonServices(ServiceCollection services) {
-
-			_busPublishers = new List<CoreLogic.Services.Bus.Publisher.DefaultPublisher>();
-			_busSubscribers = new List<CoreLogic.Services.Bus.Subscriber.DefaultSubscriber>();
-
+			
 			// app config
 			services.AddSingleton(_environment);
 			services.AddSingleton(_configuration);
@@ -91,26 +84,20 @@ namespace Goldmint.QueueService {
 				services.AddSingleton<IGoldRateProvider>(gmRateProvider);
 				services.AddSingleton<IEthRateProvider>(gmRateProvider);
 
-				// rates publisher
-				var workerPub = new CoreLogic.Services.Bus.Publisher.DefaultPublisher(
-					new Uri(_appConfig.Bus.WorkerRates.PubUrl),
-					_loggerFactory
-				);
-				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(
-					workerPub,
-					_loggerFactory
-				);
-				workerPub.Run();
-				_busPublishers.Add(workerPub);
+				// launch central pub
+				_busCentralPublisher = new CoreLogic.Services.Bus.Publisher.CentralPublisher(new Uri(_appConfig.Bus.CentralPub.Endpoint), _loggerFactory);
+				_busCentralPublisher.Run();
+				services.AddSingleton(_busCentralPublisher);
 
-				// rates dispatcher
+				// rates dispatcher/local source
+				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(_busCentralPublisher, _loggerFactory);
 				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
 					_busSafeRatesPublisherWrapper, 
 					_loggerFactory, 
 					opts => {
-						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.PubPeriodSec);
-						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.ValidForSec);
-						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.ValidForSec);
+						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.PubPeriodSec);
+						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.GoldValidForSec);
+						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.CryptoValidForSec);
 					}
 				);
 				_safeAggregatedRatesDispatcher.Run();
@@ -127,20 +114,25 @@ namespace Goldmint.QueueService {
 				// aggregated rates source (could be added in section above)
 				if (services.Count(x => x.ServiceType == typeof(IAggregatedSafeRatesSource)) == 0) {
 
-					var workerSub = new CoreLogic.Services.Bus.Subscriber.DefaultSubscriber(
+					// subscribe to central pub
+					_busCentralSubscriber = new CoreLogic.Services.Bus.Subscriber.CentralSubscriber(
 						new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates },
-						new Uri(_appConfig.Bus.WorkerRates.PubUrl),
+						new Uri(_appConfig.Bus.CentralPub.Endpoint),
 						_loggerFactory
 					);
-					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(
-						workerSub,
-						_loggerFactory
-					);
-					workerSub.Run();
-					_busSubscribers.Add(workerSub);
+					_busCentralSubscriber.Run();
+					services.AddSingleton(_busCentralSubscriber);
 
+					// rates from central pub
+					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(_loggerFactory);
+					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, _busSafeRatesSubscriberWrapper.OnNewRates);
 					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
 				}
+
+				// launch child pub
+				_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(new Uri("tcp://*:6669"), _loggerFactory);
+				_busChildPublisher.Run();
+				services.AddSingleton(_busChildPublisher);
 			}
 		}
 
@@ -148,18 +140,13 @@ namespace Goldmint.QueueService {
 			var logger = _loggerFactory.GetCurrentClassLogger();
 			logger.Info("StopServices()");
 
+			_busCentralPublisher?.Dispose();
+			_busCentralSubscriber?.Dispose();
+			_busChildPublisher?.Dispose();
+
+			_busSafeRatesSubscriberWrapper?.Dispose();
 			_safeAggregatedRatesDispatcher?.Dispose();
-
-			if (_busPublishers != null)
-				foreach (var v in _busPublishers) {
-					v?.Dispose();
-				}
-
-			if (_busSubscribers != null)
-				foreach (var v in _busSubscribers) {
-					v?.Dispose();
-				}
-
+			
 			NetMQ.NetMQConfig.Cleanup(true);
 		}
 	}

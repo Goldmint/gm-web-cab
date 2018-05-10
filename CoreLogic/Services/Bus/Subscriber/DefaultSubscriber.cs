@@ -6,11 +6,13 @@ using System.IO;
 
 namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
-	public sealed class DefaultSubscriber : BaseSubscriber {
+	public class DefaultSubscriber : BaseSubscriber {
 
+		private readonly object _callbacksMonitor;
 		private readonly Dictionary<Proto.Topic, Action<object, DefaultSubscriber>> _callbacks;
 
 		public DefaultSubscriber(Proto.Topic[] topics, Uri connectUri, LogFactory logFactory) : base(topics, connectUri, 0xFFFF, logFactory) {
+			_callbacksMonitor = new object();
 			_callbacks = new Dictionary<Proto.Topic, Action<object, DefaultSubscriber>>();
 		}
 
@@ -31,13 +33,17 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		}
 
 		private void OnCallback(Proto.Topic topic, object payload) {
-			if (_callbacks.TryGetValue(topic, out var cbk)) {
-				cbk?.Invoke(payload, this);
+			lock (_callbacksMonitor) {
+				if (_callbacks.TryGetValue(topic, out var cbk)) {
+					cbk?.Invoke(payload, this);
+				}
 			}
 		}
 
-		public void Callback(Proto.Topic topic, Action<object, DefaultSubscriber> cbk) {
-			_callbacks[topic] = cbk;
+		public void SetTopicCallback(Proto.Topic topic, Action<object, DefaultSubscriber> cbk) {
+			lock (_callbacksMonitor) {
+				_callbacks[topic] = cbk;
+			}
 		}
 
 		private static T Deserialize<T>(byte[] message) {
