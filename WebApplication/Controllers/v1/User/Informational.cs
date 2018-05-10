@@ -146,7 +146,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					),
 					Comment = i.Comment,
 					Src = i.Source,
+					SrcAmount = i.SourceAmount,
 					Dst = i.Destination,
+					DstAmount = i.DestinationAmount,
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
 					EthTxId = i.RelEthTransactionId,
 				}

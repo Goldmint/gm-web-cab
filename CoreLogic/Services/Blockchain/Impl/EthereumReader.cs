@@ -69,7 +69,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 
-		public async Task<BigInteger> GetAddressMntpBalance(string address) {
+		public async Task<BigInteger> GetAddressMntBalance(string address) {
 
 			if (string.IsNullOrWhiteSpace(address)) {
 				throw new ArgumentException("Invalid address format");

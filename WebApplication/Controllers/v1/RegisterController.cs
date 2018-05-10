@@ -42,24 +42,25 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var result = await Core.UserAccount.CreateUserAccount(HttpContext.RequestServices, model.Email, model.Password);
 
 			if (result.User != null) {
-
-				// confirmation token
-				var token = Core.Tokens.JWT.CreateSecurityToken(
+					
+				var tokenForDpa = Core.Tokens.JWT.CreateSecurityToken(
 					appConfig: AppConfig,
 					entityId: result.User.UserName,
 					audience: audience,
 					securityStamp: result.User.JwtSalt,
-					area: Common.JwtArea.Registration, 
-					validFor: TimeSpan.FromDays(3)
+					area: JwtArea.Dpa,
+					validFor: TimeSpan.FromDays(1)
 				);
 
-				var callbackUrl = this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteSignUpConfirmation.Replace(":token", token));
-
-				// email confirmation
-				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.EmailConfirmation, userLocale))
-					.Link(callbackUrl)
-					.Send(model.Email, "", EmailQueue)
-				;
+				// send dpa
+				await DbContext.Entry(result.User).Reference(_ => _.UserOptions).LoadAsync();
+				await Core.UserAccount.ResendUserDpaDocument(
+					locale: userLocale,
+					services: HttpContext.RequestServices,
+					user: result.User,
+					email: result.User.Email,
+					redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned.Replace(":token", tokenForDpa))
+				);
 
 				return APIResponse.Success();
 			}
@@ -72,6 +73,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			throw new Exception("Registration failed");
 		}
 
+		/*
 		/// <summary>
 		/// Email confirmation while registration
 		/// </summary>
@@ -122,5 +124,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			return APIResponse.Success();
 		}
+		*/
 	}
 }

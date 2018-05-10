@@ -117,16 +117,22 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		public string Currency { get; set; }
 
 		/// <summary>
-		/// Amount per ETH
+		/// Cents per ETH
 		/// </summary>
 		[Required]
 		public double EthRate { get; set; }
 
 		/// <summary>
-		/// Amount per GOLD
+		/// Cents per GOLD
 		/// </summary>
 		[Required]
 		public double GoldRate { get; set; }
+
+		/// <summary>
+		/// Estimated GOLD amount, wei
+		/// </summary>
+		[Required]
+		public string GoldAmount { get; set; }
 
 		/// <summary>
 		/// Expires at datetime (unixstamp)

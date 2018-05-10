@@ -14,6 +14,7 @@ namespace Goldmint.DAL.Models {
 
 		[Column("dpa_document_id")]
 		public long? DpaDocumentId { get; set; }
+
 		[ForeignKey(nameof(DpaDocumentId))]
 		public virtual SignedDocument DpaDocument { get; set; }
 

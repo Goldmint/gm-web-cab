@@ -36,9 +36,9 @@ namespace Goldmint.Common {
 		Authorized = 1,
 
 		/// <summary>
-		/// Two factor auth area
+		/// TFA area
 		/// </summary>
-		TFA,
+		Tfa,
 
 		/// <summary>
 		/// OAuth area
@@ -53,7 +53,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// User password restoration
 		/// </summary>
-		RestorePassword
+		RestorePassword,
+
+		/// <summary>
+		/// DPA awaiting area
+		/// </summary>
+		Dpa,
 	}
 
 	public enum AccessRights : long {

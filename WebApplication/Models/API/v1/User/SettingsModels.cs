@@ -294,7 +294,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 
 			v.RuleFor(_ => _.TfaCode)
 				.Must(Common.ValidationRules.BeValidTfaCode).WithMessage("Invalid format")
-				.When(_ => _.TfaCode != null)
+				.When(_ => !string.IsNullOrWhiteSpace(_.TfaCode))
 				;
 
 			return v.Validate(this);

@@ -57,6 +57,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var allowed = false;
 			var resultAmount = "0";
+			var resultFee = "0";
 
 			if (fiatCurrency != null) {
 				var result = await CoreLogic.Finance.Estimation.SellGold(
@@ -66,7 +67,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				);
 
 				allowed = result.Allowed;
-				resultAmount = result.TotalCentsForGold.ToString();
+
+				var mntBalance = await EthereumObserver.GetAddressMntBalance(model.EthAddress);
+				var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.TotalCentsForGold, mntBalance);
+				resultAmount = (result.TotalCentsForGold - fee).ToString();
+				resultFee = fee.ToString();
 			}
 			else {
 				var result = await CoreLogic.Finance.Estimation.SellGold(
@@ -77,7 +82,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				);
 
 				allowed = result.Allowed;
-				resultAmount = result.TotalAssetAmount.ToString();
+
+				var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, result.TotalAssetAmount);
+				resultAmount = (result.TotalAssetAmount - fee).ToString();
+				resultFee = fee.ToString();
 			}
 
 			if (!allowed) {
@@ -87,6 +95,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new EstimateView() {
 					Amount = resultAmount,
+					Fee = resultFee,
 				}
 			);
 		}
