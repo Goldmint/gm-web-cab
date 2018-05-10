@@ -92,31 +92,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 				if (signResult && accessRightsMask != null) {
 
-					// get options for DPA check
-					await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
-					if (user.UserOptions != null) {
-						await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
-					}
-
-					// DPA is unsigned
-					if (user.UserOptions != null && !CoreLogic.User.HasSignedDpa(user.UserOptions)) {
-						
-						// has not been sent previously
-						if (user.UserOptions.DpaDocument == null) {
-							await Core.UserAccount.ResendUserDpaDocument(
-								locale: userLocale,
-								services: HttpContext.RequestServices,
-								user: user,
-								email: user.Email,
-								redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
-							);
-						}
-
-						return Redirect(
-							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaRequired)
-						);
-					}
-
 					// notification
 					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn, userLocale))
 						.ReplaceBodyTag("IP", agent.Ip)
@@ -136,16 +111,16 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 					// tfa required
 					if (user.TwoFactorEnabled) {
-						var tokenForTFA = JWT.CreateAuthToken(
+
+						var tokenForTfa = JWT.CreateAuthToken(
 							appConfig: AppConfig,
 							user: user,
 							audience: audience,
-							area: JwtArea.TFA,
+							area: JwtArea.Tfa,
 							rightsMask: accessRightsMask.Value
 						);
-
 						return Redirect(
-							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteOAuthTfaPage.Replace(":token", tokenForTFA))
+							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteOAuthTfaPage.Replace(":token", tokenForTfa))
 						);
 					}
 
@@ -186,15 +161,23 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						if (accessRightsMask != null) {
 
 							// send dpa
+							var tokenForDpa = Core.Tokens.JWT.CreateSecurityToken(
+								appConfig: AppConfig,
+								entityId: cuaResult.User.UserName,
+								audience: audience,
+								securityStamp: cuaResult.User.JwtSalt,
+								area: JwtArea.Dpa,
+								validFor: TimeSpan.FromDays(1)
+							);
 							await Core.UserAccount.ResendUserDpaDocument(
 								locale: userLocale,
 								services: HttpContext.RequestServices,
 								user: cuaResult.User,
 								email: cuaResult.User.Email,
-								redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
+								redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned.Replace(":token", tokenForDpa))
 							);
 
-							// DPA is unsigned
+							// dpa is unsigned
 							if (!CoreLogic.User.HasSignedDpa(cuaResult.User.UserOptions)) {
 								return Redirect(
 									this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaRequired)

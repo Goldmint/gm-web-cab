@@ -20,10 +20,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		Task<BigInteger> GetCurrentGasPrice();
 
 		/// <summary>
-		/// Get MNTP balance
+		/// Get MNT balance
 		/// </summary>
-		/// <returns>MNTP amount at specified address</returns>
-		Task<BigInteger> GetAddressMntpBalance(string address);
+		/// <returns>MNT amount at specified address</returns>
+		Task<BigInteger> GetAddressMntBalance(string address);
 
 		/// <summary>
 		/// Get GOLD balance

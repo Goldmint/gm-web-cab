@@ -45,7 +45,7 @@ const appRoutes: Routes = [
   { path: 'signin/restore', component: PasswordResetPageComponent },
   { path: 'signin/restore/:token', component: PasswordResetPageComponent },
   { path: 'signin/dpa/required', component: LoginDpaRequiredComponent },
-  { path: 'signin/dpa/signed', component: LoginDpaSignedComponent },
+  { path: 'signin/dpa/signed/:token', component: LoginDpaSignedComponent },
   { path: 'signup', component: RegisterPageComponent },
   { path: 'signup/success', component: RegisterSuccessPageComponent },
   { path: 'signup/confirmed/:token', component: RegisterEmailConfirmedPageComponent },

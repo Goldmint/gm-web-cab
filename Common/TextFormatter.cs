@@ -34,14 +34,19 @@ namespace Goldmint.Common {
 			return (cents / 100m).ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + " " + currency.ToString().ToUpperInvariant();
 		}
 
-		/// <summary>
-		/// Amount from wei. Ex: 1512345670000000000 => 1.51234567
-		/// </summary>
+		/// 1512345670000000000, 18 => 1.51234567
 		public static string FormatTokenAmount(BigInteger tokenAmount, int tokenDecimals) {
-			if (tokenAmount <= 0) return "0";
+			if (tokenAmount <= 0 || tokenDecimals < 0) return "0";
 			var str = tokenAmount.ToString().PadLeft(tokenDecimals + 1, '0');
-			str = str.Substring(0, str.Length - tokenDecimals) + "." + str.Substring(str.Length - 18);
+			str = str.Substring(0, str.Length - tokenDecimals) + "." + str.Substring(str.Length - tokenDecimals);
 			return str.TrimEnd('0', '.');
+		}
+		
+		/// 1512345670000000000, 18, 6 => 1.512345
+		public static string FormatTokenAmountFixed(BigInteger tokenAmount, int tokenDecimals, int fixDecimals = 6) {
+			if (tokenAmount < 0 || tokenDecimals < 0 || fixDecimals < 0 || fixDecimals > tokenDecimals) return "0";
+			var str = tokenAmount.ToString().PadLeft(tokenDecimals + 1, '0');
+			return str.Substring(0, str.Length - tokenDecimals) + "." + str.Substring(str.Length - tokenDecimals, fixDecimals);
 		}
 
 		// 0x0000000000000000000000000000000000000000 => 0x000***000

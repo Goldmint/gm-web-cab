@@ -69,7 +69,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldBuy,
-				Source = "ETH", Destination = "GOLD",
+				Source = "ETH",
+				SourceAmount = null,
+				Destination = "GOLD",
+				DestinationAmount = null,
 				Comment = "", // see below
 
 				OplogId = ticket,
@@ -108,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(estimation.CentsPerGoldRate, currency)} per GOLD, {TextFormatter.FormatAmount(estimation.CentsPerAssetRate, currency)} per ETH";
+			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(estimation.CryptoPerGoldRate, Tokens.ETH.Decimals) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
@@ -116,6 +119,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					RequestId = request.Id,
 					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
+					GoldAmount = estimation.TotalGoldAmount.ToString(),
 					Currency = currency.ToString().ToUpper(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}

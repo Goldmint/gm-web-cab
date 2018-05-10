@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -30,7 +31,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotFound, notFoundDesc);
-				//return APIResponse.BadRequest(errFields);
 			}
 
 			var agent = GetUserAgentInfo();
@@ -44,29 +44,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var user = await UserManager.FindByNameAsync(model.Username) ?? await UserManager.FindByEmailAsync(model.Username);
-			if (user != null) { // || !await SignInManager.CanSignInAsync(user)) {
+			if (user != null) {
 
 				// get audience
 				JwtAudience audience = JwtAudience.Cabinet;
 				if (!string.IsNullOrWhiteSpace(model.Audience)) {
 					if (Enum.TryParse(model.Audience, true, out JwtAudience aud)) {
 						audience = aud;
-					}
-				}
-
-				// dpa has not been sent previously
-				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
-				if (user.UserOptions != null) {
-					await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
-
-					if (user.UserOptions.DpaDocument == null) {
-						await Core.UserAccount.ResendUserDpaDocument(
-							locale: userLocale,
-							services: HttpContext.RequestServices,
-							user: user,
-							email: user.Email,
-							redirectUrl: this.MakeAppLink(JwtAudience.Cabinet, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
-						);
 					}
 				}
 
@@ -110,7 +94,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Complete two factor auth
 		/// </summary>
-		[RequireJWTArea(JwtArea.TFA)]
+		[RequireJWTArea(JwtArea.Tfa)]
 		[HttpPost, Route("tfa")]
 		[ProducesResponseType(typeof(AuthenticateView), 200)]
 		public async Task<APIResponse> Tfa([FromBody] TfaModel model) {
@@ -195,6 +179,63 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return APIResponse.Success();
 		}
 
+
+		/// <summary>
+		/// DPA check
+		/// </summary>
+		[AnonymousAccess]
+		[HttpPost, Route("dpaCheck")]
+		[ProducesResponseType(typeof(AuthenticateView), 200)]
+		public async Task<APIResponse> DpaCheck([FromBody] DpaCheckModel model) {
+
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
+
+			var audience = JwtAudience.Cabinet;
+			var user = (DAL.Models.Identity.User)null;
+			var agent = GetUserAgentInfo();
+			var userLocale = GetUserLocale();
+
+			// check token
+			if (!await Core.Tokens.JWT.IsValid(
+				    appConfig: AppConfig,
+				    jwtToken: model.Token,
+				    expectedAudience: audience,
+				    expectedArea: Common.JwtArea.Dpa,
+				    validStamp: async (jwt, id) => {
+					    user = await UserManager.FindByNameAsync(id);
+					    return user?.JwtSalt;
+				    }
+			    ) || user == null) {
+				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
+			}
+
+			await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
+			if (user.UserOptions?.DpaDocumentId == null) {
+				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
+			}
+
+			await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
+			if (user.UserOptions.DpaDocument.IsSigned) {
+
+				user.EmailConfirmed = true;
+				user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
+				await DbContext.SaveChangesAsync();
+
+				return OnSignInResultCheck(
+					services: HttpContext.RequestServices,
+					result: SignInResult.Success,
+					user: user,
+					audience: audience,
+					tfaRequired: false
+				);
+			}
+
+			return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
+		}
+
 		// ---
 
 		[NonAction]
@@ -220,7 +261,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 									appConfig: AppConfig, 
 									user: user, 
 									audience: audience,
-									area: JwtArea.TFA,
+									area: JwtArea.Tfa,
 									rightsMask: accessRightsMask.Value
 								),
 								TfaRequired = true,

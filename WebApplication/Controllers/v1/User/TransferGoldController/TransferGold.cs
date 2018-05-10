@@ -81,7 +81,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Type = UserFinHistoryType.HwTransfer,
 
 						Source = "HW",
+						SourceAmount = TextFormatter.FormatTokenAmountFixed(amountWei, Tokens.GOLD.Decimals) + " GOLD",
 						Destination = TextFormatter.MaskBlockchainAddress(model.EthAddress),
+						DestinationAmount = null,
 						Comment = "", // see below
 
 						OplogId = ticket,

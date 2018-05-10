@@ -70,6 +70,7 @@ import { FeesPageComponent } from './pages/fees-page/fees-page.component';
 import { SwiftPageComponent } from './pages/swift-page/swift-page.component';
 import { TradeRequestsPageComponent } from './pages/trade-requests-page/trade-requests-page.component';
 import {EthereumService} from "./services/ethereum.service";
+import { TelemetryPageComponent } from './pages/telemetry-page/telemetry-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -132,6 +133,7 @@ export function getGoldmintToken() {
     FeesPageComponent,
     SwiftPageComponent,
     TradeRequestsPageComponent,
+    TelemetryPageComponent,
   ],
   exports: [],
   providers: [

@@ -19,13 +19,19 @@ namespace Goldmint.DAL.Models {
 		[Column("source"), MaxLength(128), Required]
 		public string Source { get; set; }
 
+		[Column("source_amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount)]
+		public string SourceAmount { get; set; }
+
 		[Column("destination"), MaxLength(128)]
 		public string Destination { get; set; }
 
-		[Column("comment"), MaxLength(512), Required]
+		[Column("destination_amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount)]
+		public string DestinationAmount { get; set; }
+
+		[Column("comment"), MaxLength(FieldMaxLength.Comment), Required]
 		public string Comment { get; set; }
 
-		[Column("rel_eth_transaction_id"), MaxLength(66)]
+		[Column("rel_eth_transaction_id"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
 		public string RelEthTransactionId { get; set; }
 
 		[Column("time_created"), Required]

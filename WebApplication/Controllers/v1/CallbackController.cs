@@ -43,7 +43,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// Callback from ShuftiPro service. This is not user redirect url
 		/// </summary>
-		// TODO: implement callback secret
 		[AnonymousAccess]
 		[HttpPost, Route("shuftipro", Name = "CallbackShuftiPro")]
 		[ApiExplorerSettings(IgnoreApi = true)]
@@ -65,6 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					;
 
 					if (ticket != null) {
+
 						var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.Verified;
 
 						ticket.IsVerified = userVerified;
@@ -94,7 +94,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				if (check.OverallStatus == OverallStatus.Signed || check.OverallStatus == OverallStatus.Declined) {
 
 					var doc = await DbContext.SignedDocument
-						.AsNoTracking()
+						.Include(_ => _.User)
 						.FirstOrDefaultAsync(_ => _.ReferenceId == check.ReferenceId)
 					;
 					if (doc != null) {
@@ -104,7 +104,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						doc.CallbackStatus = check.ServiceStatus;
 						doc.TimeCompleted = DateTime.UtcNow;
 
-						DbContext.Update(doc);
 						await DbContext.SaveChangesAsync();
 					}
 				}

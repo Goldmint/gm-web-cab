@@ -107,103 +107,25 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 	}
 
 	// ---
-	
-	// REMOVE
-	public class LimitsView {
+
+	public class DpaCheckModel : BaseValidableModel {
 
 		/// <summary>
-		/// Current user fiat limits
+		/// Token
 		/// </summary>
 		[Required]
-		public UserLimits Current { get; set; }
-
-		/// <summary>
-		/// Limits by verification level 
-		/// </summary>
-		[Required]
-		public VerificationLevels Levels { get; set; }
-
-		/// <summary>
-		/// Payment methods limits
-		/// </summary>
-		[Required]
-		public PaymentMethods PaymentMethod { get; set; }
+		public string Token { get; set; }
 
 		// ---
 
-		public class UserLimits {
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<DpaCheckModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
-			public UserPeriodLimitItem Deposit { get; set; }
-			public UserPeriodLimitItem Withdraw { get; set; }
-		}
+			v.RuleFor(_ => _.Token)
+				.Must(Common.ValidationRules.BeValidConfirmationTokenLength).WithMessage("Invalid length")
+				; ;
 
-		public class VerificationLevels {
-
-			public VerificationLevelLimits Current { get; set; }
-			public VerificationLevelLimits L0 { get; set; }
-			public VerificationLevelLimits L1 { get; set; }
-		}
-
-		public class PaymentMethods {
-
-			public PaymentMethodLimits Card { get; set; }
-			public PaymentMethodLimits Swift { get; set; }
-			public PaymentMethodLimits CryptoCapital { get; set; }
-		}
-
-		// ---
-
-		public class VerificationLevelLimits {
-
-			public PeriodLimitItem Deposit { get; set; }
-			public PeriodLimitItem Withdraw { get; set; }
-		}
-
-		public class PaymentMethodLimits {
-
-			public OnetimeLimitItem Deposit { get; set; }
-			public OnetimeLimitItem Withdraw { get; set; }
-		}
-
-		// ---
-
-		public class OnetimeLimitItem {
-
-			/// <summary>
-			/// Minimal value per operation
-			/// </summary>
-			[Required]
-			public double Min { get; set; }
-			
-			/// <summary>
-			/// Maximal value per operation
-			/// </summary>
-			[Required]
-			public double Max { get; set; }
-		}
-
-		public class PeriodLimitItem {
-
-			/// <summary>
-			/// Day limit
-			/// </summary>
-			[Required]
-			public double Day { get; set; }
-
-			/// <summary>
-			/// Month limit
-			/// </summary>
-			[Required]
-			public double Month { get; set; }
-		}
-
-		public class UserPeriodLimitItem : PeriodLimitItem {
-
-			/// <summary>
-			/// Current limit
-			/// </summary>
-			[Required]
-			public double Minimal { get; set; }
+			return v.Validate(this);
 		}
 	}
 
@@ -347,6 +269,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		/// </summary>
 		[Required]
 		public string Src { get; set; }
+		
+		/// <summary>
+		/// Operation source amount, optional
+		/// </summary>
+		public string SrcAmount { get; set; }
 
 		/// <summary>
 		/// Unixtime
@@ -358,6 +285,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		/// Operation destination, optional
 		/// </summary>
 		public string Dst { get; set; }
+		
+		/// <summary>
+		/// Operation destination, optional
+		/// </summary>
+		public string DstAmount { get; set; }
 
 		/// <summary>
 		/// Ethereum transaction ID to track, optional

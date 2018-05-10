@@ -6,6 +6,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 	public class EstimateModel : BaseValidableModel {
 
 		/// <summary>
+		/// Ethereum address
+		/// </summary>
+		public string EthAddress { get; set; }
+		
+		/// <summary>
 		/// Fiat currency or cryptoasset 
 		/// </summary>
 		[Required]
@@ -22,6 +27,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<EstimateModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
+			v.RuleFor(_ => _.EthAddress)
+				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
+				.When(_ => !string.IsNullOrWhiteSpace(_.EthAddress))
+				;
+
 			v.RuleFor(_ => _.Currency)
 				.NotEmpty().WithMessage("Invalid format")
 				;
@@ -37,10 +47,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// Amount of fiat currency (cents) or cryptoasset (wei)
+		/// Resulting amount (minus fee) of fiat currency (cents) or cryptoasset (wei)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
+		
+		/// <summary>
+		/// Fee amount of fiat currency (cents) or cryptoasset (wei)
+		/// </summary>
+		[Required]
+		public string Fee { get; set; }
 	}
 
 	// ---
@@ -80,7 +96,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		public string EthAddress { get; set; }
 
 		/// <summary>
-		/// Amount of ETH in wei
+		/// Amount of GOLD in wei
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
@@ -127,6 +143,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		/// </summary>
 		[Required]
 		public double GoldRate { get; set; }
+
+		/// <summary>
+		/// Result token amount, wei
+		/// </summary>
+		[Required]
+		public string EthAmount { get; set; }
+
+		/// <summary>
+		/// Fee amount, wei
+		/// </summary>
+		[Required]
+		public string FeeAmount { get; set; }
 
 		/// <summary>
 		/// Expires at datetime (unixstamp)

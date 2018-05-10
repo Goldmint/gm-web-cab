@@ -30,11 +30,35 @@ namespace Goldmint.CoreLogic.Finance {
 			return (double) Math.Abs(fixedRateCents - currentRateCents) / (double) fixedRateCents > threshold;
 		}
 
+		public static BigInteger SellingFeeForCrypto(CryptoCurrency cryptoCurrency, BigInteger amount) {
+		
+			// 0.1%
+			if (cryptoCurrency == CryptoCurrency.Eth) {
+				return amount / new BigInteger(1000);
+			}
+
+			return BigInteger.Zero;
+		}
+
+		public static long SellingFeeForFiat(long amount, BigInteger mntAmount) {
+
+			if (mntAmount >= 10000) {
+				return (long)(new BigInteger(amount) * 75 / 10000);
+			}
+
+			if (mntAmount >= 1000) {
+				return (long)(new BigInteger(amount) * 15 / 1000);
+			}
+
+			if (mntAmount >= 10) {
+				return (long)(new BigInteger(amount) * 25 / 1000);
+			}
+
+			return (long)(new BigInteger(amount) * 3 / 100);
+		}
+
 		#region Buy GOLD
 
-		public static BigInteger BuyGold(long fiatAmountCents, long knownGoldRateCents) {
-			return new BigInteger(fiatAmountCents) * BigInteger.Pow(10, Tokens.GOLD.Decimals) / new BigInteger(knownGoldRateCents);
-		}
 
 		public static BigInteger BuyGold(BigInteger cryptoAmountToSell, long knownGoldRateCents, long knownCryptoRateCents, int cryptoDecimals) {
 
@@ -47,7 +71,7 @@ namespace Goldmint.CoreLogic.Finance {
 				throw new Exception("Long value overflow");
 			}
 
-			return BuyGold((long)exchangeAmount, knownGoldRateCents);
+			return exchangeAmount * BigInteger.Pow(10, Tokens.GOLD.Decimals) / new BigInteger(knownGoldRateCents);
 		}
 
 		public static Task<BuyGoldResult> BuyGold(IServiceProvider services, FiatCurrency exchangeFiatCurrency, long fiatAmountCents) {
@@ -69,7 +93,7 @@ namespace Goldmint.CoreLogic.Finance {
 				);
 			}
 
-			var goldAmount = BuyGold(fiatAmountCents, goldRate.Value);
+			var goldAmount = new BigInteger(fiatAmountCents) * BigInteger.Pow(10, Tokens.GOLD.Decimals) / new BigInteger(goldRate.Value);
 
 			return Task.FromResult(
 				new BuyGoldResult() {
@@ -204,7 +228,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 		#region Sell GOLD
 
-		public static Task<SellGoldResult> SellGold(IServiceProvider services, BigInteger goldAmountToSell, FiatCurrency exchangeFiatCurrency) {
+		public static Task<SellGoldResult> SellGold(IServiceProvider services, BigInteger goldAmountToSell, FiatCurrency exchangeFiatCurrency, long? knownGoldRateCents = null) {
 
 			if (goldAmountToSell <= 0) {
 				return Task.FromResult(
@@ -213,7 +237,7 @@ namespace Goldmint.CoreLogic.Finance {
 			}
 
 			var safeRates = services.GetRequiredService<SafeRatesFiatAdapter>();
-			var goldRate = safeRates.GetRateForSelling(CurrencyRateType.Gold, exchangeFiatCurrency);
+			var goldRate = knownGoldRateCents ?? safeRates.GetRateForSelling(CurrencyRateType.Gold, exchangeFiatCurrency);
 
 			if (goldRate == null || goldRate <= 0) {
 				return Task.FromResult(
@@ -245,7 +269,7 @@ namespace Goldmint.CoreLogic.Finance {
 			);
 		}
 
-		public static async Task<SellGoldForCryptoResult> SellGold(IServiceProvider services, BigInteger goldAmountToSell, FiatCurrency exchangeFiatCurrency, CryptoCurrency forCryptoCurrency) {
+		public static async Task<SellGoldForCryptoResult> SellGold(IServiceProvider services, BigInteger goldAmountToSell, FiatCurrency exchangeFiatCurrency, CryptoCurrency forCryptoCurrency, long? knownGoldRateCents = null , long? knownCryptoRateCents = null) {
 
 			if (goldAmountToSell <= 0) {
 				return new SellGoldForCryptoResult();
@@ -257,10 +281,10 @@ namespace Goldmint.CoreLogic.Finance {
 
 			if (forCryptoCurrency == CryptoCurrency.Eth) {
 				decimals = Common.Tokens.ETH.Decimals;
-				cryptoRate = safeRates.GetRateForBuying(CurrencyRateType.Eth, exchangeFiatCurrency);
+				cryptoRate = knownCryptoRateCents ?? safeRates.GetRateForBuying(CurrencyRateType.Eth, exchangeFiatCurrency);
 			}
 			else {
-				throw new NotImplementedException($"Estimation (buying) is not implemented for { forCryptoCurrency.ToString() }");
+				throw new NotImplementedException($"Estimation (selling) is not implemented for { forCryptoCurrency.ToString() }");
 			}
 
 			if (cryptoRate == null || cryptoRate <= 0) {
@@ -271,7 +295,8 @@ namespace Goldmint.CoreLogic.Finance {
 
 			var cryptoAmount = BigInteger.Zero;
 			var assetPerGold = BigInteger.Zero;
-			var sgr = await SellGold(services, goldAmountToSell, exchangeFiatCurrency);
+
+			var sgr = await SellGold(services, goldAmountToSell, exchangeFiatCurrency, knownGoldRateCents);
 			if (sgr.Allowed) {
 				cryptoAmount = sgr.TotalCentsForGold * BigInteger.Pow(10, decimals) / cryptoRate.Value;
 				assetPerGold = AssetPerGold(forCryptoCurrency, cryptoRate.Value, sgr.CentsPerGoldRate);
@@ -292,8 +317,6 @@ namespace Goldmint.CoreLogic.Finance {
 				CryptoPerGoldRate = assetPerGold,
 			};
 		}
-
-		// TODO: Fee estimation (MNTP)
 
 		// ---
 
@@ -350,7 +373,7 @@ namespace Goldmint.CoreLogic.Finance {
 			/// Resulting cryptoasset amount
 			/// </summary>
 			public BigInteger TotalAssetAmount { get; internal set; }
-
+			
 			/// <summary>
 			/// Cryptoasset amount per GOLD rate
 			/// </summary>

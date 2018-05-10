@@ -13,7 +13,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	public partial class SellGoldController : BaseController {
 
 		/// <summary>
-		/// GOLD => Contract => ETH
+		/// GOLD to ETH
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
@@ -51,6 +51,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (!estimation.Allowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
+			var estimationFee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, estimation.TotalAssetAmount);
 
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(AppConfig.Constants.TimeLimits.SellGoldForEthRequestTimeoutSec);
@@ -70,7 +71,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldSell,
 				Source = "GOLD",
+				SourceAmount = null,
 				Destination = "ETH",
+				DestinationAmount = null,
 				Comment = "", // see below
 
 				OplogId = ticket,
@@ -109,7 +112,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, {TextFormatter.FormatAmount(estimation.CentsPerGoldRate, currency)} per GOLD, {TextFormatter.FormatAmount(estimation.CentsPerAssetRate, currency)} per ETH";
+			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(estimation.CryptoPerGoldRate, Tokens.ETH.Decimals) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
@@ -118,6 +121,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
 					Currency = currency.ToString().ToUpper(),
+					EthAmount = (estimation.TotalAssetAmount - estimationFee).ToString(),
+					FeeAmount = estimationFee.ToString(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}
 			);
