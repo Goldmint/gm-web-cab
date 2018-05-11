@@ -8,10 +8,10 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public sealed class BusSafeRatesPublisher : IAggregatedSafeRatesPublisher {
 
-		private readonly Bus.Publisher.DefaultPublisher<Bus.Proto.SafeRatesMessage> _busPublisher;
+		private readonly Bus.Publisher.DefaultPublisher _busPublisher;
 		private readonly ILogger _logger;
 
-		public BusSafeRatesPublisher(Bus.Publisher.DefaultPublisher<Bus.Proto.SafeRatesMessage> busPublisher, LogFactory logFactory) {
+		public BusSafeRatesPublisher(Bus.Publisher.DefaultPublisher busPublisher, LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_busPublisher = busPublisher;
 		}
@@ -20,7 +20,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			_logger.Trace($"Publishing {rates.Length} rates");
 
-			_busPublisher.PublishMessage(Bus.Proto.Topic.FiatRates, new Bus.Proto.SafeRatesMessage() {
+			_busPublisher.PublishMessage(Bus.Proto.Topic.FiatRates, new Bus.Proto.SafeRates.SafeRatesMessage() {
 				Rates = rates.Select(SafeCurrencyRate.BusSerialize).ToArray(),
 			});
 

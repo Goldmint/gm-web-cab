@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Bus.Proto;
 using NetMQ;
 using NetMQ.Sockets;
 using NLog;
@@ -25,6 +26,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
 			Logger = logFactory.GetLoggerFor(this);
 			PublisherSocket = new PublisherSocket();
+			
 
 			_runStopMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
@@ -84,7 +86,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 				if (_workerTask != null) {
 					Logger.Trace("Wait for worker");
-					_workerTask.Wait();
+					while (_running) {
+						Thread.Sleep(50);
+					}
 				}
 
 				if (_bound) {
@@ -119,15 +123,29 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		// ---
 
 		private void Worker() {
-			var ctoken = _workerCancellationTokenSource.Token;
+			try {
+				var ctoken = _workerCancellationTokenSource.Token;
 
-			while (!ctoken.IsCancellationRequested) {
-				// TODO: send ping
-				Thread.Sleep(TimeSpan.FromMilliseconds(200));
+				var nextHbTime = DateTime.UtcNow;
+				var hbPayload = new byte[0];
+
+				while (!ctoken.IsCancellationRequested) {
+
+					var now = DateTime.UtcNow;
+
+					// heartbeat
+					if (now >= nextHbTime) {
+						PublishMessage(Topic.Hb, hbPayload);
+						nextHbTime = now.AddSeconds(2);
+					}
+
+					PublisherSocket.Poll(TimeSpan.FromMilliseconds(200));
+				}
 			}
-
-			Logger.Trace("Worker stopped");
-			_running = false;
+			finally {
+				Logger.Trace("Worker stopped");
+				_running = false;
+			}
 		}
 	}
 }

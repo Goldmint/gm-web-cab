@@ -32,7 +32,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
-				.Mutex(MutexEntity.EthOpration, operationId)
+				.Mutex(MutexEntity.EthOperation, operationId)
 			;
 
 			logger.Trace($"Locking #{operationId}");

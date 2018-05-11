@@ -42,7 +42,6 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.TransparencyModels {
 			;
 
 			return v.Validate(this);
-
 		}
 	}
 

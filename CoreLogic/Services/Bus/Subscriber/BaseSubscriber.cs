@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
-	public abstract class BaseSubscriber: IDisposable {
+	public abstract class BaseSubscriber : IDisposable {
 
 		protected readonly Proto.Topic[] Topics;
 		protected readonly string ConnectUri;
@@ -22,6 +22,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 		private bool _running;
 		private bool _connected;
+		private DateTime _lastHbTime;
 
 		protected BaseSubscriber(Proto.Topic[] topics, Uri connect, int queueSize, LogFactory logFactory) {
 			Topics = topics;
@@ -31,6 +32,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			foreach (var v in Topics) {
 				SubscriberSocket.Subscribe(v.ToString());
 			}
+			SubscriberSocket.Subscribe(Proto.Topic.Hb.ToString());
 
 			_runStopMonitor = new object();
 			_connectMonitor = new object();
@@ -45,10 +47,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			// SubscriberSocket.Options.TcpKeepaliveIdle = TimeSpan.FromSeconds(1);
 			// SubscriberSocket.Options.TcpKeepaliveInterval = TimeSpan.FromSeconds(3);
 
-			SubscriberSocket.Options.ReconnectInterval = TimeSpan.FromSeconds(1);
-			SubscriberSocket.Options.ReconnectIntervalMax = TimeSpan.FromSeconds(5);
+			// SubscriberSocket.Options.ReconnectInterval = TimeSpan.FromSeconds(1);
+			// SubscriberSocket.Options.ReconnectIntervalMax = TimeSpan.FromSeconds(5);
 
 			SubscriberSocket.ReceiveReady += OnSocketReceiveReady;
+
+			_lastHbTime = DateTime.UtcNow;
 		}
 
 		public void Dispose() {
@@ -58,7 +62,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 		protected virtual void DisposeManaged() {
 			Logger.Trace("Disposing");
-			
+
 			Stop();
 			Disconnect();
 
@@ -90,7 +94,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 				if (_workerTask != null) {
 					Logger.Trace("Wait for worker");
-					_workerTask.Wait();
+					while (_running) {
+						Thread.Sleep(50);
+					}
 				}
 			}
 		}
@@ -118,7 +124,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 			if (hm) {
 				Stop();
-				throw new Exception("There is some data after message. Invalid message format?");
+				throw new Exception($"There is some data after message. Invalid message format? ({ ConnectUri })");
 			}
 
 			if (tmptopic != null && tmpmessage != null && long.TryParse(tmpstamp, out var stampUnix)) {
@@ -126,18 +132,32 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 				stamp = DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime;
 				message = tmpmessage;
 
-				Logger.Trace($"Message received: { topic } / { stamp } / { message.Length }b");
+				Logger.Trace($"Message received: { topic } / { stamp } / { message.Length }b ({ ConnectUri })");
 				return true;
 			}
 
-			Logger.Error($"Message received: { tmptopic } / { tmpstamp } / { tmpmessage?.Length }b");
+			Logger.Error($"Corrupted message received: { tmptopic } / { tmpstamp } / { tmpmessage?.Length }b ({ ConnectUri })");
 			return false;
 		}
 
 		private void OnSocketReceiveReady(object sender, NetMQSocketEventArgs netMqSocketEventArgs) {
-			if (netMqSocketEventArgs.Socket == SubscriberSocket) {
-				if (Receive(out var topic, out var stamp, out var message)) {
-					OnNewMessage(topic, stamp, message);
+			if (netMqSocketEventArgs.Socket == SubscriberSocket && !_workerCancellationTokenSource.IsCancellationRequested) {
+				try {
+					if (Receive(out var topic, out var stamp, out var message)) {
+
+						_lastHbTime = DateTime.UtcNow;
+
+						// heartbeat
+						if (topic == Proto.Topic.Hb.ToString()) {
+							// do nothing
+						}
+						else {
+							OnNewMessage(topic, stamp, message);
+						}
+					}
+				}
+				catch (Exception e) {
+					Logger.Error(e, $"Failed to read data from socket ({ ConnectUri })");
 				}
 			}
 		}
@@ -145,31 +165,53 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		// ---
 
 		private void Worker() {
-			var ctoken = _workerCancellationTokenSource.Token;
+			try {
+				var ctoken = _workerCancellationTokenSource.Token;
+				var nextConnTime = DateTime.UtcNow;
 
-			Connect();
+				Connect();
 
-			while (!ctoken.IsCancellationRequested) {
+				while (!ctoken.IsCancellationRequested) {
 
-				if (!_connected) {
-					Connect();
+					var now = DateTime.UtcNow;
+
+					if (!_connected) {
+						if (now >= nextConnTime && !Connect()) {
+							Logger.Trace($"Reconnection failed. Retry in 2s ({ ConnectUri })");
+							nextConnTime = DateTime.UtcNow.AddSeconds(2);
+						}
+					}
+					else {
+						if (now - _lastHbTime > TimeSpan.FromSeconds(4)) {
+							Logger.Trace($"No messages for last 4s. Reconnection attempt ({ ConnectUri })");
+							Disconnect();
+						}
+					}
+
+					SubscriberSocket.Poll(TimeSpan.FromMilliseconds(200));
 				}
 
-				SubscriberSocket.Poll(TimeSpan.FromMilliseconds(200));
+				Disconnect();
 			}
+			finally {
 
-			Disconnect();
-
-			Logger.Trace("Worker stopped");
-			_running = false;
+				Logger.Trace("Worker stopped");
+				_running = false;
+			}
 		}
 
 		public bool Connect() {
 			lock (_connectMonitor) {
 				if (!_connected) {
-					SubscriberSocket.Connect(ConnectUri);
-					_connected = true;
-					return true;
+					Logger.Trace($"Connection attempt ({ ConnectUri })");
+
+					try {
+						SubscriberSocket.Connect(ConnectUri);
+						_lastHbTime = DateTime.UtcNow;
+						_connected = true;
+						return true;
+					}
+					catch { }
 				}
 
 				return false;
@@ -179,7 +221,13 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 		public bool Disconnect() {
 			lock (_connectMonitor) {
 				if (_connected) {
-					SubscriberSocket.Disconnect(ConnectUri);
+					Logger.Trace($"Disconnection attempt ({ ConnectUri })");
+
+					try {
+						SubscriberSocket.Disconnect(ConnectUri);
+					}
+					catch { }
+
 					_connected = false;
 					return true;
 				}

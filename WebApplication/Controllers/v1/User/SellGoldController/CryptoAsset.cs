@@ -53,8 +53,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 			var estimationFee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, estimation.TotalAssetAmount);
 
+			var rcfg = RuntimeConfigHolder.Clone();
 			var timeNow = DateTime.UtcNow;
-			var timeExpires = timeNow.AddSeconds(AppConfig.Constants.TimeLimits.SellGoldForEthRequestTimeoutSec);
+			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest);
 
 			var ticket = await TicketDesk.NewGoldSellingRequestForCryptoasset(
 				userId: user.Id,

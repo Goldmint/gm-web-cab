@@ -2,6 +2,8 @@
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
+using Goldmint.CoreLogic.Services.Rate;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +12,6 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Rate;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -28,6 +29,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
+			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
@@ -88,8 +90,8 @@ namespace Goldmint.CoreLogic.Finance {
 
 							var cancel =
 								ethPerGoldFixedRate <= 0 || !ethActualRate.CanSell || !goldActualRate.CanBuy ||
-								Estimation.IsFixedRateThresholdExceeded(request.InputRateCents, ethActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Eth.Sell) ||
-								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Gold.Buy)
+								Estimation.IsFixedRateThresholdExceeded(request.InputRateCents, ethActualRate.Usd, runtimeConfig.Gold.SafeRate.Eth.SellChangeThreshold) ||
+								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, runtimeConfig.Gold.SafeRate.Gold.BuyChangeThreshold)
 							;
 
 							if (cancel) {
@@ -182,6 +184,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
+			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<ITicketDesk>();
@@ -242,8 +245,8 @@ namespace Goldmint.CoreLogic.Finance {
 
 							var cancel =
 								ethPerGoldFixedRate <= 0 || !ethActualRate.CanBuy || !goldActualRate.CanSell ||
-								Estimation.IsFixedRateThresholdExceeded(request.OutputRateCents, ethActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Eth.Buy) ||
-								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, appConfig.Constants.SafeExchangeFixedRateThreshold.Gold.Sell)
+								Estimation.IsFixedRateThresholdExceeded(request.OutputRateCents, ethActualRate.Usd, runtimeConfig.Gold.SafeRate.Eth.BuyChangeThreshold) ||
+								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, runtimeConfig.Gold.SafeRate.Gold.SellChangeThreshold)
 							;
 
 							if (cancel) {

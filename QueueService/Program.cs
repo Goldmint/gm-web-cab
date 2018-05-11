@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog.Web;
+using Goldmint.CoreLogic.Services.RuntimeConfig;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 
 namespace Goldmint.QueueService {
 
@@ -29,8 +31,9 @@ namespace Goldmint.QueueService {
 
 		private static IConfiguration _configuration;
 		private static AppConfig _appConfig;
-		private static LogFactory _loggerFactory;
+		private static LogFactory _logFactory;
 		private static IHostingEnvironment _environment;
+		private static RuntimeConfigHolder _runtimeConfigHolder;
 
 		private static CancellationTokenSource _shutdownToken;
 		private static ManualResetEventSlim _shutdownCompletedEvent;
@@ -89,12 +92,15 @@ namespace Goldmint.QueueService {
 
 			// nlog
 			var nlogConfig = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
-			_loggerFactory = new LogFactory(nlogConfig);
+			_logFactory = new LogFactory(nlogConfig);
 			LogManager.Configuration = nlogConfig;
 
-			var logger = _loggerFactory.GetLogger(typeof(Program).FullName);
+			var logger = _logFactory.GetLogger(typeof(Program).FullName);
 			logger.Info("Launched");
 
+			// runtime config
+			_runtimeConfigHolder = new RuntimeConfigHolder(_logFactory);
+			
 			// custom db connection
 			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
 			if (!string.IsNullOrWhiteSpace(dbCustomConnection)) {
@@ -107,8 +113,14 @@ namespace Goldmint.QueueService {
 			SetupCommonServices(servicesCollection);
 			var services = servicesCollection.BuildServiceProvider();
 
+			// config loader
+			_runtimeConfigHolder.SetLoader(services.GetRequiredService<IRuntimeConfigLoader>());
+
 			// setup ms logger
 			services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
+
+			// run services
+			RunServices();
 
 			// setup workers and wait
 			Task.WaitAll(SetupWorkers(services).ToArray());
@@ -120,7 +132,7 @@ namespace Goldmint.QueueService {
 		}
 
 		private static void OnStopped() {
-			StopCommonServices();
+			StopServices();
 		}
 
 		// ---

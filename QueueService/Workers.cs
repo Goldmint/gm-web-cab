@@ -25,22 +25,23 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// doesn't require ethereum at all
-					new NotificationSender(_appConfig.Constants.Workers.Notifications.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.Notifications.PeriodSec)),
-					new Workers.Rates.GoldRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Gold.PeriodSec)),
-					new Workers.Rates.CryptoRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Bus.WorkerRates.Eth.PeriodSec)),
+					new NotificationSender(_appConfig.Services.Workers.Notifications.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.Notifications.PeriodSec)),
+					new Workers.Rates.GoldRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.GoldRateUpdater.PeriodSec)),
+					new Workers.Rates.CryptoRateUpdater().Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CryptoRateUpdater.PeriodSec)),
+					new Workers.Bus.TelemetryAggregator().Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.TelemetryAggregator.PeriodSec)),
 				});
 			}
 
 			// core workers
 			if (Mode.HasFlag(WorkingMode.Core)) {
-				workers.AddRange(new List<IWorker>() { 
+				workers.AddRange(new List<IWorker>() {
 
 					// does require ethereum (reader)
-					new Workers.Ethereum.BuyRequestsHarvester(_appConfig.Constants.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Constants.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthEventsHarvester.PeriodSec)),
-					new Workers.Ethereum.SellRequestsHarvester(_appConfig.Constants.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Constants.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthEventsHarvester.PeriodSec)),
+					new Workers.Ethereum.BuyRequestsHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
+					new Workers.Ethereum.SellRequestsHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
 
 					// does require ethereum (writer and reader)
-					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Constants.Workers.EthereumOprations.ItemsPerRound, _appConfig.Constants.Workers.EthereumOprations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Constants.Workers.EthereumOprations.PeriodSec)),
+					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, _appConfig.Services.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
 				});
 			}
 
