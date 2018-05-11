@@ -54,6 +54,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 				}
 
+				// load options / dpa doc
+				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
+				if (user.UserOptions != null) {
+					await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
+				}
+
 				var sres = OnSignInResultCheck(
 					services: HttpContext.RequestServices,
 					result: await SignInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true),
@@ -212,11 +218,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
+			// load options
 			await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
 			if (user.UserOptions?.DpaDocumentId == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
+			// load existing dpa doc
 			await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
 			if (user.UserOptions.DpaDocument.IsSigned) {
 
