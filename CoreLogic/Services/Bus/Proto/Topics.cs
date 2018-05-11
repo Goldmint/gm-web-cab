@@ -4,9 +4,11 @@
 
 		Hb,
 		FiatRates,
+		ConfigUpdated,
 
-		StatusApi,
-		StatusCore,
-		StatusOverall
+		ApiTelemetry,
+		CoreTelemetry,
+		WorkerTelemetry,
+		AggregatedTelemetry
 	}
 }

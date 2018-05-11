@@ -16,13 +16,37 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			_callbacks = new Dictionary<Proto.Topic, Action<object, DefaultSubscriber>>();
 		}
 
+		protected override void DisposeManaged() {
+			lock (_callbacksMonitor) {
+				_callbacks.Clear();
+			}
+			base.DisposeManaged();
+		}
+
 		// ---
 
 		protected override void OnNewMessage(string topic, DateTime stamp, byte[] message) {
 			if (Enum.TryParse<Proto.Topic>(topic, true, out var top)) {
 				switch (top) {
+
 					case Proto.Topic.FiatRates:
-						OnCallback(top, Deserialize<Proto.SafeRatesMessage>(message));
+						OnCallback(top, Deserialize<Proto.SafeRates.SafeRatesMessage>(message));
+						break;
+
+					case Proto.Topic.ApiTelemetry:
+						OnCallback(top, Deserialize<Proto.Telemetry.ApiTelemetryMessage>(message));
+						break;
+
+					case Proto.Topic.CoreTelemetry:
+						OnCallback(top, Deserialize<Proto.Telemetry.CoreTelemetryMessage>(message));
+						break;
+
+					case Proto.Topic.WorkerTelemetry:
+						OnCallback(top, Deserialize<Proto.Telemetry.WorkerTelemetryMessage>(message));
+						break;
+
+					case Proto.Topic.AggregatedTelemetry:
+						OnCallback(top, Deserialize<Proto.Telemetry.AggregatedTelemetryMessage>(message));
 						break;
 
 					// do nothing

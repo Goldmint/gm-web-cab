@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using NLog;
@@ -10,12 +11,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 	public sealed class EthereumWriter : EthereumBaseClient, IEthereumWriter {
 
+		private readonly RuntimeConfigHolder _runtimeConfig;
 		private readonly Nethereum.Web3.Accounts.Account _gmAccount;
-		private BigInteger _writingGas;
 
-		public EthereumWriter(AppConfig appConfig, LogFactory logFactory) : base(appConfig, logFactory) {
-
-			_writingGas = new BigInteger(appConfig.Services.Ethereum.MinimalGasLimit);
+		public EthereumWriter(AppConfig appConfig, RuntimeConfigHolder runtimeConfig, LogFactory logFactory) : base(appConfig, logFactory) {
+			_runtimeConfig = runtimeConfig;
 			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.StorageControllerManagerPk);
 
 			// uses semaphore inside:
@@ -23,7 +23,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 		}
 
 		private Task<HexBigInteger> GetWritingGas() {
-			return Task.FromResult(new HexBigInteger(_writingGas));
+			var rc = _runtimeConfig.Clone();
+			return Task.FromResult(new HexBigInteger(rc.Ethereum.Gas));
 		}
 
 		public async Task<string> SendTransaction(Nethereum.Contracts.Function function, string from, HexBigInteger gas, HexBigInteger value, params object[] functionInput) {

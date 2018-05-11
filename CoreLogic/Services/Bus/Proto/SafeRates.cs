@@ -1,17 +1,17 @@
 ﻿using Goldmint.Common;
 using ProtoBuf;
 
-namespace Goldmint.CoreLogic.Services.Bus.Proto {
+namespace Goldmint.CoreLogic.Services.Bus.Proto.SafeRates {
 
 	[ProtoContract]
 	public sealed class SafeRatesMessage {
 
 		[ProtoMember(1)]
-		public SafeRate[] Rates { get; set; } = {};
+		public Rate[] Rates { get; set; } = {};
 	}
 
 	[ProtoContract]
-	public sealed class SafeRate {
+	public sealed class Rate {
 
 		[ProtoMember(1)]
 		public CurrencyRateType Currency { get; set; }

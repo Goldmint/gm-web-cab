@@ -12,7 +12,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ILogger _logger;
 
 		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
-		private Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
+		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
 		public BusSafeRatesSource(LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
@@ -31,7 +31,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		// ---
 
 		public void OnNewRates(object payload, Bus.Subscriber.DefaultSubscriber self) {
-			if (!(payload is Bus.Proto.SafeRatesMessage ratesMessage)) return;
+			if (!(payload is Bus.Proto.SafeRates.SafeRatesMessage ratesMessage)) return;
 
 			_mutexRatesUpdate.EnterWriteLock();
 			try {

@@ -102,22 +102,21 @@ namespace Goldmint.DAL {
 
 		// ---
 
-		public async Task<string> GetDBSetting(Common.DbSetting key, string def) {
+		public async Task<string> GetDbSetting(Common.DbSetting key, string def) {
 
-			Settings sett = null;
 			string keyStr = key.ToString();
 			if (keyStr.Length > DAL.Models.Settings.MaxKeyFieldLength) {
 				throw new Exception("DB settings key is too long");
 			}
 
 			try {
-				sett = await (
-					from s in this.Settings
-					where s.Key == keyStr
-					select s
-				)
-				.AsNoTracking()
-				.FirstOrDefaultAsync();
+				var sett = await (
+						from s in this.Settings
+						where s.Key == keyStr
+						select s
+					)
+					.AsNoTracking()
+					.FirstOrDefaultAsync();
 
 				if (sett != null) {
 					return sett.Value;

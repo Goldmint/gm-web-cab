@@ -6,22 +6,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Goldmint.CoreLogic.Services.Bus.Proto;
+using Goldmint.CoreLogic.Services.Bus.Proto.Telemetry;
 using Goldmint.CoreLogic.Services.Bus.Publisher;
 using Goldmint.CoreLogic.Services.Bus.Subscriber;
 using NLog;
 
-namespace Goldmint.QueueService.Workers.Telemetry {
+namespace Goldmint.QueueService.Workers.Bus {
 
-	public sealed class Aggregator : BaseWorker {
+	public sealed class TelemetryAggregator : BaseWorker {
 
 		private CentralPublisher _centralPublisher;
+		private WorkerTelemetryMessage _selfTelemetryMessage;
 
 		private readonly Dictionary<ServerInfo, DefaultSubscriber> _subscribers;
 		private readonly ReaderWriterLockSlim _locker;
 
-		public Aggregator() {
+		public TelemetryAggregator() {
 			_locker = new ReaderWriterLockSlim();
 			_subscribers = new Dictionary<ServerInfo, DefaultSubscriber>();
+			_selfTelemetryMessage = new WorkerTelemetryMessage() {
+				Name = "Aggregator",
+			};
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -30,21 +35,28 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 			var logFactory = services.GetRequiredService<LogFactory>();
 			_centralPublisher = services.GetRequiredService<CentralPublisher>();
 
-			foreach (var v in appConfig.Bus.ChildPub) {
-				if (string.IsNullOrWhiteSpace(v.Name)) {
+			foreach (var v in appConfig.Bus.CentralPub.ChildPubEndpoints) {
+				if (!string.IsNullOrWhiteSpace(v.Name)) {
 					var sub = new DefaultSubscriber(
-						new[] { Topic.StatusApi, Topic.StatusCore },
+						new[] { Topic.ConfigUpdated, Topic.ApiTelemetry, Topic.CoreTelemetry, Topic.WorkerTelemetry },
 						new Uri(v.Endpoint),
 						logFactory
 					);
 
-					sub.SetTopicCallback(Topic.StatusApi, (p, s) => {
-						if (!(p is ApiServerStatusMessage msg)) return;
+					sub.SetTopicCallback(Topic.ApiTelemetry, (p, s) => {
+						if (!(p is ApiTelemetryMessage msg)) return;
 						OnStatus(p, s);
 					});
-					sub.SetTopicCallback(Topic.StatusCore, (p, s) => {
-						if (!(p is CoreServerStatusMessage msg)) return;
+					sub.SetTopicCallback(Topic.CoreTelemetry, (p, s) => {
+						if (!(p is CoreTelemetryMessage msg)) return;
 						OnStatus(p, s);
+					});
+					sub.SetTopicCallback(Topic.WorkerTelemetry, (p, s) => {
+						if (!(p is WorkerTelemetryMessage msg)) return;
+						OnStatus(p, s);
+					});
+					sub.SetTopicCallback(Topic.ConfigUpdated, (p, s) => {
+						OnConfigUpdated();
 					});
 
 					_subscribers.Add(
@@ -80,19 +92,17 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 					_locker.EnterReadLock();
 
 					_centralPublisher.PublishMessage(
-						Topic.StatusOverall,
-						new SystemOverallStatusMessage() {
+						Topic.AggregatedTelemetry,
+						new AggregatedTelemetryMessage() {
 
-							Online = _subscribers.Select(_ => new ServerOnlineMessage() {
+							Online = _subscribers.Select(_ => new AggregatedTelemetryMessage.OnlineStatus() {
 								Name = _.Key.Name,
 								Up = _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < TimeSpan.FromSeconds(30),
 							}).ToArray(),
 
-							WorkerServer = new WorkerServerStatusMessage() {
-								Name = "Worker",
-							},
-							ApiServers = _subscribers.Where(_ => _.Key.Message is ApiServerStatusMessage).Select(_ => _.Key.Message as ApiServerStatusMessage).ToArray(),
-							CoreServers = _subscribers.Where(_ => _.Key.Message is CoreServerStatusMessage).Select(_ => _.Key.Message as CoreServerStatusMessage).ToArray(),
+							ApiServers = _subscribers.Where(_ => _.Key.Message is ApiTelemetryMessage).Select(_ => _.Key.Message as ApiTelemetryMessage).ToArray(),
+							WorkerServers = _subscribers.Where(_ => _.Key.Message is WorkerTelemetryMessage).Select(_ => _.Key.Message as WorkerTelemetryMessage).Append(_selfTelemetryMessage).ToArray(),
+							CoreServers = _subscribers.Where(_ => _.Key.Message is CoreTelemetryMessage).Select(_ => _.Key.Message as CoreTelemetryMessage).ToArray(),
 						}
 					);
 
@@ -127,7 +137,14 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 				_locker.ExitWriteLock();
 			}
 		}
-		
+
+		private void OnConfigUpdated() {
+			_centralPublisher.PublishMessage(
+				Topic.ConfigUpdated,
+				new object()
+			);
+		}
+
 		// ---
 
 		internal class ServerInfo {

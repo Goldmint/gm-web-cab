@@ -1,5 +1,7 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain;
+using Goldmint.CoreLogic.Services.Bus.Telemetry;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -16,9 +18,12 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
 		private IEthereumReader _ethereumReader;
+		private CoreTelemetryAccumulator _coreTelemetryAccum;
 
 		private BigInteger _lastBlock;
 		private BigInteger _lastSavedBlock;
+
+		private long _statProcessed = 0;
 
 		public BuyRequestsHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
@@ -34,17 +39,18 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethereumReader = services.GetRequiredService<IEthereumReader>();
-			var appConfig = services.GetRequiredService<AppConfig>();
+			_coreTelemetryAccum = services.GetRequiredService<CoreTelemetryAccumulator>();
+			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 
 			// get last block from config
-			if (BigInteger.TryParse(appConfig.Services.Ethereum.CryptoExchangeRequest.FromBlock ?? "0", out var lbCfg) && lbCfg >= 0) {
+			if (BigInteger.TryParse(runtimeConfig.Ethereum.HarvestFromBlock, out var lbCfg) && lbCfg >= 0) {
 				_lastBlock = lbCfg;
 
 				Logger.Info($"Using last block #{lbCfg} (appsettings)");
 			}
 
 			// get last block from db; remember last saved block
-			if (BigInteger.TryParse(await _dbContext.GetDBSetting(DbSetting.GoldEthBuyHarvLastBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
+			if (BigInteger.TryParse(await _dbContext.GetDbSetting(DbSetting.GoldEthBuyHarvLastBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
 				_lastBlock = lbDb;
 				_lastSavedBlock = lbDb;
 
@@ -101,6 +107,8 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 				Logger.Info(
 					$"Request #{v.Reference} result is {pdResult.ToString()}"
 				);
+
+				++_statProcessed;
 			}
 
 			// save last index to settings
@@ -111,6 +119,13 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 				}
 			}
 
+			// tele
+			_coreTelemetryAccum.AccessData(tel => {
+				tel.BuyRequestHarvester.LastBlock = _lastBlock.ToString();
+				tel.BuyRequestHarvester.StepBlocks = _blocksPerRound;
+				tel.BuyRequestHarvester.ProcessedSinceStartup = _statProcessed;
+				tel.BuyRequestHarvester.ConfirmationsRequired = _confirmationsRequired;
+			});
 		}
 	}
 }

@@ -1,5 +1,6 @@
 using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Bus.Proto;
+using Goldmint.CoreLogic.Services.Bus.Proto.SafeRates;
 using Goldmint.CoreLogic.Services.Bus.Publisher;
 using Goldmint.CoreLogic.Services.Bus.Subscriber;
 using Goldmint.CoreLogic.Services.Rate.Impl;
@@ -89,11 +90,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 						pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() {
 							Rates = new[] {
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Gold, CanBuy = true, CanSell = true,
 									Stamp = 1, Ttl = 2, Usd = 3,
 								},
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Eth, CanBuy = true, CanSell = true,
 									Stamp = 4, Ttl = 5, Usd = 6,
 								}
@@ -102,7 +103,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 						pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() {
 							Rates = new[] {
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Gold, CanBuy = true, CanSell = true,
 									Stamp = 0xFFFFFFFFFF, Ttl = 0x8FFFFFFF, Usd = 0xDEADBEEF,
 								},
@@ -163,7 +164,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 						switch (SecureRandom.GetPositiveInt() % 2) {
 							case 0: pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage());
 								break;
-							case 1: pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() { Rates = new SafeRate[] { new SafeRate() { Currency = CurrencyRateType.Gold}, } });
+							case 1: pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() { Rates = new Rate[] { new Rate() { Currency = CurrencyRateType.Gold}, } });
 								break;
 						}
 					}
@@ -367,11 +368,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 						// send fresh
 						pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() {
 							Rates = new[] {
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Gold, CanBuy = true, CanSell = true,
 									Stamp = stamp, Ttl = freshFor, Usd = 0xDEADBEEF,
 								},
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Eth, CanBuy = true, CanSell = true,
 									Stamp = stamp, Ttl = freshFor, Usd = 0xDEADBEEE,
 								}
@@ -398,11 +399,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 						// send stale
 						pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() {
 							Rates = new[] {
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Gold, CanBuy = true, CanSell = true,
 									Stamp = stamp + 1, Ttl = 0, Usd = 0xDEADBEEF + 0xD,
 								},
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Eth, CanBuy = true, CanSell = true,
 									Stamp = stamp + 1, Ttl = 0, Usd = 0xDEADBEEE + 0xD,
 								}
@@ -421,11 +422,11 @@ namespace Goldmint.CoreLogicTests.Bus {
 						stamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
 						pub.PublishMessage(Topic.FiatRates, new SafeRatesMessage() {
 							Rates = new[] {
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Gold, CanBuy = false, CanSell = true,
 									Stamp = stamp, Ttl = freshFor, Usd = 0xDEADBEEF + 0xDE,
 								},
-								new SafeRate() {
+								new Rate() {
 									Currency = CurrencyRateType.Eth, CanBuy = true, CanSell = false,
 									Stamp = stamp, Ttl = freshFor, Usd = 0xDEADBEEE + 0xDE,
 								}

@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.WebApplication.Core.Response;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using NLog.Extensions.Logging;
 using System;
+using Goldmint.CoreLogic.Services.RuntimeConfig;
 
 namespace Goldmint.WebApplication {
 
@@ -18,12 +20,11 @@ namespace Goldmint.WebApplication {
 		private readonly IConfiguration _configuration;
 		private readonly AppConfig _appConfig;
 		private readonly LogFactory _loggerFactory;
-		private readonly NLog.Config.XmlLoggingConfiguration _nlogConfiguration;
+		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
 		// ---
 
 		public Startup(IHostingEnvironment env, IConfiguration configuration) {
-
 			_environment = env;
 			_configuration = configuration;
 
@@ -42,15 +43,18 @@ namespace Goldmint.WebApplication {
 				_appConfig = new AppConfig();
 				_configuration.Bind(_appConfig);
 
-				_nlogConfiguration = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
-				_loggerFactory = new LogFactory(_nlogConfiguration);
-				LogManager.Configuration = _nlogConfiguration;
+				var nlogConfiguration = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
+				_loggerFactory = new LogFactory(nlogConfiguration);
+				LogManager.Configuration = nlogConfiguration;
 			} catch (Exception e) {
 				throw new Exception("Failed to get app settings", e);
 			}
 
 			var logger = _loggerFactory.GetCurrentClassLogger();
 			logger.Info("Launched");
+
+			// runtime config
+			_runtimeConfigHolder = new RuntimeConfigHolder(_loggerFactory);
 
 			// custom db connection
 			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
@@ -60,10 +64,13 @@ namespace Goldmint.WebApplication {
 			}
 		}
 
-		public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime) {
+		public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime, IRuntimeConfigLoader runtimeConfigLoader) {
 
 			applicationLifetime.ApplicationStopping.Register(OnServerStopRequested);
 			applicationLifetime.ApplicationStopped.Register(OnServerStopped);
+
+			// config loader
+			_runtimeConfigHolder.SetLoader(runtimeConfigLoader);
 
 			// setup ms logger
 			app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
@@ -141,12 +148,13 @@ namespace Goldmint.WebApplication {
 			);
 
 			app.UseMvc();
+
+			RunServices();
 		}
 
 		public void OnServerStopRequested() {
 			var logger = _loggerFactory.GetCurrentClassLogger();
 			logger.Info("Webserver stop requested");
-
 		}
 
 		public void OnServerStopped() {

@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace Goldmint.Common {
 
-namespace Goldmint.Common {
-
-	public class AppConfig {
+	public sealed class AppConfig {
 
 		public ConnectionStringsSection ConnectionStrings { get; set; } = new ConnectionStringsSection();
 		public class ConnectionStringsSection {
@@ -119,13 +117,6 @@ namespace Goldmint.Common {
 
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
-				public long MinimalGasLimit { get; set; } = 300000;
-				public CryptoExchangeRequestSection CryptoExchangeRequest { get; set; } = new CryptoExchangeRequestSection();
-				
-				public class CryptoExchangeRequestSection {
-
-					public string FromBlock { get; set; } = "0";
-				}
 			}
 
 			public IpfsSection Ipfs { get; set; } = new IpfsSection();
@@ -158,59 +149,6 @@ namespace Goldmint.Common {
 				public string GoldRateUrl { get; set; } = "";
 				public string EthRateUrl { get; set; } = "";
 			}
-		}
-
-		// ---
-
-		public BusSection Bus { get; set; } = new BusSection();
-		public class BusSection {
-
-			public CentralPubSection CentralPub { get; set; } = new CentralPubSection();
-			public class CentralPubSection {
-
-				public string Endpoint { get; set; } = "";
-				public RatesSection Rates { get; set; } = new RatesSection();
-
-				public class RatesSection {
-
-					public int PubPeriodSec { get; set; } = 1;
-					public int GoldValidForSec { get; set; } = 1800;
-					public int CryptoValidForSec { get; set; } = 180;
-				}
-			}
-
-			public ChildPubSection[] ChildPub { get; set; } = {};
-			public class ChildPubSection {
-
-				public string Name { get; set; } = "";
-				public string Endpoint { get; set; } = "";
-			}
-		}
-
-		// ---
-
-		public ConstantsSection Constants { get; set; } = new ConstantsSection();
-		public class ConstantsSection {
-
-			public SafeExchangeFixedRateThresholdSection SafeExchangeFixedRateThreshold { get; set; } = new SafeExchangeFixedRateThresholdSection();
-			public class SafeExchangeFixedRateThresholdSection {
-
-				public Asset Gold { get; set; } = new Asset();
-				public Asset Eth { get; set; } = new Asset();
-
-				public class Asset {
-
-					public double Buy { get; set; } = 0.1d;
-					public double Sell { get; set; } = 0.1d;
-				}
-			}
-
-			public TimeLimitsSection TimeLimits { get; set; } = new TimeLimitsSection();
-			public class TimeLimitsSection {
-
-				public int BuyGoldForEthRequestTimeoutSec { get; set; } = 1800;
-				public int SellGoldForEthRequestTimeoutSec { get; set; } = 1800;
-			}
 
 			public WorkersSection Workers { get; set; } = new WorkersSection();
 			public class WorkersSection {
@@ -233,6 +171,40 @@ namespace Goldmint.Common {
 				public class EthWorkerSettings : DbWorkerSettings {
 					public int EthConfirmations { get; set; } = 6;
 				}
+			}
+		}
+
+		// ---
+
+		public BusSection Bus { get; set; } = new BusSection();
+		public class BusSection {
+
+			public CentralPubSection CentralPub { get; set; } = new CentralPubSection();
+			public class CentralPubSection {
+
+				public string Endpoint { get; set; } = "";
+				public RatesSection Rates { get; set; } = new RatesSection();
+				public ChildPubEndpointSection[] ChildPubEndpoints { get; set; } = { };
+
+				public class RatesSection {
+
+					public int PubPeriodSec { get; set; } = 1;
+					public int GoldValidForSec { get; set; } = 1800;
+					public int CryptoValidForSec { get; set; } = 180;
+				}
+
+				public class ChildPubEndpointSection {
+
+					public string Name { get; set; } = "";
+					public string Endpoint { get; set; } = "";
+				}
+			}
+
+			public ChildPubSection ChildPub { get; set; } = new ChildPubSection();
+			public class ChildPubSection {
+
+				public int PubPort { get; set; } = 6669;
+				public int PubStatusPeriodSec { get; set; } = 5;
 			}
 		}
 	}

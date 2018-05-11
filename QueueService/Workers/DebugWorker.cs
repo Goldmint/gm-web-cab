@@ -9,18 +9,18 @@ namespace Goldmint.QueueService.Workers {
 	public sealed class DebugWorker : BaseWorker {
 
 		private IServiceProvider _services;
-		private ApplicationDbContext _dbContext;
-		private IEthereumReader _ethereumReader;
-		private IEthereumWriter _ethereumWriter;
+		// private ApplicationDbContext _dbContext;
+		// private IEthereumReader _ethereumReader;
+		// private IEthereumWriter _ethereumWriter;
 
 		public DebugWorker() {
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
-			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			_ethereumReader = services.GetRequiredService<IEthereumReader>();
-			_ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+			// _dbContext = services.GetRequiredService<ApplicationDbContext>();
+			// _ethereumReader = services.GetRequiredService<IEthereumReader>();
+			// _ethereumWriter = services.GetRequiredService<IEthereumWriter>();
 
 			return Task.CompletedTask;
 		}

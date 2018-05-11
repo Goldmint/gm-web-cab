@@ -34,6 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
+			
 
 			if (userTier < UserTier.Tier1) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
@@ -52,8 +53,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
+			var rcfg = RuntimeConfigHolder.Clone();
 			var timeNow = DateTime.UtcNow;
-			var timeExpires = timeNow.AddSeconds(AppConfig.Constants.TimeLimits.BuyGoldForEthRequestTimeoutSec);
+			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
 			var ticket = await TicketDesk.NewGoldBuyingRequestForCryptoasset(
 				userId: user.Id,

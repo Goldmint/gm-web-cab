@@ -450,6 +450,7 @@ namespace Goldmint.Common {
 	public enum DbSetting {
 
 		FeesTable = 1,
+		RuntimeConfig,
 		CryptoCapitalDepositData,
 		GoldEthBuyHarvLastBlock,
 		GoldEthSellHarvLastBlock,
@@ -470,7 +471,7 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Processing ethereum opration (operation-wide)
 		/// </summary>
-		EthOpration,
+		EthOperation,
 
 		/// <summary>
 		/// Changing buying request state (request-wide)

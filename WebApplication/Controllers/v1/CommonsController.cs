@@ -1,14 +1,13 @@
-﻿using Goldmint.WebApplication.Core.Policies;
+﻿using Goldmint.Common;
+using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API.v1.CommonsModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Rate;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -110,7 +109,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			// TODO: DB hit, cache response for some period + ser/deser via common structure
 
-			var json = await DbContext.GetDBSetting(DbSetting.FeesTable, null);
+			var json = await DbContext.GetDbSetting(DbSetting.FeesTable, null);
 			if (json != null) {
 				ret = Common.Json.Parse<FeesView>(json);
 			}

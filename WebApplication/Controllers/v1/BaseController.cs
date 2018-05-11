@@ -5,8 +5,8 @@ using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.OpenStorage;
-using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.Ticket;
 using Goldmint.WebApplication.Models;
@@ -41,6 +41,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 		protected IDocSigningProvider DocSigningProvider { get; private set; }
 		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
+		protected RuntimeConfigHolder RuntimeConfigHolder { get; private set; }
 
 		protected BaseController() { }
 
@@ -61,6 +62,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
 			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
+			RuntimeConfigHolder = services.GetRequiredService<RuntimeConfigHolder>();
 		}
 
 		// ---
