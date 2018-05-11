@@ -30,6 +30,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
   public ethAddress: string = '';
   public selectedWallet = 0;
+  public goldRate: number = 0;
 
   public user: User;
   public tfaInfo: TFAInfo;
@@ -40,6 +41,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public cCurrencyCoinAmount: any = null;
   public cCurrencyAmountView;
   public cCurrencyEstimateAmount;
+  public estimateAmountUSD = 0;
   public invalidBalance = false;
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
@@ -85,6 +87,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
+    });
+
+    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
+      data && (this.goldRate = data.gold);
+      this._cdRef.markForCheck();
     });
 
     this._ethService.getObservableEthBalance().takeUntil(this.destroy$).subscribe(balance => {
@@ -144,9 +151,10 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
           this._cdRef.markForCheck();
         }).subscribe(data => {
         this.cCurrencyEstimateAmount = data.data.amount / Math.pow(10, 18);
+        this.estimateAmountUSD = this.cCurrencyEstimateAmount * this.goldRate;
       });
     } else {
-      this.cCurrencyEstimateAmount = 0;
+      this.cCurrencyEstimateAmount = this.estimateAmountUSD = 0;
       this.loading = false;
       this.invalidBalance = true;
     }

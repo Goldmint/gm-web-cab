@@ -458,7 +458,14 @@
           "Destination": "Destination",
           "Type": "Type",
           "Fee": "Fee",
+          "FromAmount": "From amount",
+          "ToAmount": "To amount",
           "Comment": "Comment"
+        },
+        "Status": {
+          "Pending": "Transaction is pending",
+          "Ok": "Transaction is success",
+          "Failed": "Transaction is failed"
         },
         "Link": "Link",
         "EmptyMessage": "No data"

@@ -50,37 +50,43 @@
 
             <ng-template let-type="value" ngx-datatable-cell-template let-row="row">
               <div class="d-flex">
-              <span class="history-icon-container" *ngIf="row.status === 1">
-                <img alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif">
-              </span>
+                <span class="history-icon-container" *ngIf="row.status === 1">
+                  <img alt="Processing..." width="17" height="17" src="assets/img/loader-gold-bg-white.gif" title='{{ "PAGES.History.Table.Status.Pending" | translate }}'>
+                </span>
 
                 <span class="history-icon-container" *ngIf="row.status !== 1 && row.status !== 3" [ngSwitch]="type.toLowerCase()">
-                <svg width="27" height="18" *ngSwitchCase="'deposit'">
-                  <use xlink:href="#withdraw-history"></use>
-                </svg>
-                <svg width="27" height="18" *ngSwitchCase="'withdraw'">
-                  <use xlink:href="#deposit-history"></use>
-                </svg>
-                <svg width="20" height="20" *ngSwitchCase="'hwtransfer'">
-                  <use xlink:href="#hwtransfer-history"></use>
-                </svg>
-                <svg width="20" height="20" *ngSwitchCase="'goldsell'">
-                  <use xlink:href="#goldsell-history"></use>
-                </svg>
-                <svg width="20" height="20" *ngSwitchCase="'goldbuy'">
-                  <use xlink:href="#goldbuy-history"></use>
-                </svg>
-              </span>
+                  <svg width="27" height="18" *ngSwitchCase="'deposit'">
+                    <title>{{ "PAGES.History.Table.Status.Ok" | translate }}</title>
+                    <use xlink:href="#withdraw-history"></use>
+                  </svg>
+                  <svg width="27" height="18" *ngSwitchCase="'withdraw'">
+                    <title>{{ "PAGES.History.Table.Status.Ok" | translate }}</title>
+                    <use xlink:href="#deposit-history"></use>
+                  </svg>
+                  <svg width="20" height="20" *ngSwitchCase="'hwtransfer'">
+                    <title>{{ "PAGES.History.Table.Status.Ok" | translate }}</title>
+                    <use xlink:href="#hwtransfer-history"></use>
+                  </svg>
+                  <svg width="20" height="20" *ngSwitchCase="'goldsell'">
+                    <title>{{ "PAGES.History.Table.Status.Ok" | translate }}</title>
+                    <use xlink:href="#goldsell-history"></use>
+                  </svg>
+                  <svg width="20" height="20" *ngSwitchCase="'goldbuy'">
+                    <title>{{ "PAGES.History.Table.Status.Ok" | translate }}</title>
+                    <use xlink:href="#goldbuy-history"></use>
+                  </svg>
+                </span>
 
                 <span class="history-icon-container" *ngIf="row.status === 3">
-                <svg class="icon-nok" width="17" height="15">
-                  <use xlink:href="#nok"></use>
-                </svg>
-              </span>
+                  <svg class="icon-nok" width="17" height="15">
+                    <title>{{ "PAGES.History.Table.Status.Failed" | translate }}</title>
+                    <use xlink:href="#nok"></use>
+                  </svg>
+                </span>
 
                 <span class="text-uppercase pl-2">
-                {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
-              </span>
+                  {{('PAGES.History.Types.' + type.toLowerCase()) | translate}}
+                </span>
               </div>
             </ng-template>
           </ngx-datatable-column>
@@ -105,15 +111,47 @@
             </ng-template>
           </ngx-datatable-column>
 
+          <ngx-datatable-column prop="srcAmount" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.FromAmount" | translate }}
+            </span>
+            </ng-template>
+
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span *ngIf="row.srcAmount !== null">
+                {{ row.srcAmount }}
+              </span>
+              <span *ngIf="row.srcAmount === null"> - </span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="dstAmount" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+              {{ "PAGES.History.Table.Columns.ToAmount" | translate }}
+            </span>
+            </ng-template>
+
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span *ngIf="row.dstAmount !== null">
+                {{ row.dstAmount }}
+              </span>
+              <span *ngIf="row.dstAmount === null"> - </span>
+            </ng-template>
+          </ngx-datatable-column>
+
           <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template ngx-datatable-header-template>
               {{ "PAGES.History.Table.Columns.Comment" | translate }}
             </ng-template>
 
             <ng-template let-comment="value" ngx-datatable-cell-template let-row="row">
-              {{ comment }}
               <span *ngIf="row.ethTxId">
-                <a href="{{ etherscanUrl + row.ethTxId }}" target="_blank">{{ "PAGES.History.Table.Link" | translate }}</a>
+                <a href="{{ etherscanUrl + row.ethTxId }}" target="_blank">{{ comment }}</a>
+              </span>
+              <span *ngIf="!row.ethTxId">
+                {{ comment }}
               </span>
             </ng-template>
           </ngx-datatable-column>
@@ -185,11 +223,37 @@
             </div>
 
             <div class="d-flex">
+              <div class="font-weight-500 mr-1">
+                {{ "PAGES.History.Table.Columns.FromAmount" | translate }}:
+              </div>
+              <div>
+                 <span class="pl-2" *ngIf="row.srcAmount !== null">
+                  {{ row.srcAmount }}
+                </span>
+                <span *ngIf="row.srcAmount === null"> - </span>
+              </div>
+            </div>
+
+            <div class="d-flex">
+              <div class="font-weight-500 mr-1">
+                {{ "PAGES.History.Table.Columns.ToAmount" | translate }}:
+              </div>
+              <div>
+                 <span class="pl-2" *ngIf="row.dstAmount !== null">
+                  {{ row.dstAmount }}
+                </span>
+                <span *ngIf="row.dstAmount === null"> - </span>
+              </div>
+            </div>
+
+            <div class="d-flex">
               <div class="font-weight-500 mr-1">{{ "PAGES.History.Table.Columns.Comment" | translate }}: </div>
               <div>
-                {{ row.comment }}
                 <span *ngIf="row.ethTxId">
-                  <a href="{{ etherscanUrl + row.ethTxId }}" target="_blank">{{ "PAGES.History.Table.Link" | translate }}</a>
+                  <a href="{{ etherscanUrl + row.ethTxId }}" target="_blank">{{ row.comment }}</a>
+                </span>
+                <span *ngIf="!row.ethTxId">
+                  {{ row.comment }}
                 </span>
               </div>
             </div>

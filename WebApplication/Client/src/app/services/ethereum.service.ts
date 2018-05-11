@@ -47,6 +47,8 @@ export class EthereumService {
   private _obsHotGoldBalance: Observable<BigNumber> = this._obsHotGoldBalanceSubject.asObservable();
   private _obsEthBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsEthBalance: Observable<BigNumber> = this._obsEthBalanceSubject.asObservable();
+  private _obsEthLimitBalanceSubject = new BehaviorSubject<BigNumber>(null);
+  private _obsEthLimitBalance: Observable<BigNumber> = this._obsEthLimitBalanceSubject.asObservable();
   private _obsTotalGoldBalancesSubject = new BehaviorSubject<Object>(null);
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
   public getSuccessBuyRequestLink$ = new Subject();
@@ -138,6 +140,7 @@ export class EthereumService {
 
     this.checkHotBalance();
     this.updateTotalGoldBalances();
+    this.updateEthLimitBalance(this.EthContractAddress);
   }
 
   private checkHotBalance() {
@@ -181,6 +184,12 @@ export class EthereumService {
         this._obsEthBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
       });
     }
+  }
+
+  private updateEthLimitBalance(addr: string) {
+    this._contractMetamask && this._web3Metamask.eth.getBalance(addr, (err, res) => {
+      this._obsEthLimitBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(17)));
+    });
   }
 
   private updateTotalGoldBalances() {
@@ -229,6 +238,10 @@ export class EthereumService {
   public getObservableEthBalance(): Observable<BigNumber> {
     return this._obsEthBalance;
   }
+  public getObservableEthLimitBalance(): Observable<BigNumber> {
+    return this._obsEthLimitBalance;
+  }
+
 
   public getObservableTotalGoldBalances(): Observable<Object> {
     return this._obsTotalGoldBalances;
