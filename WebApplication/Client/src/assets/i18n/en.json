@@ -592,7 +592,7 @@
       "Links": "Already own an account? Sign in",
       "SuccessPage":  {
         "Title": "Registered",
-        "Content": "We have sent you confirmation email. Please check your email and follow confirmation link."
+        "Content": "We have sent you email with information handling agreement. Please check your email and sign the agreement."
       },
       "EmailConfirmedPage":  {
         "Title": "Email confirmation",

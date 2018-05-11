@@ -72,6 +72,15 @@ export class APIService {
       );
   }
 
+  dpaCheck(token: string) {
+    return this._http
+      .post(`${this._baseUrl}/auth/dpaCheck`, {token}, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
   userRegister(email: string, password: string, captcha: string, agreed: boolean): Observable<APIResponse<RegistrationResponse>> {
     console.log('APIService userRegister', arguments);
 
