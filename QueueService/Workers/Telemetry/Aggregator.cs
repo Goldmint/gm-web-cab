@@ -16,17 +16,12 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 
 		private CentralPublisher _centralPublisher;
 
-		private readonly List<KeyValuePair<string, DefaultSubscriber>?> _subscribers;
-
-		private readonly Dictionary<string, ApiServerStatusMessage> _dataApiServers;
-		private readonly Dictionary<string, CoreServerStatusMessage> _dataCoreServers;
-		private readonly ReaderWriterLockSlim _dataLocker;
+		private readonly Dictionary<ServerInfo, DefaultSubscriber> _subscribers;
+		private readonly ReaderWriterLockSlim _locker;
 
 		public Aggregator() {
-			_subscribers = new List<KeyValuePair<string, DefaultSubscriber>?>();
-			_dataLocker = new ReaderWriterLockSlim();
-			_dataApiServers = new Dictionary<string, ApiServerStatusMessage>();
-			_dataCoreServers = new Dictionary<string, CoreServerStatusMessage>();
+			_locker = new ReaderWriterLockSlim();
+			_subscribers = new Dictionary<ServerInfo, DefaultSubscriber>();
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -38,22 +33,33 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 			foreach (var v in appConfig.Bus.ChildPub) {
 				if (string.IsNullOrWhiteSpace(v.Name)) {
 					var sub = new DefaultSubscriber(
-						new [] { Topic.StatusApi, Topic.StatusCore },
+						new[] { Topic.StatusApi, Topic.StatusCore },
 						new Uri(v.Endpoint),
 						logFactory
 					);
 
-					sub.SetTopicCallback(Topic.StatusApi, OnStatusApi);
-					sub.SetTopicCallback(Topic.StatusCore, OnStatusCore);
+					sub.SetTopicCallback(Topic.StatusApi, (p, s) => {
+						if (!(p is ApiServerStatusMessage msg)) return;
+						OnStatus(p, s);
+					});
+					sub.SetTopicCallback(Topic.StatusCore, (p, s) => {
+						if (!(p is CoreServerStatusMessage msg)) return;
+						OnStatus(p, s);
+					});
 
 					_subscribers.Add(
-						new KeyValuePair<string, DefaultSubscriber>(v.Name, sub)
+						new ServerInfo() {
+							Name = v.Name,
+							LastStatus = null,
+							Message = null,
+						},
+						sub
 					);
 				}
 			}
 
 			foreach (var v in _subscribers) {
-				v?.Value?.Run();
+				v.Value?.Run();
 			}
 
 			return Task.CompletedTask;
@@ -61,9 +67,9 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 
 		protected override void OnCleanup() {
 			foreach (var v in _subscribers) {
-				v?.Value?.Dispose();
+				v.Value?.Dispose();
 			}
-			_dataLocker?.Dispose();
+			_locker?.Dispose();
 			base.OnCleanup();
 		}
 
@@ -71,23 +77,29 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 			try {
 
 				try {
-					_dataLocker.EnterReadLock();
+					_locker.EnterReadLock();
 
 					_centralPublisher.PublishMessage(
 						Topic.StatusOverall,
 						new SystemOverallStatusMessage() {
+
+							Online = _subscribers.Select(_ => new ServerOnlineMessage() {
+								Name = _.Key.Name,
+								Up = _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < TimeSpan.FromSeconds(30),
+							}).ToArray(),
+
 							WorkerServer = new WorkerServerStatusMessage() {
 								Name = "Worker",
 							},
-							ApiServers = _dataApiServers.Values.ToArray(),
-							CoreServers = _dataCoreServers.Values.ToArray(),
+							ApiServers = _subscribers.Where(_ => _.Key.Message is ApiServerStatusMessage).Select(_ => _.Key.Message as ApiServerStatusMessage).ToArray(),
+							CoreServers = _subscribers.Where(_ => _.Key.Message is CoreServerStatusMessage).Select(_ => _.Key.Message as CoreServerStatusMessage).ToArray(),
 						}
 					);
 
 					Logger.Trace($"System status published");
 				}
 				finally {
-					_dataLocker.ExitReadLock();
+					_locker.ExitReadLock();
 				}
 			}
 			catch (Exception e) {
@@ -98,40 +110,31 @@ namespace Goldmint.QueueService.Workers.Telemetry {
 
 		// ---
 
-		private void OnStatusApi(object payload, DefaultSubscriber sub) {
-			if (!(payload is ApiServerStatusMessage message)) return;
+		private void OnStatus(object payload, DefaultSubscriber sub) {
+			try {
+				_locker.EnterWriteLock();
 
-			var subData = _subscribers.FirstOrDefault(_ => _?.Value == sub);
-			if (subData != null) {
-				try {
-					_dataLocker.EnterWriteLock();
-					message.Name = subData?.Key;
-					_dataApiServers[subData.Value.Key] = message;
-				}
-				finally {
-					_dataLocker.ExitWriteLock();
-				}
+				var subData = _subscribers.FirstOrDefault(_ => _.Value == sub).Key;
+				if (subData != null) {
 
-				Logger.Trace($"Got API server status from { subData?.Key }");
+					subData.LastStatus = DateTime.UtcNow;
+					subData.Message = payload;
+
+					Logger.Trace($"Got server status from { subData.Name }");
+				}
+			}
+			finally {
+				_locker.ExitWriteLock();
 			}
 		}
+		
+		// ---
 
-		private void OnStatusCore(object payload, DefaultSubscriber sub) {
-			if (!(payload is CoreServerStatusMessage message)) return;
+		internal class ServerInfo {
 
-			var subData = _subscribers.FirstOrDefault(_ => _?.Value == sub);
-			if (subData != null) {
-				try {
-					_dataLocker.EnterWriteLock();
-					message.Name = subData?.Key;
-					_dataCoreServers[subData.Value.Key] = message;
-				}
-				finally {
-					_dataLocker.ExitWriteLock();
-				}
-
-				Logger.Trace($"Got core server status from { subData?.Key }");
-			}
+			public string Name { get; set; }
+			public DateTime? LastStatus { get; set; }
+			public object Message { get; set; }
 		}
 	}
 }

@@ -130,7 +130,7 @@ namespace Goldmint.QueueService {
 				}
 
 				// launch child pub
-				_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(new Uri("tcp://*:6669"), _loggerFactory);
+				_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(new Uri("tcp://localhost:6669"), _loggerFactory);
 				_busChildPublisher.Run();
 				services.AddSingleton(_busChildPublisher);
 			}
