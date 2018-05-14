@@ -53,7 +53,7 @@ export class TransparencyPageComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      'link': ['', Validators.required],
+      'hash': ['', Validators.required],
       'amount': ['', Validators.required],
       'comment': ['', Validators.required]
     });
@@ -160,7 +160,7 @@ export class TransparencyPageComponent implements OnInit {
       this.form.enable();
     };
 
-    this.apiService.addTransparency(this.form.value.link, this.form.value.amount, this.form.value.comment).subscribe(
+    this.apiService.addTransparency(this.form.value.amount, this.form.value.hash, this.form.value.comment).subscribe(
       () => {
         this._messageBox.alert('Transparency has been added!').subscribe(() => {
           this.processing = false;
