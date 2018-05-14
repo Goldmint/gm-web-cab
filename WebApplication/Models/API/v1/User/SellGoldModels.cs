@@ -6,7 +6,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 	public class EstimateModel : BaseValidableModel {
 
 		/// <summary>
-		/// Ethereum address
+		/// Ethereum address, optional
 		/// </summary>
 		public string EthAddress { get; set; }
 		
@@ -17,10 +17,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		public string Currency { get; set; }
 
 		/// <summary>
-		/// Amount of GOLD
+		/// Amount of GOLD (Reversed is false) or amount of Currency (Reversed is true)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
+
+		/// <summary>
+		/// False - GOLD to Currency estimation; true (reversed) - Currency to GOLD estimation
+		/// </summary>
+		[Required]
+		public bool Reversed { get; set; }
 
 		// ---
 
@@ -47,13 +53,13 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// Resulting amount (minus fee) of fiat currency (cents) or cryptoasset (wei)
+		/// Estimation amount. Currency amount minus fee (Reversed is false) or GOLD amount (Reversed is true)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
 		
 		/// <summary>
-		/// Fee amount of fiat currency (cents) or cryptoasset (wei)
+		/// Fee amount in Currency
 		/// </summary>
 		[Required]
 		public string Fee { get; set; }

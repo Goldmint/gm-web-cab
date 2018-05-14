@@ -50,8 +50,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			BigInteger.TryParse(model.Amount, out var goldAmount);
-			if (goldAmount <= 0) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 0) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -59,33 +58,80 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var resultAmount = "0";
 			var resultFee = "0";
 
-			if (fiatCurrency != null) {
-				var result = await CoreLogic.Finance.Estimation.SellGold(
-					services: HttpContext.RequestServices,
-					exchangeFiatCurrency: exchangeCurrency,
-					goldAmountToSell: goldAmount
-				);
+			// default estimation: GOLD to specified currency
+			if (!model.Reversed) {
 
-				allowed = result.Allowed;
+				// fiat
+				if (fiatCurrency != null) {
+					var result = await CoreLogic.Finance.Estimation.SellGold(
+						services: HttpContext.RequestServices,
+						exchangeFiatCurrency: exchangeCurrency,
+						goldAmountToSell: inputAmount
+					);
 
-				var mntBalance = await EthereumObserver.GetAddressMntBalance(model.EthAddress);
-				var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.TotalCentsForGold, mntBalance);
-				resultAmount = (result.TotalCentsForGold - fee).ToString();
-				resultFee = fee.ToString();
+					allowed = result.Allowed;
+
+					var mntBalance = await EthereumObserver.GetAddressMntBalance(model.EthAddress);
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.TotalCentsForGold, mntBalance);
+					resultAmount = (result.TotalCentsForGold - fee).ToString();
+					resultFee = fee.ToString();
+				}
+				// cryptoasset
+				else {
+					var result = await CoreLogic.Finance.Estimation.SellGold(
+						services: HttpContext.RequestServices,
+						exchangeFiatCurrency: exchangeCurrency,
+						forCryptoCurrency: cryptoCurrency.Value,
+						goldAmountToSell: inputAmount
+					);
+
+					allowed = result.Allowed;
+
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, result.TotalAssetAmount);
+					resultAmount = (result.TotalAssetAmount - fee).ToString();
+					resultFee = fee.ToString();
+				}
 			}
+			// reversed estimation: specified currency to GOLD
 			else {
-				var result = await CoreLogic.Finance.Estimation.SellGold(
-					services: HttpContext.RequestServices,
-					exchangeFiatCurrency: exchangeCurrency,
-					forCryptoCurrency: cryptoCurrency.Value,
-					goldAmountToSell: goldAmount
-				);
 
-				allowed = result.Allowed;
+				// fiat
+				if (fiatCurrency != null) {
 
-				var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, result.TotalAssetAmount);
-				resultAmount = (result.TotalAssetAmount - fee).ToString();
-				resultFee = fee.ToString();
+					var mntBalance = await EthereumObserver.GetAddressMntBalance(model.EthAddress);
+
+					if (inputAmount <= long.MaxValue) {
+
+						var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat((long)inputAmount, mntBalance);
+						var result = await CoreLogic.Finance.Estimation.SellGoldRev(
+							services: HttpContext.RequestServices,
+							exchangeFiatCurrency: exchangeCurrency,
+							fiatWithFeeCents: (long)inputAmount + fee
+						);
+
+						allowed = result.Allowed;
+
+						resultAmount = result.TotalGoldAmount.ToString();
+						resultFee = fee.ToString();
+					}
+				}
+				// cryptoasset
+				else {
+
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, inputAmount);
+
+					var result = await CoreLogic.Finance.Estimation.SellGoldRev(
+						services: HttpContext.RequestServices,
+						exchangeFiatCurrency: exchangeCurrency,
+						forCryptoCurrency: cryptoCurrency.Value,
+						cryptoWithFeeAmount: inputAmount + fee
+					);
+
+					allowed = result.Allowed;
+
+					resultAmount = result.TotalGoldAmount.ToString();
+					resultFee = fee.ToString();
+				}
 			}
 
 			if (!allowed) {

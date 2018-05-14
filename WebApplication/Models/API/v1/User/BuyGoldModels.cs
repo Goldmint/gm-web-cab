@@ -37,10 +37,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// GOLD amount in wei
+		/// GOLD amount in wei (minus fee)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
+		
+		/// <summary>
+		/// Fee in specified currency
+		/// </summary>
+		[Required]
+		public string Fee { get; set; }
 	}
 
 	// ---

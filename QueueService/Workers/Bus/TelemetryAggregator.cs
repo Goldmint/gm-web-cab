@@ -9,12 +9,14 @@ using Goldmint.CoreLogic.Services.Bus.Proto;
 using Goldmint.CoreLogic.Services.Bus.Proto.Telemetry;
 using Goldmint.CoreLogic.Services.Bus.Publisher;
 using Goldmint.CoreLogic.Services.Bus.Subscriber;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using NLog;
 
 namespace Goldmint.QueueService.Workers.Bus {
 
 	public sealed class TelemetryAggregator : BaseWorker {
 
+		private RuntimeConfigHolder _runtimeConfigHolder;
 		private CentralPublisher _centralPublisher;
 		private WorkerTelemetryMessage _selfTelemetryMessage;
 
@@ -33,6 +35,7 @@ namespace Goldmint.QueueService.Workers.Bus {
 
 			var appConfig = services.GetRequiredService<AppConfig>();
 			var logFactory = services.GetRequiredService<LogFactory>();
+			_runtimeConfigHolder = services.GetRequiredService<RuntimeConfigHolder>();
 			_centralPublisher = services.GetRequiredService<CentralPublisher>();
 
 			foreach (var v in appConfig.Bus.CentralPub.ChildPubEndpoints) {
@@ -139,6 +142,9 @@ namespace Goldmint.QueueService.Workers.Bus {
 		}
 
 		private void OnConfigUpdated() {
+
+			Task.Factory.StartNew(async () => { await _runtimeConfigHolder.Reload(); });
+
 			_centralPublisher.PublishMessage(
 				Topic.ConfigUpdated,
 				new object()

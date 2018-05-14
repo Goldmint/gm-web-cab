@@ -13,5 +13,9 @@ namespace Goldmint.Common {
 		public static class GOLD {
 			public const int Decimals = 18;
 		}
+
+		public static class MNT {
+			public const int Decimals = 18;
+		}
 	}
 }

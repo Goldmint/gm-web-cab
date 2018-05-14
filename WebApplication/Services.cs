@@ -76,6 +76,7 @@ namespace Goldmint.WebApplication {
 			});
 
 			// runtime config
+			services.AddSingleton(_runtimeConfigHolder);
 			services.AddSingleton<IRuntimeConfigLoader, DbRuntimeConfigLoader>();
 
 			// identity

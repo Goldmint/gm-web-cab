@@ -81,6 +81,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new EstimateView() {
 					Amount = result.TotalGoldAmount.ToString(),
+					Fee = "0",
 				}
 			);
 		}

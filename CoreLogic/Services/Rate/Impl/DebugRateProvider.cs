@@ -8,8 +8,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 	public sealed class DebugRateProvider : IGoldRateProvider, IEthRateProvider {
 
 		private double _defaultSpreadMult = 0.01d;
-		private long _defaultGoldRate = 133000L;
-		private long _defaultEthRate = 60000L;
+		private long _defaultGoldRate = 131390L;
+		private long _defaultEthRate = 73610L;
 
 		public Task<CurrencyRate> RequestGoldRate(TimeSpan timeout) {
 			return Task.FromResult(

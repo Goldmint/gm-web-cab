@@ -41,7 +41,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Get runtime config
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
 		[HttpGet, Route("getConfig")]
 		[ProducesResponseType(typeof(GetConfigView), 200)]
 		public APIResponse GetConfig() {

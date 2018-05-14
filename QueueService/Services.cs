@@ -52,6 +52,7 @@ namespace Goldmint.QueueService {
 			});
 
 			// runtime config loader
+			services.AddSingleton(_runtimeConfigHolder);
 			services.AddSingleton<IRuntimeConfigLoader, DbRuntimeConfigLoader>();
 
 			// mutex
@@ -85,13 +86,19 @@ namespace Goldmint.QueueService {
 				}
 
 				// rate providers
+#if !DEBUG
 				var gmRateProvider = new GmRatesProvider(_logFactory, opts => {
 					opts.GoldUrl = _appConfig.Services.GMRatesProvider.GoldRateUrl;
 					opts.EthUrl = _appConfig.Services.GMRatesProvider.EthRateUrl;
 				});
 				services.AddSingleton<IGoldRateProvider>(gmRateProvider);
 				services.AddSingleton<IEthRateProvider>(gmRateProvider);
-
+#else
+				var debugRatesProvider = new DebugRateProvider();
+				debugRatesProvider.SetSpread(0);
+				services.AddSingleton<IGoldRateProvider>(debugRatesProvider);
+				services.AddSingleton<IEthRateProvider>(debugRatesProvider);
+#endif
 				// launch central pub
 				_busCentralPublisher = new CoreLogic.Services.Bus.Publisher.CentralPublisher(new Uri(_appConfig.Bus.CentralPub.Endpoint), _logFactory);
 				services.AddSingleton(_busCentralPublisher);

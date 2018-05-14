@@ -42,15 +42,17 @@ namespace Goldmint.CoreLogic.Finance {
 
 		public static long SellingFeeForFiat(long amount, BigInteger mntAmount) {
 
-			if (mntAmount >= 10000) {
+			var mult = BigInteger.Pow(10, Tokens.MNT.Decimals);
+
+			if (mntAmount >= 10000 * mult) {
 				return (long)(new BigInteger(amount) * 75 / 10000);
 			}
 
-			if (mntAmount >= 1000) {
+			if (mntAmount >= 1000 * mult) {
 				return (long)(new BigInteger(amount) * 15 / 1000);
 			}
 
-			if (mntAmount >= 10) {
+			if (mntAmount >= 10 * mult) {
 				return (long)(new BigInteger(amount) * 25 / 1000);
 			}
 
@@ -264,6 +266,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 					ExchangeCurrency = exchangeFiatCurrency,
 					CentsPerGoldRate = goldRate.Value,
+					TotalGoldAmount = goldAmountToSell,
 					TotalCentsForGold = (long)exchangeAmount,
 				}
 			);
@@ -309,11 +312,98 @@ namespace Goldmint.CoreLogic.Finance {
 
 				ExchangeCurrency = sgr.ExchangeCurrency,
 				CentsPerGoldRate = sgr.CentsPerGoldRate,
+				TotalGoldAmount = sgr.TotalGoldAmount,
 				TotalCentsForGold = sgr.TotalCentsForGold,
 
 				Asset = forCryptoCurrency,
 				CentsPerAssetRate = cryptoRate.Value,
 				TotalAssetAmount = cryptoAmount,
+				CryptoPerGoldRate = assetPerGold,
+			};
+		}
+
+		public static Task<SellGoldResult> SellGoldRev(IServiceProvider services, long fiatWithFeeCents, FiatCurrency exchangeFiatCurrency, long? knownGoldRateCents = null) {
+
+			if (fiatWithFeeCents <= 0) {
+				return Task.FromResult(new SellGoldResult());
+			}
+
+			var safeRates = services.GetRequiredService<SafeRatesFiatAdapter>();
+			var goldRate = knownGoldRateCents ?? safeRates.GetRateForSelling(CurrencyRateType.Gold, exchangeFiatCurrency);
+
+			if (goldRate == null || goldRate <= 0) {
+				return Task.FromResult(new SellGoldResult() {
+					Status = SellGoldStatus.GoldSellingNotAllowed,
+				});
+			}
+
+			var goldAmountToSell = fiatWithFeeCents * BigInteger.Pow(10, Tokens.GOLD.Decimals) / new BigInteger(goldRate.Value);
+
+			return Task.FromResult(
+				new SellGoldResult() {
+
+					Allowed = true,
+					Status = SellGoldStatus.Success,
+
+					ExchangeCurrency = exchangeFiatCurrency,
+					CentsPerGoldRate = goldRate.Value,
+					TotalGoldAmount = goldAmountToSell,
+					TotalCentsForGold = fiatWithFeeCents,
+				}
+			);
+		}
+
+		public static async Task<SellGoldForCryptoResult> SellGoldRev(IServiceProvider services, BigInteger cryptoWithFeeAmount, FiatCurrency exchangeFiatCurrency, CryptoCurrency forCryptoCurrency, long? knownGoldRateCents = null, long? knownCryptoRateCents = null) {
+
+			if (cryptoWithFeeAmount <= 0) {
+				return new SellGoldForCryptoResult();
+			}
+
+			var safeRates = services.GetRequiredService<SafeRatesFiatAdapter>();
+			var cryptoRate = (long?)0L;
+			var decimals = 0;
+
+			if (forCryptoCurrency == CryptoCurrency.Eth) {
+				decimals = Common.Tokens.ETH.Decimals;
+				cryptoRate = knownCryptoRateCents ?? safeRates.GetRateForBuying(CurrencyRateType.Eth, exchangeFiatCurrency);
+			}
+			else {
+				throw new NotImplementedException($"Estimation (selling) is not implemented for { forCryptoCurrency.ToString() }");
+			}
+
+			if (cryptoRate == null || cryptoRate <= 0) {
+				return new SellGoldForCryptoResult() {
+					Status = SellGoldStatus.CryptoBuyingNotAllowed,
+				};
+			}
+
+			var assetPerGold = BigInteger.Zero;
+
+			var exchangeAmount = cryptoWithFeeAmount * new BigInteger(cryptoRate.Value) / BigInteger.Pow(10, decimals);
+			if (exchangeAmount > long.MaxValue) {
+				return new SellGoldForCryptoResult() {
+					Status = SellGoldStatus.OutOfLimitGoldAmount,
+				};
+			}
+
+			var sgr = await SellGoldRev(services, (long)exchangeAmount, exchangeFiatCurrency);
+			if (sgr.Allowed) {
+				assetPerGold = AssetPerGold(forCryptoCurrency, cryptoRate.Value, sgr.CentsPerGoldRate);
+			}
+
+			return new SellGoldForCryptoResult() {
+
+				Allowed = sgr.Allowed,
+				Status = sgr.Status,
+
+				ExchangeCurrency = sgr.ExchangeCurrency,
+				CentsPerGoldRate = sgr.CentsPerGoldRate,
+				TotalGoldAmount = sgr.TotalGoldAmount,
+				TotalCentsForGold = sgr.TotalCentsForGold,
+
+				Asset = forCryptoCurrency,
+				CentsPerAssetRate = cryptoRate.Value,
+				TotalAssetAmount = cryptoWithFeeAmount,
 				CryptoPerGoldRate = assetPerGold,
 			};
 		}
@@ -352,7 +442,12 @@ namespace Goldmint.CoreLogic.Finance {
 			public long CentsPerGoldRate { get; internal set; }
 
 			/// <summary>
-			/// Converted GOLD
+			/// Result gold amount
+			/// </summary>
+			public BigInteger TotalGoldAmount { get; internal set; }
+
+			/// <summary>
+			/// Result cents
 			/// </summary>
 			public long TotalCentsForGold { get; internal set; }
 		}

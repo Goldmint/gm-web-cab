@@ -116,6 +116,78 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(res.TotalAssetAmount == 5 * BigInteger.Pow(10, Tokens.ETH.Decimals - 1));
 		}
 
+		[Fact]
+		public void SellGoldSimpleEstimationReversed1() {
+
+			var gRate = 100000;
+			var eRate = 200000;
+
+			_ratesProvider.SetSpread(0d);
+			_ratesProvider.SetGoldRate(gRate);
+			_ratesProvider.SetEthRate(eRate);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestGoldRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.ForceUpdate().Wait();
+
+			var mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 9;
+			var fiatAmount = 100000L;
+			var resRev = CoreLogic.Finance.Estimation.SellGoldRev(_services, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount), FiatCurrency.Usd).Result;
+			var resDef = CoreLogic.Finance.Estimation.SellGold(_services, resRev.TotalGoldAmount, FiatCurrency.Usd).Result;
+			Assert.True(resRev.Allowed);
+			Assert.True(resRev.CentsPerGoldRate == gRate);
+			Assert.True(resRev.TotalCentsForGold == resDef.TotalCentsForGold);
+			Assert.True(resDef.TotalCentsForGold == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
+
+			mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 999;
+			fiatAmount = 200000L;
+			resRev = CoreLogic.Finance.Estimation.SellGoldRev(_services, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount), FiatCurrency.Usd).Result;
+			resDef = CoreLogic.Finance.Estimation.SellGold(_services, resRev.TotalGoldAmount, FiatCurrency.Usd).Result;
+			Assert.True(resRev.Allowed);
+			Assert.True(resRev.CentsPerGoldRate == gRate);
+			Assert.True(resRev.TotalCentsForGold == resDef.TotalCentsForGold);
+			Assert.True(resDef.TotalCentsForGold == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
+
+			mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 9999;
+			fiatAmount = 300000L;
+			resRev = CoreLogic.Finance.Estimation.SellGoldRev(_services, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount), FiatCurrency.Usd).Result;
+			resDef = CoreLogic.Finance.Estimation.SellGold(_services, resRev.TotalGoldAmount, FiatCurrency.Usd).Result;
+			Assert.True(resRev.Allowed);
+			Assert.True(resRev.CentsPerGoldRate == gRate);
+			Assert.True(resRev.TotalCentsForGold == resDef.TotalCentsForGold);
+			Assert.True(resDef.TotalCentsForGold == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
+
+			mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 10000;
+			fiatAmount = 300000L;
+			resRev = CoreLogic.Finance.Estimation.SellGoldRev(_services, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount), FiatCurrency.Usd).Result;
+			resDef = CoreLogic.Finance.Estimation.SellGold(_services, resRev.TotalGoldAmount, FiatCurrency.Usd).Result;
+			Assert.True(resRev.Allowed);
+			Assert.True(resRev.CentsPerGoldRate == gRate);
+			Assert.True(resRev.TotalCentsForGold == resDef.TotalCentsForGold);
+			Assert.True(resDef.TotalCentsForGold == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
+		}
+
+		[Fact]
+		public void SellGoldSimpleEstimationReversed2() {
+
+			var gRate = 100000;
+			var eRate = 200000;
+
+			_ratesProvider.SetSpread(0d);
+			_ratesProvider.SetGoldRate(gRate);
+			_ratesProvider.SetEthRate(eRate);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestGoldRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.ForceUpdate().Wait();
+
+			var cryptoAmount = BigInteger.Pow(10, Tokens.ETH.Decimals);
+			var resRev = CoreLogic.Finance.Estimation.SellGoldRev(_services, cryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, cryptoAmount), FiatCurrency.Usd, CryptoCurrency.Eth).Result;
+			var resDef = CoreLogic.Finance.Estimation.SellGold(_services, resRev.TotalGoldAmount, FiatCurrency.Usd, CryptoCurrency.Eth).Result;
+			Assert.True(resRev.Allowed);
+			Assert.True(resRev.CentsPerGoldRate == gRate);
+			Assert.True(resRev.TotalCentsForGold == resDef.TotalCentsForGold);
+			Assert.True(resDef.TotalAssetAmount == cryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, cryptoAmount));
+		}
+
 		// TODO: CoreLogic.Finance.Estimation.* methods - valid/invalid values, valid/invalid rates, allow/disallow trading
 
 		// TODO: fee estimation while selling (mntp balance)
