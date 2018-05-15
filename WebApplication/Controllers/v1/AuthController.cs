@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Goldmint.WebApplication.Core;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
@@ -176,11 +177,15 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("signout")]
 		public async Task<APIResponse> SignOut() {
+
 			var user = await GetUserFromDb();
+			var audience = GetCurrentAudience();
 
 			// new jwt salt
-			user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
-			await DbContext.SaveChangesAsync();
+			if (audience != null) {
+				Core.UserAccount.GenerateJwtSalt(user, audience.Value);
+				await DbContext.SaveChangesAsync();
+			}
 
 			return APIResponse.Success();
 		}
@@ -212,7 +217,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				    expectedArea: Common.JwtArea.Dpa,
 				    validStamp: async (jwt, id) => {
 					    user = await UserManager.FindByNameAsync(id);
-					    return user?.JwtSalt;
+						return UserAccount.CurrentJwtSalt(user, audience);
 				    }
 			    ) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
@@ -229,7 +234,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (user.UserOptions.DpaDocument.IsSigned) {
 
 				user.EmailConfirmed = true;
-				user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
+				UserAccount.GenerateJwtSalt(user, audience);
 				await DbContext.SaveChangesAsync();
 
 				return OnSignInResultCheck(
@@ -278,7 +283,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// new jwt salt
-					user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
+					UserAccount.GenerateJwtSalt(user, audience);
 					DbContext.SaveChanges();
 
 					// auth token

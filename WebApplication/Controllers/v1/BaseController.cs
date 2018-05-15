@@ -141,7 +141,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				return await DbContext.Users
 					.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
 					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
-					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
 					.AsTracking()
 					.FirstAsync(user => user.NormalizedUserName == name)
 				;

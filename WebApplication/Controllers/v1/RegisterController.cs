@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Goldmint.Common;
+using Goldmint.WebApplication.Core;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -42,12 +43,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var result = await Core.UserAccount.CreateUserAccount(HttpContext.RequestServices, model.Email, model.Password);
 
 			if (result.User != null) {
+
+				var jwtSalt = UserAccount.CurrentJwtSalt(result.User, audience);
 					
 				var tokenForDpa = Core.Tokens.JWT.CreateSecurityToken(
 					appConfig: AppConfig,
 					entityId: result.User.UserName,
 					audience: audience,
-					securityStamp: result.User.JwtSalt,
+					securityStamp: jwtSalt,
 					area: JwtArea.Dpa,
 					validFor: TimeSpan.FromDays(1)
 				);

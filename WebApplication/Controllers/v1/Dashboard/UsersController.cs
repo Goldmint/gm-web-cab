@@ -104,7 +104,6 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			)
 				.AsNoTracking()
 					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
-					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
 					.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
 				.FirstOrDefaultAsync()
 			;
@@ -289,7 +288,6 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				select a
 			)
 				.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
-				.Include(_ => _.UserVerification).ThenInclude(_ => _.LastAgreement)
 				.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
 				.FirstOrDefaultAsync()
 			;

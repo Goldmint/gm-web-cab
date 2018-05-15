@@ -83,12 +83,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		/// </summary>
 		[Required]
 		public bool IsResidenceProved { get; set; }
-
-		/// <summary>
-		/// Agreement signature is pending
-		/// </summary>
-		[Required]
-		public bool IsAgreementPending { get; set; }
 		
 		/// <summary>
 		/// Agreement is signed

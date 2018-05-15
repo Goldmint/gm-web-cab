@@ -1,6 +1,9 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.DAL;
+using Goldmint.DAL.Models;
 using Goldmint.DAL.Models.Identity;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,11 +11,6 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
-using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.DAL.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Core {
 
@@ -43,7 +41,8 @@ namespace Goldmint.WebApplication.Core {
 					UserName = email,
 					Email = email,
 					TfaSecret = tfaSecret,
-					JwtSalt = GenerateJwtSalt(),
+					JwtSaltCabinet = GenerateJwtSalt(),
+					JwtSaltDashboard = GenerateJwtSalt(),
 					EmailConfirmed = emailConfirmed,
 					AccessRights = 0,
 
@@ -68,7 +67,8 @@ namespace Goldmint.WebApplication.Core {
 
 						newUser.UserName = name;
 						newUser.NormalizedUserName = name.ToUpperInvariant();
-						newUser.JwtSalt = GenerateJwtSalt();
+						newUser.JwtSaltCabinet = GenerateJwtSalt();
+						newUser.JwtSaltDashboard = GenerateJwtSalt();
 						newUser.AccessRights = (long)AccessRights.Client;
 
 						await dbContext.SaveChangesAsync();
@@ -127,8 +127,31 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Random access stamp
 		/// </summary>
-		public static string GenerateJwtSalt() {
+		private static string GenerateJwtSalt() {
 			return SecureRandom.GetString09azAZ(64);
+		}
+
+		/// <summary>
+		/// Randomize access stamp
+		/// </summary>
+		public static void GenerateJwtSalt(User user, JwtAudience audience) {
+			switch (audience) {
+				case JwtAudience.Cabinet: user.JwtSaltCabinet = GenerateJwtSalt(); break;
+				case JwtAudience.Dashboard: user.JwtSaltDashboard = GenerateJwtSalt(); break;
+				default: throw new NotImplementedException("Audience is not implemented");
+			}
+		}
+		
+		/// <summary>
+		/// Current access stamp
+		/// </summary>
+		public static string CurrentJwtSalt(User user, JwtAudience audience) {
+			if (user == null) return null;
+			switch (audience) {
+				case JwtAudience.Cabinet: return user.JwtSaltCabinet;
+				case JwtAudience.Dashboard: return user.JwtSaltDashboard;
+				default: throw new NotImplementedException("Audience is not implemented");
+			}
 		}
 
 		/// <summary>
@@ -184,58 +207,6 @@ namespace Goldmint.WebApplication.Core {
 				email: email,
 				date: DateTime.UtcNow,
 				redirectUrl: redirectUrl
-			); ;
-		}
-
-		/// <summary>
-		/// Reset current agreement and resend to specified email address
-		/// </summary>
-		public static async Task<bool> ResendUserTosDocument(IServiceProvider services, User user, string email, string redirectUrl, Locale locale) {
-
-			if (user == null) {
-				throw new ArgumentException("User is null");
-			}
-			if (user.UserVerification == null) {
-				throw new ArgumentException("User verification not included");
-			}
-			if (user.UserVerification.FirstName == null || user.UserVerification.LastName == null) {
-				throw new ArgumentException("User has no first/last name");
-			}
-
-			// ---
-
-			var logger = services.GetLoggerFor(typeof(UserAccount));
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var appConfig = services.GetRequiredService<AppConfig>();
-			var docService = services.GetRequiredService<IDocSigningProvider>();
-
-			// create new request
-			var request = new SignedDocument() {
-				Type = SignedDocumentType.Tos,
-				IsSigned = false,
-				ReferenceId = Guid.NewGuid().ToString("N"),
-				TimeCreated = DateTime.UtcNow,
-				UserId = user.Id,
-				Secret = appConfig.Services.SignRequest.Auth,
-			};
-
-			// add/save
-			dbContext.SignedDocument.Add(request);
-			await dbContext.SaveChangesAsync();
-
-			// set new unverified agreement 
-			user.UserVerification.LastAgreementId = request.Id;
-			dbContext.Update(user.UserVerification);
-			await dbContext.SaveChangesAsync();
-
-			return await docService.SendPrimaryAgreementRequest(
-				locale: locale,
-				refId: request.ReferenceId,
-				firstName: user.UserVerification.FirstName,
-				lastName: user.UserVerification.LastName,
-				email: email,
-				date: DateTime.UtcNow,
-				redirectUrl: redirectUrl
 			);
 		}
 
@@ -251,9 +222,9 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// Custom user manager class
 		/// </summary>
-		public class GMUserManager : UserManager<User> {
+		public class GmUserManager : UserManager<User> {
 
-			public GMUserManager(IUserStore<User> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<User> passwordHasher, IEnumerable<IUserValidator<User>> userValidators, IEnumerable<IPasswordValidator<User>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<User>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
+			public GmUserManager(IUserStore<User> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<User> passwordHasher, IEnumerable<IUserValidator<User>> userValidators, IEnumerable<IPasswordValidator<User>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<User>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
 			}
 
 			public override Task<string> GenerateTwoFactorTokenAsync(User user, string tokenProvider) {

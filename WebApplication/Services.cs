@@ -101,7 +101,7 @@ namespace Goldmint.WebApplication {
 			idbld
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddSignInManager<SignInManager<User>>()
-				.AddUserManager<Core.UserAccount.GMUserManager>()
+				.AddUserManager<Core.UserAccount.GmUserManager>()
 				.AddDefaultTokenProviders()
 			;
 

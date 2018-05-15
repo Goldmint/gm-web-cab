@@ -61,8 +61,11 @@ namespace Goldmint.DAL.Models.Identity {
 
 		// ---
 
-		[Column("jwt_salt"), MaxLength(64), Required]
-		public string JwtSalt { get; set; }
+		[Column("jwt_salt_cab"), MaxLength(64), Required]
+		public string JwtSaltCabinet { get; set; }
+
+		[Column("jwt_salt_dbr"), MaxLength(64), Required]
+		public string JwtSaltDashboard { get; set; }
 
 		[Column("access_rights"), Required]
 		public long AccessRights { get; set; }

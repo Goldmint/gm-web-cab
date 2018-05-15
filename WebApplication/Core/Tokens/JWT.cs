@@ -85,9 +85,11 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// Make a token for specified user with specified state
 		/// </summary>
 		public static string CreateAuthToken(AppConfig appConfig, JwtAudience audience, JwtArea area, User user, long rightsMask) {
+
 			var now = DateTime.UtcNow;
 			var uniqueness = UniqueId(appConfig.Auth.Jwt.Secret);
 			var audienceSett = GetAudienceSettings(appConfig, audience);
+			var jwtSalt = UserAccount.CurrentJwtSalt(user, audience);
 
 			var claims = new[] {
 
@@ -97,7 +99,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
 				
 				// gm fields
-				new Claim(GMSecurityStampField, ObtainSecurityStamp(user.JwtSalt)),
+				new Claim(GMSecurityStampField, ObtainSecurityStamp(jwtSalt)),
 				new Claim(GMIdField, user.UserName),
 				new Claim(GMRightsField, rightsMask.ToString()),
 				new Claim(GMAreaField, area.ToString().ToLower()),
@@ -218,25 +220,52 @@ namespace Goldmint.WebApplication.Core.Tokens {
 						}
 
 						// get passed username and stamp
-						var userName = token.Claims.FirstOrDefault((c) => c.Type == GMIdField)?.Value;
-						var userStamp = token.Claims.FirstOrDefault((c) => c.Type == GMSecurityStampField)?.Value;
-						if (userName == null) {
+						var rawUserName = token.Claims.FirstOrDefault((c) => c.Type == GMIdField)?.Value;
+						var rawUserStamp = token.Claims.FirstOrDefault((c) => c.Type == GMSecurityStampField)?.Value;
+						var rawAudience = token.Audiences.FirstOrDefault();
+
+						if (string.IsNullOrWhiteSpace(rawUserName)) {
 							throw new Exception("JWT doesnt contain username");
+						}
+						if (string.IsNullOrWhiteSpace(rawAudience)) {
+							throw new Exception("JWT doesnt contain audience");
+						}
+
+						// parse audience
+						if (!Enum.TryParse(rawAudience, true, out JwtAudience audience)) {
+							throw new Exception("JWT doesnt contain invalid audience");
 						}
 
 						// get security stamp of the user
 						var dbContext = ctx.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
-						var sstamp = await (
-							from u in dbContext.Users
-							where u.UserName == userName
-							select ObtainSecurityStamp(u.JwtSalt)
-						)
+						var sstamp = (string) null;
+
+						// cabinet
+						if (audience == JwtAudience.Cabinet) {
+							sstamp = await (
+								from u in dbContext.Users
+								where u.UserName == rawUserName
+								select ObtainSecurityStamp(u.JwtSaltCabinet)
+							)
 							.AsNoTracking()
-							.FirstOrDefaultAsync()
-						;
+							.FirstOrDefaultAsync();
+						}
+						// dashboard
+						else if (audience == JwtAudience.Dashboard) {
+							sstamp = await (
+								from u in dbContext.Users
+								where u.UserName == rawUserName
+								select ObtainSecurityStamp(u.JwtSaltDashboard)
+							)
+							.AsNoTracking()
+							.FirstOrDefaultAsync();
+						}
+						else {
+							throw new NotImplementedException($"Audience { rawAudience } is not implemented");
+						}
 
 						// compare
-						if (sstamp == null || userStamp == null || sstamp != userStamp) {
+						if (sstamp == null || rawUserStamp == null || sstamp != rawUserStamp) {
 							throw new Exception("JWT failed to validate sstamp");
 						}
 

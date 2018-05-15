@@ -5,12 +5,10 @@ using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.SettingsModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -18,7 +16,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		// TODO: constants
 		private static readonly TimeSpan AllowedPeriodBetweenKycRequests = TimeSpan.FromMinutes(30);
-		private static readonly TimeSpan AllowedPeriodBetweenAgreementRequests = TimeSpan.FromMinutes(30);
 
 		/// <summary>
 		/// Verification data
@@ -158,12 +155,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
-		/// Step 4. Resend primary agreement to sign
+		/// Step 4. Agreed with TOS
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpGet, Route("verification/resendAgreement")]
+		[HttpGet, Route("verification/agreedWithTos")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
-		public async Task<APIResponse> VerificationResendAgreement() {
+		public async Task<APIResponse> AgreedWithTos() {
 
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
@@ -174,22 +171,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			// check previous verification attempt
-			var status = MakeVerificationView(user);
-			if (status.IsAgreementPending) {
-				return APIResponse.BadRequest(APIErrorCode.RateLimit);
-			}
-
 			// ---
 
-			await Core.UserAccount.ResendUserTosDocument(
-				locale: userLocale,
-				services: HttpContext.RequestServices,
-				user: user,
-				email: user.Email,
-				redirectUrl: this.MakeAppLink(JwtAudience.Cabinet, fragment: AppConfig.Apps.Cabinet.RouteVerificationPage)
-			);
-
+			user.UserVerification.AgreedWithTos = true;
+			await DbContext.SaveChangesAsync();
+			
 			return APIResponse.Success(MakeVerificationView(user));
 		}
 
@@ -214,12 +200,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var residPending = !residProved && kycFinished;
 
 			var agrSigned = CoreLogic.User.HasTosSigned(user.UserVerification);
-			var agrPending =
-					!agrSigned &&
-					user.UserVerification?.LastAgreement != null &&
-					user.UserVerification.LastAgreement.TimeCompleted == null &&
-					(DateTime.UtcNow - user.UserVerification.LastAgreement.TimeCreated) < AllowedPeriodBetweenAgreementRequests
-				;
 			
 			var ret = new VerificationView() {
 
@@ -231,7 +211,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				IsResidencePending = residPending,
 				IsResidenceProved = residProved,
 
-				IsAgreementPending = agrPending,
 				IsAgreementSigned = agrSigned,
 
 				FirstName = user.UserVerification?.FirstName ?? "",

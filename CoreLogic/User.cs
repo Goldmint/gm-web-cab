@@ -39,10 +39,8 @@ namespace Goldmint.CoreLogic {
 
 		public static bool HasTosSigned(DAL.Models.UserVerification data) {
 			return
-				data?.LastAgreement != null &&
-				data.LastAgreement.Type == SignedDocumentType.Tos &&
-				data.LastAgreement.TimeCompleted != null &&
-				data.LastAgreement.IsSigned
+				data?.AgreedWithTos != null &&
+				data.AgreedWithTos.Value
 			;
 		}
 

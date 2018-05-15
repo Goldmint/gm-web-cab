@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using Goldmint.WebApplication.Core;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -125,7 +126,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					// new jwt salt
-					user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
+					UserAccount.GenerateJwtSalt(user, audience);
 					DbContext.SaveChanges();
 
 					// ok
@@ -160,12 +161,15 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, cuaResult.User);
 						if (accessRightsMask != null) {
 
+							// jwt salt
+							var jwtSalt = UserAccount.CurrentJwtSalt(cuaResult.User, audience);
+
 							// send dpa
 							var tokenForDpa = Core.Tokens.JWT.CreateSecurityToken(
 								appConfig: AppConfig,
 								entityId: cuaResult.User.UserName,
 								audience: audience,
-								securityStamp: cuaResult.User.JwtSalt,
+								securityStamp: jwtSalt,
 								area: JwtArea.Dpa,
 								validFor: TimeSpan.FromDays(1)
 							);

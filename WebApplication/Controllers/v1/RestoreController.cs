@@ -1,6 +1,7 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.WebApplication.Core;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
@@ -90,6 +91,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var user = (DAL.Models.Identity.User)null;
+			var audience = GetCurrentAudience();
 			var agent = GetUserAgentInfo();
 			var userLocale = GetUserLocale();
 
@@ -110,8 +112,10 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			await UserManager.RemovePasswordAsync(user);
 			await UserManager.AddPasswordAsync(user, model.Password);
 
-			user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
-			await DbContext.SaveChangesAsync();
+			if (audience != null) {
+				UserAccount.GenerateJwtSalt(user, audience.Value);
+				await DbContext.SaveChangesAsync();
+			}
 
 			// posteffect
 			{
