@@ -25,10 +25,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var amountWei) || amountWei.ToString().Length > 64 || amountWei < 1) {
-				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-			}
-
 			// ---
 
 			var user = await GetUserFromDb();
@@ -42,16 +38,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var currency = FiatCurrency.Usd;
-			var estimation = await CoreLogic.Finance.Estimation.SellGold(
+			var estimation = await CoreLogic.Finance.Estimation.SellGoldCrypto(
 				services: HttpContext.RequestServices,
-				exchangeFiatCurrency: currency,
-				forCryptoCurrency: CryptoCurrency.Eth,
-				goldAmountToSell: amountWei
+				cryptoCurrency: CryptoCurrency.Eth,
+				fiatCurrency: currency, 
+				goldAmount: BigInteger.Pow(10, Tokens.GOLD.Decimals)
 			);
 			if (!estimation.Allowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
-			var estimationFee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, estimation.TotalAssetAmount);
 
 			var rcfg = RuntimeConfigHolder.Clone();
 			var timeNow = DateTime.UtcNow;
@@ -122,8 +117,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
 					Currency = currency.ToString().ToUpper(),
-					EthAmount = (estimation.TotalAssetAmount - estimationFee).ToString(),
-					FeeAmount = estimationFee.ToString(),
+					EthPerGoldRate = estimation.CryptoPerGoldRate.ToString(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}
 			);

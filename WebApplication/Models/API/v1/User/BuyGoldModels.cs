@@ -12,10 +12,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		public string Currency { get; set; }
 
 		/// <summary>
-		/// Amount of fiat currency (cents) or cryptoasset (wei)
+		/// Amount of Currency (Reversed is false) or amount of GOLD (Reversed is true)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
+
+		/// <summary>
+		/// False - Currency to GOLD estimation; true (reversed) - GOLD to Currency estimation
+		/// </summary>
+		[Required]
+		public bool Reversed { get; set; }
 
 		// ---
 
@@ -37,16 +43,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// GOLD amount in wei (minus fee)
+		/// Estimation amount. GOLD amount (string, Reversed is false) or Currency amount (string or float, Reversed is true)
 		/// </summary>
 		[Required]
-		public string Amount { get; set; }
-		
+		public object Amount { get; set; }
+
 		/// <summary>
-		/// Fee in specified currency
+		/// Amount currency
 		/// </summary>
 		[Required]
-		public string Fee { get; set; }
+		public string AmountCurrency { get; set; }
 	}
 
 	// ---
@@ -85,12 +91,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public string EthAddress { get; set; }
 
-		/// <summary>
-		/// Amount of ETH in wei
-		/// </summary>
-		[Required]
-		public string Amount { get; set; }
-
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -98,10 +98,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 
 			v.RuleFor(_ => _.EthAddress)
 				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
-			;
-
-			v.RuleFor(_ => _.Amount)
-				.NotEmpty().WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -135,10 +131,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		public double GoldRate { get; set; }
 
 		/// <summary>
-		/// Estimated GOLD amount, wei
+		/// ETH per GOLD
 		/// </summary>
 		[Required]
-		public string GoldAmount { get; set; }
+		public string EthPerGoldRate { get; set; }
 
 		/// <summary>
 		/// Expires at datetime (unixstamp)

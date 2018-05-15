@@ -1,5 +1,6 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Rate.Models;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,13 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 	public sealed class BusSafeRatesSource : IDisposable, IAggregatedSafeRatesSource {
 
 		private readonly ILogger _logger;
+		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
 		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public BusSafeRatesSource(LogFactory logFactory) {
+		public BusSafeRatesSource(RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory) {
+			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 			_mutexRatesUpdate = new ReaderWriterLockSlim();
 			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
@@ -51,7 +54,9 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public SafeCurrencyRate GetRate(CurrencyRateType cur) {
 			_mutexRatesUpdate.EnterReadLock();
 			try {
-				if (_rates.TryGetValue(cur, out var ret)) {
+				var rcfg = _runtimeConfigHolder.Clone();
+
+				if (rcfg.Gold.AllowTrading && _rates.TryGetValue(cur, out var ret)) {
 					return ret;
 				}
 				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);

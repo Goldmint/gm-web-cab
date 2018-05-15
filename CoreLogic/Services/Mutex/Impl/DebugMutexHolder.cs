@@ -5,13 +5,14 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Mutex.Impl {
+#if DEBUG
 
-	public sealed class MemoryMutexHolder : IMutexHolder {
+	public sealed class DebugMutexHolder : IMutexHolder {
 
 		private static ConcurrentDictionary<string, string> _dict = new ConcurrentDictionary<string, string>();
 		private readonly ILogger _logger;
 
-		public MemoryMutexHolder(LogFactory logFactory) {
+		public DebugMutexHolder(LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
@@ -59,4 +60,6 @@ namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 			return _dict.TryRemove(mutex, out outlocker);
 		}
 	}
+
+#endif
 }

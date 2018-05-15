@@ -53,16 +53,28 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// Estimation amount. Currency amount minus fee (Reversed is false) or GOLD amount (Reversed is true)
+		/// Estimation amount. Currency amount minus fee (string or float, Reversed is false) or GOLD amount (string, Reversed is true)
 		/// </summary>
 		[Required]
-		public string Amount { get; set; }
-		
+		public object Amount { get; set; }
+
 		/// <summary>
-		/// Fee amount in Currency
+		/// Amount currency
 		/// </summary>
 		[Required]
-		public string Fee { get; set; }
+		public string AmountCurrency { get; set; }
+
+		/// <summary>
+		/// Fee amount in Currency (string for cryptoasset, float for fiat)
+		/// </summary>
+		[Required]
+		public object Fee { get; set; }
+
+		/// <summary>
+		/// Fee currency
+		/// </summary>
+		[Required]
+		public string FeeCurrency { get; set; }
 	}
 
 	// ---
@@ -101,12 +113,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		[Required]
 		public string EthAddress { get; set; }
 
-		/// <summary>
-		/// Amount of GOLD in wei
-		/// </summary>
-		[Required]
-		public string Amount { get; set; }
-
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -114,10 +120,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 
 			v.RuleFor(_ => _.EthAddress)
 				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
-			;
-
-			v.RuleFor(_ => _.Amount)
-				.NotEmpty().WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -151,17 +153,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		public double GoldRate { get; set; }
 
 		/// <summary>
-		/// Result token amount, wei
+		/// ETH per GOLD
 		/// </summary>
 		[Required]
-		public string EthAmount { get; set; }
-
-		/// <summary>
-		/// Fee amount, wei
-		/// </summary>
-		[Required]
-		public string FeeAmount { get; set; }
-
+		public string EthPerGoldRate { get; set; }
+		
 		/// <summary>
 		/// Expires at datetime (unixstamp)
 		/// </summary>

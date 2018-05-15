@@ -1,4 +1,5 @@
 ﻿using System;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 
 namespace Goldmint.CoreLogicTests {
 
@@ -9,11 +10,17 @@ namespace Goldmint.CoreLogicTests {
 		protected NLog.ILogger Logger;
 		private NLog.Targets.MemoryTarget _memoryLogTarget;
 		private NLog.Targets.ConsoleTarget _consoleTarget;
+		protected readonly RuntimeConfigHolder RuntimeConfigHolder;
+		protected readonly DebugRuntimeConfigLoader RuntimeConfigLoader;
 
 		protected Test(Xunit.Abstractions.ITestOutputHelper testOutput) {
 			_testOutput = testOutput;
 			SetupNLog();
 			Logger = LogFactory.GetCurrentClassLogger(this.GetType());
+			RuntimeConfigHolder = new RuntimeConfigHolder(LogFactory);
+			RuntimeConfigLoader = new DebugRuntimeConfigLoader();
+			RuntimeConfigHolder.SetLoader(RuntimeConfigLoader);
+			RuntimeConfigHolder.Reload().Wait();
 		}
 
 		public void Dispose() {

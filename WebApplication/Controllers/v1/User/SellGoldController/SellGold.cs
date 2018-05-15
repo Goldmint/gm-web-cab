@@ -55,41 +55,47 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var allowed = false;
-			var resultAmount = "0";
-			var resultFee = "0";
+			object resultAmount = new double();
+			var resultAmountCurrency = "";
+			object resultFee = new double();
+			var resultFeeCurrency = "";
 
 			// default estimation: GOLD to specified currency
 			if (!model.Reversed) {
 
 				// fiat
 				if (fiatCurrency != null) {
-					var result = await CoreLogic.Finance.Estimation.SellGold(
+					var result = await CoreLogic.Finance.Estimation.SellGoldFiat(
 						services: HttpContext.RequestServices,
-						exchangeFiatCurrency: exchangeCurrency,
-						goldAmountToSell: inputAmount
+						fiatCurrency: exchangeCurrency,
+						goldAmount: inputAmount
 					);
 
 					allowed = result.Allowed;
 
 					var mntBalance = await EthereumObserver.GetAddressMntBalance(model.EthAddress);
-					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.TotalCentsForGold, mntBalance);
-					resultAmount = (result.TotalCentsForGold - fee).ToString();
-					resultFee = fee.ToString();
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.ResultCentsAmount, mntBalance);
+					resultAmount = (result.ResultCentsAmount - fee) / 100d;
+					resultAmountCurrency = exchangeCurrency.ToString().ToUpper();
+					resultFee = fee / 100d;
+					resultFeeCurrency = exchangeCurrency.ToString().ToUpper();
 				}
 				// cryptoasset
 				else {
-					var result = await CoreLogic.Finance.Estimation.SellGold(
+					var result = await CoreLogic.Finance.Estimation.SellGoldCrypto(
 						services: HttpContext.RequestServices,
-						exchangeFiatCurrency: exchangeCurrency,
-						forCryptoCurrency: cryptoCurrency.Value,
-						goldAmountToSell: inputAmount
+						cryptoCurrency: cryptoCurrency.Value,
+						fiatCurrency: exchangeCurrency,
+						goldAmount: inputAmount
 					);
 
 					allowed = result.Allowed;
 
-					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, result.TotalAssetAmount);
-					resultAmount = (result.TotalAssetAmount - fee).ToString();
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, result.ResultAssetAmount);
+					resultAmount = (result.ResultAssetAmount - fee).ToString();
+					resultAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
 					resultFee = fee.ToString();
+					resultFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
 				}
 			}
 			// reversed estimation: specified currency to GOLD
@@ -103,16 +109,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					if (inputAmount <= long.MaxValue) {
 
 						var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat((long)inputAmount, mntBalance);
-						var result = await CoreLogic.Finance.Estimation.SellGoldRev(
+						var result = await CoreLogic.Finance.Estimation.SellGoldFiatRev(
 							services: HttpContext.RequestServices,
-							exchangeFiatCurrency: exchangeCurrency,
-							fiatWithFeeCents: (long)inputAmount + fee
+							fiatCurrency: exchangeCurrency,
+							requiredFiatAmountWithFeeCents: (long)inputAmount + fee
 						);
 
 						allowed = result.Allowed;
 
-						resultAmount = result.TotalGoldAmount.ToString();
+						resultAmount = result.ResultGoldAmount.ToString();
+						resultAmountCurrency = "GOLD";
 						resultFee = fee.ToString();
+						resultFeeCurrency = exchangeCurrency.ToString().ToUpper();
 					}
 				}
 				// cryptoasset
@@ -120,17 +128,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, inputAmount);
 
-					var result = await CoreLogic.Finance.Estimation.SellGoldRev(
+					var result = await CoreLogic.Finance.Estimation.SellGoldCryptoRev(
 						services: HttpContext.RequestServices,
-						exchangeFiatCurrency: exchangeCurrency,
-						forCryptoCurrency: cryptoCurrency.Value,
-						cryptoWithFeeAmount: inputAmount + fee
+						cryptoCurrency: cryptoCurrency.Value,
+						fiatCurrency: exchangeCurrency, 
+						requiredCryptoAmountWithFee: inputAmount + fee
 					);
 
 					allowed = result.Allowed;
 
-					resultAmount = result.TotalGoldAmount.ToString();
+					resultAmount = result.ResultGoldAmount.ToString();
+					resultAmountCurrency = "GOLD";
 					resultFee = fee.ToString();
+					resultFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
 				}
 			}
 
@@ -141,7 +151,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(
 				new EstimateView() {
 					Amount = resultAmount,
+					AmountCurrency = resultAmountCurrency,
 					Fee = resultFee,
+					FeeCurrency = resultFeeCurrency,
 				}
 			);
 		}

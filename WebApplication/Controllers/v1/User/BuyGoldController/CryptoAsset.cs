@@ -13,7 +13,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	public partial class BuyGoldController : BaseController {
 
 		/// <summary>
-		/// ETH => Contract => GOLD
+		/// ETH to GOLD
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
@@ -25,16 +25,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var amountWei) || amountWei.ToString().Length > 64 || amountWei < 1) {
-				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-			}
-
 			// ---
 
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
-			
 
 			if (userTier < UserTier.Tier1) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
@@ -43,11 +38,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var currency = FiatCurrency.Usd;
-			var estimation = await CoreLogic.Finance.Estimation.BuyGold(
+			var estimation = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
 				services: HttpContext.RequestServices,
-				exchangeFiatCurrency: currency,
 				cryptoCurrency: CryptoCurrency.Eth,
-				cryptoAmountToSell: amountWei
+				fiatCurrency: currency, 
+				cryptoAmount: BigInteger.Pow(10, Tokens.ETH.Decimals)
 			);
 			if (!estimation.Allowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
@@ -121,7 +116,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					RequestId = request.Id,
 					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
-					GoldAmount = estimation.TotalGoldAmount.ToString(),
+					EthPerGoldRate = estimation.CryptoPerGoldRate.ToString(),
 					Currency = currency.ToString().ToUpper(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}

@@ -78,19 +78,23 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				return APIResponse.BadRequest(nameof(model.Config), validation.Errors?.FirstOrDefault()?.ToString() ?? "");
 			}
 
+			var user = await GetUserFromDb();
+
 			// try to save then publish
 			var rcfg = Common.Json.Stringify(newConfig);
 			var cl = HttpContext.RequestServices.GetService<IRuntimeConfigLoader>();
 			if (cl != null && await cl.Save(rcfg)) {
 
-				// broadcast
+				Logger.Warn($"User { user.UserName } has modified runtime config");
+
+				// send to central pub
 				var busPub = HttpContext.RequestServices.GetService<CoreLogic.Services.Bus.Publisher.ChildPublisher>();
-				if (busPub != null) {
-					busPub.PublishMessage(
-						Topic.ConfigUpdated,
-						new object()
-					);
-				}
+				busPub?.PublishMessage(
+					Topic.ConfigUpdated,
+					new CoreLogic.Services.Bus.Proto.Config.ConfigUpdatedMessage() {
+						Username = user.UserName,
+					}
+				);
 
 				return APIResponse.Success();
 			}
