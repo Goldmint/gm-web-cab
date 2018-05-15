@@ -30,15 +30,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 			
 			var exchangeCurrency = FiatCurrency.Usd;
-
-			// ---
-
-			FiatCurrency? fiatCurrency = null;
 			CryptoCurrency? cryptoCurrency = null;
 
 			// try parse fiat currency
 			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
-				fiatCurrency = fc;
 				exchangeCurrency = fc;
 			}
 			// or crypto currency
@@ -49,91 +44,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
 			}
 
-			// ---
-
-			BigInteger.TryParse(model.Amount, out var inputAmount);
-			if (inputAmount <= 0 || (fiatCurrency != null && inputAmount > long.MaxValue)) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || inputAmount > long.MaxValue) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			bool allowed = false;
-			object resultAmount = null;
-			string resultAmountCurrency = "";
+			// ---
 
-			// default estimation: specified currency to GOLD
-			if (!model.Reversed) {
-
-				// fiat
-				if (fiatCurrency != null) {
-					var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
-						services: HttpContext.RequestServices,
-						fiatCurrency: exchangeCurrency,
-						fiatAmountCents: (long) inputAmount
-					);
-
-					allowed = res.Allowed;
-
-					resultAmount = res.ResultGoldAmount.ToString();
-					resultAmountCurrency = "GOLD";
-				}
-
-				// cryptoasset
-				else {
-					var res = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
-						services: HttpContext.RequestServices,
-						cryptoCurrency: cryptoCurrency.Value,
-						fiatCurrency: exchangeCurrency, 
-						cryptoAmount: inputAmount
-					);
-
-					allowed = res.Allowed;
-					resultAmount = res.ResultGoldAmount.ToString();
-					resultAmountCurrency = "GOLD";
-				}
-			}
-			// reversed estimation: GOLD to specified currency
-			else {
-
-				// fiat
-				if (fiatCurrency != null) {
-					var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
-						services: HttpContext.RequestServices,
-						fiatCurrency: exchangeCurrency,
-						requiredGoldAmount: inputAmount
-					);
-
-					allowed = res.Allowed;
-
-					resultAmount = res.ResultCentsAmount / 100d;
-					resultAmountCurrency = exchangeCurrency.ToString().ToUpper();
-				}
-
-				// cryptoasset
-				else {
-					var res = await CoreLogic.Finance.Estimation.BuyGoldCryptoRev(
-						services: HttpContext.RequestServices,
-						cryptoCurrency: cryptoCurrency.Value,
-						fiatCurrency: exchangeCurrency, 
-						requiredGoldAmount: inputAmount
-					);
-
-					allowed = res.Allowed;
-
-					resultAmount = res.ResultAssetAmount.ToString();
-					resultAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
-				}
-			}
-
-			if (!allowed) {
+			var est = await Estimation(inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed);
+			if (est == null) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			return APIResponse.Success(
-				new EstimateView() {
-					Amount = resultAmount,
-					AmountCurrency = resultAmountCurrency,
-				}
-			);
+			return APIResponse.Success(est.View);
 		}
 
 		/// <summary>
@@ -191,6 +113,108 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				new ConfirmView() { }
 			);
 		}
-	
+
+		// ---
+
+		internal class EstimationResult {
+
+			public EstimateView View { get; set; }
+			public long CentsPerAssetRate { get; set; }
+			public long CentsPerGoldRate { get; set; }
+		}
+
+		[NonAction]
+		private async Task<EstimationResult> Estimation(BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed) {
+
+			bool allowed = false;
+			object viewAmount = null;
+			string viewAmountCurrency = "";
+			var centsPerAsset = 0L;
+			var centsPerGold = 0L;
+
+			// default estimation: specified currency to GOLD
+			if (!reversed) {
+
+				// fiat
+				if (cryptoCurrency == null) {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
+						services: HttpContext.RequestServices,
+						fiatCurrency: fiatCurrency,
+						fiatAmountCents: (long)inputAmount
+					);
+
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+
+					viewAmount = res.ResultGoldAmount.ToString();
+					viewAmountCurrency = "GOLD";
+				}
+
+				// cryptoasset
+				else {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
+						services: HttpContext.RequestServices,
+						cryptoCurrency: cryptoCurrency.Value,
+						fiatCurrency: fiatCurrency,
+						cryptoAmount: inputAmount
+					);
+
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					centsPerAsset = res.CentsPerAssetRate;
+
+					viewAmount = res.ResultGoldAmount.ToString();
+					viewAmountCurrency = "GOLD";
+				}
+			}
+			// reversed estimation: GOLD to specified currency
+			else {
+
+				// fiat
+				if (cryptoCurrency == null) {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
+						services: HttpContext.RequestServices,
+						fiatCurrency: fiatCurrency,
+						requiredGoldAmount: inputAmount
+					);
+
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+
+					viewAmount = res.ResultCentsAmount / 100d;
+					viewAmountCurrency = fiatCurrency.ToString().ToUpper();
+				}
+
+				// cryptoasset
+				else {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldCryptoRev(
+						services: HttpContext.RequestServices,
+						cryptoCurrency: cryptoCurrency.Value,
+						fiatCurrency: fiatCurrency,
+						requiredGoldAmount: inputAmount
+					);
+
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					centsPerAsset = res.CentsPerAssetRate;
+
+					viewAmount = res.ResultAssetAmount.ToString();
+					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
+				}
+			}
+
+			if (!allowed) {
+				return null;
+			}
+
+			return new EstimationResult() {
+				View = new EstimateView() {
+					Amount = viewAmount,
+					AmountCurrency = viewAmountCurrency,
+				},
+				CentsPerAssetRate = centsPerAsset,
+				CentsPerGoldRate = centsPerGold,
+			};
+		}
 	}
 }

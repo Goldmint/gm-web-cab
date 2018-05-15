@@ -25,6 +25,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || inputAmount > long.MaxValue) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+
 			// ---
 
 			var user = await GetUserFromDb();
@@ -37,14 +41,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var currency = FiatCurrency.Usd;
-			var estimation = await CoreLogic.Finance.Estimation.SellGoldCrypto(
-				services: HttpContext.RequestServices,
-				cryptoCurrency: CryptoCurrency.Eth,
-				fiatCurrency: currency, 
-				goldAmount: BigInteger.Pow(10, Tokens.GOLD.Decimals)
-			);
-			if (!estimation.Allowed) {
+			var exchangeCurrency = FiatCurrency.Usd;
+			var estimation = await Estimation(inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.EthAddress, model.Reversed);
+
+			if (estimation == null) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
@@ -56,7 +56,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				userId: user.Id,
 				cryptoCurrency: CryptoCurrency.Eth,
 				destAddress: model.EthAddress,
-				fiatCurrency: currency,
+				fiatCurrency: exchangeCurrency,
 				outputRate: estimation.CentsPerAssetRate,
 				goldRate: estimation.CentsPerGoldRate
 			);
@@ -90,7 +90,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Output = SellGoldRequestOutput.Eth,
 				OutputAddress = model.EthAddress,
 
-				ExchangeCurrency = currency,
+				ExchangeCurrency = exchangeCurrency,
 				OutputRateCents = estimation.CentsPerAssetRate,
 				GoldRateCents = estimation.CentsPerGoldRate,
 
@@ -107,8 +107,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			DbContext.SellGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
+			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
+
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(estimation.CryptoPerGoldRate, Tokens.ETH.Decimals) }";
+			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, Tokens.ETH.Decimals) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
@@ -116,9 +118,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					RequestId = request.Id,
 					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
-					Currency = currency.ToString().ToUpper(),
-					EthPerGoldRate = estimation.CryptoPerGoldRate.ToString(),
+					Currency = exchangeCurrency.ToString().ToUpper(),
+					EthPerGoldRate = assetPerGold.ToString(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
+					Estimation = estimation.View,
 				}
 			);
 		}

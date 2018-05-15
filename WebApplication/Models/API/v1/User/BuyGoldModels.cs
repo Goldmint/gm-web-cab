@@ -91,6 +91,18 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public string EthAddress { get; set; }
 
+		/// <summary>
+		/// Amount of Currency (Reversed is false) or amount of GOLD (Reversed is true)
+		/// </summary>
+		[Required]
+		public string Amount { get; set; }
+
+		/// <summary>
+		/// False - Currency to GOLD estimation; true (reversed) - GOLD to Currency estimation
+		/// </summary>
+		[Required]
+		public bool Reversed { get; set; }
+
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -99,6 +111,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 			v.RuleFor(_ => _.EthAddress)
 				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
 			;
+
+			v.RuleFor(_ => _.Amount)
+				.NotEmpty().WithMessage("Invalid amount")
+				;
 
 			return v.Validate(this);
 		}
@@ -141,5 +157,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		/// </summary>
 		[Required]
 		public long Expires { get; set; }
+
+		/// <summary>
+		/// Estimation data
+		/// </summary>
+		[Required]
+		public EstimateView Estimation { get; set; }
 	}
 }
