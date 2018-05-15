@@ -91,12 +91,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public string EthAddress { get; set; }
 
-		/// <summary>
-		/// Amount of ETH in wei
-		/// </summary>
-		[Required]
-		public string Amount { get; set; }
-
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -104,10 +98,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 
 			v.RuleFor(_ => _.EthAddress)
 				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
-			;
-
-			v.RuleFor(_ => _.Amount)
-				.NotEmpty().WithMessage("Invalid amount")
 			;
 
 			return v.Validate(this);
@@ -141,10 +131,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		public double GoldRate { get; set; }
 
 		/// <summary>
-		/// Estimated GOLD amount, wei
+		/// ETH per GOLD
 		/// </summary>
 		[Required]
-		public string GoldAmount { get; set; }
+		public string EthPerGoldRate { get; set; }
 
 		/// <summary>
 		/// Expires at datetime (unixstamp)

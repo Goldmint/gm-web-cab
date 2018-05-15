@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Goldmint.CoreLogic.Services.Bus.Proto;
+using Goldmint.CoreLogic.Services.Bus.Proto.Config;
 using Goldmint.CoreLogic.Services.Bus.Proto.Telemetry;
 using Goldmint.CoreLogic.Services.Bus.Publisher;
 using Goldmint.CoreLogic.Services.Bus.Subscriber;
@@ -59,7 +60,8 @@ namespace Goldmint.QueueService.Workers.Bus {
 						OnStatus(p, s);
 					});
 					sub.SetTopicCallback(Topic.ConfigUpdated, (p, s) => {
-						OnConfigUpdated();
+						if (!(p is ConfigUpdatedMessage msg)) return;
+						OnConfigUpdated(msg);
 					});
 
 					_subscribers.Add(
@@ -141,13 +143,16 @@ namespace Goldmint.QueueService.Workers.Bus {
 			}
 		}
 
-		private void OnConfigUpdated() {
+		private void OnConfigUpdated(ConfigUpdatedMessage msg) {
 
 			Task.Factory.StartNew(async () => { await _runtimeConfigHolder.Reload(); });
 
+			Logger.Warn($"User { msg.Username } has modified runtime config");
+
+			// broadcast
 			_centralPublisher.PublishMessage(
 				Topic.ConfigUpdated,
-				new object()
+				msg
 			);
 		}
 
