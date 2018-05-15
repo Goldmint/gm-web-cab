@@ -102,11 +102,13 @@ namespace Goldmint.CoreLogic.Finance {
 							}
 
 							// estimated gold amount
-							var estimatedGoldAmount = Estimation.BuyGold(
-								cryptoAmountToSell: amountEth,
+							var estimatedGoldAmount = await Estimation.BuyGoldCrypto(
+								services: services,
+								cryptoCurrency: CryptoCurrency.Eth,
+								fiatCurrency: request.ExchangeCurrency,
+								cryptoAmount: amountEth,
 								knownGoldRateCents: request.GoldRateCents,
-								knownCryptoRateCents: request.InputRateCents,
-								cryptoDecimals: Tokens.ETH.Decimals
+								knownCryptoRateCents: request.InputRateCents
 							);
 
 							// eth operation
@@ -117,7 +119,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								DestinationAddress = request.InputAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
-								GoldAmount = estimatedGoldAmount.ToString(),
+								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
 								TimeCreated = timeNow,
@@ -135,7 +137,7 @@ namespace Goldmint.CoreLogic.Finance {
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountEth, Tokens.ETH.Decimals);
-							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount, Tokens.GOLD.Decimals);
+							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -257,16 +259,13 @@ namespace Goldmint.CoreLogic.Finance {
 							}
 
 							// estimated crypto amount
-							var estimatedCryptoAmount = await Estimation.SellGold(
+							var estimatedCryptoAmount = await Estimation.SellGoldCrypto(
 								services: services,
-								goldAmountToSell: amountGold,
-								exchangeFiatCurrency: request.ExchangeCurrency,
-								forCryptoCurrency: CryptoCurrency.Eth,
-								knownGoldRateCents: request.GoldRateCents,
-								knownCryptoRateCents: request.OutputRateCents
-							);
+								cryptoCurrency: CryptoCurrency.Eth,
+								fiatCurrency: request.ExchangeCurrency,
+								goldAmount: amountGold, knownGoldRateCents: request.GoldRateCents, knownCryptoRateCents: request.OutputRateCents);
 							var estimatedCryptoAmountFee = Estimation.SellingFeeForCrypto(
-								CryptoCurrency.Eth, estimatedCryptoAmount.TotalAssetAmount
+								CryptoCurrency.Eth, estimatedCryptoAmount.ResultAssetAmount
 							);
 
 							// eth operation
@@ -295,7 +294,7 @@ namespace Goldmint.CoreLogic.Finance {
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, Tokens.GOLD.Decimals);
-							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedCryptoAmount.TotalAssetAmount - estimatedCryptoAmountFee, Tokens.GOLD.Decimals);
+							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedCryptoAmount.ResultAssetAmount - estimatedCryptoAmountFee, Tokens.GOLD.Decimals);
 							await dbContext.SaveChangesAsync();
 
 							try {

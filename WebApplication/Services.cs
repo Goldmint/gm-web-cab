@@ -204,7 +204,7 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rates
-			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(_loggerFactory);
+			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(_runtimeConfigHolder, _loggerFactory);
 			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
 			services.AddSingleton<CoreLogic.Services.Rate.Impl.SafeRatesFiatAdapter>();
 

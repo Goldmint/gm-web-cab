@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
+#if DEBUG
 
 	public sealed class DebugRateProvider : IGoldRateProvider, IEthRateProvider {
 
@@ -53,4 +54,6 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			return baseCents;
 		}
 	}
+
+#endif
 }

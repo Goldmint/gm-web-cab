@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public sealed class SafeRatesDispatcher : IDisposable, IAggregatedSafeRatesSource, IAggregatedRatesDispatcher {
 
 		private readonly IAggregatedSafeRatesPublisher _publisher;
+		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 		private readonly ILogger _logger;
 		private readonly Options _opts;
 		
@@ -24,12 +26,15 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public SafeRatesDispatcher(IAggregatedSafeRatesPublisher publisher, LogFactory logFactory, Action<Options> opts) {
+		public SafeRatesDispatcher(IAggregatedSafeRatesPublisher publisher, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory, Action<Options> opts) {
 
 			_publisher = publisher;
+			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 
 			_opts = new Options() {
+				AllowBuying = true,
+				AllowSelling = true,
 				PublishPeriod = TimeSpan.FromSeconds(1),
 				GoldTtl = TimeSpan.FromSeconds(60),
 				EthTtl = TimeSpan.FromSeconds(60),
@@ -66,7 +71,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public SafeCurrencyRate GetRate(CurrencyRateType cur) {
 			_mutexUpdate.EnterReadLock();
 			try {
-				if (_rates.TryGetValue(cur, out var ret)) {
+				var rcfg = _runtimeConfigHolder.Clone();
+				if (rcfg.Gold.AllowTrading && _rates.TryGetValue(cur, out var ret)) {
 					return ret;
 				}
 				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);
@@ -83,7 +89,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				if (_workerTask == null) {
 					if (period != null) _opts.PublishPeriod = period.Value;
 
-					_logger.Trace($"Run() period={ period }");
+					_logger.Trace($"Publishing period={ _opts.PublishPeriod }");
 					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
 				}
 			}
@@ -92,11 +98,11 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public void Stop(bool blocking = false) {
 			lock (_startStopMonitor) {
 
-				_logger.Trace("Stop(): send cancellation");
+				_logger.Trace("Send cancellation");
 				_workerCancellationTokenSource.Cancel();
 
 				if (blocking && _workerTask != null) {
-					_logger.Trace("Stop(): wait for cancellation");
+					_logger.Trace("Wait for cancellation");
 					_workerTask.Wait();
 				}
 			}
@@ -110,11 +116,17 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			var ctoken = _workerCancellationTokenSource.Token;
 
 			while (!ctoken.IsCancellationRequested) {
-				await Update();
+				try {
+					await Update();
+				}
+				catch (Exception e) {
+					_logger.Error(e, "Failed to update");
+				}
+
 				Thread.Sleep(_opts.PublishPeriod);
 			}
 
-			_logger.Trace("Worker(): cancelled");
+			_logger.Trace("Worker cancelled");
 		}
 
 		private async Task Update() {
@@ -135,14 +147,13 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				var unsafeRate = pair.Value;
 				var curSafeRate = GetRate(unsafeRate.Currency);
 				if (unsafeRate.Stamp > curSafeRate.Stamp) {
-					InterpolateFreshRate(unsafeRate);
+					//InterpolateFreshRate(unsafeRate);
 					freshSafeRates[unsafeRate.Currency] = ResolveSafety(unsafeRate);
 				}
 			}
 
-			// update / publish
+			// update
 			if (freshSafeRates.Count > 0) {
-
 				_mutexUpdate.EnterWriteLock();
 				try {
 					foreach (var pair in freshSafeRates) {
@@ -160,14 +171,10 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			}
 		}
 
-		private void InterpolateFreshRate(CurrencyRate unsafeRate) {
-
-			// TODO: interpolate
-		}
+		/*private void InterpolateFreshRate(CurrencyRate unsafeRate) {
+		}*/
 
 		private SafeCurrencyRate ResolveSafety(CurrencyRate unsafeRate) {
-
-			// TODO: resolve safety
 
 			TimeSpan ttl;
 			switch (unsafeRate.Currency) {
@@ -190,6 +197,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		public sealed class Options {
 
+			public bool AllowBuying { get; set; }
+			public bool AllowSelling { get; set; }
 			public TimeSpan PublishPeriod { get; set; }
 			public TimeSpan GoldTtl { get; set; }
 			public TimeSpan EthTtl { get; set; }

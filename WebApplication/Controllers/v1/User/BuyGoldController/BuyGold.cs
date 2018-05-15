@@ -56,32 +56,82 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			CoreLogic.Finance.Estimation.BuyGoldResult result = null;
+			bool allowed = false;
+			object resultAmount = null;
+			string resultAmountCurrency = "";
 
-			if (fiatCurrency != null) {
-				result = await CoreLogic.Finance.Estimation.BuyGold(
-					services: HttpContext.RequestServices,
-					exchangeFiatCurrency: exchangeCurrency,
-					fiatAmountCents: (long)inputAmount
-				);
+			// default estimation: specified currency to GOLD
+			if (!model.Reversed) {
+
+				// fiat
+				if (fiatCurrency != null) {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
+						services: HttpContext.RequestServices,
+						fiatCurrency: exchangeCurrency,
+						fiatAmountCents: (long) inputAmount
+					);
+
+					allowed = res.Allowed;
+
+					resultAmount = res.ResultGoldAmount.ToString();
+					resultAmountCurrency = "GOLD";
+				}
+
+				// cryptoasset
+				else {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
+						services: HttpContext.RequestServices,
+						cryptoCurrency: cryptoCurrency.Value,
+						fiatCurrency: exchangeCurrency, 
+						cryptoAmount: inputAmount
+					);
+
+					allowed = res.Allowed;
+					resultAmount = res.ResultGoldAmount.ToString();
+					resultAmountCurrency = "GOLD";
+				}
 			}
+			// reversed estimation: GOLD to specified currency
 			else {
-				result = await CoreLogic.Finance.Estimation.BuyGold(
-					services: HttpContext.RequestServices,
-					exchangeFiatCurrency: exchangeCurrency,
-					cryptoCurrency: cryptoCurrency.Value,
-					cryptoAmountToSell: inputAmount
-				);
+
+				// fiat
+				if (fiatCurrency != null) {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
+						services: HttpContext.RequestServices,
+						fiatCurrency: exchangeCurrency,
+						requiredGoldAmount: inputAmount
+					);
+
+					allowed = res.Allowed;
+
+					resultAmount = res.ResultCentsAmount / 100d;
+					resultAmountCurrency = exchangeCurrency.ToString().ToUpper();
+				}
+
+				// cryptoasset
+				else {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldCryptoRev(
+						services: HttpContext.RequestServices,
+						cryptoCurrency: cryptoCurrency.Value,
+						fiatCurrency: exchangeCurrency, 
+						requiredGoldAmount: inputAmount
+					);
+
+					allowed = res.Allowed;
+
+					resultAmount = res.ResultAssetAmount.ToString();
+					resultAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
+				}
 			}
 
-			if (!result.Allowed) {
+			if (!allowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
 			return APIResponse.Success(
 				new EstimateView() {
-					Amount = result.TotalGoldAmount.ToString(),
-					Fee = "0",
+					Amount = resultAmount,
+					AmountCurrency = resultAmountCurrency,
 				}
 			);
 		}

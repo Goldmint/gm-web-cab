@@ -13,7 +13,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	public partial class BuyGoldController : BaseController {
 
 		/// <summary>
-		/// ETH => Contract => GOLD
+		/// ETH to GOLD
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
@@ -43,12 +43,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var currency = FiatCurrency.Usd;
-			var estimation = await CoreLogic.Finance.Estimation.BuyGold(
+			var estimation = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
 				services: HttpContext.RequestServices,
-				exchangeFiatCurrency: currency,
 				cryptoCurrency: CryptoCurrency.Eth,
-				cryptoAmountToSell: amountWei
-			);
+				fiatCurrency: currency, cryptoAmount: amountWei);
 			if (!estimation.Allowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -121,7 +119,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					RequestId = request.Id,
 					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
-					GoldAmount = estimation.TotalGoldAmount.ToString(),
+					GoldAmount = estimation.ResultGoldAmount.ToString(),
 					Currency = currency.ToString().ToUpper(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 				}

@@ -12,10 +12,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		public string Currency { get; set; }
 
 		/// <summary>
-		/// Amount of fiat currency (cents) or cryptoasset (wei)
+		/// Amount of Currency (Reversed is false) or amount of GOLD (Reversed is true)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
+
+		/// <summary>
+		/// False - Currency to GOLD estimation; true (reversed) - GOLD to Currency estimation
+		/// </summary>
+		[Required]
+		public bool Reversed { get; set; }
 
 		// ---
 
@@ -37,16 +43,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// GOLD amount in wei (minus fee)
+		/// Estimation amount. GOLD amount (string, Reversed is false) or Currency amount (string or float, Reversed is true)
 		/// </summary>
 		[Required]
-		public string Amount { get; set; }
-		
+		public object Amount { get; set; }
+
 		/// <summary>
-		/// Fee in specified currency
+		/// Amount currency
 		/// </summary>
 		[Required]
-		public string Fee { get; set; }
+		public string AmountCurrency { get; set; }
 	}
 
 	// ---

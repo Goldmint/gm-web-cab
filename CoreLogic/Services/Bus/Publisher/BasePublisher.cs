@@ -21,13 +21,14 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 		private bool _bound;
 		private bool _running;
+		private bool _enableHeartbeats;
 
 		protected BasePublisher(Uri bindUri, int queueSize, LogFactory logFactory) {
 			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
 			Logger = logFactory.GetLoggerFor(this);
 			PublisherSocket = new PublisherSocket();
-			
 
+			_enableHeartbeats = true;
 			_runStopMonitor = new object();
 			_workerCancellationTokenSource = new CancellationTokenSource();
 
@@ -108,6 +109,10 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 		// ---
 
+		public void EnableHeartbeats(bool enable) {
+			_enableHeartbeats = enable;
+		}
+
 		protected void PublishMessage(Proto.Topic topic, byte[] message) {
 			PublisherSocket
 				// topic
@@ -133,8 +138,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 					var now = DateTime.UtcNow;
 
-					// heartbeat
-					if (now >= nextHbTime) {
+					// send heartbeat
+					if (_enableHeartbeats && now >= nextHbTime) {
 						PublishMessage(Topic.Hb, hbPayload);
 						nextHbTime = now.AddSeconds(2);
 					}

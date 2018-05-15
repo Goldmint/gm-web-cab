@@ -86,19 +86,13 @@ namespace Goldmint.QueueService {
 				}
 
 				// rate providers
-#if !DEBUG
 				var gmRateProvider = new GmRatesProvider(_logFactory, opts => {
 					opts.GoldUrl = _appConfig.Services.GMRatesProvider.GoldRateUrl;
 					opts.EthUrl = _appConfig.Services.GMRatesProvider.EthRateUrl;
 				});
 				services.AddSingleton<IGoldRateProvider>(gmRateProvider);
 				services.AddSingleton<IEthRateProvider>(gmRateProvider);
-#else
-				var debugRatesProvider = new DebugRateProvider();
-				debugRatesProvider.SetSpread(0);
-				services.AddSingleton<IGoldRateProvider>(debugRatesProvider);
-				services.AddSingleton<IEthRateProvider>(debugRatesProvider);
-#endif
+	
 				// launch central pub
 				_busCentralPublisher = new CoreLogic.Services.Bus.Publisher.CentralPublisher(new Uri(_appConfig.Bus.CentralPub.Endpoint), _logFactory);
 				services.AddSingleton(_busCentralPublisher);
@@ -107,6 +101,7 @@ namespace Goldmint.QueueService {
 				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(_busCentralPublisher, _logFactory);
 				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
 					_busSafeRatesPublisherWrapper, 
+					_runtimeConfigHolder,
 					_logFactory, 
 					opts => {
 						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.PubPeriodSec);
@@ -143,7 +138,7 @@ namespace Goldmint.QueueService {
 					services.AddSingleton(_busCentralSubscriber);
 
 					// rates from central pub
-					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(_logFactory);
+					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(_runtimeConfigHolder, _logFactory);
 					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
 					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, _busSafeRatesSubscriberWrapper.OnNewRates);
 
@@ -183,7 +178,7 @@ namespace Goldmint.QueueService {
 			_busChildPublisher?.Run();
 			_busCentralPublisher?.Run();
 			_busCentralSubscriber?.Run();
-			_safeAggregatedRatesDispatcher.Run();
+			_safeAggregatedRatesDispatcher?.Run();
 			_coreTelemetryAccumulator?.Run();
 		}
 
