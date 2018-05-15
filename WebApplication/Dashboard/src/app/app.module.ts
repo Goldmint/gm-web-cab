@@ -4,6 +4,7 @@ import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common
 import { JwtModule } from '@auth0/angular-jwt';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RECAPTCHA_SETTINGS, RecaptchaModule } from 'ng-recaptcha';
+import { NgJsonEditorModule } from 'ang-jsoneditor';
 
 /*
   Application main imports
@@ -93,6 +94,7 @@ export function getGoldmintToken() {
     ButtonsModule.forRoot(),
     TabsModule.forRoot(),
     NgxDatatableModule,
+    NgJsonEditorModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {

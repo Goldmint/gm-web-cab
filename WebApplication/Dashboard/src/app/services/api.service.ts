@@ -240,6 +240,30 @@ export class APIService {
       );
   }
 
+  telemetry() {
+    return this._http
+      .get(`${this._baseUrl}/dashboard/telemetry/telemetry`, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  getConfig() {
+    return this._http
+      .get(`${this._baseUrl}/dashboard/telemetry/getConfig`, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  setConfig(config) {
+    return this._http
+      .post(`${this._baseUrl}/dashboard/telemetry/setConfig`,{ config }, this.jwt())
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
   getSwiftList(filter: string, excludeCompleted: boolean, type: number, offset: number = 0, limit: number = 5,
                sort: string = 'date', ascending: 'asc' | 'desc' = 'desc') {
     let params = {
