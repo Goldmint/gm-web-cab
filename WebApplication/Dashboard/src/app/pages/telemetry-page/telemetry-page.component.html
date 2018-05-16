@@ -10,10 +10,26 @@
       </div>
     </div>
 
-    <div>
-      <div class="trn-info__label mb-2">Telemetry</div>
-      <json-editor #telemetryEditor [options]="editorOptionsTelemetry"></json-editor>
+    <div class="trn-info__label mb-2 telemetry-table">Telemetry</div>
+    <div *ngIf="isDataLoaded">
+      <div>Online status</div>
+      <div class="d-flex mt-2 mb-2">
+        <div class="mr-4">
+          <svg class="icon" width="20" height="20">
+            <use fill="green" xlink:href="#network-status"></use>
+          </svg>
+          <span>API</span>
+        </div>
+        <div>
+          <svg class="icon" width="20" height="20">
+            <use fill="red" xlink:href="#network-status"></use>
+          </svg>
+          <span>CORE</span>
+        </div>
+      </div>
     </div>
+    <json-editor #telemetryEditorOnLine [options]="editorOptionsTelemetryOnLine"></json-editor>
+    <json-editor #telemetryEditor [options]="editorOptionsTelemetry"></json-editor>
 
     <!--<div class="row justify-content-end">-->
       <!--<div class="col-4 d-flex flex-column align-items-center">-->

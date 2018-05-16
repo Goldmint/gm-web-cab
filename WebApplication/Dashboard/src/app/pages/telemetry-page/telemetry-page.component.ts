@@ -22,12 +22,16 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
 
   public config: object = {};
   public telemetry: object = {};
+  public online: object = {};
+  public isDataLoaded: boolean = false;
   private interval: Subscription;
 
   @ViewChild('configEditor') configEditor: JsonEditorComponent;
+  @ViewChild('telemetryEditorOnLine') telemetryEditorOnLine: JsonEditorComponent;
   @ViewChild('telemetryEditor') telemetryEditor: JsonEditorComponent;
 
   public editorOptionsTelemetry: JsonEditorOptions;
+  public editorOptionsTelemetryOnLine: JsonEditorOptions;
   public editorOptionsConfig: JsonEditorOptions;
 
   constructor(
@@ -36,9 +40,12 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
     private messageBox: MessageBoxService,
   ) {
     this.editorOptionsTelemetry = new JsonEditorOptions();
+    this.editorOptionsTelemetryOnLine = new JsonEditorOptions();
     this.editorOptionsConfig = new JsonEditorOptions();
-    this.editorOptionsTelemetry.mode = 'view';
+
+    this.editorOptionsTelemetry.mode = this.editorOptionsTelemetryOnLine.mode = 'view';
     this.editorOptionsConfig.mode = 'tree';
+    this.editorOptionsConfig.search = this.editorOptionsTelemetry.search = this.editorOptionsTelemetryOnLine.search = false;
   }
 
   ngOnInit() {
@@ -51,8 +58,9 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
 
       this.configEditor['editor'].set(this.config);
       this.configEditor['editor'].expandAll();
-      this.telemetryEditor['editor'].set(this.telemetry);
-      this.telemetryEditor['editor'].expandAll();
+
+      this.setParamsTelemetry();
+      this.isDataLoaded = true;
 
       this.cdRef.markForCheck();
     }, () => {
@@ -64,15 +72,24 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  setParamsTelemetry() {
+    this.online = Object.assign({}, this.telemetry['Online']);
+    delete this.telemetry['Online'];
+
+    this.telemetryEditor['editor'].set(this.telemetry);
+    this.telemetryEditor['editor'].expandAll();
+
+    this.telemetryEditorOnLine['editor'].set(this.online);
+    this.telemetryEditorOnLine['editor'].expandAll();
+  }
+
   getTelemetry() {
     this.apiService.telemetry().subscribe(data => {
       const telemetryStr = data.data.aggregated;
 
       if (telemetryStr !== JSON.stringify(this.telemetry)) {
         this.telemetry = JSON.parse(telemetryStr);
-
-        this.telemetryEditor['editor'].set(this.telemetry);
-        this.telemetryEditor['editor'].node.expanded && this.telemetryEditor['editor'].expandAll();
+        this.setParamsTelemetry();
 
         this.cdRef.markForCheck();
       }
