@@ -36,9 +36,9 @@
                                [(ngModel)]="goldAmount"
                                ngModel
                                autocomplete="off"
-                               (focus)="onFocusField(directionList[0])"
-                               [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && direction === directionList[0] && goldAmountInput.dirty}"
-                               [disabled]="direction !== directionList[0] && loading"
+                               (input)="onReversed(false)"
+                               [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && !isReversed && goldAmountInput.dirty}"
+                               [disabled]="isReversed && loading"
                         >
                       </div>
                       <div class="percent-btn-cont">
@@ -47,7 +47,7 @@
                         <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
                         <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
                       </div>
-                      <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && direction === directionList[0] && goldAmountInput.dirty">
+                      <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && !isReversed && goldAmountInput.dirty">
                         {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
                       </div>
                     </div>
@@ -70,12 +70,12 @@
                                [(ngModel)]="coinAmount"
                                ngModel
                                autocomplete="off"
-                               (focus)="onFocusField(directionList[1])"
-                               [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && direction === directionList[1] && coinAmountInput.dirty}"
-                               [disabled]="direction !== directionList[1] && loading"
+                               (input)="onReversed(true)"
+                               [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && isReversed && coinAmountInput.dirty}"
+                               [disabled]="!isReversed && loading"
                         >
                       </div>
-                      <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && direction === directionList[1] && coinAmountInput.dirty">
+                      <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && isReversed && coinAmountInput.dirty">
                         {{ "PAGES.Sell.Errors.InvalidEth" | translate }}
                       </div>
                     </div>

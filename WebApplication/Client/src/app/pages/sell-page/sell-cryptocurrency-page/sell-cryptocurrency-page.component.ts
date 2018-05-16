@@ -47,13 +47,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public mntpBalance: BigNumber = null;
   public ethAddress: string = '';
   public ethLimit: BigNumber = null;
-  public goldLimit: number;
+  public goldLimit: number | null = null;
   public selectedWallet = 0;
 
-  public coinList = ['BTC', 'ETH']
+  public coinList = ['BTC', 'ETH'];
   public currentCoin = this.coinList[1];
-  public directionList = ['GOLD', 'COIN'];
-  public direction = this.directionList[0];
+  public isReversed: boolean = true;
   public goldAmount: number = 0;
   public coinAmount: number = 0;
   public currentBalance: number;
@@ -81,7 +80,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       .distinctUntilChanged()
       .takeUntil(this.destroy$)
       .subscribe(value => {
-        if (value && this.direction === this.directionList[0]) {
+        if (value && !this.isReversed) {
           this.onAmountChanged(value);
           this._cdRef.markForCheck();
         }
@@ -92,7 +91,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       .distinctUntilChanged()
       .takeUntil(this.destroy$)
       .subscribe(value => {
-        if (value && this.direction === this.directionList[1]) {
+        if (value && this.isReversed) {
           this.onAmountChanged(value);
           this._cdRef.markForCheck();
         }
@@ -129,13 +128,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableEthLimitBalance().subscribe(eth => {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
-        this.ethLimit = eth.decimalPlaces(6, BigNumber.ROUND_DOWN);
-        this.goldLimit = this.substrValue((+this.ethLimit / this.ethRate));
-
+        this.ethLimit = eth;
         if (this.isFirstLoad) {
-          this.goldAmount = this.goldLimit;
+          this.coinAmount = +this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN);
           this.isFirstLoad = false;
           this._cdRef.markForCheck();
+        } else {
+          this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
         }
       }
     })
@@ -175,15 +174,15 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFocusField(derection: string) {
-    this.direction = derection;
+  onReversed(status: boolean) {
+    status !== this.isReversed && (this.isReversed = status);
   }
 
   onAmountChanged(value: number) {
     this.loading = true;
     this.currentBalance = this.selectedWallet === 0 ? +this.hotGoldBalance : +this.goldBalance;
 
-    if (this.direction === this.directionList[0]) {
+    if (!this.isReversed) {
 
       if (value > this.goldLimit) {
         this.isModalShow = true;
@@ -211,8 +210,14 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       }
     }
-    if (this.direction === this.directionList[1]) {
-      if (value > 0) {
+    if (this.isReversed) {
+      if (value > +this.ethLimit) {
+        this.isModalShow = true;
+        this.loading = false;
+        return
+      }
+
+      if (value > 0 && value <= +this.ethLimit) {
         const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
@@ -222,10 +227,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.goldAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
-
-            if (this.goldAmount > this.goldLimit) {
-              this.isModalShow = true;
-            }
+            this.goldLimit === null && (this.goldLimit = this.goldAmount)
 
             this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
             this.invalidBalance = (this.goldAmount > this.currentBalance) ? true : false;
@@ -238,20 +240,33 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  getGoldLimit(ethLimit: number) {
+    const wei = new BigNumber(ethLimit).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), this.isReversed)
+      .subscribe(data => {
+        this.goldLimit = this.substrValue(data.data.amount / Math.pow(10, 18));
+    });
+  }
+
   substrValue(value: number) {
     return +value.toString().replace(/^(\d+)(?:(\.\d{1,6})\d*)?$/, '$1$2');
   }
 
   setGoldBalance(percent) {
-    this.direction = this.directionList[0];
+    this.isReversed = false;
     const value = this.substrValue(this.currentBalance * percent);
     this.goldAmount = value;
     this._cdRef.markForCheck();
   }
 
   setCorrectValue() {
-    this.direction = this.directionList[0];
-    this.goldAmount = this.goldLimit;
+    this.isReversed = false;
+    if (this.goldAmount === this.goldLimit) {
+      this.onAmountChanged(this.goldLimit);
+    } else {
+      this.goldAmount = this.goldLimit;
+    }
+
     this.isModalShow = false;
     this._cdRef.markForCheck();
   }
@@ -276,16 +291,20 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
         })
         .subscribe(res => {
           const wei = new BigNumber(this.estimatedAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-          this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), true)
+          this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), this.isReversed)
             .subscribe(data => {
-              const amount = data.data.amount / Math.pow(10, 18);
+              let estimate, amount, toAmount, fromAmount;
+              fromAmount = estimate = this.estimatedAmount;
+              toAmount = amount = (data.data.amount / Math.pow(10, 18)).toFixed(6);
+              this.isReversed && (fromAmount = amount) && (toAmount = estimate);
+
               this._translate.get('MessageBox.EthWithdraw',
-                {coinAmount: this.estimatedAmount, goldAmount: amount.toFixed(6), ethRate: res.data.ethRate}
+                {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
               ).subscribe(phrase => {
                 this._messageBox.confirm(phrase).subscribe(ok => {
                   if (ok) {
                     this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
-                      this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, this.estimatedAmount);
+                      this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount);
 
                       this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
                         if (hash) {

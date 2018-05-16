@@ -402,9 +402,9 @@ export class APIService {
       );
   }
 
-  goldBuyEstimate(currency: string, amount: string) {
+  goldBuyEstimate(currency: string, amount: string, reversed: boolean) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount, reversed }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
