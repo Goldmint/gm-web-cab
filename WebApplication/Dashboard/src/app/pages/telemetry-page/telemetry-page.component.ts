@@ -23,7 +23,6 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
   public config: object = {};
   public telemetry: object = {};
   public online: object = {};
-  public isDataLoaded: boolean = false;
   private interval: Subscription;
 
   @ViewChild('configEditor') configEditor: JsonEditorComponent;
@@ -60,7 +59,6 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
       this.configEditor['editor'].expandAll();
 
       this.setParamsTelemetry();
-      this.isDataLoaded = true;
 
       this.cdRef.markForCheck();
     }, () => {
@@ -81,6 +79,12 @@ export class TelemetryPageComponent implements OnInit, OnDestroy {
 
     this.telemetryEditorOnLine['editor'].set(this.online);
     this.telemetryEditorOnLine['editor'].expandAll();
+
+    const networkItems = document.querySelectorAll('.telemetry-online .jsoneditor-boolean');
+    [].forEach.call(networkItems, item => {
+      const iconColor = (item.innerHTML === 'true') ? 'green' : 'red';
+      item.innerHTML = `<svg class="icon" width="15" height="15"><use fill="${iconColor}" xlink:href="#network-status"></use></svg>`;
+    });
   }
 
   getTelemetry() {
