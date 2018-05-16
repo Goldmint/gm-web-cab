@@ -18,41 +18,44 @@
             </div>
 
             <div class="pt-4">
-              <form #cryptoCurrencyForm="ngForm">
+              <form #sellForm="ngForm">
                 <div>
                   <div class="col-12">
                     <div class="from-row form-group">
-                      <label for="cCurrencyGoldAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Amount" | translate }}</label>
+                      <label for="goldAmountInput">{{ "PAGES.Sell.CtyptoCurrency.Labels.Amount" | translate }}</label>
                       <div class="d-flex align-items-center">
                         <div class="form-currency form-currency--gold">
                           <svg class="icon">
                             <use xlink:href="#cur-gold"></use>
                           </svg>
                         </div>
-                        <input type="number" class="form-control" name="cCurrencyGoldAmount" id="cCurrencyGoldAmount"
+                        <input type="number" class="form-control" name="goldAmountInput" id="goldAmountInput"
+                               #goldAmountInput="ngModel"
                                min="0"
                                step="0.1"
-                               [(ngModel)]="cCurrencyAmountView"
-                               #cCurrencyGoldAmount="ngModel"
-                               (input)="changeValue()"
-                               [ngClass]="{'is-invalid': (!cCurrencyAmountView || invalidBalance) && cCurrencyGoldAmount.dirty}"
+                               [(ngModel)]="goldAmount"
+                               ngModel
+                               autocomplete="off"
+                               (focus)="onFocusField(directionList[0])"
+                               [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && direction === directionList[0] && goldAmountInput.dirty}"
+                               [disabled]="direction !== directionList[0] && loading"
                         >
                       </div>
                       <div class="percent-btn-cont">
-                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(0.25)">25%</button>
-                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(0.5)">50%</button>
-                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(0.75)">75%</button>
-                        <button class="percent-btn" (click)="setCCurrencyGoldBalance(1)">100%</button>
+                        <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
+                        <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
+                        <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
+                        <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
                       </div>
-                      <div class="invalid-feedback" *ngIf="(!cCurrencyAmountView || invalidBalance) && cCurrencyGoldAmount.dirty">
-                        {{ "PAGES.Sell.Errors.Invalid" | translate }}
+                      <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && direction === directionList[0] && goldAmountInput.dirty">
+                        {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
                       </div>
                     </div>
                   </div>
 
                   <div class="col-12">
                     <div class="from-row form-group ">
-                      <label for="cCurrencyEstimateAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Estimate" | translate }}</label>
+                      <label for="coinAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Estimate" | translate }} ($ {{ coinAmountToUSD | number:'1.1-2':locale }})</label>
                       <div class="d-flex align-items-center">
                         <div class="form-currency">
                           <svg class="icon" width="30" height="30">
@@ -60,34 +63,26 @@
                             <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
                           </svg>
                         </div>
-                        <input type="text" class="form-control" id="cCurrencyEstimateAmount" ngModel name="cCurrencyEstimateAmount" readonly [value]="cCurrencyEstimateAmount | number:'1.1-6':locale">
+                        <input type="text" class="form-control" name="coinAmount" id="coinAmount"
+                               #coinAmountInput="ngModel"
+                               min="0"
+                               step="0.1"
+                               [(ngModel)]="coinAmount"
+                               ngModel
+                               autocomplete="off"
+                               (focus)="onFocusField(directionList[1])"
+                               [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && direction === directionList[1] && coinAmountInput.dirty}"
+                               [disabled]="direction !== directionList[1] && loading"
+                        >
+                      </div>
+                      <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && direction === directionList[1] && coinAmountInput.dirty">
+                        {{ "PAGES.Sell.Errors.InvalidEth" | translate }}
                       </div>
                     </div>
                   </div>
 
-                  <!--<div class="col-12 pb-4">
-                    <div class="form-group">
-                      <label for="cCurrencyCode">Two-factor authentication code</label>
-                      <div class="d-flex align-items-center">
-                        <div class="form-currency form-currency&#45;&#45;usd">
-                          <svg class="icon" width="30">
-                            <use xlink:href="#verify-secure"></use>
-                          </svg>
-                        </div>
-                        <input type="text" required minlength="6" maxlength="6" autocomplete="off"
-                               class="form-control" id="cCurrencyCode"
-                               name="cCurrencyCode" ngModel #cCurrencyCode="ngModel"
-                               [ngClass]="{'is-invalid': cCurrencyCode.invalid && cCurrencyCode.dirty}"
-                               [readonly]="processing" pattern="\d+">
-                      </div>
-                      <div class="invalid-feedback" *ngIf="cCurrencyCode.invalid && cCurrencyCode.dirty">
-                        Code should be 6-digits length
-                      </div>
-                    </div>
-                  </div>-->
-
                   <div class="col mb-5">
-                    <button type="submit" (click)="onCryptoCurrencySubmit()" class="btn btn-primary" [disabled]="!cCurrencyAmountView || invalidBalance || loading">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+                    <button type="submit" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
                     <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                   </div>
                 </div>
@@ -102,3 +97,36 @@
   </div>
 
 </section>
+
+<div class="modal fade show" role="dialog" tabindex="-1" [ngClass]="{'showModal': isModalShow}">
+<div role="document" class="modal-dialog message-box">
+  <div class="modal-content">
+
+    <div class="message-box__header">
+      <h4 class="modal-title pull-left">GoldMint.io</h4>
+      <button class="message-box__close" type="button" (click)="closeModal()">
+        <svg class="icon">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#close"></use>
+        </svg>
+      </button>
+    </div>
+
+    <div class="message-box__body">
+      {{ "PAGES.Sell.CtyptoCurrency.LimitModal.Text.First" | translate }}
+      {{ goldLimit  | number:'1.1-6':locale}} GOLD
+      {{ "PAGES.Sell.CtyptoCurrency.LimitModal.Text.Second" | translate }}
+    </div>
+
+    <div class="message-box__footer">
+      <button class="btn btn-primary btn-sm mx-1" type="button" (click)="setCorrectValue()">
+        {{ "PAGES.Sell.CtyptoCurrency.LimitModal.Buttons.Sell" | translate }}
+        {{ goldLimit | number:'1.1-6':locale}} GOLD
+      </button>
+      <button class="btn btn-primary btn-sm mx-1" type="button" (click)="closeModal()">
+        {{ "PAGES.Sell.CtyptoCurrency.LimitModal.Buttons.TryLater" | translate }}
+      </button>
+    </div>
+
+  </div>
+</div>
+</div>
