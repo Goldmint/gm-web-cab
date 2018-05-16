@@ -20,8 +20,8 @@ import {environment} from "../../../../environments/environment";
 export class BuyCryptocurrencyPageComponent implements OnInit {
   @HostBinding('class') class = 'page';
 
-  @ViewChild('cryptoCurrencyForm') cryptoCurrencyForm;
-  @ViewChild('cCurrencyEthAmount') cCurrencyEthAmount;
+  @ViewChild('goldAmountInput') goldAmountInput;
+  @ViewChild('coinAmountInput') coinAmountInput;
 
   public loading = false;
   public isFirstLoad = true;
@@ -31,18 +31,21 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public ethAddress: string = '';
   public selectedWallet = 0;
   public goldRate: number = 0;
+  public invalidBalance = false;
 
   public user: User;
   public tfaInfo: TFAInfo;
 
   public coinList = ['BTC', 'ETH']
   public currentCoin = this.coinList[1];
-  public ethBalance: BigNumber = null;
-  public cCurrencyCoinAmount: any = null;
-  public cCurrencyAmountView;
-  public cCurrencyEstimateAmount;
-  public estimateAmountUSD = 0;
-  public invalidBalance = false;
+  public directionList = ['GOLD', 'COIN'];
+  public direction = this.directionList[0];
+  public goldAmount: number = 0;
+  public coinAmount: number = 0;
+  public goldAmountToUSD: number = 0;
+  public estimatedAmount: BigNumber;
+
+  public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
 
@@ -60,17 +63,24 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loading = true;
-    this.cCurrencyEthAmount.valueChanges
-      .debounceTime(750)
+    this.goldAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
       .takeUntil(this.destroy$)
       .subscribe(value => {
-        if (value) {
-          this.onCCurrencyChanged(value.toString());
-        } else {
-          this.cCurrencyEstimateAmount = 0;
-          this.invalidBalance = true;
-          this.loading = false;
+        if (value && this.direction === this.directionList[0]) {
+          this.onAmountChanged(value);
+          this._cdRef.markForCheck();
+        }
+      });
+
+    this.coinAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (value && this.direction === this.directionList[1]) {
+          this.onAmountChanged(value);
           this._cdRef.markForCheck();
         }
       });
@@ -98,7 +108,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
      if (this.ethBalance === null || !this.ethBalance.eq(balance)) {
         this.ethBalance = balance;
         if (this.ethBalance !== null && this.isFirstLoad) {
-          this.setCCurrencyEthBalance();
+          this.setCoinBalance(1);
           this.isFirstLoad = false;
         }
       }
@@ -106,7 +116,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
-      if (!this.ethAddress) {
+      if (!this.ethAddress && this.ethBalance !== null) {
         this.selectedWallet = 0;
         this.router.navigate(['buy']);
       }
@@ -120,7 +130,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
         this.router.navigate(['buy']);
       } else {
         this.selectedWallet = 1;
-        this.setCCurrencyEthBalance();
+        this.setCoinBalance(1);
       }
     });
   }
@@ -131,64 +141,87 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     }
   }
 
-  changeValue() {
-    this.loading = true;
+  onFocusField(derection: string) {
+    this.direction = derection;
   }
 
-  onCCurrencyChanged(value: string) {
-    this.invalidBalance = false;
-    const testValue = value != null && value.length > 0 ? new BigNumber(value) : new BigNumber(0);
-    this.cCurrencyCoinAmount = new BigNumber(0);
+  onAmountChanged(value: number) {
+    this.loading = true;
 
-    if (testValue.gt(0) && +value <= this.ethBalance.toNumber()) {
-      this.cCurrencyCoinAmount = new BigNumber(value);
-      this.cCurrencyCoinAmount = this.cCurrencyCoinAmount.decimalPlaces(6, BigNumber.ROUND_DOWN);
+    if (this.direction === this.directionList[0]) {
+      if (value > 0 && value <= +this.ethBalance) {
 
-      const wei = new BigNumber(this.cCurrencyCoinAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-      this._apiService.goldBuyEstimate(this.currentCoin, wei.toString())
-        .finally(() => {
-          this.loading = false;
-          this._cdRef.markForCheck();
-        }).subscribe(data => {
-        this.cCurrencyEstimateAmount = data.data.amount / Math.pow(10, 18);
-        this.estimateAmountUSD = this.cCurrencyEstimateAmount * this.goldRate;
-      });
-    } else {
-      this.cCurrencyEstimateAmount = this.estimateAmountUSD = 0;
-      this.loading = false;
-      this.invalidBalance = true;
+        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+        this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
+
+        this._apiService.goldBuyEstimate(this.currentCoin, wei.toString())
+          .finally(() => {
+            this.loading = false;
+            this._cdRef.markForCheck();
+          }).subscribe(data => {
+          this.goldAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
+          this.goldAmountToUSD = this.goldAmount * this.goldRate;
+          this.invalidBalance = false;
+        });
+      } else {
+        this.invalidBalance = true;
+        this.loading = false;
+        this._cdRef.markForCheck();
+      }
     }
+    if (this.direction === this.directionList[1]) {
+      if (value > 0) {
+        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+        this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
+
+        this._apiService.goldBuyEstimate(this.currentCoin, wei.toString())
+          .finally(() => {
+            this.loading = false;
+            this._cdRef.markForCheck();
+          }).subscribe(data => {
+          this.coinAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
+          this.goldAmountToUSD = this.goldAmount * this.goldRate;
+          this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
+        });
+      } else {
+        this.invalidBalance = true;
+        this.loading = false;
+        this._cdRef.markForCheck();
+      }
+    }
+  }
+
+  substrValue(value: number) {
+    return +value.toString().replace(/^(\d+)(?:(\.\d{1,6})\d*)?$/, '$1$2');
+  }
+
+  setCoinBalance(percent) {
+    this.direction = this.directionList[0];
+    const value = this.substrValue(+this.ethBalance * percent);
+    this.coinAmount = value;
     this._cdRef.markForCheck();
   }
 
-  setCCurrencyEthBalance(percent: number = 1) {
-    this.loading = true;
-    const ethBalance = new BigNumber(this.ethBalance.times(percent));
-    this.cCurrencyCoinAmount = ethBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
-    this.cCurrencyAmountView = this.cCurrencyCoinAmount;
-    this._cdRef.markForCheck();
-  }
-
-  onCryptoCurrencySubmit() {
+  onSubmit() {
     this.loading = true;
     this.sub1 && this.sub1.unsubscribe();
-    this._apiService.goldBuyAsset(this.ethAddress, this.cCurrencyCoinAmount)
+    this._apiService.goldBuyAsset(this.ethAddress, this.estimatedAmount)
       .finally(() => {
         this.loading = false;
         this._cdRef.markForCheck();
       })
       .subscribe(res => {
-        const wei = new BigNumber(this.cCurrencyCoinAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+        const wei = new BigNumber(this.estimatedAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
         this._apiService.goldBuyEstimate(this.currentCoin, wei.toString())
           .subscribe(data => {
             const amount = data.data.amount / Math.pow(10, 18);
             this._translate.get('MessageBox.EthDeposit',
-              {coinAmount: this.cCurrencyCoinAmount, goldAmount: amount.toFixed(6), ethRate: res.data.ethRate}
+              {coinAmount: this.estimatedAmount, goldAmount: amount.toFixed(6), ethRate: res.data.ethRate}
             ).subscribe(phrase => {
               this._messageBox.confirm(phrase).subscribe(ok => {
                 if (ok) {
                   this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
-                    this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, this.cCurrencyCoinAmount);
+                    this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, this.estimatedAmount);
 
                     this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
                       if (hash) {
