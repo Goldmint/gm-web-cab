@@ -430,9 +430,9 @@ export class APIService {
       );
   }
 
-  goldSellEstimate(currency: string, amount: string) {
+  goldSellEstimate(ethAddress: string, currency: string, amount: string, reversed: boolean) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/sell/estimate`, { currency, amount }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/sell/estimate`, { ethAddress, currency, amount, reversed }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -590,6 +590,15 @@ export class APIService {
 
         return response;
       })
+      );
+  }
+
+  agreedWithTos(): Observable<APIResponse<KYCProfile>> {
+    return this._http
+      .get(`${this._baseUrl}/user/settings/verification/agreedWithTos`, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
       );
   }
 

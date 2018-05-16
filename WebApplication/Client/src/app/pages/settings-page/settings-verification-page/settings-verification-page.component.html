@@ -130,62 +130,35 @@
   </section>
 </ng-container>
 
-<!--AGREEMENT-->
-<ng-container *ngIf="phase == _phase.Agreement">
+<!--TOS-->
+<ng-container *ngIf="phase == _phase.ToS">
 
   <section class="section section--warning section--no-bottom">
     <h2 class="section__title section__title--warning">
       <svg class="icon" width="18px" height="16px">
         <use xlink:href="#warning"></use>
       </svg>
-
-      {{ "PAGES.Settings.KYC.AgreementSection.Title" | translate }}
-
-      <div class="section__title-widget">
-        <div class="lead icon--red">
-          {{ "PAGES.Settings.KYC.AgreementSection.Widget" | translate }}
-        </div>
-      </div>
+      {{ "PAGES.Settings.KYC.ToS.Heading" | translate }}
     </h2>
 
     <div class="section__content kyc pt-2">
-
-      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.AgreementSection.Text' | translate"></p>
+      <div class="custom-control custom-checkbox text-center mt-5 mb-3">
+        <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="isAgreeCheck">
+        <label class="custom-control-label custom-control-label-agree" for="agreeCheck">
+          {{ "PAGES.Settings.KYC.ToS.Agree" | translate }}
+          <a href="#/legal-security/termsOfSale" target="_blank">{{ "PAGES.Settings.KYC.ToS.Link" | translate }}</a>
+        </label>
+      </div>
 
       <div class="text-center">
-        <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
-          {{ "PAGES.Settings.KYC.AgreementSection.Buttons.Resend" | translate }}
+        <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing || !isAgreeCheck" (click)="agreedWithTos()">
+          {{ "PAGES.Settings.KYC.ToS.Button" | translate }}
           <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
         </button>
       </div>
     </div>
   </section>
 </ng-container>
-
-
-<!--AGREEMENT PENDING-->
-<ng-container *ngIf="phase == _phase.AgreementPending">
-  <section class="section section--no-bottom">
-    <h2 class="section__title">
-      {{ "PAGES.Settings.KYC.AgreementSection.Title" | translate }}
-    </h2>
-
-    <div class="section__content kyc pt-2">
-      <div class="progress-linear progress-linear--tiny">
-        <div class="container"></div>
-      </div>
-
-      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.AgreementSection.TextPending' | translate"></p>
-
-      <div class="text-center">
-        <button type="button" class="btn btn-primary mt-3 mb-5" (click)="refreshPage()" [disabled]="loading">
-          {{ "BUTTONS.Refresh" | translate }}
-        </button>
-      </div>
-    </div>
-  </section>
-</ng-container>
-
 
 <!--FINISHED-->
 <ng-container *ngIf="phase == _phase.Finished">

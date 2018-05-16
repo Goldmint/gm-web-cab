@@ -59,6 +59,16 @@
           "Steps": "Please wait at least 12 confirmation steps",
           "Hash": "Your transaction hash is:",
           "Link": "View your transaction on EtherScan"
+        },
+        "LimitModal": {
+          "Text": {
+            "First": "We are sorry we can't perform your transaction completely at the moment due to insufficient of funds on the contract. You can sell only",
+            "Second": "for now."
+          },
+          "Buttons": {
+            "Sell": "Sell",
+            "TryLater": "I'll try later"
+          }
         }
       },
       "SectionTitle": "Instant Sell",
@@ -69,7 +79,8 @@
         "BuyMore": "Buy more"
       },
       "Errors": {
-        "Invalid": "Invalid gold amount",
+        "InvalidGold": "Invalid gold amount",
+        "InvalidEth": "Invalid eth amount",
         "UseMM": "Use metamask"
       }
     },
@@ -110,7 +121,8 @@
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
         "Pending": "Your previously blockchain operation is still pending",
         "UseMM": "Use metamask",
-        "InvalidEth": "Invalid eth amount"
+        "InvalidEth": "Invalid eth amount",
+        "InvalidGold": "Invalid gold amount"
       }
     },
     "Transfer": {
@@ -464,7 +476,7 @@
         },
         "Status": {
           "Pending": "Transaction is pending",
-          "Ok": "Transaction is success",
+          "Ok": "Transaction is successful",
           "Failed": "Transaction is failed"
         },
         "Link": "Link",
@@ -783,6 +795,12 @@
             "Resend": "Send agreement"
           }
         },
+        "ToS": {
+          "Heading": "Terms of sales",
+          "Agree": "I agree with",
+          "Link": "terms of sales",
+          "Button": "I agree"
+        },
         "ProofResidency": {
           "Heading": "Proof of Residency",
           "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
@@ -1042,7 +1060,7 @@
       "Heading": "Legal & Security",
       "Label": "1. Documents",
       "Links": {
-        "Terms": "Terms of use",
+        "Terms": "Terms of sale",
         "Privacy": "Privacy policy",
         "KYCPolicy": "KYC Policy"
       }

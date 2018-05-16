@@ -4,7 +4,6 @@ export class KYCProfile {
   isKycFinished?: boolean = false;
   isResidencePending?: boolean = false;
   isResidenceProved?: boolean = false;
-  isAgreementPending?: boolean = false;
   isAgreementSigned?: boolean = false;
 
   firstName: string = '';

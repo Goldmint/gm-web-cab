@@ -1,7 +1,7 @@
 import {Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
 
-enum Pages {termsOfUse, privacy, kycpolicy}
+enum Pages {termsOfSale, privacy, kycpolicy}
 let linksArray:[string] = [
   'https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf',
   'https://www.goldmint.io/media/documents/Consumer%20data%20privacy%20Policy.pdf',

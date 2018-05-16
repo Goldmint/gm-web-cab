@@ -10,7 +10,7 @@ import { KYCProfile } from '../../../models/kyc-profile';
 import * as countries from '../../../../assets/data/countries.json';
 import {Observable} from "rxjs/Observable";
 
-enum Phase { Start, Basic, Kyc, KycPending, ResidencePending, ResidenceProved, Agreement, AgreementPending, Finished }
+enum Phase { Start, Basic, Kyc, KycPending, ResidencePending, ResidenceProved, ToS, Finished }
 
 @Component({
   selector: 'app-settings-verification-page',
@@ -27,6 +27,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   public loading = true;
   public processing = false;
   public repeat = Array;
+  public isAgreeCheck: false;
 
   public phase: Phase;
   public countries: Country[];
@@ -65,11 +66,8 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (this.kycProfile.isAgreementSigned) {
       this.phase = Phase.Finished;
     }
-    else if (this.kycProfile.isAgreementPending) {
-      this.phase = Phase.AgreementPending;
-    }
     else if (this.kycProfile.isResidenceProved) {
-      this.phase = Phase.Agreement;
+      this.phase = Phase.ToS;
     }
     else if (this.kycProfile.isKycFinished) {
       this.phase = Phase.ResidencePending;
@@ -107,8 +105,6 @@ export class SettingsVerificationPageComponent implements OnInit {
     }
   }
 
-  // ---
-
   submit(kycForm?: NgForm) {
 
     if (this.phase == Phase.Basic && kycForm) {
@@ -117,10 +113,6 @@ export class SettingsVerificationPageComponent implements OnInit {
 
     if (this.phase == Phase.Kyc) {
       this.startKYCVerification();
-    }
-
-    if (this.phase == Phase.Agreement) {
-      this.resendAgreement();
     }
 
     console.log("SUBMIT");
@@ -180,25 +172,17 @@ export class SettingsVerificationPageComponent implements OnInit {
       });
   }
 
-  resendAgreement() {
+  agreedWithTos() {
     this.processing = true;
-    this._cdRef.detectChanges();
-
-    this._apiService.resendKYCAgreement()
+    this._apiService.agreedWithTos()
       .finally(() => {
         this.processing = false;
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       })
-      .subscribe(
-      res => {
-        this.kycProfile = res.data;
-        this.onPhaseUpdate();
-      },
-      err => { }
-      );
+      .subscribe(data => {
+        this.kycProfile = data.data;
+    });
   }
-
-  // ---
 
   refreshPage() {
     this.loading = true;
