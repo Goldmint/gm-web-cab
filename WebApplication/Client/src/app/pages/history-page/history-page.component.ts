@@ -44,9 +44,9 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.isMobile = (window.innerWidth <= 576);
+    this.isMobile = (window.innerWidth <= 767);
     window.onresize = () => {
-      this.isMobile = window.innerWidth <= 576 ? true : false;
+      this.isMobile = window.innerWidth <= 767 ? true : false;
       this.cdRef.markForCheck();
     };
 

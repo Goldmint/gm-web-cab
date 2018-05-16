@@ -11,7 +11,6 @@
     <div class="section__content">
       <ngx-datatable class="table history-table" #table
         [rows]="rows"
-
         [columnMode]="'force'"
         [sorts]="sorts"
         [headerHeight]="53"
@@ -29,7 +28,7 @@
         [messages]="messages">
 
         <div *ngIf="!isMobile">
-          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [width]="80">
+          <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
               {{ "PAGES.History.Table.Columns.Date" | translate }}
@@ -41,7 +40,7 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [width]="120">
+          <ngx-datatable-column prop="type" [draggable]="false" [resizeable]="false" [minWidth]="100">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper ml-3" (click)="sort()">
               {{ "PAGES.History.Table.Columns.Type" | translate }}
@@ -141,7 +140,7 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ngx-datatable-column prop="comment" [draggable]="false" [resizeable]="false" [sortable]="false" [minWidth]="150">
             <ng-template ngx-datatable-header-template>
               {{ "PAGES.History.Table.Columns.Comment" | translate }}
             </ng-template>

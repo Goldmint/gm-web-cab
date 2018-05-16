@@ -22,3 +22,16 @@
 .history-table
   .datatable-body-cell-label
     display: flex
+
+@media only screen and (max-width: 767px)
+  .history-table
+    .datatable-body-cell-label
+      flex-direction: column
+
+@media only screen and (max-width: 991px)
+  .history-table
+    .datatable-header-cell-wrapper
+      font-size: 1rem
+    .datatable-body-cell-label
+      width: 100%
+      justify-content: center
