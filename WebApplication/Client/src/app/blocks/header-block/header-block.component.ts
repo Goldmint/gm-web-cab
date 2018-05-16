@@ -126,7 +126,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this._cdRef.detectChanges();
   }
 
-  private logout(e) {
+  public logout(e) {
     e.preventDefault();
 
     this._translate.get('MessageBox.logOut').subscribe(phrase => {

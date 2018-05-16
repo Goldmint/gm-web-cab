@@ -129,13 +129,14 @@ export class UserService {
 
   logout(e?: any) {
     if (e) e.preventDefault();
-    localStorage.removeItem('gmint_token');
-    localStorage.removeItem('gmint_uc_2fa');
 
     this._user.next({} as User);
-    this._apiService.userLogout();
+    this._apiService.userLogout().subscribe(() => {
+      localStorage.removeItem('gmint_token');
+      localStorage.removeItem('gmint_uc_2fa');
 
-    this._router.navigate(['/signin']);
+      this._router.navigate(['/signin']);
+    });
   }
 
   register(username: string, password: string, recaptcha: string, agreed: boolean) {
