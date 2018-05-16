@@ -136,6 +136,7 @@ export class SettingsVerificationPageComponent implements OnInit {
         this.kycProfile = res.data;
         // this.startKYCVerification();
         this.onPhaseUpdate();
+        window.scrollTo(0, 0);
       },
       err => {
         if (err.error.errorCode) {
@@ -181,6 +182,7 @@ export class SettingsVerificationPageComponent implements OnInit {
       })
       .subscribe(data => {
         this.kycProfile = data.data;
+        this.onPhaseUpdate();
     });
   }
 

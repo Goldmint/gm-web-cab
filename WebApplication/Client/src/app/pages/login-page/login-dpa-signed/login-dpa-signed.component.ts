@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {APIService, UserService} from "../../../services";
 import {Subscription} from "rxjs/Subscription";
@@ -7,7 +7,8 @@ import {Observable} from "rxjs/Observable";
 @Component({
   selector: 'app-login-dpa-signed',
   templateUrl: './login-dpa-signed.component.html',
-  styleUrls: ['./login-dpa-signed.component.sass']
+  styleUrls: ['./login-dpa-signed.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginDpaSignedComponent implements OnInit, OnDestroy {
 
@@ -18,7 +19,8 @@ export class LoginDpaSignedComponent implements OnInit, OnDestroy {
     private _apiService: APIService,
     private _userService: UserService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private _cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -31,7 +33,10 @@ export class LoginDpaSignedComponent implements OnInit, OnDestroy {
   dpaCheck() {
     this.interval && this.interval.unsubscribe();
 
-    this._apiService.dpaCheck(this.token).subscribe((data) => {
+    this._apiService.dpaCheck(this.token)
+      .finally(() => {
+        this._cdRef.markForCheck();
+      }).subscribe((data) => {
       this._userService.processToken(data.data.token);
     }, (error) => {
       if (error.error.errorCode === 1011) {
