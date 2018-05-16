@@ -7,6 +7,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 
 		public GoldSection Gold { get; set; } = new GoldSection();
 		public EthereumSection Ethereum { get; set; } = new EthereumSection();
+		public string Stamp { get; set; } = "default";
 
 		public static IValidator<RuntimeConfig> GetValidator() {
 			var v = new InlineValidator<RuntimeConfig>() { CascadeMode = CascadeMode.Continue };

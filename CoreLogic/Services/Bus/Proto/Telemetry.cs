@@ -14,6 +14,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 
 		[ProtoMember(2)]
 		public string StartupTime { get; set; } = DateTime.UtcNow.ToString("R");
+
+		[ProtoMember(3)]
+		public string RuntimeConfigStamp { get; set; }
+
+		[ProtoMember(4)]
+		public SafeRates.SafeRatesMessage RatesData { get; set; }
 	}
 
 	/// <summary>
@@ -29,9 +35,15 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 		public string StartupTime { get; set; } = DateTime.UtcNow.ToString("R");
 
 		[ProtoMember(3)]
-		public EthHarvester BuyRequestHarvester { get; set; } = new EthHarvester();
+		public string RuntimeConfigStamp { get; set; }
 
 		[ProtoMember(4)]
+		public SafeRates.SafeRatesMessage RatesData { get; set; }
+
+		[ProtoMember(5)]
+		public EthHarvester BuyRequestHarvester { get; set; } = new EthHarvester();
+
+		[ProtoMember(6)]
 		public EthHarvester SellRequestHarvester { get; set; } = new EthHarvester();
 
 		// ---
@@ -64,6 +76,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 
 		[ProtoMember(2)]
 		public string StartupTime { get; set; } = DateTime.UtcNow.ToString("R");
+
+		[ProtoMember(3)]
+		public string RuntimeConfigStamp { get; set; }
+
+		[ProtoMember(4)]
+		public SafeRates.SafeRatesMessage RatesData { get; set; }
 	}
 
 	/// <summary>

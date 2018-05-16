@@ -1,4 +1,5 @@
-﻿using Goldmint.Common;
+﻿using System;
+using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Rate.Models;
 using NLog;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		private readonly Bus.Publisher.DefaultPublisher _busPublisher;
 		private readonly ILogger _logger;
+		private Action<Bus.Proto.SafeRates.SafeRatesMessage> _cbk;
 
 		public BusSafeRatesPublisher(Bus.Publisher.DefaultPublisher busPublisher, LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
@@ -20,11 +22,19 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			_logger.Trace($"Publishing {rates.Length} rates");
 
-			_busPublisher.PublishMessage(Bus.Proto.Topic.FiatRates, new Bus.Proto.SafeRates.SafeRatesMessage() {
+			var msg = new Bus.Proto.SafeRates.SafeRatesMessage() {
 				Rates = rates.Select(SafeCurrencyRate.BusSerialize).ToArray(),
-			});
+			};
+
+			_busPublisher.PublishMessage(Bus.Proto.Topic.FiatRates, msg);
+
+			_cbk?.Invoke(msg);
 
 			return Task.CompletedTask;
+		}
+
+		public void SetCallback(Action<Bus.Proto.SafeRates.SafeRatesMessage> cbk) {
+			_cbk = cbk;
 		}
 	}
 }

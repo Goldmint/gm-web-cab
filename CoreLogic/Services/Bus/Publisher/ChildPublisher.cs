@@ -5,6 +5,6 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public sealed class ChildPublisher : DefaultPublisher {
 
-		public ChildPublisher(Uri bindUri, LogFactory logFactory) : base(bindUri, logFactory) { }
+		public ChildPublisher(int port, LogFactory logFactory) : base(port, logFactory) { }
 	}
 }

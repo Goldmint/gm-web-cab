@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Goldmint.Common;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.WebApplication.Core.Policies;
@@ -81,6 +82,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			var user = await GetUserFromDb();
 
 			// try to save then publish
+			newConfig.Stamp = Guid.NewGuid().ToString("N");
 			var rcfg = Common.Json.Stringify(newConfig);
 			var cl = HttpContext.RequestServices.GetService<IRuntimeConfigLoader>();
 			if (cl != null && await cl.Save(rcfg)) {

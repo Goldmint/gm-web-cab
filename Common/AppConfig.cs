@@ -146,6 +146,7 @@
 			public GMRatesProviderSection GMRatesProvider { get; set; } = new GMRatesProviderSection();
 			public class GMRatesProviderSection {
 
+				public int RequestTimeoutSec { get; set; } = 30;
 				public string GoldRateUrl { get; set; } = "";
 				public string EthRateUrl { get; set; } = "";
 			}
@@ -183,6 +184,7 @@
 			public class CentralPubSection {
 
 				public string Endpoint { get; set; } = "";
+				public int PubPort { get; set; } = 6666;
 				public RatesSection Rates { get; set; } = new RatesSection();
 				public ChildPubEndpointSection[] ChildPubEndpoints { get; set; } = { };
 
@@ -203,7 +205,7 @@
 			public ChildPubSection ChildPub { get; set; } = new ChildPubSection();
 			public class ChildPubSection {
 
-				public int PubPort { get; set; } = 6669;
+				public int PubPort { get; set; } = 6666;
 				public int PubStatusPeriodSec { get; set; } = 5;
 			}
 		}

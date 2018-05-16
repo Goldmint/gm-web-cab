@@ -16,6 +16,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 		private int _portCounter = 45900;
 		private Uri GetNextSocketAddress => new Uri($"tcp://localhost:{ (++_portCounter) }");
+		private int GetCurSocketPort => _portCounter;
 
 		public SafeRatesBus(ITestOutputHelper testOutput) : base(testOutput) {
 		}
@@ -32,7 +33,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			var socket = GetNextSocketAddress;
 
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 			}
 
 			using (var sub = new DefaultSubscriber(new[] {Topic.FiatRates}, socket, LogFactory)) {
@@ -40,7 +41,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			socket = GetNextSocketAddress;
 
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 				pub.Run();
 				Thread.Sleep(500);
 			}
@@ -52,7 +53,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			socket = GetNextSocketAddress;
 
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 				pub.Run();
 				Thread.Sleep(500);
 				pub.StopAsync();
@@ -78,7 +79,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			var evSubReady = new ManualResetEventSlim();
 
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 				pub.Run();
 
 				using (var sub = new DefaultSubscriber(new[] { Topic.FiatRates }, socket, LogFactory)) {
@@ -154,7 +155,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			// pub part
 			var tp = Task.Factory.StartNew(() => {
-				using (var pub = new DefaultPublisher(socket, LogFactory)) {
+				using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 					pub.Run();
 
 					Assert.True(evSubReady.Wait(1000));
@@ -207,7 +208,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 			var socket = GetNextSocketAddress;
 			var randomRates = new DebugRateProvider();
 
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 				pub.Run();
 
 				var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
@@ -242,7 +243,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			// pub 1 part
 			var tp1 = Task.Factory.StartNew(() => {
-				using (var pub = new DefaultPublisher(socket, LogFactory)) {
+				using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 					pub.Run();
 
 					evPub1Ready.Set();
@@ -264,7 +265,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 				Thread.Sleep(6000);
 				pub1 = false;
 
-				using (var pub = new DefaultPublisher(socket, LogFactory)) {
+				using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 					pub.Run();
 
 					while (!evSubDone.Wait(200)) {
@@ -328,7 +329,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 			}
 
 			// dispatcher source
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 				pub.Run();
 
 				var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
@@ -354,7 +355,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			var socket = GetNextSocketAddress;
 
-			using (var pub = new DefaultPublisher(socket, LogFactory)) {
+			using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 				pub.EnableHeartbeats(false);
 				pub.Run();
 
@@ -457,7 +458,7 @@ namespace Goldmint.CoreLogicTests.Bus {
 
 			// pub part
 			var tp = Task.Factory.StartNew(() => {
-				using (var pub = new DefaultPublisher(socket, LogFactory)) {
+				using (var pub = new DefaultPublisher(GetCurSocketPort, LogFactory)) {
 					pub.Run();
 
 					var pubWrapper = new BusSafeRatesPublisher(pub, LogFactory);
