@@ -121,13 +121,15 @@ export class UserService {
 
   logout(e?: any) {
     if (e) e.preventDefault();
-    localStorage.removeItem('gmint_token');
-    localStorage.removeItem('gmint_uc_2fa');
 
     this._user.next({} as User);
-    this._apiService.userLogout();
-    this.canShowNav(false);
-    this._router.navigate(['/signin']);
+    this._apiService.userLogout().subscribe(() => {
+      localStorage.removeItem('gmint_token');
+      localStorage.removeItem('gmint_uc_2fa');
+
+      this.canShowNav(false);
+      this._router.navigate(['/signin']);
+    });
   }
 
   public setLocale(locale: string) {
