@@ -5,6 +5,6 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 
 	public sealed class CentralPublisher : DefaultPublisher {
 
-		public CentralPublisher(Uri bindUri, LogFactory logFactory) : base(bindUri, logFactory) { }
+		public CentralPublisher(int port, LogFactory logFactory) : base(port, logFactory) { }
 	}
 }

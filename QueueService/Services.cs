@@ -16,6 +16,7 @@ using Goldmint.DAL;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ namespace Goldmint.QueueService {
 			services.AddSingleton(_appConfig);
 
 			// logger
-			services.AddSingleton(_logFactory);
+			services.AddSingleton(LogManager.LogFactory);
 
 			// db
 			services.AddDbContext<ApplicationDbContext>(opts => {
@@ -86,29 +87,38 @@ namespace Goldmint.QueueService {
 				}
 
 				// rate providers
-				var gmRateProvider = new GmRatesProvider(_logFactory, opts => {
+				var gmRateProvider = new GmRatesProvider(opts => {
 					opts.GoldUrl = _appConfig.Services.GMRatesProvider.GoldRateUrl;
 					opts.EthUrl = _appConfig.Services.GMRatesProvider.EthRateUrl;
-				});
+				}, LogManager.LogFactory);
 				services.AddSingleton<IGoldRateProvider>(gmRateProvider);
 				services.AddSingleton<IEthRateProvider>(gmRateProvider);
-	
+
+				// custom central pub port
+				var busChildPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_CNT_PORT");
+				if (!string.IsNullOrWhiteSpace(busChildPubCustomPort)) {
+					_appConfig.Bus.CentralPub.PubPort = int.Parse(busChildPubCustomPort);
+				}
+
 				// launch central pub
-				_busCentralPublisher = new CoreLogic.Services.Bus.Publisher.CentralPublisher(new Uri(_appConfig.Bus.CentralPub.Endpoint), _logFactory);
+				_busCentralPublisher = new CoreLogic.Services.Bus.Publisher.CentralPublisher(_appConfig.Bus.CentralPub.PubPort, LogManager.LogFactory);
 				services.AddSingleton(_busCentralPublisher);
 
 				// rates dispatcher/local source
-				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(_busCentralPublisher, _logFactory);
+				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(_busCentralPublisher, LogManager.LogFactory);
 				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
 					_busSafeRatesPublisherWrapper, 
 					_runtimeConfigHolder,
-					_logFactory, 
+					LogManager.LogFactory, 
 					opts => {
 						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.PubPeriodSec);
 						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.GoldValidForSec);
 						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.CryptoValidForSec);
 					}
 				);
+				_busSafeRatesPublisherWrapper.SetCallback(ratesMsg => {
+					_workerTelemetryAccumulator.AccessData(_ => _.RatesData = ratesMsg);
+				});
 				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesPublisher>(_busSafeRatesPublisherWrapper);
@@ -117,7 +127,7 @@ namespace Goldmint.QueueService {
 				_workerTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.WorkerTelemetryAccumulator(
 					null,
 					TimeSpan.FromSeconds(1),
-					_logFactory
+					LogManager.LogFactory
 				);
 				services.AddSingleton(_workerTelemetryAccumulator);
 			}
@@ -133,36 +143,43 @@ namespace Goldmint.QueueService {
 					_busCentralSubscriber = new CoreLogic.Services.Bus.Subscriber.CentralSubscriber(
 						new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates, CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated },
 						new Uri(_appConfig.Bus.CentralPub.Endpoint),
-						_logFactory
+						LogManager.LogFactory
 					);
 					services.AddSingleton(_busCentralSubscriber);
 
 					// rates from central pub
-					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(_runtimeConfigHolder, _logFactory);
+					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(_runtimeConfigHolder, LogManager.LogFactory);
 					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
-					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, _busSafeRatesSubscriberWrapper.OnNewRates);
+					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, (p, s) => {
+						_busSafeRatesSubscriberWrapper.OnNewRates(p, s);
+						_coreTelemetryAccumulator.AccessData(_ => _.RatesData = p as CoreLogic.Services.Bus.Proto.SafeRates.SafeRatesMessage);
+					});
 
 					// config update event
 					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => {
-						Task.Factory.StartNew(async () => { await _runtimeConfigHolder.Reload(); });
+						Task.Factory.StartNew(async () => {
+							await _runtimeConfigHolder.Reload();
+							var rcfg = _runtimeConfigHolder.Clone();
+							_coreTelemetryAccumulator.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
+						});
 					});
 				}
 
-				// custom pub port
-				var busPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_PUB_PORT");
-				if (!string.IsNullOrWhiteSpace(busPubCustomPort)) {
-					_appConfig.Bus.ChildPub.PubPort = int.Parse(busPubCustomPort);
+				// custom child-pub port
+				var busChildPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_CHD_PORT");
+				if (!string.IsNullOrWhiteSpace(busChildPubCustomPort)) {
+					_appConfig.Bus.ChildPub.PubPort = int.Parse(busChildPubCustomPort);
 				}
 
 				// launch child pub
-				_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(new Uri("tcp://localhost:" + _appConfig.Bus.ChildPub.PubPort), _logFactory);
+				_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(_appConfig.Bus.ChildPub.PubPort, LogManager.LogFactory);
 				services.AddSingleton(_busChildPublisher);
 
 				// telemetry accum/pub
 				_coreTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator(
 					_busChildPublisher,
 					TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubStatusPeriodSec),
-					_logFactory
+					LogManager.LogFactory
 				);
 				
 				services.AddSingleton(_coreTelemetryAccumulator);
@@ -170,20 +187,24 @@ namespace Goldmint.QueueService {
 		}
 
 		private static void RunServices() {
-			var logger = _logFactory.GetCurrentClassLogger();
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Run services");
 
 			_runtimeConfigHolder.Reload().Wait();
+			var rcfg = _runtimeConfigHolder.Clone();
+			_workerTelemetryAccumulator?.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
+			_coreTelemetryAccumulator?.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
 
 			_busChildPublisher?.Run();
 			_busCentralPublisher?.Run();
 			_busCentralSubscriber?.Run();
 			_safeAggregatedRatesDispatcher?.Run();
+			// dont run worker's accumulator: _workerTelemetryAccumulator?.Run();
 			_coreTelemetryAccumulator?.Run();
 		}
 
 		private static void StopServices() {
-			var logger = _logFactory.GetCurrentClassLogger();
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Stop services");
 
 			_safeAggregatedRatesDispatcher?.Stop(true);

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using NLog.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -31,7 +32,6 @@ namespace Goldmint.QueueService {
 
 		private static IConfiguration _configuration;
 		private static AppConfig _appConfig;
-		private static LogFactory _logFactory;
 		private static IHostingEnvironment _environment;
 		private static RuntimeConfigHolder _runtimeConfigHolder;
 
@@ -90,16 +90,21 @@ namespace Goldmint.QueueService {
 				throw new Exception("Failed to get app settings", e);
 			}
 
-			// nlog
-			var nlogConfig = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
-			_logFactory = new LogFactory(nlogConfig);
-			LogManager.Configuration = nlogConfig;
+			// nlog config/factory
+			LogManager.LoadConfiguration(Path.Combine(curDir, $"nlog.{_environment.EnvironmentName}.config"));
+#if DEBUG
+			LogManager.LogFactory.KeepVariablesOnReload = true;
+			LogManager.LogFactory.Configuration.Variables["logDirectory"] = "/log/qs/core/";
+			LogManager.LogFactory.Configuration.Reload();
+			LogManager.LogFactory.ReconfigExistingLoggers();
+#endif
 
-			var logger = _logFactory.GetLogger(typeof(Program).FullName);
-			logger.Info("Launched");
+			// this class logger
+			var logger = LogManager.LogFactory.GetLogger(typeof(Program).FullName);
+			logger.Info($"Launched ({ Mode.ToString() })");
 
 			// runtime config
-			_runtimeConfigHolder = new RuntimeConfigHolder(_logFactory);
+			_runtimeConfigHolder = new RuntimeConfigHolder(LogManager.LogFactory);
 			
 			// custom db connection
 			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
@@ -133,6 +138,7 @@ namespace Goldmint.QueueService {
 
 		private static void OnStopped() {
 			StopServices();
+			LogManager.Shutdown();
 		}
 
 		// ---
@@ -143,25 +149,33 @@ namespace Goldmint.QueueService {
 		private static bool SetupIpc(string[] args) {
 
 			bool isClient = args.Contains("ipc-stop");
+			bool isServerOptional = args.Contains("ipc-optional");
 
 			// process that listens for commands
 			if (!isClient) {
 
-				_ipcServerMonitor = new object();
-				_ipcServer = new NamedPipeServerStream(IpcPipeName);
+				try {
+					_ipcServerMonitor = new object();
+					_ipcServer = new NamedPipeServerStream(IpcPipeName);
 
-				_ipcServer.BeginWaitForConnection(
-					(result) => {
-						_ipcServer.EndWaitForConnection(result);
+					_ipcServer.BeginWaitForConnection(
+						(result) => {
+							_ipcServer.EndWaitForConnection(result);
 
-						lock (_ipcServerMonitor) {
-							_shutdownToken.Cancel();
-							_shutdownCompletedEvent.Wait();
-							_ipcServer.Close();
-						}
-					},
-					_ipcServer
-				);
+							lock (_ipcServerMonitor) {
+								_shutdownToken.Cancel();
+								_shutdownCompletedEvent.Wait();
+								_ipcServer.Close();
+							}
+						},
+						_ipcServer
+					);
+				}
+				catch (Exception e) {
+					if (!isServerOptional) {
+						throw e;
+					}
+				}
 
 				return false;
 			}

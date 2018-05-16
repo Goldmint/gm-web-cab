@@ -11,6 +11,8 @@ using NLog;
 using NLog.Extensions.Logging;
 using System;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
+using System.IO;
+using System.Text;
 
 namespace Goldmint.WebApplication {
 
@@ -19,7 +21,6 @@ namespace Goldmint.WebApplication {
 		private readonly IHostingEnvironment _environment;
 		private readonly IConfiguration _configuration;
 		private readonly AppConfig _appConfig;
-		private readonly LogFactory _loggerFactory;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
 		// ---
@@ -27,6 +28,9 @@ namespace Goldmint.WebApplication {
 		public Startup(IHostingEnvironment env, IConfiguration configuration) {
 			_environment = env;
 			_configuration = configuration;
+
+			var curDir = Directory.GetCurrentDirectory();
+			Console.OutputEncoding = Encoding.UTF8;
 
 			// config
 			try {
@@ -43,18 +47,20 @@ namespace Goldmint.WebApplication {
 				_appConfig = new AppConfig();
 				_configuration.Bind(_appConfig);
 
-				var nlogConfiguration = new NLog.Config.XmlLoggingConfiguration($"nlog.{_environment.EnvironmentName}.config");
-				_loggerFactory = new LogFactory(nlogConfiguration);
-				LogManager.Configuration = nlogConfiguration;
+				
 			} catch (Exception e) {
 				throw new Exception("Failed to get app settings", e);
 			}
 
-			var logger = _loggerFactory.GetCurrentClassLogger();
+			// nlog config/factory
+			LogManager.LoadConfiguration(Path.Combine(curDir, $"nlog.{_environment.EnvironmentName}.config"));
+
+			// this class logger
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Launched");
 
 			// runtime config
-			_runtimeConfigHolder = new RuntimeConfigHolder(_loggerFactory);
+			_runtimeConfigHolder = new RuntimeConfigHolder(LogManager.LogFactory);
 
 			// custom db connection
 			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
@@ -153,15 +159,16 @@ namespace Goldmint.WebApplication {
 		}
 
 		public void OnServerStopRequested() {
-			var logger = _loggerFactory.GetCurrentClassLogger();
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Webserver stop requested");
 		}
 
 		public void OnServerStopped() {
-			var logger = _loggerFactory.GetCurrentClassLogger();
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Webserver stopped");
 
 			StopServices();
+			LogManager.Shutdown();
 		}
 	}
 }

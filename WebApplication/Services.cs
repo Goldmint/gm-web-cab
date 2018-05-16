@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace Goldmint.WebApplication {
 		private CoreLogic.Services.Bus.Subscriber.CentralSubscriber _busCentralSubscriber;
 		private CoreLogic.Services.Bus.Publisher.ChildPublisher _busChildPublisher;
 		private CoreLogic.Services.Rate.Impl.BusSafeRatesSource _busSafeRatesSource;
-		private CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator _apiServerStatusAccumulator;
+		private CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator _apiTelemetryAccumulator;
 		private Services.Bus.AggregatedTelemetryHolder _aggregatedTelemetryHolder;
 
 		public IServiceProvider ConfigureServices(IServiceCollection services) {
@@ -50,7 +51,7 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton(_appConfig);
 
 			// logger
-			services.AddSingleton(_loggerFactory);
+			services.AddSingleton(LogManager.LogFactory);
 
 			// swagger
 			if (!_environment.IsProduction()) {
@@ -197,14 +198,14 @@ namespace Goldmint.WebApplication {
 				return new ShuftiProKycProvider(opts => {
 					opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
 					opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
-				}, _loggerFactory);
+				}, LogManager.LogFactory);
 			});
 
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// rates
-			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(_runtimeConfigHolder, _loggerFactory);
+			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(_runtimeConfigHolder, LogManager.LogFactory);
 			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
 			services.AddSingleton<CoreLogic.Services.Rate.Impl.SafeRatesFiatAdapter>();
 
@@ -220,15 +221,26 @@ namespace Goldmint.WebApplication {
 					CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated,
 				},
 				new Uri(_appConfig.Bus.CentralPub.Endpoint),
-				_loggerFactory
+				LogManager.LogFactory
 			);
-			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, _busSafeRatesSource.OnNewRates);
-			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.AggregatedTelemetry, _aggregatedTelemetryHolder.OnUpdate);
-			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => { Task.Factory.StartNew(async () => { await _runtimeConfigHolder.Reload(); }); });
+			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, (p, s) => {
+				_busSafeRatesSource.OnNewRates(p, s);
+				_apiTelemetryAccumulator.AccessData(_ => _.RatesData = p as CoreLogic.Services.Bus.Proto.SafeRates.SafeRatesMessage);
+			});
+			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.AggregatedTelemetry, (p, s) => {
+				_aggregatedTelemetryHolder.OnUpdate(p, s);
+			});
+			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => {
+				Task.Factory.StartNew(async () => {
+					await _runtimeConfigHolder.Reload();
+					var rcfg = _runtimeConfigHolder.Clone();
+					_apiTelemetryAccumulator.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
+				});
+			});
 
 			// open storage
 			services.AddSingleton<IOpenStorageProvider>(fac => 
-				new IPFS(_appConfig.Services.Ipfs.Url, _loggerFactory)
+				new IPFS(_appConfig.Services.Ipfs.Url, LogManager.LogFactory)
 			);
 
 			// docs signing
@@ -240,7 +252,7 @@ namespace Goldmint.WebApplication {
 						SenderEmail = _appConfig.Services.SignRequest.SenderEmail,
 						SenderEmailName = "GoldMint",
 					},
-					logFactory: _loggerFactory
+					logFactory: LogManager.LogFactory
 				);
 				foreach (var t in _appConfig.Services.SignRequest.Templates) {
 					if (Enum.TryParse(t.Locale, true, out Common.Locale locale)) {
@@ -250,47 +262,49 @@ namespace Goldmint.WebApplication {
 				return srv;
 			});
 
-			// custom pub port
-			var busPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_PUB_PORT");
-			if (!string.IsNullOrWhiteSpace(busPubCustomPort)) {
-				_appConfig.Bus.ChildPub.PubPort = int.Parse(busPubCustomPort);
+			// custom child-pub port
+			var busChildPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_CHD_PORT");
+			if (!string.IsNullOrWhiteSpace(busChildPubCustomPort)) {
+				_appConfig.Bus.ChildPub.PubPort = int.Parse(busChildPubCustomPort);
 			}
 
 			// launch child pub
-			_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(new Uri("tcp://localhost:" + _appConfig.Bus.ChildPub.PubPort), _loggerFactory);
+			_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(_appConfig.Bus.ChildPub.PubPort, LogManager.LogFactory);
 			services.AddSingleton(_busChildPublisher);
 
 			// telemetry accum/pub
-			_apiServerStatusAccumulator = new CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator(
+			_apiTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator(
 				_busChildPublisher,
 				TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubStatusPeriodSec),
-				_loggerFactory
+				LogManager.LogFactory
 			);
-			services.AddSingleton(_apiServerStatusAccumulator);
+			services.AddSingleton(_apiTelemetryAccumulator);
 
 			return services.BuildServiceProvider();
 		}
 
 		public void RunServices() {
-			var logger = _loggerFactory.GetCurrentClassLogger();
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Run services");
 
 			_runtimeConfigHolder.Reload().Wait();
+			var rcfg = _runtimeConfigHolder.Clone();
+			_apiTelemetryAccumulator?.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
 
-			_busCentralSubscriber.Run();
-			_busChildPublisher.Run();
-			_apiServerStatusAccumulator.Run();
+			_busCentralSubscriber?.Run();
+			_busChildPublisher?.Run();
+			_apiTelemetryAccumulator?.Run();
 		}
 
 		public void StopServices() {
-			var logger = _loggerFactory.GetCurrentClassLogger();
+			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Stop services");
 
-			_apiServerStatusAccumulator?.StopAsync();
+			_apiTelemetryAccumulator?.StopAsync();
 			_busChildPublisher?.StopAsync();
 			_busCentralSubscriber?.StopAsync();
 
-			_apiServerStatusAccumulator?.Dispose();
+			_apiTelemetryAccumulator?.Dispose();
 			_busChildPublisher?.Dispose();
 			_busCentralSubscriber?.Dispose();
 

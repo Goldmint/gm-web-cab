@@ -33,6 +33,10 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 						OnCallback(top, Deserialize<Proto.SafeRates.SafeRatesMessage>(message));
 						break;
 
+					case Proto.Topic.ConfigUpdated:
+						OnCallback(top, Deserialize<Proto.Config.ConfigUpdatedMessage>(message));
+						break;
+
 					case Proto.Topic.ApiTelemetry:
 						OnCallback(top, Deserialize<Proto.Telemetry.ApiTelemetryMessage>(message));
 						break;

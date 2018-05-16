@@ -23,8 +23,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		private bool _running;
 		private bool _enableHeartbeats;
 
-		protected BasePublisher(Uri bindUri, int queueSize, LogFactory logFactory) {
-			BindUri = bindUri.Scheme + "://*:" + bindUri.Port;
+		protected BasePublisher(int port, int queueSize, LogFactory logFactory) {
+			BindUri = "tcp://*:" + port;
 			Logger = logFactory.GetLoggerFor(this);
 			PublisherSocket = new PublisherSocket();
 

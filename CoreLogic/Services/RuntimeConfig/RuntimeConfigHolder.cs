@@ -41,13 +41,13 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 
 			var json = await _loader.Load();
 			if (!Json.ParseInto(json, newConfig)) {
-				_logger.Warn("Failed to parse runtime config");
+				_logger.Error("Failed to parse runtime config");
 				return;
 			}
 
 			var validation = RuntimeConfig.GetValidator().Validate(newConfig);
 			if (!validation.IsValid) {
-				_logger.Warn("Runtime config is invalid: " + validation.Errors?.FirstOrDefault());
+				_logger.Error("Runtime config is invalid: " + validation.Errors?.FirstOrDefault());
 				return;
 			}
 

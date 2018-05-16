@@ -1,6 +1,4 @@
-﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Rate;
-using Goldmint.DAL;
+﻿using Goldmint.CoreLogic.Services.Rate;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
@@ -9,23 +7,20 @@ namespace Goldmint.QueueService.Workers.Rates {
 
 	public sealed class GoldRateUpdater : BaseWorker {
 
-		private TimeSpan _requestTimeout;
+		private readonly TimeSpan _requestTimeout;
 		
 		private IServiceProvider _services;
-		private ApplicationDbContext _dbContext;
 		private IGoldRateProvider _goldRateProvider;
 		private IAggregatedRatesDispatcher _aggregatedRatesDispatcher;
 
-		public GoldRateUpdater() {
+		public GoldRateUpdater(TimeSpan requestTimeout) {
+			_requestTimeout = requestTimeout;
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
-			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_goldRateProvider = _services.GetRequiredService<IGoldRateProvider>();
 			_aggregatedRatesDispatcher = _services.GetRequiredService<IAggregatedRatesDispatcher>();
-
-			_requestTimeout = TimeSpan.FromSeconds(10);
 
 			return Task.CompletedTask;
 		}
@@ -40,12 +35,6 @@ namespace Goldmint.QueueService.Workers.Rates {
 			} catch (Exception e) {
 				Logger.Error(e);
 			}
-		}
-
-		// ---
-
-		internal sealed class DbStorage {
-
 		}
 	}
 }

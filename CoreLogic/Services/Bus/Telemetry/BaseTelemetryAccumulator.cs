@@ -97,6 +97,16 @@ namespace Goldmint.CoreLogic.Services.Bus.Telemetry {
 			}
 		}
 
+		public T CloneData() {
+			try {
+				_locker.EnterReadLock();
+				return _data.Copy();
+			}
+			finally {
+				_locker.ExitReadLock();
+			}
+		}
+
 		// ---
 
 		private void Worker() {

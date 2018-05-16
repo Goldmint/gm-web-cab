@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using System;
 using System.IO.Pipes;
 using System.Linq;
 using System.Threading;
@@ -8,7 +9,7 @@ namespace Goldmint.WebApplication {
 
 	public class Program {
 
-		private const string IpcPipeName = "gm.webapplication.ipc";
+		private const string IpcPipeName = "goldmint.api.ipc";
 
 		private static IWebHost _webHost;
 		private static NamedPipeServerStream _ipcServer;
@@ -43,24 +44,32 @@ namespace Goldmint.WebApplication {
 		private static bool SetupIpc(string[] args) {
 
 			bool isClient = args.Contains("ipc-stop");
+			bool isServerOptional = args.Contains("ipc-optional");
 
 			if (!isClient) {
 
-				_ipcServerMonitor = new object();
-				_ipcServer = new NamedPipeServerStream(IpcPipeName);
+				try {
+					_ipcServerMonitor = new object();
+					_ipcServer = new NamedPipeServerStream(IpcPipeName);
 
-				_ipcServer.BeginWaitForConnection(
-					(result) => {
-						_ipcServer.EndWaitForConnection(result);
+					_ipcServer.BeginWaitForConnection(
+						(result) => {
+							_ipcServer.EndWaitForConnection(result);
 
-						lock (_ipcServerMonitor) {
-							_webHost.StopAsync();
-							_webHost.WaitForShutdown();
-							_ipcServer.Close();
-						}
-					},
-					_ipcServer
-				);
+							lock (_ipcServerMonitor) {
+								_webHost.StopAsync();
+								_webHost.WaitForShutdown();
+								_ipcServer.Close();
+							}
+						},
+						_ipcServer
+					);
+				}
+				catch (Exception e) {
+					if (!isServerOptional) {
+						throw e;
+					}
+				}
 
 				return false;
 			}

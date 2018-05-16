@@ -12,7 +12,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly Options _opts;
 		private readonly ILogger _logger;
 
-		public GmRatesProvider(LogFactory logFactory, Action<Options> opts) {
+		public GmRatesProvider(Action<Options> opts, LogFactory logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_opts = new Options() {
 				GoldUrl = "",
