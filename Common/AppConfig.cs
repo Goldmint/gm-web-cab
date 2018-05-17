@@ -190,7 +190,7 @@
 
 				public class RatesSection {
 
-					public int PubPeriodSec { get; set; } = 1;
+					public double PubPeriodSec { get; set; } = 1;
 					public int GoldValidForSec { get; set; } = 1800;
 					public int CryptoValidForSec { get; set; } = 180;
 				}
@@ -206,7 +206,7 @@
 			public class ChildPubSection {
 
 				public int PubPort { get; set; } = 6666;
-				public int PubStatusPeriodSec { get; set; } = 5;
+				public double PubTelemetryPeriodSec { get; set; } = 5;
 			}
 		}
 	}

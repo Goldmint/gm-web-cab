@@ -12,8 +12,8 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 
 	public class ShuftiProKycProvider : IKycProvider {
 
-		private ShuftiProOptions _opts;
-		private ILogger _logger;
+		private readonly ShuftiProOptions _opts;
+		private readonly ILogger _logger;
 
 		public ShuftiProKycProvider(Action<ShuftiProOptions> setup, LogFactory logFactory) {
 			_opts = new ShuftiProOptions() { };
