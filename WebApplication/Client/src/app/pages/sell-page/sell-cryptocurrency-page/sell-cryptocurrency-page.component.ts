@@ -130,8 +130,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
         this.ethLimit = eth;
         if (this.isFirstLoad) {
-          this.coinAmount = +this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN);
-          this.isFirstLoad = false;
+          this.calculateStartGoldValue(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
           this._cdRef.markForCheck();
         } else {
           this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
@@ -180,19 +179,16 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
   onAmountChanged(value: number) {
     this.loading = true;
-    this.currentBalance = this.selectedWallet === 0 ? +this.hotGoldBalance : +this.goldBalance;
+    const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
 
     if (!this.isReversed) {
-
-      if (value > this.goldLimit) {
+      if (value > this.goldLimit && this.currentBalance !== 0) {
         this.isModalShow = true;
         this.loading = false;
         return
       }
 
       if (value > 0 && value <= this.currentBalance) {
-
-        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
         this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), false)
@@ -203,22 +199,21 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           this.coinAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
           this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
           this.invalidBalance = false;
+        }, () => {
+          this.setError();
         });
       } else {
-        this.invalidBalance = true;
-        this.loading = false;
-        this._cdRef.markForCheck();
+        this.setError();
       }
     }
     if (this.isReversed) {
-      if (value > +this.ethLimit) {
+      if (value > +this.ethLimit && this.currentBalance !== 0) {
         this.isModalShow = true;
         this.loading = false;
         return
       }
 
       if (value > 0 && value <= +this.ethLimit) {
-        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
         this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), true)
@@ -227,17 +222,29 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.goldAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
-            this.goldLimit === null && (this.goldLimit = this.goldAmount)
 
             this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
             this.invalidBalance = (this.goldAmount > this.currentBalance) ? true : false;
+        }, () => {
+          this.setError();
         });
       } else {
-        this.invalidBalance = true;
-        this.loading = false;
-        this._cdRef.markForCheck();
+        this.setError();
       }
     }
+  }
+
+  calculateStartGoldValue(value: number) {
+    const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+    this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), this.isReversed)
+      .subscribe(data => {
+        this.isReversed = false;
+        this.goldLimit = this.substrValue(data.data.amount / Math.pow(10, 18));
+        this.currentBalance = this.selectedWallet === 0 ? +this.hotGoldBalance : +this.goldBalance;
+        this.goldAmount = (this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance;
+        this.isFirstLoad = false;
+        this._cdRef.markForCheck();
+      });
   }
 
   getGoldLimit(ethLimit: number) {
@@ -274,6 +281,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   closeModal() {
     this.isModalShow = false;
     this.invalidBalance = true;
+    this._cdRef.markForCheck();
+  }
+
+  setError() {
+    this.invalidBalance = true;
+    this.loading = false;
     this._cdRef.markForCheck();
   }
 

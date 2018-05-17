@@ -188,7 +188,7 @@ export class EthereumService {
 
   private updateEthLimitBalance(addr: string) {
     this._contractMetamask && this._web3Metamask.eth.getBalance(addr, (err, res) => {
-      this._obsEthLimitBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(17)));
+      this._obsEthLimitBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
     });
   }
 
