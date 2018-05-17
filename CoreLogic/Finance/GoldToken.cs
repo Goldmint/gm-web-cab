@@ -88,13 +88,13 @@ namespace Goldmint.CoreLogic.Finance {
 							var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
 							var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
-							var cancel =
+							var cancelContract =
 								ethPerGoldFixedRate <= 0 || !ethActualRate.CanSell || !goldActualRate.CanBuy ||
 								Estimation.IsFixedRateThresholdExceeded(request.InputRateCents, ethActualRate.Usd, runtimeConfig.Gold.SafeRate.Eth.SellChangeThreshold) ||
 								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, runtimeConfig.Gold.SafeRate.Gold.BuyChangeThreshold)
 							;
 
-							if (cancel) {
+							if (cancelContract) {
 								try {
 									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
 								}
@@ -113,7 +113,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// eth operation
 							var ethOp = new DAL.Models.EthereumOperation() {
-								Type = cancel? EthereumOperationType.ContractCancelBuyRequest: EthereumOperationType.ContractProcessBuyRequest,
+								Type = cancelContract? EthereumOperationType.ContractCancelBuyRequest: EthereumOperationType.ContractProcessBuyRequest,
 								Status = EthereumOperationStatus.Initial,
 								RelatedRequestId = request.Id,
 
@@ -133,7 +133,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// done
 							ethOp.Status = EthereumOperationStatus.Prepared;
-							request.Status = cancel? BuyGoldRequestStatus.Cancelled: BuyGoldRequestStatus.Success;
+							request.Status = cancelContract? BuyGoldRequestStatus.Cancelled: BuyGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountEth, Tokens.ETH.Decimals);
@@ -146,7 +146,7 @@ namespace Goldmint.CoreLogic.Finance {
 							catch {
 							}
 
-							return cancel? BuySellRequestProcessingResult.Cancelled: BuySellRequestProcessingResult.Success;
+							return cancelContract? BuySellRequestProcessingResult.Cancelled: BuySellRequestProcessingResult.Success;
 						}
 
 						// expired
@@ -245,13 +245,13 @@ namespace Goldmint.CoreLogic.Finance {
 							var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
 							var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
-							var cancel =
+							var cancelContract =
 								ethPerGoldFixedRate <= 0 || !ethActualRate.CanBuy || !goldActualRate.CanSell ||
 								Estimation.IsFixedRateThresholdExceeded(request.OutputRateCents, ethActualRate.Usd, runtimeConfig.Gold.SafeRate.Eth.BuyChangeThreshold) ||
 								Estimation.IsFixedRateThresholdExceeded(request.GoldRateCents, goldActualRate.Usd, runtimeConfig.Gold.SafeRate.Gold.SellChangeThreshold)
 							;
 
-							if (cancel) {
+							if (cancelContract) {
 								try {
 									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
 								}
@@ -263,14 +263,17 @@ namespace Goldmint.CoreLogic.Finance {
 								services: services,
 								cryptoCurrency: CryptoCurrency.Eth,
 								fiatCurrency: request.ExchangeCurrency,
-								goldAmount: amountGold, knownGoldRateCents: request.GoldRateCents, knownCryptoRateCents: request.OutputRateCents);
+								goldAmount: amountGold, 
+								knownGoldRateCents: request.GoldRateCents, 
+								knownCryptoRateCents: request.OutputRateCents
+							);
 							var estimatedCryptoAmountFee = Estimation.SellingFeeForCrypto(
 								CryptoCurrency.Eth, estimatedCryptoAmount.ResultAssetAmount
 							);
 
 							// eth operation
 							var ethOp = new DAL.Models.EthereumOperation() {
-								Type = cancel ? EthereumOperationType.ContractCancelSellRequest : EthereumOperationType.ContractProcessSellRequest,
+								Type = cancelContract ? EthereumOperationType.ContractCancelSellRequest : EthereumOperationType.ContractProcessSellRequest,
 								Status = EthereumOperationStatus.Initial,
 								RelatedRequestId = request.Id,
 
@@ -290,7 +293,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// done
 							ethOp.Status = EthereumOperationStatus.Prepared;
-							request.Status = cancel ? SellGoldRequestStatus.Cancelled : SellGoldRequestStatus.Success;
+							request.Status = cancelContract ? SellGoldRequestStatus.Cancelled : SellGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, Tokens.GOLD.Decimals);
@@ -303,7 +306,7 @@ namespace Goldmint.CoreLogic.Finance {
 							catch {
 							}
 
-							return cancel ? BuySellRequestProcessingResult.Cancelled : BuySellRequestProcessingResult.Success;
+							return cancelContract ? BuySellRequestProcessingResult.Cancelled : BuySellRequestProcessingResult.Success;
 						}
 
 						// expired

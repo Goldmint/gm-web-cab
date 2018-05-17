@@ -43,7 +43,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || inputAmount > long.MaxValue) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (cryptoCurrency == null && model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -147,7 +147,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					allowed = result.Allowed;
 					centsPerGold = result.CentsPerGoldRate;
 
-					var mntBalance = await EthereumObserver.GetAddressMntBalance(ethAddress);
+					var mntBalance = ethAddress != null ? await EthereumObserver.GetAddressMntBalance(ethAddress) : BigInteger.Zero;
 					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.ResultCentsAmount, mntBalance);
 
 					viewAmount = (result.ResultCentsAmount - fee) / 100d;
@@ -184,7 +184,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				// fiat
 				if (cryptoCurrency == null) {
 
-					var mntBalance = await EthereumObserver.GetAddressMntBalance(ethAddress);
+					var mntBalance = ethAddress != null ? await EthereumObserver.GetAddressMntBalance(ethAddress) : BigInteger.Zero;
 
 					if (inputAmount <= long.MaxValue) {
 

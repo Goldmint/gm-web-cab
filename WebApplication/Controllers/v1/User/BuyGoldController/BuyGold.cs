@@ -44,7 +44,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || inputAmount > long.MaxValue) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (cryptoCurrency == null && !model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 

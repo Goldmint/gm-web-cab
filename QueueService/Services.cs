@@ -178,7 +178,7 @@ namespace Goldmint.QueueService {
 				// telemetry accum/pub
 				_coreTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator(
 					_busChildPublisher,
-					TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubStatusPeriodSec),
+					TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubTelemetryPeriodSec),
 					LogManager.LogFactory
 				);
 				

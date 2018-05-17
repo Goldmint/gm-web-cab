@@ -194,12 +194,17 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<ITemplateProvider, TemplateProvider>();
 
 			// kyc
-			services.AddScoped<IKycProvider>(fac => {
-				return new ShuftiProKycProvider(opts => {
-					opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
-					opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
-				}, LogManager.LogFactory);
-			});
+			if (_environment.IsProduction()) {
+				services.AddScoped<IKycProvider>(fac => {
+					return new ShuftiProKycProvider(opts => {
+						opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
+						opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
+					}, LogManager.LogFactory);
+				});
+			}
+			else {
+				services.AddScoped<IKycProvider, DebugKycProvider>();
+			}
 
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
@@ -275,7 +280,7 @@ namespace Goldmint.WebApplication {
 			// telemetry accum/pub
 			_apiTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator(
 				_busChildPublisher,
-				TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubStatusPeriodSec),
+				TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubTelemetryPeriodSec),
 				LogManager.LogFactory
 			);
 			services.AddSingleton(_apiTelemetryAccumulator);

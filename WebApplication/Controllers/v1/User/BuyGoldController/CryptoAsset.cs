@@ -25,7 +25,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || inputAmount > long.MaxValue) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
