@@ -207,20 +207,27 @@ namespace Goldmint.QueueService {
 			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Stop services");
 
-			_safeAggregatedRatesDispatcher?.Stop(true);
-			_busCentralPublisher?.StopAsync();
-			_busCentralSubscriber?.StopAsync();
-			_busChildPublisher?.StopAsync();
+			try {
+				_safeAggregatedRatesDispatcher?.Stop(true);
+				_busCentralPublisher?.StopAsync();
+				_busCentralSubscriber?.StopAsync();
+				_busChildPublisher?.StopAsync();
 
-			_workerTelemetryAccumulator?.Dispose();
-			_coreTelemetryAccumulator?.Dispose();
-			_busSafeRatesSubscriberWrapper?.Dispose();
-			_safeAggregatedRatesDispatcher?.Dispose();
-			_busCentralPublisher?.Dispose();
-			_busCentralSubscriber?.Dispose();
-			_busChildPublisher?.Dispose();
+				_workerTelemetryAccumulator?.Dispose();
+				_coreTelemetryAccumulator?.Dispose();
+				_busSafeRatesSubscriberWrapper?.Dispose();
+				_safeAggregatedRatesDispatcher?.Dispose();
+				_busCentralPublisher?.Dispose();
+				_busCentralSubscriber?.Dispose();
+				_busChildPublisher?.Dispose();
 
-			NetMQ.NetMQConfig.Cleanup(true);
+				NetMQ.NetMQConfig.Cleanup(true);
+			}
+			catch (Exception e) {
+				logger.Error(e);
+			}
+
+			logger.Info("Services stopped");
 		}
 	}
 }

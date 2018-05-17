@@ -64,7 +64,6 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			Logger.Trace("Disposing");
 
 			Stop();
-			Disconnect();
 
 			_workerCancellationTokenSource?.Dispose();
 			_workerTask?.Dispose();
@@ -117,15 +116,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			stamp = DateTime.UtcNow;
 			message = null;
 
-			var hm = false;
 			var tmptopic = SubscriberSocket.ReceiveFrameString();
 			var tmpstamp = SubscriberSocket.ReceiveFrameString();
-			var tmpmessage = SubscriberSocket.ReceiveFrameBytes(out hm);
-
-			if (hm) {
-				Stop();
-				throw new Exception($"There is some data after message. Invalid message format? ({ ConnectUri })");
-			}
+			var tmpmessage = SubscriberSocket.ReceiveFrameBytes();
 
 			if (tmptopic != null && tmpmessage != null && long.TryParse(tmpstamp, out var stampUnix)) {
 				topic = tmptopic;

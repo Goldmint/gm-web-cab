@@ -215,7 +215,7 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<CoreLogic.Services.Rate.Impl.SafeRatesFiatAdapter>();
 
 			// aggregated telemetry from centra pub
-			_aggregatedTelemetryHolder = new Services.Bus.AggregatedTelemetryHolder();
+			_aggregatedTelemetryHolder = new Services.Bus.AggregatedTelemetryHolder(_appConfig);
 			services.AddSingleton(_aggregatedTelemetryHolder);
 
 			// subscribe to central pub
@@ -305,18 +305,25 @@ namespace Goldmint.WebApplication {
 			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Stop services");
 
-			_apiTelemetryAccumulator?.StopAsync();
-			_busChildPublisher?.StopAsync();
-			_busCentralSubscriber?.StopAsync();
+			try {
+				_apiTelemetryAccumulator?.StopAsync();
+				_busChildPublisher?.StopAsync();
+				_busCentralSubscriber?.StopAsync();
 
-			_apiTelemetryAccumulator?.Dispose();
-			_busChildPublisher?.Dispose();
-			_busCentralSubscriber?.Dispose();
+				_apiTelemetryAccumulator?.Dispose();
+				_busChildPublisher?.Dispose();
+				_busCentralSubscriber?.Dispose();
 
-			_busSafeRatesSource?.Dispose();
-			_aggregatedTelemetryHolder?.Dispose();
+				_busSafeRatesSource?.Dispose();
+				_aggregatedTelemetryHolder?.Dispose();
 
-			NetMQ.NetMQConfig.Cleanup(true);
+				NetMQ.NetMQConfig.Cleanup(true);
+			}
+			catch (Exception e) {
+				logger.Error(e);
+			}
+
+			logger.Info("Services stopped");
 		}
 	}
 }
