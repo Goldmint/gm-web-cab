@@ -37,6 +37,10 @@ export class LoginDpaSignedComponent implements OnInit, OnDestroy {
       .finally(() => {
         this._cdRef.markForCheck();
       }).subscribe((data) => {
+        let userSubscription = this._userService.currentUser.subscribe(() => {
+          userSubscription.unsubscribe();
+          this.router.navigate(['/']);
+        });
       this._userService.processToken(data.data.token);
     }, (error) => {
       if (error.error.errorCode === 1011) {
