@@ -121,6 +121,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				new AccountView.PropertiesItem(){ N = "ID", V = account.Id.ToString() },
 				new AccountView.PropertiesItem(){ N = "Username", V = account.UserName ?? "-" },
 				new AccountView.PropertiesItem(){ N = "Email", V = account.Email ?? "-" },
+				new AccountView.PropertiesItem(){ N = "EmailConfirmed", V = account.EmailConfirmed? yes: no },
 				new AccountView.PropertiesItem(){ N = "Registered", V = account.TimeRegistered.ToString("yyyy MMMM dd") },
 				new AccountView.PropertiesItem(){ N = "DpaSigned", V = CoreLogic.User.HasSignedDpa(account.UserOptions) ? yes: no },
 				new AccountView.PropertiesItem(){ N = "PersonalDataFilled", V = CoreLogic.User.HasFilledPersonalData(account.UserVerification) ? yes: no },
