@@ -2,7 +2,7 @@
   <div class="container flex-row flex-sm-column">
     <div class="header__row justify-content-between pt-2 pb-2 pt-lg-0 pb-lg-0">
       <div class="d-flex">
-        <div class="col-auto">
+        <div class="col-auto d-flex align-items-center">
           <a class="logo" routerLink="">
             <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
               <use xlink:href="#path0_fill" fill="currentColor"/>
@@ -50,7 +50,7 @@
               <span class="balance__value">
               {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-2':locale}}
               {{'OZ'}}
-              <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_eth_rate | number:'1.2-2':locale }} )</span>
+              <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_usd_rate | number:'1.2-2':locale }} )</span>
             </span>
             </div>
           </div>
