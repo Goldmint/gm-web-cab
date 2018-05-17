@@ -9,6 +9,7 @@ import {Subject} from "rxjs/Subject";
 import {Router} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {environment} from "../../../../environments/environment";
+import * as Web3 from "web3";
 
 
 @Component({
@@ -44,6 +45,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public goldAmountToUSD: number = 0;
   public estimatedAmount: BigNumber;
   public currentValue: number;
+  private Web3 = new Web3();
 
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
@@ -147,10 +149,10 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     if (!this.isReversed) {
       if (value > 0 && value <= +this.ethBalance) {
 
-        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+        const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate(this.currentCoin, wei.toString(), false)
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, false)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
@@ -167,10 +169,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     }
     if (this.isReversed) {
       if (value > 0) {
-        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+
+        const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate(this.currentCoin, wei.toString(), true)
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, true)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
@@ -219,8 +222,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
         this._cdRef.markForCheck();
       })
       .subscribe(res => {
-        const wei = new BigNumber(this.estimatedAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-        this._apiService.goldBuyEstimate(this.currentCoin, wei.toString(), this.isReversed)
+        const wei = this.Web3.toWei(this.estimatedAmount);
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, this.isReversed)
           .subscribe(data => {
             let estimate, amount, toAmount, fromAmount;
             fromAmount = estimate = this.estimatedAmount;

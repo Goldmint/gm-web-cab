@@ -17,6 +17,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {Router} from "@angular/router";
 import {environment} from "../../../../environments/environment";
 import {Subscription} from "rxjs/Subscription";
+import * as Web3 from "web3";
 
 @Component({
   selector: 'app-sell-cryptocurrency-page',
@@ -59,6 +60,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public coinAmountToUSD: number = 0;
   public estimatedAmount: BigNumber;
   public currentValue: number;
+  private Web3 = new Web3();
 
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
@@ -185,10 +187,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       }
 
       if (value > 0 && value <= this.currentBalance) {
-        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+        const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), false)
+        this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, false)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
@@ -211,10 +213,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       }
 
       if (value > 0 && value <= +this.ethLimit) {
-        const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+        const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), true)
+        this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, true)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
@@ -248,8 +250,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     }
 
     this.loading = true;
-    const wei = new BigNumber(value).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), this.isReversed)
+    const wei = this.Web3.toWei(value);
+    this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
       .subscribe(data => {
         this.isReversed = false;
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
@@ -262,8 +264,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   }
 
   getGoldLimit(ethLimit: number) {
-    const wei = new BigNumber(ethLimit).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), this.isReversed)
+    const wei = this.Web3.toWei(ethLimit);
+    this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
       .subscribe(data => {
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
     });
@@ -322,8 +324,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           this._cdRef.markForCheck();
         })
         .subscribe(res => {
-          const wei = new BigNumber(this.estimatedAmount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-          this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei.toString(), this.isReversed)
+          const wei = this.Web3.toWei(this.estimatedAmount);
+          this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
             .subscribe(data => {
               let estimate, amount, toAmount, fromAmount;
               fromAmount = estimate = this.estimatedAmount;
