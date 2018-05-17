@@ -44,7 +44,7 @@ export class LoginDpaSignedComponent implements OnInit, OnDestroy {
       this._userService.processToken(data.data.token);
     }, (error) => {
       if (error.error.errorCode === 1011) {
-        this.interval = Observable.interval(7500).subscribe(() => {
+        this.interval = Observable.interval(5000).subscribe(() => {
           this.dpaCheck();
         });
       } else {

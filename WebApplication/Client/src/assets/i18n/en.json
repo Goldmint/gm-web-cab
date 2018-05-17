@@ -512,7 +512,7 @@
       "LoginDPASigned": {
         "Heading": "Data Processing Agreement",
         "Text": {
-          "First": "We have received document.",
+          "First": "We are processing your document. Please wait a while.",
           "Second": "If you have problems with signing this agreement, please contact our support team via ",
           "Support": "support@goldmint.io"
         }

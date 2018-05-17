@@ -255,7 +255,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
         this.currentBalance = this.selectedWallet === 0 ? +this.hotGoldBalance : +this.goldBalance;
 
-        this.goldAmount = this.currentValue = (this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance;
+        this.goldAmount = this.currentValue = +this.substrValue((this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance);
         this.isFirstLoad = false;
         this._cdRef.markForCheck();
       });
