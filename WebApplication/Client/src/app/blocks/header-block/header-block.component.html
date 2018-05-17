@@ -50,7 +50,7 @@
               <span class="balance__value">
               {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-2':locale}}
               {{'OZ'}}
-              <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_usd_rate | number:'1.2-2':locale }} )</span>
+              <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_usd_rate | number:'1.2-2':locale }})</span>
             </span>
             </div>
           </div>

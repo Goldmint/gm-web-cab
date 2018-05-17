@@ -43,6 +43,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public coinAmount: number = 0;
   public goldAmountToUSD: number = 0;
   public estimatedAmount: BigNumber;
+  public currentValue: number;
 
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
@@ -68,7 +69,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
       .takeUntil(this.destroy$)
       .subscribe(value => {
         if (value && !this.isReversed) {
-          this.onAmountChanged(value);
+          this.onAmountChanged(this.currentValue);
           this._cdRef.markForCheck();
         }
       });
@@ -79,7 +80,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
       .takeUntil(this.destroy$)
       .subscribe(value => {
         if (value && this.isReversed) {
-          this.onAmountChanged(value);
+          this.onAmountChanged(this.currentValue);
           this._cdRef.markForCheck();
         }
       });
@@ -140,10 +141,6 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     }
   }
 
-  onReversed(status: boolean) {
-    status !== this.isReversed && (this.isReversed = status);
-  }
-
   onAmountChanged(value: number) {
     this.loading = true;
 
@@ -158,7 +155,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
-            this.goldAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
+            this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.invalidBalance = false;
         });
@@ -178,7 +175,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
-            this.coinAmount = this.substrValue(data.data.amount / Math.pow(10, 18));
+            this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
         });
@@ -190,14 +187,26 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     }
   }
 
-  substrValue(value: number) {
-    return +value.toString().replace(/^(\d+)(?:(\.\d{1,6})\d*)?$/, '$1$2');
+  changeValue(status: boolean, event) {
+    event.target.value = this.substrValue(event.target.value);
+    this.currentValue = +event.target.value;
+    event.target.setSelectionRange(event.target.value.length, event.target.value.length);
+
+    status !== this.isReversed && (this.isReversed = status);
+  }
+
+  substrValue(value: number|string) {
+    return value.toString()
+      .replace(',', '.')
+      .replace(/([^\d.])|(^\.)/g, '')
+      .replace(/^(\d+)(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
+      .replace(/^0+(\d)/, '$1');
   }
 
   setCoinBalance(percent) {
     this.isReversed = false;
     const value = this.substrValue(+this.ethBalance * percent);
-    this.coinAmount = value;
+    this.currentValue = this.coinAmount = +value;
     this._cdRef.markForCheck();
   }
 

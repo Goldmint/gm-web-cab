@@ -31,14 +31,14 @@
                             <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
                           </svg>
                         </div>
-                        <input type="number" class="form-control" name="coinAmountInput" id="coinAmountInput"
+                        <input type="text" class="form-control" name="coinAmountInput" id="coinAmountInput"
                                #goldAmountInput="ngModel"
                                min="0"
                                step="0.1"
                                [(ngModel)]="coinAmount"
                                ngModel
                                autocomplete="off"
-                               (input)="onReversed(false)"
+                               (input)="changeValue(false, $event)"
                                [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && !isReversed && goldAmountInput.dirty}"
                                [disabled]="isReversed && loading"
                         >
@@ -64,14 +64,14 @@
                             <use xlink:href="#cur-gold"></use>
                           </svg>
                         </div>
-                        <input type="number" class="form-control" name="goldAmount" id="goldAmount"
+                        <input type="text" class="form-control" name="goldAmount" id="goldAmount"
                                #coinAmountInput="ngModel"
                                min="0"
                                step="0.1"
                                [(ngModel)]="goldAmount"
                                ngModel
                                autocomplete="off"
-                               (input)="onReversed(true)"
+                               (input)="changeValue(true, $event)"
                                [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && isReversed && coinAmountInput.dirty}"
                                [disabled]="!isReversed && loading"
                         >
