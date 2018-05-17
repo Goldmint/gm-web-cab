@@ -4,6 +4,7 @@ using NetMQ;
 using NetMQ.Sockets;
 using NLog;
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -114,15 +115,19 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 		}
 
 		protected void PublishMessage(Proto.Topic topic, byte[] message) {
-			PublisherSocket
+			if (message == null || message.Length == 0) {
+				throw new Exception("Message is null or empty");
+			}
+
+			PublisherSocket.SendMultipartBytes(
 				// topic
-				.SendMoreFrame(topic.ToString())
+				Encoding.UTF8.GetBytes(topic.ToString()),
 				// stamp
-				.SendMoreFrame(((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds().ToString())
+				BitConverter.GetBytes(((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()),
 				// body
-				.SendFrame(message)
-			;
-			Logger.Trace($"Message sent: { topic.ToString() }");
+				message
+			);
+			Logger.Trace($"TX: { topic.ToString() }");
 		}
 
 		// ---
@@ -132,7 +137,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 				var ctoken = _workerCancellationTokenSource.Token;
 
 				var nextHbTime = DateTime.UtcNow;
-				var hbPayload = new byte[0];
+				var hbPayload = new byte[1] { 0 };
 
 				while (!ctoken.IsCancellationRequested) {
 

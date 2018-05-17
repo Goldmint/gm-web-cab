@@ -25,38 +25,36 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 		// ---
 
-		protected override void OnNewMessage(string topic, DateTime stamp, byte[] message) {
-			if (Enum.TryParse<Proto.Topic>(topic, true, out var top)) {
-				switch (top) {
+		protected override void OnNewMessage(Proto.Topic topic, DateTime stamp, byte[] message) {
+			switch (topic) {
 
-					case Proto.Topic.FiatRates:
-						OnCallback(top, Deserialize<Proto.SafeRates.SafeRatesMessage>(message));
-						break;
+				case Proto.Topic.FiatRates:
+					OnCallback(topic, Deserialize<Proto.SafeRates.SafeRatesMessage>(message));
+					break;
 
-					case Proto.Topic.ConfigUpdated:
-						OnCallback(top, Deserialize<Proto.Config.ConfigUpdatedMessage>(message));
-						break;
+				case Proto.Topic.ConfigUpdated:
+					OnCallback(topic, Deserialize<Proto.Config.ConfigUpdatedMessage>(message));
+					break;
 
-					case Proto.Topic.ApiTelemetry:
-						OnCallback(top, Deserialize<Proto.Telemetry.ApiTelemetryMessage>(message));
-						break;
+				case Proto.Topic.ApiTelemetry:
+					OnCallback(topic, Deserialize<Proto.Telemetry.ApiTelemetryMessage>(message));
+					break;
 
-					case Proto.Topic.CoreTelemetry:
-						OnCallback(top, Deserialize<Proto.Telemetry.CoreTelemetryMessage>(message));
-						break;
+				case Proto.Topic.CoreTelemetry:
+					OnCallback(topic, Deserialize<Proto.Telemetry.CoreTelemetryMessage>(message));
+					break;
 
-					case Proto.Topic.WorkerTelemetry:
-						OnCallback(top, Deserialize<Proto.Telemetry.WorkerTelemetryMessage>(message));
-						break;
+				case Proto.Topic.WorkerTelemetry:
+					OnCallback(topic, Deserialize<Proto.Telemetry.WorkerTelemetryMessage>(message));
+					break;
 
-					case Proto.Topic.AggregatedTelemetry:
-						OnCallback(top, Deserialize<Proto.Telemetry.AggregatedTelemetryMessage>(message));
-						break;
+				case Proto.Topic.AggregatedTelemetry:
+					OnCallback(topic, Deserialize<Proto.Telemetry.AggregatedTelemetryMessage>(message));
+					break;
 
-					// do nothing
-					default:
-						throw new NotImplementedException("Topic deserialization is not implemented for " + topic);
-				}
+				// do nothing
+				default:
+					throw new NotImplementedException("Topic deserialization is not implemented for " + topic);
 			}
 		}
 

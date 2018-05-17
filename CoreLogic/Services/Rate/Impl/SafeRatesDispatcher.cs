@@ -166,7 +166,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			}
 
 			// publish in any case
-			if (_publisher != null) {
+			if (_publisher != null && _rates.Count > 0) {
 				await _publisher.PublishRates(_rates.Values.ToArray());
 			}
 		}

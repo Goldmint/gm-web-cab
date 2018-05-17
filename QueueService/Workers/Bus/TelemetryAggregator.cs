@@ -20,7 +20,7 @@ namespace Goldmint.QueueService.Workers.Bus {
 
 		private RuntimeConfigHolder _runtimeConfigHolder;
 		private CentralPublisher _centralPublisher;
-		//private WorkerTelemetryMessage _selfTelemetryMessage;
+		private readonly TimeSpan _offlineTimeThreshold = TimeSpan.FromSeconds(30);
 		private WorkerTelemetryAccumulator _thisWorkerTelemetryAccumulator;
 
 		private readonly Dictionary<ServerInfo, DefaultSubscriber> _subscribers;
@@ -29,10 +29,6 @@ namespace Goldmint.QueueService.Workers.Bus {
 		public TelemetryAggregator() {
 			_locker = new ReaderWriterLockSlim();
 			_subscribers = new Dictionary<ServerInfo, DefaultSubscriber>();
-			
-			/*_selfTelemetryMessage = new WorkerTelemetryMessage() {
-				Name = "Telemetry aggregator (worker)",
-			};*/
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -108,28 +104,43 @@ namespace Goldmint.QueueService.Workers.Bus {
 						Topic.AggregatedTelemetry,
 						new AggregatedTelemetryMessage() {
 
-							Online = _subscribers.Select(_ => new AggregatedTelemetryMessage.OnlineStatus() {
-								Name = _.Key.Name,
-								Up = _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < TimeSpan.FromSeconds(30),
-							}).ToArray(),
+							Online = _subscribers
+								.Select(_ => new AggregatedTelemetryMessage.OnlineStatus() {
+									Name = _.Key.Name,
+									Up = _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < _offlineTimeThreshold,
+								})
+								.ToArray(),
 
-							ApiServers = _subscribers.Where(_ => _.Key.Message is ApiTelemetryMessage).Select(_ => {
-								var r = _.Key.Message as ApiTelemetryMessage;
-								r.Name = _.Key.Name;
-								return r;
-							}).ToArray(),
+							ApiServers = _subscribers
+								.Where(_ => _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < _offlineTimeThreshold)
+								.Where(_ => _.Key.Message is ApiTelemetryMessage)
+								.Select(_ => {
+									var r = _.Key.Message as ApiTelemetryMessage;
+									r.Name = _.Key.Name;
+									return r;
+								})
+								.ToArray(),
 
-							WorkerServers = _subscribers.Where(_ => _.Key.Message is WorkerTelemetryMessage).Select(_ => {
-								var r = _.Key.Message as WorkerTelemetryMessage;
-								r.Name = _.Key.Name;
-								return r;
-							}).Append(thisWorkerTelemetry).ToArray(),
+							WorkerServers = _subscribers
+								.Where(_ => _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < _offlineTimeThreshold)
+								.Where(_ => _.Key.Message is WorkerTelemetryMessage)
+								.Select(_ => {
+									var r = _.Key.Message as WorkerTelemetryMessage;
+									r.Name = _.Key.Name;
+									return r;
+								})
+								.Append(thisWorkerTelemetry)
+								.ToArray(),
 
-							CoreServers = _subscribers.Where(_ => _.Key.Message is CoreTelemetryMessage).Select(_ => {
-								var r =_.Key.Message as CoreTelemetryMessage;
-								r.Name = _.Key.Name;
-								return r;
-							}).ToArray(),
+							CoreServers = _subscribers
+								.Where(_ => _.Key.LastStatus != null && DateTime.UtcNow - _.Key.LastStatus.Value < _offlineTimeThreshold)
+								.Where(_ => _.Key.Message is CoreTelemetryMessage)
+								.Select(_ => {
+									var r = _.Key.Message as CoreTelemetryMessage;
+									r.Name = _.Key.Name;
+									return r;
+								})
+								.ToArray(),
 						}
 					);
 

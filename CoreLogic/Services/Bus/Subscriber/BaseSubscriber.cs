@@ -3,8 +3,11 @@ using NetMQ;
 using NetMQ.Sockets;
 using NLog;
 using System;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Bus.Proto;
 
 namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
@@ -29,10 +32,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 			ConnectUri = connect.ToString().TrimEnd('/');
 			Logger = logFactory.GetLoggerFor(this);
 			SubscriberSocket = new SubscriberSocket();
-			foreach (var v in Topics) {
+
+			SubscriberSocket.SubscribeToAnyTopic();
+			/*foreach (var v in Topics) {
 				SubscriberSocket.Subscribe(v.ToString());
 			}
-			SubscriberSocket.Subscribe(Proto.Topic.Hb.ToString());
+			SubscriberSocket.Subscribe(Proto.Topic.Hb.ToString());*/
 
 			_runStopMonitor = new object();
 			_connectMonitor = new object();
@@ -109,27 +114,33 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 
 		// ---
 
-		protected abstract void OnNewMessage(string topic, DateTime stamp, byte[] message);
+		protected abstract void OnNewMessage(Proto.Topic topic, DateTime stamp, byte[] message);
 
-		protected bool Receive(out string topic, out DateTime stamp, out byte[] message) {
-			topic = null;
+		protected bool Receive(out Proto.Topic topic, out DateTime stamp, out byte[] message) {
+			topic = Topic.Unknown;
 			stamp = DateTime.UtcNow;
 			message = null;
 
-			var tmptopic = SubscriberSocket.ReceiveFrameString();
-			var tmpstamp = SubscriberSocket.ReceiveFrameString();
-			var tmpmessage = SubscriberSocket.ReceiveFrameBytes();
+			var parts = SubscriberSocket.ReceiveMultipartBytes(3);
+			try {
+				var tmptopic = Encoding.UTF8.GetString(parts[0]);
+				var tmpstamp = BitConverter.ToInt64(parts[1], 0);
+				var tmpmessage = parts[2];
 
-			if (tmptopic != null && tmpmessage != null && long.TryParse(tmpstamp, out var stampUnix)) {
-				topic = tmptopic;
-				stamp = DateTimeOffset.FromUnixTimeSeconds(stampUnix).UtcDateTime;
-				message = tmpmessage;
+				if (tmptopic != null && tmpmessage != null && tmpstamp > 0) {
+					topic = Enum.Parse<Proto.Topic>(tmptopic, true);
+					stamp = DateTimeOffset.FromUnixTimeSeconds(tmpstamp).UtcDateTime;
+					message = tmpmessage;
 
-				Logger.Trace($"Message received: { topic } / { stamp } / { message.Length }b ({ ConnectUri })");
-				return true;
+					Logger.Trace($"RX: {topic} / {stamp} / {message.Length}b ({ConnectUri})");
+					return true;
+				}
+
+				throw new Exception($"{ tmptopic } / { tmpstamp } / { tmpmessage }");
 			}
-
-			Logger.Error($"Corrupted message received: { tmptopic } / { tmpstamp } / { tmpmessage?.Length }b ({ ConnectUri })");
+			catch (Exception e) {
+				Logger.Error(e, $"RX: corrupted message: { parts?.Count } frames, { parts?.Sum(_ => _.Length) } bytes / ({ ConnectUri })");
+			}
 			return false;
 		}
 
@@ -141,10 +152,10 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 						_lastHbTime = DateTime.UtcNow;
 
 						// heartbeat
-						if (topic == Proto.Topic.Hb.ToString()) {
+						if (topic == Proto.Topic.Hb) {
 							// do nothing
 						}
-						else {
+						else if (Topics.Contains(topic)) {
 							OnNewMessage(topic, stamp, message);
 						}
 					}
