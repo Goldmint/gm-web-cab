@@ -19,10 +19,11 @@
               <div class="form-group">
                 <label for="inputUsername">{{ "PAGES.Login.Labels.Username" | translate }}</label>
                 <input type="text" id="inputUsername" required minlength="5"  maxlength="256" autocomplete="username"
-                       name="username" [(ngModel)]="loginModel.username" #username="ngModel"
+                       name="username" [(ngModel)]="loginModel.username" #userNameElement #username="ngModel"
                        class="form-control col-12 col-md-7"
                        [ngClass]="{'is-invalid': (errors?.Username || !username.valid) && (loginForm.submitted || !password.pristine) && username.touched}"
                        (ngModelChange)="errors.Username = false"
+                       (focus)="resetAutofillFlag()"
                        [readonly]="loading">
 
                 <div class="invalid-feedback" *ngIf="username.errors?.required && username.touched">
@@ -42,10 +43,11 @@
               <div class="form-group">
                 <label for="inputPassword">{{ "PAGES.Login.Labels.Password" | translate }}</label>
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" autocomplete="password"
-                       name="password" [(ngModel)]="loginModel.password" #password="ngModel"
+                       name="password" [(ngModel)]="loginModel.password" #userPassElement #password="ngModel"
                        class="form-control col-12 col-md-7"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (loginForm.submitted || !password.pristine) && password.touched}"
                        (ngModelChange)="errors.Password = false"
+                       (focus)="resetAutofillFlag()"
                        [readonly]="loading">
 
                 <div class="invalid-feedback" *ngIf="password.errors?.required && password.touched">
@@ -72,7 +74,9 @@
 
               <div class="form-group row pt-3">
                 <div class="col-auto">
-                  <button class="btn btn-primary" [blur]="buttonBlur" [disabled]="!loginForm.form.valid || !loginModel.recaptcha || loading">{{ "PAGES.Login.Buttons.LogIn" | translate }}</button>
+                  <button class="btn btn-primary" [blur]="buttonBlur" [disabled]="
+                  (!autofill && !loginForm.form.valid) || (autofill && loginForm.form.valid) ||
+                  !loginModel.recaptcha || loading">{{ "PAGES.Login.Buttons.LogIn" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
                 <div class="col form-text form-text--small pl-4">

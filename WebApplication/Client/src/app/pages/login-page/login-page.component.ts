@@ -20,6 +20,9 @@ export class LoginPageComponent implements OnInit {
   @HostBinding('class') class = 'page page--auth';
   @ViewChild('captchaRef') captchaRef: reCaptcha;
 
+  @ViewChild('userNameElement') userNameElement;
+  @ViewChild('userPassElement') userPassElement;
+
   public loginModel: any = {};
   public tfaModel: any = {};
   public loading = false;
@@ -27,6 +30,7 @@ export class LoginPageComponent implements OnInit {
   public errors = [];
 
   public tfaRequired: boolean;
+  public autofill: boolean = false;
   private _returnUrl: string;
 
   constructor(
@@ -48,9 +52,11 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit() {
 
-    if (isDevMode()) {
-      this.loginModel.recaptcha = "devmode";
-    }
+    // if (isDevMode()) {
+    //   this.loginModel.recaptcha = "devmode";
+    // }
+
+    this.matchesPolyfill();
 
     this._userService.currentUser.subscribe(currentUser => {
       if (currentUser && currentUser.hasOwnProperty('challenges')) {
@@ -71,6 +77,10 @@ export class LoginPageComponent implements OnInit {
       this._returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/';
       this.tfaRequired = !localStorage || !!parseInt(localStorage.getItem('gmint_2fa'), 0);
     }
+  }
+
+  resetAutofillFlag() {
+    this.autofill = null;
   }
 
   public login() {
@@ -177,11 +187,28 @@ export class LoginPageComponent implements OnInit {
       });
   }
 
+  private matchesPolyfill() {
+    if (Element && !Element.prototype.matches) {
+      var proto = Element.prototype;
+      proto.matches = proto['matchesSelector'] ||
+        proto['mozMatchesSelector'] || proto['msMatchesSelector'] ||
+        proto['oMatchesSelector'] || proto['webkitMatchesSelector'];
+    }
+  }
+
   public captchaResolved(captchaResponse: string, loginForm: NgForm) {
     console.log(`Resolved captcha with response ${captchaResponse}:`);
 
     this.errors['Captcha'] = false;
     this.loginModel.recaptcha = captchaResponse;
+
+    const name = this.userNameElement.nativeElement;
+    const pass = this.userPassElement.nativeElement;
+
+    if (name.matches(":-webkit-autofill") && pass.matches(":-webkit-autofill") && this.autofill !== null) {
+      this.autofill = true;
+      this._cdRef.markForCheck();
+    }
   }
 
   private resetStorage() {
