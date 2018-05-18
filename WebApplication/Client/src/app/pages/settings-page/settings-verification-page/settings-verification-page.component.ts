@@ -9,6 +9,7 @@ import { KYCProfile } from '../../../models/kyc-profile';
 
 import * as countries from '../../../../assets/data/countries.json';
 import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
 
 enum Phase { Start, Basic, Kyc, KycPending, ResidencePending, ResidenceProved, ToS, Finished }
 
@@ -40,6 +41,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   public userData: User;
 
   private selectedCountry;
+  private interval: Subscription;
 
   constructor(
     private _apiService: APIService,
@@ -74,6 +76,10 @@ export class SettingsVerificationPageComponent implements OnInit {
     }
     else if (this.kycProfile.isKycPending) {
       this.phase = Phase.KycPending;
+      this.interval && this.interval.unsubscribe();
+      this.interval = Observable.interval(5000).subscribe(() => {
+        this.refreshPage();
+      });
     }
 
     this._cdRef.markForCheck();
@@ -217,4 +223,9 @@ export class SettingsVerificationPageComponent implements OnInit {
         },
         err => { });
   }
+
+  ngOnDestroy() {
+    this.interval && this.interval.unsubscribe();
+  }
+
 }
