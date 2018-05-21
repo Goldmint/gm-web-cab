@@ -51,6 +51,9 @@ export class EthereumService {
   private _obsEthLimitBalance: Observable<BigNumber> = this._obsEthLimitBalanceSubject.asObservable();
   private _obsTotalGoldBalancesSubject = new BehaviorSubject<Object>(null);
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
+  private _obsGasPriceSubject = new BehaviorSubject<Object>(null);
+  private _obsGasPrice: Observable<Object> = this._obsGasPriceSubject.asObservable();
+
   public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
 
@@ -209,6 +212,12 @@ export class EthereumService {
     }
   }
 
+  private getGasPrice() {
+    this._web3Metamask && this._web3Metamask.eth.getGasPrice((err, res) => {
+      this._obsGasPriceSubject.next(res);
+    });
+  }
+
   // ---
 
   public isValidAddress(addr: string): boolean {
@@ -238,32 +247,37 @@ export class EthereumService {
   public getObservableEthBalance(): Observable<BigNumber> {
     return this._obsEthBalance;
   }
+
   public getObservableEthLimitBalance(): Observable<BigNumber> {
     return this._obsEthLimitBalance;
   }
-
 
   public getObservableTotalGoldBalances(): Observable<Object> {
     return this._obsTotalGoldBalances;
   }
 
+  public getObservableGasPrice(): Observable<Object> {
+    this.getGasPrice();
+    return this._obsGasPrice;
+  }
+
   // ---
-  public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
+  public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber, gasPrice: number) {
     if (this._contractMetamask == null) return;
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString() }, (err, res) => {
+    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString(), gasPrice: gasPrice }, (err, res) => {
       this.getSuccessBuyRequestLink$.next(res);
     });
   }
 
-  public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber) {
+  public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber, gasPrice: number) {
     if (this._contractMetamask == null) return;
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0 }, (err, res) => {
+    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessSellRequestLink$.next(res);
     });
   }

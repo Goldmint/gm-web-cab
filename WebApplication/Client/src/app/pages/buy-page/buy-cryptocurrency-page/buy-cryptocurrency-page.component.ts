@@ -50,6 +50,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
+  public subGetGas: Subscription;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -236,7 +237,12 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
               this._messageBox.confirm(phrase).subscribe(ok => {
                 if (ok) {
                   this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
-                    this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount);
+                    this.subGetGas && this.subGetGas.unsubscribe();
+                    this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
+                      if (price !== null) {
+                        this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
+                      }
+                    });
 
                     this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
                       if (hash) {
@@ -264,6 +270,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    this.subGetGas && this.subGetGas.unsubscribe();
   }
 
 }
