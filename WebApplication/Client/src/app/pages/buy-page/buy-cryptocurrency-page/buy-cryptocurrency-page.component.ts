@@ -26,6 +26,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
   public loading = false;
   public isFirstLoad = true;
+  public isFirstTransaction = true;
   public progress = false;
   public locale: string;
 
@@ -215,8 +216,10 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   }
 
   onSubmit() {
-    this.loading = true;
+    this.loading = this.isFirstTransaction = true;
     this.sub1 && this.sub1.unsubscribe();
+    this.subGetGas && this.subGetGas.unsubscribe();
+
     this._apiService.goldBuyAsset(this.ethAddress, this.estimatedAmount)
       .finally(() => {
         this.loading = false;
@@ -237,10 +240,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
               this._messageBox.confirm(phrase).subscribe(ok => {
                 if (ok) {
                   this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
-                    this.subGetGas && this.subGetGas.unsubscribe();
+
                     this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                      if (price !== null) {
+                      if (price !== null && this.isFirstTransaction) {
                         this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
+                        this.isFirstTransaction = false;
                       }
                     });
 

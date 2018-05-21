@@ -34,6 +34,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
   public loading = false;
   public isFirstLoad = true;
+  public isFirstTransaction = true;
   public invalidBalance = false;
   private isModalShow = false;
   public locale: string;
@@ -313,12 +314,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    this.loading = true;
+    this.loading = this.isFirstTransaction = true;
     this.sub1 && this.sub1.unsubscribe();
+    this.subGetGas && this.subGetGas.unsubscribe();
+
     if (this.selectedWallet === 0) {
 
     } else {
-      this.loading = true;
       this._apiService.goldSellAsset(this.ethAddress, this.estimatedAmount)
         .finally(() => {
           this.loading = false;
@@ -339,10 +341,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
                 this._messageBox.confirm(phrase).subscribe(ok => {
                   if (ok) {
                     this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
-                      this.subGetGas && this.subGetGas.unsubscribe();
+
                       this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                        if (price !== null) {
+                        if (price !== null && this.isFirstTransaction) {
                           this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
+                          this.isFirstTransaction = false;
                         }
                       });
 
