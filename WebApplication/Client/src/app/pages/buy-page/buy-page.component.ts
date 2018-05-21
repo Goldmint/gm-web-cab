@@ -48,6 +48,13 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
         this.loading = false;
+
+        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+          this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
+            this._messageBox.alert(phrase.Text, phrase.Heading);
+          });
+        }
+
         this._cdRef.markForCheck();
       });
 

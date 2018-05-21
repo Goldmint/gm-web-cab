@@ -40,7 +40,7 @@ export class SettingsProfilePageComponent implements OnInit {
       this._user = res[0];
       this._tfaInfo = res[1].data;
       this.loading = false;
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
   }
 

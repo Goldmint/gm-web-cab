@@ -110,7 +110,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
         this.tfaInfo = res[0].data;
         this.user = res[1];
         this.loading = false;
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       });
 
     Observable.combineLatest(

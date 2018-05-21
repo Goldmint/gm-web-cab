@@ -49,12 +49,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
-    if (!window.hasOwnProperty('web3')) {
-      this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
-        this._messageBox.alert(phrase.Text, phrase.Heading);
-      });
-    }
-
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
       data && (this.gold_usd_rate = data.gold) && (this.gold_eth_rate = data.eth);
       this._cdRef.detectChanges();

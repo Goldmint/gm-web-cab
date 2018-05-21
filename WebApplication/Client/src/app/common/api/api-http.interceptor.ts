@@ -54,6 +54,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
 				100, 	// InvalidParameter
 				1000,	// AccountNotFound
 				1011,	// AccountDpaNotSigned
+        1004 /// AccountEmailTaken
 			];
 
           if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
