@@ -783,7 +783,7 @@
           "Title": "Advanced verification",
 		  "Widget": "Not verified",
           "Text": "Unverified accounts cannot make any fiat operaions. You will be redirected to identity verification service.",
-		  "TextPending": "Advanced verification is still in progress. Please come back later or try to refresh this page. You will be able to repeat your verification in 30 minutes.",
+		  "TextPending": "We are still checking verification status. In case of problem you will be able to make another verification attempt in 30 minutes.",
 		  "Button": "Get verified"
         },
 		"AgreementSection": {
