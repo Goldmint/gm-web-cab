@@ -218,6 +218,10 @@ export class EthereumService {
     });
   }
 
+  // private getGasLimit() {
+  //   this._web3Metamask && this._web3Metamask.eth.estimateGas({from: this._lastAddress, to: this.EthContractAddress, amount: this._web3Metamask.toWei(1, "ether")}, (err, res) => {});
+  // }
+
   // ---
 
   public isValidAddress(addr: string): boolean {
@@ -267,7 +271,7 @@ export class EthereumService {
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString(), gasPrice: gasPrice }, (err, res) => {
+    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString(), gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessBuyRequestLink$.next(res);
     });
   }
@@ -277,7 +281,7 @@ export class EthereumService {
     const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0, gasPrice: gasPrice }, (err, res) => {
+    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessSellRequestLink$.next(res);
     });
   }
