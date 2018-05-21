@@ -562,8 +562,8 @@
       "Text": {
         "Reset": "To reset your password, enter the email address you use to sign in to GOLDMINT.IO. It can be your email address, an email address you use with one of the social networks, or any email address associated with your account.",
         "Recovery": {
-          "FirstLine": "We've sent you an email containing a password recovery link. You will be able to reset your password by clicking the link within the next 24 hours. Please click on the button in your email.",
-          "SecondLine": "If you don't see the email, be sure to check the spam folder."
+          "FirstLine": "We've sent you an email containing a password recovery link. You will be able to reset your password by clicking the link within next 24 hours. Please click on the button in your email.",
+          "SecondLine": "If you don't see the email, be sure to check your spam folder."
         }
       },
       "Errors": {
@@ -611,7 +611,7 @@
       "Links": "Already own an account? Sign in",
       "SuccessPage":  {
         "Title": "Registered",
-        "Content": "We have sent you email with information handling agreement. Please check your email and sign the agreement."
+        "Content": "We have sent you an email with information handling the agreement. Please check your email and sign the agreement."
       },
       "EmailConfirmedPage":  {
         "Title": "Email confirmation",
