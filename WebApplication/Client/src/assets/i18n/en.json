@@ -1137,7 +1137,7 @@
       "InvalidFormat": "Invalid code format. Only digits are allowed."
     },
     "MetaMask": {
-      "Heading": "What is Metamask?",
+      "Heading": "To continue you'll need to have Metamask",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
     "logOut": "Are you sure you want to log out?",
