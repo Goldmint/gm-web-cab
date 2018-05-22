@@ -118,9 +118,14 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 					Logger.Info($"Last block #{_lastBlock} saved to DB");
 				}
 			}
+		}
+
+		protected override void OnPostUpdate() {
 
 			// tele
 			_coreTelemetryAccum.AccessData(tel => {
+				tel.SellRequestHarvester.Load = StatAverageLoad;
+				tel.SellRequestHarvester.Exceptions = StatExceptionsCounter;
 				tel.SellRequestHarvester.LastBlock = _lastBlock.ToString();
 				tel.SellRequestHarvester.StepBlocks = _blocksPerRound;
 				tel.SellRequestHarvester.ProcessedSinceStartup = _statProcessed;

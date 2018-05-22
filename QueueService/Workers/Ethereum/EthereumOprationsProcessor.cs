@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Bus.Telemetry;
 
 namespace Goldmint.QueueService.Workers.Ethereum {
 	
@@ -15,7 +16,11 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
-		
+		private CoreTelemetryAccumulator _coreTelemetryAccum;
+
+		private long _statProcessed = 0;
+		private long _statFailed = 0;
+
 		public EthereumOprationsProcessor(int rowsPerRound, int ethConfirmations) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 			_ethConfirmations = Math.Max(2, ethConfirmations);
@@ -24,6 +29,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
+			_coreTelemetryAccum = services.GetRequiredService<CoreTelemetryAccumulator>();
 
 			return Task.CompletedTask;
 		}
@@ -52,8 +58,24 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 				_dbContext.DetachEverything();
 
-				await CoreLogic.Finance.EthereumContract.ExecuteOperation(_services, row.Id, _ethConfirmations);
+				if (await CoreLogic.Finance.EthereumContract.ExecuteOperation(_services, row.Id, _ethConfirmations)) {
+					++_statProcessed;
+				}
+				else {
+					++_statFailed;
+				}
 			}
+		}
+
+		protected override void OnPostUpdate() {
+
+			// tele
+			_coreTelemetryAccum.AccessData(tel => {
+				tel.EthOpsProcessor.Load = StatAverageLoad;
+				tel.EthOpsProcessor.Exceptions = StatExceptionsCounter;
+				tel.EthOpsProcessor.ProcessedSinceStartup = _statProcessed;
+				tel.EthOpsProcessor.FailedSinceStartup = _statFailed;
+			});
 		}
 	}
 }

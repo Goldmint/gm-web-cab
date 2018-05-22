@@ -168,6 +168,7 @@
 				public WorkerSettings GoldRateUpdater { get; set; } = new WorkerSettings();
 				public WorkerSettings CryptoRateUpdater { get; set; } = new WorkerSettings();
 				public WorkerSettings TelemetryAggregator { get; set; } = new WorkerSettings();
+				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
 
 				public class WorkerSettings {
 					public int PeriodSec { get; set; } = 10;
