@@ -131,7 +131,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
         }
     });
 
-    this._ethService.getObservableEthLimitBalance().subscribe(eth => {
+    this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
         this.ethLimit = eth;
         if (this.isFirstLoad) {
@@ -152,7 +152,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
-    this._ethService.getObservableHotGoldBalance().subscribe(data => {
+    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null && (this.hotGoldBalance === null || !this.hotGoldBalance.eq(data))) {
         this.hotGoldBalance = data;
       }
