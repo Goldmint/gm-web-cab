@@ -45,7 +45,8 @@
       },
       "Method": {
         "CtyptoCurrency": "Криптовалюта",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Платёжная карта"
       },
       "Paused": "Операции продажи приостановлены",
       "CtyptoCurrency": {
@@ -71,6 +72,13 @@
           }
         }
       },
+      "PaymentCard": {
+        "Heading": "Платёжная карта",
+        "Labels": {
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
+        }
+      },
       "SectionTitle": "Мгновенная продажа",
       "Discount": "Комиссия",
       "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
@@ -80,6 +88,7 @@
       },
       "Errors": {
         "InvalidGold": "Недопустимое количество gold",
+        "InvalidUsd": "Недопустимое количество usd",
         "InvalidEth": "Недопустимое количество eth",
         "UseMM": "Используйте metamask"
       }
@@ -91,7 +100,8 @@
       "DepositDesc": "Для покупок создайте депозит в валюте fiat в своем аккаунте",
       "Method": {
         "CtyptoCurrency": "Криптовалюта",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Платёжная карта"
       },
       "Paused": "Операции покупки приостановлены",
       "CtyptoCurrency": {
@@ -104,6 +114,13 @@
           "Steps": "Подождите как минимум 12 шагов подтверждения.",
           "Hash": "Хэш вашей транзакции:",
           "Link": "Просмотр транзакции на EtherScan"
+        }
+      },
+      "PaymentCard": {
+        "Heading": "Платёжная карта",
+        "Labels": {
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
         }
       },
       "Labels": {
@@ -122,6 +139,7 @@
         "Pending": "Ваша предыдущая blockchain операция еще находится на рассмотрении",
         "UseMM": "Используйте metamask",
         "InvalidEth": "Недопустимое количество eth",
+        "InvalidUsd": "Недопустимое количество usd",
         "InvalidGold": "Недопустимое количество gold"
       }
     },
@@ -256,9 +274,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Payment Card",
         "Labels": {
           "SelectCard": "Выберите карту:",
-          "Amount": "Количество:"
+          "Amount": "Количество:",
+          "Estimate": "Estimates Amount"
         },
         "Text": {
           "Agree": "Я согласен с",
@@ -266,6 +286,8 @@
         },
         "Errors": {
           "Invalid": "Недопустимое количество",
+          "InvalidGold": "едопустимое количество gold",
+          "InvalidUsd": "Недопустимое количество usd",
           "Minimal": "Минимальное количество",
           "Maximum": "Максимальное количество"
         }
@@ -386,9 +408,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Платёжная карта",
         "Labels": {
           "SelectCard": "Выберите карту:",
           "Amount": "Количество:",
+          "Estimate": "Оценочное количество",
           "2FA": "Код двухфакторной аутентификации"
         },
         "Text": {
@@ -397,6 +421,8 @@
         },
         "Errors": {
           "Invalid": "Недопустимое количество",
+          "InvalidGold": "едопустимое количество gold",
+          "InvalidUsd": "Недопустимое количество usd",
           "Minimal": "Минимальное количество",
           "Maximum": "Максимальное количество",
           "Length": "Код должен быть длиной в 6 цифр"

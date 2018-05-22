@@ -1,0 +1,75 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Sell.PaymentCard.Heading" | translate }}</h1>
+
+<section class="page__section section section--table">
+  <h2 class="section__title">{{ "PAGES.Sell.PaymentCard.Heading" | translate }}</h2>
+
+  <div class="section__content pt-4">
+    <form #sellForm="ngForm">
+      <div>
+        <div class="col-12">
+          <div class="from-row form-group">
+            <label for="goldAmountInput">{{ "PAGES.Sell.PaymentCard.Labels.Amount" | translate }}</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency form-currency--gold">
+                <svg class="icon">
+                  <use xlink:href="#cur-gold"></use>
+                </svg>
+              </div>
+              <input type="text" class="form-control" name="goldAmountInput" id="goldAmountInput"
+                     #goldAmountInput="ngModel"
+                     [(ngModel)]="goldAmount"
+                     ngModel
+                     autocomplete="off"
+                     (input)="changeValue(false, $event)"
+                     [ngClass]="{'is-invalid': invalidBalance && !isReversed}"
+                     [disabled]="isReversed && loading"
+              >
+            </div>
+            <div class="percent-btn-cont">
+              <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
+              <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
+              <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
+              <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
+            </div>
+            <div class="invalid-feedback" *ngIf="invalidBalance && !isReversed">
+              {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="from-row form-group ">
+            <label for="usdAmount">{{ "PAGES.Sell.PaymentCard.Labels.Estimate" | translate }}</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency">
+                <svg class="icon" width="30" height="30">
+                  <use xlink:href="#cur-usd"></use>
+                </svg>
+              </div>
+              <input type="text" class="form-control" name="usdAmount" id="usdAmount"
+                     #usdAmountInput="ngModel"
+                     [(ngModel)]="usdAmount"
+                     ngModel
+                     autocomplete="off"
+                     (input)="changeValue(true, $event)"
+                     [ngClass]="{'is-invalid': invalidBalance && isReversed}"
+                     [disabled]="!isReversed && loading"
+              >
+            </div>
+            <div class="invalid-feedback" *ngIf="invalidBalance && isReversed">
+              {{ "PAGES.Sell.Errors.InvalidUsd" | translate }}
+            </div>
+          </div>
+        </div>
+
+        <div class="col mb-5">
+          <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+          <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</section>

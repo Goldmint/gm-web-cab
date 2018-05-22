@@ -97,6 +97,8 @@ import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-se
 import { SettingsFeesPageComponent } from './pages/settings-page/settings-fees-page/settings-fees-page.component';
 import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component';
 import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
+import { BuyCardPageComponent } from './pages/buy-page/buy-card-page/buy-card-page.component';
+import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-card-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -188,7 +190,9 @@ export function getGoldmintToken() {
     LegalSecurityPageComponent,
     SettingsFeesPageComponent,
     BuyCryptocurrencyPageComponent,
-    SellCryptocurrencyPageComponent
+    SellCryptocurrencyPageComponent,
+    BuyCardPageComponent,
+    SellCardPageComponent
   ],
   exports: [],
   providers: [

@@ -45,7 +45,8 @@
       },
       "Method": {
         "CtyptoCurrency": "Cryptocurrency",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Payment card"
       },
       "Paused": "Sell transactions are paused",
       "CtyptoCurrency": {
@@ -71,6 +72,13 @@
           }
         }
       },
+      "PaymentCard": {
+        "Heading": "Payment Card",
+        "Labels": {
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
+        }
+      },
       "SectionTitle": "Instant Sell",
       "Discount": "Fee",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
@@ -80,6 +88,7 @@
       },
       "Errors": {
         "InvalidGold": "Invalid gold amount",
+        "InvalidUsd": "Invalid usd amount",
         "InvalidEth": "Invalid eth amount",
         "UseMM": "Use metamask"
       }
@@ -91,7 +100,8 @@
 	  "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
       "Method": {
         "CtyptoCurrency": "Cryptocurrency",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Payment card"
       },
       "Paused": "Buy transactions are paused",
       "CtyptoCurrency": {
@@ -104,6 +114,13 @@
           "Steps": "Please wait at least 12 confirmation steps",
           "Hash": "Your transaction hash is:",
           "Link": "View your transaction on EtherScan"
+        }
+      },
+      "PaymentCard": {
+        "Heading": "Payment Card",
+        "Labels": {
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
         }
       },
       "Labels": {
@@ -122,6 +139,7 @@
         "Pending": "Your previously blockchain operation is still pending",
         "UseMM": "Use metamask",
         "InvalidEth": "Invalid eth amount",
+        "InvalidUsd": "Invalid usd amount",
         "InvalidGold": "Invalid gold amount"
       }
     },
@@ -256,9 +274,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Payment Card",
         "Labels": {
           "SelectCard": "Select a card:",
-          "Amount": "Amount:"
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
         },
         "Text": {
           "Agree": "I agree with",
@@ -266,6 +286,8 @@
         },
         "Errors": {
           "Invalid": "Invalid amount value",
+          "InvalidGold": "Invalid gold amount",
+          "InvalidUsd": "Invalid usd amount",
           "Minimal": "Minimal amount value is",
           "Maximum": "Maximum amount value is"
         }
@@ -386,9 +408,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Payment Card",
         "Labels": {
           "SelectCard": "Select a card:",
-          "Amount": "Amount:",
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount",
           "2FA": "Two-factor authentication code"
         },
         "Text": {
@@ -397,6 +421,8 @@
         },
         "Errors": {
           "Invalid": "Invalid amount value",
+          "InvalidGold": "Invalid gold amount",
+          "InvalidUsd": "Invalid usd amount",
           "Minimal": "Minimal amount value is",
           "Maximum": "Maximum amount value is",
           "Length": "Code should be 6-digits length"

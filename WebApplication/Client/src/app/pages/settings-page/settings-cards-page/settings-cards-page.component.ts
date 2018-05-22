@@ -101,18 +101,18 @@ export class SettingsCardsPageComponent implements OnInit {
       this._messageBox.confirm(phrase).subscribe(ok => {
         if (ok) {
           this.processing = true;
-          this._apiService.removeFiatCard(card.cardId).subscribe(() => {
+          this._apiService.removeFiatCard(card.cardId)
+            .finally(() => {
+              this.processing = false;
+              this._cdRef.markForCheck();
+            }).subscribe(() => {
             const id = this.cards.list.indexOf(card);
             id >= 0 && this.cards.list.splice(id, 1);
             this._translate.get('MessageBox.Removed').subscribe(phrase => {
               this._messageBox.alert(phrase);
-              this.processing = false;
-              this._cdRef.detectChanges();
             });
           }, err => {
-            this._messageBox.alert(err.error.errorDesc);
-            this.processing = false;
-            this._cdRef.detectChanges();
+              this._messageBox.alert(err.error.errorDesc);
             }
           );
         }
