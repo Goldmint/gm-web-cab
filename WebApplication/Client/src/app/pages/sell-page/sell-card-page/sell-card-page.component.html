@@ -64,7 +64,7 @@
         </div>
 
         <div class="col mb-5">
-          <button type="submit" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
           <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
         </div>
       </div>
