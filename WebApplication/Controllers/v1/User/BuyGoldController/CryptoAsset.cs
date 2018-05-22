@@ -52,7 +52,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
-			var ticket = await TicketDesk.NewGoldBuyingRequestForCryptoasset(
+			var ticket = await OplogProvider.NewGoldBuyingRequestForCryptoasset(
 				userId: user.Id,
 				cryptoCurrency: CryptoCurrency.Eth,
 				destAddress: model.EthAddress,

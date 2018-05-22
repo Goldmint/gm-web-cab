@@ -10,8 +10,9 @@ using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.CoreLogic.Services.Ticket;
-using Goldmint.CoreLogic.Services.Ticket.Impl;
+using Goldmint.CoreLogic.Services.The1StPayments;
+using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.DAL;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +64,7 @@ namespace Goldmint.QueueService {
 			services.AddSingleton<ITemplateProvider, TemplateProvider>();
 
 			// ticket desk
-			services.AddScoped<ITicketDesk, DBTicketDesk>();
+			services.AddScoped<IOplogProvider, DbOplogProvider>();
 
 			// notifications
 			services.AddSingleton<INotificationQueue, DBNotificationQueue>();
@@ -136,6 +137,15 @@ namespace Goldmint.QueueService {
 
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, EthereumWriter>();
+
+				// cc payment acquirer
+				services.AddScoped<The1StPayments>(fac => {
+					return new The1StPayments(opts => {
+						opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
+						opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
+						opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
+					}, LogManager.LogFactory);
+				});
 
 				if (!Mode.HasFlag(WorkingMode.Worker)) {
 

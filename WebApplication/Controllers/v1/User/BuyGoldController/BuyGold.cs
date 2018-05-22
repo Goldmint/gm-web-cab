@@ -102,7 +102,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			try {
-				await TicketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
+				await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
 			}
 			catch {
 			}

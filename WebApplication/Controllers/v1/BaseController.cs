@@ -8,7 +8,7 @@ using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.CoreLogic.Services.Ticket;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.WebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +21,7 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.The1StPayments;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -36,12 +37,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected IKycProvider KycExternalProvider { get; private set; }
 		protected INotificationQueue EmailQueue { get; private set; }
 		protected ITemplateProvider TemplateProvider { get; private set; }
-		protected ITicketDesk TicketDesk { get; private set; }
+		protected IOplogProvider OplogProvider { get; private set; }
 		protected IEthereumReader EthereumObserver { get; private set; }
 		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 		protected IDocSigningProvider DocSigningProvider { get; private set; }
 		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
 		protected RuntimeConfigHolder RuntimeConfigHolder { get; private set; }
+		protected The1StPayments The1StPayments { get; private set; }
 
 		protected BaseController() { }
 
@@ -57,12 +59,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			KycExternalProvider = services.GetRequiredService<IKycProvider>();
 			EmailQueue = services.GetRequiredService<INotificationQueue>();
 			TemplateProvider = services.GetRequiredService<ITemplateProvider>();
-			TicketDesk = services.GetRequiredService<ITicketDesk>();
+			OplogProvider = services.GetRequiredService<IOplogProvider>();
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
 			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
 			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
 			RuntimeConfigHolder = services.GetRequiredService<RuntimeConfigHolder>();
+			The1StPayments = services.GetRequiredService<The1StPayments>();
 		}
 
 		// ---
