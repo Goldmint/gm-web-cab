@@ -243,7 +243,7 @@ export class APIService {
 
   getFiatCards(): Observable<APIResponse<CardsList>> {
     return this._http
-      .get(`${this._baseUrl}/user/fiat/card/list`, this.jwt())
+      .get(`${this._baseUrl}/user/ccard/list`, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -257,7 +257,7 @@ export class APIService {
 
   addFiatCard(redirect: string): Observable<APIResponse<CardAddResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/add`, { redirect: redirect }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/add`, { redirect: redirect }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -271,7 +271,7 @@ export class APIService {
 
   removeFiatCard(cardId: number): Observable<APIResponse<CardAddResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/remove`, { cardId }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/remove`, { cardId }, this.jwt())
       .pipe(
         catchError(this._handleError)
       );
@@ -279,7 +279,7 @@ export class APIService {
 
   getFiatCardStatus(cardId: number): Observable<APIResponse<CardStatusResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/status`, { cardId: cardId }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/status`, { cardId: cardId }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -293,7 +293,7 @@ export class APIService {
 
   confirmFiatCard(cardId: number, redirect: string): Observable<APIResponse<CardConfirmResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/confirm`, { cardId: cardId, redirect: redirect }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/confirm`, { cardId: cardId, redirect: redirect }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -307,7 +307,7 @@ export class APIService {
 
   verifyFiatCard(cardId: number, code: number | string): Observable<APIResponse<any>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/verify`, { cardId: cardId, code: code }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/verify`, { cardId: cardId, code: code }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
