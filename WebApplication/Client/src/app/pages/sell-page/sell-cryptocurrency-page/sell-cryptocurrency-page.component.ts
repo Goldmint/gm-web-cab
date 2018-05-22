@@ -36,7 +36,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public isFirstLoad = true;
   public isFirstTransaction = true;
   public invalidBalance = false;
-  private isModalShow = false;
+  public isModalShow = false;
   public locale: string;
 
   public user: User;
