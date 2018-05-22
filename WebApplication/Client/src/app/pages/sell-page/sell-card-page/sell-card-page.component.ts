@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {APIService, EthereumService, MessageBoxService, UserService} from "../../../services";
 import {Subject} from "rxjs/Subject";
 import {BigNumber} from "bignumber.js";
@@ -6,13 +6,14 @@ import {TranslateService} from "@ngx-translate/core";
 import * as Web3 from "web3";
 import {Router} from "@angular/router";
 import {Observable} from "rxjs/Observable";
+import {CardsList} from "../../../interfaces";
 
 @Component({
   selector: 'app-sell-card-page',
   templateUrl: './sell-card-page.component.html',
   styleUrls: ['./sell-card-page.component.sass']
 })
-export class SellCardPageComponent implements OnInit, OnDestroy {
+export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   @ViewChild('goldAmountInput') goldAmountInput;
@@ -21,12 +22,14 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public loading = false;
   public locale: string;
   public invalidBalance = false;
-  public isFirstLoad = true;
+  public isFirstLoad: boolean = true;
+  public isDataLoaded: boolean = false;
   public isReversed: boolean = false;
   public goldAmount: number = 0;
   public usdAmount: number = 0;
   public currentValue: number;
   public estimatedAmount: BigNumber;
+  public cards: CardsList;
 
   public selectedWallet = 0;
   public ethAddress: string = '';
@@ -47,26 +50,11 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.goldAmountInput.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .takeUntil(this.destroy$)
-      .subscribe(value => {
-        if (value && !this.isReversed) {
-          this.onAmountChanged(this.currentValue);
-          this._cdRef.markForCheck();
-        }
-      });
-
-    this.usdAmountInput.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .takeUntil(this.destroy$)
-      .subscribe(value => {
-        if (value && this.isReversed) {
-          this.onAmountChanged(this.currentValue);
-          this._cdRef.markForCheck();
-        }
+    this._apiService.getFiatCards()
+      .subscribe(cards => {
+        this.cards = cards.data;
+        this.isDataLoaded = true;
+        this._cdRef.markForCheck();
       });
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
@@ -102,6 +90,36 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       }
     });
 
+  }
+
+  ngAfterViewInit() {
+    if (this.isDataLoaded && this.cards.list && this.cards.list.length) {
+      this.initInputValueChanges();
+    }
+  }
+
+  initInputValueChanges() {
+    this.goldAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (value && !this.isReversed) {
+          this.onAmountChanged(this.currentValue);
+          this._cdRef.markForCheck();
+        }
+      });
+
+    this.usdAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (value && this.isReversed) {
+          this.onAmountChanged(this.currentValue);
+          this._cdRef.markForCheck();
+        }
+      });
   }
 
   onAmountChanged(value: number) {

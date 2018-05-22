@@ -1,17 +1,18 @@
-import {ChangeDetectorRef, Component, HostBinding, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, HostBinding, OnInit, ViewChild} from '@angular/core';
 import {Subject} from "rxjs/Subject";
 import {APIService, EthereumService, GoldrateService, MessageBoxService, UserService} from "../../../services";
 import {TranslateService} from "@ngx-translate/core";
 import {BigNumber} from "bignumber.js";
 import * as Web3 from "web3";
 import {Router} from "@angular/router";
+import {CardsList} from "../../../interfaces";
 
 @Component({
   selector: 'app-buy-card-page',
   templateUrl: './buy-card-page.component.html',
   styleUrls: ['./buy-card-page.component.sass']
 })
-export class BuyCardPageComponent implements OnInit {
+export class BuyCardPageComponent implements OnInit, AfterViewInit {
   @HostBinding('class') class = 'page';
 
   @ViewChild('goldAmountInput') goldAmountInput;
@@ -22,11 +23,13 @@ export class BuyCardPageComponent implements OnInit {
   public invalidBalance = false;
 
   public isReversed: boolean = false;
+  public isDataLoaded: boolean = false;
   public goldAmount: number = 0;
   public usdAmount: number = 0;
   public ethAddress: string = '';
   public currentValue: number;
   public estimatedAmount: BigNumber;
+  public cards: CardsList;
 
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -43,6 +46,31 @@ export class BuyCardPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._apiService.getFiatCards()
+      .subscribe(cards => {
+        this.cards = cards.data;
+        this.isDataLoaded = true;
+        this._cdRef.markForCheck();
+      });
+
+    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
+      this.locale = currentLocale;
+    });
+
+    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      ethAddr !== null && (this.ethAddress = ethAddr);
+      this.ethAddress && ethAddr === null && this.router.navigate(['sell']);
+    });
+
+  }
+
+  ngAfterViewInit() {
+    if (this.isDataLoaded && this.cards.list && this.cards.list.length) {
+      this.initInputValueChanges();
+    }
+  }
+
+  initInputValueChanges() {
     this.goldAmountInput.valueChanges
       .debounceTime(500)
       .distinctUntilChanged()
@@ -64,16 +92,6 @@ export class BuyCardPageComponent implements OnInit {
           this._cdRef.markForCheck();
         }
       });
-
-    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
-      this.locale = currentLocale;
-    });
-
-    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
-      ethAddr !== null && (this.ethAddress = ethAddr);
-      this.ethAddress && ethAddr === null && this.router.navigate(['sell']);
-    });
-
   }
 
   onAmountChanged(value: number) {
@@ -143,6 +161,10 @@ export class BuyCardPageComponent implements OnInit {
       .replace(/([^\d.])|(^\.)/g, '')
       .replace(/^(\d+)(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
       .replace(/^0+(\d)/, '$1');
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
   }
 
 }

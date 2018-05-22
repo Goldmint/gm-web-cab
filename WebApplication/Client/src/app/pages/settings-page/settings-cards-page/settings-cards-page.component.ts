@@ -84,7 +84,7 @@ export class SettingsCardsPageComponent implements OnInit {
     this.buttonBlur.emit();
     this.processing = true;
 
-    this._apiService.addFiatCard(window.location.origin + '/#/account/cards/:cardid')
+    this._apiService.addFiatCard(window.location.origin + window.location.pathname + '#/account/cards/:cardid')
       .finally(() => {
         this.processing = false;
         this._cdRef.detectChanges();
