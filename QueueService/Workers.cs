@@ -16,7 +16,7 @@ namespace Goldmint.QueueService {
 			// general workers
 			var workers = new List<IWorker>() {
 #if DEBUG
-				new DebugWorker().BurstMode()
+				new DebugWorker().Period(TimeSpan.FromSeconds(1))
 #endif
 			};
 
@@ -36,6 +36,9 @@ namespace Goldmint.QueueService {
 			if (Mode.HasFlag(WorkingMode.Core)) {
 				workers.AddRange(new List<IWorker>() {
 
+					// doesn't require ethereum at all
+					new Workers.CreditCard.PaymentProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					
 					// does require ethereum (reader)
 					new Workers.Ethereum.BuyRequestsHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
 					new Workers.Ethereum.SellRequestsHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),

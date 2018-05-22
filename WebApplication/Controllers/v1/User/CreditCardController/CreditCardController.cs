@@ -338,7 +338,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 						services: HttpContext.RequestServices,
 						user: user,
 						type: Common.UserActivityType.CreditCard,
-						comment: $"Card {card.CardMask} verified",
+						comment: $"Card { card.CardMask } verified",
 						ip: agent.Ip,
 						agent: agent.Agent
 					);
