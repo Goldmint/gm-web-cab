@@ -4,7 +4,7 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.CoreLogic.Services.Ticket;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +32,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
 			var safeRates = services.GetRequiredService<IAggregatedSafeRatesSource>();
 			var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
@@ -67,7 +67,7 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 
 					try {
-						await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amountEth, Common.Tokens.ETH.Decimals) }` ETH is `{txId}`");
+						await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amountEth, Common.Tokens.ETH.Decimals) }` ETH is `{txId}`");
 					}
 					catch { }
 
@@ -96,7 +96,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							if (cancelContract) {
 								try {
-									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
+									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
 								}
 								catch { }
 							}
@@ -141,7 +141,7 @@ namespace Goldmint.CoreLogic.Finance {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
 							}
 							catch {
 							}
@@ -158,7 +158,7 @@ namespace Goldmint.CoreLogic.Finance {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired");
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired");
 							}
 							catch {
 							}
@@ -189,7 +189,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
 			var safeRates = services.GetRequiredService<IAggregatedSafeRatesSource>();
 			var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
@@ -224,7 +224,7 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 
 					try {
-						await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amountGold, Common.Tokens.GOLD.Decimals) }` GOLD is `{txId}`");
+						await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of `{ TextFormatter.FormatTokenAmount(amountGold, Common.Tokens.GOLD.Decimals) }` GOLD is `{txId}`");
 					}
 					catch { }
 
@@ -253,7 +253,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							if (cancelContract) {
 								try {
-									await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
+									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request cancelled internally due to significant currencies rate change");
 								}
 								catch { }
 							}
@@ -301,7 +301,7 @@ namespace Goldmint.CoreLogic.Finance {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
 							}
 							catch {
 							}
@@ -318,7 +318,7 @@ namespace Goldmint.CoreLogic.Finance {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.UpdateTicket(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired");
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired");
 							}
 							catch {
 							}

@@ -7,7 +7,7 @@ using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
-using Goldmint.CoreLogic.Services.Ticket;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +28,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ethereumReader = services.GetRequiredService<IEthereumReader>();
-			var ticketDesk = services.GetRequiredService<ITicketDesk>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
 
 			var mutexBuilder =
 				new MutexBuilder(mutexHolder)
@@ -89,7 +89,7 @@ namespace Goldmint.CoreLogic.Finance {
 									FinalizeOperation(op, logger, false);
 									await dbContext.SaveChangesAsync();
 									try {
-										await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Ethereum contract unknown operation");
+										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Failed, "Ethereum contract unknown operation");
 									}
 									catch { }
 									return false;
@@ -105,7 +105,7 @@ namespace Goldmint.CoreLogic.Finance {
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Failure while checking operation:" + procCheck.TicketErrorDesc);
+									await ticketDesk.Update(op.OplogId, UserOpLogStatus.Failed, "Failure while checking operation:" + procCheck.TicketErrorDesc);
 								}
 								catch { }
 
@@ -117,7 +117,7 @@ namespace Goldmint.CoreLogic.Finance {
 							logger.Trace($"Changing status to {op.Status.ToString()} for #{operationId}");
 							await dbContext.SaveChangesAsync();
 							try {
-								await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Pending, "Blockchain transaction init");
+								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, "Blockchain transaction init");
 							}
 							catch { }
 
@@ -131,7 +131,7 @@ namespace Goldmint.CoreLogic.Finance {
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Failure while executing operation. See logs");
+									await ticketDesk.Update(op.OplogId, UserOpLogStatus.Failed, "Failure while executing operation. See logs");
 								}
 								catch { }
 
@@ -144,7 +144,7 @@ namespace Goldmint.CoreLogic.Finance {
 							op.EthTransactionId = procExec.TxId;
 							op.RefUserFinHistory.RelEthTransactionId = op.EthTransactionId;
 							try {
-								await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Pending, $"Blockchain transaction is {op.EthTransactionId}");
+								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, $"Blockchain transaction is {op.EthTransactionId}");
 							}
 							catch { }
 
@@ -152,7 +152,7 @@ namespace Goldmint.CoreLogic.Finance {
 							logger.Trace($"Changing status to {op.Status.ToString()} for #{operationId}");
 							await dbContext.SaveChangesAsync();
 							try {
-								await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
+								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
 
@@ -182,10 +182,10 @@ namespace Goldmint.CoreLogic.Finance {
 
 								try {
 									if (op.Status == EthereumOperationStatus.Success) {
-										await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
+										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
 									}
 									if (op.Status == EthereumOperationStatus.Failed) {
-										await ticketDesk.UpdateTicket(op.OplogId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
+										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
 									}
 								}
 								catch { }
@@ -313,7 +313,7 @@ namespace Goldmint.CoreLogic.Finance {
 			public async Task<ExecResult> Exec(IServiceProvider services, DAL.Models.EthereumOperation op) {
 
 				var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
-				var ticketDesk = services.GetRequiredService<ITicketDesk>();
+				var ticketDesk = services.GetRequiredService<IOplogProvider>();
 
 				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
 				var rate = BigInteger.Parse(op.Rate);
@@ -352,7 +352,7 @@ namespace Goldmint.CoreLogic.Finance {
 			public async Task<ExecResult> Exec(IServiceProvider services, DAL.Models.EthereumOperation op) {
 
 				var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
-				var ticketDesk = services.GetRequiredService<ITicketDesk>();
+				var ticketDesk = services.GetRequiredService<IOplogProvider>();
 
 				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
 

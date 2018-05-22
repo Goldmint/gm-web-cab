@@ -80,11 +80,5 @@ namespace Goldmint.DAL.Models.Identity {
 
 		public virtual UserOptions UserOptions { get; set; }
 		public virtual UserVerification UserVerification { get; set; }
-		public virtual IEnumerable<KycTicket> KycShuftiProTicket { get; set; }
-		public virtual IEnumerable<UserActivity> UserActivity { get; set; }
-		public virtual IEnumerable<BuyGoldRequest> BuyRequest { get; set; }
-		public virtual IEnumerable<UserFinHistory> FinancialHistory { get; set; }
-		public virtual IEnumerable<UserOpLog> UserOpLog { get; set; }
-		public virtual IEnumerable<SignedDocument> SignedDocument { get; set; }
 	}
 }

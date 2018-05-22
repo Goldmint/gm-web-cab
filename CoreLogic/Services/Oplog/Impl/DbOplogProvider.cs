@@ -7,23 +7,23 @@ using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Goldmint.CoreLogic.Services.Ticket.Impl {
+namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 
-	public class DBTicketDesk : ITicketDesk {
+	public class DbOplogProvider : IOplogProvider {
 
 		// TODO: use logger
 
 		private readonly DAL.ApplicationDbContext _dbContext;
 		private ILogger _logger; 
 
-		public DBTicketDesk(DAL.ApplicationDbContext dbContext, LogFactory logFactory) {
+		public DbOplogProvider(DAL.ApplicationDbContext dbContext, LogFactory logFactory) {
 			_dbContext = dbContext;
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
 		// ---
 
-		private async Task<string> CreateTicket(long userId, string message, long? refId = null, UserOpLogStatus status = UserOpLogStatus.Pending) {
+		private async Task<string> CreateEntry(long userId, string message, long? refId = null, UserOpLogStatus status = UserOpLogStatus.Pending) {
 			var op = new DAL.Models.UserOpLog() {
 				Status = status,
 				UserId = userId,
@@ -40,8 +40,8 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 		
 		// ---
 
-		public async Task UpdateTicket(string ticketId, UserOpLogStatus status, string message) {
-			if (ticketId != null && long.TryParse(ticketId, out long id)) {
+		public async Task Update(string oplogId, UserOpLogStatus status, string message) {
+			if (oplogId != null && long.TryParse(oplogId, out long id)) {
 
 				var op = await (
 					from s in _dbContext.UserOpLog
@@ -53,30 +53,30 @@ namespace Goldmint.CoreLogic.Services.Ticket.Impl {
 				;
 				if (op != null) {
 					op.Status = status; // will be saved in the following f-n
-					await CreateTicket(op.UserId, message, id, status);
+					await CreateEntry(op.UserId, message, id, status);
 					_dbContext.Entry(op).State = EntityState.Detached;
 				}
 			}
 		}
 
 		public async Task<string> NewGoldBuyingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long inputRate, long goldRate) {
-			return await CreateTicket(userId, $"New GOLD buying #? for { cryptoCurrency.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(inputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+			return await CreateEntry(userId, $"New GOLD buying #? for { cryptoCurrency.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(inputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
 		}
 
 		public async Task<string> NewGoldSellingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long outputRate, long goldRate) { 
-			return await CreateTicket(userId, $"New GOLD selling #? for { cryptoCurrency.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(outputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+			return await CreateEntry(userId, $"New GOLD selling #? for { cryptoCurrency.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(outputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
 		}
 
 		public async Task<string> NewGoldTransfer(long userId, string ethAddress, BigInteger goldAmount) {
-			return await CreateTicket(userId, $"New gold transfer #? of {TextFormatter.FormatTokenAmount(goldAmount, Tokens.GOLD.Decimals)} oz requested from HW to {TextFormatter.MaskBlockchainAddress(ethAddress)}");
+			return await CreateEntry(userId, $"New gold transfer #? of {TextFormatter.FormatTokenAmount(goldAmount, Tokens.GOLD.Decimals)} oz requested from HW to {TextFormatter.MaskBlockchainAddress(ethAddress)}");
 		}
 
-
+		public async Task<string> NewCardVerification(long userId, long cardId, long centsAmount, FiatCurrency fiatCurrency) {
+			return await CreateEntry(userId, $"New card #{ cardId } verification started with {TextFormatter.FormatAmount(centsAmount, fiatCurrency)}");
+		}
 
 		/*
-		public async Task<string> NewCardVerification(DAL.Models.Identity.User user, Card card) {
-			return await CreateTicket(user.Id, $"New card #{card.Id} verification started with {TextFormatter.FormatAmount(card.VerificationAmountCents, FiatCurrency.USD)}");
-		}
+		
 
 		public async Task<string> NewCardDeposit(DAL.Models.Identity.User user, Card card, FiatCurrency currency, long amount) {
 			return await CreateTicket(user.Id, $"New card deposit #? (card #{card.Id}, {card.CardMask}) started with {TextFormatter.FormatAmount(amount, currency)}");

@@ -16,5 +16,10 @@ namespace Goldmint.DAL.Models {
 		public const int ConcurrencyStamp = 64;
 	    public const int Comment = 512;
 	    public const int UserAgent = 128;
-    }
+
+	    public const int The1StPaymentTxId = 64;
+	    public const int The1StPaymentStatus = 64;
+	    public const int CreditCardMask = 64;
+	    public const int CreditCardHolderName = 128;
+	}
 }

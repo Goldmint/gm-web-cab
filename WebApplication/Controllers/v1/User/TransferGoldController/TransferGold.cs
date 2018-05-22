@@ -72,7 +72,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					}
 
 					var timeNow = DateTime.UtcNow;
-					var ticket = await TicketDesk.NewGoldTransfer(user.Id, model.EthAddress, amountWei);
+					var ticket = await OplogProvider.NewGoldTransfer(user.Id, model.EthAddress, amountWei);
 
 					// history
 					var finHistory = new DAL.Models.UserFinHistory() {
@@ -122,7 +122,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					await DbContext.SaveChangesAsync();
 
 					try {
-						await TicketDesk.UpdateTicket(ticket, UserOpLogStatus.Pending, $"Transfer request ID is #{request.Id}");
+						await OplogProvider.Update(ticket, UserOpLogStatus.Pending, $"Transfer request ID is #{request.Id}");
 					}
 					catch {
 					}
