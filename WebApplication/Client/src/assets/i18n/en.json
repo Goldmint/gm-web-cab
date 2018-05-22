@@ -75,6 +75,7 @@
       "PaymentCard": {
         "Heading": "Payment Card",
         "Labels": {
+          "SelectCard": "Select a card",
           "Amount": "Amount",
           "Estimate": "Estimates Amount"
         }
@@ -119,6 +120,7 @@
       "PaymentCard": {
         "Heading": "Payment Card",
         "Labels": {
+          "SelectCard": "Select a card",
           "Amount": "Amount",
           "Estimate": "Estimates Amount"
         }

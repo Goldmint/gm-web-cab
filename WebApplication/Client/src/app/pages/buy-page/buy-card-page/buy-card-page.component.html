@@ -13,6 +13,26 @@
       <form #buyFrom="ngForm">
         <div>
           <div class="col-12">
+            <div class="form-group">
+              <label for="selectCard">{{ "PAGES.Buy.PaymentCard.Labels.SelectCard" | translate }}</label>
+              <div class="d-flex align-items-center">
+                <div class="form-currency">
+                  <svg class="icon" width="30px" height="30px" >
+                    <use xlink:href="#payment-card"></use>
+                  </svg>
+                </div>
+                <select class="form-control" name="cardId" id="selectCard"
+                        #cardId="ngModel"
+                        [(ngModel)]="selectedCard"
+                        (change)="changeCard()"
+                        [disabled]="loading">
+                  <option *ngFor="let card of cards.list" [value]="card.cardId">{{ card.mask }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
             <div class="from-row form-group">
               <label for="usdAmountInput">{{ "PAGES.Buy.PaymentCard.Labels.Amount" | translate }}</label>
               <div class="d-flex align-items-center">

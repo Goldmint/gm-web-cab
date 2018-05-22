@@ -6,13 +6,15 @@ import {BigNumber} from "bignumber.js";
 import * as Web3 from "web3";
 import {Router} from "@angular/router";
 import {CardsList} from "../../../interfaces";
+import {Observable} from "rxjs/Observable";
+import {Subscription} from "rxjs/Subscription";
 
 @Component({
   selector: 'app-buy-card-page',
   templateUrl: './buy-card-page.component.html',
   styleUrls: ['./buy-card-page.component.sass']
 })
-export class BuyCardPageComponent implements OnInit, AfterViewInit {
+export class BuyCardPageComponent implements OnInit {
   @HostBinding('class') class = 'page';
 
   @ViewChild('goldAmountInput') goldAmountInput;
@@ -30,9 +32,11 @@ export class BuyCardPageComponent implements OnInit, AfterViewInit {
   public currentValue: number;
   public estimatedAmount: BigNumber;
   public cards: CardsList;
+  public selectedCard: number;
 
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private interval: Subscription;
 
   constructor(
     private _userService: UserService,
@@ -50,6 +54,18 @@ export class BuyCardPageComponent implements OnInit, AfterViewInit {
       .subscribe(cards => {
         this.cards = cards.data;
         this.isDataLoaded = true;
+
+        if (this.cards.list && this.cards.list.length) {
+          this.interval = Observable.interval(100).subscribe(() => {
+            if (this.goldAmountInput) {
+              this.selectedCard = this.cards.list[0].cardId;
+              this.initInputValueChanges();
+
+              this.interval && this.interval.unsubscribe();
+              this._cdRef.markForCheck();
+            }
+          });
+        }
         this._cdRef.markForCheck();
       });
 
@@ -61,13 +77,6 @@ export class BuyCardPageComponent implements OnInit, AfterViewInit {
       ethAddr !== null && (this.ethAddress = ethAddr);
       this.ethAddress && ethAddr === null && this.router.navigate(['sell']);
     });
-
-  }
-
-  ngAfterViewInit() {
-    if (this.isDataLoaded && this.cards.list && this.cards.list.length) {
-      this.initInputValueChanges();
-    }
   }
 
   initInputValueChanges() {
@@ -140,6 +149,10 @@ export class BuyCardPageComponent implements OnInit, AfterViewInit {
     this.invalidBalance = true;
     this.loading = false;
     this._cdRef.markForCheck();
+  }
+
+  changeCard() {
+
   }
 
   changeValue(status: boolean, event) {

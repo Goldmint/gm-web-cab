@@ -75,6 +75,7 @@
       "PaymentCard": {
         "Heading": "Платёжная карта",
         "Labels": {
+          "SelectCard": "Выберите карту",
           "Amount": "Количество",
           "Estimate": "Оценочная сумма"
         }
@@ -119,6 +120,7 @@
       "PaymentCard": {
         "Heading": "Платёжная карта",
         "Labels": {
+          "SelectCard": "Выберите карту",
           "Amount": "Количество",
           "Estimate": "Оценочная сумма"
         }

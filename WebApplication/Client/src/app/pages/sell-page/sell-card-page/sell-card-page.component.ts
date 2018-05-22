@@ -7,13 +7,14 @@ import * as Web3 from "web3";
 import {Router} from "@angular/router";
 import {Observable} from "rxjs/Observable";
 import {CardsList} from "../../../interfaces";
+import {Subscription} from "rxjs/Subscription";
 
 @Component({
   selector: 'app-sell-card-page',
   templateUrl: './sell-card-page.component.html',
   styleUrls: ['./sell-card-page.component.sass']
 })
-export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SellCardPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   @ViewChild('goldAmountInput') goldAmountInput;
@@ -22,7 +23,6 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
   public loading = false;
   public locale: string;
   public invalidBalance = false;
-  public isFirstLoad: boolean = true;
   public isDataLoaded: boolean = false;
   public isReversed: boolean = false;
   public goldAmount: number = 0;
@@ -30,6 +30,7 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
   public currentValue: number;
   public estimatedAmount: BigNumber;
   public cards: CardsList;
+  public selectedCard: number;
 
   public selectedWallet = 0;
   public ethAddress: string = '';
@@ -38,6 +39,7 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private interval: Subscription;
 
   constructor(
     private _userService: UserService,
@@ -54,6 +56,20 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(cards => {
         this.cards = cards.data;
         this.isDataLoaded = true;
+
+        if (this.cards.list && this.cards.list.length) {
+          this.interval = Observable.interval(100).subscribe(() => {
+            if (this.goldAmountInput && this.goldBalance !== null) {
+              this.selectedCard = this.cards.list[0].cardId;
+
+              this.initInputValueChanges();
+              this.setGoldBalance(1);
+
+              this.interval && this.interval.unsubscribe();
+              this._cdRef.markForCheck();
+            }
+          });
+        }
         this._cdRef.markForCheck();
       });
 
@@ -75,11 +91,6 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
       ) {
         this.goldBalance = data[0];
         this.mntpBalance = data[1];
-
-        if (this.isFirstLoad) {
-          this.setGoldBalance(1);
-          this.isFirstLoad = false;
-        }
       }
     });
 
@@ -90,12 +101,6 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-  }
-
-  ngAfterViewInit() {
-    if (this.isDataLoaded && this.cards.list && this.cards.list.length) {
-      this.initInputValueChanges();
-    }
   }
 
   initInputValueChanges() {
@@ -130,7 +135,6 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
-
 
         this._apiService.goldSellEstimate(this.ethAddress, 'USD', wei, false)
           .finally(() => {
@@ -175,6 +179,10 @@ export class SellCardPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.invalidBalance = true;
     this.loading = false;
     this._cdRef.markForCheck();
+  }
+
+  changeCard() {
+
   }
 
   changeValue(status: boolean, event) {
