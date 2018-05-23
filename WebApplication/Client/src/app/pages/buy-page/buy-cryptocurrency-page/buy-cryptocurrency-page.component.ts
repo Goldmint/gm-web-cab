@@ -259,7 +259,9 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
                               <div class="mb-2 buy-hash">${hash}</div>
                               <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
                             </div>
-                          `);
+                          `).subscribe(ok => {
+                            ok && this.router.navigate(['/finance/history']);
+                          });
                         });
                       }
                     });
@@ -274,6 +276,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
   }
 

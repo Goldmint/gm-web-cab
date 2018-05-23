@@ -182,7 +182,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     if (!this.isReversed) {
-      if (value > this.goldLimit && +this.ethLimit !== 0) {
+      if (value > this.goldLimit && +this.ethLimit !== 0 && this.currentBalance) {
         this.isModalShow = true;
         this.loading = false;
         return
@@ -208,7 +208,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       }
     }
     if (this.isReversed) {
-      if (value > +this.ethLimit && +this.ethLimit !== 0) {
+      if (value > +this.ethLimit && +this.ethLimit !== 0 && this.currentBalance) {
         this.isModalShow = true;
         this.loading = false;
         return
@@ -257,10 +257,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.isReversed = false;
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
-        this.currentBalance = this.selectedWallet === 0 ? +this.hotGoldBalance : +this.goldBalance;
-
+        if (this.selectedWallet === 0) {
+          this.currentBalance = +this.hotGoldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+        } else {
+          this.currentBalance = +this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+        }
         this.goldAmount = this.currentValue = +this.substrValue((this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance);
-        this.isFirstLoad = false;
+        this.isFirstLoad = this.loading = false;
         this._cdRef.markForCheck();
       });
   }
@@ -360,7 +363,9 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
                               <div class="mb-2 sell-hash">${hash}</div>
                               <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
                             </div>
-                          `);
+                          `).subscribe(ok => {
+                              ok && this.router.navigate(['/finance/history']);
+                            });
                           });
                         }
                       });
@@ -377,6 +382,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next(true);
     this.subGetGas && this.subGetGas.unsubscribe();
+    this.sub1 && this.sub1.unsubscribe();
   }
 
 }
