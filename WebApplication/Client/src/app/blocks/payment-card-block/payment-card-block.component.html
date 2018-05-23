@@ -1,0 +1,87 @@
+<div class="row payment-card-info">
+  <div class="col-12 col-md-8">
+    <div class="payment-card-estimate mb-1"><span class="font-weight-500">USD amount:</span> 0 USD</div>
+    <div class="payment-card-estimate"><span class="font-weight-500">Estimates Amount:</span> 0 GOLD</div>
+
+    <div class="mt-4">
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
+        <label class="custom-control-label" for="agreeCheck">Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:</label>
+      </div>
+
+      <button class="btn btn-primary mt-4" [disabled]="!agreeCheck">Next</button>
+    </div>
+
+  </div>
+  <div class="col-12 col-md-4 text-md-right mt-4 mt-md-0 align-self-center">
+    <svg class="icon" width="100" height="100">
+      <use xlink:href="#master-card"></use>
+    </svg>
+    <svg class="icon ml-4" width="100" height="100">
+      <use xlink:href="#visa"></use>
+    </svg>
+  </div>
+</div>
+
+<div class="payment-card-line mt-5 mb-5"></div>
+
+<table class="main-ngx-datatable w-100 payment-card-table">
+  <tbody class="main-datatable-body">
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Billing descriptor</td>
+      <td class="main-datatable-body-cell align-middle">Goldmint</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Consumer data privacy policy</td>
+      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/privacy-policy" target="_blank">https://www.goldmint.io/privacy-policy</a></td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Customer Service contact information</td>
+      <td class="main-datatable-body-cell align-middle"><a href="https://www.facebook.com/goldmint.io/" target="_blank">https://www.facebook.com/goldmint.io/</a><br><a href="https://t.me/goldmintio support@goldmint.io" target="_blank">https://t.me/goldmintio support@goldmint.io</a></td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">CyberBridge OÜ</td>
+      <td class="main-datatable-body-cell align-middle">a company registered in Estonia on 05.12.2017, reg.number 14383967, address: Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Delivery policy</td>
+      <td class="main-datatable-body-cell align-middle">none, due to digital nature of services</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Description of the service offered</td>
+      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/tokens" target="_blank">https://www.goldmint.io/tokens</a></td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Domicile &amp; Principal place of business</td>
+      <td class="main-datatable-body-cell align-middle"> (at the checkout page) - Estonia</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">GoldCoin Term of Sales</td>
+      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf" target="_blank">https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf</a></td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Legal information</td>
+      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/legal" target="_blank">https://www.goldmint.io/legal</a></td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Reccuring rules</td>
+      <td class="main-datatable-body-cell align-middle"> no recurring payments are fulfilled by CyberBridge OU</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Return/Refund/Cancellation policy</td>
+      <td class="main-datatable-body-cell align-middle">CyberBridge OU buys gold at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows <a href="https://app.goldmint.io/#/sell" target="_blank">https://app.goldmint.io/#/sell</a></td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Security capabilities and policy for transmission of payment card details</td>
+      <td class="main-datatable-body-cell align-middle">as defined by the Payment services provider</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Transaction currency</td>
+      <td class="main-datatable-body-cell align-middle">USD, EUR</td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle font-weight-500">Transaction method</td>
+      <td class="main-datatable-body-cell align-middle">card payment</td>
+    </tr>
+  </tbody>
+</table>
