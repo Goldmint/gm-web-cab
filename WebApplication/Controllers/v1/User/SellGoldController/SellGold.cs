@@ -43,6 +43,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
 			}
 
+			// try parse amount
 			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (cryptoCurrency == null && model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
@@ -120,59 +121,68 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			public EstimateView View { get; set; }
 			public long CentsPerAssetRate { get; set; }
 			public long CentsPerGoldRate { get; set; }
+			public BigInteger ResultGoldAmount { get; set; }
+			public BigInteger ResultCurrencyAmount { get; set; }
 		}
 
 		[NonAction]
 		private async Task<EstimationResult> Estimation(BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, string ethAddress, bool reversed) {
 
 			var allowed = false;
+			
+			var centsPerAsset = 0L;
+			var centsPerGold = 0L;
+			var resultGoldAmount = BigInteger.Zero;
+			var resultCurrencyAmount = BigInteger.Zero;
+
 			object viewAmount = new double();
 			var viewAmountCurrency = "";
 			object viewFee = new double();
 			var viewFeeCurrency = "";
-			var centsPerAsset = 0L;
-			var centsPerGold = 0L;
 
 			// default estimation: GOLD to specified currency
 			if (!reversed) {
 
 				// fiat
 				if (cryptoCurrency == null) {
-					var result = await CoreLogic.Finance.Estimation.SellGoldFiat(
+					var res = await CoreLogic.Finance.Estimation.SellGoldFiat(
 						services: HttpContext.RequestServices,
 						fiatCurrency: fiatCurrency,
 						goldAmount: inputAmount
 					);
 
-					allowed = result.Allowed;
-					centsPerGold = result.CentsPerGoldRate;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					resultGoldAmount = res.ResultGoldAmount;
+					resultCurrencyAmount = res.ResultCentsAmount;
 
 					var mntBalance = ethAddress != null ? await EthereumObserver.GetAddressMntBalance(ethAddress) : BigInteger.Zero;
-					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(result.ResultCentsAmount, mntBalance);
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(res.ResultCentsAmount, mntBalance);
 
-					viewAmount = (result.ResultCentsAmount - fee) / 100d;
+					viewAmount = (res.ResultCentsAmount - fee) / 100d;
 					viewAmountCurrency = fiatCurrency.ToString().ToUpper();
 					viewFee = fee / 100d;
 					viewFeeCurrency = fiatCurrency.ToString().ToUpper();
 
-					
 				}
 				// cryptoasset
 				else {
-					var result = await CoreLogic.Finance.Estimation.SellGoldCrypto(
+					var res = await CoreLogic.Finance.Estimation.SellGoldCrypto(
 						services: HttpContext.RequestServices,
 						cryptoCurrency: cryptoCurrency.Value,
 						fiatCurrency: fiatCurrency,
 						goldAmount: inputAmount
 					);
 
-					allowed = result.Allowed;
-					centsPerGold = result.CentsPerGoldRate;
-					centsPerAsset = result.CentsPerAssetRate;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					centsPerAsset = res.CentsPerAssetRate;
+					resultGoldAmount = res.ResultGoldAmount;
+					resultCurrencyAmount = res.ResultAssetAmount;
 
-					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, result.ResultAssetAmount);
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, res.ResultAssetAmount);
 
-					viewAmount = (result.ResultAssetAmount - fee).ToString();
+					viewAmount = (res.ResultAssetAmount - fee).ToString();
 					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
 					viewFee = fee.ToString();
 					viewFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
@@ -189,16 +199,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					if (inputAmount <= long.MaxValue) {
 
 						var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat((long)inputAmount, mntBalance);
-						var result = await CoreLogic.Finance.Estimation.SellGoldFiatRev(
+						var res = await CoreLogic.Finance.Estimation.SellGoldFiatRev(
 							services: HttpContext.RequestServices,
 							fiatCurrency: fiatCurrency,
 							requiredFiatAmountWithFeeCents: (long)inputAmount + fee
 						);
 
-						allowed = result.Allowed;
-						centsPerGold = result.CentsPerGoldRate;
+						allowed = res.Allowed;
+						centsPerGold = res.CentsPerGoldRate;
+						resultGoldAmount = res.ResultGoldAmount;
+						resultCurrencyAmount = res.ResultCentsAmount;
 
-						viewAmount = result.ResultGoldAmount.ToString();
+						viewAmount = res.ResultGoldAmount.ToString();
 						viewAmountCurrency = "GOLD";
 						viewFee = fee.ToString();
 						viewFeeCurrency = fiatCurrency.ToString().ToUpper();
@@ -209,18 +221,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, inputAmount);
 
-					var result = await CoreLogic.Finance.Estimation.SellGoldCryptoRev(
+					var res = await CoreLogic.Finance.Estimation.SellGoldCryptoRev(
 						services: HttpContext.RequestServices,
 						cryptoCurrency: cryptoCurrency.Value,
 						fiatCurrency: fiatCurrency,
 						requiredCryptoAmountWithFee: inputAmount + fee
 					);
 
-					allowed = result.Allowed;
-					centsPerGold = result.CentsPerGoldRate;
-					centsPerAsset = result.CentsPerAssetRate;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					centsPerAsset = res.CentsPerAssetRate;
+					resultGoldAmount = res.ResultGoldAmount;
+					resultCurrencyAmount = res.ResultAssetAmount;
 
-					viewAmount = result.ResultGoldAmount.ToString();
+					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
 					viewFee = fee.ToString();
 					viewFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
@@ -240,6 +254,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				},
 				CentsPerAssetRate = centsPerAsset,
 				CentsPerGoldRate = centsPerGold,
+				ResultGoldAmount = resultGoldAmount,
+				ResultCurrencyAmount = resultCurrencyAmount,
 			};
 		}
 	}

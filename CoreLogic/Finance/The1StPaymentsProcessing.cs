@@ -21,7 +21,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New card input data operation to enqueue
 		/// </summary>
-		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string deskTicketId) {
+		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId) {
 
 			// if (card.User == null) throw new ArgumentException("User not included");
 
@@ -35,7 +35,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = FiatCurrency.Usd,
 				AmountCents = 0,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
 			};
@@ -44,7 +44,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New verification payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateVerificationPayment(IServiceProvider services, UserCreditCard card, string deskTicketId) {
+		public static async Task<CreditCardPayment> CreateVerificationPayment(IServiceProvider services, UserCreditCard card, string oplogId) {
 
 			// if (card.User == null) throw new ArgumentException("User not included");
 
@@ -69,7 +69,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = FiatCurrency.Usd,
 				AmountCents = amountCents,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
 			};
@@ -78,7 +78,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New deposit payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateDepositPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, string deskTicketId) {
+		public static async Task<CreditCardPayment> CreateDepositPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, long buyRequestId, string oplogId) {
 
 			if (amountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 			if (card.State != CardState.Verified) throw new ArgumentException("Card not verified");
@@ -107,7 +107,8 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = currency,
 				AmountCents = amountCents,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				RelatedExchangeRequestId = buyRequestId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
 			};
@@ -116,7 +117,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New payment refund
 		/// </summary>
-		public static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string deskTicketId) {
+		public static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string oplogId) {
 
 			if (refPayment.Type != CardPaymentType.Deposit && refPayment.Type != CardPaymentType.Verification) {
 				throw new ArgumentException("Ref payment must be of deposit or verification type");
@@ -136,7 +137,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = refPayment.Currency,
 				AmountCents = refPayment.AmountCents,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
 			};
@@ -145,7 +146,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New withdraw payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateWithdrawPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, string deskTicketId) {
+		public static async Task<CreditCardPayment> CreateWithdrawPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, long sellRequestId, string oplogId) {
 
 			if (amountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 			if (card.State != CardState.Verified) throw new ArgumentException("Card not verified");
@@ -174,7 +175,8 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = currency,
 				AmountCents = amountCents,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				RelatedExchangeRequestId = sellRequestId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
 			};
@@ -357,7 +359,7 @@ namespace Goldmint.CoreLogic.Finance {
 											var verPayment = await CreateVerificationPayment(
 												services: services,
 												card: card,
-												deskTicketId: payment.OplogId
+												oplogId: payment.OplogId
 											);
 											dbContext.CreditCardPayment.Add(verPayment);
 											verificationPaymentEnqueued = verPayment;

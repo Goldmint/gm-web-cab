@@ -2,23 +2,25 @@
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels;
+using Goldmint.WebApplication.Models.API.v1.User.SellGoldModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
-	public partial class BuyGoldController : BaseController {
+	public partial class SellGoldController : BaseController {
 
 		/// <summary>
-		/// ETH to GOLD
+		/// GOLD to USD
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpPost, Route("asset/eth")]
-		[ProducesResponseType(typeof(AssetEthView), 200)]
-		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
+		[HttpPost, Route("ccard")]
+		[ProducesResponseType(typeof(CreditCardView), 200)]
+		public async Task<APIResponse> CreditCard([FromBody] CreditCardModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -26,7 +28,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -42,28 +44,41 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
-			if (userTier < UserTier.Tier1) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
+			// get the card
+			var card = await (
+					from c in DbContext.UserCreditCard
+					where
+						c.UserId == user.Id &&
+						c.Id == model.CardId &&
+						c.State == CardState.Verified
+					select c
+				)
+				.AsNoTracking()
+				.FirstOrDefaultAsync()
+			;
+			if (card == null) {
+				return APIResponse.BadRequest(nameof(model.CardId), "Invalid id");
 			}
 
 			// ---
 
-			var estimation = await Estimation(inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed);
-
+			var estimation = await Estimation(inputAmount, null, exchangeCurrency, model.EthAddress, model.Reversed);
 			if (estimation == null) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
 			var rcfg = RuntimeConfigHolder.Clone();
 			var timeNow = DateTime.UtcNow;
-			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
+			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest);
 
-			var ticket = await OplogProvider.NewGoldBuyingRequestForCryptoasset(
+			var ticket = await OplogProvider.NewGoldSellingRequestWithCreditCard(
 				userId: user.Id,
-				cryptoCurrency: CryptoCurrency.Eth,
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
-				inputRate: estimation.CentsPerAssetRate,
 				goldRate: estimation.CentsPerGoldRate
 			);
 
@@ -71,11 +86,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var finHistory = new DAL.Models.UserFinHistory() {
 
 				Status = UserFinHistoryStatus.Unconfirmed,
-				Type = UserFinHistoryType.GoldBuy,
-				Source = "ETH",
-				SourceAmount = null,
-				Destination = "GOLD",
-				DestinationAmount = null,
+				Type = UserFinHistoryType.GoldSell,
+				Source = "GOLD",
+				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, Tokens.GOLD.Decimals),
+				Destination = exchangeCurrency.ToString().ToUpper(),
+				DestinationAmount = TextFormatter.FormatAmount((long)estimation.ResultCurrencyAmount),
 				Comment = "", // see below
 
 				OplogId = ticket,
@@ -89,18 +104,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// request
-			var request = new DAL.Models.BuyGoldRequest() {
+			var request = new DAL.Models.SellGoldRequest() {
 
-				Status = BuyGoldRequestStatus.Unconfirmed,
-				Input = BuyGoldRequestInput.ContractEthPayment,
-				RelInputId = null,
-				Output = BuyGoldRequestOutput.EthereumAddress,
+				Status = SellGoldRequestStatus.Unconfirmed,
+				Input = SellGoldRequestInput.ContractGoldBurning,
+				Output = SellGoldRequestOutput.CreditCard,
+				RelOutputId = card.Id,
 				EthAddress = model.EthAddress,
 
 				ExchangeCurrency = exchangeCurrency,
-				InputRateCents = estimation.CentsPerAssetRate,
+				OutputRateCents = estimation.CentsPerAssetRate,
 				GoldRateCents = estimation.CentsPerGoldRate,
-				InputExpected = estimation.ResultCurrencyAmount.ToString(),
+				InputExpected = estimation.ResultGoldAmount.ToString(),
 
 				OplogId = ticket,
 				TimeCreated = timeNow,
@@ -112,27 +127,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			};
 
 			// add and save
-			DbContext.BuyGoldRequest.Add(request);
+			DbContext.SellGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
-			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
-
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, Tokens.ETH.Decimals) }";
+			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
-				new AssetEthView() {
+				new CreditCardView() {
 					RequestId = request.Id,
-					EthRate = estimation.CentsPerAssetRate / 100d,
 					GoldRate = estimation.CentsPerGoldRate / 100d,
-					EthPerGoldRate = assetPerGold.ToString(),
 					Currency = exchangeCurrency.ToString().ToUpper(),
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 					Estimation = estimation.View,
 				}
 			);
 		}
-		
 	}
 }

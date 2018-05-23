@@ -46,7 +46,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				)
 			;
 			if (model.FilterRequestId != null) {
-				query = query.Where(_ => _.RelatedRequestId == model.FilterRequestId);
+				query = query.Where(_ => _.RelatedExchangeRequestId == model.FilterRequestId);
 			}
 			if (model.PeriodStart != null) {
 				query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted >= DateTimeOffset.FromUnixTimeSeconds(model.PeriodStart.Value).UtcDateTime);
@@ -87,7 +87,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			var list =
 				from i in page.Selected
 				select new ListViewItem() {
-					RequestId = i.RelatedRequestId ?? 0,
+					RequestId = i.RelatedExchangeRequestId ?? 0,
 					IsBuying = i.Type == EthereumOperationType.ContractProcessBuyRequest,
 					Amount = i.GoldAmount,
 					EthTxId = i.EthTransactionId,

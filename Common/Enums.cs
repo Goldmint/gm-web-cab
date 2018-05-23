@@ -128,6 +128,11 @@ namespace Goldmint.Common {
 		/// User sends ETH to Ethereum contact
 		/// </summary>
 		ContractEthPayment = 1,
+		
+		/// <summary>
+		/// User spends fiat from credit card
+		/// </summary>
+		CreditCardDeposit,
 	}
 
 	public enum BuyGoldRequestOutput {
@@ -136,11 +141,6 @@ namespace Goldmint.Common {
 		/// Issue gold to the Ethereum address
 		/// </summary>
 		EthereumAddress = 1,
-
-		/// <summary>
-		/// Issue gold to the internal Hot Wallet
-		/// </summary>
-		HotWallet,
 	}
 
 	public enum BuyGoldRequestStatus {
@@ -187,9 +187,14 @@ namespace Goldmint.Common {
 	public enum SellGoldRequestOutput {
 
 		/// <summary>
-		/// Get ETH
+		/// Send ETH to the address
 		/// </summary>
-		Eth = 1,
+		EthAddress = 1,
+
+		/// <summary>
+		/// Send fiat to the card
+		/// </summary>
+		CreditCard,
 	}
 
 	public enum SellGoldRequestStatus {

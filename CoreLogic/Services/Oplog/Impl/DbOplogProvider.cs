@@ -75,6 +75,14 @@ namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 			return await CreateEntry(userId, $"New card #{ cardId } verification started with {TextFormatter.FormatAmount(centsAmount, fiatCurrency)}");
 		}
 
+		public async Task<string> NewGoldBuyingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate, long centsAmount) {
+			return await CreateEntry(userId, $"New GOLD buying #? of { TextFormatter.FormatAmount(centsAmount, fiatCurrency) } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+		}
+
+		public async Task<string> NewGoldSellingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate) {
+			return await CreateEntry(userId, $"New GOLD selling #? requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+		}
+
 		/*
 		
 

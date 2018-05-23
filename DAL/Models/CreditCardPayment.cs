@@ -46,6 +46,9 @@ namespace Goldmint.DAL.Models {
 		[ForeignKey(nameof(RelPaymentId))]
 		public virtual CreditCardPayment RefPayment { get; set; }
 
+		[Column("rel_request_id")]
+		public long? RelatedExchangeRequestId { get; set; }
+
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 
