@@ -953,7 +953,9 @@
             "Four": "4. Type current code"
           },
           "Errors": {
-            "pattern": "Only 6-digits numeric code is allowed"
+            "pattern": "Only 6-digits numeric code is allowed",
+            "InvalidCode": "Invalid dode",
+            "TimeError": "Please check time settings on your phone. The time must be set correctly. Turn on time synchronization if it is disabled."
           },
           "Buttons": {
             "Enable": "Enable 2FA",
