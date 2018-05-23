@@ -54,7 +54,6 @@
   </section>
 </ng-container>
 
-
 <!--KYC-->
 <ng-container *ngIf="phase == _phase.Kyc">
   <section class="section section--warning section--no-bottom">
@@ -84,7 +83,6 @@
     </div>
   </section>
 </ng-container>
-
 
 <!--KYC PENDING-->
 <ng-container *ngIf="phase == _phase.KycPending">
@@ -155,15 +153,15 @@
   </section>
 </ng-container>
 
-<!--FINISHED-->
+<!--ToS FINISHED-->
 <ng-container *ngIf="phase == _phase.Finished">
   <section class="section section--no-bottom">
     <h2 class="section__title">
-      <span>{{ "PAGES.Settings.KYC.FinishedSection.Title" | translate }}</span>
+      <span>Terms of sales verification</span>
 
       <div class="section__title-widget">
         <div class="lead icon--green">
-          {{ "PAGES.Settings.KYC.FinishedSection.StatusText" | translate }}
+          Verification completed
         </div>
       </div>
     </h2>
@@ -173,12 +171,56 @@
         <div class="container"></div>
       </div>
 
-      <!-- @todo: clarify texts and layout -->
-      <p class="pt-2 mb-2" [innerHTML]="'PAGES.Settings.KYC.FinishedSection.Text' | translate"></p>
+      <div class="pt-2 mb-2"><span class="lead">Congratulations! Terms of sales verification successfully finished!</span></div>
     </div>
   </section>
 </ng-container>
 
+<!--PROOF OF RESIDENCY FINISHED-->
+<ng-container *ngIf="kycProfile && kycProfile.isResidenceProved">
+  <section class="section section--no-bottom">
+    <h2 class="section__title">
+      <span>Proof of residency verification</span>
+
+      <div class="section__title-widget">
+        <div class="lead icon--green">
+          Verification completed
+        </div>
+      </div>
+    </h2>
+
+    <div class="section__content kyc pt-2">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <div class="pt-2 mb-2"><span class="lead">Congratulations! Proof of residency verification successfully finished!</span></div>
+    </div>
+  </section>
+</ng-container>
+
+<!--KYC FINISHED-->
+<ng-container *ngIf="kycProfile && kycProfile.isKycFinished">
+  <section class="section section--no-bottom">
+    <h2 class="section__title">
+      <span>KYC verification</span>
+
+      <div class="section__title-widget">
+        <div class="lead icon--green">
+          Verification completed
+        </div>
+      </div>
+    </h2>
+
+    <div class="section__content kyc pt-2">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <div class="lead pt-2 mb-2"><span class="lead">Congratulations! KYC verification successfully finished!</span></div>
+    </div>
+  </section>
+</ng-container>
 
 <!--FORM-->
 <ng-container *ngIf="phase != _phase.Start">
