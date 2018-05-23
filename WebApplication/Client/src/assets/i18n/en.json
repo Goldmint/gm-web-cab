@@ -611,7 +611,8 @@
       "Labels": {
         "Username": "Email or Username",
         "Email": "Email",
-        "Password": "Password"
+        "Password": "Password",
+        "Confirm": "Confirm password"
       },
       "Paused": "New accounts registration is temporary stopped",
       "Errors": {
@@ -629,7 +630,8 @@
           "maxlength": "Should be up to 128 symbols length",
           "pattern": "Should contain uppercase letters, lowercase letters and digits",
           "weak": "Password is too weak",
-          "weakChecking": "Checking password..."
+          "weakChecking": "Checking password...",
+          "notMatch": "Passwords does not match"
         }
       },
       "Buttons": {
