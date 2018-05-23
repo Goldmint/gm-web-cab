@@ -25,12 +25,15 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public invalidBalance = false;
   public isDataLoaded: boolean = false;
   public isReversed: boolean = false;
+  public showPaymentCardBlock: boolean = false;
+
   public goldAmount: number = 0;
   public usdAmount: number = 0;
   public currentValue: number;
   public estimatedAmount: BigNumber;
   public cards: CardsList;
   public selectedCard: number;
+  public transferAmount: object;
 
   public selectedWallet = 0;
   public ethAddress: string = '';
@@ -40,6 +43,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
+  private isFormSubmitted = false;
 
   constructor(
     private _userService: UserService,
@@ -142,6 +146,8 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
+
+          this.fixedAmount();
           this.invalidBalance = false;
         });
       } else {
@@ -161,10 +167,12 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
+
           if (this.goldAmount > +this.goldBalance) {
             this.invalidBalance = true;
             this.goldAmount = 0;
           } else {
+            this.fixedAmount();
             this.invalidBalance = false;
           }
         });
@@ -212,6 +220,24 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       .replace(/([^\d.])|(^\.)/g, '')
       .replace(/^(\d+)(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
       .replace(/^0+(\d)/, '$1');
+  }
+
+  onSubmit() {
+    this.isFormSubmitted = true;
+    this.isReversed ? this.onAmountChanged(this.usdAmount) : this.onAmountChanged(this.goldAmount);
+  }
+
+  fixedAmount() {
+    if (this.isFormSubmitted) {
+      this.transferAmount = {
+        amount: this.goldAmount + ' GOLD',
+        estimated: this.usdAmount + ' USD'
+      };
+
+      this.isFormSubmitted = false;
+      this.showPaymentCardBlock = true;
+      this._cdRef.markForCheck();
+    }
   }
 
   ngOnDestroy() {

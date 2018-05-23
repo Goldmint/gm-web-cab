@@ -20,9 +20,10 @@ export class BuyCardPageComponent implements OnInit {
   @ViewChild('goldAmountInput') goldAmountInput;
   @ViewChild('usdAmountInput') usdAmountInput;
 
-  public loading = false;
+  public loading: boolean = false;
   public locale: string;
-  public invalidBalance = false;
+  public invalidBalance: boolean = false;
+  public showPaymentCardBlock: boolean = false;
 
   public isReversed: boolean = false;
   public isDataLoaded: boolean = false;
@@ -33,10 +34,12 @@ export class BuyCardPageComponent implements OnInit {
   public estimatedAmount: BigNumber;
   public cards: CardsList;
   public selectedCard: number;
+  public transferAmount: object;
 
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
+  private isFormSubmitted = false;
 
   constructor(
     private _userService: UserService,
@@ -118,6 +121,8 @@ export class BuyCardPageComponent implements OnInit {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
+
+          this.fixedAmount();
           this.invalidBalance = false;
         });
       } else {
@@ -137,6 +142,8 @@ export class BuyCardPageComponent implements OnInit {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
+
+          this.fixedAmount();
           this.invalidBalance = (this.usdAmount <= 1) ? true : false;
         });
       } else {
@@ -174,6 +181,24 @@ export class BuyCardPageComponent implements OnInit {
       .replace(/([^\d.])|(^\.)/g, '')
       .replace(/^(\d+)(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
       .replace(/^0+(\d)/, '$1');
+  }
+
+  onSubmit() {
+    this.isFormSubmitted = true;
+    this.isReversed ? this.onAmountChanged(this.goldAmount) : this.onAmountChanged(this.usdAmount);
+  }
+
+  fixedAmount() {
+    if (this.isFormSubmitted) {
+      this.transferAmount = {
+        amount: this.usdAmount + ' USD',
+        estimated: this.goldAmount + ' GOLD'
+      };
+
+      this.isFormSubmitted = false;
+      this.showPaymentCardBlock = true;
+      this._cdRef.markForCheck();
+    }
   }
 
   ngOnDestroy() {

@@ -9,8 +9,8 @@
       <div class="container"></div>
     </div>
 
-    <ng-container *ngIf="isDataLoaded && cards.list && cards.list.length">
-      <form #buyFrom="ngForm">
+    <ng-container *ngIf="isDataLoaded && cards.list && cards.list.length && !showPaymentCardBlock">
+      <form #buyFrom="ngForm" (ngSubmit)="onSubmit()">
         <div>
           <div class="col-12">
             <div class="form-group">
@@ -101,8 +101,8 @@
       <button class="btn btn-primary mt-4" routerLink="/account/cards">{{ "BUTTONS.AddCard" | translate }}</button>
     </ng-container>
 
-    <ng-container *ngIf="false">
-      <app-payment-card-block></app-payment-card-block>
+    <ng-container *ngIf="showPaymentCardBlock">
+      <app-payment-card-block [amount]="transferAmount"></app-payment-card-block>
     </ng-container>
 
   </div>

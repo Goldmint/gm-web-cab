@@ -1,7 +1,7 @@
 <div class="row payment-card-info">
   <div class="col-12 col-md-8">
-    <div class="payment-card-estimate mb-1"><span class="font-weight-500">USD amount:</span> 0 USD</div>
-    <div class="payment-card-estimate"><span class="font-weight-500">Estimates Amount:</span> 0 GOLD</div>
+    <div class="payment-card-estimate mb-1"><span class="font-weight-500">Amount:</span> {{ estimatedAmount.amount }}</div>
+    <div class="payment-card-estimate"><span class="font-weight-500">Estimates Amount:</span> {{ estimatedAmount.estimated }}</div>
 
     <div class="mt-4">
       <div class="custom-control custom-checkbox">
@@ -9,7 +9,7 @@
         <label class="custom-control-label" for="agreeCheck">Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:</label>
       </div>
 
-      <button class="btn btn-primary mt-4" [disabled]="!agreeCheck">Proceed to payment</button>
+      <button class="btn btn-primary mt-4" [disabled]="!agreeCheck" (click)="onSubmit()">Proceed to payment</button>
     </div>
 
   </div>
