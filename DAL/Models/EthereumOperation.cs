@@ -15,7 +15,7 @@ namespace Goldmint.DAL.Models {
 		public EthereumOperationStatus Status { get; set; }
 
 		[Column("rel_request_id")]
-		public long? RelatedRequestId { get; set; }
+		public long? RelatedExchangeRequestId { get; set; }
 
 		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
 		public string DestinationAddress { get; set; }

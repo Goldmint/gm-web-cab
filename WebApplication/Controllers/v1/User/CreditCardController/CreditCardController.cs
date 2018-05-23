@@ -142,7 +142,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				type: CardPaymentType.CardDataInputSMS,
 				transactionId: transId,
 				gwTransactionId: paymentResult.GWTransactionId,
-				deskTicketId: ticketId
+				oplogId: ticketId
 			);
 			DbContext.CreditCardPayment.Add(payment);
 			await DbContext.SaveChangesAsync();
@@ -267,7 +267,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				type: CardPaymentType.CardDataInputCRD,
 				transactionId: transId,
 				gwTransactionId: paymentResult.GWTransactionId,
-				deskTicketId: prevPayment.OplogId
+				oplogId: prevPayment.OplogId
 			);
 			DbContext.CreditCardPayment.Add(payment);
 			await DbContext.SaveChangesAsync();

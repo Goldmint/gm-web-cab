@@ -18,15 +18,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
-		public async Task<APIResponse> ForAssetEth([FromBody] AssetEthModel model) {
+		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(errFields);
 			}
 
+			// try parse amount
 			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+
+			// try parse fiat currency
+			var exchangeCurrency = FiatCurrency.Usd;
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
+				exchangeCurrency = fc;
 			}
 
 			// ---
@@ -41,7 +48,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var exchangeCurrency = FiatCurrency.Usd;
 			var estimation = await Estimation(inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.EthAddress, model.Reversed);
 
 			if (estimation == null) {
@@ -87,12 +93,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				Status = SellGoldRequestStatus.Unconfirmed,
 				Input = SellGoldRequestInput.ContractGoldBurning,
-				Output = SellGoldRequestOutput.Eth,
-				OutputAddress = model.EthAddress,
+				Output = SellGoldRequestOutput.EthAddress,
+				RelOutputId = null,
+				EthAddress = model.EthAddress,
 
 				ExchangeCurrency = exchangeCurrency,
 				OutputRateCents = estimation.CentsPerAssetRate,
 				GoldRateCents = estimation.CentsPerGoldRate,
+				InputExpected = estimation.ResultGoldAmount.ToString(),
 
 				OplogId = ticket,
 				TimeCreated = timeNow,

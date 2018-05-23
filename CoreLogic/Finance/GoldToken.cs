@@ -43,7 +43,7 @@ namespace Goldmint.CoreLogic.Finance {
 					r.Id == internalRequestId &&
 					r.Status == BuyGoldRequestStatus.Confirmed &&
 					r.Output == BuyGoldRequestOutput.EthereumAddress &&
-					r.InputAddress == address
+					r.EthAddress == address
 				select r
 			;
 
@@ -115,9 +115,9 @@ namespace Goldmint.CoreLogic.Finance {
 							var ethOp = new DAL.Models.EthereumOperation() {
 								Type = cancelContract? EthereumOperationType.ContractCancelBuyRequest: EthereumOperationType.ContractProcessBuyRequest,
 								Status = EthereumOperationStatus.Initial,
-								RelatedRequestId = request.Id,
+								RelatedExchangeRequestId = request.Id,
 
-								DestinationAddress = request.InputAddress,
+								DestinationAddress = request.EthAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
 								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
 								EthRequestIndex = requestIndex.ToString(),
@@ -199,8 +199,8 @@ namespace Goldmint.CoreLogic.Finance {
 					r.Input == SellGoldRequestInput.ContractGoldBurning &&
 					r.Id == internalRequestId &&
 					r.Status == SellGoldRequestStatus.Confirmed &&
-					r.Output == SellGoldRequestOutput.Eth &&
-					r.OutputAddress == address
+					r.Output == SellGoldRequestOutput.EthAddress &&
+					r.EthAddress == address
 				select r
 			;
 
@@ -275,9 +275,9 @@ namespace Goldmint.CoreLogic.Finance {
 							var ethOp = new DAL.Models.EthereumOperation() {
 								Type = cancelContract ? EthereumOperationType.ContractCancelSellRequest : EthereumOperationType.ContractProcessSellRequest,
 								Status = EthereumOperationStatus.Initial,
-								RelatedRequestId = request.Id,
+								RelatedExchangeRequestId = request.Id,
 
-								DestinationAddress = request.OutputAddress,
+								DestinationAddress = request.EthAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
 								GoldAmount = amountGold.ToString(),
 								EthRequestIndex = requestIndex.ToString(),

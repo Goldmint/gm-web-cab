@@ -14,11 +14,14 @@ namespace Goldmint.DAL.Models {
 		[Column("input"), Required]
 		public BuyGoldRequestInput Input { get; set; }
 
+		[Column("rel_input_id")]
+		public long? RelInputId { get; set; }
+
 		[Column("output"), Required]
 		public BuyGoldRequestOutput Output { get; set; }
 
-		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
-		public string InputAddress { get; set; }
+		[Column("eth_address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
+		public string EthAddress { get; set; }
 
 		[Column("exchange_currency"), Required]
 		public FiatCurrency ExchangeCurrency { get; set; }
@@ -28,6 +31,9 @@ namespace Goldmint.DAL.Models {
 
 		[Column("gold_rate"), Required]
 		public long GoldRateCents { get; set; }
+
+		[Column("input_expected"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
+		public string InputExpected { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

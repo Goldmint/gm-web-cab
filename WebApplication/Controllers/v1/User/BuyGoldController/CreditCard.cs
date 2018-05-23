@@ -7,18 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class BuyGoldController : BaseController {
 
 		/// <summary>
-		/// ETH to GOLD
+		/// USD to GOLD
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpPost, Route("asset/eth")]
-		[ProducesResponseType(typeof(AssetEthView), 200)]
-		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
+		[HttpPost, Route("ccard")]
+		[ProducesResponseType(typeof(CreditCardView), 200)]
+		public async Task<APIResponse> CreditCard([FromBody] CreditCardModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -26,7 +28,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (!model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -42,15 +44,30 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
-			if (userTier < UserTier.Tier1) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
+			// get the card
+			var card = await (
+					from c in DbContext.UserCreditCard
+					where
+						c.UserId == user.Id &&
+						c.Id == model.CardId &&
+						c.State == CardState.Verified
+					select c
+				)
+				.AsNoTracking()
+				.FirstOrDefaultAsync()
+			;
+			if (card == null) {
+				return APIResponse.BadRequest(nameof(model.CardId), "Invalid id");
 			}
 
 			// ---
 
-			var estimation = await Estimation(inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed);
-
-			if (estimation == null) {
+			var estimation = await Estimation(inputAmount, null, exchangeCurrency, model.Reversed);
+			if (estimation == null || estimation.ResultCurrencyAmount <= 0 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
@@ -58,13 +75,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
-			var ticket = await OplogProvider.NewGoldBuyingRequestForCryptoasset(
+			var ticket = await OplogProvider.NewGoldBuyingRequestWithCreditCard(
 				userId: user.Id,
-				cryptoCurrency: CryptoCurrency.Eth,
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
-				inputRate: estimation.CentsPerAssetRate,
-				goldRate: estimation.CentsPerGoldRate
+				goldRate: estimation.CentsPerGoldRate,
+				centsAmount: (long)estimation.ResultCurrencyAmount
 			);
 
 			// history
@@ -72,10 +88,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldBuy,
-				Source = "ETH",
-				SourceAmount = null,
+				Source = exchangeCurrency.ToString().ToUpper(),
+				SourceAmount = TextFormatter.FormatAmount((long)estimation.ResultCurrencyAmount),
 				Destination = "GOLD",
-				DestinationAmount = null,
+				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, Tokens.GOLD.Decimals),
 				Comment = "", // see below
 
 				OplogId = ticket,
@@ -92,8 +108,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var request = new DAL.Models.BuyGoldRequest() {
 
 				Status = BuyGoldRequestStatus.Unconfirmed,
-				Input = BuyGoldRequestInput.ContractEthPayment,
-				RelInputId = null,
+				Input = BuyGoldRequestInput.CreditCardDeposit,
+				RelInputId = card.Id,
 				Output = BuyGoldRequestOutput.EthereumAddress,
 				EthAddress = model.EthAddress,
 
@@ -115,24 +131,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			DbContext.BuyGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
-			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
-
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, Tokens.ETH.Decimals) }";
+			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
-				new AssetEthView() {
+				new CreditCardView() {
 					RequestId = request.Id,
-					EthRate = estimation.CentsPerAssetRate / 100d,
-					GoldRate = estimation.CentsPerGoldRate / 100d,
-					EthPerGoldRate = assetPerGold.ToString(),
 					Currency = exchangeCurrency.ToString().ToUpper(),
+					GoldRate = estimation.CentsPerGoldRate / 100d,
 					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 					Estimation = estimation.View,
 				}
 			);
 		}
-		
+
 	}
 }

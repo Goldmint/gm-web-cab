@@ -34,6 +34,11 @@ namespace Goldmint.Common {
 			return (cents / 100m).ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + " " + currency.ToString().ToUpperInvariant();
 		}
 
+		// 1234.40 => 1,234.40
+		public static string FormatAmount(long cents) {
+			return (cents / 100m).ToString("N2", System.Globalization.CultureInfo.InvariantCulture);
+		}
+
 		/// 1512345670000000000, 18 => 1.51234567
 		public static string FormatTokenAmount(BigInteger tokenAmount, int tokenDecimals) {
 			if (tokenAmount <= 0 || tokenDecimals < 0) return "0";

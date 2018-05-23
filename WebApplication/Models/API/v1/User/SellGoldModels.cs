@@ -114,16 +114,22 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		public string EthAddress { get; set; }
 
 		/// <summary>
-		/// Amount of GOLD (Reversed is false) or amount of Currency (Reversed is true)
+		/// Amount of GOLD (Reversed is false) or amount of ETH (Reversed is true)
 		/// </summary>
 		[Required]
 		public string Amount { get; set; }
 
 		/// <summary>
-		/// False - GOLD to Currency estimation; true (reversed) - Currency to GOLD estimation
+		/// False - GOLD to ETH estimation; true (reversed) - ETH to GOLD estimation
 		/// </summary>
 		[Required]
 		public bool Reversed { get; set; }
+
+		/// <summary>
+		/// Fiat exchange currency
+		/// </summary>
+		[Required]
+		public string Currency { get; set; }
 
 		// ---
 
@@ -136,6 +142,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 
 			v.RuleFor(_ => _.Amount)
 				.NotEmpty().WithMessage("Invalid amount")
+				;
+
+			v.RuleFor(_ => _.Currency)
+				.NotEmpty().WithMessage("Invalid format")
+				.When(_ => _.Currency != null)
 				;
 
 			return v.Validate(this);
@@ -174,6 +185,99 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		[Required]
 		public string EthPerGoldRate { get; set; }
 		
+		/// <summary>
+		/// Expires at datetime (unixstamp)
+		/// </summary>
+		[Required]
+		public long Expires { get; set; }
+
+		/// <summary>
+		/// Estimation data
+		/// </summary>
+		[Required]
+		public EstimateView Estimation { get; set; }
+	}
+
+	// ---
+
+	public class CreditCardModel : BaseValidableModel {
+
+		/// <summary>
+		/// Card ID
+		/// </summary>
+		[Required]
+		public long CardId { get; set; }
+
+		/// <summary>
+		/// Address
+		/// </summary>
+		[Required]
+		public string EthAddress { get; set; }
+
+		/// <summary>
+		/// Fiat exchange currency
+		/// </summary>
+		[Required]
+		public string Currency { get; set; }
+		
+		/// <summary>
+		/// Amount of GOLD (Reversed is false) or amount of ETH (Reversed is true)
+		/// </summary>
+		[Required]
+		public string Amount { get; set; }
+
+		/// <summary>
+		/// False - GOLD to ETH estimation; true (reversed) - ETH to GOLD estimation
+		/// </summary>
+		[Required]
+		public bool Reversed { get; set; }
+
+		// ---
+
+		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+			var v = new InlineValidator<CreditCardModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
+
+			v.RuleFor(_ => _.CardId)
+				.Must(Common.ValidationRules.BeValidId).WithMessage("Invalid format")
+				;
+
+			v.RuleFor(_ => _.EthAddress)
+				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
+			;
+
+			v.RuleFor(_ => _.Currency)
+				.NotEmpty().WithMessage("Invalid format")
+				.When(_ => _.Currency != null)
+				;
+
+			v.RuleFor(_ => _.Amount)
+				.NotEmpty().WithMessage("Invalid amount")
+				;
+
+			return v.Validate(this);
+		}
+	}
+
+	public class CreditCardView {
+
+		/// <summary>
+		/// Request ID
+		/// </summary>
+		[Required]
+		public long RequestId { get; set; }
+
+		/// <summary>
+		/// Fiat currency
+		/// </summary>
+		[Required]
+		public string Currency { get; set; }
+
+		/// <summary>
+		/// Amount per GOLD
+		/// </summary>
+		[Required]
+		public double GoldRate { get; set; }
+
 		/// <summary>
 		/// Expires at datetime (unixstamp)
 		/// </summary>
