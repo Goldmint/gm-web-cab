@@ -99,6 +99,7 @@ import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurre
 import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
 import { BuyCardPageComponent } from './pages/buy-page/buy-card-page/buy-card-page.component';
 import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-card-page.component';
+import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -192,7 +193,8 @@ export function getGoldmintToken() {
     BuyCryptocurrencyPageComponent,
     SellCryptocurrencyPageComponent,
     BuyCardPageComponent,
-    SellCardPageComponent
+    SellCardPageComponent,
+    PaymentCardBlockComponent
   ],
   exports: [],
   providers: [

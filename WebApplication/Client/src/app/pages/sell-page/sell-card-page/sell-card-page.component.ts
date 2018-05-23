@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {APIService, EthereumService, MessageBoxService, UserService} from "../../../services";
 import {Subject} from "rxjs/Subject";
 import {BigNumber} from "bignumber.js";
