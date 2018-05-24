@@ -14,9 +14,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	[Route("api/v1/user/gold/transfer")]
 	public class TransferGoldController : BaseController {
 
-		// TODO: move/constants
-		public static readonly TimeSpan HwOperationTimeLimit = TimeSpan.FromSeconds(1800);
-
 		/// <summary>
 		/// Transferring request of GOLD to eth address (hot wallet)
 		/// </summary>
@@ -36,6 +33,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			var rcfg = RuntimeConfigHolder.Clone();
 			var user = await GetUserFromDb();
 			var agent = GetUserAgentInfo();
 
@@ -66,7 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					var opLastTime = user.UserOptions.HotWalletTransferLastTime;
 
 					// check rate
-					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < HwOperationTimeLimit) {
+					if (opLastTime != null && (DateTime.UtcNow - opLastTime) < TimeSpan.FromSeconds(rcfg.Gold.Timeouts.HwUserOperationDelay)) {
 						// failed
 						return APIResponse.BadRequest(APIErrorCode.RateLimit);
 					}

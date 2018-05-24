@@ -169,6 +169,11 @@ namespace Goldmint.Common {
 		/// Final failure
 		/// </summary>
 		Cancelled,
+
+		/// <summary>
+		/// Final failure
+		/// </summary>
+		Failed,
 	}
 
 	#endregion
@@ -431,9 +436,14 @@ namespace Goldmint.Common {
 	public enum CardPaymentStatus {
 
 		/// <summary>
-		/// Initial state, just enqueued
+		/// Unconfirmed initial state, just enqueued
 		/// </summary>
-		Pending = 1,
+		Unconfirmed = 1,
+
+		/// <summary>
+		/// Initial state, waiting for processing
+		/// </summary>
+		Pending,
 
 		/// <summary>
 		/// There is an attempt to charge
@@ -449,11 +459,6 @@ namespace Goldmint.Common {
 		/// Final failure, finalized
 		/// </summary>
 		Failed,
-
-		/// <summary>
-		/// Cancelled
-		/// </summary>
-		Cancelled,
 	}
 
 	#endregion

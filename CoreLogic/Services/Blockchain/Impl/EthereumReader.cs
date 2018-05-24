@@ -162,7 +162,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 
-		public async Task<GatheredGoldBoughtWithEthEvent> GatherTokenBuyRequestEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		public async Task<GatheredGoldBoughtWithEthEvent> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
 			var web3 = new Web3(EthLogsProvider);
 
@@ -207,7 +207,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 
-		public async Task<GatheredGoldSoldForEthEvent> GatherTokenSellRequestEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		public async Task<GatheredGoldSoldForEthEvent> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
 			var web3 = new Web3(EthLogsProvider);
 

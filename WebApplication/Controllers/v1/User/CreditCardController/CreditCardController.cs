@@ -144,6 +144,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				gwTransactionId: paymentResult.GWTransactionId,
 				oplogId: ticketId
 			);
+			payment.Status = CardPaymentStatus.Pending;
 			DbContext.CreditCardPayment.Add(payment);
 			await DbContext.SaveChangesAsync();
 
@@ -269,6 +270,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				gwTransactionId: paymentResult.GWTransactionId,
 				oplogId: prevPayment.OplogId
 			);
+			payment.Status = CardPaymentStatus.Pending;
 			DbContext.CreditCardPayment.Add(payment);
 			await DbContext.SaveChangesAsync();
 

@@ -45,9 +45,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (cryptoCurrency == null && !model.Reversed && inputAmount > long.MaxValue)) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (cryptoCurrency == null && !model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
+
+			// TODO: exchange amount limits
 
 			// ---
 
@@ -144,6 +146,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					buyRequestId: request.Id,
 					oplogId: request.OplogId
 				);
+				payment.Status = CardPaymentStatus.Pending;
 				DbContext.CreditCardPayment.Add(payment);
 				await DbContext.SaveChangesAsync();
 			}

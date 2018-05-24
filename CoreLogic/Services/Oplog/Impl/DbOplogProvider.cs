@@ -11,8 +11,6 @@ namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 
 	public class DbOplogProvider : IOplogProvider {
 
-		// TODO: use logger
-
 		private readonly DAL.ApplicationDbContext _dbContext;
 		private ILogger _logger; 
 

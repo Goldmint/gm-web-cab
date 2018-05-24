@@ -49,13 +49,13 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 
 				public class AssetSection {
 
-					public double BuyChangeThreshold { get; set; } = 0.15d;
-					public double SellChangeThreshold { get; set; } = 0.15d;
+					public double BuyEthGoldChangeThreshold { get; set; } = 0.15d;
+					public double SellEthGoldChangeThreshold { get; set; } = 0.15d;
 
 					public static IValidator<AssetSection> GetValidator() {
 						var v = new InlineValidator<AssetSection>() { CascadeMode = CascadeMode.Continue };
-						v.RuleFor(_ => _.BuyChangeThreshold).GreaterThan(0);
-						v.RuleFor(_ => _.SellChangeThreshold).GreaterThan(0);
+						v.RuleFor(_ => _.BuyEthGoldChangeThreshold).GreaterThan(0);
+						v.RuleFor(_ => _.SellEthGoldChangeThreshold).GreaterThan(0);
 						return v;
 					}
 				}
@@ -65,11 +65,13 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 
 				public int ContractBuyRequest { get; set; } = 1800;
 				public int ContractSellRequest { get; set; } = 1800;
+				public int HwUserOperationDelay { get; set; } = 1800;
 
 				public static IValidator<TimeoutsSection> GetValidator() {
 					var v = new InlineValidator<TimeoutsSection>() { CascadeMode = CascadeMode.Continue };
 					v.RuleFor(_ => _.ContractBuyRequest).GreaterThan(0);
 					v.RuleFor(_ => _.ContractSellRequest).GreaterThan(0);
+					v.RuleFor(_ => _.HwUserOperationDelay).GreaterThan(0);
 					return v;
 				}
 			}

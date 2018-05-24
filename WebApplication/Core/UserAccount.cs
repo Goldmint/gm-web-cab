@@ -19,7 +19,7 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// New user account
 		/// </summary>
-		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null, bool emailConfirmed = false) {
+		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null) {
 
 			var logger = services.GetLoggerFor(typeof(UserAccount));
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -43,7 +43,7 @@ namespace Goldmint.WebApplication.Core {
 					TfaSecret = tfaSecret,
 					JwtSaltCabinet = GenerateJwtSalt(),
 					JwtSaltDashboard = GenerateJwtSalt(),
-					EmailConfirmed = emailConfirmed,
+					EmailConfirmed = false,
 					AccessRights = 0,
 
 					UserOptions = new DAL.Models.UserOptions() {

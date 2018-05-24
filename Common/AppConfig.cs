@@ -171,15 +171,15 @@
 				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
 
 				public class WorkerSettings {
-					public int PeriodSec { get; set; } = 10;
+					public int PeriodSec { get; set; } = 60;
 				}
 
 				public class DbWorkerSettings : WorkerSettings {
-					public int ItemsPerRound { get; set; } = 100;
+					public int ItemsPerRound { get; set; } = 50;
 				}
 
 				public class EthWorkerSettings : DbWorkerSettings {
-					public int EthConfirmations { get; set; } = 6;
+					public int EthConfirmations { get; set; } = 30;
 				}
 			}
 		}
