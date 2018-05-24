@@ -1112,6 +1112,55 @@
         "KYCPolicy": "KYC политика"
       }
     },
+    "PaymentCardBlock": {
+      "Labels": {
+        "Amount": "Количество:",
+        "Estimates": "Оценочная сумма:",
+        "Checkbox": "Настоящим я подтверждаю своё ознакомление с согласие с информацией, приведенной ниже (непосредственно или в виде ссылок):"
+      },
+      "Button": "Перейти к оплате",
+      "Table": {
+        "Caption": {
+          "Billing": "Дескриптор биллинга",
+          "ConsumerPolicy": "Политика конфиденциальности",
+          "ConsumerInformation": "Контактная информация клиентского сервиса",
+          "CyberBridge": "CyberBridge OÜ",
+          "DeliveryPolicy": "Условия доставки",
+          "Description": "Описание предлагаемых услуг",
+          "Domicile": "Домицилий и юрисдикция",
+          "GoldCoin": "Условия продажи GoldCoin",
+          "Legal": "Правовая информация",
+          "Reccuring": "Повторяющиеся платежи",
+          "ReturnPolicy": "Политика осуществления возврата/отмены сделки",
+          "Security": "Политика безопасности передачи данных карты клиента",
+          "Currency": "Валюта платежа",
+          "Method": "Способ оплаты"
+        },
+        "Information": {
+          "Billing": "Goldmint",
+          "ConsumerPolicy": "https://www.goldmint.io/privacy-policy",
+          "ConsumerInformation": {
+            "Facebook": "https://www.facebook.com/goldmint.io/",
+            "Telegram": "https://t.me/goldmintio",
+            "Support": "support@goldmint.io"
+          },
+          "CyberBridge": "компания зарегистрирована в Эстонии 05.12.2017г., регистрационный номер 14383967, адрес Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
+          "DeliveryPolicy": "неприменимо, в соответствии с цифровой природой продукта",
+          "Description": "https://www.goldmint.io/tokens",
+          "Domicile": "(на момент совершения сделки) - Эстония",
+          "GoldCoin": "https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf",
+          "Legal": "https://www.goldmint.io/legal",
+          "Reccuring": "не осуществляются компанией CyberBridge OU",
+          "ReturnPolicy": {
+            "Text": "CyberBridge OU приобретает золото на биржах непосредственно в момент получения денежных средств oт Пользователя и несёт все связанные с этим расходы и издержки, следовательно, такая транзакция не может быть отменена. Однако, Пользователь может продать GoldCoin обратно CyberBridge OU по тарифам, указанным в личном кабинете Пользователя",
+            "Link": "https://app.goldmint.io/#/sell"
+          },
+          "Security": "определена компанией, оказывающей платёжные услуги",
+          "Currency": "Доллары США, Евро",
+          "Method": "оплата картой"
+        }
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Ошибка 404. Страница не найдена",
