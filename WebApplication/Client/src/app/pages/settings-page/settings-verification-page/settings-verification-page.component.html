@@ -157,11 +157,11 @@
 <ng-container *ngIf="phase == _phase.Finished">
   <section class="section section--no-bottom">
     <h2 class="section__title">
-      <span>Terms of sales agreement</span>
+      <span>{{ "PAGES.Settings.KYC.AgreementSection.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
         <div class="lead icon--green">
-          Agreement is approved
+          {{ "PAGES.Settings.KYC.AgreementSection.Success.Status" | translate }}
         </div>
       </div>
     </h2>
@@ -171,7 +171,7 @@
         <div class="container"></div>
       </div>
 
-      <div class="pt-2 mb-2"><span class="lead">Congratulations! Terms of sales verification successfully finished!</span></div>
+      <div class="pt-2 mb-2"><span class="lead">{{ "PAGES.Settings.KYC.AgreementSection.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>
@@ -180,11 +180,11 @@
 <ng-container *ngIf="kycProfile && kycProfile.isResidenceProved">
   <section class="section section--no-bottom">
     <h2 class="section__title">
-      <span>Proof of residency verification</span>
+      <span>{{ "PAGES.Settings.KYC.ProofResidency.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
         <div class="lead icon--green">
-          Verification completed
+          {{ "PAGES.Settings.KYC.ProofResidency.Success.Status" | translate }}
         </div>
       </div>
     </h2>
@@ -194,7 +194,7 @@
         <div class="container"></div>
       </div>
 
-      <div class="pt-2 mb-2"><span class="lead">Congratulations! Proof of residency verification successfully finished!</span></div>
+      <div class="pt-2 mb-2"><span class="lead">{{ "PAGES.Settings.KYC.ProofResidency.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>
@@ -203,11 +203,11 @@
 <ng-container *ngIf="kycProfile && kycProfile.isKycFinished">
   <section class="section section--no-bottom">
     <h2 class="section__title">
-      <span>KYC verification</span>
+      <span>{{ "PAGES.Settings.KYC.DefaultSection.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
         <div class="lead icon--green">
-          Verification completed
+          {{ "PAGES.Settings.KYC.DefaultSection.Success.Status" | translate }}
         </div>
       </div>
     </h2>
@@ -217,7 +217,7 @@
         <div class="container"></div>
       </div>
 
-      <div class="lead pt-2 mb-2"><span class="lead">Congratulations! KYC verification successfully finished!</span></div>
+      <div class="lead pt-2 mb-2"><span class="lead">{{ "PAGES.Settings.KYC.DefaultSection.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>

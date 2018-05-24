@@ -1,15 +1,15 @@
 <div class="row payment-card-info">
   <div class="col-12 col-md-8">
-    <div class="payment-card-estimate mb-1"><span class="font-weight-500">Amount:</span> {{ estimatedAmount.amount }}</div>
-    <div class="payment-card-estimate"><span class="font-weight-500">Estimates Amount:</span> {{ estimatedAmount.estimated }}</div>
+    <div class="payment-card-estimate mb-1"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Amount" | translate }}</span> {{ estimatedAmount.amount }}</div>
+    <div class="payment-card-estimate"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Estimates" | translate }}</span> {{ estimatedAmount.estimated }}</div>
 
     <div class="mt-4">
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
-        <label class="custom-control-label" for="agreeCheck">Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:</label>
+        <label class="custom-control-label" for="agreeCheck">{{ "PAGES.PaymentCardBlock.Labels.Checkbox" | translate }}</label>
       </div>
 
-      <button class="btn btn-primary mt-4" [disabled]="!agreeCheck" (click)="onSubmit()">Proceed to payment</button>
+      <button class="btn btn-primary mt-4" [disabled]="!agreeCheck" (click)="onSubmit()">{{ "PAGES.PaymentCardBlock.Button" | translate }}</button>
     </div>
 
   </div>
@@ -25,63 +25,208 @@
 
 <div class="payment-card-line mt-5 mb-5"></div>
 
-<table class="main-ngx-datatable w-100 payment-card-table">
+<table *ngIf="!isMobile" class="main-ngx-datatable w-100 payment-card-table">
   <tbody class="main-datatable-body">
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Billing descriptor</td>
-      <td class="main-datatable-body-cell align-middle">Goldmint</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Billing" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Billing" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Consumer data privacy policy</td>
-      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/privacy-policy" target="_blank">https://www.goldmint.io/privacy-policy</a></td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerPolicy" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}
+        </a>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Customer Service contact information</td>
-      <td class="main-datatable-body-cell align-middle"><a href="https://www.facebook.com/goldmint.io/" target="_blank">https://www.facebook.com/goldmint.io/</a><br><a href="https://t.me/goldmintio" target="_blank">https://t.me/goldmintio</a><br><a href="mailto:support@goldmint.io" target="_blank">support@goldmint.io</a></td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerInformation" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}
+        </a><br>
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}
+        </a><br>
+        <a href='mailto:{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}
+        </a>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">CyberBridge OÜ</td>
-      <td class="main-datatable-body-cell align-middle">a company registered in Estonia on 05.12.2017, reg.number 14383967, address: Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.CyberBridge" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.CyberBridge" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Delivery policy</td>
-      <td class="main-datatable-body-cell align-middle">none, due to digital nature of services</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.DeliveryPolicy" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.DeliveryPolicy" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Description of the service offered</td>
-      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/tokens" target="_blank">https://www.goldmint.io/tokens</a></td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Description" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}
+        </a>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Domicile &amp; Principal place of business</td>
-      <td class="main-datatable-body-cell align-middle"> (at the checkout page) - Estonia</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Domicile" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Domicile" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">GoldCoin Term of Sales</td>
-      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf" target="_blank">https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf</a></td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.GoldCoin" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <a class="payment-card-break-all" href='{{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}
+        </a>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Legal information</td>
-      <td class="main-datatable-body-cell align-middle"><a href="https://www.goldmint.io/legal" target="_blank">https://www.goldmint.io/legal</a></td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">
+        {{ "PAGES.PaymentCardBlock.Table.Caption.Legal" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}
+        </a>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Reccuring rules</td>
-      <td class="main-datatable-body-cell align-middle"> no recurring payments are fulfilled by CyberBridge OU</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Reccuring" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Reccuring" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Return/Refund/Cancellation policy</td>
-      <td class="main-datatable-body-cell align-middle">CyberBridge OU buys gold at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows <a href="https://app.goldmint.io/#/sell" target="_blank">https://app.goldmint.io/#/sell</a></td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ReturnPolicy" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Text" | translate }}
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}
+        </a>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Security capabilities and policy for transmission of payment card details</td>
-      <td class="main-datatable-body-cell align-middle">as defined by the Payment services provider</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Security" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Security" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Transaction currency</td>
-      <td class="main-datatable-body-cell align-middle">USD, EUR</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Currency" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Currency" | translate }}</td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">Transaction method</td>
-      <td class="main-datatable-body-cell align-middle">card payment</td>
+      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Method" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Method" | translate }}</td>
     </tr>
+  </tbody>
+</table>
+
+<table *ngIf="isMobile" class="main-ngx-datatable w-100 payment-card-table">
+  <tbody class="main-datatable-body">
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Billing" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Billing" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerPolicy" | translate }}:</div>
+      <div>
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}' target="_blank">
+        {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}
+      </a>
+      </div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerInformation" | translate }}:</div>
+      <div>
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}
+        </a><br>
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}
+        </a><br>
+        <a href='mailto:{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}
+        </a>
+      </div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.CyberBridge" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.CyberBridge" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.DeliveryPolicy" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.DeliveryPolicy" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Description" | translate }}:</div>
+      <div> <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}' target="_blank">
+        {{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}
+      </a></div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Domicile" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Domicile" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.GoldCoin" | translate }}:</div>
+      <div><a class="payment-card-break-all" href='{{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}' target="_blank">
+        {{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}
+      </a></div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Legal" | translate }}:</div>
+      <div><a href='{{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}' target="_blank">
+        {{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}
+      </a></div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Reccuring" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Reccuring" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ReturnPolicy" | translate }}:</div>
+      <div>
+        {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Text" | translate }}
+        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}' target="_blank">
+          {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}
+        </a>
+      </div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Security" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Security" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Currency" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Currency" | translate }}</div>
+    </td>
+  </tr>
+  <tr class="main-datatable-body-row border-0">
+    <td class="main-datatable-body-cell align-middle">
+      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Method" | translate }}:</div>
+      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Method" | translate }}</div>
+    </td>
+  </tr>
   </tbody>
 </table>

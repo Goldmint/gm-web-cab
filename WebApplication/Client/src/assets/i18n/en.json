@@ -801,6 +801,11 @@
             "NotSigned": "Not signed",
             "NotVerified": "Not verified"
           },
+          "Success": {
+            "Heading": "KYC verification",
+            "Status": "Verification completed",
+            "Description": "Congratulations! KYC verification successfully finished!"
+          },
           "Text": "Complete verification to withdraw fiat funds and unlock account opportunities",
           "Note": "Verification procedures is very simple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
           "Buttons": {
@@ -821,6 +826,11 @@
           "Text": "Complete verification by signing Goldmint agreement. Agreement will be sent to your primary email address.",
 		  "TextPending": "Agreement signing is still in progress. Please come back later or try to refresh this page.",
 		  "Widget": "Not signed",
+          "Success": {
+            "Heading": "Terms of sales agreement",
+            "Status": "Agreement is approved",
+            "Description": "Congratulations! Terms of sales verification successfully finished!"
+          },
           "Buttons": {
             "Resend": "Send agreement"
           }
@@ -834,7 +844,12 @@
         "ProofResidency": {
           "Heading": "Proof of Residency",
           "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
-          "Button": "Send a request"
+          "Button": "Send a request",
+          "Success": {
+            "Heading": "Proof of residency verification",
+            "Status": "Verification completed",
+            "Description": "Congratulations! Proof of residency verification successfully finished!"
+          }
         },
         "FinishedSection": {
           "Title": "Advanced verification",
@@ -1095,6 +1110,55 @@
         "Terms": "Terms of sale",
         "Privacy": "Privacy policy",
         "KYCPolicy": "KYC Policy"
+      }
+    },
+    "PaymentCardBlock": {
+      "Labels": {
+        "Amount": "Amount:",
+        "Estimates": "Estimates Amount:",
+        "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:"
+      },
+      "Button": "Proceed to payment",
+      "Table": {
+        "Caption": {
+          "Billing": "Billing descriptor",
+          "ConsumerPolicy": "Consumer data privacy policy",
+          "ConsumerInformation": "Customer Service contact information",
+          "CyberBridge": "CyberBridge OÜ",
+          "DeliveryPolicy": "Delivery policy",
+          "Description": "Description of the service offered",
+          "Domicile": "Domicile & Principal place of business",
+          "GoldCoin": "GoldCoin Term of Sales",
+          "Legal": "Legal information",
+          "Reccuring": "Reccuring rules",
+          "ReturnPolicy": "Return/Refund/Cancellation policy",
+          "Security": "Security capabilities and policy for transmission of payment card details",
+          "Currency": "Transaction currency",
+          "Method": "Transaction method"
+        },
+        "Information": {
+          "Billing": "Goldmint",
+          "ConsumerPolicy": "https://www.goldmint.io/privacy-policy",
+          "ConsumerInformation": {
+            "Facebook": "https://www.facebook.com/goldmint.io/",
+            "Telegram": "https://t.me/goldmintio",
+            "Support": "support@goldmint.io"
+          },
+          "CyberBridge": "a company registered in Estonia on 05.12.2017, reg.number 14383967, address: Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
+          "DeliveryPolicy": "none, due to digital nature of services",
+          "Description": "https://www.goldmint.io/tokens",
+          "Domicile": "(at the checkout page) - Estonia",
+          "GoldCoin": "https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf",
+          "Legal": "https://www.goldmint.io/legal",
+          "Reccuring": "no recurring payments are fulfilled by CyberBridge OU",
+          "ReturnPolicy": {
+            "Text": "CyberBridge OU buys gold at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows",
+            "Link": "https://app.goldmint.io/#/sell"
+          },
+          "Security": "as defined by the Payment services provider",
+          "Currency": "USD, EUR",
+          "Method": "card payment"
+        }
       }
     },
     "ErrorPage": {
