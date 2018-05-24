@@ -801,6 +801,11 @@
             "NotSigned": "Not signed",
             "NotVerified": "Not verified"
           },
+          "Success": {
+            "Heading": "KYC verification",
+            "Status": "Verification completed",
+            "Description": "Congratulations! KYC verification successfully finished!"
+          },
           "Text": "Complete verification to withdraw fiat funds and unlock account opportunities",
           "Note": "Verification procedures is very simple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
           "Buttons": {
@@ -821,6 +826,11 @@
           "Text": "Complete verification by signing Goldmint agreement. Agreement will be sent to your primary email address.",
 		  "TextPending": "Agreement signing is still in progress. Please come back later or try to refresh this page.",
 		  "Widget": "Not signed",
+          "Success": {
+            "Heading": "Terms of sales agreement",
+            "Status": "Agreement is approved",
+            "Description": "Congratulations! Terms of sales verification successfully finished!"
+          },
           "Buttons": {
             "Resend": "Send agreement"
           }
@@ -834,7 +844,12 @@
         "ProofResidency": {
           "Heading": "Proof of Residency",
           "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
-          "Button": "Send a request"
+          "Button": "Send a request",
+          "Success": {
+            "Heading": "Proof of residency verification",
+            "Status": "Verification completed",
+            "Description": "Congratulations! Proof of residency verification successfully finished!"
+          }
         },
         "FinishedSection": {
           "Title": "Advanced verification",
