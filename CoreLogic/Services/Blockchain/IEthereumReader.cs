@@ -54,11 +54,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// <summary>
 		/// Get `TokenBuyRequest` events
 		/// </summary>
-		Task<GatheredGoldBoughtWithEthEvent> GatherTokenBuyRequestEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		Task<GatheredGoldBoughtWithEthEvent> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 
 		/// <summary>
 		/// Get `TokenSellRequest` events
 		/// </summary>
-		Task<GatheredGoldSoldForEthEvent> GatherTokenSellRequestEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		Task<GatheredGoldSoldForEthEvent> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 	}
 }

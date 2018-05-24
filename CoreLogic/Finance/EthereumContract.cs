@@ -19,7 +19,7 @@ namespace Goldmint.CoreLogic.Finance {
 	public static class EthereumContract {
 
 		/// <summary>
-		/// Process HW GOLD transferring transaction (core-worker queue)
+		/// Process Ethereum operation (core-worker queue)
 		/// </summary>
 		public static async Task<bool> ExecuteOperation(IServiceProvider services, long operationId, int confirmationsRequired) {
 
@@ -172,12 +172,6 @@ namespace Goldmint.CoreLogic.Finance {
 								var success = txInfo.Status == EthTransactionStatus.Success;
 
 								FinalizeOperation(op, logger, success);
-
-								// request cancellation => finhistory should fail anyway
-								if (op.Type == EthereumOperationType.ContractCancelBuyRequest) {
-									op.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-								}
-
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -219,10 +213,6 @@ namespace Goldmint.CoreLogic.Finance {
 
 			op.Status = success ? EthereumOperationStatus.Success : EthereumOperationStatus.Failed;
 			op.TimeCompleted = DateTime.UtcNow;
-
-			op.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
-			op.RefUserFinHistory.TimeCompleted = op.TimeCompleted;
-
 			logger.Trace($"Changing status to {op.Status.ToString()} for #{op.Id}");
 		}
 

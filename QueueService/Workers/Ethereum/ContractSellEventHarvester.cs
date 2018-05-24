@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers.Ethereum {
 
-	public sealed class SellRequestsHarvester : BaseWorker {
+	public sealed class ContractSellEventHarvester : BaseWorker {
 
 		private readonly int _blocksPerRound;
 		private readonly int _confirmationsRequired;
@@ -25,7 +25,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 		private long _statProcessed = 0;
 
-		public SellRequestsHarvester(int blocksPerRound, int confirmationsRequired) {
+		public ContractSellEventHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
 			_lastBlock = BigInteger.Zero;
@@ -63,7 +63,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 			_dbContext.DetachEverything();
 
 			// get events
-			var log = await _ethereumReader.GatherTokenSellRequestEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
+			var log = await _ethereumReader.GatherTokenSellEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
 			_lastBlock = log.ToBlock;
 
 			Logger.Debug(
@@ -73,7 +73,11 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 				) + $" in blocks [{log.FromBlock} - {log.ToBlock}]"
 			);
 
+			if (IsCancelled()) return;
+
 			foreach (var v in log.Events) {
+
+				if (IsCancelled()) return;
 
 				_dbContext.DetachEverything();
 
@@ -94,7 +98,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 					continue;
 				}*/
 
-				var pdResult = await CoreLogic.Finance.GoldToken.ProcessContractSellRequest(
+				var pdResult = await CoreLogic.Finance.GoldToken.OnEthereumContractSellEvent(
 					services: _services,
 					requestIndex: v.RequestIndex,
 					internalRequestId: (long)v.Reference,
@@ -124,12 +128,12 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			// tele
 			_coreTelemetryAccum.AccessData(tel => {
-				tel.SellRequestHarvester.Load = StatAverageLoad;
-				tel.SellRequestHarvester.Exceptions = StatExceptionsCounter;
-				tel.SellRequestHarvester.LastBlock = _lastBlock.ToString();
-				tel.SellRequestHarvester.StepBlocks = _blocksPerRound;
-				tel.SellRequestHarvester.ProcessedSinceStartup = _statProcessed;
-				tel.SellRequestHarvester.ConfirmationsRequired = _confirmationsRequired;
+				tel.ContractSellEvents.Load = StatAverageLoad;
+				tel.ContractSellEvents.Exceptions = StatExceptionsCounter;
+				tel.ContractSellEvents.LastBlock = _lastBlock.ToString();
+				tel.ContractSellEvents.StepBlocks = _blocksPerRound;
+				tel.ContractSellEvents.ProcessedSinceStartup = _statProcessed;
+				tel.ContractSellEvents.ConfirmationsRequired = _confirmationsRequired;
 			});
 		}
 	}

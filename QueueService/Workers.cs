@@ -37,11 +37,14 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() {
 
 					// doesn't require ethereum at all
-					new Workers.CreditCard.PaymentProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					new Workers.CreditCard.VerificationProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					new Workers.CreditCard.RefundsProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					
 					// does require ethereum (reader)
-					new Workers.Ethereum.BuyRequestsHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					new Workers.Ethereum.SellRequestsHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
+					new Workers.Ethereum.ContractBuyEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
+					new Workers.Ethereum.ContractSellEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
 
 					// does require ethereum (writer and reader)
 					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, _appConfig.Services.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),

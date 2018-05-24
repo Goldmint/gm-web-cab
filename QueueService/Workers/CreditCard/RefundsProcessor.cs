@@ -1,18 +1,19 @@
-﻿using Goldmint.DAL;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Goldmint.CoreLogic.Finance;
+using Goldmint.CoreLogic.Services.Bus.Telemetry;
+using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Bus.Telemetry;
 
-namespace Goldmint.QueueService.Workers.Ethereum {
-	
-	public sealed class EthereumOprationsProcessor : BaseWorker {
+namespace Goldmint.QueueService.Workers.CreditCard {
+
+	public sealed class RefundsProcessor : BaseWorker {
 
 		private readonly int _rowsPerRound;
-		private readonly int _ethConfirmations;
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
@@ -21,9 +22,8 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 		private long _statProcessed = 0;
 		private long _statFailed = 0;
 
-		public EthereumOprationsProcessor(int rowsPerRound, int ethConfirmations) {
+		public RefundsProcessor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
-			_ethConfirmations = Math.Max(2, ethConfirmations);
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -38,19 +38,20 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			_dbContext.DetachEverything();
 
+			// get pending payments
 			var nowTime = DateTime.UtcNow;
-
 			var rows = await (
-				from r in _dbContext.EthereumOperation
-				where 
-				(r.Status == EthereumOperationStatus.Prepared || r.Status == EthereumOperationStatus.BlockchainConfirm) &&
-				r.TimeNextCheck <= nowTime
-				select new { Id = r.Id }
-			)
-				.AsNoTracking()
-				.Take(_rowsPerRound)
-				.ToArrayAsync(CancellationToken)
-			;
+						from p in _dbContext.CreditCardPayment
+						where
+							p.Status == Common.CardPaymentStatus.Pending
+							&& p.TimeNextCheck <= nowTime
+							&& (p.Type == Common.CardPaymentType.Refund)
+						select new { Id = p.Id, Type = p.Type }
+					)
+					.AsNoTracking()
+					.Take(_rowsPerRound)
+					.ToListAsync(CancellationToken)
+				;
 
 			if (IsCancelled()) return;
 
@@ -59,8 +60,9 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 				if (IsCancelled()) return;
 
 				_dbContext.DetachEverything();
-
-				if (await CoreLogic.Finance.EthereumContract.ExecuteOperation(_services, row.Id, _ethConfirmations)) {
+				
+				var res = await The1StPaymentsProcessing.ProcessRefundPayment(_services, row.Id);
+				if (res) {
 					++_statProcessed;
 				}
 				else {
@@ -73,10 +75,10 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			// tele
 			_coreTelemetryAccum.AccessData(tel => {
-				tel.EthereumOperations.Load = StatAverageLoad;
-				tel.EthereumOperations.Exceptions = StatExceptionsCounter;
-				tel.EthereumOperations.ProcessedSinceStartup = _statProcessed;
-				tel.EthereumOperations.FailedSinceStartup = _statFailed;
+				tel.CreditCardRefunds.ProcessedSinceStartup = _statProcessed;
+				tel.CreditCardRefunds.FailedSinceStartup = _statFailed;
+				tel.CreditCardRefunds.Load = StatAverageLoad;
+				tel.CreditCardRefunds.Exceptions = StatExceptionsCounter;
 			});
 		}
 	}

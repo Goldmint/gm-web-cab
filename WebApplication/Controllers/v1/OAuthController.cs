@@ -84,14 +84,15 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			// exists
 			if (user != null) {
 
-				var agent = GetUserAgentInfo();
-
 				// try to sign in
 				var signResult = await SignInManager.CanSignInAsync(user);
 
+				// check rights
 				var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, user);
 
 				if (signResult && accessRightsMask != null) {
+
+					var agent = GetUserAgentInfo();
 
 					// notification
 					await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.SignedIn, userLocale))
@@ -152,7 +153,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				var email = userInfo.Email;
 
 				// try create and sign in
-				var cuaResult = await Core.UserAccount.CreateUserAccount(HttpContext.RequestServices, email, emailConfirmed: true);
+				var cuaResult = await Core.UserAccount.CreateUserAccount(HttpContext.RequestServices, email);
 				if (cuaResult.User != null) {
 
 					// user created and external login attached

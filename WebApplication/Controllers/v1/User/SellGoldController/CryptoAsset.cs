@@ -26,7 +26,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
@@ -45,6 +45,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (userTier < UserTier.Tier1) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
+
+			// TODO: exchange amount limits
 
 			// ---
 
