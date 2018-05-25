@@ -1144,12 +1144,12 @@
             "Telegram": "https://t.me/goldmintio",
             "Support": "support@goldmint.io"
           },
-          "CyberBridge": "компания зарегистрирована в Эстонии 05.12.2017г., регистрационный номер 14383967, адрес Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
+          "CyberBridge": "компания зарегистрирована в Эстонии 05.12.2017 г., регистрационный номер 14383967, адрес Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
           "DeliveryPolicy": "неприменимо, в соответствии с цифровой природой продукта",
-          "Description": "https://www.goldmint.io/tokens",
+          "Description": "https://www.goldmint.io/ru/tokens",
           "Domicile": "(на момент совершения сделки) - Эстония",
-          "GoldCoin": "https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf",
-          "Legal": "https://www.goldmint.io/legal",
+          "GoldCoin": "https://www.goldmint.io/media/documents/%D0%A3%D1%81%D0%BB%D0%BE%D0%B2%D0%B8%D1%8F_%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%D0%B8_Gold_Coin.pdf ",
+          "Legal": "https://www.goldmint.io/ru/legal",
           "Reccuring": "не осуществляются компанией CyberBridge OU",
           "ReturnPolicy": {
             "Text": "CyberBridge OU приобретает золото на биржах непосредственно в момент получения денежных средств oт Пользователя и несёт все связанные с этим расходы и издержки, следовательно, такая транзакция не может быть отменена. Однако, Пользователь может продать GoldCoin обратно CyberBridge OU по тарифам, указанным в личном кабинете Пользователя",
