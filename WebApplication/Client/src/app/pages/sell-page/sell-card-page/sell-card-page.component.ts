@@ -6,7 +6,7 @@ import {TranslateService} from "@ngx-translate/core";
 import * as Web3 from "web3";
 import {Router} from "@angular/router";
 import {Observable} from "rxjs/Observable";
-import {CardsList} from "../../../interfaces";
+import {CardsList, User} from "../../../interfaces";
 import {Subscription} from "rxjs/Subscription";
 
 @Component({
@@ -32,8 +32,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public currentValue: number;
   public estimatedAmount: BigNumber;
   public cards: CardsList;
+  public user: User;
   public selectedCard: number;
-  public transferAmount: object;
+  public transferData: object;
 
   public selectedWallet = 0;
   public ethAddress: string = '';
@@ -56,26 +57,29 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this._apiService.getFiatCards()
-      .subscribe(cards => {
-        this.cards = cards.data;
-        this.isDataLoaded = true;
+    Observable.combineLatest(
+      this._apiService.getFiatCards(),
+      this._apiService.getProfile()
+    ).subscribe((res) => {
+      this.cards = res[0].data;
+      this.user = res[1].data;
 
-        if (this.cards.list && this.cards.list.length) {
-          this.interval = Observable.interval(100).subscribe(() => {
-            if (this.goldAmountInput && this.goldBalance !== null) {
-              this.selectedCard = this.cards.list[0].cardId;
+      this.isDataLoaded = true;
+      if (this.cards.list && this.cards.list.length) {
+        this.interval = Observable.interval(100).subscribe(() => {
+          if (this.goldAmountInput && this.goldBalance !== null) {
+            this.selectedCard = this.cards.list[0].cardId;
 
-              this.initInputValueChanges();
-              this.setGoldBalance(1);
+            this.initInputValueChanges();
+            this.setGoldBalance(1);
 
-              this.interval && this.interval.unsubscribe();
-              this._cdRef.markForCheck();
-            }
-          });
-        }
-        this._cdRef.markForCheck();
-      });
+            this.interval && this.interval.unsubscribe();
+            this._cdRef.markForCheck();
+          }
+        });
+      }
+      this._cdRef.markForCheck();
+    });
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
@@ -229,9 +233,17 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
   fixedAmount() {
     if (this.isFormSubmitted) {
-      this.transferAmount = {
-        amount: this.goldAmount + ' GOLD',
-        estimated: this.usdAmount + ' USD'
+      this.transferData = {
+        amountView: this.goldAmount + ' GOLD',
+        estimatedView: this.usdAmount + ' USD',
+        goldAmount: this.goldAmount,
+        type: 'sell',
+        userId:  this.user.id,
+        cardId: this.selectedCard,
+        ethAddress: this.ethAddress,
+        currency: 'USD',
+        amount: this.estimatedAmount,
+        reversed: this.isReversed
       };
 
       this.isFormSubmitted = false;

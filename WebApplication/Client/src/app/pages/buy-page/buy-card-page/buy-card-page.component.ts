@@ -34,7 +34,7 @@ export class BuyCardPageComponent implements OnInit {
   public estimatedAmount: BigNumber;
   public cards: CardsList;
   public selectedCard: number;
-  public transferAmount: object;
+  public transferData: object;
 
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -158,10 +158,6 @@ export class BuyCardPageComponent implements OnInit {
     this._cdRef.markForCheck();
   }
 
-  changeCard() {
-
-  }
-
   changeValue(status: boolean, event) {
     event.target.value = this.substrValue(event.target.value);
     this.currentValue = +event.target.value;
@@ -190,9 +186,15 @@ export class BuyCardPageComponent implements OnInit {
 
   fixedAmount() {
     if (this.isFormSubmitted) {
-      this.transferAmount = {
-        amount: this.usdAmount + ' USD',
-        estimated: this.goldAmount + ' GOLD'
+      this.transferData = {
+        amountView: this.usdAmount + ' USD',
+        estimatedView: this.goldAmount + ' GOLD',
+        type: 'buy',
+        cardId: +this.selectedCard,
+        ethAddress: this.ethAddress,
+        currency: 'USD',
+        amount: this.estimatedAmount,
+        reversed: this.isReversed
       };
 
       this.isFormSubmitted = false;
