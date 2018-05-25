@@ -201,7 +201,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   submitProofResidence() {
     this._apiService.getZendeskTokenSSO().subscribe(token => {
       const returnTo = `https://support.goldmint.io/hc/en-us/requests/new?ticket_form_id=360000060753&userEmail=${this.userData.email}&userId=${this.userData.id}`;
-      window.location.replace(`https://goldmint.zendesk.com/access/jwt?jwt=${token}&return_to=${encodeURIComponent(returnTo)}`);
+      window.location.replace(`https://goldmint.zendesk.com/access/jwt?jwt=${token.data.jwt}&return_to=${encodeURIComponent(returnTo)}`);
     });
   }
 

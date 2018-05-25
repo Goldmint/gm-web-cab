@@ -383,10 +383,9 @@ export class APIService {
       );
   }
   // -------
-  goldBuyAsset(ethAddress: string, amount: BigNumber) {
-    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -411,10 +410,9 @@ export class APIService {
       );
   }
 
-  goldSellAsset(ethAddress: string, amount: BigNumber) {
-    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+  goldSellAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -443,6 +441,28 @@ export class APIService {
     var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/hw/transfer`, { ethAddress, amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
+    const params = {cardId, ethAddress, currency, amount, reversed}
+
+    return this._http
+      .post(`${this._baseUrl}/user/gold/buy/ccard`, params, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  sellGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
+    const params = {cardId, ethAddress, currency, amount, reversed}
+
+    return this._http
+      .post(`${this._baseUrl}/user/gold/sell/ccard`, params, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay(),

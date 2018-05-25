@@ -220,11 +220,9 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
 
-    this._apiService.goldBuyAsset(this.ethAddress, this.estimatedAmount)
-      .finally(() => {
-        this.loading = false;
-        this._cdRef.markForCheck();
-      })
+    let eth = new BigNumber(this.coinAmount).decimalPlaces(6, BigNumber.ROUND_DOWN);
+
+    this._apiService.goldBuyAsset(this.ethAddress, this.Web3.toWei(+this.estimatedAmount), this.isReversed, this.currentCoin)
       .subscribe(res => {
         const wei = this.Web3.toWei(this.estimatedAmount);
         this._apiService.goldBuyEstimate(this.currentCoin, wei, this.isReversed)
@@ -237,13 +235,15 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
             this._translate.get('MessageBox.EthDeposit',
               {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
             ).subscribe(phrase => {
+              this.loading = false;
+              this._cdRef.markForCheck();
               this._messageBox.confirm(phrase).subscribe(ok => {
                 if (ok) {
                   this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
 
                     this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
                       if (price !== null && this.isFirstTransaction) {
-                        this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
+                        this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, this.Web3.toWei(+eth), +price);
                         this.isFirstTransaction = false;
                       }
                     });

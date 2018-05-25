@@ -24,7 +24,6 @@
                 <select class="form-control" name="cardId" id="selectCard"
                         #cardId="ngModel"
                         [(ngModel)]="selectedCard"
-                        (change)="changeCard()"
                         [disabled]="loading">
                   <option *ngFor="let card of cards.list" [value]="card.cardId">{{ card.mask }}</option>
                 </select>
@@ -103,7 +102,7 @@
     </ng-container>
 
     <ng-container *ngIf="showPaymentCardBlock">
-      <app-payment-card-block [amount]="transferAmount"></app-payment-card-block>
+      <app-payment-card-block [amount]="transferData"></app-payment-card-block>
     </ng-container>
 
   </div>

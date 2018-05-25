@@ -114,17 +114,11 @@
 
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnPaymentCard">{{ "PAGES.Buy.Method.PaymentCard" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                        [disabled]="!this.selectedWallet || !isMetamask">
+                <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-card"></use>
                   </svg>
                 </button>
-                <div *ngIf="!this.selectedWallet || !isMetamask">
-                  <div class="text-left pt-1 blocked-notification text-center">
-                    {{ "PAGES.Sell.Errors.UseMM" | translate }}
-                  </div>
-                </div>
               </div>
 
               <!-- <div class="col col-lg-6 col-xl form-group text-center">

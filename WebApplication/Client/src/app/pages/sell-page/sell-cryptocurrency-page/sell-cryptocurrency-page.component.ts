@@ -324,11 +324,9 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     if (this.selectedWallet === 0) {
 
     } else {
-      this._apiService.goldSellAsset(this.ethAddress, this.estimatedAmount)
-        .finally(() => {
-          this.loading = false;
-          this._cdRef.markForCheck();
-        })
+      let gold = new BigNumber(this.goldAmount).decimalPlaces(6, BigNumber.ROUND_DOWN);
+
+      this._apiService.goldSellAsset(this.ethAddress, this.Web3.toWei(+this.estimatedAmount), this.isReversed, this.currentCoin)
         .subscribe(res => {
           const wei = this.Web3.toWei(this.estimatedAmount);
           this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
@@ -341,13 +339,15 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
               this._translate.get('MessageBox.EthWithdraw',
                 {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
               ).subscribe(phrase => {
+                this.loading = false;
+                this._cdRef.markForCheck();
                 this._messageBox.confirm(phrase).subscribe(ok => {
                   if (ok) {
                     this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
 
                       this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
                         if (price !== null && this.isFirstTransaction) {
-                          this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
+                          this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, this.Web3.toWei(+gold), +price);
                           this.isFirstTransaction = false;
                         }
                       });

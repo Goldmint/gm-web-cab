@@ -1,15 +1,17 @@
 <div class="row payment-card-info">
   <div class="col-12 col-md-8">
-    <div class="payment-card-estimate mb-1"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Amount" | translate }}</span> {{ estimatedAmount.amount }}</div>
-    <div class="payment-card-estimate"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Estimates" | translate }}</span> {{ estimatedAmount.estimated }}</div>
+    <div class="payment-card-estimate mb-1"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Amount" | translate }}</span> {{ transferData.amountView }}</div>
+    <div class="payment-card-estimate"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Estimates" | translate }}</span> {{ transferData.estimatedView }}</div>
 
     <div class="mt-4">
       <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
+        <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
         <label class="custom-control-label" for="agreeCheck">{{ "PAGES.PaymentCardBlock.Labels.Checkbox" | translate }}</label>
       </div>
-
-      <button class="btn btn-primary mt-4" [disabled]="!agreeCheck" (click)="onSubmit()">{{ "PAGES.PaymentCardBlock.Button" | translate }}</button>
+      <div class="d-flex align-items-center mt-4">
+        <button class="btn btn-primary" [disabled]="!agreeCheck || loading" (click)="onSubmit()">{{ "PAGES.PaymentCardBlock.Button" | translate }}</button>
+        <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+      </div>
     </div>
 
   </div>
