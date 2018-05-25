@@ -491,7 +491,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 					where
 						c.UserId == user.Id &&
 						c.Id == model.CardId &&
-						(c.State == CardState.Verification || c.State == CardState.Verified)
+						(
+							c.State == CardState.Verification || 
+							c.State == CardState.Verified
+						)
 					select c
 				)
 				.AsTracking()

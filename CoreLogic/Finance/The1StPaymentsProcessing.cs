@@ -42,7 +42,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New verification payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateVerificationPayment(IServiceProvider services, UserCreditCard card, string oplogId) {
+		private static async Task<CreditCardPayment> CreateVerificationPayment(IServiceProvider services, UserCreditCard card, string oplogId) {
 
 			// if (card.User == null) throw new ArgumentException("User not included");
 
@@ -66,7 +66,7 @@ namespace Goldmint.CoreLogic.Finance {
 				UserId = card.UserId,
 				Currency = FiatCurrency.Usd,
 				AmountCents = amountCents,
-				Status = CardPaymentStatus.Unconfirmed,
+				Status = CardPaymentStatus.Pending,
 				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
@@ -115,7 +115,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New payment refund
 		/// </summary>
-		public static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string oplogId) {
+		private static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string oplogId) {
 
 			if (refPayment.Type != CardPaymentType.Deposit && refPayment.Type != CardPaymentType.Verification) {
 				throw new ArgumentException("Ref payment must be of deposit or verification type");
@@ -134,7 +134,7 @@ namespace Goldmint.CoreLogic.Finance {
 				UserId = refPayment.UserId,
 				Currency = refPayment.Currency,
 				AmountCents = refPayment.AmountCents,
-				Status = CardPaymentStatus.Unconfirmed,
+				Status = CardPaymentStatus.Pending,
 				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
@@ -356,7 +356,6 @@ namespace Goldmint.CoreLogic.Finance {
 												card: card,
 												oplogId: payment.OplogId
 											);
-											verPayment.Status = CardPaymentStatus.Pending;
 											dbContext.CreditCardPayment.Add(verPayment);
 											verificationPaymentEnqueued = verPayment;
 
@@ -502,7 +501,6 @@ namespace Goldmint.CoreLogic.Finance {
 						// refund
 						try {
 							var refund = CreateRefundPayment(payment, payment.OplogId);
-							refund.Status = CardPaymentStatus.Pending;
 							dbContext.CreditCardPayment.Add(refund);
 							refundEnqueued = refund;
 

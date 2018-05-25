@@ -360,7 +360,7 @@ namespace Goldmint.Common {
 		Payment,
 
 		/// <summary>
-		/// Awaiting for code from bank statement
+		/// Waiting for code from bank statement
 		/// </summary>
 		Verification,
 

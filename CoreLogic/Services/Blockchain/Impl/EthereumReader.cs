@@ -152,7 +152,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				RequestIndex = requestIndex,
 				Reference = funcRet.Reference,
 				Address = funcRet.Address,
-				UserId = funcRet.UserId,
+				// UserId = funcRet.UserId,
 				Amount = funcRet.Amount,
 				IsBuyRequest = funcRet.IsBuyRequest,
 				IsPending = funcRet.State == 0,

@@ -15,11 +15,6 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 		public string Address { get; set; }
 
 		/// <summary>
-		/// User ID
-		/// </summary>
-		public string UserId { get; set; }
-
-		/// <summary>
 		/// Request payload
 		/// </summary>
 		public BigInteger Reference { get; set; }

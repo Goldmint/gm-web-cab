@@ -617,10 +617,10 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 
 			public string FormatProviderMessage() {
 				return (""
-					+ (ChargeResultCodeString ?? "") + "; "
-					+ (ChargeResultCode ?? "") + "; "
-					+ (ProcessorError ?? "") + "; "
-				).Trim(';', ' ');
+					+ (ChargeResultCodeString ?? "") + " / "
+					+ (ChargeResultCode ?? "") + " / "
+					+ (ProcessorError ?? "") + " / "
+				).Trim('/', ' ');
 			}
 
 			public string FormatProviderStatus() {
@@ -851,7 +851,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 			ret.ChargeDetails = rawPairs.GetValueOrDefault("ExtendedErrorCode");
 
 			// 3-character code of transaction charge details converted into the string with it's description(In this case, return can be longer than 256 bytes)
-			ret.ChargeResultCodeString = rawPairs.GetValueOrDefault("ResultCodeString");
+			ret.ChargeResultCodeString = rawPairs.GetValueOrDefault("ResultCodeStr");
 
 			// Contains an error, obtained from a processor if transaction has unsuccessful status.Will be empty for successful transaction.
 			ret.ProcessorError = rawPairs.GetValueOrDefault("ProcessorError");
