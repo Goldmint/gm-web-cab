@@ -425,11 +425,10 @@ namespace Goldmint.CoreLogic.Finance {
 		/// Process CreditCard-deposit to GOLD buying request (core-worker)
 		/// Fiat received, GOLD will be issued
 		/// </summary>
-		public static async Task<BuySellRequestProcessingResult> OnCreditCardDepositCompleted(IServiceProvider services, long requestId, CreditCardPayment payment) {
+		public static async Task<BuySellRequestProcessingResult> OnCreditCardDepositCompleted(IServiceProvider services, long requestId, long paymentId) {
 
-			if (payment == null || payment.Type != CardPaymentType.Deposit) return BuySellRequestProcessingResult.InvalidArgs;
 			if (requestId <= 0) return BuySellRequestProcessingResult.InvalidArgs;
-			if (payment.AmountCents <= 0) return BuySellRequestProcessingResult.InvalidArgs;
+			if (paymentId <= 0) return BuySellRequestProcessingResult.InvalidArgs;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var appConfig = services.GetRequiredService<AppConfig>();
@@ -469,11 +468,25 @@ namespace Goldmint.CoreLogic.Finance {
 						return BuySellRequestProcessingResult.NotFound;
 					}
 
+					// get payment
+					var payment = await(
+							from p in dbContext.CreditCardPayment
+							where
+								p.Type == CardPaymentType.Deposit &&
+								p.Id == paymentId &&
+								(p.Status == CardPaymentStatus.Success || p.Status == CardPaymentStatus.Failed)
+							select p
+						)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
+					if (payment == null) {
+						return BuySellRequestProcessingResult.InvalidArgs;
+					}
+
 					try {
 
-						if (payment.Status != CardPaymentStatus.Success && payment.Status != CardPaymentStatus.Failed) {
-							return BuySellRequestProcessingResult.InvalidArgs;
-						}
+						if (payment.AmountCents <= 0) return BuySellRequestProcessingResult.InvalidArgs;
 
 						var timeNow = DateTime.UtcNow;
 

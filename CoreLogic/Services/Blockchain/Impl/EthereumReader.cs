@@ -329,7 +329,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("uint", "_amount", 4, false)]
 			public BigInteger Amount { get; set; }
 
-			[Parameter("uint", "_index", 5, true)]
+			[Parameter("uint", "_index", 5, false)]
 			public BigInteger Index { get; set; }
 		}
 
@@ -347,13 +347,13 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("uint", "_amount", 4, false)]
 			public BigInteger Amount { get; set; }
 
-			[Parameter("uint", "_index", 5, true)]
+			[Parameter("uint", "_index", 5, false)]
 			public BigInteger Index { get; set; }
 		}
 
 		/*internal class RequestProcessedEventMapping {
 
-			[Parameter("uint", "_index", 1, true)]
+			[Parameter("uint", "_index", 1, ???)]
 			public BigInteger Index { get; set; }
 
 			[Parameter("bool", "_isBuyRequest", 2, false)]

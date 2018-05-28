@@ -27,18 +27,18 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			return Task.FromResult(new HexBigInteger(rc.Ethereum.Gas));
 		}
 
-		public async Task<string> SendTransaction(Nethereum.Contracts.Function function, string from, HexBigInteger gas, HexBigInteger value, params object[] functionInput) {
+		public async Task<string> SendTransaction(Nethereum.Contracts.Contract contract, string functionName, string from, HexBigInteger gas, HexBigInteger value, params object[] functionInput) {
 			
 			// TODO: name is invalid, gas is invalid
-			var fname = function.ToString();
+			var function = contract.GetFunction(functionName);
 
-			Logger.Info($"Calling {fname}() at gas {gas.Value.ToString()}");
+			Logger.Info($"Calling {functionName}() at gas {gas.Value.ToString()}");
 
 			try {
 				return await function.SendTransactionAsync(from, gas, value, functionInput);
 			}
 			catch (Exception e) {
-				Logger.Error(e, $"Failed to call {fname}() at gas {gas}");
+				Logger.Error(e, $"Failed to call {functionName}() at gas {gas}");
 			}
 
 			return null;
@@ -68,7 +68,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 
 			return await SendTransaction(
-				contract.GetFunction("transferGoldFromHotWallet"),
+				contract, "transferGoldFromHotWallet",
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
@@ -95,7 +95,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 
 			return await SendTransaction(
-				contract.GetFunction("processRequest"),
+				contract, "processRequest",
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
@@ -119,7 +119,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 
 			return await SendTransaction(
-				contract.GetFunction("cancelRequest"),
+				contract, "cancelRequest",
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
@@ -155,7 +155,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 
 			return await SendTransaction(
-				contract.GetFunction("processBuyRequestFiat"),
+				contract, "processBuyRequestFiat",
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
@@ -182,7 +182,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 
 			return await SendTransaction(
-				contract.GetFunction("processSellRequestFiat"),
+				contract, "processSellRequestFiat",
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),

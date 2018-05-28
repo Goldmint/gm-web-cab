@@ -721,14 +721,14 @@ namespace Goldmint.CoreLogic.Finance {
 					// payment.TimeNextCheck = doesn't matter
 					ret.Result = ProcessDepositPaymentResult.ResultEnum.Failed;
 
-					// payment will be updated
-					dbContext.Update(payment);
-
 					// success
 					if (result?.Success ?? false) {
 						payment.Status = CardPaymentStatus.Success;
 						ret.Result = ProcessDepositPaymentResult.ResultEnum.Charged;
 					}
+
+					// payment will be updated
+					dbContext.Update(payment);
 
 					// save
 					await dbContext.SaveChangesAsync();

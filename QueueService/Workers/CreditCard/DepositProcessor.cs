@@ -47,7 +47,7 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 						p.TimeNextCheck <= nowTime && 
 						p.Type == Common.CardPaymentType.Deposit &&
 						p.RelatedExchangeRequestId != null
-					select p
+					select new { Id = p.Id, RelatedExchangeRequestId = p.RelatedExchangeRequestId }
 				)
 				.AsNoTracking()
 				.Take(_rowsPerRound)
@@ -68,7 +68,7 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 					var pdResult = await CoreLogic.Finance.GoldToken.OnCreditCardDepositCompleted(
 						services: _services,
 						requestId: row.RelatedExchangeRequestId ?? 0,
-						payment: row
+						paymentId: row.Id
 					);
 
 					Logger.Info(
