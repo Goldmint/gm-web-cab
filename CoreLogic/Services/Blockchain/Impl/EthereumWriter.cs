@@ -46,7 +46,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		// ---
 
-		public async Task<string> TransferGoldFromHotWallet(string userId, string toAddress, BigInteger amount) {
+		public async Task<string> TransferGoldFromHotWallet(string userId, string userAddress, BigInteger amount) {
 
 			if (string.IsNullOrWhiteSpace(userId)) {
 				throw new ArgumentException("Invalid user id");
@@ -54,7 +54,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			if (amount < 1) {
 				throw new ArgumentException("Amount is equal to 0");
 			}
-			if (!ValidationRules.BeValidEthereumAddress(toAddress)) {
+			if (!ValidationRules.BeValidEthereumAddress(userAddress)) {
 				throw new ArgumentException("Invalid eth address");
 			}
 
@@ -72,11 +72,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				_gmAccount.Address,
 				gas,
 				new HexBigInteger(0),
-				toAddress, amount, userId
+				userAddress, amount, userId
 			);
 		}
 
-		public async Task<string> ProcessBuySellRequest(BigInteger requestIndex, BigInteger ethPerGold) {
+		public async Task<string> ProcessRequestEth(BigInteger requestIndex, BigInteger ethPerGold) {
 
 			if (requestIndex < 0) {
 				throw new ArgumentException("Invalid request index");
@@ -103,7 +103,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			);
 		}
 
-		public async Task<string> CancelBuySellRequest(BigInteger requestIndex) {
+		public async Task<string> CancelRequest(BigInteger requestIndex) {
+
+			if (requestIndex < 0) {
+				throw new ArgumentException("Invalid request index");
+			}
 
 			var web3 = new Web3(_gmAccount, EthProvider);
 			var gas = await GetWritingGas();
@@ -120,6 +124,69 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				gas,
 				new HexBigInteger(0),
 				requestIndex
+			);
+		}
+
+		public async Task<string> ProcessBuyRequestFiat(string userId, BigInteger reference, string userAddress, long amountCents, long centsPerGold) {
+
+			if (string.IsNullOrWhiteSpace(userId)) {
+				throw new ArgumentException("Invalid user id");
+			}
+			if (reference < 1) {
+				throw new ArgumentException("Invalid reference");
+			}
+			if (!ValidationRules.BeValidEthereumAddress(userAddress)) {
+				throw new ArgumentException("Invalid eth address");
+			}
+			if (amountCents < 1) {
+				throw new ArgumentException("Invalid cents");
+			}
+			if (centsPerGold < 1) {
+				throw new ArgumentException("Invalid rate");
+			}
+
+			var web3 = new Web3(_gmAccount, EthProvider);
+			var gas = await GetWritingGas();
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
+			var contract = web3.Eth.GetContract(
+				FiatContractAbi,
+				FiatContractAddress
+			);
+
+			return await SendTransaction(
+				contract.GetFunction("processBuyRequestFiat"),
+				_gmAccount.Address,
+				gas,
+				new HexBigInteger(0),
+				userId, reference, userAddress, amountCents, centsPerGold
+			);
+		}
+
+		public async Task<string> ProcessSellRequestFiat(BigInteger requestIndex, long centsPerGold) {
+
+			if (requestIndex < 0) {
+				throw new ArgumentException("Invalid request index");
+			}
+			if (centsPerGold < 1) {
+				throw new ArgumentException("Invalid rate");
+			}
+
+			var web3 = new Web3(_gmAccount, EthProvider);
+			var gas = await GetWritingGas();
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
+			var contract = web3.Eth.GetContract(
+				FiatContractAbi,
+				FiatContractAddress
+			);
+
+			return await SendTransaction(
+				contract.GetFunction("processSellRequestFiat"),
+				_gmAccount.Address,
+				gas,
+				new HexBigInteger(0),
+				requestIndex, centsPerGold
 			);
 		}
 	}

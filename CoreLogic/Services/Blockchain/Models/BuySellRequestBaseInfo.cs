@@ -2,12 +2,7 @@
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 
-	public sealed class GoldEthExchangeRequest {
-
-		/// <summary>
-		/// Index
-		/// </summary>
-		public BigInteger RequestIndex { get; set; }
+	public sealed class BuySellRequestBaseInfo {
 
 		/// <summary>
 		/// User address
@@ -15,19 +10,14 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 		public string Address { get; set; }
 
 		/// <summary>
-		/// Request payload
+		/// Request input amount
 		/// </summary>
-		public BigInteger Reference { get; set; }
-		
-		/// <summary>
-		/// Request amount
-		/// </summary>
-		public BigInteger Amount { get; set; }
+		public BigInteger InputAmount { get; set; }
 
 		/// <summary>
-		/// Is buy request
+		/// Request output amount
 		/// </summary>
-		public bool IsBuyRequest { get; set; }
+		public BigInteger OutputAmount { get; set; }
 
 		/// <summary>
 		/// Is pending

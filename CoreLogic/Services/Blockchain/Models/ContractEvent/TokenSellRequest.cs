@@ -1,15 +1,8 @@
 ﻿using System.Numerics;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Models {
+namespace Goldmint.CoreLogic.Services.Blockchain.Models.ContractEvent {
 
-	public sealed class GatheredGoldSoldForEthEvent {
-
-		public BigInteger FromBlock { get; set; }
-		public BigInteger ToBlock { get; set; }
-		public GoldSoldForEthEvent[] Events { get; set; }
-	}
-
-	public sealed class GoldSoldForEthEvent {
+	public sealed class TokenSellRequest {
 
 		/// <summary>
 		/// User address
@@ -17,24 +10,26 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 		public string Address { get; set; }
 
 		/// <summary>
-		/// GOLD amount
+		/// User ID
 		/// </summary>
-		public BigInteger GoldAmount { get; set; }
-
+		public string UserId { get; set; }
+		
 		/// <summary>
-		/// User
-		/// </summary>
-		// public string UserId { get; set; }
-
-		/// <summary>
-		/// Request ID
+		/// Reference / internal request ID
 		/// </summary>
 		public BigInteger Reference { get; set; }
 
 		/// <summary>
-		/// Request index (contract)
+		/// Amount (input amount, GOLD)
+		/// </summary>
+		public BigInteger Amount { get; set; }
+
+		/// <summary>
+		/// Request index at contract storage
 		/// </summary>
 		public BigInteger RequestIndex { get; set; }
+
+		// ---
 
 		/// <summary>
 		/// Block number
@@ -46,5 +41,4 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Models {
 		/// </summary>
 		public string TransactionId { get; set; }
 	}
-
 }

@@ -10,31 +10,26 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// <summary>
 		/// Check chain transaction by it's ID
 		/// </summary>
-		/// <returns>Transaction status by ID</returns>
 		Task<TransactionInfo> CheckTransaction(string txid, int confirmationsRequired);
 
 		/// <summary>
 		/// Get current gas price
 		/// </summary>
-		/// <returns>Transaction status by ID</returns>
 		Task<BigInteger> GetCurrentGasPrice();
 
 		/// <summary>
 		/// Get MNT balance
 		/// </summary>
-		/// <returns>MNT amount at specified address</returns>
 		Task<BigInteger> GetAddressMntBalance(string address);
 
 		/// <summary>
 		/// Get GOLD balance
 		/// </summary>
-		/// <returns>GOLD amount at specified address</returns>
 		Task<BigInteger> GetAddressGoldBalance(string address);
 
 		/// <summary>
 		/// Get hot wallet GOLD balance
 		/// </summary>
-		/// <returns>User GOLD amount</returns>
 		Task<BigInteger> GetHotWalletGoldBalance(string userId);
 
 		// ---
@@ -42,23 +37,28 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// <summary>
 		/// Buy/sell ETH requests current count
 		/// </summary>
-		/// <returns>Requests count</returns>
 		Task<BigInteger> GetBuySellRequestsCount();
 
 		/// <summary>
-		/// GOLD buy/sell request data by it's index
+		/// GOLD buy/sell request base info
 		/// </summary>
-		/// <returns>Request data and status</returns>
-		Task<GoldEthExchangeRequest> GetBuySellRequestByIndex(BigInteger requestIndex);
+		Task<BuySellRequestBaseInfo> GetBuySellRequestBaseInfo(BigInteger requestIndex);
 
 		/// <summary>
-		/// Get `TokenBuyRequest` events
+		/// Get TokenBuyRequest events
 		/// </summary>
-		Task<GatheredGoldBoughtWithEthEvent> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		Task<GatheredTokenBuyEvents> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 
 		/// <summary>
-		/// Get `TokenSellRequest` events
+		/// Get TokenSellRequest events
 		/// </summary>
-		Task<GatheredGoldSoldForEthEvent> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		Task<GatheredTokenSellEvents> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+
+		/*
+		/// <summary>
+		/// Get RequestProcessed events
+		/// </summary>
+		Task<GatheredRequestProcessedEvents> GatherRequestProcessedEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		*/
 	}
 }

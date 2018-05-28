@@ -26,6 +26,9 @@ namespace Goldmint.DAL.Models {
 		[Column("gold_amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
 		public string GoldAmount { get; set; }
 
+		[Column("cents_amount")]
+		public long? CentsAmount { get; set; }
+
 		[Column("eth_request_index"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount)]
 		public string EthRequestIndex { get; set; }
 

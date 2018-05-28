@@ -103,7 +103,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 					requestIndex: v.RequestIndex,
 					internalRequestId: (long)v.Reference,
 					address: v.Address,
-					amountGold: v.GoldAmount,
+					amountGold: v.Amount,
 					txId: v.TransactionId,
 					txConfirmationsRequired: _confirmationsRequired
 				);

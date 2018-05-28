@@ -115,7 +115,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// eth operation
 							var ethOp = new DAL.Models.EthereumOperation() {
-								Type = cancelRequest? EthereumOperationType.ContractCancelBuyRequest: EthereumOperationType.ContractProcessBuyRequest,
+								Type = cancelRequest? EthereumOperationType.ContractCancelBuyRequest: EthereumOperationType.ContractProcessBuyRequestEth,
 								Status = EthereumOperationStatus.Initial,
 								RelatedExchangeRequestId = request.Id,
 
@@ -290,7 +290,7 @@ namespace Goldmint.CoreLogic.Finance {
 								var ethOp = new DAL.Models.EthereumOperation() {
 									Type = cancelRequest
 										? EthereumOperationType.ContractCancelSellRequest
-										: EthereumOperationType.ContractProcessSellRequest,
+										: EthereumOperationType.ContractProcessSellRequestEth,
 									Status = EthereumOperationStatus.Initial,
 									RelatedExchangeRequestId = request.Id,
 
@@ -357,92 +357,40 @@ namespace Goldmint.CoreLogic.Finance {
 							// ok
 							if (request.TimeExpires > txInfo.Time.Value) {
 
-								var card = (UserCreditCard) null;
-								var payment = (CreditCardPayment) null;
-								var ethOp = (DAL.Models.EthereumOperation) null;
+								// call processing to get cents amount
+								var ethOp = new DAL.Models.EthereumOperation() {
+									Type = EthereumOperationType.ContractProcessSellRequestFiat,
+									Status = EthereumOperationStatus.Initial,
+									RelatedExchangeRequestId = request.Id,
 
-								var cancelRequest = true;
-								var amountCents = 0L;
-								// ! call contract processFiatSellRequest() and get amount of cents
-								// ! check cents for 0 - continue or cancelRequest = true
+									DestinationAddress = request.EthAddress,
+									Rate = request.GoldRateCents.ToString(),
+									GoldAmount = amountGold.ToString(),
+									EthRequestIndex = requestIndex.ToString(),
+									OplogId = request.OplogId,
+									TimeCreated = timeNow,
+									TimeNextCheck = timeNow,
 
-								// card
-								if (request.RelOutputId != null) {
-									card = await (
-										from c in dbContext.UserCreditCard
-										where 
-											c.Id == request.RelOutputId.Value &&
-											c.UserId == request.Id
-										select c
-									)
-										.AsNoTracking()
-										.FirstOrDefaultAsync()
-									;
-								}
-								else {
-									cancelRequest = true;
-								}
-
-								// eth operation - cancel
-								if (cancelRequest) {
-									ethOp = new DAL.Models.EthereumOperation() {
-										Type = EthereumOperationType.ContractCancelSellRequest,
-										Status = EthereumOperationStatus.Initial,
-										RelatedExchangeRequestId = request.Id,
-
-										DestinationAddress = request.EthAddress,
-										Rate = "0",
-										GoldAmount = amountGold.ToString(),
-										EthRequestIndex = requestIndex.ToString(),
-										OplogId = request.OplogId,
-										TimeCreated = timeNow,
-										TimeNextCheck = timeNow,
-
-										UserId = request.UserId,
-										RefUserFinHistoryId = request.RefUserFinHistoryId,
-									};
-									dbContext.EthereumOperation.Add(ethOp);
-									await dbContext.SaveChangesAsync();
-
-									try {
-										await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} cancelled. Ethereum operation #{ ethOp.Id } enqueued");
-									}
-									catch { }
-
-									ethOp.Status = EthereumOperationStatus.Prepared;
-								}
-								// withdrawal op
-								else {
-									payment = await The1StPaymentsProcessing.CreateWithdrawPayment(
-										services: services,
-										card: card,
-										currency: request.ExchangeCurrency,
-										amountCents: amountCents,
-										sellRequestId: request.Id,
-										oplogId: request.OplogId
-									);
-									dbContext.CreditCardPayment.Add(payment);
-									await dbContext.SaveChangesAsync();
-
-									try {
-										await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Withdrawal payment #{ payment.Id } enqueued");
-									}
-									catch { }
-
-									payment.Status = CardPaymentStatus.Pending;
-								}
-
-								// done
-								request.Status = cancelRequest ? SellGoldRequestStatus.Cancelled : SellGoldRequestStatus.Success;
-								request.TimeNextCheck = timeNow;
-								request.TimeCompleted = timeNow;
-								request.RefUserFinHistory.Status = cancelRequest ? UserFinHistoryStatus.Failed : UserFinHistoryStatus.Completed;
-								request.RefUserFinHistory.TimeCompleted = timeNow;
-								request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, Tokens.GOLD.Decimals);
-								request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatAmount(amountCents, request.ExchangeCurrency);
+									UserId = request.UserId,
+									RefUserFinHistoryId = request.RefUserFinHistoryId,
+								};
+								dbContext.EthereumOperation.Add(ethOp);
 								await dbContext.SaveChangesAsync();
 
-								return cancelRequest ? BuySellRequestProcessingResult.Cancelled : BuySellRequestProcessingResult.Success;
+								try {
+									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ ethOp.Id } enqueued");
+								}
+								catch { }
+
+
+								// wait for confirmation
+								ethOp.Status = EthereumOperationStatus.Prepared;
+								request.Status = SellGoldRequestStatus.EthConfirmation;
+								request.TimeNextCheck = timeNow;
+								request.TimeCompleted = timeNow;
+								await dbContext.SaveChangesAsync();
+
+								return BuySellRequestProcessingResult.Success;
 							}
 
 							// expired
@@ -541,27 +489,28 @@ namespace Goldmint.CoreLogic.Finance {
 							);
 
 							// eth operation
-							// ! var ethOp = new DAL.Models.EthereumOperation() {
-							// ! 	Type = ,
-							// ! 	Status = EthereumOperationStatus.Initial,
-							// ! 	RelatedExchangeRequestId = request.Id,
-							// ! 
-							// ! 	DestinationAddress = request.EthAddress,
-							// ! 	Rate = ethPerGoldFixedRate.ToString(),
-							// ! 	GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
-							// ! 	EthRequestIndex = requestIndex.ToString(),
-							// ! 	OplogId = request.OplogId,
-							// ! 	TimeCreated = timeNow,
-							// ! 	TimeNextCheck = timeNow,
-							// ! 
-							// ! 	UserId = request.UserId,
-							// ! 	RefUserFinHistoryId = request.RefUserFinHistoryId,
-							// ! };
-							// ! dbContext.EthereumOperation.Add(ethOp);
-							// ! await dbContext.SaveChangesAsync();
+							var ethOp = new DAL.Models.EthereumOperation() {
+								Type = EthereumOperationType.ContractProcessBuyRequestFiat,
+								Status = EthereumOperationStatus.Initial,
+								RelatedExchangeRequestId = request.Id,
+							
+								DestinationAddress = request.EthAddress,
+								Rate = request.GoldRateCents.ToString(),
+								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
+								CentsAmount = payment.AmountCents,
+								EthRequestIndex = "0",
+								OplogId = request.OplogId,
+								TimeCreated = timeNow,
+								TimeNextCheck = timeNow,
+							
+								UserId = request.UserId,
+								RefUserFinHistoryId = request.RefUserFinHistoryId,
+							};
+							dbContext.EthereumOperation.Add(ethOp);
+							await dbContext.SaveChangesAsync();
 
 							// done
-							// ! ethOp.Status = EthereumOperationStatus.Prepared;
+							ethOp.Status = EthereumOperationStatus.Prepared;
 							request.Status = BuyGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
@@ -571,11 +520,11 @@ namespace Goldmint.CoreLogic.Finance {
 							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
 							await dbContext.SaveChangesAsync();
 
-							// ! try {
-							// ! 	await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ethOp.Id} enqueued");
-							// ! }
-							// ! catch {
-							// ! }
+							try {
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ethOp.Id} enqueued");
+							}
+							catch {
+							}
 
 							return BuySellRequestProcessingResult.Success;
 						}
@@ -598,6 +547,167 @@ namespace Goldmint.CoreLogic.Finance {
 				}
 				return BuySellRequestProcessingResult.MutexFailure;
 			});
+		}
+
+		/// <summary>
+		/// Finalize GOLD selling for fiat request (core-worker)
+		/// GOLD received and request is processed, fiat will be withdrawn
+		/// </summary>
+		public static async Task<BuySellRequestProcessingResult> OnCreditCardWithdrawReady(IServiceProvider services, long requestId, BigInteger ethRequestIndex) {
+
+			if (requestId <= 0) return BuySellRequestProcessingResult.InvalidArgs;
+
+			var logger = services.GetLoggerFor(typeof(GoldToken));
+			var mutexHolder = services.GetRequiredService<IMutexHolder>();
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
+
+			var query =
+				from r in dbContext.SellGoldRequest
+				where
+					r.Input == SellGoldRequestInput.ContractGoldBurning &&
+					r.Id == requestId &&
+					r.Status == SellGoldRequestStatus.EthConfirmation &&
+					r.Output == SellGoldRequestOutput.CreditCard
+				select r
+			;
+
+			// find first
+			if (await (query).AsNoTracking().CountAsync() != 1) {
+				return BuySellRequestProcessingResult.NotFound;
+			}
+
+			var mutexBuilder =
+				new MutexBuilder(mutexHolder)
+				.Mutex(MutexEntity.GoldSellingReq, requestId)
+			;
+
+			return await mutexBuilder.CriticalSection<BuySellRequestProcessingResult>(async (ok) => {
+				if (ok) {
+
+					// get again
+					var request = await (query).Include(_ => _.RefUserFinHistory).FirstOrDefaultAsync();
+					if (request == null) {
+						return BuySellRequestProcessingResult.NotFound;
+					}
+
+					try {
+
+						// get request status
+						var ethRequestInfo = await ethereumReader.GetBuySellRequestBaseInfo(ethRequestIndex);
+						if (ethRequestInfo.IsPending) {
+							return BuySellRequestProcessingResult.InvalidArgs;
+						}
+
+						var timeNow = DateTime.UtcNow;
+						var payment = (CreditCardPayment)null;
+
+						if (ethRequestInfo.IsSucceeded && ethRequestInfo.OutputAmount > 0) {
+
+							var card = (UserCreditCard)null;
+
+							// TODO: validate ethRequestInfo.OutputAmount
+							
+							// get card
+							if (request.RelOutputId != null) {
+								card = await (
+										from c in dbContext.UserCreditCard
+										where
+											c.Id == request.RelOutputId.Value &&
+											c.UserId == request.Id &&
+											c.State == CardState.Verified
+										select c
+									)
+									.AsNoTracking()
+									.FirstOrDefaultAsync()
+								;
+							}
+							if (card != null) {
+								// enqueue payment
+								payment = await The1StPaymentsProcessing.CreateWithdrawPayment(
+									services: services,
+									card: card,
+									currency: request.ExchangeCurrency,
+									amountCents: (long)ethRequestInfo.OutputAmount,
+									sellRequestId: request.Id,
+									oplogId: request.OplogId
+								);
+								dbContext.CreditCardPayment.Add(payment);
+								await dbContext.SaveChangesAsync();
+
+								payment.Status = CardPaymentStatus.Pending;
+							}
+						}
+
+						// done
+						if (payment != null) {
+							
+							request.Status = SellGoldRequestStatus.Success;
+							request.TimeNextCheck = timeNow;
+							request.TimeCompleted = timeNow;
+							request.RefUserFinHistory.Status = UserFinHistoryStatus.Completed;
+							request.RefUserFinHistory.TimeCompleted = timeNow;
+							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(ethRequestInfo.InputAmount, Tokens.GOLD.Decimals);
+							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatAmount(payment.AmountCents, payment.Currency);
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Completed, $"Request #{request.Id} processed. Withdrawal payment #{ payment.Id } enqueued");
+							}
+							catch { }
+
+							return BuySellRequestProcessingResult.Success;
+						}
+						else {
+							request.Status = SellGoldRequestStatus.Failed;
+							request.TimeNextCheck = timeNow;
+							request.TimeCompleted = timeNow;
+							request.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
+							request.RefUserFinHistory.TimeCompleted = timeNow;
+							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} failed. Eth request failed or invalid cents amount passed");
+							}
+							catch { }
+
+							return BuySellRequestProcessingResult.Cancelled;
+						}
+					}
+					catch (Exception e) {
+						logger.Error(e, $"Failed to process sell request #{request.Id}");
+					}
+				}
+				return BuySellRequestProcessingResult.MutexFailure;
+			});
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public static async Task OnEthereumOperationResult(IServiceProvider services, DAL.Models.EthereumOperation ethOp) {
+
+			// (!) eth operation is locked by mutex here
+
+			if (ethOp == null) throw new ArgumentException("Eth operation is null");
+
+			var logger = services.GetLoggerFor(typeof(GoldToken));
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
+
+			// ---
+
+			// success
+			if (ethOp.Status == EthereumOperationStatus.Success) {
+
+				// enqueue withdrawal payment
+				if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat && ethOp.RelatedExchangeRequestId != null) {
+					if (BigInteger.TryParse(ethOp.EthRequestIndex ?? "-1", out var index) && index >= 0) {
+						await OnCreditCardWithdrawReady(services, ethOp.RelatedExchangeRequestId.Value, index);
+					}
+				}
+			}
 		}
 
 		// ---
