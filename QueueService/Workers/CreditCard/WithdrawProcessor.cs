@@ -65,6 +65,13 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 				var res = await The1StPaymentsProcessing.ProcessWithdrawPayment(_services, row.Id);
 				if (res.Result == The1StPaymentsProcessing.ProcessWithdrawalPaymentResult.ResultEnum.Withdrawn) {
 					++_statProcessed;
+
+					try {
+						// TODO: payment withdrawn: amount / card, etc
+					}
+					catch (Exception e) {
+						Logger.Error(e);
+					}
 				}
 				else {
 					++_statFailed;

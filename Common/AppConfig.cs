@@ -123,6 +123,7 @@
 				public string StorageControllerContractAddress { get; set; } = "";
 				public string StorageControllerManagerPk { get; set; } = "";
 
+				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
 			}

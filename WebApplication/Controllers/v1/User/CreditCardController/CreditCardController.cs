@@ -306,6 +306,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user);
+			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -333,17 +334,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				if (card.VerificationAmountCents.ToString().ToUpper() == model.Code.ToUpper()) {
 
 					card.State = CardState.Verified;
-					DbContext.SaveChanges();
-
+					
 					// activity
-					await CoreLogic.User.SaveActivity(
-						services: HttpContext.RequestServices,
+					var userActivity = CoreLogic.User.CreateUserActivity(
 						user: user,
 						type: Common.UserActivityType.CreditCard,
 						comment: $"Card { card.CardMask } verified",
 						ip: agent.Ip,
-						agent: agent.Agent
+						agent: agent.Agent,
+						locale: userLocale
 					);
+					DbContext.UserActivity.Add(userActivity);
+					await DbContext.SaveChangesAsync();
 
 					return APIResponse.Success();
 				}
@@ -481,6 +483,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			// ---
 
 			var user = await GetUserFromDb();
+			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
 			// ---
@@ -507,14 +510,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				if (await DbContext.SaveChangesAsync() > 0) {
 
 					// activity
-					await CoreLogic.User.SaveActivity(
-						services: HttpContext.RequestServices,
+					var userActivity = CoreLogic.User.CreateUserActivity(
 						user: user,
 						type: Common.UserActivityType.CreditCard,
 						comment: $"Card {card.CardMask} removed",
 						ip: agent.Ip,
-						agent: agent.Agent
+						agent: agent.Agent,
+						locale: userLocale
 					);
+					DbContext.UserActivity.Add(userActivity);
+					await DbContext.SaveChangesAsync();
 				}
 
 				return APIResponse.Success(

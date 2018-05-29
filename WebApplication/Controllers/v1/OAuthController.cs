@@ -102,14 +102,16 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					;
 
 					// activity
-					await CoreLogic.User.SaveActivity(
-						services: HttpContext.RequestServices,
+					var userActivity = CoreLogic.User.CreateUserActivity(
 						user: user,
 						type: Common.UserActivityType.Auth,
 						comment: "Signed in with social network",
 						ip: agent.Ip,
-						agent: agent.Agent
+						agent: agent.Agent,
+						locale: userLocale
 					);
+					DbContext.UserActivity.Add(userActivity);
+					await DbContext.SaveChangesAsync();
 
 					// tfa required
 					if (user.TwoFactorEnabled) {

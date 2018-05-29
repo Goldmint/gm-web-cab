@@ -1,18 +1,22 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain;
+using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Localization.Impl;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
+using Goldmint.CoreLogic.Services.Notification;
+using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.DAL;
+using Goldmint.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.DAL.Models;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -30,7 +34,6 @@ namespace Goldmint.CoreLogic.Finance {
 			if (string.IsNullOrWhiteSpace(txId)) return BuySellRequestProcessingResult.InvalidArgs;
 
 			var logger = services.GetLoggerFor(typeof(GoldToken));
-			var appConfig = services.GetRequiredService<AppConfig>();
 			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -63,7 +66,10 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RefUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query)
+						.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
+						.Include(_ => _.User)
+						.FirstOrDefaultAsync();
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -128,7 +134,7 @@ namespace Goldmint.CoreLogic.Finance {
 								TimeNextCheck = timeNow,
 
 								UserId = request.UserId,
-								RefUserFinHistoryId = request.RefUserFinHistoryId,
+								RelUserFinHistoryId = request.RelUserFinHistoryId,
 							};
 							dbContext.EthereumOperation.Add(ethOp);
 							await dbContext.SaveChangesAsync();
@@ -138,10 +144,10 @@ namespace Goldmint.CoreLogic.Finance {
 							request.Status = cancelRequest? BuyGoldRequestStatus.Cancelled: BuyGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
-							request.RefUserFinHistory.Status = cancelRequest? UserFinHistoryStatus.Failed: UserFinHistoryStatus.Completed;
-							request.RefUserFinHistory.TimeCompleted = timeNow;
-							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountEth, Tokens.ETH.Decimals);
-							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
+							request.RelUserFinHistory.Status = cancelRequest? UserFinHistoryStatus.Failed: UserFinHistoryStatus.Completed;
+							request.RelUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountEth, Tokens.ETH.Decimals);
+							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -159,8 +165,8 @@ namespace Goldmint.CoreLogic.Finance {
 							request.Status = BuyGoldRequestStatus.Expired;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
-							request.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-							request.RefUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+							request.RelUserFinHistory.TimeCompleted = timeNow;
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -225,7 +231,7 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RefUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query).Include(_ => _.RelUserFinHistory).FirstOrDefaultAsync();
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -251,8 +257,7 @@ namespace Goldmint.CoreLogic.Finance {
 							// ok
 							if (request.TimeExpires > txInfo.Time.Value) {
 
-								var ethPerGoldFixedRate =
-									Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
+								var ethPerGoldFixedRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
 								var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
 								var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
@@ -303,7 +308,7 @@ namespace Goldmint.CoreLogic.Finance {
 									TimeNextCheck = timeNow,
 
 									UserId = request.UserId,
-									RefUserFinHistoryId = request.RefUserFinHistoryId,
+									RelUserFinHistoryId = request.RelUserFinHistoryId,
 								};
 								dbContext.EthereumOperation.Add(ethOp);
 								await dbContext.SaveChangesAsync();
@@ -313,12 +318,10 @@ namespace Goldmint.CoreLogic.Finance {
 								request.Status = cancelRequest ? SellGoldRequestStatus.Cancelled : SellGoldRequestStatus.Success;
 								request.TimeNextCheck = timeNow;
 								request.TimeCompleted = timeNow;
-								request.RefUserFinHistory.Status = cancelRequest ? UserFinHistoryStatus.Failed : UserFinHistoryStatus.Completed;
-								request.RefUserFinHistory.TimeCompleted = timeNow;
-								request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, Tokens.GOLD.Decimals);
-								request.RefUserFinHistory.DestinationAmount =
-									TextFormatter.FormatTokenAmountFixed(estimatedCryptoAmount.ResultAssetAmount - estimatedCryptoAmountFee,
-										Tokens.GOLD.Decimals);
+								request.RelUserFinHistory.Status = cancelRequest ? UserFinHistoryStatus.Failed : UserFinHistoryStatus.Completed;
+								request.RelUserFinHistory.TimeCompleted = timeNow;
+								request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, Tokens.GOLD.Decimals);
+								request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedCryptoAmount.ResultAssetAmount - estimatedCryptoAmountFee, Tokens.GOLD.Decimals);
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -337,8 +340,8 @@ namespace Goldmint.CoreLogic.Finance {
 								request.Status = SellGoldRequestStatus.Expired;
 								request.TimeNextCheck = timeNow;
 								request.TimeCompleted = timeNow;
-								request.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-								request.RefUserFinHistory.TimeCompleted = timeNow;
+								request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+								request.RelUserFinHistory.TimeCompleted = timeNow;
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -372,7 +375,7 @@ namespace Goldmint.CoreLogic.Finance {
 									TimeNextCheck = timeNow,
 
 									UserId = request.UserId,
-									RefUserFinHistoryId = request.RefUserFinHistoryId,
+									RelUserFinHistoryId = request.RelUserFinHistoryId,
 								};
 								dbContext.EthereumOperation.Add(ethOp);
 								await dbContext.SaveChangesAsync();
@@ -399,8 +402,8 @@ namespace Goldmint.CoreLogic.Finance {
 								request.Status = SellGoldRequestStatus.Expired;
 								request.TimeNextCheck = timeNow;
 								request.TimeCompleted = timeNow;
-								request.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-								request.RefUserFinHistory.TimeCompleted = timeNow;
+								request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+								request.RelUserFinHistory.TimeCompleted = timeNow;
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -463,7 +466,7 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RefUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query).Include(_ => _.RelUserFinHistory).FirstOrDefaultAsync();
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -517,7 +520,7 @@ namespace Goldmint.CoreLogic.Finance {
 								TimeNextCheck = timeNow,
 							
 								UserId = request.UserId,
-								RefUserFinHistoryId = request.RefUserFinHistoryId,
+								RelUserFinHistoryId = request.RelUserFinHistoryId,
 							};
 							dbContext.EthereumOperation.Add(ethOp);
 							await dbContext.SaveChangesAsync();
@@ -527,10 +530,10 @@ namespace Goldmint.CoreLogic.Finance {
 							request.Status = BuyGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
-							request.RefUserFinHistory.Status = UserFinHistoryStatus.Completed;
-							request.RefUserFinHistory.TimeCompleted = timeNow;
-							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatAmount(payment.AmountCents, payment.Currency);
-							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
+							request.RelUserFinHistory.Status = UserFinHistoryStatus.Completed;
+							request.RelUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatAmount(payment.AmountCents);
+							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -547,8 +550,8 @@ namespace Goldmint.CoreLogic.Finance {
 							request.Status = BuyGoldRequestStatus.Failed;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
-							request.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-							request.RefUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+							request.RelUserFinHistory.TimeCompleted = timeNow;
 							await dbContext.SaveChangesAsync();
 
 							return BuySellRequestProcessingResult.Cancelled;
@@ -600,7 +603,7 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RefUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query).Include(_ => _.RelUserFinHistory).FirstOrDefaultAsync();
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -659,10 +662,10 @@ namespace Goldmint.CoreLogic.Finance {
 							request.Status = SellGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
-							request.RefUserFinHistory.Status = UserFinHistoryStatus.Completed;
-							request.RefUserFinHistory.TimeCompleted = timeNow;
-							request.RefUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(ethRequestInfo.InputAmount, Tokens.GOLD.Decimals);
-							request.RefUserFinHistory.DestinationAmount = TextFormatter.FormatAmount(payment.AmountCents, payment.Currency);
+							request.RelUserFinHistory.Status = UserFinHistoryStatus.Completed;
+							request.RelUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(ethRequestInfo.InputAmount, Tokens.GOLD.Decimals);
+							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatAmount(payment.AmountCents);
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -676,8 +679,8 @@ namespace Goldmint.CoreLogic.Finance {
 							request.Status = SellGoldRequestStatus.Failed;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
-							request.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-							request.RefUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+							request.RelUserFinHistory.TimeCompleted = timeNow;
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -696,8 +699,128 @@ namespace Goldmint.CoreLogic.Finance {
 			});
 		}
 
+		// ---
+
 		/// <summary>
-		/// 
+		/// Ethereum operaion performed and now is checking
+		/// </summary>
+		public static async Task OnEthereumOperationConfirmationStarted(IServiceProvider services, DAL.Models.EthereumOperation ethOp) {
+
+			// (!) eth operation is locked by mutex here
+
+			if (ethOp == null) throw new ArgumentException("Eth operation is null");
+
+			// ---
+
+			// has request id
+			if (ethOp.RelatedExchangeRequestId != null) {
+
+				var dbContext = services.GetRequiredService<ApplicationDbContext>();
+				var appConfig = services.GetRequiredService<AppConfig>();
+				var notificationQueue = services.GetRequiredService<INotificationQueue>();
+				var templateProvider = services.GetRequiredService<ITemplateProvider>();
+
+				// buying / GOLD issued
+				if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
+				    ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
+
+					// get exchange request
+					var request = await (
+								from r in dbContext.BuyGoldRequest
+								where
+									r.Id == ethOp.RelatedExchangeRequestId &&
+									r.UserId == ethOp.UserId
+								select r
+							)
+							.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
+							.Include(_ => _.User)
+							.FirstOrDefaultAsync()
+						;
+
+					// notification
+					if (request?.RelUserFinHistory?.RelUserActivity != null) {
+
+						var rate = "";
+						var srcType = "";
+						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth) {
+							var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.InputRateCents, request.GoldRateCents);
+							rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals);
+							srcType = "ETH";
+						}
+
+						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
+							rate = TextFormatter.FormatAmount(request.GoldRateCents);
+							srcType = request.ExchangeCurrency.ToString().ToUpper();
+						}
+
+						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.SignedIn,
+									request.RelUserFinHistory.RelUserActivity.Locale))
+								.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
+								.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
+								.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + srcType)
+								.ReplaceBodyTag("DETAILS_RATE", rate)
+								.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + "GOLD")
+								.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
+								.Initiator(request.RelUserFinHistory.RelUserActivity)
+								.Send(request.User.Email, request.User.UserName, notificationQueue)
+							;
+					}
+				}
+
+				// selling / ETH sent
+				// TODO: ETH transfer
+				/*if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth) {
+
+					// get exchange request
+					var request = await (
+						from r in dbContext.SellGoldRequest
+						where
+							r.Id == ethOp.RelatedExchangeRequestId &&
+							r.UserId == ethOp.UserId
+						select r
+					)
+						.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
+						.Include(_ => _.User)
+						.FirstOrDefaultAsync()
+					;
+
+					// notification
+					if (request?.RelUserFinHistory?.RelUserActivity != null) {
+
+						var rate = "";
+						var srcType = "";
+						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth) {
+							var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.InputRateCents, request.GoldRateCents);
+							rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals);
+							srcType = "ETH";
+						}
+						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
+							rate = TextFormatter.FormatAmount(request.GoldRateCents);
+							srcType = request.ExchangeCurrency.ToString().ToUpper();
+						}
+
+						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.SignedIn, request.RelUserFinHistory.RelUserActivity.Locale))
+							.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
+							.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
+							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + srcType)
+							.ReplaceBodyTag("DETAILS_RATE", rate)
+							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + "GOLD")
+							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
+							.Initiator(request.RelUserFinHistory.RelUserActivity)
+							.Send(request.User.Email, request.User.UserName, notificationQueue)
+						;
+					}
+				}*/
+
+				// selling / fiat confirmation
+				if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat) {
+					// TODO: withdrawal payment will be enqueued soon
+				}
+			}
+		}
+
+		/// <summary>
+		/// Ethereum operaion completed succesfully or with an error
 		/// </summary>
 		public static async Task OnEthereumOperationResult(IServiceProvider services, DAL.Models.EthereumOperation ethOp) {
 

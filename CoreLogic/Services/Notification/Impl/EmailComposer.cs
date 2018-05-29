@@ -2,6 +2,7 @@
 using Goldmint.CoreLogic.Services.Localization;
 using System;
 using System.Threading.Tasks;
+using Goldmint.DAL.Models;
 
 namespace Goldmint.CoreLogic.Services.Notification.Impl {
 
@@ -39,6 +40,14 @@ namespace Goldmint.CoreLogic.Services.Notification.Impl {
 			var timeFmt = time.ToString("G") + " UTC";
 			ReplaceBodyTag("INITIATOR", $"<small><b>IP:</b> {ip} <br><br><b>Agent:</b> {agent} <br><br><b>Time:</b> {timeFmt}</small>");
 			return this;
+		}
+
+		public EmailComposer Initiator(UserActivity uac) {
+			return this.Initiator(
+				uac?.Ip,
+				uac?.Agent,
+				uac?.TimeCreated ?? DateTime.UtcNow
+			);
 		}
 
 		public EmailComposer Username(string username) {

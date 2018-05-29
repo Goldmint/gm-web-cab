@@ -34,6 +34,12 @@ namespace Goldmint.DAL.Models {
 		[Column("rel_eth_transaction_id"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
 		public string RelEthTransactionId { get; set; }
 
+		[Column("rel_user_activity")]
+		public long? RelUserActivityId { get; set; }
+
+		[ForeignKey(nameof(RelUserActivityId))]
+		public virtual UserActivity RelUserActivity { get; set; }
+
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 

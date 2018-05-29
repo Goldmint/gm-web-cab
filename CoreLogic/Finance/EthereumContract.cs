@@ -50,7 +50,7 @@ namespace Goldmint.CoreLogic.Finance {
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.RefUserFinHistory)
+						.Include(_ => _.RelUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -148,7 +148,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// save eth transaction
 							op.EthTransactionId = procExec.TxId;
-							op.RefUserFinHistory.RelEthTransactionId = op.EthTransactionId;
+							op.RelUserFinHistory.RelEthTransactionId = op.EthTransactionId;
 							try {
 								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, $"Blockchain transaction is {op.EthTransactionId}");
 							}
@@ -161,6 +161,16 @@ namespace Goldmint.CoreLogic.Finance {
 								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
+							
+							// own scope
+							try {
+								using (var scopedServices = services.CreateScope()) {
+									await GoldToken.OnEthereumOperationConfirmationStarted(scopedServices.ServiceProvider, op);
+								}
+							}
+							catch (Exception e) {
+								logger.Error(e);
+							}
 
 							return true;
 						}
@@ -195,8 +205,13 @@ namespace Goldmint.CoreLogic.Finance {
 								}
 
 								// own scope
-								using (var scopedServices = services.CreateScope()) {
-									await GoldToken.OnEthereumOperationResult(scopedServices.ServiceProvider, op);
+								try { 
+									using (var scopedServices = services.CreateScope()) {
+										await GoldToken.OnEthereumOperationResult(scopedServices.ServiceProvider, op);
+									}
+								}
+								catch (Exception e) {
+									logger.Error(e);
 								}
 							}
 

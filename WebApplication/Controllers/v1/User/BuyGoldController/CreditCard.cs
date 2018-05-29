@@ -126,7 +126,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				TimeNextCheck = timeNow,
 
 				UserId = user.Id,
-				RefUserFinHistoryId = finHistory.Id,
+				RelUserFinHistoryId = finHistory.Id,
 			};
 
 			// add and save

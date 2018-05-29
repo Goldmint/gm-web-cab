@@ -584,6 +584,11 @@ namespace Goldmint.Common {
 		/// Credit card operations
 		/// </summary>
 		CreditCard,
+		
+		/// <summary>
+		/// Exchange operations
+		/// </summary>
+		Exchange,
 	}
 
 	#endregion

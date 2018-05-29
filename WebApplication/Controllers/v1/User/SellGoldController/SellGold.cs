@@ -74,6 +74,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
 			// ---
@@ -87,7 +88,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						r.TimeExpires > DateTime.UtcNow
 					select r
 				)
-				.Include(_ => _.RefUserFinHistory)
+				.Include(_ => _.RelUserFinHistory)
 				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
@@ -97,10 +98,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
 			}
 
-			// mark request for processing
-			request.RefUserFinHistory.Status = UserFinHistoryStatus.Manual;
-			request.Status = SellGoldRequestStatus.Confirmed;
+			// activity
+			var userActivity = CoreLogic.User.CreateUserActivity(
+				user: user,
+				type: Common.UserActivityType.Exchange,
+				comment: $"Gold selling request #{request.Id} confirmed",
+				ip: agent.Ip,
+				agent: agent.Agent,
+				locale: userLocale
+			);
+			DbContext.UserActivity.Add(userActivity);
+			await DbContext.SaveChangesAsync();
 
+			// mark request for processing
+			request.RelUserFinHistory.Status = UserFinHistoryStatus.Manual;
+			request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
+			request.Status = SellGoldRequestStatus.Confirmed;
 			await DbContext.SaveChangesAsync();
 
 			try {
