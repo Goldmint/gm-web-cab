@@ -45,7 +45,7 @@ export class UsersListPageComponent implements OnInit {
   ) {
 
     this.page.pageNumber = 0;
-    this.page.size = 5;
+    this.page.size = 50;
   }
 
   ngOnInit() {
