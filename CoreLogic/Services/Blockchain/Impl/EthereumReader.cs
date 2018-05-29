@@ -329,7 +329,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("uint", "_amount", 4, false)]
 			public BigInteger Amount { get; set; }
 
-			[Parameter("uint", "_index", 5, false)]
+			[Parameter("uint", "_index", 5, true)]
 			public BigInteger Index { get; set; }
 		}
 
@@ -347,7 +347,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			[Parameter("uint", "_amount", 4, false)]
 			public BigInteger Amount { get; set; }
 
-			[Parameter("uint", "_index", 5, false)]
+			[Parameter("uint", "_index", 5, true)]
 			public BigInteger Index { get; set; }
 		}
 
