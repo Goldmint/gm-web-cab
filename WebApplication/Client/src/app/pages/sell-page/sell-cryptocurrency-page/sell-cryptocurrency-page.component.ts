@@ -321,41 +321,42 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
 
-    if (this.selectedWallet === 0) {
+    let gold;
 
-    } else {
-      let gold = new BigNumber(this.goldAmount).decimalPlaces(6, BigNumber.ROUND_DOWN);
+    this._apiService.goldSellAsset(this.ethAddress, this.Web3.toWei(+this.estimatedAmount), this.isReversed, this.currentCoin)
+      .subscribe(res => {
+        let estimate, amount, toAmount, fromAmount;
+        fromAmount = estimate = this.estimatedAmount;
+        toAmount = amount = this.substrValue( (res.data.estimation.amount / Math.pow(10, 18)) );
 
-      this._apiService.goldSellAsset(this.ethAddress, this.Web3.toWei(+this.estimatedAmount), this.isReversed, this.currentCoin)
-        .subscribe(res => {
-          const wei = this.Web3.toWei(this.estimatedAmount);
-          this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
-            .subscribe(data => {
-              let estimate, amount, toAmount, fromAmount;
-              fromAmount = estimate = this.estimatedAmount;
-              toAmount = amount = (data.data.amount / Math.pow(10, 18)).toFixed(6);
-              this.isReversed && (fromAmount = amount) && (toAmount = estimate);
+        if (this.isReversed) {
+          fromAmount = amount;
+          toAmount = estimate;
+          gold = res.data.estimation.amount;
+        } else {
+          gold = this.Web3.toWei(this.goldAmount);
+        }
 
-              this._translate.get('MessageBox.EthWithdraw',
-                {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
-              ).subscribe(phrase => {
-                this.loading = false;
-                this._cdRef.markForCheck();
-                this._messageBox.confirm(phrase).subscribe(ok => {
-                  if (ok) {
-                    this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
+        this._translate.get('MessageBox.EthWithdraw',
+          {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
+        ).subscribe(phrase => {
+          this.loading = false;
+          this._cdRef.markForCheck();
+          this._messageBox.confirm(phrase).subscribe(ok => {
+            if (ok) {
+              this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
 
-                      this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                        if (price !== null && this.isFirstTransaction) {
-                          this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, this.Web3.toWei(+gold), +price);
-                          this.isFirstTransaction = false;
-                        }
-                      });
+                this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
+                  if (price !== null && this.isFirstTransaction) {
+                    this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, gold, +price);
+                    this.isFirstTransaction = false;
+                  }
+                });
 
-                      this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
-                        if (hash) {
-                          this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-                            this._messageBox.alert(`
+                this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
+                  if (hash) {
+                    this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+                      this._messageBox.alert(`
                             <div class="text-center">
                               <div class="font-weight-500 mb-2">${phrases.Heading}</div>
                               <div>${phrases.Steps}</div>
@@ -364,19 +365,17 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
                               <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
                             </div>
                           `).subscribe(ok => {
-                              ok && this.router.navigate(['/finance/history']);
-                            });
-                          });
-                        }
+                        ok && this.router.navigate(['/finance/history']);
                       });
-
                     });
                   }
                 });
+
               });
-            });
+            }
+          });
         });
-    }
+      });
   }
 
   ngOnDestroy() {

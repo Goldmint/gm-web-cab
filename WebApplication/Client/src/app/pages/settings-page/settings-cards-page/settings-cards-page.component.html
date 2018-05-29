@@ -38,7 +38,7 @@
                 </ng-container>
               </div>
 
-              <div class="col text-right">
+              <div class="col text-right" *ngIf="card.status !== 'confirm'">
                 <button class="btn btn-sm btn-primary" (click)="removeCard(card)" [disabled]="processing">{{ "BUTTONS.Remove" | translate }}</button>
               </div>
 

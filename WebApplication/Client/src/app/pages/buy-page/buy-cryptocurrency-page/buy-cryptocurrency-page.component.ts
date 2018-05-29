@@ -219,39 +219,42 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     this.loading = this.isFirstTransaction = true;
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
-
-    let eth = new BigNumber(this.coinAmount).decimalPlaces(6, BigNumber.ROUND_DOWN);
+    let eth;
 
     this._apiService.goldBuyAsset(this.ethAddress, this.Web3.toWei(+this.estimatedAmount), this.isReversed, this.currentCoin)
       .subscribe(res => {
-        const wei = this.Web3.toWei(this.estimatedAmount);
-        this._apiService.goldBuyEstimate(this.currentCoin, wei, this.isReversed)
-          .subscribe(data => {
-            let estimate, amount, toAmount, fromAmount;
-            fromAmount = estimate = this.estimatedAmount;
-            toAmount = amount = (data.data.amount / Math.pow(10, 18)).toFixed(6);
-            this.isReversed && (fromAmount = amount) && (toAmount = estimate);
+        let estimate, amount, toAmount, fromAmount;
+        fromAmount = estimate = this.estimatedAmount;
+        toAmount = amount = this.substrValue( (res.data.estimation.amount / Math.pow(10, 18)) );
 
-            this._translate.get('MessageBox.EthDeposit',
-              {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
-            ).subscribe(phrase => {
-              this.loading = false;
-              this._cdRef.markForCheck();
-              this._messageBox.confirm(phrase).subscribe(ok => {
-                if (ok) {
-                  this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
+        if (this.isReversed) {
+          fromAmount = amount;
+          toAmount = estimate;
+          eth = res.data.estimation.amount;
+        } else {
+          eth = this.Web3.toWei(this.coinAmount);
+        }
 
-                    this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                      if (price !== null && this.isFirstTransaction) {
-                        this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, this.Web3.toWei(+eth), +price);
-                        this.isFirstTransaction = false;
-                      }
-                    });
+        this._translate.get('MessageBox.EthDeposit',
+          {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
+        ).subscribe(phrase => {
+          this.loading = false;
+          this._cdRef.markForCheck();
+          this._messageBox.confirm(phrase).subscribe(ok => {
+            if (ok) {
+              this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
 
-                    this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
-                      if (hash) {
-                        this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-                          this._messageBox.alert(`
+                this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
+                  if (price !== null && this.isFirstTransaction) {
+                    this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, eth, +price);
+                    this.isFirstTransaction = false;
+                  }
+                });
+
+                this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
+                  if (hash) {
+                    this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+                      this._messageBox.alert(`
                             <div class="text-center">
                               <div class="font-weight-500 mb-2">${phrases.Heading}</div>
                               <div>${phrases.Steps}</div>
@@ -260,16 +263,15 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
                               <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
                             </div>
                           `).subscribe(ok => {
-                            ok && this.router.navigate(['/finance/history']);
-                          });
-                        });
-                      }
+                        ok && this.router.navigate(['/finance/history']);
+                      });
                     });
+                  }
+                });
 
-                  });
-                }
               });
-            });
+            }
+          });
         });
       });
   }

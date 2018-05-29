@@ -10,7 +10,7 @@
     </div>
 
     <ng-container *ngIf="isDataLoaded && cards.list && cards.list.length && !showPaymentCardBlock">
-      <form #sellForm="ngForm" (ngSubmit)="onSubmit()">
+      <form #sellForm="ngForm">
         <div>
           <div class="col-12">
             <div class="form-group">
@@ -88,7 +88,7 @@
           </div>
 
           <div class="col mb-5">
-            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+            <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </div>
@@ -102,7 +102,7 @@
     </ng-container>
 
     <ng-container *ngIf="showPaymentCardBlock">
-      <app-payment-card-block [amount]="transferData"></app-payment-card-block>
+      <app-payment-card-block [amount]="transferData" (hideForm)="hidePaymentCardForm($event)"></app-payment-card-block>
     </ng-container>
 
   </div>

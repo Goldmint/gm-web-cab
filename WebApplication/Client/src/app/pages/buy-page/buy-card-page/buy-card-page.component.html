@@ -95,7 +95,7 @@
     </ng-container>
 
     <ng-container *ngIf="showPaymentCardBlock">
-      <app-payment-card-block [amount]="transferData"></app-payment-card-block>
+      <app-payment-card-block [amount]="transferData" (hideForm)="hidePaymentCardForm($event)"></app-payment-card-block>
     </ng-container>
 
   </div>
