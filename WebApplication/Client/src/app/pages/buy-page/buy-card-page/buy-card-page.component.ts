@@ -39,7 +39,6 @@ export class BuyCardPageComponent implements OnInit {
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
-  private isFormSubmitted = false;
 
   constructor(
     private _userService: UserService,
@@ -122,7 +121,6 @@ export class BuyCardPageComponent implements OnInit {
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
 
-          this.fixedAmount();
           this.invalidBalance = false;
         });
       } else {
@@ -143,7 +141,6 @@ export class BuyCardPageComponent implements OnInit {
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
 
-          this.fixedAmount();
           this.invalidBalance = (this.usdAmount <= 1) ? true : false;
         });
       } else {
@@ -179,28 +176,31 @@ export class BuyCardPageComponent implements OnInit {
       .replace(/^0+(\d)/, '$1');
   }
 
-  onSubmit() {
-    this.isFormSubmitted = true;
-    this.isReversed ? this.onAmountChanged(this.goldAmount) : this.onAmountChanged(this.usdAmount);
+  hidePaymentCardForm(status) {
+    this.showPaymentCardBlock = !status;
+    this.interval = Observable.interval(100).subscribe(() => {
+      if (this.goldAmountInput) {
+        this.initInputValueChanges();
+
+        this.interval && this.interval.unsubscribe();
+        this._cdRef.markForCheck();
+      }
+    });
+    this._cdRef.markForCheck();
   }
 
-  fixedAmount() {
-    if (this.isFormSubmitted) {
-      this.transferData = {
-        amountView: this.usdAmount + ' USD',
-        estimatedView: this.goldAmount + ' GOLD',
-        type: 'buy',
-        cardId: +this.selectedCard,
-        ethAddress: this.ethAddress,
-        currency: 'USD',
-        amount: this.estimatedAmount,
-        reversed: this.isReversed
-      };
+  onSubmit() {
+    this.transferData = {
+      type: 'buy',
+      cardId: +this.selectedCard,
+      ethAddress: this.ethAddress,
+      currency: 'USD',
+      amount: this.estimatedAmount,
+      reversed: this.isReversed
+    };
 
-      this.isFormSubmitted = false;
-      this.showPaymentCardBlock = true;
-      this._cdRef.markForCheck();
-    }
+    this.showPaymentCardBlock = true;
+    this._cdRef.markForCheck();
   }
 
   ngOnDestroy() {

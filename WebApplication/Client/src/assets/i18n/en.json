@@ -1118,7 +1118,10 @@
         "Estimates": "Estimates Amount:",
         "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:"
       },
-      "Button": "Proceed to payment",
+      "Buttons": {
+        "Buy": "Buy GOLD",
+        "Sell": "Sell GOLD"
+      },
       "Table": {
         "Caption": {
           "Billing": "Billing descriptor",
