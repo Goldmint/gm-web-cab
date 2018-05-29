@@ -50,13 +50,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var estimation = await Estimation(inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.EthAddress, model.Reversed);
+			var rcfg = RuntimeConfigHolder.Clone();
+			if (!rcfg.Gold.AllowTradingCreditCard) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
 
+			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.EthAddress, model.Reversed);
 			if (estimation == null) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var rcfg = RuntimeConfigHolder.Clone();
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest);
 

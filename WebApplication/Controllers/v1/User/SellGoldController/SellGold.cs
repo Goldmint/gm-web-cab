@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
@@ -52,7 +53,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var est = await Estimation(inputAmount, cryptoCurrency, exchangeCurrency, model.EthAddress, model.Reversed);
+			var rcfg = RuntimeConfigHolder.Clone();
+
+			var est = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.EthAddress, model.Reversed);
 			if (est == null) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -141,7 +144,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private async Task<EstimationResult> Estimation(BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, string ethAddress, bool reversed) {
+		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, string ethAddress, bool reversed) {
 
 			var allowed = false;
 			

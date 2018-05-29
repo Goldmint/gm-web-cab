@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="x-apple-disable-message-reformatting">
-    <title>Gold issued</title>
+    <title>Payment card withdrawal</title>
 
     {{HEAD}}
 </head>
@@ -14,7 +14,7 @@
 
         <!-- Visually Hidden Preheader Text : BEGIN -->
         <div style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
-            Gold issued
+            Payment card withdrawal
         </div>
         <!-- Visually Hidden Preheader Text : END -->
 
@@ -46,7 +46,7 @@
                             <tr>
                                 <td style="padding: 0 40px 5px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555;">
                                     <h1 style="font-family: sans-serif; font-size: 36px; font-weight: 300; line-height: 0.95; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;">
-										Gold issued
+										Payment card withdrawal
 									</h1>
                                 </td>
                             </tr>
@@ -56,20 +56,7 @@
 										Your request <span style="color: darkgreen; font-weight: bold;">#{{REQUEST_ID}}</span> has been successfully processed.
 										<br/>
 										<br/>
-										Issuing transaction has been enqueued and could be tracked by clicking the button below.
-										<br/>
-										<br/>
-										<br/>
-										<div align="center">
-											<a href="{{ETHERSCAN_LINK}}" style="display: inline-block; background-color: #E9CB6B; font-family: sans-serif; font-size: 18px; font-weight: bold; text-transform: uppercase; text-decoration: none; letter-spacing: 0.1em; color: #1C1C1C; line-height: 22px; padding-top: 18px; padding-bottom: 18px; padding-left: 32px; padding-right: 32px;">
-												View transaction
-											</a>
-											<br/>
-											<br/>
-											<div style="color: #BDBDBD; font-family: sans-serif; font-size: 10px;">
-												{{ETHERSCAN_LINK}}
-											</div>
-										</div>
+										<span style="font-family: monospace; font-weight: bold;">{{DETAILS_ESTIMATED}}</span> has been withdrawn to your card {{DETAILS_ADDRESS}}.
 									</p>
                                 </td>
                             </tr>

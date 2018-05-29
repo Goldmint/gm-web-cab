@@ -162,6 +162,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		/// </summary>
 		[Required]
 		public bool TfaEnabled { get; set; }
+		
+		/// <summary>
+		/// Has extra-rights
+		/// </summary>
+		[Required]
+		public bool HasExtraRights { get; set; }
 
 		/// <summary>
 		/// Level 0 verification is completed

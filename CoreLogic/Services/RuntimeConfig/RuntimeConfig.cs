@@ -20,7 +20,9 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 
 		public class GoldSection {
 
-			public bool AllowTrading { get; set; } = true;
+			public bool AllowTradingOverall { get; set; } = true;
+			public bool AllowTradingEth { get; set; } = true;
+			public bool AllowTradingCreditCard { get; set; } = true;
 			public SafeRateSection SafeRate { get; set; } = new SafeRateSection();
 			public TimeoutsSection Timeouts { get; set; } = new TimeoutsSection();
 

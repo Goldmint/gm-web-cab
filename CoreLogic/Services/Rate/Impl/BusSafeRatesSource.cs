@@ -56,7 +56,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			try {
 				var rcfg = _runtimeConfigHolder.Clone();
 
-				if (rcfg.Gold.AllowTrading && _rates.TryGetValue(cur, out var ret)) {
+				if (rcfg.Gold.AllowTradingOverall && _rates.TryGetValue(cur, out var ret)) {
 					return ret;
 				}
 				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);

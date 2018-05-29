@@ -73,6 +73,11 @@ namespace Goldmint.Common {
 		/// </summary>
 		DashboardReadAccess = 0x2L,
 		
+		/// <summary>
+		/// App client - extra access
+		/// </summary>
+		ClientExtraAccess = 0x4L,
+		
 		// ---
 
 		/// <summary>

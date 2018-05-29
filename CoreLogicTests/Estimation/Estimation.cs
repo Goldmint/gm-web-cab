@@ -401,7 +401,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
 
 			// disallow trading
-			RuntimeConfigLoader.EditConfig(cfg => { cfg.Gold.AllowTrading = false; });
+			RuntimeConfigLoader.EditConfig(cfg => { cfg.Gold.AllowTradingOverall = false; });
 			RuntimeConfigHolder.Reload().Wait();
 
 			// disallowed

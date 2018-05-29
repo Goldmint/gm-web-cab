@@ -612,7 +612,10 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RelUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query)
+						.Include(_ => _.RelUserFinHistory)
+						.FirstOrDefaultAsync()
+					;
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -640,7 +643,7 @@ namespace Goldmint.CoreLogic.Finance {
 										from c in dbContext.UserCreditCard
 										where
 											c.Id == request.RelOutputId.Value &&
-											c.UserId == request.Id &&
+											c.UserId == request.UserId &&
 											c.State == CardState.Verified
 										select c
 									)
@@ -649,19 +652,28 @@ namespace Goldmint.CoreLogic.Finance {
 								;
 							}
 							if (card != null) {
-								// enqueue payment
-								payment = await The1StPaymentsProcessing.CreateWithdrawPayment(
-									services: services,
-									card: card,
-									currency: request.ExchangeCurrency,
-									amountCents: (long)ethRequestInfo.OutputAmount,
-									sellRequestId: request.Id,
-									oplogId: request.OplogId
-								);
-								dbContext.CreditCardPayment.Add(payment);
-								await dbContext.SaveChangesAsync();
+								try {
+									// enqueue payment
+									payment = await The1StPaymentsProcessing.CreateWithdrawPayment(
+										services: services,
+										card: card,
+										currency: request.ExchangeCurrency,
+										amountCents: (long) ethRequestInfo.OutputAmount,
+										sellRequestId: request.Id,
+										oplogId: request.OplogId
+									);
+									dbContext.CreditCardPayment.Add(payment);
+									await dbContext.SaveChangesAsync();
 
-								payment.Status = CardPaymentStatus.Pending;
+									payment.Status = CardPaymentStatus.Pending;
+								}
+								catch (Exception e) {
+									logger.Error(e, $"Failed to init withdrawal transaction for request #{request.Id}");
+									try {
+										await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Failed to init withdrawal transaction for request #{request.Id}");
+									}
+									catch { }
+								}
 							}
 						}
 
@@ -678,7 +690,7 @@ namespace Goldmint.CoreLogic.Finance {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Completed, $"Request #{request.Id} processed. Withdrawal payment #{ payment.Id } enqueued");
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Withdrawal payment #{ payment.Id } enqueued");
 							}
 							catch { }
 
@@ -703,6 +715,7 @@ namespace Goldmint.CoreLogic.Finance {
 					catch (Exception e) {
 						logger.Error(e, $"Failed to process sell request #{request.Id}");
 					}
+					return BuySellRequestProcessingResult.InvalidArgs;
 				}
 				return BuySellRequestProcessingResult.MutexFailure;
 			});
@@ -735,16 +748,16 @@ namespace Goldmint.CoreLogic.Finance {
 
 					// get exchange request
 					var request = await (
-								from r in dbContext.BuyGoldRequest
-								where
-									r.Id == ethOp.RelatedExchangeRequestId &&
-									r.UserId == ethOp.UserId
-								select r
-							)
-							.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
-							.Include(_ => _.User)
-							.FirstOrDefaultAsync()
-						;
+							from r in dbContext.BuyGoldRequest
+							where
+								r.Id == ethOp.RelatedExchangeRequestId &&
+								r.UserId == ethOp.UserId
+							select r
+						)
+						.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
+						.Include(_ => _.User)
+						.FirstOrDefaultAsync()
+					;
 
 					// notification
 					if (request?.RelUserFinHistory?.RelUserActivity != null) {

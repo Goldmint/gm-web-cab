@@ -8,6 +8,7 @@ using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
@@ -48,6 +49,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
+			// extra access
+			if (HostingEnvironment.IsProduction() && (user.AccessRights & (long)AccessRights.ClientExtraAccess) != (long)AccessRights.ClientExtraAccess) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
 			// get the card
 			var card = await (
 					from c in DbContext.UserCreditCard
@@ -68,12 +74,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var estimation = await Estimation(inputAmount, null, exchangeCurrency, model.Reversed);
+			var rcfg = RuntimeConfigHolder.Clone();
+			if (!rcfg.Gold.AllowTradingCreditCard) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
+
+			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed);
 			if (estimation == null || estimation.ResultCurrencyAmount <= 0 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var rcfg = RuntimeConfigHolder.Clone();
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
