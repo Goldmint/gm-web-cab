@@ -12,6 +12,7 @@
 		public const string ProofOfResidenceRejected = "ProofOfResidenceRejected";
 		public const string SwiftDepositInvoice = "SwiftDepositInvoice";
 		public const string ExchangeGoldIssued = "ExchangeGoldIssued";
+		public const string ExchangeEthTransferred = "ExchangeEthTransferred";
 
 		public string Subject { get; set; }
 		public string Body { get; set; }

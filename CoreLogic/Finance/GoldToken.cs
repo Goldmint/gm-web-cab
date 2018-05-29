@@ -753,23 +753,21 @@ namespace Goldmint.CoreLogic.Finance {
 							srcType = request.ExchangeCurrency.ToString().ToUpper();
 						}
 
-						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.SignedIn,
-									request.RelUserFinHistory.RelUserActivity.Locale))
-								.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
-								.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
-								.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + srcType)
-								.ReplaceBodyTag("DETAILS_RATE", rate)
-								.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + "GOLD")
-								.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
-								.Initiator(request.RelUserFinHistory.RelUserActivity)
-								.Send(request.User.Email, request.User.UserName, notificationQueue)
-							;
+						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeGoldIssued, request.RelUserFinHistory.RelUserActivity.Locale))
+							.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
+							.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
+							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + " " + srcType)
+							.ReplaceBodyTag("DETAILS_RATE", rate)
+							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " GOLD")
+							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
+							.Initiator(request.RelUserFinHistory.RelUserActivity)
+							.Send(request.User.Email, request.User.UserName, notificationQueue)
+						;
 					}
 				}
 
 				// selling / ETH sent
-				// TODO: ETH transfer
-				/*if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth) {
+				if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth) {
 
 					// get exchange request
 					var request = await (
@@ -787,30 +785,21 @@ namespace Goldmint.CoreLogic.Finance {
 					// notification
 					if (request?.RelUserFinHistory?.RelUserActivity != null) {
 
-						var rate = "";
-						var srcType = "";
-						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth) {
-							var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.InputRateCents, request.GoldRateCents);
-							rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals);
-							srcType = "ETH";
-						}
-						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
-							rate = TextFormatter.FormatAmount(request.GoldRateCents);
-							srcType = request.ExchangeCurrency.ToString().ToUpper();
-						}
+						var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
+						var rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals);
 
-						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.SignedIn, request.RelUserFinHistory.RelUserActivity.Locale))
+						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, request.RelUserFinHistory.RelUserActivity.Locale))
 							.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
 							.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
-							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + srcType)
+							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + " GOLD")
 							.ReplaceBodyTag("DETAILS_RATE", rate)
-							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + "GOLD")
+							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " ETH")
 							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
 							.Initiator(request.RelUserFinHistory.RelUserActivity)
 							.Send(request.User.Email, request.User.UserName, notificationQueue)
 						;
 					}
-				}*/
+				}
 
 				// selling / fiat confirmation
 				if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat) {

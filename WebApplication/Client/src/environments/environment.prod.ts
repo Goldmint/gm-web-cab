@@ -5,5 +5,5 @@ export const environment = {
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
   infuraUrl: 'https://rinkeby.infura.io/ErpvjHXqcahfBLahHPfh',
   etherscanGetABIUrl: 'https://api-rinkeby.etherscan.io',
-  EthContractAddress: '0xe8d6d8be0e7e58a8c6363821b427e67b0a47ded4'
+  EthContractAddress: '0x8B3Cc4BCf7cb3727565Bb69cb23Ae7D810988Df2'
 };
