@@ -39,6 +39,7 @@ import {SellCryptocurrencyPageComponent} from "./pages/sell-page/sell-cryptocurr
 import {SettingsCardsPageComponent} from "./pages/settings-page/settings-cards-page/settings-cards-page.component";
 import {BuyCardPageComponent} from "./pages/buy-page/buy-card-page/buy-card-page.component";
 import {SellCardPageComponent} from "./pages/sell-page/sell-card-page/sell-card-page.component";
+import {TransferPageComponent} from "./pages/transfer-page/transfer-page.component";
 
 
 const appRoutes: Routes = [
@@ -61,6 +62,7 @@ const appRoutes: Routes = [
   { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },
   { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'sell/payment-card', component: SellCardPageComponent, canActivate: [AuthGuard] },
+  { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {
@@ -84,8 +86,8 @@ const appRoutes: Routes = [
       { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
-      { path: 'limits', component: LimitsPageComponent },
-      { path: 'fees', component: SettingsFeesPageComponent }
+      { path: 'limits', component: LimitsPageComponent }
+      // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
   { path: 'transparency', component: TransparencyPageComponent },
