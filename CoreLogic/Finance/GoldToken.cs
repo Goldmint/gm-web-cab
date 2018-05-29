@@ -212,7 +212,10 @@ namespace Goldmint.CoreLogic.Finance {
 					r.Input == SellGoldRequestInput.ContractGoldBurning &&
 					r.Id == internalRequestId &&
 					r.Status == SellGoldRequestStatus.Confirmed &&
-					r.Output == SellGoldRequestOutput.EthAddress &&
+					(
+						r.Output == SellGoldRequestOutput.EthAddress ||
+						r.Output == SellGoldRequestOutput.CreditCard
+					) &&
 					r.EthAddress == address
 				select r
 			;
@@ -546,13 +549,19 @@ namespace Goldmint.CoreLogic.Finance {
 						}
 						// failed
 						else {
-
-							request.Status = BuyGoldRequestStatus.Failed;
+							request.Status = BuyGoldRequestStatus.Cancelled;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
 							request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
 							request.RelUserFinHistory.TimeCompleted = timeNow;
+							request.RelUserFinHistory.Comment = "Failed to charge";
 							await dbContext.SaveChangesAsync();
+
+							try {
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Failed to charge deposit for buy request #{request.Id}");
+							}
+							catch {
+							}
 
 							return BuySellRequestProcessingResult.Cancelled;
 						}
@@ -757,7 +766,7 @@ namespace Goldmint.CoreLogic.Finance {
 							.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
 							.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
 							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + " " + srcType)
-							.ReplaceBodyTag("DETAILS_RATE", rate)
+							.ReplaceBodyTag("DETAILS_RATE", rate + " GOLD/" + srcType)
 							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " GOLD")
 							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
 							.Initiator(request.RelUserFinHistory.RelUserActivity)
@@ -786,7 +795,7 @@ namespace Goldmint.CoreLogic.Finance {
 					if (request?.RelUserFinHistory?.RelUserActivity != null) {
 
 						var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
-						var rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals);
+						var rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals) + " GOLD/ETH";
 
 						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, request.RelUserFinHistory.RelUserActivity.Locale))
 							.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())

@@ -63,6 +63,8 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 				_dbContext.DetachEverything();
 				
 				var res = await The1StPaymentsProcessing.ProcessDepositPayment(_services, row.Id);
+
+				// charged
 				if (res.Result == The1StPaymentsProcessing.ProcessDepositPaymentResult.ResultEnum.Charged) {
 
 					var pdResult = await CoreLogic.Finance.GoldToken.OnCreditCardDepositCompleted(
@@ -77,6 +79,22 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 
 					++_statProcessed;
 				}
+				// failed to charge
+				else if (res.Result == The1StPaymentsProcessing.ProcessDepositPaymentResult.ResultEnum.Failed) {
+
+					var pdResult = await CoreLogic.Finance.GoldToken.OnCreditCardDepositCompleted(
+						services: _services,
+						requestId: row.RelatedExchangeRequestId ?? 0,
+						paymentId: row.Id
+					);
+
+					Logger.Info(
+						$"Request #{ row.RelatedExchangeRequestId } result is {pdResult.ToString()}"
+					);
+
+					++_statProcessed;
+				}
+				// unexpected
 				else {
 					++_statFailed;
 				}
