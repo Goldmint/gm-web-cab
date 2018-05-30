@@ -180,4 +180,30 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		[Required]
 		public string Withdraw { get; set; }
 	}
+
+	// ---
+
+	public class StatusView {
+
+		/// <summary>
+		/// Trading status
+		/// </summary>
+		[Required]
+		public StatusViewTrading Trading { get; set; }
+	}
+
+	public class StatusViewTrading {
+		
+		/// <summary>
+		/// Overall trading status
+		/// </summary>
+		[Required]
+		public bool EthAllowed { get; set; }
+
+		/// <summary>
+		/// Overall trading status
+		/// </summary>
+		[Required]
+		public bool CreditCardAllowed { get; set; }
+	}
 }

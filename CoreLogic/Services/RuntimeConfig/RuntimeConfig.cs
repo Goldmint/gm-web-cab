@@ -25,11 +25,13 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 			public bool AllowTradingCreditCard { get; set; } = true;
 			public SafeRateSection SafeRate { get; set; } = new SafeRateSection();
 			public TimeoutsSection Timeouts { get; set; } = new TimeoutsSection();
+			public PaymentMehtodsSection PaymentMehtods { get; set; } = new PaymentMehtodsSection();
 
 			public static IValidator<GoldSection> GetValidator() {
 				var v = new InlineValidator<GoldSection>() { CascadeMode = CascadeMode.Continue };
 				v.RuleFor(_ => _.SafeRate).NotNull().SetValidator(SafeRateSection.GetValidator());
 				v.RuleFor(_ => _.Timeouts).NotNull().SetValidator(TimeoutsSection.GetValidator());
+				v.RuleFor(_ => _.PaymentMehtods).NotNull().SetValidator(PaymentMehtodsSection.GetValidator());
 				return v;
 			}
 
@@ -74,6 +76,35 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 					v.RuleFor(_ => _.ContractBuyRequest).GreaterThan(0);
 					v.RuleFor(_ => _.ContractSellRequest).GreaterThan(0);
 					v.RuleFor(_ => _.HwUserOperationDelay).GreaterThan(0);
+					return v;
+				}
+			}
+
+			public class PaymentMehtodsSection {
+
+				public double EthDepositMinEther { get; set; } = 0.000001d;
+				public double EthDepositMaxEther { get; set; } = 1000d;
+				public double EthWithdrawMinEther { get; set; } = 0.01d;
+				public double EthWithdrawMaxEther { get; set; } = 1000d;
+
+				public double CreditCardDepositMinUsd { get; set; } = 100.00d;
+				public double CreditCardDepositMaxUsd { get; set; } = 1000.00d;
+				public double CreditCardWithdrawMinUsd { get; set; } = 100.00d;
+				public double CreditCardWithdrawMaxUsd { get; set; } = 1000.00d;
+
+				public static IValidator<PaymentMehtodsSection> GetValidator() {
+					var v = new InlineValidator<PaymentMehtodsSection>() { CascadeMode = CascadeMode.Continue };
+
+					v.RuleFor(_ => _.EthDepositMinEther).GreaterThan(0);
+					v.RuleFor(_ => _.EthDepositMaxEther).GreaterThan(0);
+					v.RuleFor(_ => _.EthWithdrawMinEther).GreaterThan(0);
+					v.RuleFor(_ => _.EthWithdrawMaxEther).GreaterThan(0);
+
+					v.RuleFor(_ => _.CreditCardDepositMinUsd).GreaterThan(0);
+					v.RuleFor(_ => _.CreditCardDepositMaxUsd).GreaterThan(0);
+					v.RuleFor(_ => _.CreditCardWithdrawMinUsd).GreaterThan(0);
+					v.RuleFor(_ => _.CreditCardWithdrawMaxUsd).GreaterThan(0);
+
 					return v;
 				}
 			}

@@ -70,8 +70,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.CardId), "Invalid id");
 			}
 
-			// TODO: exchange amount limits
-
 			// ---
 
 			var rcfg = RuntimeConfigHolder.Clone();
@@ -79,9 +77,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed);
-			if (estimation == null || estimation.ResultCurrencyAmount <= 0 || estimation.ResultCurrencyAmount > long.MaxValue) {
+			var limits = DepositLimits(rcfg, exchangeCurrency);
+
+			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
+			if (estimation.IsLimitExceeded) {
+				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
 			var timeNow = DateTime.UtcNow;
