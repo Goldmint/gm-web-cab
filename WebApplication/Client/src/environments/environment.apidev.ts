@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  detectExtraRights: false,
   apiUrl: 'http://localhost:8000/api/v1',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
