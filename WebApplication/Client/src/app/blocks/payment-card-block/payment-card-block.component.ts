@@ -141,6 +141,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
           if (price !== null && this.isFirstTransaction) {
             this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.sellRequestId, this.goldAmount.toString(), +price);
             this.isFirstTransaction = false;
+            this.hidePaymentCardForm();
           }
         });
 
@@ -170,8 +171,6 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.subGetGas && this.subGetGas.unsubscribe();
-    this.sub1 && this.sub1.unsubscribe();
   }
 
 }

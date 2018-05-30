@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  detectExtraRights: true,
   apiUrl: 'https://app.goldmint.io/api/v1',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
