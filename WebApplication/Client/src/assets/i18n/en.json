@@ -152,7 +152,8 @@
         "Amount": "Amount",
         "ChooseMethod": "Choose transfer method",
         "MyWallet": "My Etherium wallet",
-        "Or": "or"
+        "Or": "or",
+        "NoMM": "Use metamask"
       },
       "Steps": {
         "One": "Go to",
@@ -1219,7 +1220,7 @@
     "RequestProgress": "Your request is in progress now!",
     "GoldSell": "GOLD to sell: {{ goldAmount }} GOLD <br> You will get: $ {{ fiatAmount }} ($ {{ feeAmount }} fee) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "GOLD to buy: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
-    "GoldTransfer": "Target address: {{ address }} <br> GOLD amount: {{ amount }} GOLD",
+    "GoldTransfer": "Send to: {{ ToAddress }} <br> Send from: {{ FromAddress }} <br> Amount: {{ amount }} GOLD",
     "EthDeposit": "Eth amount: {{ coinAmount }} Eth <br> Estimates Amount: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
     "EthWithdraw": "Gold amount: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Password successfully changed",

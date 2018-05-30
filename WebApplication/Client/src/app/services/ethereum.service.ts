@@ -284,9 +284,10 @@ export class EthereumService {
     });
   }
 
-  public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
+  public transferGoldToWallet(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
     if (this._contractGold == null) return;
-    var goldAmountStr = goldAmount.times(new BigNumber(10).pow(18)).decimalPlaces(0, BigNumber.ROUND_DOWN).toString();
-    this._contractGold.transfer.sendTransaction(toAddr, goldAmountStr, { from: fromAddr, value: 0 }, (err, res) => { });
+    this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      this.getSuccessSellRequestLink$.next(res);
+    });
   }
 }

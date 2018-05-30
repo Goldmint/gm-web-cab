@@ -152,7 +152,8 @@
         "Amount": "Количество",
         "ChooseMethod": "Выберите метод перевода",
         "MyWallet": "Мой Etherium кошелек",
-        "Or": "или"
+        "Or": "или",
+        "NoMM": "Используйте metamask"
       },
       "Steps": {
         "One": "Перейдите на",
@@ -1219,7 +1220,7 @@
     "RequestProgress": "Ваш запрос выполняется!",
     "GoldSell": "Продать: {{ goldAmount }} GOLD <br> Вы получите: $ {{ fiatAmount }} ($ {{ feeAmount }} комиссия) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "Купить: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
-    "GoldTransfer": "Целевой адрес: {{ address }} <br> GOLD количество: {{ amount }} GOLD",
+    "GoldTransfer": "Из: {{ ToAddress }} <br> В: {{ FromAddress }} <br> Количество: {{ amount }} GOLD",
     "EthDeposit": "Количество Eth: {{ coinAmount }} Eth <br> Оценочная сумма: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
     "EthWithdraw": "Количество Gold: {{ coinAmount }} GOLD <br> Оценочная сумма: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
     "PasswordChanged": "Пароль успешно изменен",
