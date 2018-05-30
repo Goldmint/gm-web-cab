@@ -50,18 +50,24 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
-			// TODO: exchange amount limits
-
 			// ---
 
 			var rcfg = RuntimeConfigHolder.Clone();
 
-			var est = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed);
-			if (est == null) {
+			var limits = cryptoCurrency != null
+				? DepositLimits(rcfg, cryptoCurrency.Value)
+				: DepositLimits(rcfg, exchangeCurrency)
+			;
+
+			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
+			if (estimation.IsLimitExceeded) {
+				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
+			}
 
-			return APIResponse.Success(est.View);
+			return APIResponse.Success(estimation.View);
 		}
 
 		/// <summary>
@@ -168,7 +174,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				await DbContext.SaveChangesAsync();
 			}
 
-			// TODO: email
+			// TODO: email?
 
 			return APIResponse.Success(
 				new ConfirmView() { }
@@ -179,6 +185,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		internal class EstimationResult {
 
+			public bool TradingAllowed { get; set; }
+			public bool IsLimitExceeded { get; set; }
 			public EstimateView View { get; set; }
 			public long CentsPerAssetRate { get; set; }
 			public long CentsPerGoldRate { get; set; }
@@ -187,7 +195,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed) {
+		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed, BigInteger depositLimitMin, BigInteger depositLimitMax) {
 
 			bool allowed = false;
 			
@@ -198,6 +206,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			object viewAmount = null;
 			string viewAmountCurrency = "";
+
+			var limitsData = (EstimateLimitsView) null;
 
 			// default estimation: specified currency to GOLD
 			if (!reversed) {
@@ -217,6 +227,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = (long)depositLimitMin / 100d,
+						Max = (long)depositLimitMax / 100d,
+					};
 				}
 
 				// cryptoasset
@@ -236,6 +252,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = depositLimitMin.ToString(),
+						Max = depositLimitMax.ToString(),
+					};
 				}
 			}
 			// reversed estimation: GOLD to specified currency
@@ -256,6 +278,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					viewAmount = res.ResultCentsAmount / 100d;
 					viewAmountCurrency = fiatCurrency.ToString().ToUpper();
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = (long)depositLimitMin / 100d,
+						Max = (long)depositLimitMax / 100d,
+					};
 				}
 
 				// cryptoasset
@@ -275,23 +303,84 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					viewAmount = res.ResultAssetAmount.ToString();
 					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = depositLimitMin.ToString(),
+						Max = depositLimitMax.ToString(),
+					};
 				}
 			}
 
-			if (!allowed) {
-				return null;
-			}
+			var limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
 
 			return new EstimationResult() {
+				TradingAllowed = allowed,
+				IsLimitExceeded = limitExceeded,
 				View = new EstimateView() {
 					Amount = viewAmount,
 					AmountCurrency = viewAmountCurrency,
+					Limits = limitsData,
 				},
 				CentsPerAssetRate = centsPerAsset,
 				CentsPerGoldRate = centsPerGold,
 				ResultCurrencyAmount = resultCurrencyAmount,
 				ResultGoldAmount = resultGoldAmount,
 			};
+		}
+
+		// ---
+
+		internal class DepositLimitsResult {
+
+			public BigInteger Min { get; set; }
+			public BigInteger Max { get; set; }
+		}
+
+		[NonAction]
+		private DepositLimitsResult DepositLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency) {
+
+			var cryptoAccuracy = 8;
+			var decimals = cryptoAccuracy;
+			var min = 0d;
+			var max = 0d;
+
+			if (cryptoCurrency == CryptoCurrency.Eth) {
+				decimals = Tokens.ETH.Decimals;
+				min = rcfg.Gold.PaymentMehtods.EthDepositMinEther;
+				max = rcfg.Gold.PaymentMehtods.EthDepositMaxEther;
+			}
+
+			if (min > 0 && max > 0) {
+				var pow = BigInteger.Pow(10, decimals - cryptoAccuracy);
+				return new DepositLimitsResult() {
+					Min = new BigInteger((long) Math.Floor(min * Math.Pow(10, cryptoAccuracy))) * pow,
+					Max = new BigInteger((long) Math.Floor(max * Math.Pow(10, cryptoAccuracy))) * pow,
+				};
+			}
+			
+			throw new NotImplementedException($"{cryptoCurrency} currency is not implemented");
+		}
+
+		[NonAction]
+		private DepositLimitsResult DepositLimits(RuntimeConfig rcfg, FiatCurrency fiatCurrency) {
+
+			var min = 0d;
+			var max = 0d;
+
+			if (fiatCurrency == FiatCurrency.Usd) {
+				min = rcfg.Gold.PaymentMehtods.CreditCardDepositMinUsd;
+				max = rcfg.Gold.PaymentMehtods.CreditCardDepositMaxUsd;
+			}
+
+			if (min > 0 && max > 0) {
+				return new DepositLimitsResult() {
+					Min = (long)Math.Floor(min * 100d),
+					Max = (long)Math.Floor(max * 100d),
+				};
+			}
+
+			throw new NotImplementedException($"{fiatCurrency} currency is not implemented");
 		}
 	}
 }

@@ -53,7 +53,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 	public class EstimateView {
 
 		/// <summary>
-		/// Estimation amount. Currency amount minus fee (string or float, Reversed is false) or GOLD amount (string, Reversed is true)
+		/// Estimated amount. Currency amount minus fee (string or float, Reversed is false) or GOLD amount (string, Reversed is true)
 		/// </summary>
 		[Required]
 		public object Amount { get; set; }
@@ -75,6 +75,33 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		/// </summary>
 		[Required]
 		public string FeeCurrency { get; set; }
+
+		/// <summary>
+		/// Limits in EstimateModel.Currency
+		/// </summary>
+		[Required]
+		public EstimateLimitsView Limits { get; set; }
+	}
+
+	public class EstimateLimitsView {
+
+		/// <summary>
+		/// Currency
+		/// </summary>
+		[Required]
+		public string Currency { get; set; }
+
+		/// <summary>
+		/// Minimal allowed amount in Currency (string or float)
+		/// </summary>
+		[Required]
+		public object Min { get; set; }
+
+		/// <summary>
+		/// Maximal allowed amount in Currency (string or float)
+		/// </summary>
+		[Required]
+		public object Max { get; set; }
 	}
 
 	// ---
