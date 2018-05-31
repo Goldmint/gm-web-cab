@@ -2,7 +2,10 @@
 <h1 class="page__heading">{{ "PAGES.Buy.PaymentCard.Heading" | translate }}</h1>
 
 <section class="page__section section section--table">
-  <h2 class="section__title">{{ "PAGES.Buy.PaymentCard.Heading" | translate }}</h2>
+  <div class="d-flex justify-content-between">
+    <h2 class="section__title">{{ "PAGES.Buy.PaymentCard.Heading" | translate }}</h2>
+    <div class="section__title lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
+  </div>
 
   <div class="section__content pt-4">
     <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
@@ -46,12 +49,16 @@
                        ngModel
                        autocomplete="off"
                        (input)="changeValue(false, $event)"
-                       [ngClass]="{'is-invalid': invalidBalance && !isReversed}"
+                       [ngClass]="{'is-invalid': (invalidBalance && !isReversed) || isTradingLimit}"
                        [disabled]="isReversed && loading"
                 >
               </div>
               <div class="invalid-feedback" *ngIf="invalidBalance && !isReversed">
                 {{ "PAGES.Buy.Errors.InvalidUsd" | translate }}
+              </div>
+              <div class="invalid-feedback" *ngIf="isTradingLimit">
+                {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} usd<br>
+                {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} usd
               </div>
             </div>
           </div>
@@ -82,7 +89,7 @@
           </div>
 
           <div class="col-12 mb-5">
-            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </div>
@@ -95,7 +102,9 @@
     </ng-container>
 
     <ng-container *ngIf="showPaymentCardBlock">
-      <app-payment-card-block [amount]="transferData" (hideForm)="hidePaymentCardForm($event)"></app-payment-card-block>
+      <app-payment-card-block [amount]="transferData" (hideForm)="hidePaymentCardForm($event)"
+                              (tradingError)="transferTradingError($event)">
+      </app-payment-card-block>
     </ng-container>
 
   </div>

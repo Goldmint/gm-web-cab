@@ -26,6 +26,8 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public isDataLoaded: boolean = false;
   public isReversed: boolean = false;
   public showPaymentCardBlock: boolean = false;
+  public isTradingError = false;
+  public isTradingLimit: object | boolean = false;
 
   public goldAmount: number = 0;
   public usdAmount: number = 0;
@@ -56,6 +58,16 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
+      this.isTradingLimit = limit;
+      this._cdRef.markForCheck();
+    });
+
     Observable.combineLatest(
       this._apiService.getFiatCards(),
       this._apiService.getProfile()
@@ -70,7 +82,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
             this.selectedCard = this.cards.list[0].cardId;
 
             this.initInputValueChanges();
-            this.setGoldBalance(1);
+            // this.setGoldBalance(1);
 
             this.interval && this.interval.unsubscribe();
             this._cdRef.markForCheck();
@@ -150,7 +162,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
 
-          this.invalidBalance = false;
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
         });
       } else {
         this.usdAmount = 0;
@@ -169,6 +181,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
+          this.isTradingError = this.isTradingLimit = false;
 
           if (this.goldAmount > +this.goldBalance) {
             this.invalidBalance = true;

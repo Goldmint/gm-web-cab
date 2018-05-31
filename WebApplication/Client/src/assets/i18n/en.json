@@ -1202,6 +1202,11 @@
     },
     "TFA": {
       "InvalidCode": "Invalid code"
+    },
+    "Trading": "Trading Not Allowed",
+    "Limit": {
+      "Min": "Minimal amount value is",
+      "Max": "Maximum amount value is"
     }
   },
   "APIErrors": {

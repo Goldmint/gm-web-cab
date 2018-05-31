@@ -4,9 +4,17 @@
       <img *ngIf="!isDataLoaded" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
       <span *ngIf="isDataLoaded">{{ transferData.amountView }}</span>
     </div>
+    <div class="invalid-feedback mt-0 mb-2" *ngIf="isTradingLimit && this.transferData.type === 'buy'">
+      {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} usd<br>
+      {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} usd
+    </div>
     <div class="payment-card-estimate"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Estimates" | translate }}</span>
       <img *ngIf="!isDataLoaded" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
       <span *ngIf="isDataLoaded">{{ transferData.estimatedView }}</span>
+    </div>
+    <div class="invalid-feedback mt-0 mb-0" *ngIf="isTradingLimit && this.transferData.type === 'sell'">
+      {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} usd<br>
+      {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} usd
     </div>
 
     <div class="mt-4">
@@ -15,7 +23,7 @@
         <label class="custom-control-label" for="agreeCheck">{{ "PAGES.PaymentCardBlock.Labels.Checkbox" | translate }}</label>
       </div>
       <div class="d-flex align-items-center mt-4">
-        <button class="btn btn-primary" [disabled]="!agreeCheck || loading" (click)="onSubmit()">
+        <button class="btn btn-primary" [disabled]="!agreeCheck || loading || isTradingError || isTradingLimit" (click)="onSubmit()">
           <span *ngIf="transferData.type === 'buy'">{{ "PAGES.PaymentCardBlock.Buttons.Buy" | translate }}</span>
           <span *ngIf="transferData.type === 'sell'">{{ "PAGES.PaymentCardBlock.Buttons.Sell" | translate }}</span>
           <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
