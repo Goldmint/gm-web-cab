@@ -63,6 +63,10 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
+    setTimeout(() => {
+      !this.isMetamask && this.showLoginToMMPopUp()
+    }, 3000);
+
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
@@ -77,6 +81,16 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this.selectedWallet = 1;
       }
       this._cdRef.detectChanges();
+    });
+  }
+
+  showLoginToMMPopUp() {
+    this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
+      this._messageBox.alert(`
+        <div class="text-center">${phrase.Text}</div>
+        <div class="metamask-icon"></div>
+        <div class="text-center mt-2 mb-2">MetaMask</div>
+      `, phrase.HeadingSell);
     });
   }
 

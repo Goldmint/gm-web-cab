@@ -1121,10 +1121,7 @@
         "Estimates": "Estimates Amount:",
         "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:"
       },
-      "Buttons": {
-        "Buy": "Buy GOLD",
-        "Sell": "Sell GOLD"
-      },
+      "Button": "Proceed to payment",
       "Table": {
         "Caption": {
           "Billing": "Billing descriptor",
@@ -1246,6 +1243,11 @@
     "MetaMask": {
       "Heading": "To continue you'll need to have Metamask",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
+    },
+    "LoginToMM": {
+      "HeadingBuy": "BUY GOLD",
+      "HeadingSell": "SELL GOLD",
+      "Text": "Please login to your account"
     },
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",

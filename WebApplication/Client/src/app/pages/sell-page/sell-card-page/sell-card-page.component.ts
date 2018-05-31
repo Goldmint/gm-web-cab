@@ -8,6 +8,7 @@ import {Router} from "@angular/router";
 import {Observable} from "rxjs/Observable";
 import {CardsList, User} from "../../../interfaces";
 import {Subscription} from "rxjs/Subscription";
+import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-sell-card-page',
@@ -42,10 +43,12 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public ethAddress: string = '';
   public goldBalance: BigNumber = null;
   public mntpBalance: BigNumber = null;
+  public etherscanUrl = environment.etherscanUrl;
 
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
+  private streamHash: Subscription;
 
   constructor(
     private _userService: UserService,
@@ -71,6 +74,8 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
+    this.iniTransactionHashModal();
+
     Observable.combineLatest(
       this._apiService.getFiatCards(),
       this._apiService.getProfile()
@@ -81,7 +86,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       this.isDataLoaded = true;
       if (this.cards.list && this.cards.list.length) {
         this.interval = Observable.interval(100).subscribe(() => {
-          if (this.goldAmountInput && this.goldBalance !== null) {
+          if (this.goldAmountInput) {
             this.selectedCard = this.cards.list[0].cardId;
 
             this.initInputValueChanges();
@@ -149,11 +154,31 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       });
   }
 
+  iniTransactionHashModal() {
+    this.streamHash = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
+      if (hash) {
+        this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+          this._messageBox.alert(`
+                <div class="text-center">
+                  <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+                  <div>${phrases.Steps}</div>
+                  <div>${phrases.Hash}</div>
+                  <div class="mb-2 sell-hash">${hash}</div>
+                  <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+                </div>
+                `).subscribe(ok => {
+            ok && this.router.navigate(['/finance/history']);
+          });
+        });
+      }
+    });
+  }
+
   onAmountChanged(value: number) {
     this.loading = true;
 
     if (!this.isReversed) {
-      if (value > 0 && value.toString().length <= 15) {
+      if (value > 0 && value.toString().length <= 15 && +this.goldBalance) {
 
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
@@ -272,6 +297,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    this.streamHash && this.streamHash.unsubscribe();
   }
 
 }

@@ -90,13 +90,12 @@
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnCryptoCapital">{{ "PAGES.Sell.Method.CtyptoCurrency" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                        [disabled]="!this.selectedWallet || !isMetamask || !tradingStatus.ethAllowed">
+                        [disabled]="!tradingStatus.ethAllowed">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-crypto"></use>
                   </svg>
                 </button>
                 <div  class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!this.selectedWallet || !isMetamask">{{ "PAGES.Sell.Errors.UseMM" | translate }}</div>
                   <div *ngIf="!tradingStatus.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>
@@ -104,13 +103,12 @@
               <div class="col col-xl-3 form-group text-center" *ngIf="hasExtraRights">
                 <label for="btnPaymentCard">{{ "PAGES.Sell.Method.PaymentCard" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                        [disabled]="!this.selectedWallet || !isMetamask || !tradingStatus.creditCardAllowed">
+                        [disabled]="!tradingStatus.creditCardAllowed">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-card"></use>
                   </svg>
                 </button>
                 <div class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!this.selectedWallet || !isMetamask">{{ "PAGES.Sell.Errors.UseMM" | translate }}</div>
                   <div *ngIf="!tradingStatus.creditCardAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>

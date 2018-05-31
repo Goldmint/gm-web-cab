@@ -32,9 +32,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
   public isFirstTransaction: boolean = true;
   public isTradingError = false;
 
-  public sub1: Subscription;
   public subGetGas: Subscription;
-  public etherscanUrl = environment.etherscanUrl;
   private buyRequestId: number;
   private sellRequestId: number;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -137,15 +135,12 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
         this.loading = this.agreeCheck = false;
         this._cdRef.markForCheck();
       }).subscribe(() => {
-      this._messageBox.alert('Transaction in Process').subscribe(() => {
-        this.router.navigate(['/finance/history']);
-      });
+      this.router.navigate(['/finance/history']);
     });
   }
 
   sellMethod() {
     this.isFirstTransaction = this.loading = true;
-    this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
 
     this._apiService.goldSellConfirm(this.sellRequestId)
@@ -161,24 +156,6 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
             this.hidePaymentCardForm();
           }
         });
-
-        this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
-          if (hash) {
-            this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-              this._messageBox.alert(`
-                <div class="text-center">
-                  <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-                  <div>${phrases.Steps}</div>
-                  <div>${phrases.Hash}</div>
-                  <div class="mb-2 sell-hash">${hash}</div>
-                  <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
-                </div>
-                `).subscribe(ok => {
-                ok && this.router.navigate(['/finance/history']);
-              });
-            });
-          }
-        });
       });
   }
 
@@ -188,6 +165,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    this.subGetGas && this.subGetGas.unsubscribe();
   }
 
 }
