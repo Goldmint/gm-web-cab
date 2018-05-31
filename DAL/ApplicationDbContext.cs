@@ -16,8 +16,6 @@ namespace Goldmint.DAL {
 		public DbSet<BannedCountry> BannedCountry { get; set; }
 		public DbSet<BuyGoldRequest> BuyGoldRequest { get; set; }
 		public DbSet<SellGoldRequest> SellGoldRequest { get; set; }
-		public DbSet<BuyGoldCryptoSupportRequest> BuyGoldCryptoSupportRequest { get; set; }
-		public DbSet<SellGoldCryptoSupportRequest> SellGoldCryptoSupportRequest { get; set; }
 		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
 		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<Notification> Notification { get; set; }
