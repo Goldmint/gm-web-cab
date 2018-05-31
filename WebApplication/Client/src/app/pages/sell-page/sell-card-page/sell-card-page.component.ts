@@ -245,6 +245,12 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
+  transferTradingError(status) {
+    this.isTradingError = status;
+    this.showPaymentCardBlock = false;
+    this._cdRef.markForCheck();
+  }
+
   onSubmit() {
     this.transferData = {
       goldAmount: this.goldAmount,
