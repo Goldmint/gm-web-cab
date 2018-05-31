@@ -255,7 +255,7 @@
             <div class="form-group">
               <label for="inputFirstName">{{ "PAGES.Settings.KYC.FormSection.Labels.FirstName" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputFirstName" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputFirstName" required pattern="[A-Za-z '`.-]*"
                        minlength="2" maxlength="32"
                        name="firstName" [(ngModel)]="kycProfile.firstName" #firstName="ngModel"
                        class="form-control"
@@ -283,7 +283,7 @@
 
             <div class="form-group">
               <label for="inputMiddleName">{{ "PAGES.Settings.KYC.FormSection.Labels.MiddleName" | translate }}</label>
-              <input type="text" id="inputMiddleName" pattern="[A-Za-z \'\`\-\.]*"
+              <input type="text" id="inputMiddleName" pattern="[A-Za-z '`.-]*"
                      name="middleName" [(ngModel)]="kycProfile.middleName" #middleName="ngModel"
                      class="form-control"
                      [ngClass]="{'is-invalid': (errors?.MiddleName || !middleName.valid) && (kycForm.submitted || !middleName.pristine)}"
@@ -301,7 +301,7 @@
             <div class="form-group">
               <label for="inputLastName">{{ "PAGES.Settings.KYC.FormSection.Labels.LastName" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputLastName" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputLastName" required pattern="[A-Za-z '`.-]*"
                        minlength="2" maxlength="32"
                        name="lastName" [(ngModel)]="kycProfile.lastName" #lastName="ngModel"
                        class="form-control"
@@ -449,7 +449,7 @@
             <div class="form-group">
               <label for="inputStreet">{{ "PAGES.Settings.KYC.FormSection.Labels.Street" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputStreet" required pattern="[\w \'\`\-\.]*"
+                <input type="text" id="inputStreet" required pattern="[\w '`.-]*"
                        name="street" [(ngModel)]="kycProfile.street" #street="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.Street || !street.valid) && (kycForm.submitted || !street.pristine)}"
@@ -482,7 +482,7 @@
             <div class="form-group">
               <label for="inputCity">{{ "PAGES.Settings.KYC.FormSection.Labels.City" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputCity" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputCity" required pattern="[A-Za-z '`.-]*"
                        name="city" [(ngModel)]="kycProfile.city" #city="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.City || !city.valid) && (kycForm.submitted || !city.pristine)}"
