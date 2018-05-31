@@ -114,6 +114,12 @@
 				public string MerchantGuid { get; set; } = "";
 				public string ProcessingPassword { get; set; } = "";
 				public string Gateway { get; set; } = "";
+				public string RsInitStoreSms { get; set; } = "";
+				public string RsInitRecurrent { get; set; } = "";
+				public string RsInitStoreCrd { get; set; } = "";
+				public string RsInitRecurrentCrd { get; set; } = "";
+				public string RsInitStoreP2P { get; set; } = "";
+				public string RsInitRecurrentP2P { get; set; } = "";
 			}
 
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
