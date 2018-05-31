@@ -60,7 +60,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM01")
+					.Set("rs", _opts.RsInitStoreSms)
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -130,7 +130,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM04")
+					.Set("rs", _opts.RsInitRecurrent)
 					.Set("merchant_transaction_id", data.TransactionId)
 					.Set("original_init_id", data.InitialGWTransactionId)
 					.Set("amount", data.AmountCents.ToString())
@@ -234,7 +234,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM02")
+					.Set("rs", _opts.RsInitStoreCrd)
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -302,7 +302,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM05")
+					.Set("rs", _opts.RsInitRecurrentCrd)
 					.Set("merchant_transaction_id", data.TransactionId)
 					.Set("original_init_id", data.InitialGWTransactionId)
 					.Set("amount", data.AmountCents.ToString())
@@ -410,7 +410,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM03")
+					.Set("rs", _opts.RsInitStoreP2P)
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -483,7 +483,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM06")
+					.Set("rs", _opts.RsInitRecurrentP2P)
 					.Set("merchant_transaction_id", data.TransactionId)
 					.Set("original_init_id", data.InitialGWTransactionId)
 					.Set("amount", data.AmountCents.ToString())
@@ -873,5 +873,11 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		public string MerchantGuid { get; set; }
 		public string ProcessingPassword { get; set; }
 		public string Gateway { get; set; }
+		public string RsInitStoreSms { get; set; }
+		public string RsInitRecurrent { get; set; }
+		public string RsInitStoreCrd { get; set; }
+		public string RsInitRecurrentCrd { get; set; }
+		public string RsInitStoreP2P { get; set; }
+		public string RsInitRecurrentP2P { get; set; }
 	}
 }
