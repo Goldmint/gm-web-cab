@@ -30,6 +30,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isFirstTransaction: boolean = true;
+  public isTradingError = false;
 
   public sub1: Subscription;
   public subGetGas: Subscription;
@@ -42,6 +43,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
 
   @Input('amount') transferData;
   @Output() hideForm: EventEmitter<any> = new EventEmitter();
+  @Output() tradingError: EventEmitter<any> = new EventEmitter();
 
   constructor(
     private _apiService: APIService,
@@ -58,6 +60,12 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
       this.isMobile = window.innerWidth <= 767 ? true : false;
       this._cdRef.markForCheck();
     };
+
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this.transferTradingError();
+      this._cdRef.markForCheck();
+    });
 
     if (this.transferData.type === 'buy') {
       let amount = this.transferData.reversed ? this.Web3.toWei(+this.transferData.amount) : (+this.transferData.amount * 100);
@@ -111,6 +119,10 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
 
   hidePaymentCardForm() {
     this.hideForm.emit(true);
+  }
+
+  transferTradingError() {
+    this.tradingError.emit(true);
   }
 
   buyMethod() {

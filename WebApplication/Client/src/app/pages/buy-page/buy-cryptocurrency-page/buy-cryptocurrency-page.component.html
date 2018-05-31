@@ -2,7 +2,10 @@
 <h1 class="page__heading">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h1>
 
 <section class="page__section section">
-  <h2 class="section__title">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h2>
+  <div class="d-flex justify-content-between">
+    <h2 class="section__title">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h2>
+    <div class="section__title lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
+  </div>
 
   <div class="section__content">
     <form action="#" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
@@ -79,7 +82,7 @@
                   </div>
 
                   <div class="col-12 mb-5">
-                    <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+                    <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
                     <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                   </div>
                 </div>

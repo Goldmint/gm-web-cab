@@ -26,6 +26,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public isDataLoaded: boolean = false;
   public isReversed: boolean = false;
   public showPaymentCardBlock: boolean = false;
+  public isTradingError = false;
 
   public goldAmount: number = 0;
   public usdAmount: number = 0;
@@ -56,6 +57,11 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
     Observable.combineLatest(
       this._apiService.getFiatCards(),
       this._apiService.getProfile()
@@ -150,7 +156,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
 
-          this.invalidBalance = false;
+          this.invalidBalance = this.isTradingError = false;
         });
       } else {
         this.usdAmount = 0;
@@ -169,6 +175,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
+          this.isTradingError = false;
 
           if (this.goldAmount > +this.goldBalance) {
             this.invalidBalance = true;

@@ -23,19 +23,18 @@ import { KYCProfile } from '../models/kyc-profile';
 // import { MessageBoxService as MessageBox } from './message-box.service';
 
 import { environment } from '../../environments/environment';
-import { filter } from "rxjs/operator/filter";
 import {GoldHwSellResponse} from "../interfaces/api-response/gold-hw-sell";
 import {GoldHwBuyResponse} from "../interfaces/api-response/gold-hw-buy";
 import {GoldHwTransferResponse} from "../interfaces/api-response/gold-hw-transfer";
+import {Subject} from "rxjs/Subject";
 
 
 @Injectable()
 export class APIService {
   private _baseUrl = environment.apiUrl;
+  public transferTradingError$ = new Subject();
 
-  constructor(
-    private _http: HttpClient,
-    /*private _router: Router,*/) {
+  constructor(private _http: HttpClient) {
     console.log('APIService constructor');
   }
 

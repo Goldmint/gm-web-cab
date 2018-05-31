@@ -27,6 +27,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public loading = false;
   public isFirstLoad = true;
   public isFirstTransaction = true;
+  public isTradingError = false;
   public progress = false;
   public locale: string;
 
@@ -67,6 +68,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
     this.goldAmountInput.valueChanges
       .debounceTime(500)
       .distinctUntilChanged()
@@ -161,7 +167,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
-            this.invalidBalance = false;
+            this.invalidBalance = this.isTradingError = false;
         });
       } else {
         this.invalidBalance = true;
@@ -183,6 +189,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
             this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
+            this.isTradingError = false;
         });
       } else {
         this.invalidBalance = true;

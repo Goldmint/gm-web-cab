@@ -1202,7 +1202,8 @@
     },
     "TFA": {
       "InvalidCode": "Invalid code"
-    }
+    },
+    "Trading": "Trading Not Allowed"
   },
   "APIErrors": {
     "102": "You have exceeded request frequency (One request for 30 minutes). Please try later",

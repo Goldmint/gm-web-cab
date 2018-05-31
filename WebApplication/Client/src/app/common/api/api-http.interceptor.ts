@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/observable/throw'
@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
 import { MessageBoxService } from '../../services/message-box.service';
 import {TranslateService} from "@ngx-translate/core";
 import {Router} from "@angular/router";
+import {APIService} from "../../services";
 
 @Injectable()
 export class APIHttpInterceptor implements HttpInterceptor {
@@ -17,7 +18,8 @@ export class APIHttpInterceptor implements HttpInterceptor {
   constructor(
     private _messageBox: MessageBoxService,
     private _translate: TranslateService,
-    private _router: Router
+    private _router: Router,
+    private _apiService: APIService
   ) {
     Observable.merge(
       Observable.of(navigator.onLine),
@@ -52,6 +54,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
               ignoredErrors = [ // ignore auto translation for these codes
         50,   // Unauthorized
 				100, 	// InvalidParameter
+        103,  // TradingNotAllowed
 				1000,	// AccountNotFound
 				1011,	// AccountDpaNotSigned
         1004 /// AccountEmailTaken
@@ -59,6 +62,8 @@ export class APIHttpInterceptor implements HttpInterceptor {
 
           if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
             translateKey = 'notFound';
+          } else if (error.error.errorCode === 103) {
+            this._apiService.transferTradingError$.next(true);
           } else if (error.error.errorCode === 50) {
             try { // Safari in incognito mode doesn't have storage objects
               localStorage.removeItem('gmint_token');

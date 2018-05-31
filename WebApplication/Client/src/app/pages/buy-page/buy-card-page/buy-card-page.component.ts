@@ -24,6 +24,7 @@ export class BuyCardPageComponent implements OnInit {
   public locale: string;
   public invalidBalance: boolean = false;
   public showPaymentCardBlock: boolean = false;
+  public isTradingError = false;
 
   public isReversed: boolean = false;
   public isDataLoaded: boolean = false;
@@ -52,6 +53,11 @@ export class BuyCardPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
     this._apiService.getFiatCards()
       .subscribe(cards => {
         this.cards = cards.data;
@@ -121,7 +127,7 @@ export class BuyCardPageComponent implements OnInit {
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
 
-          this.invalidBalance = false;
+          this.invalidBalance = this.isTradingError = false;
         });
       } else {
         this.goldAmount = 0;
@@ -140,7 +146,7 @@ export class BuyCardPageComponent implements OnInit {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
-
+          this.isTradingError = false;
           this.invalidBalance = (this.usdAmount <= 1) ? true : false;
         });
       } else {
