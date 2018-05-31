@@ -2,10 +2,7 @@
 <h1 class="page__heading">{{ "PAGES.Buy.PaymentCard.Heading" | translate }}</h1>
 
 <section class="page__section section section--table">
-  <div class="d-flex justify-content-between">
     <h2 class="section__title">{{ "PAGES.Buy.PaymentCard.Heading" | translate }}</h2>
-    <div class="section__title lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
-  </div>
 
   <div class="section__content pt-4">
     <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
@@ -89,6 +86,7 @@
           </div>
 
           <div class="col-12 mb-5">
+            <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
             <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
