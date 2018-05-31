@@ -160,6 +160,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var centsPerGold = 0L;
 			var resultGoldAmount = BigInteger.Zero;
 			var resultCurrencyAmount = BigInteger.Zero;
+			var resultCurrencyAmountMinusFee = BigInteger.Zero;
 
 			object viewAmount = null;
 			var viewAmountCurrency = "";
@@ -186,8 +187,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					var mntBalance = ethAddress != null ? await EthereumObserver.GetAddressMntBalance(ethAddress) : BigInteger.Zero;
 					var fee = CoreLogic.Finance.Estimation.SellingFeeForFiat(res.ResultCentsAmount, mntBalance);
+					resultCurrencyAmountMinusFee = res.ResultCentsAmount - fee;
 
-					viewAmount = (res.ResultCentsAmount - fee) / 100d;
+					viewAmount = (long)resultCurrencyAmountMinusFee / 100d;
 					viewAmountCurrency = fiatCurrency.ToString().ToUpper();
 					viewFee = fee / 100d;
 					viewFeeCurrency = fiatCurrency.ToString().ToUpper();
@@ -214,8 +216,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					resultCurrencyAmount = res.ResultAssetAmount;
 
 					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, res.ResultAssetAmount);
+					resultCurrencyAmountMinusFee = res.ResultAssetAmount - fee;
 
-					viewAmount = (res.ResultAssetAmount - fee).ToString();
+					viewAmount = resultCurrencyAmountMinusFee.ToString();
 					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
 					viewFee = fee.ToString();
 					viewFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
@@ -246,6 +249,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					centsPerGold = res.CentsPerGoldRate;
 					resultGoldAmount = res.ResultGoldAmount;
 					resultCurrencyAmount = res.ResultCentsAmount;
+					resultCurrencyAmountMinusFee = inputAmount;
 
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
@@ -275,6 +279,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					centsPerAsset = res.CentsPerAssetRate;
 					resultGoldAmount = res.ResultGoldAmount;
 					resultCurrencyAmount = res.ResultAssetAmount;
+					resultCurrencyAmountMinusFee = inputAmount;
 
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
@@ -289,7 +294,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				}
 			}
 
-			var limitExceeded = resultCurrencyAmount < withdrawalLimitMin || resultCurrencyAmount > withdrawalLimitMax;
+			var limitExceeded = resultCurrencyAmountMinusFee < withdrawalLimitMin || resultCurrencyAmountMinusFee > withdrawalLimitMax;
 
 			return new EstimationResult() {
 				TradingAllowed = allowed,
