@@ -55,6 +55,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
         50,   // Unauthorized
 				100, 	// InvalidParameter
         103,  // TradingNotAllowed
+        104,  // TradingExchangeLimit
 				1000,	// AccountNotFound
 				1011,	// AccountDpaNotSigned
         1004 /// AccountEmailTaken
@@ -64,6 +65,8 @@ export class APIHttpInterceptor implements HttpInterceptor {
             translateKey = 'notFound';
           } else if (error.error.errorCode === 103) {
             this._apiService.transferTradingError$.next(true);
+          } else if (error.error.errorCode === 104) {
+            this._apiService.transferTradingLimit$.next(error.error.data);
           } else if (error.error.errorCode === 50) {
             try { // Safari in incognito mode doesn't have storage objects
               localStorage.removeItem('gmint_token');

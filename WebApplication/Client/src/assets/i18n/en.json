@@ -1203,7 +1203,11 @@
     "TFA": {
       "InvalidCode": "Invalid code"
     },
-    "Trading": "Trading Not Allowed"
+    "Trading": "Trading Not Allowed",
+    "Limit": {
+      "Min": "Minimal amount value is",
+      "Max": "Maximum amount value is"
+    }
   },
   "APIErrors": {
     "102": "You have exceeded request frequency (One request for 30 minutes). Please try later",

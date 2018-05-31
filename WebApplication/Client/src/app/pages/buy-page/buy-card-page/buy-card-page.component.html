@@ -49,12 +49,16 @@
                        ngModel
                        autocomplete="off"
                        (input)="changeValue(false, $event)"
-                       [ngClass]="{'is-invalid': invalidBalance && !isReversed}"
+                       [ngClass]="{'is-invalid': (invalidBalance && !isReversed) || isTradingLimit}"
                        [disabled]="isReversed && loading"
                 >
               </div>
               <div class="invalid-feedback" *ngIf="invalidBalance && !isReversed">
                 {{ "PAGES.Buy.Errors.InvalidUsd" | translate }}
+              </div>
+              <div class="invalid-feedback" *ngIf="isTradingLimit">
+                {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} usd<br>
+                {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} usd
               </div>
             </div>
           </div>
@@ -85,7 +89,7 @@
           </div>
 
           <div class="col-12 mb-5">
-            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </div>

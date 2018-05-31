@@ -31,6 +31,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
   public isDataLoaded: boolean = false;
   public isFirstTransaction: boolean = true;
   public isTradingError = false;
+  public isTradingLimit: object | boolean = false;
 
   public sub1: Subscription;
   public subGetGas: Subscription;
@@ -64,6 +65,11 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
       this.transferTradingError();
+      this._cdRef.markForCheck();
+    });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
+      this.isTradingLimit = limit;
       this._cdRef.markForCheck();
     });
 

@@ -33,6 +33,7 @@ import {Subject} from "rxjs/Subject";
 export class APIService {
   private _baseUrl = environment.apiUrl;
   public transferTradingError$ = new Subject();
+  public transferTradingLimit$ = new Subject();
 
   constructor(private _http: HttpClient) {
     console.log('APIService constructor');

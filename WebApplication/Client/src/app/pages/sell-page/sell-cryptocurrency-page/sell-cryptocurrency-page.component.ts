@@ -38,6 +38,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public invalidBalance = false;
   public isModalShow = false;
   public isTradingError = false;
+  public isTradingLimit: object | boolean = false;
   public locale: string;
 
   public user: User;
@@ -83,6 +84,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
+      this.isTradingLimit = limit;
+      this.isTradingLimit['min'] = this.substrValue(limit['min'] / Math.pow(10, 18));
+      this.isTradingLimit['max'] = this.substrValue(limit['max'] / Math.pow(10, 18));
       this._cdRef.markForCheck();
     });
 
@@ -205,7 +213,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           }).subscribe(data => {
           this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
           this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
-          this.invalidBalance = this.isTradingError = false;
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
         }, () => {
           this.setError();
         });
@@ -230,7 +238,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
-            this.isTradingError = false;
+            this.isTradingError = this.isTradingLimit = false;
             this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
             this.invalidBalance = (this.goldAmount > this.currentBalance) ? true : false;
         }, () => {
@@ -269,7 +277,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           this.currentBalance = +this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
         }
         this.goldAmount = this.currentValue = +this.substrValue((this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance);
-        this.isFirstLoad = this.loading = this.isTradingError = false;
+        this.isFirstLoad = this.loading = this.isTradingError = this.isTradingLimit = false;
         this._cdRef.markForCheck();
       });
   }
@@ -279,7 +287,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
       .subscribe(data => {
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
-        this.isTradingError = false;
+        this.isTradingError = this.isTradingLimit = false;
         this._cdRef.markForCheck();
     });
   }

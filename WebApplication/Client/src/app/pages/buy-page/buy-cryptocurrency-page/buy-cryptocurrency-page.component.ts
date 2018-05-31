@@ -28,6 +28,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public isFirstLoad = true;
   public isFirstTransaction = true;
   public isTradingError = false;
+  public isTradingLimit: object | boolean = false;
   public progress = false;
   public locale: string;
 
@@ -70,6 +71,13 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   ngOnInit() {
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
+      this.isTradingLimit = limit;
+      this.isTradingLimit['min'] = this.substrValue(limit['min'] / Math.pow(10, 18));
+      this.isTradingLimit['max'] = this.substrValue(limit['max'] / Math.pow(10, 18));
       this._cdRef.markForCheck();
     });
 
@@ -167,7 +175,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
-            this.invalidBalance = this.isTradingError = false;
+            this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
         });
       } else {
         this.invalidBalance = true;
@@ -189,7 +197,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
             this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
-            this.isTradingError = false;
+            this.isTradingError = this.isTradingLimit = false;
         });
       } else {
         this.invalidBalance = true;
