@@ -222,7 +222,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
-					resultCurrencyAmount = res.ResultCentsAmount;
+					resultCurrencyAmount = inputAmount;
 					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = res.ResultGoldAmount.ToString();
@@ -232,6 +232,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = (long)depositLimitMin / 100d,
 						Max = (long)depositLimitMax / 100d,
+						Cur = (long)resultCurrencyAmount / 100d,
 					};
 				}
 
@@ -247,7 +248,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
 					centsPerAsset = res.CentsPerAssetRate;
-					resultCurrencyAmount = res.ResultAssetAmount;
+					resultCurrencyAmount = inputAmount;
 					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = res.ResultGoldAmount.ToString();
@@ -257,6 +258,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = depositLimitMin.ToString(),
 						Max = depositLimitMax.ToString(),
+						Cur = resultCurrencyAmount.ToString(),
 					};
 				}
 			}
@@ -283,6 +285,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = (long)depositLimitMin / 100d,
 						Max = (long)depositLimitMax / 100d,
+						Cur = (long)resultCurrencyAmount / 100d,
 					};
 				}
 
@@ -308,6 +311,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = depositLimitMin.ToString(),
 						Max = depositLimitMax.ToString(),
+						Cur = resultCurrencyAmount.ToString(),
 					};
 				}
 			}

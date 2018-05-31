@@ -198,6 +198,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = (long)withdrawalLimitMin / 100d,
 						Max = (long)withdrawalLimitMax / 100d,
+						Cur = (long)resultCurrencyAmountMinusFee / 100d,
 					};
 				}
 				// cryptoasset
@@ -227,6 +228,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = withdrawalLimitMin.ToString(),
 						Max = withdrawalLimitMax.ToString(),
+						Cur = resultCurrencyAmountMinusFee.ToString(),
 					};
 				}
 			}
@@ -260,6 +262,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = (long)withdrawalLimitMin / 100d,
 						Max = (long)withdrawalLimitMax / 100d,
+						Cur = (long)resultCurrencyAmountMinusFee / 100d,
 					};
 				}
 				// cryptoasset
@@ -290,6 +293,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						Currency = fiatCurrency.ToString().ToUpper(),
 						Min = withdrawalLimitMin.ToString(),
 						Max = withdrawalLimitMax.ToString(),
+						Cur = resultCurrencyAmountMinusFee.ToString(),
 					};
 				}
 			}

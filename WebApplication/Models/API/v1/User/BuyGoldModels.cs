@@ -80,6 +80,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		/// </summary>
 		[Required]
 		public object Max { get; set; }
+
+		/// <summary>
+		/// Current estimated amount in Currency (string or float)
+		/// </summary>
+		[Required]
+		public object Cur { get; set; }
 	}
 
 	// ---
