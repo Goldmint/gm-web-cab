@@ -91,7 +91,8 @@
         "InvalidGold": "Invalid gold amount",
         "InvalidUsd": "Invalid usd amount",
         "InvalidEth": "Invalid eth amount",
-        "UseMM": "Use metamask"
+        "UseMM": "Use metamask",
+        "NotAllow": "Method is not allowed now"
       }
     },
     "Buy": {
@@ -140,6 +141,7 @@
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
         "Pending": "Your previously blockchain operation is still pending",
         "UseMM": "Use metamask",
+        "NotAllow": "Method is not allowed now",
         "InvalidEth": "Invalid eth amount",
         "InvalidUsd": "Invalid usd amount",
         "InvalidGold": "Invalid gold amount"

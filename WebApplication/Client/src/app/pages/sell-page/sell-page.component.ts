@@ -25,6 +25,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public tfaInfo: TFAInfo;
   public isMetamask = true;
   public hasExtraRights: boolean = true;
+  public tradingStatus: {creditCardAllowed: boolean, ethAllowed: boolean};
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -40,11 +41,13 @@ export class SellPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._apiService.getProfile()
+      this._apiService.getProfile(),
+      this._apiService.getTradingStatus()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
+        this.tradingStatus = res[2].data.trading;
         this.loading = false;
 
         if (environment.detectExtraRights) {

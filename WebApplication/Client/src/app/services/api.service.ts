@@ -72,6 +72,15 @@ export class APIService {
       );
   }
 
+  getTradingStatus() {
+    return this._http
+      .get(`${this._baseUrl}/commons/status`, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
   dpaCheck(token: string) {
     return this._http
       .post(`${this._baseUrl}/auth/dpaCheck`, {token}, this.jwt())
