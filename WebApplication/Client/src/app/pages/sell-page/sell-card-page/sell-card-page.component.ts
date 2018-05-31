@@ -65,6 +65,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
     this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
       this.isTradingLimit = limit;
+      if (!this.isReversed) {
+        this.usdAmount = this.isTradingLimit['cur'];
+      }
       this._cdRef.markForCheck();
     });
 
@@ -150,7 +153,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     if (!this.isReversed) {
-      if (value > 0 && value.toString().length <= 15 && value <= +this.goldBalance) {
+      if (value > 0 && value.toString().length <= 15) {
 
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);

@@ -61,6 +61,11 @@ export class BuyCardPageComponent implements OnInit {
 
     this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
       this.isTradingLimit = limit;
+
+      if (this.isReversed) {
+        this.usdAmount = this.isTradingLimit['cur'];
+      }
+
       this._cdRef.markForCheck();
     });
 
