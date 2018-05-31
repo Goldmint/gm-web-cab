@@ -78,6 +78,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
       this.isTradingLimit = limit;
       this.isTradingLimit['min'] = this.substrValue(limit['min'] / Math.pow(10, 18));
       this.isTradingLimit['max'] = this.substrValue(limit['max'] / Math.pow(10, 18));
+
+      if (this.isReversed) {
+        this.coinAmount = +this.substrValue(limit['cur'] / Math.pow(10, 18));
+      }
+
       this._cdRef.markForCheck();
     });
 
