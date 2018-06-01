@@ -1,28 +1,25 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output
 } from '@angular/core';
 import {APIService, EthereumService, MessageBoxService} from "../../services";
-import {Router} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
-import {TranslateService} from "@ngx-translate/core";
 import * as Web3 from "web3";
-import {BigNumber} from "bignumber.js";
 
 @Component({
-  selector: 'app-payment-card-block',
-  templateUrl: './payment-card-block.component.html',
-  styleUrls: ['./payment-card-block.component.sass'],
+  selector: 'app-cryptocurrency-block',
+  templateUrl: './cryptocurrency-block.component.html',
+  styleUrls: ['./cryptocurrency-block.component.sass'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PaymentCardBlockComponent implements OnInit, OnDestroy {
+export class CryptocurrencyBlockComponent implements OnInit {
 
   public agreeCheck: boolean = false;
   public isMobile: boolean = false;
@@ -31,14 +28,13 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
   public isFirstTransaction: boolean = true;
   public showConfirmBlock: boolean = false;
   public isTradingError = false;
+  public expiresTime: number;
 
   public subGetGas: Subscription;
-  private buyRequestId: number;
-  private sellRequestId: number;
+  private requestId: number;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private Web3 = new Web3();
-  private goldAmount: BigNumber;
-  public expiresTime: number;
+  private amount;
 
   @Input('amount') transferData;
   @Output() hideForm: EventEmitter<any> = new EventEmitter();
@@ -48,9 +44,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
     private _apiService: APIService,
     private _ethService: EthereumService,
     private _messageBox: MessageBoxService,
-    private _cdRef: ChangeDetectorRef,
-    private _translate: TranslateService,
-    private router: Router
+    private _cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -67,49 +61,47 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
     });
 
     this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(() => {
-      this.hidePaymentCardForm();
+      this.hideCryptoCurrencyForm();
       this._cdRef.markForCheck();
     });
 
     if (this.transferData.type === 'buy') {
-      let amount = this.transferData.reversed ? this.Web3.toWei(+this.transferData.amount) : (+this.transferData.amount * 100);
-
-      this._apiService.buyGoldFiat(this.transferData.cardId, this.transferData.ethAddress, this.transferData.currency, amount.toString(), this.transferData.reversed)
-        .subscribe((res) => {
+      this._apiService.goldBuyAsset(this.transferData.ethAddress, this.Web3.toWei(+this.transferData.amount), this.transferData.reversed, this.transferData.currency)
+        .subscribe(res => {
           this.expiresTime = res.data.expires;
 
           if (this.transferData.reversed) {
-            this.transferData.amountView = res.data.estimation.amount + ' USD';
+            this.amount = res.data.estimation.amount;
+            this.transferData.amountView = this.substrValue(this.amount / Math.pow(10, 18)) + ' Eth';
             this.transferData.estimatedView = +this.transferData.amount + ' GOLD';
           } else {
-            this.transferData.amountView = +this.transferData.amount + ' USD';
+            this.amount = this.Web3.toWei(this.transferData.coinAmount);
+            this.transferData.amountView = +this.transferData.amount + ' Eth';
             this.transferData.estimatedView = this.substrValue(res.data.estimation.amount / Math.pow(10, 18)) + ' GOLD';
           }
 
-          this.buyRequestId = res.data.requestId;
+          this.requestId = res.data.requestId;
           this.isDataLoaded = true;
           this._cdRef.markForCheck();
         });
     }
 
     if (this.transferData.type === 'sell') {
-      let amount = this.transferData.reversed ? (+this.transferData.amount * 100) : this.Web3.toWei(+this.transferData.amount);
-
-      this._apiService.sellGoldFiat(this.transferData.cardId, this.transferData.ethAddress, this.transferData.currency, amount.toString(), this.transferData.reversed)
-        .subscribe((res) => {
+      this._apiService.goldSellAsset(this.transferData.ethAddress, this.Web3.toWei(+this.transferData.amount), this.transferData.reversed, this.transferData.currency)
+        .subscribe(res => {
           this.expiresTime = res.data.expires;
 
           if (this.transferData.reversed) {
-            this.transferData.amountView = this.substrValue(res.data.estimation.amount / Math.pow(10, 18)) + ' GOLD';
-            this.transferData.estimatedView = +this.transferData.amount + ' USD';
-            this.goldAmount = res.data.estimation.amount;
+            this.amount = res.data.estimation.amount;
+            this.transferData.estimatedView =  +this.transferData.amount + ' Eth';
+            this.transferData.amountView = this.substrValue(this.amount / Math.pow(10, 18)) + ' GOLD';
           } else {
+            this.amount = this.Web3.toWei(this.transferData.coinAmount);
             this.transferData.amountView = +this.transferData.amount + ' GOLD';
-            this.transferData.estimatedView = res.data.estimation.amount + ' USD';
-            this.goldAmount = this.Web3.toWei(+this.transferData.goldAmount);
+            this.transferData.estimatedView = this.substrValue(res.data.estimation.amount / Math.pow(10, 18)) + ' Eth';
           }
 
-          this.sellRequestId = res.data.requestId;
+          this.requestId = res.data.requestId;
           this.isDataLoaded = true;
           this._cdRef.markForCheck();
         });
@@ -125,52 +117,58 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
       .replace(/^0+(\d)/, '$1');
   }
 
-  hidePaymentCardForm() {
+  hideCryptoCurrencyForm() {
     this.hideForm.emit(true);
+  }
+
+  backAfterStopTimer() {
+    this.hideCryptoCurrencyForm();
   }
 
   transferTradingError() {
     this.tradingError.emit(true);
   }
 
+  hideConfirmBlock() {
+    this.hideCryptoCurrencyForm();
+  }
+
   buyMethod() {
-    this.loading = true;
-    this._apiService.goldBuyConfirm(this.buyRequestId)
+    this.loading = this.isFirstTransaction = true;
+
+    this._apiService.goldBuyConfirm(this.requestId)
       .finally(() => {
-        this.loading = this.agreeCheck = false;
+        this.loading = false;
         this._cdRef.markForCheck();
       }).subscribe(() => {
-      this.router.navigate(['/finance/history']);
+      this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
+        if (price !== null && this.isFirstTransaction) {
+          this.showConfirmBlock = true;
+          this._ethService.sendBuyRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price);
+          this.isFirstTransaction = false;
+          this._cdRef.markForCheck();
+        }
+      });
     });
   }
 
   sellMethod() {
-    this.isFirstTransaction = this.loading = true;
-    this.subGetGas && this.subGetGas.unsubscribe();
+    this.loading = this.isFirstTransaction = true;
 
-    this._apiService.goldSellConfirm(this.sellRequestId)
+    this._apiService.goldSellConfirm(this.requestId)
       .finally(() => {
-        this.loading = this.agreeCheck = false;
+        this.loading = false;
         this._cdRef.markForCheck();
-      })
-      .subscribe(() => {
-        this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-          if (price !== null && this.isFirstTransaction) {
-            this.showConfirmBlock = true;
-            this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.sellRequestId, this.goldAmount.toString(), +price);
-            this.isFirstTransaction = false;
-            this._cdRef.markForCheck();
-          }
-        });
+      }).subscribe(() => {
+      this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
+        if (price !== null && this.isFirstTransaction) {
+          this.showConfirmBlock = true;
+          this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price);
+          this.isFirstTransaction = false;
+          this._cdRef.markForCheck();
+        }
       });
-  }
-
-  hideConfirmBlock() {
-    this.hidePaymentCardForm();
-  }
-
-  backAfterStopTimer() {
-    this.hidePaymentCardForm();
+    });
   }
 
   onSubmit() {

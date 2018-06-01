@@ -48,7 +48,6 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
-  private streamHash: Subscription;
 
   constructor(
     private _userService: UserService,
@@ -155,7 +154,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   }
 
   iniTransactionHashModal() {
-    this.streamHash = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
+    this._ethService.getSuccessSellRequestLink$.takeUntil(this.destroy$).subscribe(hash => {
       if (hash) {
         this.hidePaymentCardForm(true);
         this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
@@ -298,7 +297,6 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.streamHash && this.streamHash.unsubscribe();
   }
 
 }

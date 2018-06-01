@@ -5,7 +5,7 @@
   <h2 class="section__title">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h2>
 
   <div class="section__content">
-    <form *ngIf="!showConfirmBlock; else confirmBlock" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
+    <form  *ngIf="!showCryptoCurrencyBlock" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
         <div class="w-100">
           <div class="btn-group">
             <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
@@ -81,7 +81,7 @@
 
                 <div class="col-12 mb-5">
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
-                  <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+                  <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
               </div>
@@ -90,12 +90,11 @@
         </div>
     </form>
 
-    <ng-template #confirmBlock>
-      <div>
-        <div>{{ "COMMONS.ConfirmTr" | translate }}</div>
-        <button type="button" class="btn btn-primary mt-4 mb-5" (click)="hideConfirmBlock()">{{ "BUTTONS.Back" | translate }}</button>
-      </div>
-    </ng-template>
+    <ng-container *ngIf="showCryptoCurrencyBlock">
+      <app-cryptocurrency-block [amount]="transferData" (hideForm)="hideCryptoCurrencyForm($event)"
+                              (tradingError)="transferTradingError($event)">
+      </app-cryptocurrency-block>
+    </ng-container>
 
   </div>
 

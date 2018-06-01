@@ -34,10 +34,9 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
   public loading = false;
   public isFirstLoad = true;
-  public isFirstTransaction = true;
   public isTradingError = false;
   public isTradingLimit: object | boolean = false;
-  public showConfirmBlock: boolean = false;
+  public showCryptoCurrencyBlock: boolean = false;
   public progress = false;
   public locale: string;
 
@@ -57,12 +56,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public goldAmountToUSD: number = 0;
   public estimatedAmount: BigNumber;
   public currentValue: number;
+  public transferData: object;
   private Web3 = new Web3();
 
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
-  public sub1: Subscription;
-  public subGetGas: Subscription;
   public interval: Subscription;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -96,13 +94,15 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
       this._cdRef.markForCheck();
     });
 
+    this.iniTransactionHashModal();
+
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._userService.currentUser
+      this._apiService.getProfile()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
-        this.user = res[1];
+        this.user = res[1].data;
         this._cdRef.markForCheck();
       });
 
@@ -168,6 +168,27 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
           this._cdRef.markForCheck();
         }
       });
+  }
+
+  iniTransactionHashModal() {
+    this._ethService.getSuccessBuyRequestLink$.takeUntil(this.destroy$).subscribe(hash => {
+      if (hash) {
+        this.hideCryptoCurrencyForm(true);
+        this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+          this._messageBox.alert(`
+            <div class="text-center">
+              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+              <div>${phrases.Steps}</div>
+              <div>${phrases.Hash}</div>
+              <div class="mb-2 buy-hash">${hash}</div>
+              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+            </div>
+          `).subscribe(ok => {
+            ok && this.router.navigate(['/finance/history']);
+          });
+        });
+      }
+    });
   }
 
   chooseCurrentCoin(coin) {
@@ -247,80 +268,38 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
     this._cdRef.markForCheck();
   }
 
-  hideConfirmBlock() {
-    this.showConfirmBlock = false;
+  hideCryptoCurrencyForm(status) {
+    this.showCryptoCurrencyBlock = !status;
     this.interval = Observable.interval(100).subscribe(() => {
-      if (this.coinAmountInput) {
+      if (this.goldAmountInput) {
         this.initInputValueChanges();
 
         this.interval && this.interval.unsubscribe();
         this._cdRef.markForCheck();
       }
     });
+    this._cdRef.markForCheck();
+  }
+
+  transferTradingError(status) {
+    this.isTradingError = status;
+    this.showCryptoCurrencyBlock = false;
+    this._cdRef.markForCheck();
   }
 
   onSubmit() {
-    this.loading = this.isFirstTransaction = true;
-    this.sub1 && this.sub1.unsubscribe();
-    this.subGetGas && this.subGetGas.unsubscribe();
-    let eth;
+    this.transferData = {
+      type: 'buy',
+      ethAddress: this.ethAddress,
+      userId: this.user.id,
+      currency: this.currentCoin,
+      amount: this.estimatedAmount,
+      coinAmount: this.coinAmount,
+      reversed: this.isReversed
+    };
 
-    this._apiService.goldBuyAsset(this.ethAddress, this.Web3.toWei(+this.estimatedAmount), this.isReversed, this.currentCoin)
-      .subscribe(res => {
-        let estimate, amount, toAmount, fromAmount;
-        fromAmount = estimate = this.estimatedAmount;
-        toAmount = amount = this.substrValue( (res.data.estimation.amount / Math.pow(10, 18)) );
-
-        if (this.isReversed) {
-          fromAmount = amount;
-          toAmount = estimate;
-          eth = res.data.estimation.amount;
-        } else {
-          eth = this.Web3.toWei(this.coinAmount);
-        }
-
-        this._translate.get('MessageBox.EthDeposit',
-          {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
-        ).subscribe(phrase => {
-          this.loading = false;
-          this._cdRef.markForCheck();
-          this._messageBox.confirm(phrase).subscribe(ok => {
-            if (ok) {
-              this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
-
-                this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                  if (price !== null && this.isFirstTransaction) {
-                    this.showConfirmBlock = true;
-                    this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, eth, +price);
-                    this.isFirstTransaction = false;
-                    this._cdRef.markForCheck();
-                  }
-                });
-
-                this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
-                  if (hash) {
-                    this.hideConfirmBlock();
-                    this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-                      this._messageBox.alert(`
-                            <div class="text-center">
-                              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-                              <div>${phrases.Steps}</div>
-                              <div>${phrases.Hash}</div>
-                              <div class="mb-2 buy-hash">${hash}</div>
-                              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
-                            </div>
-                          `).subscribe(ok => {
-                        ok && this.router.navigate(['/finance/history']);
-                      });
-                    });
-                  }
-                });
-
-              });
-            }
-          });
-        });
-      });
+    this.showCryptoCurrencyBlock = true;
+    this._cdRef.markForCheck();
   }
 
   ngAfterViewInit() {
@@ -329,8 +308,6 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.sub1 && this.sub1.unsubscribe();
-    this.subGetGas && this.subGetGas.unsubscribe();
   }
 
 }

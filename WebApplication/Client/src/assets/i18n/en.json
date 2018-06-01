@@ -164,7 +164,7 @@
         "Three": "Click confirm transaction"
       },
       "Placeholders": {
-        "EtheriumWallet": "Etherium wallet"
+        "EtheriumWallet": "Ethereum wallet"
       },
       "Buttons": {
         "Send": "Send"
@@ -1118,8 +1118,8 @@
     },
     "PaymentCardBlock": {
       "Labels": {
-        "Amount": "Amount:",
-        "Estimates": "Estimates Amount:",
+        "Amount": "You pay:",
+        "Estimates": "You receive:",
         "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:"
       },
       "Button": "Proceed to payment",
