@@ -157,6 +157,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   iniTransactionHashModal() {
     this.streamHash = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
       if (hash) {
+        this.hidePaymentCardForm(true);
         this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
           this._messageBox.alert(`
                 <div class="text-center">
@@ -239,7 +240,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
     if (status !== this.isReversed) {
       this.isReversed = status;
       this.invalidBalance = false;
-      this.loading = true;
+      this.currentValue && (this.loading = true);
     }
     this._cdRef.markForCheck();
   }

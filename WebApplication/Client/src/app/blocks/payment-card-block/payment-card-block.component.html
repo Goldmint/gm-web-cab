@@ -1,245 +1,254 @@
-<div class="row payment-card-info">
-  <div class="col-12 col-md-8">
-    <div class="payment-card-estimate mb-1"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Amount" | translate }}</span>
-      <img *ngIf="!isDataLoaded" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-      <span *ngIf="isDataLoaded">{{ transferData.amountView }}</span>
-    </div>
-    <div class="payment-card-estimate"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Estimates" | translate }}</span>
-      <img *ngIf="!isDataLoaded" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-      <span *ngIf="isDataLoaded">{{ transferData.estimatedView }}</span>
-    </div>
-
-    <div class="mt-4">
-      <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
-        <label class="custom-control-label" for="agreeCheck">{{ "PAGES.PaymentCardBlock.Labels.Checkbox" | translate }}</label>
+<div *ngIf="!showConfirmBlock; else confirmBlock">
+  <div class="row payment-card-info">
+    <div class="col-12 col-md-8">
+      <div class="payment-card-estimate mb-1"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Amount" | translate }}</span>
+        <img *ngIf="!isDataLoaded" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+        <span *ngIf="isDataLoaded">{{ transferData.amountView }}</span>
       </div>
-      <div class="d-flex align-items-center mt-4">
-        <button class="btn btn-primary" [disabled]="!agreeCheck || loading || isTradingError" (click)="onSubmit()">
-          <span>{{ "PAGES.PaymentCardBlock.Button" | translate }}</span>
-          <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-        </button>
-        <div class="ml-3">
-          <button class="btn btn-primary" (click)="hidePaymentCardForm()">{{ "BUTTONS.Cancel" | translate }}</button>
+      <div class="payment-card-estimate"><span class="font-weight-500">{{ "PAGES.PaymentCardBlock.Labels.Estimates" | translate }}</span>
+        <img *ngIf="!isDataLoaded" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+        <span *ngIf="isDataLoaded">{{ transferData.estimatedView }}</span>
+      </div>
+
+      <div class="mt-4">
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
+          <label class="custom-control-label" for="agreeCheck">{{ "PAGES.PaymentCardBlock.Labels.Checkbox" | translate }}</label>
+        </div>
+        <div class="d-flex align-items-center mt-4">
+          <button class="btn btn-primary" [disabled]="!agreeCheck || loading || isTradingError" (click)="onSubmit()">
+            <span>{{ "PAGES.PaymentCardBlock.Button" | translate }}</span>
+            <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+          </button>
+          <div class="ml-3">
+            <button class="btn btn-primary" (click)="hidePaymentCardForm()">{{ "BUTTONS.Cancel" | translate }}</button>
+          </div>
         </div>
       </div>
+
     </div>
-
+    <div class="col-12 col-md-4 text-md-right mt-4 mt-md-0 align-self-center">
+      <svg class="icon" width="100" height="100">
+        <use xlink:href="#master-card"></use>
+      </svg>
+      <svg class="icon ml-4" width="100" height="100">
+        <use xlink:href="#visa"></use>
+      </svg>
+    </div>
   </div>
-  <div class="col-12 col-md-4 text-md-right mt-4 mt-md-0 align-self-center">
-    <svg class="icon" width="100" height="100">
-      <use xlink:href="#master-card"></use>
-    </svg>
-    <svg class="icon ml-4" width="100" height="100">
-      <use xlink:href="#visa"></use>
-    </svg>
-  </div>
-</div>
 
-<div class="payment-card-line mt-5 mb-5"></div>
+  <div class="payment-card-line mt-5 mb-5"></div>
 
-<table *ngIf="!isMobile" class="main-ngx-datatable w-100 payment-card-table">
-  <tbody class="main-datatable-body">
+  <table *ngIf="!isMobile" class="main-ngx-datatable w-100 payment-card-table">
+    <tbody class="main-datatable-body">
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Billing" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Billing" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerPolicy" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}
+          </a>
+        </td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerInformation" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}
+          </a><br>
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}
+          </a><br>
+          <a href='mailto:{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}
+          </a>
+        </td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.CyberBridge" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.CyberBridge" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.DeliveryPolicy" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.DeliveryPolicy" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Description" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}
+          </a>
+        </td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Domicile" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Domicile" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.GoldCoin" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">
+          <a class="payment-card-break-all" href='{{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}
+          </a>
+        </td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">
+          {{ "PAGES.PaymentCardBlock.Table.Caption.Legal" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}
+          </a>
+        </td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Reccuring" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Reccuring" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ReturnPolicy" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Text" | translate }}
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}
+          </a>
+        </td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Security" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Security" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Currency" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Currency" | translate }}</td>
+      </tr>
+      <tr class="main-datatable-body-row border-0">
+        <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Method" | translate }}</td>
+        <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Method" | translate }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table *ngIf="isMobile" class="main-ngx-datatable w-100 payment-card-table">
+    <tbody class="main-datatable-body">
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Billing" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Billing" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Billing" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.Billing" | translate }}</div>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerPolicy" | translate }}</td>
       <td class="main-datatable-body-cell align-middle">
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}' target="_blank">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerPolicy" | translate }}:</div>
+        <div>
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}' target="_blank">
           {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}
         </a>
+        </div>
       </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerInformation" | translate }}</td>
       <td class="main-datatable-body-cell align-middle">
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}
-        </a><br>
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}
-        </a><br>
-        <a href='mailto:{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}
-        </a>
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerInformation" | translate }}:</div>
+        <div>
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}
+          </a><br>
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}
+          </a><br>
+          <a href='mailto:{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}
+          </a>
+        </div>
       </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.CyberBridge" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.CyberBridge" | translate }}</td>
-    </tr>
-    <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.DeliveryPolicy" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.DeliveryPolicy" | translate }}</td>
-    </tr>
-    <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Description" | translate }}</td>
       <td class="main-datatable-body-cell align-middle">
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}' target="_blank">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.CyberBridge" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.CyberBridge" | translate }}</div>
+      </td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.DeliveryPolicy" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.DeliveryPolicy" | translate }}</div>
+      </td>
+    </tr>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Description" | translate }}:</div>
+        <div> <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}' target="_blank">
           {{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}
-        </a>
+        </a></div>
       </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Domicile" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Domicile" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Domicile" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.Domicile" | translate }}</div>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.GoldCoin" | translate }}</td>
       <td class="main-datatable-body-cell align-middle">
-        <a class="payment-card-break-all" href='{{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}' target="_blank">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.GoldCoin" | translate }}:</div>
+        <div><a class="payment-card-break-all" href='{{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}' target="_blank">
           {{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}
-        </a>
+        </a></div>
       </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">
-        {{ "PAGES.PaymentCardBlock.Table.Caption.Legal" | translate }}</td>
       <td class="main-datatable-body-cell align-middle">
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}' target="_blank">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Legal" | translate }}:</div>
+        <div><a href='{{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}' target="_blank">
           {{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}
-        </a>
+        </a></div>
       </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Reccuring" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Reccuring" | translate }}</td>
-    </tr>
-    <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ReturnPolicy" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Text" | translate }}
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}
-        </a>
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Reccuring" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.Reccuring" | translate }}</div>
       </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Security" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Security" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ReturnPolicy" | translate }}:</div>
+        <div>
+          {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Text" | translate }}
+          <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}' target="_blank">
+            {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}
+          </a>
+        </div>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Currency" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Currency" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Security" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.Security" | translate }}</div>
+      </td>
     </tr>
     <tr class="main-datatable-body-row border-0">
-      <td class="main-datatable-body-cell align-middle font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Method" | translate }}</td>
-      <td class="main-datatable-body-cell align-middle">{{ "PAGES.PaymentCardBlock.Table.Information.Method" | translate }}</td>
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Currency" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.Currency" | translate }}</div>
+      </td>
     </tr>
-  </tbody>
-</table>
+    <tr class="main-datatable-body-row border-0">
+      <td class="main-datatable-body-cell align-middle">
+        <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Method" | translate }}:</div>
+        <div>{{ "PAGES.PaymentCardBlock.Table.Information.Method" | translate }}</div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 
-<table *ngIf="isMobile" class="main-ngx-datatable w-100 payment-card-table">
-  <tbody class="main-datatable-body">
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Billing" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Billing" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerPolicy" | translate }}:</div>
-      <div>
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}' target="_blank">
-        {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerPolicy" | translate }}
-      </a>
-      </div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ConsumerInformation" | translate }}:</div>
-      <div>
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Facebook" | translate }}
-        </a><br>
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Telegram" | translate }}
-        </a><br>
-        <a href='mailto:{{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ConsumerInformation.Support" | translate }}
-        </a>
-      </div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.CyberBridge" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.CyberBridge" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.DeliveryPolicy" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.DeliveryPolicy" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Description" | translate }}:</div>
-      <div> <a href='{{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}' target="_blank">
-        {{ "PAGES.PaymentCardBlock.Table.Information.Description" | translate }}
-      </a></div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Domicile" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Domicile" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.GoldCoin" | translate }}:</div>
-      <div><a class="payment-card-break-all" href='{{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}' target="_blank">
-        {{ "PAGES.PaymentCardBlock.Table.Information.GoldCoin" | translate }}
-      </a></div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Legal" | translate }}:</div>
-      <div><a href='{{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}' target="_blank">
-        {{ "PAGES.PaymentCardBlock.Table.Information.Legal" | translate }}
-      </a></div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Reccuring" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Reccuring" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.ReturnPolicy" | translate }}:</div>
-      <div>
-        {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Text" | translate }}
-        <a href='{{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}' target="_blank">
-          {{ "PAGES.PaymentCardBlock.Table.Information.ReturnPolicy.Link" | translate }}
-        </a>
-      </div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Security" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Security" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Currency" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Currency" | translate }}</div>
-    </td>
-  </tr>
-  <tr class="main-datatable-body-row border-0">
-    <td class="main-datatable-body-cell align-middle">
-      <div class="font-weight-500">{{ "PAGES.PaymentCardBlock.Table.Caption.Method" | translate }}:</div>
-      <div>{{ "PAGES.PaymentCardBlock.Table.Information.Method" | translate }}</div>
-    </td>
-  </tr>
-  </tbody>
-</table>
+<ng-template #confirmBlock>
+  <div>
+    <div>{{ "COMMONS.ConfirmTr" | translate }}</div>
+    <button type="button" class="btn btn-primary mt-4 mb-5" (click)="hideConfirmBlock()">{{ "BUTTONS.Back" | translate }}</button>
+  </div>
+</ng-template>

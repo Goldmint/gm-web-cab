@@ -30,6 +30,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isFirstTransaction: boolean = true;
+  public showConfirmBlock: boolean = false;
   public isTradingError = false;
 
   public subGetGas: Subscription;
@@ -151,12 +152,17 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
           if (price !== null && this.isFirstTransaction) {
+            this.showConfirmBlock = true;
             this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.sellRequestId, this.goldAmount.toString(), +price);
             this.isFirstTransaction = false;
-            this.hidePaymentCardForm();
+            this._cdRef.markForCheck();
           }
         });
       });
+  }
+
+  hideConfirmBlock() {
+    this.hidePaymentCardForm();
   }
 
   onSubmit() {

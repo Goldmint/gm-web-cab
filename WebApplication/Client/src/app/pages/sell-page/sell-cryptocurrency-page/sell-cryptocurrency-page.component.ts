@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   HostBinding,
@@ -25,7 +26,7 @@ import * as Web3 from "web3";
   styleUrls: ['./sell-cryptocurrency-page.component.sass'],
   encapsulation: ViewEncapsulation.None
 })
-export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
+export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, AfterViewInit {
   @HostBinding('class') class = 'page';
 
   @ViewChild('sellForm') sellForm;
@@ -38,6 +39,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public invalidBalance = false;
   public isModalShow = false;
   public isTradingError = false;
+  public showConfirmBlock: boolean = false;
   public isTradingLimit: object | boolean = false;
   public locale: string;
 
@@ -68,6 +70,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
   public subGetGas: Subscription;
+  public interval: Subscription;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -98,28 +101,6 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
       this._cdRef.markForCheck();
     });
-
-    this.goldAmountInput.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .takeUntil(this.destroy$)
-      .subscribe(value => {
-        if (!this.isReversed && this.currentValue !== undefined) {
-          this.onAmountChanged(this.currentValue);
-          this._cdRef.markForCheck();
-        }
-      });
-
-    this.coinAmountInput.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .takeUntil(this.destroy$)
-      .subscribe(value => {
-        if (this.isReversed && this.currentValue !== undefined) {
-          this.onAmountChanged(this.currentValue);
-          this._cdRef.markForCheck();
-        }
-      });
 
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
@@ -189,6 +170,30 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
       this.setGoldBalance(1);
     });
+  }
+
+  initInputValueChanges() {
+    this.goldAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (!this.isReversed && this.currentValue !== undefined) {
+          this.onAmountChanged(this.currentValue);
+          this._cdRef.markForCheck();
+        }
+      });
+
+    this.coinAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (this.isReversed && this.currentValue !== undefined) {
+          this.onAmountChanged(this.currentValue);
+          this._cdRef.markForCheck();
+        }
+      });
   }
 
   chooseCurrentCoin(coin) {
@@ -331,6 +336,18 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
+  hideConfirmBlock() {
+    this.showConfirmBlock = false;
+    this.interval = Observable.interval(100).subscribe(() => {
+      if (this.goldAmountInput) {
+        this.initInputValueChanges();
+
+        this.interval && this.interval.unsubscribe();
+        this._cdRef.markForCheck();
+      }
+    });
+  }
+
   setError() {
     this.invalidBalance = true;
     this.loading = false;
@@ -369,13 +386,16 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
                 this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
                   if (price !== null && this.isFirstTransaction) {
+                    this.showConfirmBlock = true;
                     this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, gold, +price);
                     this.isFirstTransaction = false;
+                    this._cdRef.markForCheck();
                   }
                 });
 
                 this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
                   if (hash) {
+                    this.hideConfirmBlock();
                     this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
                       this._messageBox.alert(`
                             <div class="text-center">
@@ -397,6 +417,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           });
         });
       });
+  }
+
+  ngAfterViewInit() {
+    this.initInputValueChanges();
   }
 
   ngOnDestroy() {

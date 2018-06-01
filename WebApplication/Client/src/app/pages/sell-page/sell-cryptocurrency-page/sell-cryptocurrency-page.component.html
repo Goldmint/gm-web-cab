@@ -5,96 +5,97 @@
   <h2 class="section__title">{{ "PAGES.Sell.CtyptoCurrency.Heading" | translate }}</h2>
 
   <div class="section__content">
-    <form action="#">
-      <div class="row align-items-start">
+    <form *ngIf="!showConfirmBlock; else confirmBlock">
+        <div class="w-100">
+          <div class="btn-group">
+            <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
+            <label class="btn btn-primary btn-sm"
+                   [ngClass]="{'active': currentCoin === coinList[1]}"
+                   (click)="chooseCurrentCoin(coinList[1])">Eth</label>
+          </div>
 
-        <ng-container>
-          <div class="w-100">
-            <div class="btn-group">
-              <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
-              <label class="btn btn-primary btn-sm"
-                     [ngClass]="{'active': currentCoin === coinList[1]}"
-                     (click)="chooseCurrentCoin(coinList[1])">Eth</label>
-            </div>
-
-            <div class="pt-4">
-              <form #sellForm="ngForm">
-                <div>
-                  <div class="col-12">
-                    <div class="from-row form-group">
-                      <label for="goldAmountInput">{{ "PAGES.Sell.CtyptoCurrency.Labels.Amount" | translate }}</label>
-                      <div class="d-flex align-items-center">
-                        <div class="form-currency form-currency--gold">
-                          <svg class="icon">
-                            <use xlink:href="#cur-gold"></use>
-                          </svg>
-                        </div>
-                        <input type="text" class="form-control" name="goldAmountInput" id="goldAmountInput"
-                               #goldAmountInput="ngModel"
-                               [(ngModel)]="goldAmount"
-                               ngModel
-                               autocomplete="off"
-                               (input)="changeValue(false, $event)"
-                               [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && !isReversed && !isFirstLoad}"
-                               [disabled]="isReversed && loading"
-                        >
+          <div class="pt-4">
+            <form #sellForm="ngForm">
+              <div>
+                <div class="col-12">
+                  <div class="from-row form-group">
+                    <label for="goldAmountInput">{{ "PAGES.Sell.CtyptoCurrency.Labels.Amount" | translate }}</label>
+                    <div class="d-flex align-items-center">
+                      <div class="form-currency form-currency--gold">
+                        <svg class="icon">
+                          <use xlink:href="#cur-gold"></use>
+                        </svg>
                       </div>
-                      <div class="percent-btn-cont">
-                        <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
-                        <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
-                        <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
-                        <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
-                      </div>
-                      <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && !isReversed && !isFirstLoad">
-                        {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
-                      </div>
+                      <input type="text" class="form-control" name="goldAmountInput" id="goldAmountInput"
+                             #goldAmountInput="ngModel"
+                             [(ngModel)]="goldAmount"
+                             ngModel
+                             autocomplete="off"
+                             (input)="changeValue(false, $event)"
+                             [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && !isReversed && !isFirstLoad}"
+                             [disabled]="isReversed && loading"
+                      >
                     </div>
-                  </div>
-
-                  <div class="col-12">
-                    <div class="from-row form-group ">
-                      <label for="coinAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Estimate" | translate }} ($ {{ coinAmountToUSD | number:'1.1-2':locale }})</label>
-                      <div class="d-flex align-items-center">
-                        <div class="form-currency">
-                          <svg class="icon" width="30" height="30">
-                            <use xlink:href="#bitcoin" *ngIf="currentCoin === coinList[0]"></use>
-                            <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
-                          </svg>
-                        </div>
-                        <input type="text" class="form-control" name="coinAmount" id="coinAmount"
-                               #coinAmountInput="ngModel"
-                               [(ngModel)]="coinAmount"
-                               ngModel
-                               autocomplete="off"
-                               (input)="changeValue(true, $event)"
-                               [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && isReversed && !isFirstLoad || isTradingLimit}"
-                               [disabled]="!isReversed && loading"
-                        >
-                      </div>
-                      <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && isReversed && !isFirstLoad">
-                        {{ "PAGES.Sell.Errors.InvalidEth" | translate }}
-                      </div>
-                      <div class="invalid-feedback" *ngIf="isTradingLimit">
-                        {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} eth<br>
-                        {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} eth
-                      </div>
+                    <div class="percent-btn-cont">
+                      <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
+                      <button class="percent-btn" (click)="setGoldBalance(0.5)">50%</button>
+                      <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
+                      <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
                     </div>
-                  </div>
-
-                  <div class="col mb-5">
-                    <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
-                    <button type="submit" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
-                    <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+                    <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && !isReversed && !isFirstLoad">
+                      {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
+                    </div>
                   </div>
                 </div>
 
-              </form>
-            </div>
-          </div>
-        </ng-container>
+                <div class="col-12">
+                  <div class="from-row form-group ">
+                    <label for="coinAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Estimate" | translate }} ($ {{ coinAmountToUSD | number:'1.1-2':locale }})</label>
+                    <div class="d-flex align-items-center">
+                      <div class="form-currency">
+                        <svg class="icon" width="30" height="30">
+                          <use xlink:href="#bitcoin" *ngIf="currentCoin === coinList[0]"></use>
+                          <use xlink:href="#etherium" *ngIf="currentCoin === coinList[1]"></use>
+                        </svg>
+                      </div>
+                      <input type="text" class="form-control" name="coinAmount" id="coinAmount"
+                             #coinAmountInput="ngModel"
+                             [(ngModel)]="coinAmount"
+                             ngModel
+                             autocomplete="off"
+                             (input)="changeValue(true, $event)"
+                             [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && isReversed && !isFirstLoad || isTradingLimit}"
+                             [disabled]="!isReversed && loading"
+                      >
+                    </div>
+                    <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && isReversed && !isFirstLoad">
+                      {{ "PAGES.Sell.Errors.InvalidEth" | translate }}
+                    </div>
+                    <div class="invalid-feedback" *ngIf="isTradingLimit">
+                      {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} eth<br>
+                      {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} eth
+                    </div>
+                  </div>
+                </div>
 
-      </div>
+                <div class="col mb-5">
+                  <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
+                  <button type="submit" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+                  <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
     </form>
+
+    <ng-template #confirmBlock>
+      <div>
+        <div>{{ "COMMONS.ConfirmTr" | translate }}</div>
+        <button type="button" class="btn btn-primary mt-4 mb-5" (click)="hideConfirmBlock()">{{ "BUTTONS.Back" | translate }}</button>
+      </div>
+    </ng-template>
   </div>
 
 </section>

@@ -180,7 +180,7 @@ export class BuyCardPageComponent implements OnInit {
     if (status !== this.isReversed) {
       this.isReversed = status;
       this.invalidBalance = false;
-      this.loading = true;
+      this.currentValue && (this.loading = true);
     }
     this._cdRef.markForCheck();
   }

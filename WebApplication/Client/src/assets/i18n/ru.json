@@ -2,7 +2,8 @@
   "COMMONS": {
     "Loading": "Загрузка...",
     "TFACode": "Код двухфакторный аутентификации",
-    "TFACodeInvalid": "Неверный код"
+    "TFACodeInvalid": "Неверный код",
+    "ConfirmTr": "Подтвердите транзакцию в MetaMask"
   },
   "HEADER": {
     "Wallet": "Кошелек",

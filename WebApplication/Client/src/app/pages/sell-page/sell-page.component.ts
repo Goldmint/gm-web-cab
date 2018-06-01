@@ -27,6 +27,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public hasExtraRights: boolean = true;
   public tradingStatus: {creditCardAllowed: boolean, ethAllowed: boolean};
 
+  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -63,7 +64,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    setTimeout(() => {
+    this.timeoutPopUp = setTimeout(() => {
       !this.isMetamask && this.showLoginToMMPopUp()
     }, 3000);
 
@@ -96,6 +97,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

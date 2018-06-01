@@ -2,7 +2,8 @@
   "COMMONS": {
 	"Loading": "Loading...",
 	"TFACode": "Two-factor authentication code",
-	"TFACodeInvalid": "Invalid code"
+	"TFACodeInvalid": "Invalid code",
+    "ConfirmTr": "Confirm the transaction in MetaMask"
   },
   "HEADER": {
     "Wallet": "Wallet",

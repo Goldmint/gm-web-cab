@@ -1,4 +1,12 @@
-import {ChangeDetectorRef, Component, HostBinding, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  HostBinding,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {TranslateService} from "@ngx-translate/core";
 import {APIService, EthereumService, GoldrateService, MessageBoxService, UserService} from "../../../services";
 import {Observable} from "rxjs/Observable";
@@ -18,7 +26,7 @@ import * as Web3 from "web3";
   styleUrls: ['./buy-cryptocurrency-page.component.sass'],
   encapsulation: ViewEncapsulation.None
 })
-export class BuyCryptocurrencyPageComponent implements OnInit {
+export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   @HostBinding('class') class = 'page';
 
   @ViewChild('goldAmountInput') goldAmountInput;
@@ -29,6 +37,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public isFirstTransaction = true;
   public isTradingError = false;
   public isTradingLimit: object | boolean = false;
+  public showConfirmBlock: boolean = false;
   public progress = false;
   public locale: string;
 
@@ -54,6 +63,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
   public subGetGas: Subscription;
+  public interval: Subscription;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -85,28 +95,6 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
       this._cdRef.markForCheck();
     });
-
-    this.goldAmountInput.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .takeUntil(this.destroy$)
-      .subscribe(value => {
-        if (value && !this.isReversed) {
-          this.onAmountChanged(this.currentValue);
-          this._cdRef.markForCheck();
-        }
-      });
-
-    this.coinAmountInput.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .takeUntil(this.destroy$)
-      .subscribe(value => {
-        if (value && this.isReversed) {
-          this.onAmountChanged(this.currentValue);
-          this._cdRef.markForCheck();
-        }
-      });
 
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
@@ -141,7 +129,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.ethBalance !== null) {
         this.selectedWallet = 0;
-        this.router.navigate(['buy']);
+        // this.router.navigate(['buy']);
       }
     });
 
@@ -156,6 +144,30 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
         this.setCoinBalance(1);
       }
     });
+  }
+
+  initInputValueChanges() {
+    this.goldAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (value && !this.isReversed) {
+          this.onAmountChanged(this.currentValue);
+          this._cdRef.markForCheck();
+        }
+      });
+
+    this.coinAmountInput.valueChanges
+      .debounceTime(500)
+      .distinctUntilChanged()
+      .takeUntil(this.destroy$)
+      .subscribe(value => {
+        if (value && this.isReversed) {
+          this.onAmountChanged(this.currentValue);
+          this._cdRef.markForCheck();
+        }
+      });
   }
 
   chooseCurrentCoin(coin) {
@@ -235,6 +247,18 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     this._cdRef.markForCheck();
   }
 
+  hideConfirmBlock() {
+    this.showConfirmBlock = false;
+    this.interval = Observable.interval(100).subscribe(() => {
+      if (this.coinAmountInput) {
+        this.initInputValueChanges();
+
+        this.interval && this.interval.unsubscribe();
+        this._cdRef.markForCheck();
+      }
+    });
+  }
+
   onSubmit() {
     this.loading = this.isFirstTransaction = true;
     this.sub1 && this.sub1.unsubscribe();
@@ -266,13 +290,16 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
 
                 this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
                   if (price !== null && this.isFirstTransaction) {
+                    this.showConfirmBlock = true;
                     this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, eth, +price);
                     this.isFirstTransaction = false;
+                    this._cdRef.markForCheck();
                   }
                 });
 
                 this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
                   if (hash) {
+                    this.hideConfirmBlock();
                     this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
                       this._messageBox.alert(`
                             <div class="text-center">
@@ -294,6 +321,10 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
           });
         });
       });
+  }
+
+  ngAfterViewInit() {
+    this.initInputValueChanges();
   }
 
   ngOnDestroy() {
