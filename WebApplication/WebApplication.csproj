@@ -28,6 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netcoreapp2.0\Goldmint.WebApplication.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;CS1591</NoWarn>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   
   <ItemGroup>

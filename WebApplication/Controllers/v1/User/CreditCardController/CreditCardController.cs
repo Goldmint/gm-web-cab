@@ -81,9 +81,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			// ---
 
+			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging() || HostingEnvironment.IsProduction();
+
 			// verification payment
 			var verificationAmountCents = 100L + (SecureRandom.GetPositiveInt() % 100);
-			if (!HostingEnvironment.IsProduction()) {
+			if (allowAnyCard) {
 				verificationAmountCents = 100L;
 			}
 
