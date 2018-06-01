@@ -41,27 +41,74 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 		public SafeRates.SafeRatesMessage RatesData { get; set; }
 
 		[ProtoMember(5)]
-		public EthHarvester BuyRequestHarvester { get; set; } = new EthHarvester();
+		public EthOperationsProcessor EthOpsProcessor { get; set; } = new EthOperationsProcessor();
 
 		[ProtoMember(6)]
+		public EthHarvester BuyRequestHarvester { get; set; } = new EthHarvester();
+
+		[ProtoMember(7)]
 		public EthHarvester SellRequestHarvester { get; set; } = new EthHarvester();
+
+		[ProtoMember(8)]
+		public CreditCardPaymentProcessor CreditCardVerificationPaymentProcessor { get; set; } = new CreditCardPaymentProcessor();
+
+		[ProtoMember(9)]
+		public CreditCardPaymentProcessor CreditCardRefundPaymentProcessor { get; set; } = new CreditCardPaymentProcessor();
 
 		// ---
 
 		[ProtoContract]
-		public class EthHarvester {
+		public class EthOperationsProcessor {
 
 			[ProtoMember(1)]
-			public string LastBlock { get; set; }
+			public int Load { get; set; }
 
 			[ProtoMember(2)]
-			public int StepBlocks { get; set; }
+			public long Exceptions { get; set; }
 
 			[ProtoMember(3)]
 			public long ProcessedSinceStartup { get; set; }
 
 			[ProtoMember(4)]
+			public long FailedSinceStartup { get; set; }
+		}
+
+		[ProtoContract]
+		public class EthHarvester {
+
+			[ProtoMember(1)]
+			public int Load { get; set; }
+
+			[ProtoMember(2)]
+			public long Exceptions { get; set; }
+
+			[ProtoMember(3)]
+			public string LastBlock { get; set; }
+
+			[ProtoMember(4)]
+			public int StepBlocks { get; set; }
+
+			[ProtoMember(5)]
+			public long ProcessedSinceStartup { get; set; }
+
+			[ProtoMember(6)]
 			public long ConfirmationsRequired { get; set; }
+		}
+
+		[ProtoContract]
+		public class CreditCardPaymentProcessor {
+
+			[ProtoMember(1)]
+			public int Load { get; set; }
+
+			[ProtoMember(2)]
+			public long Exceptions { get; set; }
+
+			[ProtoMember(3)]
+			public long ProcessedSinceStartup { get; set; }
+
+			[ProtoMember(4)]
+			public long FailedSinceStartup { get; set; }
 		}
 	}
 

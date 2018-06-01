@@ -330,6 +330,130 @@ namespace Goldmint.Common {
 	#endregion
 
 
+	#region Credit Card / Bank Account
+
+	public enum CardState {
+
+		/// <summary>
+		/// User should provide card data for deposit operations
+		/// </summary>
+		InputDepositData = 1,
+
+		/// <summary>
+		/// User should provide card data for withdraw operations
+		/// </summary>
+		InputWithdrawData,
+
+		/// <summary>
+		/// Sending verification payment
+		/// </summary>
+		Payment,
+
+		/// <summary>
+		/// Awaiting for code from bank statement
+		/// </summary>
+		Verification,
+
+		/// <summary>
+		/// Verified
+		/// </summary>
+		Verified,
+
+		/// <summary>
+		/// Disabled by system
+		/// </summary>
+		Disabled,
+
+		/// <summary>
+		/// Deleted
+		/// </summary>
+		Deleted,
+	}
+
+	public enum CardPaymentType {
+
+		/// <summary>
+		/// Card verification
+		/// </summary>
+		Verification = 1,
+
+		/// <summary>
+		/// User's deposit payment
+		/// </summary>
+		Deposit,
+
+		/// <summary>
+		/// Card deposit refund on limit
+		/// </summary>
+		Refund,
+
+		/// <summary>
+		/// Withdraw operation
+		/// </summary>
+		Withdraw,
+
+		/// <summary>
+		/// Not payment actually but needed to control card addition
+		/// </summary>
+		CardDataInputSMS = 10,
+		CardDataInputCRD,
+		CardDataInputP2P,
+	}
+
+	public enum CardGatewayTransactionStatus {
+
+		/// <summary>
+		/// Processing
+		/// </summary>
+		Pending = 1,
+
+		/// <summary>
+		/// Finally successful
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Completely failed
+		/// </summary>
+		Failed,
+
+		/// <summary>
+		/// Not found on GW side
+		/// </summary>
+		NotFound
+	}
+
+	public enum CardPaymentStatus {
+
+		/// <summary>
+		/// Initial state, just enqueued
+		/// </summary>
+		Pending = 1,
+
+		/// <summary>
+		/// There is an attempt to charge
+		/// </summary>
+		Charging,
+
+		/// <summary>
+		/// Final success, finalized
+		/// </summary>
+		Success,
+
+		/// <summary>
+		/// Final failure, finalized
+		/// </summary>
+		Failed,
+
+		/// <summary>
+		/// Cancelled
+		/// </summary>
+		Cancelled,
+	}
+
+	#endregion
+
+
 	#region User
 
 	public enum UserOpLogStatus {
@@ -424,7 +548,12 @@ namespace Goldmint.Common {
 		/// <summary>
 		/// Some setting changed
 		/// </summary>
-		Settings
+		Settings,
+
+		/// <summary>
+		/// Credit card operations
+		/// </summary>
+		CreditCard,
 	}
 
 	#endregion
@@ -482,6 +611,11 @@ namespace Goldmint.Common {
 		/// Changing selling request state (request-wide)
 		/// </summary>
 		GoldSellingReq,
+
+		/// <summary>
+		/// Payment check (payment-wide)
+		/// </summary>
+		CardPaymentCheck,
 
 		/// <summary>
 		/// Support exchange request state (request-wide)

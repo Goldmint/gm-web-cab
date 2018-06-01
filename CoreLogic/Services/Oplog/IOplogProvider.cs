@@ -1,19 +1,16 @@
 ﻿using Goldmint.Common;
-using Goldmint.DAL.Models;
-using Goldmint.DAL.Models.Identity;
 using System.Numerics;
 using System.Threading.Tasks;
 
-namespace Goldmint.CoreLogic.Services.Ticket {
+namespace Goldmint.CoreLogic.Services.Oplog {
 
-	public interface ITicketDesk {
+	public interface IOplogProvider {
 
-		Task UpdateTicket(string ticketId, UserOpLogStatus status, string message);
+		Task Update(string oplogId, UserOpLogStatus status, string message);
 
 		Task<string> NewGoldBuyingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long inputRate, long goldRate);
 		Task<string> NewGoldSellingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long outputRate, long goldRate);
 		Task<string> NewGoldTransfer(long userId, string ethAddress, BigInteger goldAmount);
-		
-
+		Task<string> NewCardVerification(long userId, long cardId, long centsAmount, FiatCurrency fiatCurrency);
 	}
 }

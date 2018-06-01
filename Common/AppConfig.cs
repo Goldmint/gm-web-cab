@@ -108,6 +108,14 @@
 				public string CallbackSecret { get; set; } = "";
 			}
 
+			public The1StPaymentsSection The1StPayments { get; set; } = new The1StPaymentsSection();
+			public class The1StPaymentsSection {
+
+				public string MerchantGuid { get; set; } = "";
+				public string ProcessingPassword { get; set; } = "";
+				public string Gateway { get; set; } = "";
+			}
+
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
 			public class EthereumSection {
 
@@ -160,6 +168,7 @@
 				public WorkerSettings GoldRateUpdater { get; set; } = new WorkerSettings();
 				public WorkerSettings CryptoRateUpdater { get; set; } = new WorkerSettings();
 				public WorkerSettings TelemetryAggregator { get; set; } = new WorkerSettings();
+				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
 
 				public class WorkerSettings {
 					public int PeriodSec { get; set; } = 10;

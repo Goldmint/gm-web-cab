@@ -16,8 +16,9 @@ using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.SignedDoc.Impl;
-using Goldmint.CoreLogic.Services.Ticket;
-using Goldmint.CoreLogic.Services.Ticket.Impl;
+using Goldmint.CoreLogic.Services.The1StPayments;
+using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Services.OAuth.Impl;
@@ -185,7 +186,7 @@ namespace Goldmint.WebApplication {
 			services.AddScoped<IMutexHolder, DBMutexHolder>();
 
 			// tickets desk
-			services.AddScoped<ITicketDesk, DBTicketDesk>();
+			services.AddScoped<IOplogProvider, DbOplogProvider>();
 
 			// notifications
 			services.AddScoped<INotificationQueue, DBNotificationQueue>();
@@ -205,6 +206,15 @@ namespace Goldmint.WebApplication {
 			else {
 				services.AddScoped<IKycProvider, DebugKycProvider>();
 			}
+
+			// cc payment acquirer
+			services.AddScoped<The1StPayments>(fac => {
+				return new The1StPayments(opts => {
+					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
+					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
+					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
+				}, LogManager.LogFactory);
+			});
 
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
