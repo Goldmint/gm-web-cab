@@ -20,7 +20,7 @@ export class TimerComponent implements OnInit, AfterViewInit {
   @Input('time') expiresTime;
   @Output() endTimer: EventEmitter<any> = new EventEmitter();
 
-  public timer: object = {};
+  public timer: any = {};
   private deadline;
   private interval;
 
