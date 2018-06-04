@@ -164,7 +164,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
         this.selectedWallet = 0;
-        this.router.navigate(['sell']);
+        // this.router.navigate(['sell']);
       }
     });
 

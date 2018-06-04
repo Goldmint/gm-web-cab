@@ -5,7 +5,7 @@
       <span>{{ "PAGES.Settings.KYC.DefaultSection.Title" | translate }}</span>
 
       <div class="section__title-widget" *ngIf="!loading">
-        <div class="lead icon--red">
+        <div class="lead lead-right icon--red">
           {{ "PAGES.Settings.KYC.DefaultSection.StatusText" | translate }}
         </div>
       </div>
@@ -65,7 +65,7 @@
       {{ "PAGES.Settings.KYC.WarningSection.Title" | translate }}
 
       <div class="section__title-widget">
-        <div class="lead icon--red">
+        <div class="lead lead-right icon--red">
           {{ "PAGES.Settings.KYC.WarningSection.Widget" | translate }}
         </div>
       </div>
@@ -110,7 +110,7 @@
     </h2>
 
     <div class="pt-2">
-      <p class="mt-3 mb-3 lead loc-verification-note red">
+      <p class="mt-3 mb-3 lead lead-right loc-verification-note red">
         {{ "PAGES.Settings.KYC.ProofResidency.Text" | translate }}
       </p>
 
@@ -160,7 +160,7 @@
       <span>{{ "PAGES.Settings.KYC.AgreementSection.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
-        <div class="lead icon--green">
+        <div class="lead lead-right icon--green">
           {{ "PAGES.Settings.KYC.AgreementSection.Success.Status" | translate }}
         </div>
       </div>
@@ -171,7 +171,7 @@
         <div class="container"></div>
       </div>
 
-      <div class="pt-2 mb-2"><span class="lead">{{ "PAGES.Settings.KYC.AgreementSection.Success.Description" | translate }}</span></div>
+      <div class="pt-2 mb-2"><span class="lead lead-right">{{ "PAGES.Settings.KYC.AgreementSection.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>
@@ -183,7 +183,7 @@
       <span>{{ "PAGES.Settings.KYC.ProofResidency.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
-        <div class="lead icon--green">
+        <div class="lead lead-right icon--green">
           {{ "PAGES.Settings.KYC.ProofResidency.Success.Status" | translate }}
         </div>
       </div>
@@ -194,7 +194,7 @@
         <div class="container"></div>
       </div>
 
-      <div class="pt-2 mb-2"><span class="lead">{{ "PAGES.Settings.KYC.ProofResidency.Success.Description" | translate }}</span></div>
+      <div class="pt-2 mb-2"><span class="lead lead-right">{{ "PAGES.Settings.KYC.ProofResidency.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>
@@ -206,7 +206,7 @@
       <span>{{ "PAGES.Settings.KYC.DefaultSection.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
-        <div class="lead icon--green">
+        <div class="lead lead-right icon--green">
           {{ "PAGES.Settings.KYC.DefaultSection.Success.Status" | translate }}
         </div>
       </div>
@@ -217,7 +217,7 @@
         <div class="container"></div>
       </div>
 
-      <div class="lead pt-2 mb-2"><span class="lead">{{ "PAGES.Settings.KYC.DefaultSection.Success.Description" | translate }}</span></div>
+      <div class="lead lead-right pt-2 mb-2"><span class="lead lead-right">{{ "PAGES.Settings.KYC.DefaultSection.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>
@@ -230,12 +230,12 @@
       <span>{{ "PAGES.Settings.KYC.FormSection.Title" | translate }}</span>
 
       <div class="section__title-widget">
-        <div class="lead icon--green" *ngIf="kycProfile.isFormFilled; else noBasicVerificationBlock">
+        <div class="lead lead-right icon--green" *ngIf="kycProfile.isFormFilled; else noBasicVerificationBlock">
           {{ "PAGES.Settings.KYC.FormSection.StatusText" | translate }}
         </div>
 
         <ng-template #noBasicVerificationBlock>
-          <div class="lead icon--red">
+          <div class="lead lead-right icon--red">
             {{ "PAGES.Settings.KYC.DefaultSection.Labels.NotVerified" | translate }}
           </div>
         </ng-template>
@@ -593,8 +593,8 @@
           </div>
         </div>
 
-        <div class="row mt-2 mb-4 pr-4" *ngIf="!kycProfile.isFormFilled">
-          <div class="form-group col-6 mb-2">
+        <div class="row mt-2 mb-4 pr-0 pr-sm-4 justify-content-sm-start justify-content-center" *ngIf="!kycProfile.isFormFilled">
+          <div class="form-group col-auto col-sm-6 mb-2">
             <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}
               <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">

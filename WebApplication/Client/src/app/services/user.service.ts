@@ -27,6 +27,8 @@ export class UserService {
   public onWalletSwitch$ = new Subject();
   public currentWallet;
 
+  public windowSize$ = new Subject();
+
   constructor(
     private _router: Router,
     private _apiService: APIService,

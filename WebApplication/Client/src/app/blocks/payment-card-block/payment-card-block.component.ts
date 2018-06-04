@@ -8,7 +8,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import {APIService, EthereumService, MessageBoxService} from "../../services";
+import {APIService, EthereumService, MessageBoxService, UserService} from "../../services";
 import {Router} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
@@ -50,15 +50,17 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _cdRef: ChangeDetectorRef,
     private _translate: TranslateService,
+    private userService: UserService,
     private router: Router
   ) { }
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 767);
-    window.onresize = () => {
-      this.isMobile = window.innerWidth <= 767 ? true : false;
+
+    this.userService.windowSize$.takeUntil(this.destroy$).subscribe(size => {
+      this.isMobile = size <= 767 ? true : false;
       this._cdRef.markForCheck();
-    };
+    });
 
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;

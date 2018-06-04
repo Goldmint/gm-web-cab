@@ -6,6 +6,7 @@ import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
+import {NavigationEnd, Router} from "@angular/router";
 
 @Component({
   selector: 'app-header',
@@ -30,6 +31,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public hotGoldBalance: string|null = null;
   public shortAdr: string;
   public isShowMobileMenu: boolean = false;
+  public isMobile: boolean = false;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
 
@@ -39,14 +41,37 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
     private _messageBox: MessageBoxService,
-    private _translate: TranslateService
+    private _translate: TranslateService,
+    private router: Router
   ) {
   }
 
   ngOnInit() {
-    document.body.addEventListener('click', () => {
-      this.isShowMobileMenu = false;
+    if (window.innerWidth > 767) {
+      this.isMobile = this.isShowMobileMenu = false;
+    } else {
+      this.isMobile = true;
+    }
+    this._cdRef.markForCheck();
+
+    window.onresize = () => {
+      this._userService.windowSize$.next(window.innerWidth);
+
+      if (window.innerWidth > 767) {
+        this.isMobile = this.isShowMobileMenu = false;
+        document.body.style.overflow = 'visible';
+      } else {
+        this.isMobile = true;
+      }
       this._cdRef.markForCheck();
+    };
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.isShowMobileMenu = false;
+        document.body.style.overflow = 'visible';
+        this._cdRef.markForCheck();
+      }
     });
 
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
@@ -115,11 +140,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this.shortAdr = this.metamaskAccount ? ' (' + this.metamaskAccount.slice(0, 5) + ')...' : '';
   }
 
-  public showGoldRateInfo() {
-    this._messageBox.alert(`${this.gold_usd_rate}`);
-    this._cdRef.detectChanges();
-  }
-
   public logout(e) {
     e.preventDefault();
 
@@ -140,6 +160,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   toggleMobileMenu(e) {
     this.isShowMobileMenu = !this.isShowMobileMenu;
+    document.body.style.overflow = this.isShowMobileMenu ? 'hidden' : 'visible';
     e.stopPropagation();
     this._cdRef.markForCheck();
   }

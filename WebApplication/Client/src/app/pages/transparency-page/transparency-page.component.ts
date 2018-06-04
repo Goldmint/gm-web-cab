@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  OnDestroy
+} from '@angular/core';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { Page } from '../../models/page';
@@ -6,6 +13,7 @@ import { TransparencySummary, TransparencyRecord } from '../../interfaces';
 import {APIService, EthereumService, UserService} from '../../services';
 import {BigNumber} from "bignumber.js";
 import {DatePipe} from "@angular/common";
+import {Subject} from "rxjs/Subject";
 
 @Component({
   selector: 'app-transparency-page',
@@ -14,7 +22,7 @@ import {DatePipe} from "@angular/common";
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransparencyPageComponent implements OnInit {
+export class TransparencyPageComponent implements OnInit, OnDestroy {
   public locale: string;
   public loading: boolean;
   public isDataLoaded = false;
@@ -27,6 +35,7 @@ export class TransparencyPageComponent implements OnInit {
   public messages:    any  = {emptyMessage: 'No data'};
   public statData: object;
   public isMobile: boolean;
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private apiService: APIService,
@@ -42,10 +51,11 @@ export class TransparencyPageComponent implements OnInit {
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 576);
-    window.onresize = () => {
-      this.isMobile = window.innerWidth <= 576 ? true : false;
+
+    this.userService.windowSize$.takeUntil(this.destroy$).subscribe(size => {
+      this.isMobile = size <= 576 ? true : false;
       this.cdRef.markForCheck();
-    };
+    });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;
@@ -116,6 +126,10 @@ export class TransparencyPageComponent implements OnInit {
           }
           this.cdRef.detectChanges();
         });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
   }
 
 }

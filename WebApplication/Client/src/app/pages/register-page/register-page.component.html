@@ -25,7 +25,7 @@
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
                        name="email" [(ngModel)]="signupModel.email" #email="ngModel"
-                       class="form-control col-12 col-md-7"
+                       class="form-control col-12 col-lg-7"
                        [ngClass]="{'is-invalid': (errors?.Email || !email.valid) && (signupForm.submitted || !email.pristine)}"
                        (ngModelChange)="errors.Email = false"
                        [readonly]="loading">
@@ -45,7 +45,7 @@
                 <label for="inputPassword">{{ "PAGES.Register.Labels.Password" | translate }}</label>
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" noAutoComplete
                        name="password" [(ngModel)]="signupModel.password" #password="ngModel"
-                       class="form-control col-12 col-md-7" equal="passwordRepeat" reverse="true"
+                       class="form-control col-12 col-lg-7" equal="passwordRepeat" reverse="true"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (signupForm.submitted || !password.pristine)}"
                        (ngModelChange)="errors.Password = false"
                        [readonly]="loading || passwordChecking">
@@ -74,7 +74,7 @@
                 <label for="inputPasswordRepeat">{{ "PAGES.Register.Labels.Confirm" | translate }}</label>
                 <input type="password" id="inputPasswordRepeat" required minlength="6" maxlength="128" noAutoComplete
                        name="passwordRepeat" ngModel #passwordRepeat="ngModel"
-                       class="form-control col-12 col-md-7" equal="password"
+                       class="form-control col-12 col-lg-7" equal="password"
                        [ngClass]="{'is-invalid': (!passwordRepeat.valid) && (signupForm.submitted || password.dirty || passwordRepeat.dirty)}"
                        [readonly]="loading || passwordChecking">
                 <div class="invalid-feedback" *ngIf="passwordRepeat.touched && passwordRepeat.errors?.required">

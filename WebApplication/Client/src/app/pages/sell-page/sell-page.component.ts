@@ -64,9 +64,11 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    this.timeoutPopUp = setTimeout(() => {
-      !this.isMetamask && this.showLoginToMMPopUp()
-    }, 3000);
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.isMetamask && this.showLoginToMMPopUp()
+      }, 3000);
+    }
 
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
 

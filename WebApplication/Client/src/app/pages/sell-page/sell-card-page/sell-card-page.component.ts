@@ -123,7 +123,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null) {
-        this.router.navigate(['sell']);
+        // this.router.navigate(['sell']);
       }
     });
 

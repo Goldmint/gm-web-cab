@@ -45,10 +45,11 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 767);
-    window.onresize = () => {
-      this.isMobile = window.innerWidth <= 767 ? true : false;
+
+    this.userService.windowSize$.takeUntil(this.destroy$).subscribe(size => {
+      this.isMobile = size <= 767 ? true : false;
       this.cdRef.markForCheck();
-    };
+    });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.messages.emptyMessage = event.translations.PAGES.History.Table.EmptyMessage;

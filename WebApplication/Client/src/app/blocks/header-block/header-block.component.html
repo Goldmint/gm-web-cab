@@ -1,5 +1,5 @@
 <header class="header">
-  <div class="container flex-row flex-sm-column">
+  <div class="container flex-row flex-md-column">
     <div class="header__row justify-content-between pt-2 pb-2 pt-lg-0 pb-lg-0">
       <div class="d-flex">
         <div class="col-auto d-flex align-items-center">
@@ -16,7 +16,7 @@
         </div>
 
         <div class="col mr-auto">
-          <div class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value" (click)="showGoldRateInfo()">{{gold_usd_rate | number:'1.2-2':locale}}</span></div>
+          <div class="rate" *ngIf="gold_usd_rate">Gold/USD = <span class="rate__value">{{gold_usd_rate | number:'1.2-2':locale}}</span></div>
           <div class="rate" *ngIf="gold_eth_rate">Gold/ETH = <span class="rate__value">{{gold_eth_rate | number:'1.1-6':locale}}</span></div>
         </div>
       </div>
@@ -25,7 +25,7 @@
         <div class="col-sm-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
           <div class="col-auto pr-1">
             <div class="auth-info">
-              <div class="language" (mouseenter)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
+              <div class="language" (mouseenter)="walletMenu.show()" (click)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
                 <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
                   <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">
                     {{ 'HEADER.Wallet' | translate }}: {{ activeWallet?.name }} {{ activeWallet.id === 'metamask' ? shortAdr : '' }}</a>
@@ -55,11 +55,11 @@
             </div>
           </div>
 
-          <div>|</div>
+          <div *ngIf="!isMobile">|</div>
 
-          <div class="col-auto">
+          <div class="col-auto" *ngIf="!isMobile">
             <div class="auth-info">
-              <div class="language" (mouseenter)="usermenu.show()" (mouseleave)="usermenu.hide()">
+              <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
                 <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
                   <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
 
@@ -92,12 +92,42 @@
 
     </div>
 
-    <div class="d-sm-none d-flex align-items-center pl-5 mobile-menu-button" (click)="toggleMobileMenu($event)">
-      <svg class="icon" width="24px" height="24px">
-        <use xlink:href="#burger"></use>
+    <div class="d-flex align-items-center ml-4" *ngIf="isMobile" (click)="toggleMobileMenu($event)">
+      <svg class="icon mobile-menu-icon" width="24px" height="24px">
+        <use xlink:href="#burger" *ngIf="!isShowMobileMenu"></use>
+        <use xlink:href="#close" *ngIf="isShowMobileMenu"></use>
       </svg>
     </div>
 
-    <app-navbar class="d-none d-sm-flex" [ngClass]="{'show-mobile-menu': isShowMobileMenu}"></app-navbar>
+    <app-navbar class="d-sm-flex" *ngIf="!isMobile"></app-navbar>
   </div>
+
+  <div id="mobile-menu-container" *ngIf="isShowMobileMenu">
+    <div>
+      <div class="col-auto mt-4 mb-3 mobile-account-info">
+        <div class="auth-info">
+          <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
+            <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
+              <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
+
+              <ul *dropdownMenu class="dropdown-menu" role="menu">
+                <li role="menuitem">
+                  <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
+                </li>
+                <li role="menuitem">
+                  <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">{{ 'HEADER.SignOut' | translate }}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <app-navbar></app-navbar>
+    </div>
+    <div class="mt-4">
+      <app-footer></app-footer>
+    </div>
+  </div>
+
 </header>

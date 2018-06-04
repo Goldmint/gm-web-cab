@@ -94,7 +94,7 @@ export class BuyCardPageComponent implements OnInit {
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       ethAddr !== null && (this.ethAddress = ethAddr);
-      this.ethAddress && ethAddr === null && this.router.navigate(['sell']);
+      // this.ethAddress && ethAddr === null && this.router.navigate(['sell']);
     });
   }
 

@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -8,7 +7,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import {APIService, EthereumService, MessageBoxService} from "../../services";
+import {APIService, EthereumService, MessageBoxService, UserService} from "../../services";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 import * as Web3 from "web3";
@@ -44,15 +43,17 @@ export class CryptocurrencyBlockComponent implements OnInit {
     private _apiService: APIService,
     private _ethService: EthereumService,
     private _messageBox: MessageBoxService,
-    private _cdRef: ChangeDetectorRef
+    private _cdRef: ChangeDetectorRef,
+    private userService: UserService
   ) { }
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 767);
-    window.onresize = () => {
-      this.isMobile = window.innerWidth <= 767 ? true : false;
+
+    this.userService.windowSize$.takeUntil(this.destroy$).subscribe(size => {
+      this.isMobile = size <= 767 ? true : false;
       this._cdRef.markForCheck();
-    };
+    });
 
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
