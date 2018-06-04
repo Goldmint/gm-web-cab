@@ -115,6 +115,7 @@ export class LoginPageComponent implements OnInit {
               case 1000: // AccountNotFound
                 this._translate.get('ERRORS.Login.AccountNotFound').subscribe(phrase => {
                     this.errors['Password'] = phrase;
+                    this.errors['pairNotFound'] = true;
                 });
                 break;
 
@@ -141,6 +142,10 @@ export class LoginPageComponent implements OnInit {
             }
           }
         });
+  }
+
+  checkAutoLogin(status) {
+    status && this.proceedTFA();
   }
 
   public proceedTFA() {
@@ -221,7 +226,7 @@ export class LoginPageComponent implements OnInit {
 
   public back() {
     this.resetStorage();
-    this.tfaRequired = false;
+    this.tfaRequired = this.errors['pairNotFound'] = false;
     this._cdRef.detectChanges();
   }
 

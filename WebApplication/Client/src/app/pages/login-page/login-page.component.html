@@ -45,7 +45,7 @@
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" autocomplete="password"
                        name="password" [(ngModel)]="loginModel.password" #userPassElement #password="ngModel"
                        class="form-control col-12 col-md-7"
-                       [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (loginForm.submitted || !password.pristine) && password.touched}"
+                       [ngClass]="{'is-invalid': ((errors?.Password || !password.valid) && (loginForm.submitted || !password.pristine) && password.touched) || errors?.pairNotFound}"
                        (ngModelChange)="errors.Password = false"
                        (focus)="resetAutofillFlag()"
                        [readonly]="loading">
@@ -59,8 +59,8 @@
                 <!-- <div class="invalid-feedback" *ngIf="password.errors?.maxlength">
                   {{ "PAGES.Login.Errors.Password.maxlength" | translate }}
                 </div> -->
-                <div class="invalid-feedback" *ngIf="errors?.Password && password.touched">
-                  {{ errors?.Password }}
+                <div class="invalid-feedback" *ngIf="(errors?.Password && password.touched) || errors?.pairNotFound">
+                  {{ "PAGES.Login.Errors.Password.pairNotFound" | translate }}
                 </div>
               </div>
 
@@ -99,6 +99,7 @@
                          class="form-control col-7"
                          [ngClass]="{'is-invalid': (errors?.Code || !code.valid) && (tfaForm.submitted || !code.pristine)}"
                          (ngModelChange)="errors.Code = false"
+                         (input)="checkAutoLogin(tfaForm.form.valid)"
                          [readonly]="processing">
 
                   <div class="invalid-feedback" *ngIf="code.errors">
