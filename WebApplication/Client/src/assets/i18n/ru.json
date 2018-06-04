@@ -168,11 +168,12 @@
       },
       "Buttons": {
         "Send": "Отправить"
+      },
+      "Errors": {
+        "InvalidAddress": "Неправильный адрес",
+        "InvalidAmount": "Неправильное количество",
+        "AddressMatches": "Введынный адрес совпадает с активным адресом кошелька Metamask"
       }
-    },
-    "Errors": {
-      "InvalidAddress": "Неправильный адрес",
-      "InvalidAmount": "Неправильное количество"
     },
     "Finance": {
       "Heading": "Финансы",

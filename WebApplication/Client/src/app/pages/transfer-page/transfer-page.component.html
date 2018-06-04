@@ -43,9 +43,8 @@
         </ng-container>
 
       <ng-template #blockMethods>
-        <form>
+        <form *ngIf="!showConfirmBlock; else confirmBlock">
           <div class="row">
-
             <div class="col-12">
               <div class="from-row form-group">
                 <label for="input_walletAddress">{{ "PAGES.Transfer.Labels.TransferToWallet" | translate }}</label>
@@ -58,12 +57,16 @@
                   <input type="text" noAutoComplete class="form-control ml-1" id="input_walletAddress" name="wallet-address"
                          placeholder="{{ 'PAGES.Transfer.Placeholders.EtheriumWallet' | translate }}"
                          #walletAdr="ngModel"
-                         ngModel
+                         [(ngModel)]="walletAddress"
                          (input)="onWalletAddressChanged($event.target.value)"
-                         [ngClass]="{'is-invalid': !walletChecked && walletAdr.dirty}">
+                         [ngClass]="{'is-invalid': (!walletChecked || coincidesAddress) && walletAdr.dirty}"
+                         [disabled]="isFirstLoad">
                 </div>
                 <div class="invalid-feedback invalid-feedback--abs" *ngIf="!walletChecked && walletAdr.dirty">
                   {{ 'PAGES.Transfer.Errors.InvalidAddress' | translate }}
+                </div>
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="coincidesAddress && walletAdr.dirty">
+                  {{ 'PAGES.Transfer.Errors.AddressMatches' | translate }}
                 </div>
               </div>
             </div>
@@ -82,7 +85,7 @@
                          [ngClass]="{'is-invalid': invalidAmount}"
                          [(ngModel)]="amountValue"
                          autocomplete="off"
-                  >
+                         [disabled]="isFirstLoad">
                 </div>
                 <div class="percent-btn-cont">
                   <button class="percent-btn" (click)="setGoldBalance(0.25)">25%</button>
@@ -97,12 +100,20 @@
             </div>
 
             <div class="col mt-1 mb-5">
-              <button class="btn btn-primary" [disabled]="invalidAmount || !walletChecked" (click)="onSubmit()">{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
+              <button class="btn btn-primary" [disabled]="invalidAmount || !walletChecked || coincidesAddress" (click)="onSubmit()">{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
               <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
             </div>
 
           </div>
         </form>
+
+        <ng-template #confirmBlock>
+          <div>
+            <div>{{ "COMMONS.ConfirmTr" | translate }}</div>
+            <button type="button" class="btn btn-primary mt-4 mb-5" (click)="showConfirmBlock = !showConfirmBlock">{{ "BUTTONS.Back" | translate }}</button>
+          </div>
+        </ng-template>
+
       </ng-template>
     </ng-template>
   </div>

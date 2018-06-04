@@ -171,7 +171,8 @@
       },
       "Errors": {
         "InvalidAddress": "Invalid address",
-        "InvalidAmount": "Invalid amount value"
+        "InvalidAmount": "Invalid amount value",
+        "AddressMatches": "Address matches to active Metamask wallet address"
       }
     },
     "Finance": {

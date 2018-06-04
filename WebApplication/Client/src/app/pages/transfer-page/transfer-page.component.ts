@@ -29,10 +29,12 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   public walletAddress: string = null;
   public goldBalance: BigNumber = null;
   public walletChecked: boolean = false;
+  public coincidesAddress: boolean = false;
   public isFirstLoad: boolean = true;
   public isFirstTransaction = true;
   public loading: boolean = true;
   public invalidAmount: boolean = false;
+  public showConfirmBlock: boolean = false;
   public user;
   public tfaInfo: TFAInfo;
   public isMetamask: boolean = false;
@@ -44,6 +46,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   public etherscanUrl = environment.etherscanUrl;
   private sub1: Subscription;
   public subGetGas: Subscription;
+  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private Web3 = new Web3();
 
@@ -77,9 +80,18 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.isMetamask && this.showLoginToMMPopUp()
+      }, 3000);
+    }
+
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
-      this.ethAddress !== null && (this.isMetamask = true);
+      if (this.ethAddress !== null) {
+        this.isMetamask = true;
+        this.onWalletAddressChanged(this.walletAddress);
+      }
 
       if (!this.ethAddress && this.goldBalance !== null) {
         this.isMetamask = false;
@@ -128,14 +140,26 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   }
 
   onWalletAddressChanged(value: string) {
-    this.walletAddress = null;
-    this.walletChecked = false;
+    this.walletChecked = this.coincidesAddress = false;
 
-    if (this._ethService.isValidAddress(value) && value.toLowerCase() !== this.ethAddress.toLowerCase()) {
+    if (this._ethService.isValidAddress(value)) {
+      if (value.toLowerCase() === this.ethAddress.toLowerCase()) {
+        this.coincidesAddress = true;
+      }
       this.walletAddress = value;
       this.walletChecked = true;
     }
     this._cdRef.markForCheck();
+  }
+
+  showLoginToMMPopUp() {
+    this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
+      this._messageBox.alert(`
+        <div class="text-center">${phrase.Text}</div>
+        <div class="metamask-icon"></div>
+        <div class="text-center mt-2 mb-2">MetaMask</div>
+      `, phrase.HeadingSell);
+    });
   }
 
   onSubmit() {
@@ -154,26 +178,28 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         if (ok) {
           this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
             if (price !== null && this.isFirstTransaction) {
+              this.showConfirmBlock = true;
               this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, amount, +price);
               this.isFirstTransaction = false;
+              this._cdRef.markForCheck();
             }
           });
 
           this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
             if (hash) {
+              this.showConfirmBlock = false;
               this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
                 this._messageBox.alert(`
-                            <div class="text-center">
-                              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-                              <div>${phrases.Steps}</div>
-                              <div>${phrases.Hash}</div>
-                              <div class="mb-2 sell-hash">${hash}</div>
-                              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
-                            </div>
-                          `).subscribe(ok => {
-                  ok && this.router.navigate(['/finance/history']);
-                });
+                  <div class="text-center">
+                    <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+                    <div>${phrases.Steps}</div>
+                    <div>${phrases.Hash}</div>
+                    <div class="mb-2 sell-hash">${hash}</div>
+                    <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+                  </div>
+                `);
               });
+              this._cdRef.markForCheck();
             }
           });
         }
