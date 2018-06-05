@@ -38,7 +38,7 @@ import { EqualValidatorDirective } from './directives/equal-validator.directive'
 /*
   UI components
  */
-import { BsDropdownModule, ModalModule, ButtonsModule, TabsModule } from 'ngx-bootstrap';
+import {BsDropdownModule, ModalModule, ButtonsModule, TabsModule, BsDatepickerModule} from 'ngx-bootstrap';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 
@@ -88,6 +88,7 @@ export function getGoldmintToken() {
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
+    BsDatepickerModule.forRoot(),
     RecaptchaModule.forRoot(),
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
