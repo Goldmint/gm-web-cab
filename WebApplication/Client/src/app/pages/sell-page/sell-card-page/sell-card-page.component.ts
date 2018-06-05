@@ -22,6 +22,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   @ViewChild('usdAmountInput') usdAmountInput;
 
   public loading = false;
+  public processing = false;
   public locale: string;
   public invalidBalance = false;
   public isDataLoaded: boolean = false;
@@ -190,7 +191,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
 
-          this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
         this.usdAmount = 0;
@@ -209,7 +210,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
-          this.isTradingError = this.isTradingLimit = false;
+          this.isTradingError = this.isTradingLimit = this.processing = false;
 
           if (this.goldAmount > +this.goldBalance) {
             this.invalidBalance = true;
@@ -232,6 +233,8 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   }
 
   changeValue(status: boolean, event) {
+    this.processing = true;
+
     event.target.value = this.substrValue(event.target.value);
     this.currentValue = +event.target.value;
     event.target.setSelectionRange(event.target.value.length, event.target.value.length);

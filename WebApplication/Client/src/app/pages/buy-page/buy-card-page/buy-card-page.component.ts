@@ -21,6 +21,7 @@ export class BuyCardPageComponent implements OnInit {
   @ViewChild('usdAmountInput') usdAmountInput;
 
   public loading: boolean = false;
+  public processing = false;
   public locale: string;
   public invalidBalance: boolean = false;
   public showPaymentCardBlock: boolean = false;
@@ -138,7 +139,7 @@ export class BuyCardPageComponent implements OnInit {
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
 
-          this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
         this.goldAmount = 0;
@@ -157,7 +158,7 @@ export class BuyCardPageComponent implements OnInit {
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.usdAmount = data.data.amount;
-          this.isTradingError = this.isTradingLimit = false;
+          this.isTradingError = this.isTradingLimit = this.processing = false;
           this.invalidBalance = (this.usdAmount <= 1) ? true : false;
         });
       } else {
@@ -173,6 +174,8 @@ export class BuyCardPageComponent implements OnInit {
   }
 
   changeValue(status: boolean, event) {
+    this.processing = true;
+
     event.target.value = this.substrValue(event.target.value);
     this.currentValue = +event.target.value;
     event.target.setSelectionRange(event.target.value.length, event.target.value.length);

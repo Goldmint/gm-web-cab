@@ -33,6 +33,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   @ViewChild('coinAmountInput') coinAmountInput;
 
   public loading = false;
+  public processing = false;
   public isFirstLoad = true;
   public isTradingError = false;
   public isTradingLimit: object | boolean = false;
@@ -213,7 +214,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
-            this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
+            this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
         this.invalidBalance = true;
@@ -235,7 +236,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
             this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
-            this.isTradingError = this.isTradingLimit = false;
+            this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
         this.invalidBalance = true;
@@ -246,6 +247,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   }
 
   changeValue(status: boolean, event) {
+    this.processing = true;
+
     event.target.value = this.substrValue(event.target.value);
     this.currentValue = +event.target.value;
     event.target.setSelectionRange(event.target.value.length, event.target.value.length);
