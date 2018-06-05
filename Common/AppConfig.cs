@@ -84,6 +84,13 @@
 		public ServicesSection Services { get; set; } = new ServicesSection();
 		public class ServicesSection {
 
+			public GoogleSheetsSection GoogleSheets { get; set; } = null;
+			public class GoogleSheetsSection {
+
+				public string ClientSecret64 { get; set; } = "";
+				public string SheetId { get; set; } = "";
+			}
+
 			public RecaptchaSection Recaptcha { get; set; } = new RecaptchaSection();
 			public class RecaptchaSection {
 

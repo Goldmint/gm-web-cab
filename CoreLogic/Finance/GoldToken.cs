@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Google.Impl;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -842,6 +843,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var logger = services.GetLoggerFor(typeof(GoldToken));
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<IOplogProvider>();
+			var googleSheets = services.GetService<Sheets>();
 
 			// ---
 
@@ -852,6 +854,38 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat && ethOp.RelatedExchangeRequestId != null) {
 					if (BigInteger.TryParse(ethOp.EthRequestIndex ?? "-1", out var index) && index >= 0) {
 						await OnCreditCardWithdrawReady(services, ethOp.RelatedExchangeRequestId.Value, index);
+					}
+				}
+
+				// google sheet stats
+				if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth || 
+				    ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat ||
+					ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth ||
+				    ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat
+				) {
+					try {
+						if (googleSheets != null) {
+
+							var goldAmount = (double)(BigInteger.Parse(ethOp.GoldAmount) / BigInteger.Pow(10, Tokens.GOLD.Decimals - 6)) / 1000000d;
+							await googleSheets.UpdateUserGoldInfo(
+								new UserInfoGoldUpdate() {
+									UserId = ethOp.UserId,
+									GoldBoughtDelta =
+										ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
+										ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat
+										? goldAmount
+										: 0,
+									GoldSoldDelta =
+										ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth ||
+										ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat
+											? goldAmount
+											: 0,
+								}
+							);
+						}
+					}
+					catch (Exception e) {
+						logger.Error(e, "Failed to fix user operation in Google Sheets");
 					}
 				}
 			}

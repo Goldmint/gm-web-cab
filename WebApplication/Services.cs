@@ -33,6 +33,7 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Google.Impl;
 
 namespace Goldmint.WebApplication {
 
@@ -300,6 +301,11 @@ namespace Goldmint.WebApplication {
 				LogManager.LogFactory
 			);
 			services.AddSingleton(_apiTelemetryAccumulator);
+
+			// google sheets
+			if (_appConfig.Services.GoogleSheets != null) {
+				services.AddSingleton(new Sheets(_appConfig));
+			}
 
 			return services.BuildServiceProvider();
 		}

@@ -28,6 +28,7 @@
     <EmbeddedResource Include="Data\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.34.0.1240" />
     <PackageReference Include="Nethereum.Web3" Version="2.4.0" />
     <PackageReference Include="NetMQ" Version="4.0.0.1" />
     <PackageReference Include="protobuf-net" Version="2.3.7" />

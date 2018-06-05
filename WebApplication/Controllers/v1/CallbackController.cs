@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.WebApplication.Core.Policies;
 using Microsoft.AspNetCore.Mvc;
@@ -73,6 +74,24 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						ticket.TimeResponded = DateTime.UtcNow;
 
 						await DbContext.SaveChangesAsync();
+
+						if (GoogleSheets != null && ticket?.User?.UserVerification != null) {
+							try {
+								await GoogleSheets.InsertUser(
+									new UserInfoCreate() {
+										UserId = ticket.UserId,
+										UserName = ticket.User.UserName,
+										FirstName = ticket.User.UserVerification.FirstName,
+										LastName = ticket.User.UserVerification.LastName,
+										Country = ticket.User.UserVerification.Country,
+										Birthday = ticket.User.UserVerification.DoB?.ToString("yyyy MMMM dd"),
+									}
+								);
+							}
+							catch (Exception e) {
+								Logger.Error(e, "Failed to persist user's verification in Google Sheets");
+							}
+						}
 					}
 				}
 			//}
