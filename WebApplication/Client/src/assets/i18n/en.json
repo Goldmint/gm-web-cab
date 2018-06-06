@@ -145,7 +145,8 @@
         "NotAllow": "Method is not allowed now",
         "InvalidEth": "Invalid eth amount",
         "InvalidUsd": "Invalid usd amount",
-        "InvalidGold": "Invalid gold amount"
+        "InvalidGold": "Invalid gold amount",
+        "EnoughMoney": "You don't have enough money"
       }
     },
     "Transfer": {
@@ -1122,7 +1123,8 @@
       "Labels": {
         "Amount": "You pay:",
         "Estimates": "You receive:",
-        "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:"
+        "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:",
+        "TimerLabel": "Remaining time to confirm the payment:"
       },
       "Button": "Proceed to payment",
       "Table": {

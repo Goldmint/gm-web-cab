@@ -132,6 +132,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         this.selectedWallet = 0;
         // this.router.navigate(['buy']);
       }
+      this._cdRef.markForCheck();
     });
 
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;

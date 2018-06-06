@@ -45,7 +45,7 @@
                       <button class="percent-btn" (click)="setCoinBalance(1)">100%</button>
                     </div>
                     <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && !isReversed && goldAmountInput.dirty">
-                      {{ "PAGES.Buy.Errors.InvalidEth" | translate }}
+                      {{ "PAGES.Buy.Errors.EnoughMoney" | translate }}
                     </div>
                     <div class="invalid-feedback" *ngIf="isTradingLimit">
                       {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} eth<br>
@@ -74,13 +74,14 @@
                       >
                     </div>
                     <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && isReversed && coinAmountInput.dirty">
-                      {{ "PAGES.Buy.Errors.InvalidGold" | translate }}
+                      {{ "PAGES.Buy.Errors.EnoughMoney" | translate }}
                     </div>
                   </div>
                 </div>
 
                 <div class="col-12 mb-5">
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
+                  <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Buy.Errors.UseMM" | translate }}</div>
                   <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || processing">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>

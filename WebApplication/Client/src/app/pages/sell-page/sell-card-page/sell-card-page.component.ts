@@ -126,6 +126,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       if (!this.ethAddress && this.goldBalance !== null) {
         // this.router.navigate(['sell']);
       }
+      this._cdRef.markForCheck();
     });
 
   }

@@ -166,6 +166,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
         this.selectedWallet = 0;
         // this.router.navigate(['sell']);
       }
+      this._cdRef.markForCheck();
     });
 
     this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
