@@ -71,6 +71,9 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public sub1: Subscription;
   public subGetGas: Subscription;
   public interval: Subscription;
+  public getLimitSub: Subscription;
+
+  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -104,6 +107,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
 
     this.iniTransactionHashModal();
 
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.ethAddress && this._userService.showLoginToMMBox();
+      }, 3000);
+    }
+
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
@@ -129,21 +138,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
        ) {
           this.goldBalance = data[0];
           this.mntpBalance = data[1];
+          this.getLimitSub && this.getLimitSub.unsubscribe();
+
+          this.getEthLimit();
           this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
         }
     });
-
-    this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
-      if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
-        this.ethLimit = eth;
-        if (this.isFirstLoad) {
-          this.calculateStartGoldValue(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
-          this._cdRef.markForCheck();
-        } else {
-          this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
-        }
-      }
-    })
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
@@ -164,7 +164,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
         this.selectedWallet = 0;
-        // this.router.navigate(['sell']);
+        this.router.navigate(['sell']);
       }
       this._cdRef.markForCheck();
     });
@@ -216,6 +216,20 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
             ok && this.router.navigate(['/finance/history']);
           });
         });
+      }
+    });
+  }
+
+  getEthLimit() {
+    this.getLimitSub = this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
+      if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
+        this.ethLimit = eth;
+        if (this.isFirstLoad) {
+          this.calculateStartGoldValue(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
+          this._cdRef.markForCheck();
+        } else {
+          this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
+        }
       }
     });
   }
@@ -408,6 +422,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.destroy$.next(true);
     this.subGetGas && this.subGetGas.unsubscribe();
     this.sub1 && this.sub1.unsubscribe();
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

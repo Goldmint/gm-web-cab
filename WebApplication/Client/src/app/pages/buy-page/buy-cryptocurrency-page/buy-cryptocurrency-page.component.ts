@@ -42,7 +42,6 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public locale: string;
 
   public ethAddress: string = '';
-  public selectedWallet = 0;
   public goldRate: number = 0;
   public invalidBalance = false;
 
@@ -64,6 +63,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public etherscanUrl = environment.etherscanUrl;
   public interval: Subscription;
 
+  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -97,6 +97,12 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
     this.iniTransactionHashModal();
 
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.ethAddress && this._userService.showLoginToMMBox();
+      }, 3000);
+    }
+
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
@@ -129,22 +135,10 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.ethBalance !== null) {
-        this.selectedWallet = 0;
-        // this.router.navigate(['buy']);
+        this.ethBalance = null;
+        this.router.navigate(['buy']);
       }
       this._cdRef.markForCheck();
-    });
-
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-
-    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
-      if (wallet['id'] === 'hot') {
-        this.selectedWallet = 0;
-        this.router.navigate(['buy']);
-      } else {
-        this.selectedWallet = 1;
-        this.setCoinBalance(1);
-      }
     });
   }
 
@@ -311,7 +305,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.destroy$.next(true);
+    this.destroy$.next(true)
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

@@ -138,8 +138,8 @@ export class EthereumService {
       // check via eth
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
-      this.updateEthBalance(this._lastAddress);
     }
+    this.updateEthBalance(this._lastAddress);
 
     this.checkHotBalance();
     this.updateTotalGoldBalances();

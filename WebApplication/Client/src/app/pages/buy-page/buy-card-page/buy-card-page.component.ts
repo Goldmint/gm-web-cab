@@ -39,6 +39,7 @@ export class BuyCardPageComponent implements OnInit {
   public selectedCard: number;
   public transferData: object;
 
+  private timeoutPopUp;
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
@@ -70,6 +71,12 @@ export class BuyCardPageComponent implements OnInit {
       this._cdRef.markForCheck();
     });
 
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.ethAddress && this._userService.showLoginToMMBox();
+      }, 3000);
+    }
+
     this._apiService.getFiatCards()
       .subscribe(cards => {
         this.cards = cards.data;
@@ -95,7 +102,7 @@ export class BuyCardPageComponent implements OnInit {
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       ethAddr !== null && (this.ethAddress = ethAddr);
-      // this.ethAddress && ethAddr === null && this.router.navigate(['sell']);
+      this.ethAddress && ethAddr === null && this.router.navigate(['buy']);
       this._cdRef.markForCheck();
     });
   }
@@ -232,6 +239,7 @@ export class BuyCardPageComponent implements OnInit {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

@@ -14,6 +14,7 @@ import { APIService } from './api.service';
 import { AppDefaultLanguage } from '../app.languages';
 import { ReplaySubject } from "rxjs/ReplaySubject";
 import {Subject} from "rxjs/Subject";
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
 export class UserService {
@@ -34,6 +35,7 @@ export class UserService {
     private _apiService: APIService,
     private _jwtHelper: JwtHelperService,
     private _messageBox: MessageBoxService,
+    private _translate: TranslateService,
     private http: HttpClient
   ) {
     const token = localStorage.getItem('gmint_token');
@@ -161,6 +163,16 @@ export class UserService {
 
   onWalletSwitch(wallet) {
     this.onWalletSwitch$.next(wallet);
+  }
+
+  showLoginToMMBox() {
+    this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
+      this._messageBox.alert(`
+        <div class="text-center">${phrase.Text}</div>
+        <div class="metamask-icon"></div>
+        <div class="text-center mt-2 mb-2">MetaMask</div>
+      `, phrase.HeadingSell);
+    });
   }
 
   /*

@@ -28,7 +28,6 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public hasExtraRights: boolean = true;
   public tradingStatus: {creditCardAllowed: boolean, ethAllowed: boolean};
 
-  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -65,12 +64,6 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    if (window.hasOwnProperty('web3')) {
-      this.timeoutPopUp = setTimeout(() => {
-        !this.isMetamask && this.showLoginToMMPopUp()
-      }, 3000);
-    }
-
     this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
 
     this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
@@ -88,19 +81,8 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  showLoginToMMPopUp() {
-    this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
-      this._messageBox.alert(`
-        <div class="text-center">${phrase.Text}</div>
-        <div class="metamask-icon"></div>
-        <div class="text-center mt-2 mb-2">MetaMask</div>
-      `, phrase.HeadingBuy);
-    });
-  }
-
   ngOnDestroy() {
     this.destroy$.next(true);
-    clearTimeout(this.timeoutPopUp);
   }
 
 }

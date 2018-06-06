@@ -82,7 +82,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
 
     if (window.hasOwnProperty('web3')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.isMetamask && this.showLoginToMMPopUp()
+        !this.isMetamask && this._userService.showLoginToMMBox()
       }, 3000);
     }
 
@@ -152,16 +152,6 @@ export class TransferPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
-  showLoginToMMPopUp() {
-    this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
-      this._messageBox.alert(`
-        <div class="text-center">${phrase.Text}</div>
-        <div class="metamask-icon"></div>
-        <div class="text-center mt-2 mb-2">MetaMask</div>
-      `, phrase.HeadingSell);
-    });
-  }
-
   onSubmit() {
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
@@ -211,6 +201,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
     this.destroy$.next(true);
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

@@ -40,12 +40,12 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public selectedCard: number;
   public transferData: object;
 
-  public selectedWallet = 0;
   public ethAddress: string = '';
   public goldBalance: BigNumber = null;
   public mntpBalance: BigNumber = null;
   public etherscanUrl = environment.etherscanUrl;
 
+  private timeoutPopUp;
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
@@ -75,6 +75,12 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
     });
 
     this.iniTransactionHashModal();
+
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.ethAddress && this._userService.showLoginToMMBox();
+      }, 3000);
+    }
 
     Observable.combineLatest(
       this._apiService.getFiatCards(),
@@ -124,7 +130,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null) {
-        // this.router.navigate(['sell']);
+        this.router.navigate(['sell']);
       }
       this._cdRef.markForCheck();
     });
@@ -301,6 +307,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

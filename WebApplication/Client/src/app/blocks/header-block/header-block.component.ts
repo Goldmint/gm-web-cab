@@ -76,17 +76,17 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
       data && (this.gold_usd_rate = data.gold) && (this.gold_eth_rate = data.eth);
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
 
     this._userService.currentUser.takeUntil(this.destroy$).subscribe(currentUser => {
       this.user = currentUser;
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
@@ -100,25 +100,25 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this.wallets.forEach(item => {
         item.account = item.id === 'metamask' ? this.shortAdr : '';
       });
-      this._cdRef.detectChanges();
+      this._cdRef.markForCheck();
     });
 
     this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
       if (bal != null) {
         this.goldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       }
     });
 
     this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
       if (bal != null) {
         this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
-        this._cdRef.detectChanges();
+        this._cdRef.markForCheck();
       }
     });
 
     this._userService.currentWallet = this.activeWallet;
-    this._cdRef.detectChanges();
+    this._cdRef.markForCheck();
   }
 
   /*onWalletSwitch(wallet) {
@@ -133,7 +133,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this._userService.onWalletSwitch(wallet);
 
     this.showShortAccount();
-    this._cdRef.detectChanges();
+    this._cdRef.markForCheck()();
   }*/
 
   public showShortAccount() {
@@ -148,7 +148,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         .subscribe(confirmed => {
           if (confirmed) {
             this._userService.logout(e);
-            this._cdRef.detectChanges();
+            this._cdRef.markForCheck();
           }
         });
     });
