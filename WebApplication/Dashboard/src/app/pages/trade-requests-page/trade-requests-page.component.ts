@@ -87,18 +87,21 @@ export class TradeRequestsPageComponent implements OnInit {
 
   onDateChange(value: Date, isStart: boolean) {
     this.invalidDate = false;
-
     if (value !== null) {
+      const date = new Date(value.getFullYear(), value.getMonth(), value.getDate());
       if (isStart) {
         this.viewDate.start = value;
-        this.periodStart = Date.parse(value.toString()) / 1000;
+        this.periodStart = Date.parse(date.toString()) / 1000;
       } else {
         this.viewDate.end = value;
-        this.periodEnd = Date.parse(value.toString()) / 1000;
+        this.periodEnd = Date.parse(date.toString()) / 1000;
       }
 
       if (this.periodStart && this.periodEnd && this.periodStart > this.periodEnd) {
         this.invalidDate = true;
+      } else if (this.periodStart && this.periodEnd && this.periodStart === this.periodEnd) {
+        const eveningDate = new Date(value.getFullYear(), value.getMonth(), value.getDate(), 23, 59, 59);
+        this.periodEnd = Date.parse(eveningDate.toString()) / 1000;
       }
     }
     this.cdRef.markForCheck();
@@ -133,9 +136,11 @@ export class TradeRequestsPageComponent implements OnInit {
           if (data.data.totalBurnt === null || data.data.totalIssued === null) {
             this.getTotalCirculation();
           } else {
-            this.summary.issued.amount = new BigNumber(data.data.totalIssued);
-            this.summary.burnt.amount = new BigNumber(data.data.totalBurnt);
-            this.summary.circulation.amount = +this.summary.issued.amount.minus(this.summary.burnt.amount).toFixed(2);
+            const totalIssued = data.data.totalIssued / Math.pow(10, 18);
+            const totalBurnt = data.data.totalBurnt / Math.pow(10, 18);
+            this.summary.issued.amount = +totalIssued.toFixed(2);
+            this.summary.burnt.amount = +totalBurnt.toFixed(2);
+            this.summary.circulation.amount = +(totalIssued - totalBurnt).toFixed(2);
             this.isDataLoaded = true;
             this.cdRef.markForCheck();
           }
