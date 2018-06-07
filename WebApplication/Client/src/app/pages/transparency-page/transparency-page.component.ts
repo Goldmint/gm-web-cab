@@ -76,7 +76,7 @@ export class TransparencyPageComponent implements OnInit, OnDestroy {
         this.summary.issued.amount = data['issued'].div(new BigNumber(10).pow(18)).toFixed(2);
         this.summary.burnt.amount = data['burnt'].div(new BigNumber(10).pow(18)).toFixed(2);
         this.summary.circulation.amount = +(this.summary.issued.amount - this.summary.burnt.amount).toFixed(2);
-        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
       }
    });
 
@@ -91,7 +91,7 @@ export class TransparencyPageComponent implements OnInit, OnDestroy {
 
   setPage(pageInfo) {
     this.loading = true;
-    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
     this.page.pageNumber = pageInfo.offset;
 
     this.apiService.getTransparency(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
@@ -124,7 +124,7 @@ export class TransparencyPageComponent implements OnInit, OnDestroy {
           if (tableTitle && tableTitle.getBoundingClientRect().top < 0) {
             tableTitle.scrollIntoView();
           }
-          this.cdRef.detectChanges();
+          this.cdRef.markForCheck();
         });
   }
 

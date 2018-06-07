@@ -123,7 +123,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
     });
 
     this._ethService.getObservableEthBalance().takeUntil(this.destroy$).subscribe(balance => {
-     if (this.ethBalance === null || !this.ethBalance.eq(balance)) {
+     if (balance !== null && (this.ethBalance === null || !this.ethBalance.eq(balance))) {
         this.ethBalance = balance;
         if (this.ethBalance !== null && this.isFirstLoad) {
           this.setCoinBalance(1);
