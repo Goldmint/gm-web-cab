@@ -858,9 +858,9 @@ namespace Goldmint.CoreLogic.Finance {
 				}
 
 				// google sheet stats
-				if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth || 
+				if (//ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth || 
 				    ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat ||
-					ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth ||
+					//ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth ||
 				    ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat
 				) {
 					try {
@@ -871,12 +871,12 @@ namespace Goldmint.CoreLogic.Finance {
 								new UserInfoGoldUpdate() {
 									UserId = ethOp.UserId,
 									GoldBoughtDelta =
-										ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
+										//ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
 										ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat
 										? goldAmount
 										: 0,
 									GoldSoldDelta =
-										ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth ||
+										//ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth ||
 										ethOp.Type == EthereumOperationType.ContractProcessSellRequestFiat
 											? goldAmount
 											: 0,
