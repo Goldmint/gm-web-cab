@@ -11,9 +11,9 @@
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
     "Menu": {
-      "Sell": "Sell Gold",
-      "Buy": "Buy Gold",
-      "Transfer": "Transfer Gold",
+      "Sell": "Sell GOLD",
+      "Buy": "Buy GOLD",
+      "Transfer": "Transfer GOLD",
       "Finance": "Finance"
     }
   },
@@ -28,7 +28,7 @@
   },
   "PAGES": {
     "Home": {
-      "Heading": "Do You want to buy or sell gold cryptoassets?",
+      "Heading": "Do You want to buy or sell GOLD cryptoassets?",
       "Or": "or",
       "Buttons": {
         "Sell": "Sell",
@@ -79,8 +79,8 @@
         "BuyMore": "Buy more"
       },
       "Errors": {
-        "InvalidGold": "Invalid gold amount",
-        "InvalidEth": "Invalid eth amount",
+        "InvalidGold": "Invalid GOLD amount",
+        "InvalidEth": "Invalid ETH amount",
         "UseMM": "Use metamask"
       }
     },
@@ -121,12 +121,12 @@
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
         "Pending": "Your previously blockchain operation is still pending",
         "UseMM": "Use metamask",
-        "InvalidEth": "Invalid eth amount",
-        "InvalidGold": "Invalid gold amount"
+        "InvalidEth": "Invalid ETH amount",
+        "InvalidGold": "Invalid GOLD amount"
       }
     },
     "Transfer": {
-      "Heading": "Transfer gold cryptoassets",
+      "Heading": "Transfer GOLD cryptoassets",
       "Labels": {
         "TransferToWallet": "Transfer to wallet",
         "Amount": "Amount",
@@ -815,7 +815,7 @@
           "Title": "Basic Information",
           "StatusText": "Basic information filled",
           "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it exists on your government identification.",
-          "Important": "<b>IMPORTANT:</b> once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
+          "Important": "<b>IMPORTANT:</b> Once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
           "RequiredFields": "Required fields",
           "Labels": {
             "FirstName": "First Name",
@@ -912,7 +912,7 @@
             "Enabled": "Enabled",
             "Disabled": "Disabled"
           },
-          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provided. </p>",
+          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Goldmint, enter the 6 digit code provided. </p>",
           "Text": "<p><b>Please back up your secret key.</b> Resetting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
           "KeyLabel": "Secret key:",
           "CodeLabel": "Authenticator Code",
@@ -1043,7 +1043,7 @@
           "Assets": "Assets",
           "Liabilities": "Liabilities",
           "Exchange": "Money at broker/exchange",
-          "Storage": "Physical gold in the storage",
+          "Storage": "Physical GOLD in the storage",
           "DataProvided": "Data provided",
           "Report": "The latest auditor's report",
           "MoneyInBanks": "Money in banks",
