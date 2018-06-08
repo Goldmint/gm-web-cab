@@ -226,7 +226,7 @@ export class SettingsVerificationPageComponent implements OnInit {
           this.onPhaseUpdate();
 
           this.loading = false;
-          this._cdRef.detectChanges();
+          this._cdRef.markForCheck();
         },
         err => { });
   }

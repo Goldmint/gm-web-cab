@@ -476,7 +476,12 @@
               <input type="text" id="inputApartment"
                      name="apartment" [(ngModel)]="kycProfile.apartment" #apartment="ngModel"
                      class="form-control"
-                     [readonly]="kycProfile.isFormFilled === true || processing">
+                     [ngClass]="{'is-invalid': !apartment.valid && (kycForm.submitted || !apartment.pristine)}"
+                     [readonly]="kycProfile.isFormFilled === true || processing" pattern="[\w /'`.-]*">
+
+              <div class="invalid-feedback" *ngIf="apartment.errors?.pattern">
+                {{ "PAGES.Settings.KYC.FormSection.Errors.Street.pattern" | translate }}
+              </div>
             </div>
 
             <div class="form-group">
