@@ -12,9 +12,9 @@
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
     "Menu": {
-      "Sell": "Sell Gold",
-      "Buy": "Buy Gold",
-      "Transfer": "Transfer Gold",
+      "Sell": "Sell GOLD",
+      "Buy": "Buy GOLD",
+      "Transfer": "Transfer GOLD",
       "Finance": "Finance"
     }
   },
@@ -29,7 +29,7 @@
   },
   "PAGES": {
     "Home": {
-      "Heading": "Do You want to buy or sell gold cryptoassets?",
+      "Heading": "Do You want to buy or sell GOLD cryptoassets?",
       "Or": "or",
       "Buttons": {
         "Sell": "Sell",
@@ -89,9 +89,9 @@
         "BuyMore": "Buy more"
       },
       "Errors": {
-        "InvalidGold": "Invalid gold amount",
-        "InvalidUsd": "Invalid usd amount",
-        "InvalidEth": "Invalid eth amount",
+        "InvalidGold": "Invalid GOLD amount",
+        "InvalidUsd": "Invalid USD amount",
+        "InvalidEth": "Invalid ETH amount",
         "UseMM": "Use metamask",
         "NotAllow": "Method is not allowed now"
       }
@@ -143,14 +143,14 @@
         "Pending": "Your previously blockchain operation is still pending",
         "UseMM": "Use metamask",
         "NotAllow": "Method is not allowed now",
-        "InvalidEth": "Invalid eth amount",
-        "InvalidUsd": "Invalid usd amount",
-        "InvalidGold": "Invalid gold amount",
+        "InvalidEth": "Invalid ETH amount",
+        "InvalidUsd": "Invalid USD amount",
+        "InvalidGold": "Invalid GOLD amount",
         "EnoughMoney": "You don't have enough money"
       }
     },
     "Transfer": {
-      "Heading": "Transfer gold cryptoassets",
+      "Heading": "Transfer GOLD cryptoassets",
       "Labels": {
         "TransferToWallet": "Transfer to wallet",
         "Amount": "Amount",
@@ -294,8 +294,8 @@
         },
         "Errors": {
           "Invalid": "Invalid amount value",
-          "InvalidGold": "Invalid gold amount",
-          "InvalidUsd": "Invalid usd amount",
+          "InvalidGold": "Invalid GOLD amount",
+          "InvalidUsd": "Invalid USD amount",
           "Minimal": "Minimal amount value is",
           "Maximum": "Maximum amount value is"
         }
@@ -429,8 +429,8 @@
         },
         "Errors": {
           "Invalid": "Invalid amount value",
-          "InvalidGold": "Invalid gold amount",
-          "InvalidUsd": "Invalid usd amount",
+          "InvalidGold": "Invalid GOLD amount",
+          "InvalidUsd": "Invalid USD amount",
           "Minimal": "Minimal amount value is",
           "Maximum": "Maximum amount value is",
           "Length": "Code should be 6-digits length"
@@ -519,8 +519,8 @@
       "Types": {
         "withdraw": "Withdraw",
         "deposit": "Deposit",
-        "goldbuy": "Gold buying",
-        "goldsell": "Gold selling",
+        "goldbuy": "GOLD buying",
+        "goldsell": "GOLD selling",
         "hwtransfer": "Transfer"
       }
     },
@@ -867,7 +867,7 @@
           "Title": "Basic Information",
           "StatusText": "Basic information filled",
           "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it exists on your government identification.",
-          "Important": "<b>IMPORTANT:</b> once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
+          "Important": "<b>IMPORTANT:</b> Once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
           "RequiredFields": "Required fields",
           "Labels": {
             "FirstName": "First Name",
@@ -964,7 +964,7 @@
             "Enabled": "Enabled",
             "Disabled": "Disabled"
           },
-          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Bittrex, enter the 6 digit code provided. </p>",
+          "WarningText": "<p>Two-factor authentication (2FA) greatly increases security by requiring both your password and another form of authentication. Goldmint implements 2FA utilizing Google Authenticator. To enable this feature simply download <a href=\"https://support.google.com/accounts/answer/1066447\" target=\"_blank\">Google Authenticator</a> on your mobile device and scan the CPCode. Once you have linked the Authenticator with Goldmint, enter the 6 digit code provided. </p>",
           "Text": "<p><b>Please back up your secret key.</b> Resetting two-factor authentication requires opening a support ticket and may take up to 7 days.</p>",
           "KeyLabel": "Secret key:",
           "CodeLabel": "Authenticator Code",
@@ -1160,7 +1160,7 @@
           "Legal": "https://www.goldmint.io/legal",
           "Reccuring": "no recurring payments are fulfilled by CyberBridge OU",
           "ReturnPolicy": {
-            "Text": "CyberBridge OU buys gold at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows",
+            "Text": "CyberBridge OU buys GOLD at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows",
             "Link": "https://app.goldmint.io/#/sell"
           },
           "Security": "as defined by the Payment services provider",
@@ -1230,8 +1230,8 @@
     "GoldSell": "GOLD to sell: {{ goldAmount }} GOLD <br> You will get: $ {{ fiatAmount }} ($ {{ feeAmount }} fee) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "GOLD to buy: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Send to: {{ ToAddress }} <br> Send from: {{ FromAddress }} <br> Amount: {{ amount }} GOLD",
-    "EthDeposit": "Eth amount: {{ coinAmount }} Eth <br> Estimates Amount: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
-    "EthWithdraw": "Gold amount: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
+    "EthDeposit": "ETH amount: {{ coinAmount }} ETH <br> Estimates Amount: {{ goldAmount }} GOLD<br> ETH/USD: {{ ethRate }}",
+    "EthWithdraw": "GOLD amount: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} ETH<br> ETH/USD: {{ ethRate }}",
     "PasswordChanged": "Password successfully changed",
     "InvalidCode": "Invalid code",
     "ConnectionError": {

@@ -29,7 +29,7 @@
   },
   "PAGES": {
     "Home": {
-      "Heading": "Вы хотите купить или продать gold криптоактивы?",
+      "Heading": "Вы хотите купить или продать GOLD криптоактивы?",
       "Or": "или",
       "Buttons": {
         "Sell": "Продать",
@@ -89,9 +89,9 @@
         "BuyMore": "Купить"
       },
       "Errors": {
-        "InvalidGold": "Недопустимое количество gold",
-        "InvalidUsd": "Недопустимое количество usd",
-        "InvalidEth": "Недопустимое количество eth",
+        "InvalidGold": "Недопустимое количество GOLD",
+        "InvalidUsd": "Недопустимое количество USD",
+        "InvalidEth": "Недопустимое количество ETH",
         "UseMM": "Используйте metamask",
         "NotAllow": "В данный момент метод не разрешен"
       }
@@ -143,14 +143,14 @@
         "Pending": "Ваша предыдущая blockchain операция еще находится на рассмотрении",
         "UseMM": "Используйте metamask",
         "NotAllow": "В данный момент метод не разрешен",
-        "InvalidEth": "Недопустимое количество eth",
-        "InvalidUsd": "Недопустимое количество usd",
-        "InvalidGold": "Недопустимое количество gold",
+        "InvalidEth": "Недопустимое количество ETH",
+        "InvalidUsd": "Недопустимое количество USD",
+        "InvalidGold": "Недопустимое количество GOLD",
         "EnoughMoney": "У вас недостаточно средств"
       }
     },
     "Transfer": {
-      "Heading": "Перевод gold криптоактивов",
+      "Heading": "Перевод GOLD криптоактивов",
       "Labels": {
         "TransferToWallet": "Кошелек",
         "Amount": "Количество",
@@ -294,8 +294,8 @@
         },
         "Errors": {
           "Invalid": "Недопустимое количество",
-          "InvalidGold": "Недопустимое количество gold",
-          "InvalidUsd": "Недопустимое количество usd",
+          "InvalidGold": "Недопустимое количество GOLD",
+          "InvalidUsd": "Недопустимое количество USD",
           "Minimal": "Минимальное количество",
           "Maximum": "Максимальное количество"
         }
@@ -429,8 +429,8 @@
         },
         "Errors": {
           "Invalid": "Недопустимое количество",
-          "InvalidGold": "едопустимое количество gold",
-          "InvalidUsd": "Недопустимое количество usd",
+          "InvalidGold": "Недопустимое количество GOLD",
+          "InvalidUsd": "Недопустимое количество USD",
           "Minimal": "Минимальное количество",
           "Maximum": "Максимальное количество",
           "Length": "Код должен быть длиной в 6 цифр"
@@ -519,8 +519,8 @@
       "Types": {
         "withdraw": "Вывод",
         "deposit": "Пополнение",
-        "goldbuy": "Покупка Gold",
-        "goldsell": "Продажа Gold",
+        "goldbuy": "Покупка GOLD",
+        "goldsell": "Продажа GOLD",
         "hwtransfer": "Перевод"
       }
     },
@@ -1230,8 +1230,8 @@
     "GoldSell": "Продать: {{ goldAmount }} GOLD <br> Вы получите: $ {{ fiatAmount }} ($ {{ feeAmount }} комиссия) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "Купить: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
     "GoldTransfer": "Из: {{ ToAddress }} <br> В: {{ FromAddress }} <br> Количество: {{ amount }} GOLD",
-    "EthDeposit": "Количество Eth: {{ coinAmount }} Eth <br> Оценочная сумма: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
-    "EthWithdraw": "Количество Gold: {{ coinAmount }} GOLD <br> Оценочная сумма: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
+    "EthDeposit": "Количество ETH: {{ coinAmount }} ETH <br> Оценочная сумма: {{ goldAmount }} GOLD<br> ETH/USD: {{ ethRate }}",
+    "EthWithdraw": "Количество GOLD: {{ coinAmount }} GOLD <br> Оценочная сумма: {{ goldAmount }} ETH<br> ETH/USD: {{ ethRate }}",
     "PasswordChanged": "Пароль успешно изменен",
     "InvalidCode": "Неверный код",
     "ConnectionError": {
