@@ -5,5 +5,5 @@ export const environment = {
   etherscanUrl: 'https://etherscan.io/tx/',
   infuraUrl: 'https://mainnet.infura.io/ErpvjHXqcahfBLahHPfh',
   etherscanGetABIUrl: 'https://api.etherscan.io',
-  EthContractAddress: '0xcadbdd55d5c7ae3bc199c64163369fd50477b73e'
+  EthContractAddress: '0x7e7424707e6ef1c6da1894e04b328cdf13e2505d'
 };
