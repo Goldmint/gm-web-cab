@@ -14,7 +14,7 @@ namespace Goldmint.Common {
 		public static readonly Regex RexUsernameChars = new Regex("^u[0-9]+$");
 		public static readonly Regex RexNameChars = new Regex("^[a-zA-Z]{2,32}$");
 		public static readonly Regex RexTfaToken = new Regex("^[0-9]{6}$");
-		public static readonly Regex RexLatinAndPuncts = new Regex(@"^[a-zA-Z0-9]+[a-zA-Z0-9 \-\,\.\(\)]*$");
+		public static readonly Regex RexLatinAndPuncts = new Regex(@"^[a-zA-Z0-9]+[a-zA-Z0-9 \-\,\.\(\)\/]*$");
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");
 		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
 		public static readonly Regex RexEthereumTransactionId = new Regex(@"^0x[0-9abcdefABCDEF]{64}$");
