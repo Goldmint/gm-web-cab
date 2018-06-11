@@ -2,7 +2,8 @@
   "COMMONS": {
 	"Loading": "Loading...",
 	"TFACode": "Two-factor authentication code",
-	"TFACodeInvalid": "Invalid code"
+	"TFACodeInvalid": "Invalid code",
+    "ConfirmTr": "Confirm the transaction in MetaMask"
   },
   "HEADER": {
     "Wallet": "Wallet",
@@ -24,7 +25,7 @@
       "LegalSecurity": "Legal & Security",
       "HelpCenter": "Help Center"
     },
-    "Copyright": "GoldMint, PTE, LTD © {{year}}"
+    "Copyright": "Goldmint PTE. Ltd © {{year}}"
   },
   "PAGES": {
     "Home": {
@@ -45,7 +46,8 @@
       },
       "Method": {
         "CtyptoCurrency": "Cryptocurrency",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Payment card"
       },
       "Paused": "Sell transactions are paused",
       "CtyptoCurrency": {
@@ -71,6 +73,14 @@
           }
         }
       },
+      "PaymentCard": {
+        "Heading": "Payment Card",
+        "Labels": {
+          "SelectCard": "Select a card",
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
+        }
+      },
       "SectionTitle": "Instant Sell",
       "Discount": "Fee",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
@@ -80,8 +90,10 @@
       },
       "Errors": {
         "InvalidGold": "Invalid GOLD amount",
+        "InvalidUsd": "Invalid USD amount",
         "InvalidEth": "Invalid ETH amount",
-        "UseMM": "Use metamask"
+        "UseMM": "Use metamask",
+        "NotAllow": "Method is not allowed now"
       }
     },
     "Buy": {
@@ -91,7 +103,8 @@
 	  "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
       "Method": {
         "CtyptoCurrency": "Cryptocurrency",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Payment card"
       },
       "Paused": "Buy transactions are paused",
       "CtyptoCurrency": {
@@ -104,6 +117,14 @@
           "Steps": "Please wait at least 12 confirmation steps",
           "Hash": "Your transaction hash is:",
           "Link": "View your transaction on EtherScan"
+        }
+      },
+      "PaymentCard": {
+        "Heading": "Payment Card",
+        "Labels": {
+          "SelectCard": "Select a card",
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
         }
       },
       "Labels": {
@@ -121,8 +142,11 @@
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
         "Pending": "Your previously blockchain operation is still pending",
         "UseMM": "Use metamask",
+        "NotAllow": "Method is not allowed now",
         "InvalidEth": "Invalid ETH amount",
-        "InvalidGold": "Invalid GOLD amount"
+        "InvalidUsd": "Invalid USD amount",
+        "InvalidGold": "Invalid GOLD amount",
+        "EnoughMoney": "You don't have enough money"
       }
     },
     "Transfer": {
@@ -132,7 +156,8 @@
         "Amount": "Amount",
         "ChooseMethod": "Choose transfer method",
         "MyWallet": "My Etherium wallet",
-        "Or": "or"
+        "Or": "or",
+        "NoMM": "Use metamask"
       },
       "Steps": {
         "One": "Go to",
@@ -140,14 +165,15 @@
         "Three": "Click confirm transaction"
       },
       "Placeholders": {
-        "EtheriumWallet": "Etherium wallet"
+        "EtheriumWallet": "Ethereum wallet"
       },
       "Buttons": {
         "Send": "Send"
       },
       "Errors": {
         "InvalidAddress": "Invalid address",
-        "InvalidAmount": "Invalid amount value"
+        "InvalidAmount": "Invalid amount value",
+        "AddressMatches": "Address matches to active Metamask wallet address"
       }
     },
     "Finance": {
@@ -256,9 +282,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Payment Card",
         "Labels": {
           "SelectCard": "Select a card:",
-          "Amount": "Amount:"
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
         },
         "Text": {
           "Agree": "I agree with",
@@ -266,6 +294,8 @@
         },
         "Errors": {
           "Invalid": "Invalid amount value",
+          "InvalidGold": "Invalid GOLD amount",
+          "InvalidUsd": "Invalid USD amount",
           "Minimal": "Minimal amount value is",
           "Maximum": "Maximum amount value is"
         }
@@ -386,9 +416,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Payment Card",
         "Labels": {
           "SelectCard": "Select a card:",
-          "Amount": "Amount:",
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount",
           "2FA": "Two-factor authentication code"
         },
         "Text": {
@@ -397,6 +429,8 @@
         },
         "Errors": {
           "Invalid": "Invalid amount value",
+          "InvalidGold": "Invalid GOLD amount",
+          "InvalidUsd": "Invalid USD amount",
           "Minimal": "Minimal amount value is",
           "Maximum": "Maximum amount value is",
           "Length": "Code should be 6-digits length"
@@ -485,8 +519,8 @@
       "Types": {
         "withdraw": "Withdraw",
         "deposit": "Deposit",
-        "goldbuy": "Gold buying",
-        "goldsell": "Gold selling",
+        "goldbuy": "GOLD buying",
+        "goldsell": "GOLD selling",
         "hwtransfer": "Transfer"
       }
     },
@@ -526,7 +560,8 @@
         "Password": {
           "required": "Password is required",
           "minlength": "The password is too short",
-          "maxlength": "The password is too long"
+          "maxlength": "The password is too long",
+          "pairNotFound": "User/password pair not found"
         },
         "TFACode": {
           "pattern": "Only 6-digits numeric code is allowed"
@@ -583,7 +618,8 @@
       "Labels": {
         "Username": "Email or Username",
         "Email": "Email",
-        "Password": "Password"
+        "Password": "Password",
+        "Confirm": "Confirm password"
       },
       "Paused": "New accounts registration is temporary stopped",
       "Errors": {
@@ -601,7 +637,8 @@
           "maxlength": "Should be up to 128 symbols length",
           "pattern": "Should contain uppercase letters, lowercase letters and digits",
           "weak": "Password is too weak",
-          "weakChecking": "Checking password..."
+          "weakChecking": "Checking password...",
+          "notMatch": "Passwords does not match"
         }
       },
       "Buttons": {
@@ -771,6 +808,11 @@
             "NotSigned": "Not signed",
             "NotVerified": "Not verified"
           },
+          "Success": {
+            "Heading": "KYC verification",
+            "Status": "Verification completed",
+            "Description": "Congratulations! KYC verification successfully finished!"
+          },
           "Text": "Complete verification to withdraw fiat funds and unlock account opportunities",
           "Note": "Verification procedures is very simple and intuitive. We will only ask you to provide is some personal information and supporting documents.",
           "Buttons": {
@@ -791,6 +833,11 @@
           "Text": "Complete verification by signing Goldmint agreement. Agreement will be sent to your primary email address.",
 		  "TextPending": "Agreement signing is still in progress. Please come back later or try to refresh this page.",
 		  "Widget": "Not signed",
+          "Success": {
+            "Heading": "Terms of sales agreement",
+            "Status": "Agreement is approved",
+            "Description": "Congratulations! Terms of sales verification successfully finished!"
+          },
           "Buttons": {
             "Resend": "Send agreement"
           }
@@ -804,7 +851,12 @@
         "ProofResidency": {
           "Heading": "Proof of Residency",
           "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
-          "Button": "Send a request"
+          "Button": "Send a request",
+          "Success": {
+            "Heading": "Proof of residency verification",
+            "Status": "Verification completed",
+            "Description": "Congratulations! Proof of residency verification successfully finished!"
+          }
         },
         "FinishedSection": {
           "Title": "Advanced verification",
@@ -925,7 +977,9 @@
             "Four": "4. Type current code"
           },
           "Errors": {
-            "pattern": "Only 6-digits numeric code is allowed"
+            "pattern": "Only 6-digits numeric code is allowed",
+            "InvalidCode": "Invalid dode",
+            "TimeError": "Please check time settings on your phone. The time must be set correctly. Turn on time synchronization if it is disabled."
           },
           "Buttons": {
             "Enable": "Enable 2FA",
@@ -1065,6 +1119,56 @@
         "KYCPolicy": "KYC Policy"
       }
     },
+    "PaymentCardBlock": {
+      "Labels": {
+        "Amount": "You pay:",
+        "Estimates": "You receive:",
+        "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:",
+        "TimerLabel": "Remaining time to confirm the payment:"
+      },
+      "Button": "Proceed to payment",
+      "Table": {
+        "Caption": {
+          "Billing": "Billing descriptor",
+          "ConsumerPolicy": "Consumer data privacy policy",
+          "ConsumerInformation": "Customer Service contact information",
+          "CyberBridge": "CyberBridge OÜ",
+          "DeliveryPolicy": "Delivery policy",
+          "Description": "Description of the service offered",
+          "Domicile": "Domicile & Principal place of business",
+          "GoldCoin": "GoldCoin Term of Sales",
+          "Legal": "Legal information",
+          "Reccuring": "Reccuring rules",
+          "ReturnPolicy": "Return/Refund/Cancellation policy",
+          "Security": "Security capabilities and policy for transmission of payment card details",
+          "Currency": "Transaction currency",
+          "Method": "Transaction method"
+        },
+        "Information": {
+          "Billing": "Goldmint",
+          "ConsumerPolicy": "https://www.goldmint.io/privacy-policy",
+          "ConsumerInformation": {
+            "Facebook": "https://www.facebook.com/goldmint.io/",
+            "Telegram": "https://t.me/goldmintio",
+            "Support": "support@goldmint.io"
+          },
+          "CyberBridge": "a company registered in Estonia on 05.12.2017, reg.number 14383967, address: Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
+          "DeliveryPolicy": "none, due to digital nature of services",
+          "Description": "https://www.goldmint.io/tokens",
+          "Domicile": "(at the checkout page) - Estonia",
+          "GoldCoin": "https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf",
+          "Legal": "https://www.goldmint.io/legal",
+          "Reccuring": "no recurring payments are fulfilled by CyberBridge OU",
+          "ReturnPolicy": {
+            "Text": "CyberBridge OU buys GOLD at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows",
+            "Link": "https://app.goldmint.io/#/sell"
+          },
+          "Security": "as defined by the Payment services provider",
+          "Currency": "USD, EUR",
+          "Method": "card payment"
+        }
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Error 404. Page not found",
@@ -1102,6 +1206,11 @@
     },
     "TFA": {
       "InvalidCode": "Invalid code"
+    },
+    "Trading": "Trading Not Allowed",
+    "Limit": {
+      "Min": "Minimal amount value is",
+      "Max": "Maximum amount value is"
     }
   },
   "APIErrors": {
@@ -1120,9 +1229,9 @@
     "RequestProgress": "Your request is in progress now!",
     "GoldSell": "GOLD to sell: {{ goldAmount }} GOLD <br> You will get: $ {{ fiatAmount }} ($ {{ feeAmount }} fee) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "GOLD to buy: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
-    "GoldTransfer": "Target address: {{ address }} <br> GOLD amount: {{ amount }} GOLD",
-    "EthDeposit": "Eth amount: {{ coinAmount }} Eth <br> Estimates Amount: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
-    "EthWithdraw": "Gold amount: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
+    "GoldTransfer": "Send to: {{ ToAddress }} <br> Send from: {{ FromAddress }} <br> Amount: {{ amount }} GOLD",
+    "EthDeposit": "ETH amount: {{ coinAmount }} ETH <br> Estimates Amount: {{ goldAmount }} GOLD<br> ETH/USD: {{ ethRate }}",
+    "EthWithdraw": "GOLD amount: {{ coinAmount }} GOLD <br> Estimates Amount: {{ goldAmount }} ETH<br> ETH/USD: {{ ethRate }}",
     "PasswordChanged": "Password successfully changed",
     "InvalidCode": "Invalid code",
     "ConnectionError": {
@@ -1139,6 +1248,11 @@
     "MetaMask": {
       "Heading": "To continue you'll need to have Metamask",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
+    },
+    "LoginToMM": {
+      "HeadingBuy": "BUY GOLD",
+      "HeadingSell": "SELL GOLD",
+      "Text": "Please login to your account"
     },
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",

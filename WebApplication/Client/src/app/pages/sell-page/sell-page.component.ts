@@ -3,11 +3,11 @@ import {
 } from '@angular/core';
 import {UserService, APIService, MessageBoxService, EthereumService} from '../../services';
 import { Observable } from "rxjs/Observable";
-import {Subscription} from "rxjs/Subscription";
 import {TranslateService} from "@ngx-translate/core";
 import {User} from "../../interfaces/user";
 import {TFAInfo} from "../../interfaces";
 import {Subject} from "rxjs/Subject";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-sell-page',
@@ -21,9 +21,11 @@ export class SellPageComponent implements OnInit, OnDestroy {
 
   public loading = true;
   public selectedWallet = 0;
-  public user;
+  public user: User;
   public tfaInfo: TFAInfo;
   public isMetamask = true;
+  public hasExtraRights: boolean = true;
+  public tradingStatus: {creditCardAllowed: boolean, ethAllowed: boolean};
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -39,12 +41,18 @@ export class SellPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._apiService.getProfile()
+      this._apiService.getProfile(),
+      this._apiService.getTradingStatus()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
+        this.tradingStatus = res[2].data.trading;
         this.loading = false;
+
+        if (environment.detectExtraRights) {
+          this.hasExtraRights = this.user.hasExtraRights;
+        }
 
         if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {

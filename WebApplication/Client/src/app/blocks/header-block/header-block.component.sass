@@ -9,6 +9,7 @@
   display: flex
   flex-direction: column
   padding-top: 2px
+  position: relative
 
   > .container
     height: 100%
@@ -110,17 +111,64 @@
 .language-switcher
   height: 25px
 
+.mobile-menu-icon
+  color: $color-brand
+
+#mobile-menu-container
+  position: absolute
+  justify-content: space-between
+  flex-direction: column
+  display: flex
+  overflow: auto
+  width: 100%
+  top: 100%
+  height: calc(100vh - 100%)
+  background: black
+  z-index: 100
+
+  .nav
+    display: block
+    .nav-item
+      border: none
+      .nav-link
+        background-color: black
+        color: $color-brand
+        justify-content: flex-start
+        font-size: 1rem
+
+  .mobile-account-info
+    .dropdown-toggle
+      font-size: 1rem
+
+  footer
+    position: relative
+
+    .container
+      max-width: 100%
+
+      .footer-menu
+        display: block !important
+        background: black
+        padding-bottom: 1.5rem
+
+        .nav-item
+          margin: 0
+
+          .nav-link
+            font-size: 0.875rem
+            padding: 5px 0
+
+  .nav-item.active
+    a
+      color: $color-brand-active !important
+
+  .nav-link
+    border: none
+
+  .nav-link.active, .nav-link:hover
+    color: $color-brand-active !important
+    border: none
+
 @media only screen and (max-width: 576px)
   .rate
     font-size: 1rem
-
-  .show-mobile-menu
-    display: block !important
-    position: absolute
-    bottom: -100%
-    width: 100%
-    left: 0
-    z-index: 100
-
-  .show-mobile-menu .navbar ul
-    flex-direction: column

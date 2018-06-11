@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers.Ethereum {
 
-	public sealed class SellRequestsHarvester : BaseWorker {
+	public sealed class ContractBuyEventHarvester : BaseWorker {
 
 		private readonly int _blocksPerRound;
 		private readonly int _confirmationsRequired;
@@ -25,7 +25,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 		private long _statProcessed = 0;
 
-		public SellRequestsHarvester(int blocksPerRound, int confirmationsRequired) {
+		public ContractBuyEventHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
 			_lastBlock = BigInteger.Zero;
@@ -34,7 +34,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 		protected override async Task OnInit(IServiceProvider services) {
 
-			Logger.Info($"{_confirmationsRequired} confirmations required for selling at conract");
+			Logger.Info($"{_confirmationsRequired} confirmations required for buying at conract");
 
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -50,7 +50,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 			}
 
 			// get last block from db; remember last saved block
-			if (BigInteger.TryParse(await _dbContext.GetDbSetting(DbSetting.GoldEthSellHarvLastBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
+			if (BigInteger.TryParse(await _dbContext.GetDbSetting(DbSetting.GoldEthBuyHarvLastBlock, "0"), out var lbDb) && lbDb >= 0 && lbDb >= lbCfg) {
 				_lastBlock = lbDb;
 				_lastSavedBlock = lbDb;
 
@@ -63,7 +63,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 			_dbContext.DetachEverything();
 
 			// get events
-			var log = await _ethereumReader.GatherTokenSellRequestEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
+			var log = await _ethereumReader.GatherTokenBuyEvents(_lastBlock - 1, _lastBlock + _blocksPerRound, _confirmationsRequired);
 			_lastBlock = log.ToBlock;
 
 			Logger.Debug(
@@ -73,7 +73,11 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 				) + $" in blocks [{log.FromBlock} - {log.ToBlock}]"
 			);
 
+			if (IsCancelled()) return;
+
 			foreach (var v in log.Events) {
+
+				if (IsCancelled()) return;
 
 				_dbContext.DetachEverything();
 
@@ -94,12 +98,12 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 					continue;
 				}*/
 
-				var pdResult = await CoreLogic.Finance.GoldToken.ProcessContractSellRequest(
+				var pdResult = await CoreLogic.Finance.GoldToken.OnEthereumContractBuyEvent(
 					services: _services,
 					requestIndex: v.RequestIndex,
 					internalRequestId: (long)v.Reference,
 					address: v.Address,
-					amountGold: v.GoldAmount,
+					amountEth: v.Amount,
 					txId: v.TransactionId,
 					txConfirmationsRequired: _confirmationsRequired
 				);
@@ -113,7 +117,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			// save last index to settings
 			if (_lastSavedBlock != _lastBlock) {
-				if (await _dbContext.SaveDbSetting(DbSetting.GoldEthSellHarvLastBlock, _lastBlock.ToString())) {
+				if (await _dbContext.SaveDbSetting(DbSetting.GoldEthBuyHarvLastBlock, _lastBlock.ToString())) {
 					_lastSavedBlock = _lastBlock;
 					Logger.Info($"Last block #{_lastBlock} saved to DB");
 				}
@@ -124,12 +128,12 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			// tele
 			_coreTelemetryAccum.AccessData(tel => {
-				tel.SellRequestHarvester.Load = StatAverageLoad;
-				tel.SellRequestHarvester.Exceptions = StatExceptionsCounter;
-				tel.SellRequestHarvester.LastBlock = _lastBlock.ToString();
-				tel.SellRequestHarvester.StepBlocks = _blocksPerRound;
-				tel.SellRequestHarvester.ProcessedSinceStartup = _statProcessed;
-				tel.SellRequestHarvester.ConfirmationsRequired = _confirmationsRequired;
+				tel.ContractBuyEvents.Load = StatAverageLoad;
+				tel.ContractBuyEvents.Exceptions = StatExceptionsCounter;
+				tel.ContractBuyEvents.LastBlock = _lastBlock.ToString();
+				tel.ContractBuyEvents.StepBlocks = _blocksPerRound;
+				tel.ContractBuyEvents.ProcessedSinceStartup = _statProcessed;
+				tel.ContractBuyEvents.ConfirmationsRequired = _confirmationsRequired;
 			});
 		}
 	}

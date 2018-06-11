@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   HostBinding,
@@ -25,7 +26,7 @@ import * as Web3 from "web3";
   styleUrls: ['./sell-cryptocurrency-page.component.sass'],
   encapsulation: ViewEncapsulation.None
 })
-export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
+export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, AfterViewInit {
   @HostBinding('class') class = 'page';
 
   @ViewChild('sellForm') sellForm;
@@ -34,9 +35,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
 
   public loading = false;
   public isFirstLoad = true;
-  public isFirstTransaction = true;
   public invalidBalance = false;
   public isModalShow = false;
+  public isTradingError = false;
+  public isTradingLimit: object | boolean = false;
+  public showCryptoCurrencyBlock: boolean = false;
   public locale: string;
 
   public user: User;
@@ -61,11 +64,16 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   public coinAmountToUSD: number = 0;
   public estimatedAmount: BigNumber;
   public currentValue: number;
+  public transferData: object;
   private Web3 = new Web3();
 
   public etherscanUrl = environment.etherscanUrl;
   public sub1: Subscription;
   public subGetGas: Subscription;
+  public interval: Subscription;
+  public getLimitSub: Subscription;
+
+  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -80,6 +88,94 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
+      this.isTradingLimit = limit;
+      this.isTradingLimit['min'] = this.substrValue(limit['min'] / Math.pow(10, 18));
+      this.isTradingLimit['max'] = this.substrValue(limit['max'] / Math.pow(10, 18));
+
+      if (!this.isReversed) {
+        this.coinAmount = +this.substrValue(limit['cur'] / Math.pow(10, 18));
+      }
+
+      this._cdRef.markForCheck();
+    });
+
+    this.iniTransactionHashModal();
+
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.ethAddress && this._userService.showLoginToMMBox();
+      }, 3000);
+    }
+
+    Observable.combineLatest(
+      this._apiService.getTFAInfo(),
+      this._apiService.getProfile()
+    )
+      .subscribe((res) => {
+        this.tfaInfo = res[0].data;
+        this.user = res[1].data;
+        this.loading = false;
+        this._cdRef.markForCheck();
+      });
+
+    Observable.combineLatest(
+      this._ethService.getObservableGoldBalance(),
+      this._ethService.getObservableMntpBalance()
+    )
+      .takeUntil(this.destroy$).subscribe((data) => {
+       if(
+         (data[0] !== null && data[1] !== null) && (
+           (this.goldBalance === null || !this.goldBalance.eq(data[0]))
+           ||
+           (this.mntpBalance === null || !this.mntpBalance.eq(data[1]))
+         )
+       ) {
+          this.goldBalance = data[0];
+          this.mntpBalance = data[1];
+          this.getLimitSub && this.getLimitSub.unsubscribe();
+
+          this.getEthLimit();
+          this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
+        }
+    });
+
+    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
+      this.locale = currentLocale;
+    });
+
+    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
+      data && (this.goldRate = data.gold) && (this.ethRate = data.eth);
+      this._cdRef.markForCheck();
+    });
+
+    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(data => {
+      if (data !== null && (this.hotGoldBalance === null || !this.hotGoldBalance.eq(data))) {
+        this.hotGoldBalance = data;
+      }
+    })
+
+    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+      if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
+        this.selectedWallet = 0;
+        this.router.navigate(['sell']);
+      }
+      this._cdRef.markForCheck();
+    });
+
+    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
+      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
+      this.setGoldBalance(1);
+    });
+  }
+
+  initInputValueChanges() {
     this.goldAmountInput.valueChanges
       .debounceTime(500)
       .distinctUntilChanged()
@@ -101,37 +197,31 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           this._cdRef.markForCheck();
         }
       });
+  }
 
-    Observable.combineLatest(
-      this._apiService.getTFAInfo(),
-      this._userService.currentUser
-    )
-      .subscribe((res) => {
-        this.tfaInfo = res[0].data;
-        this.user = res[1];
-        this.loading = false;
-        this._cdRef.markForCheck();
-      });
-
-    Observable.combineLatest(
-      this._ethService.getObservableGoldBalance(),
-      this._ethService.getObservableMntpBalance()
-    )
-      .takeUntil(this.destroy$).subscribe((data) => {
-       if(
-         (data[0] !== null && data[1] !== null) && (
-           (this.goldBalance === null || !this.goldBalance.eq(data[0]))
-           ||
-           (this.mntpBalance === null || !this.mntpBalance.eq(data[1]))
-         )
-       ) {
-          this.goldBalance = data[0];
-          this.mntpBalance = data[1];
-          this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-        }
+  iniTransactionHashModal() {
+    this._ethService.getSuccessSellRequestLink$.takeUntil(this.destroy$).subscribe(hash => {
+      if (hash) {
+        this.hideCryptoCurrencyForm(true);
+        this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+          this._messageBox.alert(`
+            <div class="text-center">
+              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+              <div>${phrases.Steps}</div>
+              <div>${phrases.Hash}</div>
+              <div class="mb-2 sell-hash">${hash}</div>
+              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+            </div>
+          `).subscribe(ok => {
+            ok && this.router.navigate(['/finance/history']);
+          });
+        });
+      }
     });
+  }
 
-    this._ethService.getObservableEthLimitBalance().subscribe(eth => {
+  getEthLimit() {
+    this.getLimitSub = this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
         this.ethLimit = eth;
         if (this.isFirstLoad) {
@@ -141,34 +231,6 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
         }
       }
-    })
-
-    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
-      this.locale = currentLocale;
-    });
-
-    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
-      data && (this.goldRate = data.gold) && (this.ethRate = data.eth);
-      this._cdRef.markForCheck();
-    });
-
-    this._ethService.getObservableHotGoldBalance().subscribe(data => {
-      if (data !== null && (this.hotGoldBalance === null || !this.hotGoldBalance.eq(data))) {
-        this.hotGoldBalance = data;
-      }
-    })
-
-    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
-      this.ethAddress = ethAddr;
-      if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
-        this.selectedWallet = 0;
-        this.router.navigate(['sell']);
-      }
-    });
-
-    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
-      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
-      this.setGoldBalance(1);
     });
   }
 
@@ -182,7 +244,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     if (!this.isReversed) {
-      if (value > this.goldLimit && +this.ethLimit !== 0) {
+      if (value > this.goldLimit && +this.ethLimit !== 0 && this.currentBalance) {
         this.isModalShow = true;
         this.loading = false;
         return
@@ -199,7 +261,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
           }).subscribe(data => {
           this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
           this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
-          this.invalidBalance = false;
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
         }, () => {
           this.setError();
         });
@@ -208,7 +270,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       }
     }
     if (this.isReversed) {
-      if (value > +this.ethLimit && +this.ethLimit !== 0) {
+      if (value > +this.ethLimit && +this.ethLimit !== 0 && this.currentBalance) {
         this.isModalShow = true;
         this.loading = false;
         return
@@ -224,7 +286,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
-
+            this.isTradingError = this.isTradingLimit = false;
             this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
             this.invalidBalance = (this.goldAmount > this.currentBalance) ? true : false;
         }, () => {
@@ -257,10 +319,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.isReversed = false;
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
-        this.currentBalance = this.selectedWallet === 0 ? +this.hotGoldBalance : +this.goldBalance;
-
+        if (this.selectedWallet === 0) {
+          this.currentBalance = +this.hotGoldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+        } else {
+          this.currentBalance = +this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
+        }
         this.goldAmount = this.currentValue = +this.substrValue((this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance);
-        this.isFirstLoad = false;
+        this.isFirstLoad = this.loading = this.isTradingError = this.isTradingLimit = false;
         this._cdRef.markForCheck();
       });
   }
@@ -270,6 +335,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
       .subscribe(data => {
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
+        this.isTradingError = this.isTradingLimit = false;
+        this._cdRef.markForCheck();
     });
   }
 
@@ -307,6 +374,25 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
+  hideCryptoCurrencyForm(status) {
+    this.showCryptoCurrencyBlock = !status;
+    this.interval = Observable.interval(100).subscribe(() => {
+      if (this.goldAmountInput) {
+        this.initInputValueChanges();
+
+        this.interval && this.interval.unsubscribe();
+        this._cdRef.markForCheck();
+      }
+    });
+    this._cdRef.markForCheck();
+  }
+
+  transferTradingError(status) {
+    this.isTradingError = status;
+    this.showCryptoCurrencyBlock = false;
+    this._cdRef.markForCheck();
+  }
+
   setError() {
     this.invalidBalance = true;
     this.loading = false;
@@ -314,69 +400,29 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    this.loading = this.isFirstTransaction = true;
-    this.sub1 && this.sub1.unsubscribe();
-    this.subGetGas && this.subGetGas.unsubscribe();
+    this.transferData = {
+      type: 'sell',
+      ethAddress: this.ethAddress,
+      userId: this.user.id,
+      currency: this.currentCoin,
+      amount: this.estimatedAmount,
+      coinAmount: this.goldAmount,
+      reversed: this.isReversed
+    };
 
-    if (this.selectedWallet === 0) {
+    this.showCryptoCurrencyBlock = true;
+    this._cdRef.markForCheck();
+  }
 
-    } else {
-      this._apiService.goldSellAsset(this.ethAddress, this.estimatedAmount)
-        .finally(() => {
-          this.loading = false;
-          this._cdRef.markForCheck();
-        })
-        .subscribe(res => {
-          const wei = this.Web3.toWei(this.estimatedAmount);
-          this._apiService.goldSellEstimate(this.ethAddress, this.currentCoin, wei, this.isReversed)
-            .subscribe(data => {
-              let estimate, amount, toAmount, fromAmount;
-              fromAmount = estimate = this.estimatedAmount;
-              toAmount = amount = (data.data.amount / Math.pow(10, 18)).toFixed(6);
-              this.isReversed && (fromAmount = amount) && (toAmount = estimate);
-
-              this._translate.get('MessageBox.EthWithdraw',
-                {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
-              ).subscribe(phrase => {
-                this._messageBox.confirm(phrase).subscribe(ok => {
-                  if (ok) {
-                    this._apiService.goldSellConfirm(res.data.requestId).subscribe(() => {
-
-                      this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                        if (price !== null && this.isFirstTransaction) {
-                          this._ethService.sendSellRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
-                          this.isFirstTransaction = false;
-                        }
-                      });
-
-                      this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
-                        if (hash) {
-                          this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-                            this._messageBox.alert(`
-                            <div class="text-center">
-                              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-                              <div>${phrases.Steps}</div>
-                              <div>${phrases.Hash}</div>
-                              <div class="mb-2 sell-hash">${hash}</div>
-                              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
-                            </div>
-                          `);
-                          });
-                        }
-                      });
-
-                    });
-                  }
-                });
-              });
-            });
-        });
-    }
+  ngAfterViewInit() {
+    this.initInputValueChanges();
   }
 
   ngOnDestroy() {
     this.destroy$.next(true);
     this.subGetGas && this.subGetGas.unsubscribe();
+    this.sub1 && this.sub1.unsubscribe();
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

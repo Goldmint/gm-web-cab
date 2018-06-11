@@ -12,5 +12,7 @@ namespace Goldmint.CoreLogic.Services.Oplog {
 		Task<string> NewGoldSellingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long outputRate, long goldRate);
 		Task<string> NewGoldTransfer(long userId, string ethAddress, BigInteger goldAmount);
 		Task<string> NewCardVerification(long userId, long cardId, long centsAmount, FiatCurrency fiatCurrency);
+		Task<string> NewGoldBuyingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate, long centsAmount);
+		Task<string> NewGoldSellingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate);
 	}
 }

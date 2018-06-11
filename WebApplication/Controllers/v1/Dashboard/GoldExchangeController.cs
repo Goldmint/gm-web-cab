@@ -42,11 +42,17 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			query = query
 				.Where(_ =>
 					_.Status == EthereumOperationStatus.Success &&
-					(_.Type == EthereumOperationType.ContractProcessBuyRequest || _.Type == EthereumOperationType.ContractProcessSellRequest)
+					(
+						_.Type == EthereumOperationType.ContractProcessBuyRequestEth || 
+						_.Type == EthereumOperationType.ContractProcessSellRequestEth ||
+						_.Type == EthereumOperationType.ContractProcessBuyRequestFiat ||
+						_.Type == EthereumOperationType.ContractProcessSellRequestFiat
+
+					)
 				)
 			;
 			if (model.FilterRequestId != null) {
-				query = query.Where(_ => _.RelatedRequestId == model.FilterRequestId);
+				query = query.Where(_ => _.RelatedExchangeRequestId == model.FilterRequestId);
 			}
 			if (model.PeriodStart != null) {
 				query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted >= DateTimeOffset.FromUnixTimeSeconds(model.PeriodStart.Value).UtcDateTime);
@@ -63,12 +69,13 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				totalGoldBurnt = new BigInteger(0);
 				
 				foreach (var v in tgrows) {
-					if (BigInteger.TryParse(v.Amount, out var amount))
-					if (v.Type == EthereumOperationType.ContractProcessBuyRequest) {
-						totalGoldIssued += amount;
-					}
-					if (v.Type == EthereumOperationType.ContractProcessSellRequest) {
-						totalGoldBurnt += amount;
+					if (BigInteger.TryParse(v.Amount, out var amount)) {
+						if (v.Type == EthereumOperationType.ContractProcessBuyRequestEth || v.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
+							totalGoldIssued += amount;
+						}
+						if (v.Type == EthereumOperationType.ContractProcessSellRequestEth || v.Type == EthereumOperationType.ContractProcessSellRequestFiat) {
+							totalGoldBurnt += amount;
+						}
 					}
 				}
 			}
@@ -87,8 +94,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			var list =
 				from i in page.Selected
 				select new ListViewItem() {
-					RequestId = i.RelatedRequestId ?? 0,
-					IsBuying = i.Type == EthereumOperationType.ContractProcessBuyRequest,
+					RequestId = i.RelatedExchangeRequestId ?? 0,
+					IsBuying = i.Type == EthereumOperationType.ContractProcessBuyRequestEth,
 					Amount = i.GoldAmount,
 					EthTxId = i.EthTransactionId,
 					User = new ListViewItem.UserData() {

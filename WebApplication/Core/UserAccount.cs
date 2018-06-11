@@ -1,4 +1,5 @@
 ﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.DAL;
 using Goldmint.DAL.Models;
@@ -19,17 +20,19 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// New user account
 		/// </summary>
-		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null, bool emailConfirmed = false) {
+		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null) {
 
 			var logger = services.GetLoggerFor(typeof(UserAccount));
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var userManager = services.GetRequiredService<UserManager<User>>();
+			var googleSheets = services.GetService<Sheets>();
 
 			var ret = new CreateUserAccountResult() {
 			};
 
 			if (string.IsNullOrWhiteSpace(email)) {
 				ret.IsEmailExists = true;
+				logger.Info("Failed to create user account: invalid email");
 				return ret;
 			}
 
@@ -43,7 +46,7 @@ namespace Goldmint.WebApplication.Core {
 					TfaSecret = tfaSecret,
 					JwtSaltCabinet = GenerateJwtSalt(),
 					JwtSaltDashboard = GenerateJwtSalt(),
-					EmailConfirmed = emailConfirmed,
+					EmailConfirmed = false,
 					AccessRights = 0,
 
 					UserOptions = new DAL.Models.UserOptions() {
@@ -62,6 +65,8 @@ namespace Goldmint.WebApplication.Core {
 				if (result.Succeeded) {
 					ret.User = newUser;
 
+					logger.Info($"User account created {newUser.Id}");
+
 					try {
 						var name = string.Format("u{0:000000}", newUser.Id);
 
@@ -72,6 +77,26 @@ namespace Goldmint.WebApplication.Core {
 						newUser.AccessRights = (long)AccessRights.Client;
 
 						await dbContext.SaveChangesAsync();
+
+						logger.Info($"User account {newUser.Id} prepared and saved");
+
+						if (googleSheets != null) {
+							try {
+								await googleSheets.InsertUser(
+									new UserInfoCreate() {
+										UserId = newUser.Id,
+										UserName = newUser.UserName,
+										FirstName = "-",
+										LastName = "-",
+										Country = "-",
+										Birthday = "-",
+									}
+								);
+							}
+							catch (Exception e) {
+								logger.Error(e, "Failed to persist user account creation in Google Sheets");
+							}
+						}
 					}
 					catch { }
 				}
@@ -79,9 +104,11 @@ namespace Goldmint.WebApplication.Core {
 					foreach (var v in result.Errors) {
 						if (v.Code == "DuplicateUserName") {
 							ret.IsUsernameExists = true;
+							logger.Info($"Failed to create user account: duplicate username");
 						}
 						else if (v.Code == "DuplicateEmail") {
 							ret.IsEmailExists = true;
+							logger.Info($"Failed to create user account: duplicate email");
 						}
 						else {
 							throw new Exception("Unexpected result error: " + v.Code);

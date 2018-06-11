@@ -5,7 +5,7 @@
       <span>{{ "PAGES.Settings.KYC.DefaultSection.Title" | translate }}</span>
 
       <div class="section__title-widget" *ngIf="!loading">
-        <div class="lead icon--red">
+        <div class="lead lead-right icon--red">
           {{ "PAGES.Settings.KYC.DefaultSection.StatusText" | translate }}
         </div>
       </div>
@@ -54,7 +54,6 @@
   </section>
 </ng-container>
 
-
 <!--KYC-->
 <ng-container *ngIf="phase == _phase.Kyc">
   <section class="section section--warning section--no-bottom">
@@ -66,7 +65,7 @@
       {{ "PAGES.Settings.KYC.WarningSection.Title" | translate }}
 
       <div class="section__title-widget">
-        <div class="lead icon--red">
+        <div class="lead lead-right icon--red">
           {{ "PAGES.Settings.KYC.WarningSection.Widget" | translate }}
         </div>
       </div>
@@ -84,7 +83,6 @@
     </div>
   </section>
 </ng-container>
-
 
 <!--KYC PENDING-->
 <ng-container *ngIf="phase == _phase.KycPending">
@@ -112,14 +110,14 @@
     </h2>
 
     <div class="pt-2">
-      <p class="mt-3 mb-3 lead loc-verification-note red">
+      <p class="mt-3 mb-3 lead lead-right loc-verification-note red">
         {{ "PAGES.Settings.KYC.ProofResidency.Text" | translate }}
       </p>
 
       <div class="text-center">
-        <a href='https://support.goldmint.io/hc/en-us/requests/new?ticket_form_id=360000060753&userEmail={{userData.email}}&userId={{userData.id}}' class="btn btn-primary mt-3 mb-5" target="_blank">
+        <button class="btn btn-primary mt-3 mb-5" (click)="submitProofResidence()">
           {{ "PAGES.Settings.KYC.ProofResidency.Button" | translate }}
-        </a>
+        </button>
       </div>
     </div>
   </section>
@@ -155,15 +153,15 @@
   </section>
 </ng-container>
 
-<!--FINISHED-->
+<!--ToS FINISHED-->
 <ng-container *ngIf="phase == _phase.Finished">
   <section class="section section--no-bottom">
     <h2 class="section__title">
-      <span>{{ "PAGES.Settings.KYC.FinishedSection.Title" | translate }}</span>
+      <span>{{ "PAGES.Settings.KYC.AgreementSection.Success.Heading" | translate }}</span>
 
       <div class="section__title-widget">
-        <div class="lead icon--green">
-          {{ "PAGES.Settings.KYC.FinishedSection.StatusText" | translate }}
+        <div class="lead lead-right icon--green">
+          {{ "PAGES.Settings.KYC.AgreementSection.Success.Status" | translate }}
         </div>
       </div>
     </h2>
@@ -173,12 +171,56 @@
         <div class="container"></div>
       </div>
 
-      <!-- @todo: clarify texts and layout -->
-      <p class="pt-2 mb-2" [innerHTML]="'PAGES.Settings.KYC.FinishedSection.Text' | translate"></p>
+      <div class="pt-2 mb-2"><span class="lead lead-right">{{ "PAGES.Settings.KYC.AgreementSection.Success.Description" | translate }}</span></div>
     </div>
   </section>
 </ng-container>
 
+<!--PROOF OF RESIDENCY FINISHED-->
+<ng-container *ngIf="kycProfile && kycProfile.isResidenceProved">
+  <section class="section section--no-bottom">
+    <h2 class="section__title">
+      <span>{{ "PAGES.Settings.KYC.ProofResidency.Success.Heading" | translate }}</span>
+
+      <div class="section__title-widget">
+        <div class="lead lead-right icon--green">
+          {{ "PAGES.Settings.KYC.ProofResidency.Success.Status" | translate }}
+        </div>
+      </div>
+    </h2>
+
+    <div class="section__content kyc pt-2">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <div class="pt-2 mb-2"><span class="lead lead-right">{{ "PAGES.Settings.KYC.ProofResidency.Success.Description" | translate }}</span></div>
+    </div>
+  </section>
+</ng-container>
+
+<!--KYC FINISHED-->
+<ng-container *ngIf="kycProfile && kycProfile.isKycFinished">
+  <section class="section section--no-bottom">
+    <h2 class="section__title">
+      <span>{{ "PAGES.Settings.KYC.DefaultSection.Success.Heading" | translate }}</span>
+
+      <div class="section__title-widget">
+        <div class="lead lead-right icon--green">
+          {{ "PAGES.Settings.KYC.DefaultSection.Success.Status" | translate }}
+        </div>
+      </div>
+    </h2>
+
+    <div class="section__content kyc pt-2">
+      <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+        <div class="container"></div>
+      </div>
+
+      <div class="lead lead-right pt-2 mb-2"><span class="lead lead-right">{{ "PAGES.Settings.KYC.DefaultSection.Success.Description" | translate }}</span></div>
+    </div>
+  </section>
+</ng-container>
 
 <!--FORM-->
 <ng-container *ngIf="phase != _phase.Start">
@@ -188,12 +230,12 @@
       <span>{{ "PAGES.Settings.KYC.FormSection.Title" | translate }}</span>
 
       <div class="section__title-widget">
-        <div class="lead icon--green" *ngIf="kycProfile.isFormFilled; else noBasicVerificationBlock">
+        <div class="lead lead-right icon--green" *ngIf="kycProfile.isFormFilled; else noBasicVerificationBlock">
           {{ "PAGES.Settings.KYC.FormSection.StatusText" | translate }}
         </div>
 
         <ng-template #noBasicVerificationBlock>
-          <div class="lead icon--red">
+          <div class="lead lead-right icon--red">
             {{ "PAGES.Settings.KYC.DefaultSection.Labels.NotVerified" | translate }}
           </div>
         </ng-template>
@@ -213,7 +255,7 @@
             <div class="form-group">
               <label for="inputFirstName">{{ "PAGES.Settings.KYC.FormSection.Labels.FirstName" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputFirstName" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputFirstName" required pattern="[A-Za-z '`.-]*"
                        minlength="2" maxlength="32"
                        name="firstName" [(ngModel)]="kycProfile.firstName" #firstName="ngModel"
                        class="form-control"
@@ -241,7 +283,7 @@
 
             <div class="form-group">
               <label for="inputMiddleName">{{ "PAGES.Settings.KYC.FormSection.Labels.MiddleName" | translate }}</label>
-              <input type="text" id="inputMiddleName" pattern="[A-Za-z \'\`\-\.]*"
+              <input type="text" id="inputMiddleName" pattern="[A-Za-z '`.-]*"
                      name="middleName" [(ngModel)]="kycProfile.middleName" #middleName="ngModel"
                      class="form-control"
                      [ngClass]="{'is-invalid': (errors?.MiddleName || !middleName.valid) && (kycForm.submitted || !middleName.pristine)}"
@@ -259,7 +301,7 @@
             <div class="form-group">
               <label for="inputLastName">{{ "PAGES.Settings.KYC.FormSection.Labels.LastName" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputLastName" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputLastName" required pattern="[A-Za-z '`.-]*"
                        minlength="2" maxlength="32"
                        name="lastName" [(ngModel)]="kycProfile.lastName" #lastName="ngModel"
                        class="form-control"
@@ -407,7 +449,7 @@
             <div class="form-group">
               <label for="inputStreet">{{ "PAGES.Settings.KYC.FormSection.Labels.Street" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputStreet" required pattern="[\w \'\`\-\.]*"
+                <input type="text" id="inputStreet" required pattern="[\w '`.-]*"
                        name="street" [(ngModel)]="kycProfile.street" #street="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.Street || !street.valid) && (kycForm.submitted || !street.pristine)}"
@@ -434,13 +476,18 @@
               <input type="text" id="inputApartment"
                      name="apartment" [(ngModel)]="kycProfile.apartment" #apartment="ngModel"
                      class="form-control"
-                     [readonly]="kycProfile.isFormFilled === true || processing">
+                     [ngClass]="{'is-invalid': !apartment.valid && (kycForm.submitted || !apartment.pristine)}"
+                     [readonly]="kycProfile.isFormFilled === true || processing" pattern="[\w /'`.-]*">
+
+              <div class="invalid-feedback" *ngIf="apartment.errors?.pattern">
+                {{ "PAGES.Settings.KYC.FormSection.Errors.Street.pattern" | translate }}
+              </div>
             </div>
 
             <div class="form-group">
               <label for="inputCity">{{ "PAGES.Settings.KYC.FormSection.Labels.City" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputCity" required pattern="[A-Za-z \'\`\-\.]*"
+                <input type="text" id="inputCity" required pattern="[A-Za-z '`.-]*"
                        name="city" [(ngModel)]="kycProfile.city" #city="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.City || !city.valid) && (kycForm.submitted || !city.pristine)}"
@@ -551,8 +598,8 @@
           </div>
         </div>
 
-        <div class="row mt-2 mb-4 pr-4" *ngIf="!kycProfile.isFormFilled">
-          <div class="form-group col-6 mb-2">
+        <div class="row mt-2 mb-4 pr-0 pr-sm-4 justify-content-sm-start justify-content-center" *ngIf="!kycProfile.isFormFilled">
+          <div class="form-group col-auto col-sm-6 mb-2">
             <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}
               <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">

@@ -51,6 +51,16 @@
 
   &__value
 
+
+.trade-page
+  .form-control.is-invalid:disabled,
+  .form-control.is-invalid[readonly]
+    border-color: #dc3545
+
+  .form-control:disabled,
+  .form-control[readonly]
+    background-color: transparent
+
 @media only screen and (max-width: 1200px)
   .trn-info .trn-info__block
     border: 2px solid #f5f5f5

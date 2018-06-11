@@ -1,4 +1,12 @@
-import {ChangeDetectorRef, Component, HostBinding, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  HostBinding,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {TranslateService} from "@ngx-translate/core";
 import {APIService, EthereumService, GoldrateService, MessageBoxService, UserService} from "../../../services";
 import {Observable} from "rxjs/Observable";
@@ -18,20 +26,22 @@ import * as Web3 from "web3";
   styleUrls: ['./buy-cryptocurrency-page.component.sass'],
   encapsulation: ViewEncapsulation.None
 })
-export class BuyCryptocurrencyPageComponent implements OnInit {
+export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   @HostBinding('class') class = 'page';
 
   @ViewChild('goldAmountInput') goldAmountInput;
   @ViewChild('coinAmountInput') coinAmountInput;
 
   public loading = false;
+  public processing = false;
   public isFirstLoad = true;
-  public isFirstTransaction = true;
+  public isTradingError = false;
+  public isTradingLimit: object | boolean = false;
+  public showCryptoCurrencyBlock: boolean = false;
   public progress = false;
   public locale: string;
 
   public ethAddress: string = '';
-  public selectedWallet = 0;
   public goldRate: number = 0;
   public invalidBalance = false;
 
@@ -46,13 +56,14 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   public goldAmountToUSD: number = 0;
   public estimatedAmount: BigNumber;
   public currentValue: number;
+  public transferData: object;
   private Web3 = new Web3();
 
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
-  public sub1: Subscription;
-  public subGetGas: Subscription;
+  public interval: Subscription;
 
+  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -67,6 +78,71 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
+      this.isTradingError = !!status;
+      this._cdRef.markForCheck();
+    });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
+      this.isTradingLimit = limit;
+      this.isTradingLimit['min'] = this.substrValue(limit['min'] / Math.pow(10, 18));
+      this.isTradingLimit['max'] = this.substrValue(limit['max'] / Math.pow(10, 18));
+
+      if (this.isReversed) {
+        this.coinAmount = +this.substrValue(limit['cur'] / Math.pow(10, 18));
+      }
+
+      this._cdRef.markForCheck();
+    });
+
+    this.iniTransactionHashModal();
+
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.ethAddress && this._userService.showLoginToMMBox();
+      }, 3000);
+    }
+
+    Observable.combineLatest(
+      this._apiService.getTFAInfo(),
+      this._apiService.getProfile()
+    )
+      .subscribe((res) => {
+        this.tfaInfo = res[0].data;
+        this.user = res[1].data;
+        this._cdRef.markForCheck();
+      });
+
+    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
+      this.locale = currentLocale;
+    });
+
+    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
+      data && (this.goldRate = data.gold);
+      this._cdRef.markForCheck();
+    });
+
+    this._ethService.getObservableEthBalance().takeUntil(this.destroy$).subscribe(balance => {
+     if (balance !== null && (this.ethBalance === null || !this.ethBalance.eq(balance))) {
+        this.ethBalance = balance;
+        if (this.ethBalance !== null && this.isFirstLoad) {
+          this.setCoinBalance(1);
+          this.isFirstLoad = false;
+        }
+      }
+    });
+
+    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+      if (!this.ethAddress && this.ethBalance !== null) {
+        this.ethBalance = null;
+        this.router.navigate(['buy']);
+      }
+      this._cdRef.markForCheck();
+    });
+  }
+
+  initInputValueChanges() {
     this.goldAmountInput.valueChanges
       .debounceTime(500)
       .distinctUntilChanged()
@@ -88,53 +164,25 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
           this._cdRef.markForCheck();
         }
       });
+  }
 
-    Observable.combineLatest(
-      this._apiService.getTFAInfo(),
-      this._userService.currentUser
-    )
-      .subscribe((res) => {
-        this.tfaInfo = res[0].data;
-        this.user = res[1];
-        this._cdRef.markForCheck();
-      });
-
-    this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
-      this.locale = currentLocale;
-    });
-
-    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
-      data && (this.goldRate = data.gold);
-      this._cdRef.markForCheck();
-    });
-
-    this._ethService.getObservableEthBalance().takeUntil(this.destroy$).subscribe(balance => {
-     if (this.ethBalance === null || !this.ethBalance.eq(balance)) {
-        this.ethBalance = balance;
-        if (this.ethBalance !== null && this.isFirstLoad) {
-          this.setCoinBalance(1);
-          this.isFirstLoad = false;
-        }
-      }
-    });
-
-    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
-      this.ethAddress = ethAddr;
-      if (!this.ethAddress && this.ethBalance !== null) {
-        this.selectedWallet = 0;
-        this.router.navigate(['buy']);
-      }
-    });
-
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-
-    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
-      if (wallet['id'] === 'hot') {
-        this.selectedWallet = 0;
-        this.router.navigate(['buy']);
-      } else {
-        this.selectedWallet = 1;
-        this.setCoinBalance(1);
+  iniTransactionHashModal() {
+    this._ethService.getSuccessBuyRequestLink$.takeUntil(this.destroy$).subscribe(hash => {
+      if (hash) {
+        this.hideCryptoCurrencyForm(true);
+        this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+          this._messageBox.alert(`
+            <div class="text-center">
+              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+              <div>${phrases.Steps}</div>
+              <div>${phrases.Hash}</div>
+              <div class="mb-2 buy-hash">${hash}</div>
+              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+            </div>
+          `).subscribe(ok => {
+            ok && this.router.navigate(['/finance/history']);
+          });
+        });
       }
     });
   }
@@ -161,7 +209,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
-            this.invalidBalance = false;
+            this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
         this.invalidBalance = true;
@@ -183,6 +231,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
             this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
+            this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
         this.invalidBalance = true;
@@ -193,6 +242,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
   }
 
   changeValue(status: boolean, event) {
+    this.processing = true;
+
     event.target.value = this.substrValue(event.target.value);
     this.currentValue = +event.target.value;
     event.target.setSelectionRange(event.target.value.length, event.target.value.length);
@@ -204,7 +255,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     return value.toString()
       .replace(',', '.')
       .replace(/([^\d.])|(^\.)/g, '')
-      .replace(/^(\d+)(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
+      .replace(/^(\d{1,6})\d*(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
       .replace(/^0+(\d)/, '$1');
   }
 
@@ -215,66 +266,47 @@ export class BuyCryptocurrencyPageComponent implements OnInit {
     this._cdRef.markForCheck();
   }
 
-  onSubmit() {
-    this.loading = this.isFirstTransaction = true;
-    this.sub1 && this.sub1.unsubscribe();
-    this.subGetGas && this.subGetGas.unsubscribe();
+  hideCryptoCurrencyForm(status) {
+    this.showCryptoCurrencyBlock = !status;
+    this.interval = Observable.interval(100).subscribe(() => {
+      if (this.goldAmountInput) {
+        this.initInputValueChanges();
 
-    this._apiService.goldBuyAsset(this.ethAddress, this.estimatedAmount)
-      .finally(() => {
-        this.loading = false;
+        this.interval && this.interval.unsubscribe();
         this._cdRef.markForCheck();
-      })
-      .subscribe(res => {
-        const wei = this.Web3.toWei(this.estimatedAmount);
-        this._apiService.goldBuyEstimate(this.currentCoin, wei, this.isReversed)
-          .subscribe(data => {
-            let estimate, amount, toAmount, fromAmount;
-            fromAmount = estimate = this.estimatedAmount;
-            toAmount = amount = (data.data.amount / Math.pow(10, 18)).toFixed(6);
-            this.isReversed && (fromAmount = amount) && (toAmount = estimate);
+      }
+    });
+    this._cdRef.markForCheck();
+  }
 
-            this._translate.get('MessageBox.EthDeposit',
-              {coinAmount: fromAmount, goldAmount: toAmount, ethRate: res.data.ethRate}
-            ).subscribe(phrase => {
-              this._messageBox.confirm(phrase).subscribe(ok => {
-                if (ok) {
-                  this._apiService.goldBuyConfirm(res.data.requestId).subscribe(() => {
+  transferTradingError(status) {
+    this.isTradingError = status;
+    this.showCryptoCurrencyBlock = false;
+    this._cdRef.markForCheck();
+  }
 
-                    this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-                      if (price !== null && this.isFirstTransaction) {
-                        this._ethService.sendBuyRequest(this.ethAddress, this.user.id, res.data.requestId, fromAmount, +price);
-                        this.isFirstTransaction = false;
-                      }
-                    });
+  onSubmit() {
+    this.transferData = {
+      type: 'buy',
+      ethAddress: this.ethAddress,
+      userId: this.user.id,
+      currency: this.currentCoin,
+      amount: this.estimatedAmount,
+      coinAmount: this.coinAmount,
+      reversed: this.isReversed
+    };
 
-                    this.sub1 = this._ethService.getSuccessBuyRequestLink$.subscribe(hash => {
-                      if (hash) {
-                        this._translate.get('PAGES.Buy.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-                          this._messageBox.alert(`
-                            <div class="text-center">
-                              <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-                              <div>${phrases.Steps}</div>
-                              <div>${phrases.Hash}</div>
-                              <div class="mb-2 buy-hash">${hash}</div>
-                              <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
-                            </div>
-                          `);
-                        });
-                      }
-                    });
+    this.showCryptoCurrencyBlock = true;
+    this._cdRef.markForCheck();
+  }
 
-                  });
-                }
-              });
-            });
-        });
-      });
+  ngAfterViewInit() {
+    this.initInputValueChanges();
   }
 
   ngOnDestroy() {
-    this.destroy$.next(true);
-    this.subGetGas && this.subGetGas.unsubscribe();
+    this.destroy$.next(true)
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

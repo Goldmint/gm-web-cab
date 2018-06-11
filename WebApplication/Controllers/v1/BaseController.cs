@@ -22,6 +22,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.CoreLogic.Services.The1StPayments;
+using Goldmint.CoreLogic.Services.Google.Impl;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -44,6 +45,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
 		protected RuntimeConfigHolder RuntimeConfigHolder { get; private set; }
 		protected The1StPayments The1StPayments { get; private set; }
+		protected Sheets GoogleSheets { get; private set; }
 
 		protected BaseController() { }
 
@@ -66,6 +68,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
 			RuntimeConfigHolder = services.GetRequiredService<RuntimeConfigHolder>();
 			The1StPayments = services.GetRequiredService<The1StPayments>();
+			GoogleSheets = services.GetService<Sheets>();
 		}
 
 		// ---

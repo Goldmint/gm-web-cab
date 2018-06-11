@@ -198,6 +198,13 @@ export class SettingsVerificationPageComponent implements OnInit {
     this.getData();
   }
 
+  submitProofResidence() {
+    this._apiService.getZendeskTokenSSO().subscribe(token => {
+      const returnTo = `https://support.goldmint.io/hc/en-us/requests/new?ticket_form_id=360000060753&userEmail=${this.userData.email}&userId=${this.userData.id}`;
+      window.location.replace(`https://goldmint.zendesk.com/access/jwt?jwt=${token.data.jwt}&return_to=${encodeURIComponent(returnTo)}`);
+    });
+  }
+
   private getData() {
     Observable.combineLatest(
       this._apiService.getKYCProfile(),
@@ -219,7 +226,7 @@ export class SettingsVerificationPageComponent implements OnInit {
           this.onPhaseUpdate();
 
           this.loading = false;
-          this._cdRef.detectChanges();
+          this._cdRef.markForCheck();
         },
         err => { });
   }

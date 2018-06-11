@@ -73,6 +73,11 @@ namespace Goldmint.Common {
 		/// </summary>
 		DashboardReadAccess = 0x2L,
 		
+		/// <summary>
+		/// App client - extra access
+		/// </summary>
+		ClientExtraAccess = 0x4L,
+		
 		// ---
 
 		/// <summary>
@@ -128,6 +133,11 @@ namespace Goldmint.Common {
 		/// User sends ETH to Ethereum contact
 		/// </summary>
 		ContractEthPayment = 1,
+		
+		/// <summary>
+		/// User spends fiat from credit card
+		/// </summary>
+		CreditCardDeposit,
 	}
 
 	public enum BuyGoldRequestOutput {
@@ -136,11 +146,6 @@ namespace Goldmint.Common {
 		/// Issue gold to the Ethereum address
 		/// </summary>
 		EthereumAddress = 1,
-
-		/// <summary>
-		/// Issue gold to the internal Hot Wallet
-		/// </summary>
-		HotWallet,
 	}
 
 	public enum BuyGoldRequestStatus {
@@ -169,6 +174,11 @@ namespace Goldmint.Common {
 		/// Final failure
 		/// </summary>
 		Cancelled,
+
+		/// <summary>
+		/// Final failure
+		/// </summary>
+		Failed,
 	}
 
 	#endregion
@@ -187,9 +197,14 @@ namespace Goldmint.Common {
 	public enum SellGoldRequestOutput {
 
 		/// <summary>
-		/// Get ETH
+		/// Send ETH to the address
 		/// </summary>
-		Eth = 1,
+		EthAddress = 1,
+
+		/// <summary>
+		/// Send fiat to the card
+		/// </summary>
+		CreditCard,
 	}
 
 	public enum SellGoldRequestStatus {
@@ -218,6 +233,16 @@ namespace Goldmint.Common {
 		/// Final failure
 		/// </summary>
 		Cancelled,
+
+		/// <summary>
+		/// Final failure
+		/// </summary>
+		Failed,
+
+		/// <summary>
+		/// Checking operation on blockchain
+		/// </summary>
+		EthConfirmation,
 	}
 
 	#endregion
@@ -256,9 +281,9 @@ namespace Goldmint.Common {
 		TransferGoldFromHw = 1,
 
 		/// <summary>
-		/// Call contract for request processing
+		/// Call contract for request processing (ETH)
 		/// </summary>
-		ContractProcessBuyRequest,
+		ContractProcessBuyRequestEth,
 
 		/// <summary>
 		/// Call contract for request cancellation
@@ -266,14 +291,24 @@ namespace Goldmint.Common {
 		ContractCancelBuyRequest,
 
 		/// <summary>
-		/// Call contract for request processing
+		/// Call contract for request processing (ETH)
 		/// </summary>
-		ContractProcessSellRequest,
+		ContractProcessSellRequestEth,
 
 		/// <summary>
 		/// Call contract for request cancellation
 		/// </summary>
 		ContractCancelSellRequest,
+
+		/// <summary>
+		/// Call contract for request processing (fiat)
+		/// </summary>
+		ContractProcessBuyRequestFiat,
+
+		/// <summary>
+		/// Call contract for request processing (fiat)
+		/// </summary>
+		ContractProcessSellRequestFiat,
 	}
 
 	public enum EthereumOperationStatus {
@@ -350,7 +385,7 @@ namespace Goldmint.Common {
 		Payment,
 
 		/// <summary>
-		/// Awaiting for code from bank statement
+		/// Waiting for code from bank statement
 		/// </summary>
 		Verification,
 
@@ -426,9 +461,14 @@ namespace Goldmint.Common {
 	public enum CardPaymentStatus {
 
 		/// <summary>
-		/// Initial state, just enqueued
+		/// Unconfirmed initial state, just enqueued
 		/// </summary>
-		Pending = 1,
+		Unconfirmed = 1,
+
+		/// <summary>
+		/// Initial state, waiting for processing
+		/// </summary>
+		Pending,
 
 		/// <summary>
 		/// There is an attempt to charge
@@ -444,11 +484,6 @@ namespace Goldmint.Common {
 		/// Final failure, finalized
 		/// </summary>
 		Failed,
-
-		/// <summary>
-		/// Cancelled
-		/// </summary>
-		Cancelled,
 	}
 
 	#endregion
@@ -554,6 +589,11 @@ namespace Goldmint.Common {
 		/// Credit card operations
 		/// </summary>
 		CreditCard,
+		
+		/// <summary>
+		/// Exchange operations
+		/// </summary>
+		Exchange,
 	}
 
 	#endregion

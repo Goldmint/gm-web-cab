@@ -53,14 +53,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					;
 
 				// activity
-				await CoreLogic.User.SaveActivity(
-					services: HttpContext.RequestServices,
+				var userActivity = CoreLogic.User.CreateUserActivity(
 					user: user,
 					type: Common.UserActivityType.Password,
 					comment: "Password changed",
 					ip: agent.Ip,
-					agent: agent.Agent
+					agent: agent.Agent,
+					locale: userLocale
 				);
+				DbContext.UserActivity.Add(userActivity);
+				await DbContext.SaveChangesAsync();
 			}
 
 			return APIResponse.Success(

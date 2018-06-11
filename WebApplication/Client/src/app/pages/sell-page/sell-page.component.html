@@ -43,8 +43,8 @@
               <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
               <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
             </div>
-            <div class="col-lg-3 pl-lg-4 align-self-center pb-3">
-              <a routerLink="/account/verification" class="btn btn-primary btn-block mb-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+            <div class="col-lg-3 pl-lg-4 align-self-center">
+              <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
             </div>
           </div>
         </ng-container>
@@ -90,15 +90,26 @@
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnCryptoCapital">{{ "PAGES.Sell.Method.CtyptoCurrency" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                        [disabled]="!this.selectedWallet || !isMetamask">
+                        [disabled]="!tradingStatus.ethAllowed">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-crypto"></use>
                   </svg>
                 </button>
-                <div *ngIf="!this.selectedWallet || !isMetamask">
-                  <div class="text-left pt-1 blocked-notification text-center">
-                    {{ "PAGES.Sell.Errors.UseMM" | translate }}
-                  </div>
+                <div  class="text-left pt-1 blocked-notification text-center">
+                  <div *ngIf="!tradingStatus.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
+                </div>
+              </div>
+
+              <div class="col col-xl-3 form-group text-center" *ngIf="hasExtraRights">
+                <label for="btnPaymentCard">{{ "PAGES.Sell.Method.PaymentCard" | translate }}</label>
+                <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
+                        [disabled]="!tradingStatus.creditCardAllowed">
+                  <svg class="icon" width="56px" height="56px">
+                    <use xlink:href="#payment-card"></use>
+                  </svg>
+                </button>
+                <div class="text-left pt-1 blocked-notification text-center">
+                  <div *ngIf="!tradingStatus.creditCardAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>
 
@@ -113,23 +124,14 @@
               </div>
 
               <!-- <div class="col col-lg-6 col-xl form-group text-center">
-                 <label for="btnPaymentCard">{{ "PAGES.Withdraw.Method.Card" | translate }}</label>
-                 <button class="btn btn-primary btn-block" id="btnPaymentCard">
-                   <svg class="icon" width="56px" height="56px">
-                     <use xlink:href="#payment-card"></use>
-                   </svg>
-                 </button>
-               </div>
-
-               <div class="col col-lg-6 col-xl form-group text-center">
-                 <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
-                 <button class="btn btn-primary btn-block" id="btnPaymentBank"
-                         (click)="goto(pages.BankTransfer)">
-                   <svg class="icon" width="107px" height="56px">
-                     <use xlink:href="#payment-bank"></use>
-                   </svg>
-                 </button>
-               </div>-->
+               <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
+               <button class="btn btn-primary btn-block" id="btnPaymentBank"
+                       (click)="goto(pages.BankTransfer)">
+                 <svg class="icon" width="107px" height="56px">
+                   <use xlink:href="#payment-bank"></use>
+                 </svg>
+               </button>
+             </div>-->
             </div>
 
           </ng-container>

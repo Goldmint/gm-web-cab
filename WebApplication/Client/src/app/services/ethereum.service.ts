@@ -138,8 +138,8 @@ export class EthereumService {
       // check via eth
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
-      this.updateEthBalance(this._lastAddress);
     }
+    this.updateEthBalance(this._lastAddress);
 
     this.checkHotBalance();
     this.updateTotalGoldBalances();
@@ -266,29 +266,28 @@ export class EthereumService {
   }
 
   // ---
-  public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber, gasPrice: number) {
+  public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {
     if (this._contractMetamask == null) return;
-    const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: wei.toString(), gas: 214011, gasPrice: gasPrice }, (err, res) => {
+    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: amount, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessBuyRequestLink$.next(res);
     });
   }
 
-  public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: BigNumber, gasPrice: number) {
+  public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {
     if (this._contractMetamask == null) return;
-    const wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     const reference = new BigNumber(requestId);
 
-    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), wei.toString(), { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessSellRequestLink$.next(res);
     });
   }
 
-  public transferGoldToWallet(fromAddr: string, toAddr: string, goldAmount: BigNumber) {
+  public transferGoldToWallet(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
     if (this._contractGold == null) return;
-    var goldAmountStr = goldAmount.times(new BigNumber(10).pow(18)).decimalPlaces(0, BigNumber.ROUND_DOWN).toString();
-    this._contractGold.transfer.sendTransaction(toAddr, goldAmountStr, { from: fromAddr, value: 0 }, (err, res) => { });
+    this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      this.getSuccessSellRequestLink$.next(res);
+    });
   }
 }

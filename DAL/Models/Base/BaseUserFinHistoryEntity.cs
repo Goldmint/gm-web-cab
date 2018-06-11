@@ -5,11 +5,11 @@ namespace Goldmint.DAL.Models {
 
 	public abstract class BaseUserFinHistoryEntity : BaseUserLoggingEntity {
 
-		[Column("ref_user_finhistory"), Required]
-		public long RefUserFinHistoryId { get; set; }
+		[Column("rel_user_finhistory"), Required]
+		public long RelUserFinHistoryId { get; set; }
 
-		[ForeignKey(nameof(RefUserFinHistoryId))]
-		public virtual UserFinHistory RefUserFinHistory { get; set; }
+		[ForeignKey(nameof(RelUserFinHistoryId))]
+		public virtual UserFinHistory RelUserFinHistory { get; set; }
 
 	}
 }

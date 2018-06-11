@@ -1,10 +1,10 @@
-<div class="page">
+<div class="page trade-page">
   <h1 class="page__heading">{{ "PAGES.TradeRequests.Heading" | translate }}</h1>
 
   <div>
     <div class="trn-info flex-column flex-xl-row">
       <div class="col-12 col-xl-4 px-5 trn-info__block">
-        <div class="trn-info__icon trn-info__icon--plus">
+        <div class="trn-info__icon trn-info__icon--plus d-flex">
           <svg class="icon" width="8px" height="8px">
             <use xlink:href="#amount-plus"></use>
           </svg>
@@ -18,7 +18,7 @@
       </div>
 
       <div class="col-12 col-xl-4 px-5 trn-info__block">
-        <div class="trn-info__icon trn-info__icon--minus">
+        <div class="trn-info__icon trn-info__icon--minus d-flex">
           <svg class="icon" width="8px" height="2px">
             <use xlink:href="#amount-minus"></use>
           </svg>
@@ -32,7 +32,7 @@
       </div>
 
       <div class="col-12 col-xl-4 px-5 trn-info__block flex-wrap">
-        <div class="trn-info__icon trn-info__icon--circ">
+        <div class="trn-info__icon trn-info__icon--circ d-flex">
           <svg class="icon" width="21px" height="16px">
             <use xlink:href="#circulation"></use>
           </svg>
@@ -63,24 +63,44 @@
         <div class="col-lg-3 pt-3">
           <div class="from-row form-group">
             <label for="periodStart">Period start</label>
-            <input type="text" class="form-control" id="periodStart" name="periodStart" placeholder="DD.M.YY"
-                   autocomplete="off" ngModel
-                   pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$">
+            <input type="text"
+                   class="form-control"
+                   id="periodStart"
+                   placeholder="Period start"
+                   bsDatepicker
+                   [bsValue]="viewDate?.start"
+                   (bsValueChange)="onDateChange($event, true)"
+                   [bsConfig]="{ dateInputFormat: 'MM/DD/YY', containerClass: 'theme-default' }"
+                   autocomplete="off"
+                   readonly
+            >
           </div>
         </div>
 
         <div class="col-lg-3 pt-3">
           <div class="from-row form-group">
             <label for="periodEnd">Period end</label>
-            <input type="text" class="form-control" id="periodEnd" name="periodEnd" placeholder="DD.M.YY"
-                   autocomplete="off" ngModel
-                   pattern="^((((0?[1-9]|[12]\d|30)\.(0?[13-9]|1[012]))|(31\.(0?[13578]|1[02]))|((0?[1-9]|1\d|2[0-8])\.0?2))\.\d\d)|(29\.0?2\.([02468][048]|[13579][26]))$">
+            <input type="text"
+                   class="form-control"
+                   id="periodEnd"
+                   placeholder="Period end"
+                   bsDatepicker
+                   [bsValue]="viewDate?.end"
+                   (bsValueChange)="onDateChange($event, false)"
+                   [bsConfig]="{ dateInputFormat: 'MM/DD/YY', containerClass: 'theme-default' }"
+                   [ngClass]="{'is-invalid': invalidDate}"
+                   autocomplete="off"
+                   readonly
+            >
+            <div class="invalid-feedback" *ngIf="invalidDate">
+              Invalid date
+            </div>
           </div>
         </div>
 
         <div class="col-lg-auto trade-search-button pb-3 pt-5">
           <button type="submit" class="btn btn-sm btn-primary btn-block" (click)="searchByDate()"
-                  [disabled]="searchByDateForm.invalid">Search</button>
+                  [disabled]="(!periodStart && !periodEnd && filterRequestId === null) || invalidDate">Search</button>
         </div>
 
         <div class="col-lg-auto trade-search-button pb-3 pt-5">

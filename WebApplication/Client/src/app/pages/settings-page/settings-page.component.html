@@ -1,15 +1,22 @@
 <div class="page">
   <h1 class="page__heading">{{ "PAGES.Settings.Heading" | translate }}</h1>
 
-  <div class="row">
+  <div class="section__content">
+    <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+      <div class="container"></div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="!loading">
     <div class="col-md-4 page__sidebar sidebar pb-4 pr-md-4">
       <nav class="nav">
         <a class="nav-link" routerLinkActive="active" routerLink="./profile">{{ "PAGES.Settings.Menu.Profile" | translate }}</a>
         <a class="nav-link" routerLinkActive="active" routerLink="./verification">{{ "PAGES.Settings.Menu.Verification" | translate }}</a>
         <a class="nav-link" routerLinkActive="active" routerLink="./2fa">{{ "PAGES.Settings.Menu.TFA" | translate }}</a>
+        <a *ngIf="hasExtraRights" class="nav-link" routerLinkActive="active" routerLink="./cards">{{ "PAGES.Settings.Menu.Cards" | translate }}</a>
         <a class="nav-link" routerLinkActive="active" routerLink="./social">{{ "PAGES.Settings.Menu.SocialNetworks" | translate }}</a>
         <a class="nav-link" routerLinkActive="active" routerLink="./activity">{{ "PAGES.Settings.Menu.AccountActivity" | translate }}</a>
-        <a class="nav-link" routerLinkActive="active" routerLink="./fees">{{ "PAGES.Settings.Menu.Fees" | translate }}</a>
+        <!--<a class="nav-link" routerLinkActive="active" routerLink="./fees">{{ "PAGES.Settings.Menu.Fees" | translate }}</a>-->
       </nav>
     </div>
 

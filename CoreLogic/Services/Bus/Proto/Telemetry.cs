@@ -41,19 +41,25 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 		public SafeRates.SafeRatesMessage RatesData { get; set; }
 
 		[ProtoMember(5)]
-		public EthOperationsProcessor EthOpsProcessor { get; set; } = new EthOperationsProcessor();
+		public EthOperationsProcessor EthereumOperations { get; set; } = new EthOperationsProcessor();
 
 		[ProtoMember(6)]
-		public EthHarvester BuyRequestHarvester { get; set; } = new EthHarvester();
+		public EthEventHarvester ContractBuyEvents { get; set; } = new EthEventHarvester();
 
 		[ProtoMember(7)]
-		public EthHarvester SellRequestHarvester { get; set; } = new EthHarvester();
+		public EthEventHarvester ContractSellEvents { get; set; } = new EthEventHarvester();
 
 		[ProtoMember(8)]
-		public CreditCardPaymentProcessor CreditCardVerificationPaymentProcessor { get; set; } = new CreditCardPaymentProcessor();
+		public CreditCardPaymentProcessor CreditCardVerifications { get; set; } = new CreditCardPaymentProcessor();
 
 		[ProtoMember(9)]
-		public CreditCardPaymentProcessor CreditCardRefundPaymentProcessor { get; set; } = new CreditCardPaymentProcessor();
+		public CreditCardPaymentProcessor CreditCardRefunds { get; set; } = new CreditCardPaymentProcessor();
+
+		[ProtoMember(10)]
+		public CreditCardPaymentProcessor CreditCardDespoits { get; set; } = new CreditCardPaymentProcessor();
+
+		[ProtoMember(11)]
+		public CreditCardPaymentProcessor CreditCardWithdrawals { get; set; } = new CreditCardPaymentProcessor();
 
 		// ---
 
@@ -74,7 +80,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 		}
 
 		[ProtoContract]
-		public class EthHarvester {
+		public class EthEventHarvester {
 
 			[ProtoMember(1)]
 			public int Load { get; set; }

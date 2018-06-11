@@ -35,6 +35,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Email = user.Email ?? "",
 					DpaSigned = user.UserOptions.DpaDocument?.IsSigned ?? false,
 					TfaEnabled = user.TwoFactorEnabled,
+					HasExtraRights = (user.AccessRights & (long)AccessRights.ClientExtraAccess) == (long)AccessRights.ClientExtraAccess,
 					VerifiedL0 = userTier >= UserTier.Tier1,
 					VerifiedL1 = userTier >= UserTier.Tier2,
 					Challenges = challenges.ToArray(),

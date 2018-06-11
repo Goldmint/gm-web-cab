@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Goldmint.WebApplication.Models.API.v1.User.TransferGoldModels {
 
-	public class HwTransferModel : BaseValidableModel {
+	/*public class HwTransferModel : BaseValidableModel {
 
 		/// <summary>
 		/// Ethereum address
@@ -47,4 +47,5 @@ namespace Goldmint.WebApplication.Models.API.v1.User.TransferGoldModels {
 
 	public class HwTransferView {
 	}
+	*/
 }

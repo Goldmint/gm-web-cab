@@ -23,8 +23,7 @@ CALL setMigrationContractAddress in Gold contract setMigrationContractAddress(<g
 CALL setStorageControllerContractAddress(<storage-controller-contract-address>) in Gold contract
 CALL setStorageControllerAddress(<storage-controller-contract-address>) in Storage contract
 CALL setHotWalletTokenHolderAddress(<hot-wallet-address>) in StorageController contract
-CALL setManagerAddress(<hot-wallet-address>) in StorageController contract
-CALL setEthDepositAddress(<eth-deposit-address>) in StorageController contract
+CALL setManagerAddress(<mng-address>) in StorageController contract
 
 GOLD FEES
 0x2fe7408cef927cc48878bb05fd23879a9427cd0b
@@ -53,10 +52,10 @@ gold token - 0x61d40b844ea5b68c9c504fccdb05b68c2d7ae965
 
 
 STORAGE
-0x9b1a4fe6fc8ccd291b65213062f53a1fff903bbd
+0xcbc381a961d4ff532bb0a1c2431d2f3807bc0378
 
-GOLD FIAT FEE
-0x4554134be58f741605c5f04fa9cc69ba955c76e6
+GOLD ISSUE/BURN FEE
+0xed5a99f5397644a0906bcf33108ac9a7c5c2559d
 
 gmAccountId - 0
 
@@ -66,10 +65,10 @@ STORAGE CONTROLLER
 
 mntp - 0x83cee9e086a77e492ee0bb93c2b0437ad6fdeccc
 gold token - 0x61d40b844ea5b68c9c504fccdb05b68c2d7ae965
-storage - 0x9b1a4fe6fc8ccd291b65213062f53a1fff903bbd
-fiat fee - 0x4554134be58f741605c5f04fa9cc69ba955c76e6
+storage - 0xcbc381a961d4ff532bb0a1c2431d2f3807bc0378
+gold issue/burn fee - 0xed5a99f5397644a0906bcf33108ac9a7c5c2559d
 
 
-"0x83cee9e086a77e492ee0bb93c2b0437ad6fdeccc","0x61d40b844ea5b68c9c504fccdb05b68c2d7ae965","0x9b1a4fe6fc8ccd291b65213062f53a1fff903bbd","0x4554134be58f741605c5f04fa9cc69ba955c76e6"
+"0x83cee9e086a77e492ee0bb93c2b0437ad6fdeccc","0x61d40b844ea5b68c9c504fccdb05b68c2d7ae965","0xcbc381a961d4ff532bb0a1c2431d2f3807bc0378","0xed5a99f5397644a0906bcf33108ac9a7c5c2559d"
 
-00000000000000000000000083cee9e086a77e492ee0bb93c2b0437ad6fdeccc00000000000000000000000061d40b844ea5b68c9c504fccdb05b68c2d7ae9650000000000000000000000009b1a4fe6fc8ccd291b65213062f53a1fff903bbd0000000000000000000000004554134be58f741605c5f04fa9cc69ba955c76e6
+00000000000000000000000083cee9e086a77e492ee0bb93c2b0437ad6fdeccc00000000000000000000000061d40b844ea5b68c9c504fccdb05b68c2d7ae965000000000000000000000000cbc381a961d4ff532bb0a1c2431d2f3807bc0378000000000000000000000000ed5a99f5397644a0906bcf33108ac9a7c5c2559d

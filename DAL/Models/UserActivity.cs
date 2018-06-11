@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Goldmint.Common;
 
 namespace Goldmint.DAL.Models {
 
@@ -23,5 +24,8 @@ namespace Goldmint.DAL.Models {
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
+
+		[Column("locale")]
+		public Locale? Locale { get; set; }
 	}
 }

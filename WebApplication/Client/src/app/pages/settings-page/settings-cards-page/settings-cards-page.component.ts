@@ -6,6 +6,7 @@ import { zip } from 'rxjs/observable/zip';
 import { User, CardsList, CardsListItem, APIResponse, CardStatusResponse } from '../../../interfaces';
 import { UserService, APIService, MessageBoxService } from '../../../services';
 import {TranslateService} from "@ngx-translate/core";
+import {Observable} from "rxjs/Observable";
 
 enum Page { List, OnNew, OnNeedConfirmation, OnNeedVerification, OnVerified, OnFailure }
 
@@ -48,17 +49,16 @@ export class SettingsCardsPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._userService.currentUser
-      .subscribe(user => {
-        this.user = user;
-        this.onLoading();
-      });
+    Observable.combineLatest(
+      this._apiService.getFiatCards(),
+      this._apiService.getProfile()
+    ).subscribe((res) => {
+      this.cards = res[0].data;
+      this.user = res[1].data;
 
-    this._apiService.getFiatCards()
-      .subscribe(cards => {
-        this.cards = cards.data;
-        this.onLoading();
-      });
+      this.onLoading();
+      this._cdRef.markForCheck();
+    });
   }
 
   onLoading() {
@@ -84,7 +84,7 @@ export class SettingsCardsPageComponent implements OnInit {
     this.buttonBlur.emit();
     this.processing = true;
 
-    this._apiService.addFiatCard(window.location.origin + '/#/account/cards/:cardid')
+    this._apiService.addFiatCard(window.location.origin + window.location.pathname + '#/account/cards/:cardid')
       .finally(() => {
         this.processing = false;
         this._cdRef.detectChanges();
@@ -97,22 +97,24 @@ export class SettingsCardsPageComponent implements OnInit {
   }
 
   removeCard(card) {
-    this._translate.get('MessageBox.Remove').subscribe(phrase => {
+    this._translate.get('MessageBox.Cards.Remove').subscribe(phrase => {
       this._messageBox.confirm(phrase).subscribe(ok => {
         if (ok) {
           this.processing = true;
-          this._apiService.removeFiatCard(card.cardId).subscribe(() => {
+          this._apiService.removeFiatCard(card.cardId)
+            .finally(() => {
+              this.processing = false;
+              this._cdRef.markForCheck();
+            }).subscribe(() => {
             const id = this.cards.list.indexOf(card);
             id >= 0 && this.cards.list.splice(id, 1);
-            this._translate.get('MessageBox.Removed').subscribe(phrase => {
+            this._translate.get('MessageBox.Cards.Removed').subscribe(phrase => {
               this._messageBox.alert(phrase);
-              this.processing = false;
-              this._cdRef.detectChanges();
             });
           }, err => {
-            this._messageBox.alert(err.error.errorDesc);
-            this.processing = false;
-            this._cdRef.detectChanges();
+            this._translate.get('MessageBox.SomethingWrong').subscribe(phrase => {
+              this._messageBox.alert(phrase);
+            });
             }
           );
         }

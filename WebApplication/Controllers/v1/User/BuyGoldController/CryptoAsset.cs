@@ -18,15 +18,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
-		public async Task<APIResponse> ForAssetEth([FromBody] AssetEthModel model) {
+		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
 
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100) {
+			// try parse amount
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
+
+			// try parse fiat currency
+			var exchangeCurrency = FiatCurrency.Usd;
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
+				exchangeCurrency = fc;
 			}
 
 			// ---
@@ -41,14 +48,21 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var exchangeCurrency = FiatCurrency.Usd;
-			var estimation = await Estimation(inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed);
-
-			if (estimation == null) {
+			var rcfg = RuntimeConfigHolder.Clone();
+			if (!rcfg.Gold.AllowTradingEth) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var rcfg = RuntimeConfigHolder.Clone();
+			var limits = DepositLimits(rcfg, CryptoCurrency.Eth);
+
+			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
+			if (estimation.IsLimitExceeded) {
+				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
+			}
+
 			var timeNow = DateTime.UtcNow;
 			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
@@ -87,20 +101,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				Status = BuyGoldRequestStatus.Unconfirmed,
 				Input = BuyGoldRequestInput.ContractEthPayment,
+				RelInputId = null,
 				Output = BuyGoldRequestOutput.EthereumAddress,
-				InputAddress = model.EthAddress,
+				EthAddress = model.EthAddress,
 
 				ExchangeCurrency = exchangeCurrency,
 				InputRateCents = estimation.CentsPerAssetRate,
 				GoldRateCents = estimation.CentsPerGoldRate,
-				
+				InputExpected = estimation.ResultCurrencyAmount.ToString(),
+
 				OplogId = ticket,
 				TimeCreated = timeNow,
 				TimeExpires = timeExpires,
 				TimeNextCheck = timeNow,
 
 				UserId = user.Id,
-				RefUserFinHistoryId = finHistory.Id,
+				RelUserFinHistoryId = finHistory.Id,
 			};
 
 			// add and save

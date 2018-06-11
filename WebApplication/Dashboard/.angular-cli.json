@@ -23,7 +23,8 @@
         "assets/styles/bootstrap.sass",
         "assets/styles/fonts.sass",
         "assets/styles/main.sass",
-        "../node_modules/jsoneditor/dist/jsoneditor.min.css"
+        "../node_modules/jsoneditor/dist/jsoneditor.min.css",
+        "../node_modules/ngx-bootstrap/datepicker/bs-datepicker.css"
       ],
       "stylePreprocessorOptions": {
         "includePaths": [

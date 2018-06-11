@@ -19,7 +19,7 @@ namespace Goldmint.CoreLogic.Finance {
 	public static class EthereumContract {
 
 		/// <summary>
-		/// Process HW GOLD transferring transaction (core-worker queue)
+		/// Process Ethereum operation (core-worker queue)
 		/// </summary>
 		public static async Task<bool> ExecuteOperation(IServiceProvider services, long operationId, int confirmationsRequired) {
 
@@ -50,7 +50,7 @@ namespace Goldmint.CoreLogic.Finance {
 						select r
 					)
 						.Include(_ => _.User)
-						.Include(_ => _.RefUserFinHistory)
+						.Include(_ => _.RelUserFinHistory)
 						.AsTracking()
 						.FirstOrDefaultAsync()
 					;
@@ -75,13 +75,19 @@ namespace Goldmint.CoreLogic.Finance {
 								case EthereumOperationType.TransferGoldFromHw:
 									processor = new TransferOperation();
 									break;
-								case EthereumOperationType.ContractProcessBuyRequest:
-								case EthereumOperationType.ContractProcessSellRequest:
+								case EthereumOperationType.ContractProcessBuyRequestEth:
+								case EthereumOperationType.ContractProcessSellRequestEth:
 									processor = new ProcessRequestOperation();
 									break;
 								case EthereumOperationType.ContractCancelBuyRequest:
 								case EthereumOperationType.ContractCancelSellRequest:
 									processor = new CancelRequestOperation();
+									break;
+								case EthereumOperationType.ContractProcessBuyRequestFiat:
+									processor = new ProcessBuyRequestFiatOperation();
+									break;
+								case EthereumOperationType.ContractProcessSellRequestFiat:
+									processor = new ProcessSellRequestFiatOperation();
 									break;
 								default:
 									logger.Error($"Ethereum contract processor is not implemented for type {op.Type.ToString()} of operation #{op.Id}");
@@ -142,7 +148,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 							// save eth transaction
 							op.EthTransactionId = procExec.TxId;
-							op.RefUserFinHistory.RelEthTransactionId = op.EthTransactionId;
+							op.RelUserFinHistory.RelEthTransactionId = op.EthTransactionId;
 							try {
 								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, $"Blockchain transaction is {op.EthTransactionId}");
 							}
@@ -155,6 +161,16 @@ namespace Goldmint.CoreLogic.Finance {
 								await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, "Blockchain transaction checking started");
 							}
 							catch { }
+							
+							// own scope
+							try {
+								using (var scopedServices = services.CreateScope()) {
+									await GoldToken.OnEthereumOperationConfirmationStarted(scopedServices.ServiceProvider, op);
+								}
+							}
+							catch (Exception e) {
+								logger.Error(e);
+							}
 
 							return true;
 						}
@@ -172,17 +188,11 @@ namespace Goldmint.CoreLogic.Finance {
 								var success = txInfo.Status == EthTransactionStatus.Success;
 
 								FinalizeOperation(op, logger, success);
-
-								// request cancellation => finhistory should fail anyway
-								if (op.Type == EthereumOperationType.ContractCancelBuyRequest) {
-									op.RefUserFinHistory.Status = UserFinHistoryStatus.Failed;
-								}
-
 								await dbContext.SaveChangesAsync();
 
 								try {
 									if (op.Status == EthereumOperationStatus.Success) {
-										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
+										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, "Request has been saved on blockchain");
 									}
 									if (op.Status == EthereumOperationStatus.Failed) {
 										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
@@ -192,8 +202,16 @@ namespace Goldmint.CoreLogic.Finance {
 
 								if (!success) {
 									logger.Warn($"Operation #{operationId} failed");
+								}
 
-									// TODO: failure logic?
+								// own scope
+								try { 
+									using (var scopedServices = services.CreateScope()) {
+										await GoldToken.OnEthereumOperationResult(scopedServices.ServiceProvider, op);
+									}
+								}
+								catch (Exception e) {
+									logger.Error(e);
 								}
 							}
 
@@ -219,10 +237,6 @@ namespace Goldmint.CoreLogic.Finance {
 
 			op.Status = success ? EthereumOperationStatus.Success : EthereumOperationStatus.Failed;
 			op.TimeCompleted = DateTime.UtcNow;
-
-			op.RefUserFinHistory.Status = success ? UserFinHistoryStatus.Completed : UserFinHistoryStatus.Failed;
-			op.RefUserFinHistory.TimeCompleted = op.TimeCompleted;
-
 			logger.Trace($"Changing status to {op.Status.ToString()} for #{op.Id}");
 		}
 
@@ -272,7 +286,7 @@ namespace Goldmint.CoreLogic.Finance {
 				var amount = BigInteger.Parse(op.GoldAmount);
 
 				var txid = await ethereumWriter.TransferGoldFromHotWallet(
-					toAddress: op.DestinationAddress,
+					userAddress: op.DestinationAddress,
 					amount: amount,
 					userId: op.User.UserName
 				);
@@ -285,7 +299,7 @@ namespace Goldmint.CoreLogic.Finance {
 		}
 
 		/// <summary>
-		/// Buy/sell request processing
+		/// Buy/sell-for-ETH request processing
 		/// </summary>
 		internal sealed class ProcessRequestOperation : IEthereumOperation {
 
@@ -318,7 +332,7 @@ namespace Goldmint.CoreLogic.Finance {
 				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
 				var rate = BigInteger.Parse(op.Rate);
 
-				var txid = await ethereumWriter.ProcessBuySellRequest(
+				var txid = await ethereumWriter.ProcessRequestEth(
 					requestIndex: reqIndex,
 					ethPerGold: rate
 				);
@@ -356,7 +370,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
 
-				var txid = await ethereumWriter.CancelBuySellRequest(
+				var txid = await ethereumWriter.CancelRequest(
 					requestIndex: reqIndex
 				);
 
@@ -367,6 +381,108 @@ namespace Goldmint.CoreLogic.Finance {
 			}
 		}
 
+		/// <summary>
+		/// Buy-for-fiat request processing
+		/// </summary>
+		internal sealed class ProcessBuyRequestFiatOperation : IEthereumOperation {
+
+			public Task<CheckResult> Check(IServiceProvider services, DAL.Models.EthereumOperation op) {
+
+				if (op.RelatedExchangeRequestId == null || op.RelatedExchangeRequestId < 1) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Request ID must be a valid ID",
+					});
+				}
+
+				if (op.CentsAmount == null || op.CentsAmount < 1) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Request cents amount is invalid",
+					});
+				}
+
+				if (!long.TryParse(op.Rate ?? "-1", out var rate) || rate < 0) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Invalid rate format",
+					});
+				}
+
+				return Task.FromResult(new CheckResult() {
+					Success = true,
+				});
+			}
+
+			public async Task<ExecResult> Exec(IServiceProvider services, DAL.Models.EthereumOperation op) {
+
+				var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+				var ticketDesk = services.GetRequiredService<IOplogProvider>();
+
+				var reference = op.RelatedExchangeRequestId ?? 0;
+				var centsAmount = op.CentsAmount ?? 0;
+				var rate = long.Parse(op.Rate);
+
+				var txid = await ethereumWriter.ProcessBuyRequestFiat(
+					userId: op.User.UserName,
+					reference: reference,
+					userAddress: op.DestinationAddress,
+					amountCents: centsAmount,
+					centsPerGold: rate
+				);
+
+				return new ExecResult() {
+					Success = txid != null,
+					TxId = txid,
+				};
+			}
+		}
+
+		/// <summary>
+		/// Sell-for-fiat request processing
+		/// </summary>
+		internal sealed class ProcessSellRequestFiatOperation : IEthereumOperation {
+
+			public Task<CheckResult> Check(IServiceProvider services, DAL.Models.EthereumOperation op) {
+
+				if (!BigInteger.TryParse(op.EthRequestIndex ?? "-1", out var index) || index < 0) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Invalid request index format",
+					});
+				}
+
+				if (!long.TryParse(op.Rate ?? "-1", out var rate) || rate < 0) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Invalid rate format",
+					});
+				}
+
+				return Task.FromResult(new CheckResult() {
+					Success = true,
+				});
+			}
+
+			public async Task<ExecResult> Exec(IServiceProvider services, DAL.Models.EthereumOperation op) {
+
+				var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+				var ticketDesk = services.GetRequiredService<IOplogProvider>();
+
+				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
+				var rate = long.Parse(op.Rate);
+
+				var txid = await ethereumWriter.ProcessSellRequestFiat(
+					requestIndex: reqIndex,
+					centsPerGold: rate
+				);
+
+				return new ExecResult() {
+					Success = txid != null,
+					TxId = txid,
+				};
+			}
+		}
 		// ---
 
 		internal class CheckResult {

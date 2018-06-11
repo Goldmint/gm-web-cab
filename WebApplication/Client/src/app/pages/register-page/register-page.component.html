@@ -25,7 +25,7 @@
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
                        name="email" [(ngModel)]="signupModel.email" #email="ngModel"
-                       class="form-control col-12 col-md-7"
+                       class="form-control col-12 col-lg-7"
                        [ngClass]="{'is-invalid': (errors?.Email || !email.valid) && (signupForm.submitted || !email.pristine)}"
                        (ngModelChange)="errors.Email = false"
                        [readonly]="loading">
@@ -40,11 +40,12 @@
                   {{ errors?.Email }}
                 </div>
               </div>
+
               <div class="form-group">
                 <label for="inputPassword">{{ "PAGES.Register.Labels.Password" | translate }}</label>
                 <input type="password" id="inputPassword" required minlength="6" maxlength="128" noAutoComplete
                        name="password" [(ngModel)]="signupModel.password" #password="ngModel"
-                       class="form-control col-12 col-md-7"
+                       class="form-control col-12 col-lg-7" equal="passwordRepeat" reverse="true"
                        [ngClass]="{'is-invalid': (errors?.Password || !password.valid) && (signupForm.submitted || !password.pristine)}"
                        (ngModelChange)="errors.Password = false"
                        [readonly]="loading || passwordChecking">
@@ -66,6 +67,27 @@
                 </div>
                 <div class="invalid-feedback" *ngIf="passwordChecking">
                   {{ "PAGES.Register.Errors.Password.weakChecking" | translate }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="inputPasswordRepeat">{{ "PAGES.Register.Labels.Confirm" | translate }}</label>
+                <input type="password" id="inputPasswordRepeat" required minlength="6" maxlength="128" noAutoComplete
+                       name="passwordRepeat" ngModel #passwordRepeat="ngModel"
+                       class="form-control col-12 col-lg-7" equal="password"
+                       [ngClass]="{'is-invalid': (!passwordRepeat.valid) && (signupForm.submitted || password.dirty || passwordRepeat.dirty)}"
+                       [readonly]="loading || passwordChecking">
+                <div class="invalid-feedback" *ngIf="passwordRepeat.touched && passwordRepeat.errors?.required">
+                  {{ "PAGES.Register.Errors.Password.required" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="passwordRepeat.errors?.minlength">
+                  {{ "PAGES.Register.Errors.Password.minlength" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="passwordRepeat.errors?.maxlength">
+                  {{ "PAGES.Register.Errors.Password.maxlength" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="(password.dirty || passwordRepeat.dirty) && passwordRepeat.errors?.equal">
+                  {{ "PAGES.Register.Errors.Password.notMatch" | translate }}
                 </div>
               </div>
 

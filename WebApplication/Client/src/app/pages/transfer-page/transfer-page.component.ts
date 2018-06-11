@@ -1,9 +1,8 @@
 import {
-  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, HostBinding, TemplateRef, ChangeDetectorRef,
+  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, HostBinding, ChangeDetectorRef,
   OnDestroy
 } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { MessageBoxService, EthereumService } from "../../services/index";
 import { BigNumber } from 'bignumber.js'
 import {Observable} from "rxjs/Observable";
@@ -12,6 +11,9 @@ import {Subscription} from "rxjs/Subscription";
 import {Router} from "@angular/router";
 import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
+import {TFAInfo} from "../../interfaces";
+import * as Web3 from "web3";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-transfer-page',
@@ -23,26 +25,30 @@ import {TranslateService} from "@ngx-translate/core";
 export class TransferPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
-  private _modalRef: BsModalRef;
   public amount: BigNumber = new BigNumber(0);
-  public walletAddressVal: string = null;
   public walletAddress: string = null;
-
-  amountUnset: boolean = true;
-  goldBalance: BigNumber = null;
-  goldHotBalance: BigNumber = null;
-  goldMetamaskBalance: BigNumber = null;
-
-  walletChecked:boolean = true;
-  amountChecked: boolean = true;
+  public goldBalance: BigNumber = null;
+  public walletChecked: boolean = false;
+  public coincidesAddress: boolean = false;
+  public isFirstLoad: boolean = true;
+  public isFirstTransaction = true;
+  public loading: boolean = true;
+  public invalidAmount: boolean = false;
+  public showConfirmBlock: boolean = false;
+  public user;
+  public tfaInfo: TFAInfo;
+  public isMetamask: boolean = false;
 
   public amountValue: number;
   public ethAddress: string = '';
   public selectedWallet = 0;
-  private isLoaded = false;
 
+  public etherscanUrl = environment.etherscanUrl;
   private sub1: Subscription;
-  destroy$: Subject<boolean> = new Subject<boolean>();
+  public subGetGas: Subscription;
+  private timeoutPopUp;
+  private destroy$: Subject<boolean> = new Subject<boolean>();
+  private Web3 = new Web3();
 
   constructor(
     private _modalService: BsModalService,
@@ -56,132 +62,146 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
     Observable.combineLatest(
-      this._ethService.getObservableHotGoldBalance(),
-      this._ethService.getObservableGoldBalance(),
-      this._ethService.getObservableEthAddress()
-    ).takeUntil(this.destroy$).subscribe(data => {
-      if (this.ethAddress !== data[2]) {
-        this.ethAddress = data[2];
-        if (!this.ethAddress) {
-          this.selectedWallet = 0;
-          this.goldBalance = data[0];
-          this.goldBalance && this.setGoldBalance();
+      this._apiService.getTFAInfo(),
+      this._apiService.getProfile()
+    )
+      .subscribe((res) => {
+        this.tfaInfo = res[0].data;
+        this.user = res[1].data;
+        this.loading = false;
+
+        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+          this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
+            this._messageBox.alert(phrase.Text, phrase.Heading);
+          });
         }
-      }
 
-      this.goldBalance = this.selectedWallet == 0 ? data[0] : data[1];
-      this.goldHotBalance = data[0];
-      this.goldMetamaskBalance = data[1];
+        this._cdRef.markForCheck();
+      });
 
-      if (this.goldBalance && !this.isLoaded) {
-        this.isLoaded = true;
-        this.setGoldBalance();
-      }
-
-      this._cdRef.markForCheck();
-    });
-
-    this.sub1 = this._userService.onWalletSwitch$.subscribe((wallet) => {
-      if (wallet['id'] === 'hot') {
-        this.selectedWallet = 0;
-        this.goldBalance = this.goldHotBalance;
-      } else {
-        this.selectedWallet = 1;
-        this.goldBalance = this.goldMetamaskBalance;
-      }
-      this.setGoldBalance();
-      this._cdRef.markForCheck();
-    });
-  }
-
-  modal(template: TemplateRef<any>) {
-    if (this.selectedWallet == 1) {
-      if (this._modalRef) {
-        this._modalRef.hide();
-      }
-      this._modalRef = this._modalService.show(template, { class: 'modal-lg' });
-    } else {
-      this.onHotWallet();
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        !this.isMetamask && this._userService.showLoginToMMBox()
+      }, 3000);
     }
+
+    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      this.ethAddress = ethAddr;
+      if (this.ethAddress !== null) {
+        this.isMetamask = true;
+        this.onWalletAddressChanged(this.walletAddress);
+      }
+
+      if (!this.ethAddress && this.goldBalance !== null) {
+        this.isMetamask = false;
+        this.amountValue = 0;
+        this.goldBalance = new BigNumber(0);
+      }
+      this._cdRef.markForCheck();
+    });
+
+    this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(data => {
+      if ( data !== null && (this.goldBalance === null || !this.goldBalance.eq(data)) ) {
+        this.goldBalance = data;
+
+        if (this.isFirstLoad) {
+          this.isFirstLoad = false;
+          this.setGoldBalance();
+        }
+        this._cdRef.markForCheck();
+      }
+    });
   }
 
   setGoldBalance(percent: number = 1) {
-    let goldBalance = new BigNumber(this.goldBalance.times(percent));
-    this.onAmountChanged(goldBalance.toString());
+    const goldAmount = +this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN) * percent;
+    this.amountValue = +this.substrValue(goldAmount);
+    this.invalidAmount = this.amountValue > 0 ? false : true;
+  }
+
+  onAmountChanged(event) {
+    event.target.value = this.substrValue(event.target.value);
+    event.target.setSelectionRange(event.target.value.length, event.target.value.length);
+
+    if (event.target.value > +this.goldBalance || +!this.goldBalance || event.target.value <= 0) {
+      this.invalidAmount = true;
+    } else {
+      this.invalidAmount = false;
+    }
+  }
+
+  substrValue(value: number|string) {
+    return value.toString()
+      .replace(',', '.')
+      .replace(/([^\d.])|(^\.)/g, '')
+      .replace(/^(\d+)(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
+      .replace(/^0+(\d)/, '$1');
   }
 
   onWalletAddressChanged(value: string) {
-    this.walletAddress = null;
-    this.walletChecked = false;
+    this.walletChecked = this.coincidesAddress = false;
 
     if (this._ethService.isValidAddress(value)) {
+      if (value.toLowerCase() === this.ethAddress.toLowerCase()) {
+        this.coincidesAddress = true;
+      }
       this.walletAddress = value;
       this.walletChecked = true;
     }
     this._cdRef.markForCheck();
   }
 
-  onAmountChanged(value: string) {
-    this.amountUnset = false;
-    this.amount = new BigNumber(0);
+  onSubmit() {
+    this.sub1 && this.sub1.unsubscribe();
+    this.subGetGas && this.subGetGas.unsubscribe();
+    this.isFirstTransaction = true;
 
-    var testVal = value != null && value.length > 0 ? parseFloat(value) : 0;
-    if (testVal > 0) {
-      this.amount = new BigNumber(value);
-      this.amount = this.amount.decimalPlaces(6, BigNumber.ROUND_DOWN);
-    }
-    this.amountValue = +this.amount.toString();
-    this.validateAmount();
-    this._cdRef.markForCheck();
-  }
+    const ToAddress = this.walletAddress.slice(0, 6) + '****' + this.walletAddress.slice(-4);
+    const FromAddress = this.ethAddress.slice(0, 6) + '****' + this.ethAddress.slice(-4);
+    const amount = this.Web3.toWei(this.amountValue);
 
-  validateAmount() {
-    this.amountChecked = this.amountUnset || this.amount.gt(0) && this.goldBalance && this.amount.lte(this.goldBalance);
-  }
-
-  onMetamask() {
     this._translate.get('MessageBox.GoldTransfer',
-      {address: this.walletAddress, amount: this.amount}
+      {ToAddress: ToAddress, FromAddress: FromAddress, amount: this.amountValue}
     ).subscribe(phrase => {
       this._messageBox.confirm(phrase).subscribe(ok => {
         if (ok) {
-          this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, this.amount);
-          this.walletAddressVal = "";
-          this.amount = new BigNumber(0);
-          this.amountValue = null;
-        }
-        this._cdRef.markForCheck();
-      });
-    });
-  }
+          this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
+            if (price !== null && this.isFirstTransaction) {
+              this.showConfirmBlock = true;
+              this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, amount, +price);
+              this.isFirstTransaction = false;
+              this._cdRef.markForCheck();
+            }
+          });
 
-  onHotWallet() {
-    this._translate.get('MessageBox.GoldTransfer',
-      {address: this.walletAddress, amount: this.amount}
-    ).subscribe(phrase => {
-      this._messageBox.confirm(phrase).subscribe(ok => {
-        if(ok) {
-          this._apiService.goldTransferHwRequest(this.walletAddress, this.amount)
-            .subscribe(() => {
-              this._translate.get('MessageBox.RequestProgress').subscribe(phrase => {
-                this._messageBox.alert(phrase).subscribe(() => {
-                  this.walletAddressVal = "";
-                  this.amount = new BigNumber(0);
-                  this.amountValue = null;
-                  this.router.navigate(['/finance/history']);
-                });
+          this.sub1 = this._ethService.getSuccessSellRequestLink$.subscribe(hash => {
+            if (hash) {
+              this.showConfirmBlock = false;
+              this._translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
+                this._messageBox.alert(`
+                  <div class="text-center">
+                    <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+                    <div>${phrases.Steps}</div>
+                    <div>${phrases.Hash}</div>
+                    <div class="mb-2 sell-hash">${hash}</div>
+                    <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+                  </div>
+                `);
               });
-           });
+              this._cdRef.markForCheck();
+            }
+          });
         }
-      });
+      })
     });
   }
 
   ngOnDestroy() {
     this.sub1 && this.sub1.unsubscribe();
+    this.subGetGas && this.subGetGas.unsubscribe();
     this.destroy$.next(true);
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

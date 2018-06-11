@@ -33,6 +33,7 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Google.Impl;
 
 namespace Goldmint.WebApplication {
 
@@ -213,6 +214,12 @@ namespace Goldmint.WebApplication {
 					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
 					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
 					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
+					opts.RsInitStoreSms = _appConfig.Services.The1StPayments.RsInitStoreSms;
+					opts.RsInitRecurrent = _appConfig.Services.The1StPayments.RsInitRecurrent;
+					opts.RsInitStoreCrd = _appConfig.Services.The1StPayments.RsInitStoreCrd;
+					opts.RsInitRecurrentCrd = _appConfig.Services.The1StPayments.RsInitRecurrentCrd;
+					opts.RsInitStoreP2P = _appConfig.Services.The1StPayments.RsInitStoreP2P;
+					opts.RsInitRecurrentP2P = _appConfig.Services.The1StPayments.RsInitRecurrentP2P;
 				}, LogManager.LogFactory);
 			});
 
@@ -294,6 +301,11 @@ namespace Goldmint.WebApplication {
 				LogManager.LogFactory
 			);
 			services.AddSingleton(_apiTelemetryAccumulator);
+
+			// google sheets
+			if (_appConfig.Services.GoogleSheets != null) {
+				services.AddSingleton(new Sheets(_appConfig));
+			}
 
 			return services.BuildServiceProvider();
 		}

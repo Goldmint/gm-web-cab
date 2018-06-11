@@ -2,7 +2,8 @@
   "COMMONS": {
     "Loading": "Загрузка...",
     "TFACode": "Код двухфакторный аутентификации",
-    "TFACodeInvalid": "Неверный код"
+    "TFACodeInvalid": "Неверный код",
+    "ConfirmTr": "Подтвердите транзакцию в MetaMask"
   },
   "HEADER": {
     "Wallet": "Кошелек",
@@ -24,7 +25,7 @@
       "LegalSecurity": "Легальность и безопасность",
       "HelpCenter": "Помощь"
     },
-    "Copyright": "GoldMint, PTE, LTD © {{year}}"
+    "Copyright": "Goldmint PTE. Ltd © {{year}}"
   },
   "PAGES": {
     "Home": {
@@ -45,7 +46,8 @@
       },
       "Method": {
         "CtyptoCurrency": "Криптовалюта",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Платёжная карта"
       },
       "Paused": "Операции продажи приостановлены",
       "CtyptoCurrency": {
@@ -71,6 +73,14 @@
           }
         }
       },
+      "PaymentCard": {
+        "Heading": "Платёжная карта",
+        "Labels": {
+          "SelectCard": "Выберите карту",
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
+        }
+      },
       "SectionTitle": "Мгновенная продажа",
       "Discount": "Комиссия",
       "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
@@ -80,8 +90,10 @@
       },
       "Errors": {
         "InvalidGold": "Недопустимое количество GOLD",
-        "InvalidEth": "Недопустимое количество eth",
-        "UseMM": "Используйте Metamask"
+        "InvalidUsd": "Недопустимое количество USD",
+        "InvalidEth": "Недопустимое количество ETH",
+        "UseMM": "Используйте metamask",
+        "NotAllow": "В данный момент метод не разрешен"
       }
     },
     "Buy": {
@@ -91,7 +103,8 @@
       "DepositDesc": "Для покупок создайте депозит в валюте fiat в своем аккаунте",
       "Method": {
         "CtyptoCurrency": "Криптовалюта",
-        "CryptoCapital": "CryptoCapital"
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Платёжная карта"
       },
       "Paused": "Операции покупки приостановлены",
       "CtyptoCurrency": {
@@ -104,6 +117,14 @@
           "Steps": "Подождите как минимум 12 шагов подтверждения.",
           "Hash": "Хэш вашей транзакции:",
           "Link": "Просмотр транзакции на EtherScan"
+        }
+      },
+      "PaymentCard": {
+        "Heading": "Платёжная карта",
+        "Labels": {
+          "SelectCard": "Выберите карту",
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
         }
       },
       "Labels": {
@@ -121,8 +142,11 @@
         "Exceeded": "Вы превысили частоту запросов (один запрос в течение 30 минут). Пожалуйста, попробуйте позже",
         "Pending": "Ваша предыдущая blockchain операция еще находится на рассмотрении",
         "UseMM": "Используйте metamask",
+        "NotAllow": "В данный момент метод не разрешен",
         "InvalidEth": "Недопустимое количество ETH",
-        "InvalidGold": "Недопустимое количество GOLD"
+        "InvalidUsd": "Недопустимое количество USD",
+        "InvalidGold": "Недопустимое количество GOLD",
+        "EnoughMoney": "У вас недостаточно средств"
       }
     },
     "Transfer": {
@@ -132,7 +156,8 @@
         "Amount": "Количество",
         "ChooseMethod": "Выберите метод перевода",
         "MyWallet": "Мой Etherium кошелек",
-        "Or": "или"
+        "Or": "или",
+        "NoMM": "Используйте metamask"
       },
       "Steps": {
         "One": "Перейдите на",
@@ -140,15 +165,16 @@
         "Three": "Нажмите подтвердить транзакцию"
       },
       "Placeholders": {
-        "EtheriumWallet": "Etherium кошелек"
+        "EtheriumWallet": "Ethereum кошелек"
       },
       "Buttons": {
         "Send": "Отправить"
+      },
+      "Errors": {
+        "InvalidAddress": "Неправильный адрес",
+        "InvalidAmount": "Неправильное количество",
+        "AddressMatches": "Введынный адрес совпадает с активным адресом кошелька Metamask"
       }
-    },
-    "Errors": {
-      "InvalidAddress": "Неправильный адрес",
-      "InvalidAmount": "Неправильное количество"
     },
     "Finance": {
       "Heading": "Финансы",
@@ -256,9 +282,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Payment Card",
         "Labels": {
           "SelectCard": "Выберите карту:",
-          "Amount": "Количество:"
+          "Amount": "Количество:",
+          "Estimate": "Estimates Amount"
         },
         "Text": {
           "Agree": "Я согласен с",
@@ -266,6 +294,8 @@
         },
         "Errors": {
           "Invalid": "Недопустимое количество",
+          "InvalidGold": "Недопустимое количество GOLD",
+          "InvalidUsd": "Недопустимое количество USD",
           "Minimal": "Минимальное количество",
           "Maximum": "Максимальное количество"
         }
@@ -386,9 +416,11 @@
         }
       },
       "PaymentCard": {
+        "Heading": "Платёжная карта",
         "Labels": {
           "SelectCard": "Выберите карту:",
           "Amount": "Количество:",
+          "Estimate": "Оценочное количество",
           "2FA": "Код двухфакторной аутентификации"
         },
         "Text": {
@@ -397,6 +429,8 @@
         },
         "Errors": {
           "Invalid": "Недопустимое количество",
+          "InvalidGold": "Недопустимое количество GOLD",
+          "InvalidUsd": "Недопустимое количество USD",
           "Minimal": "Минимальное количество",
           "Maximum": "Максимальное количество",
           "Length": "Код должен быть длиной в 6 цифр"
@@ -485,8 +519,8 @@
       "Types": {
         "withdraw": "Вывод",
         "deposit": "Пополнение",
-        "goldbuy": "Покупка Gold",
-        "goldsell": "Продажа Gold",
+        "goldbuy": "Покупка GOLD",
+        "goldsell": "Продажа GOLD",
         "hwtransfer": "Перевод"
       }
     },
@@ -526,7 +560,8 @@
         "Password": {
           "required": "Это обязательное поле",
           "minlength": "Пароль слишком короткий",
-          "maxlength": "Пароль слишком длинный"
+          "maxlength": "Пароль слишком длинный",
+          "pairNotFound": "Пара логин/пароль не найдена"
         },
         "TFACode": {
           "pattern": "Допускается только 6-ти значный цифровой код"
@@ -583,7 +618,8 @@
       "Labels": {
         "Username": "Email или логин",
         "Email": "Email",
-        "Password": "Пароль"
+        "Password": "Пароль",
+        "Confirm": "Повторите пароль"
       },
       "Paused": "Регистрация новых аккаунтов временно приостановлена",
       "Errors": {
@@ -601,7 +637,8 @@
           "maxlength": "Пароль должен быть не длинее 128 символов",
           "pattern": "Пароль должен содержать заглавные буквы, строчные буквы и цифры",
           "weak": "Пароль слишком слабый",
-          "weakChecking": "Проверка пароля..."
+          "weakChecking": "Проверка пароля...",
+          "notMatch": "Пароли не совпадают"
         }
       },
       "Buttons": {
@@ -771,6 +808,11 @@
             "NotSigned": "Не подписан",
             "NotVerified": "Не верифицирован"
           },
+          "Success": {
+            "Heading": "KYC верификация",
+            "Status": "Верификация завершена",
+            "Description": "Поздравляем! KYC верификация успешно завершена!"
+          },
           "Text": "Завершите верификацию для вывода средств и разблокировки возможностей аккаунта",
           "Note": "Процедура верификации очень простая и интуитивная. Мы всего лишь просим предоставить некоторые персональные данные и подтверждающие документы.",
           "Buttons": {
@@ -791,6 +833,11 @@
           "Text": "Завершите базовую верификацию путем подписания соглашения GoldMint. Соглашение отправлено на ваш основной адрес электронной почты. <br> <br> Если вы не получите сообщение через 30 минут, нажмите кнопку ниже.",
           "TextPending": "Подписание соглашения еще продолжается. Вернитесь позже или попробуйте обновить страницу.",
           "Widget": "Не подписано",
+          "Success": {
+            "Heading": "Условия соглашения о продажах",
+            "Status": "Соглашение одобрено",
+            "Description": "Поздравляем! Условия соглашения о продажах приняты!"
+          },
           "Buttons": {
             "Resend": "Повторно отправить соглашение"
           }
@@ -802,9 +849,14 @@
           "Button": "Я согласен"
         },
         "ProofResidency": {
-          "Heading": "Доказательство проживания",
+          "Heading": "Доказательство места жительства",
           "Text": "Для проверки Вашего места жительства, Вам необходимо отправить запрос в нашу службу поддержки и предоставить один из следующих документов (датированных не позднее чем за последние 60 дней): счет за газ, счет за электричество, счет за кабельное телевидение, счет для налога на имущество, счет за топливо, счет на оплату услуг домашней телефонной связи, банковская выписка по Вашему активному счету.",
-          "Button": "Отправить запрос"
+          "Button": "Отправить запрос",
+          "Success": {
+            "Heading": "Докозательство места жительства",
+            "Status": "Верификация завершена",
+            "Description": "Поздравляем! Верификация места жительства успешно завершена!"
+          }
         },
         "FinishedSection": {
           "Title": "Расширенная верификация",
@@ -925,7 +977,9 @@
             "Four": "4. Введите текущий код"
           },
           "Errors": {
-            "pattern": "Допускается только 6-значный цифровой код"
+            "pattern": "Допускается только 6-значный цифровой код",
+            "InvalidCode": "Неверный код",
+            "TimeError": "Проверьте настройки времени на вашем телефоне. Время должно быть точно выставлено. Включите синхронизацию времени, если она отключена"
           },
           "Buttons": {
             "Enable": "Включить 2FA",
@@ -1065,6 +1119,56 @@
         "KYCPolicy": "KYC политика"
       }
     },
+    "PaymentCardBlock": {
+      "Labels": {
+        "Amount": "Вы заплатите:",
+        "Estimates": "Вы получите:",
+        "Checkbox": "Настоящим я подтверждаю своё ознакомление и согласие с информацией, приведенной ниже (непосредственно или в виде ссылок):",
+        "TimerLabel": "Оставшееся время для подтверждения платежа:"
+      },
+      "Button": "Перейти к оплате",
+      "Table": {
+        "Caption": {
+          "Billing": "Дескриптор биллинга",
+          "ConsumerPolicy": "Политика конфиденциальности",
+          "ConsumerInformation": "Контактная информация клиентского сервиса",
+          "CyberBridge": "CyberBridge OÜ",
+          "DeliveryPolicy": "Условия доставки",
+          "Description": "Описание предлагаемых услуг",
+          "Domicile": "Домицилий и юрисдикция",
+          "GoldCoin": "Условия продажи GoldCoin",
+          "Legal": "Правовая информация",
+          "Reccuring": "Повторяющиеся платежи",
+          "ReturnPolicy": "Политика осуществления возврата/отмены сделки",
+          "Security": "Политика безопасности передачи данных карты клиента",
+          "Currency": "Валюта платежа",
+          "Method": "Способ оплаты"
+        },
+        "Information": {
+          "Billing": "Goldmint",
+          "ConsumerPolicy": "https://www.goldmint.io/ru/privacy-policy",
+          "ConsumerInformation": {
+            "Facebook": "https://www.facebook.com/goldmint.io/",
+            "Telegram": "https://t.me/goldmintio",
+            "Support": "support@goldmint.io"
+          },
+          "CyberBridge": "компания зарегистрирована в Эстонии 05.12.2017 г., регистрационный номер 14383967, адрес Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
+          "DeliveryPolicy": "неприменимо, в соответствии с цифровой природой продукта",
+          "Description": "https://www.goldmint.io/ru/tokens",
+          "Domicile": "(на момент совершения сделки) - Эстония",
+          "GoldCoin": "https://www.goldmint.io/media/documents/%D0%A3%D1%81%D0%BB%D0%BE%D0%B2%D0%B8%D1%8F_%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%D0%B8_Gold_Coin.pdf ",
+          "Legal": "https://www.goldmint.io/ru/legal",
+          "Reccuring": "не осуществляются компанией CyberBridge OU",
+          "ReturnPolicy": {
+            "Text": "CyberBridge OU приобретает золото на биржах непосредственно в момент получения денежных средств oт Пользователя и несёт все связанные с этим расходы и издержки, следовательно, такая транзакция не может быть отменена. Однако, Пользователь может продать GoldCoin обратно CyberBridge OU по тарифам, указанным в личном кабинете Пользователя",
+            "Link": "https://app.goldmint.io/#/sell"
+          },
+          "Security": "определена компанией, оказывающей платёжные услуги",
+          "Currency": "Доллары США, Евро",
+          "Method": "оплата картой"
+        }
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Ошибка 404. Страница не найдена",
@@ -1102,6 +1206,11 @@
     },
     "TFA": {
       "InvalidCode": "Неверный код"
+    },
+    "Trading": "Торговля запрещена",
+    "Limit": {
+      "Min": "Минимальное количество",
+      "Max": "Максимальное количество"
     }
   },
   "APIErrors": {
@@ -1120,9 +1229,9 @@
     "RequestProgress": "Ваш запрос выполняется!",
     "GoldSell": "Продать: {{ goldAmount }} GOLD <br> Вы получите: $ {{ fiatAmount }} ($ {{ feeAmount }} комиссия) <br> GOLD/USD: $ {{ goldRate }}",
     "GoldBuy": "Купить: {{ goldAmount }} GOLD <br> GOLD/USD: $ {{ goldRate }}",
-    "GoldTransfer": "Целевой адрес: {{ address }} <br> GOLD количество: {{ amount }} GOLD",
-    "EthDeposit": "Количество Eth: {{ coinAmount }} Eth <br> Оценочная сумма: {{ goldAmount }} GOLD<br> Eth/USD: {{ ethRate }}",
-    "EthWithdraw": "Количество Gold: {{ coinAmount }} GOLD <br> Оценочная сумма: {{ goldAmount }} Eth<br> Eth/USD: {{ ethRate }}",
+    "GoldTransfer": "Из: {{ ToAddress }} <br> В: {{ FromAddress }} <br> Количество: {{ amount }} GOLD",
+    "EthDeposit": "Количество ETH: {{ coinAmount }} ETH <br> Оценочная сумма: {{ goldAmount }} GOLD<br> ETH/USD: {{ ethRate }}",
+    "EthWithdraw": "Количество GOLD: {{ coinAmount }} GOLD <br> Оценочная сумма: {{ goldAmount }} ETH<br> ETH/USD: {{ ethRate }}",
     "PasswordChanged": "Пароль успешно изменен",
     "InvalidCode": "Неверный код",
     "ConnectionError": {
@@ -1139,6 +1248,11 @@
     "MetaMask": {
       "Heading": "Чтобы продолжить, Вам понадобится Metamask",
       "Text": "MetaMask - это мост, который позволяет вам посещать распределенную сеть будущего в вашем браузере сегодня. Он позволяет запускать Ethereum dApps прямо в вашем браузере без запуска полного узла Ethereum. Пожалуйста, установите расширение MetaMask в браузере Chrome, Firefox или Opera. Узнать о <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
+    },
+    "LoginToMM": {
+      "HeadingBuy": "КУПИТЬ GOLD",
+      "HeadingSell": "ПРОДАТЬ GOLD",
+      "Text": "Войдите в свой аккаунт"
     },
     "logOut": "Вы действительно хотите выйти?",
     "SomethingWrong": "Что-то пошло не так.",

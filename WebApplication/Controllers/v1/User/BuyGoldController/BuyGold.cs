@@ -10,6 +10,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 using System.Globalization;
+using Goldmint.CoreLogic.Services.RuntimeConfig;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -44,18 +45,29 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
 			}
 
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount <= 100 || (cryptoCurrency == null && !model.Reversed && inputAmount > long.MaxValue)) {
+			// try parse amount
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (cryptoCurrency == null && !model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
 			// ---
 
-			var est = await Estimation(inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed);
-			if (est == null) {
+			var rcfg = RuntimeConfigHolder.Clone();
+
+			var limits = cryptoCurrency != null
+				? DepositLimits(rcfg, cryptoCurrency.Value)
+				: DepositLimits(rcfg, exchangeCurrency)
+			;
+
+			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
+			if (estimation.IsLimitExceeded) {
+				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
+			}
 
-			return APIResponse.Success(est.View);
+			return APIResponse.Success(estimation.View);
 		}
 
 		/// <summary>
@@ -72,6 +84,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
 			// ---
@@ -85,7 +98,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					r.TimeExpires > DateTime.UtcNow
 				select r
 			)
-			.Include(_ => _.RefUserFinHistory)
+			.Include(_ => _.RelUserFinHistory)
 			.AsTracking()
 			.FirstOrDefaultAsync()
 			;
@@ -95,8 +108,21 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
 			}
 
+			// activity
+			var userActivity = CoreLogic.User.CreateUserActivity(
+				user: user,
+				type: Common.UserActivityType.Exchange,
+				comment: $"Gold buying request #{request.Id} confirmed",
+				ip: agent.Ip,
+				agent: agent.Agent,
+				locale: userLocale
+			);
+			DbContext.UserActivity.Add(userActivity);
+			await DbContext.SaveChangesAsync();
+
 			// mark request for processing
-			request.RefUserFinHistory.Status = UserFinHistoryStatus.Manual;
+			request.RelUserFinHistory.Status = UserFinHistoryStatus.Manual;
+			request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
 			request.Status = BuyGoldRequestStatus.Confirmed;
 
 			await DbContext.SaveChangesAsync();
@@ -107,7 +133,48 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			catch {
 			}
 
-			// TODO: email
+			// credit card
+			if (request.Input == BuyGoldRequestInput.CreditCardDeposit) {
+				
+				// check
+				if (request.RelInputId == null) {
+					throw new Exception($"RelInputId is invalid at #{ request.Id }");
+				}
+				if (!long.TryParse(request.InputExpected, out var amount)) {
+					throw new Exception($"Amount is invalid at #{ request.Id }");
+				}
+
+				// get the card
+				var card = await (
+						from c in DbContext.UserCreditCard
+						where
+							c.UserId == user.Id &&
+							c.Id == request.RelInputId &&
+							c.State == CardState.Verified
+						select c
+					)
+					.AsNoTracking()
+					.FirstOrDefaultAsync()
+				;
+				if (card == null) {
+					return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
+				}
+
+				// enqueue payment
+				var payment = await CoreLogic.Finance.The1StPaymentsProcessing.CreateDepositPayment(
+					services: HttpContext.RequestServices,
+					card: card,
+					currency: request.ExchangeCurrency,
+					amountCents: amount,
+					buyRequestId: request.Id,
+					oplogId: request.OplogId
+				);
+				payment.Status = CardPaymentStatus.Pending;
+				DbContext.CreditCardPayment.Add(payment);
+				await DbContext.SaveChangesAsync();
+			}
+
+			// TODO: email?
 
 			return APIResponse.Success(
 				new ConfirmView() { }
@@ -118,19 +185,29 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		internal class EstimationResult {
 
+			public bool TradingAllowed { get; set; }
+			public bool IsLimitExceeded { get; set; }
 			public EstimateView View { get; set; }
 			public long CentsPerAssetRate { get; set; }
 			public long CentsPerGoldRate { get; set; }
+			public BigInteger ResultCurrencyAmount { get; set; }
+			public BigInteger ResultGoldAmount { get; set; }
 		}
 
 		[NonAction]
-		private async Task<EstimationResult> Estimation(BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed) {
+		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed, BigInteger depositLimitMin, BigInteger depositLimitMax) {
 
 			bool allowed = false;
-			object viewAmount = null;
-			string viewAmountCurrency = "";
+			
 			var centsPerAsset = 0L;
 			var centsPerGold = 0L;
+			var resultCurrencyAmount = BigInteger.Zero;
+			var resultGoldAmount = BigInteger.Zero;
+
+			object viewAmount = null;
+			string viewAmountCurrency = "";
+
+			var limitsData = (EstimateLimitsView) null;
 
 			// default estimation: specified currency to GOLD
 			if (!reversed) {
@@ -145,9 +222,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
+					resultCurrencyAmount = inputAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = (long)depositLimitMin / 100d,
+						Max = (long)depositLimitMax / 100d,
+						Cur = (long)resultCurrencyAmount / 100d,
+					};
 				}
 
 				// cryptoasset
@@ -162,9 +248,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
 					centsPerAsset = res.CentsPerAssetRate;
+					resultCurrencyAmount = inputAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = depositLimitMin.ToString(),
+						Max = depositLimitMax.ToString(),
+						Cur = resultCurrencyAmount.ToString(),
+					};
 				}
 			}
 			// reversed estimation: GOLD to specified currency
@@ -180,9 +275,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
+					resultCurrencyAmount = res.ResultCentsAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = res.ResultCentsAmount / 100d;
 					viewAmountCurrency = fiatCurrency.ToString().ToUpper();
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = (long)depositLimitMin / 100d,
+						Max = (long)depositLimitMax / 100d,
+						Cur = (long)resultCurrencyAmount / 100d,
+					};
 				}
 
 				// cryptoasset
@@ -197,24 +301,90 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
 					centsPerAsset = res.CentsPerAssetRate;
+					resultCurrencyAmount = res.ResultAssetAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = res.ResultAssetAmount.ToString();
 					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
+
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = depositLimitMin.ToString(),
+						Max = depositLimitMax.ToString(),
+						Cur = resultCurrencyAmount.ToString(),
+					};
 				}
 			}
 
-			if (!allowed) {
-				return null;
-			}
+			var limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
 
 			return new EstimationResult() {
+				TradingAllowed = allowed,
+				IsLimitExceeded = limitExceeded,
 				View = new EstimateView() {
 					Amount = viewAmount,
 					AmountCurrency = viewAmountCurrency,
+					Limits = limitsData,
 				},
 				CentsPerAssetRate = centsPerAsset,
 				CentsPerGoldRate = centsPerGold,
+				ResultCurrencyAmount = resultCurrencyAmount,
+				ResultGoldAmount = resultGoldAmount,
 			};
+		}
+
+		// ---
+
+		internal class DepositLimitsResult {
+
+			public BigInteger Min { get; set; }
+			public BigInteger Max { get; set; }
+		}
+
+		[NonAction]
+		private DepositLimitsResult DepositLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency) {
+
+			var cryptoAccuracy = 8;
+			var decimals = cryptoAccuracy;
+			var min = 0d;
+			var max = 0d;
+
+			if (cryptoCurrency == CryptoCurrency.Eth) {
+				decimals = Tokens.ETH.Decimals;
+				min = rcfg.Gold.PaymentMehtods.EthDepositMinEther;
+				max = rcfg.Gold.PaymentMehtods.EthDepositMaxEther;
+			}
+
+			if (min > 0 && max > 0) {
+				var pow = BigInteger.Pow(10, decimals - cryptoAccuracy);
+				return new DepositLimitsResult() {
+					Min = new BigInteger((long) Math.Floor(min * Math.Pow(10, cryptoAccuracy))) * pow,
+					Max = new BigInteger((long) Math.Floor(max * Math.Pow(10, cryptoAccuracy))) * pow,
+				};
+			}
+			
+			throw new NotImplementedException($"{cryptoCurrency} currency is not implemented");
+		}
+
+		[NonAction]
+		private DepositLimitsResult DepositLimits(RuntimeConfig rcfg, FiatCurrency fiatCurrency) {
+
+			var min = 0d;
+			var max = 0d;
+
+			if (fiatCurrency == FiatCurrency.Usd) {
+				min = rcfg.Gold.PaymentMehtods.CreditCardDepositMinUsd;
+				max = rcfg.Gold.PaymentMehtods.CreditCardDepositMaxUsd;
+			}
+
+			if (min > 0 && max > 0) {
+				return new DepositLimitsResult() {
+					Min = (long)Math.Floor(min * 100d),
+					Max = (long)Math.Floor(max * 100d),
+				};
+			}
+
+			throw new NotImplementedException($"{fiatCurrency} currency is not implemented");
 		}
 	}
 }

@@ -28,10 +28,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netcoreapp2.0\Goldmint.WebApplication.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;CS1591</NoWarn>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="AspNetCore.Totp" Version="2.0.0" />
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.34.0.1240" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" PrivateAssets="All" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
     <PackageReference Include="UAParser" Version="3.0.0" />

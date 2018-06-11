@@ -60,7 +60,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM01")
+					.Set("rs", _opts.RsInitStoreSms)
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -130,7 +130,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM04")
+					.Set("rs", _opts.RsInitRecurrent)
 					.Set("merchant_transaction_id", data.TransactionId)
 					.Set("original_init_id", data.InitialGWTransactionId)
 					.Set("amount", data.AmountCents.ToString())
@@ -234,7 +234,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM02")
+					.Set("rs", _opts.RsInitStoreCrd)
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -302,7 +302,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM05")
+					.Set("rs", _opts.RsInitRecurrentCrd)
 					.Set("merchant_transaction_id", data.TransactionId)
 					.Set("original_init_id", data.InitialGWTransactionId)
 					.Set("amount", data.AmountCents.ToString())
@@ -410,7 +410,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM03")
+					.Set("rs", _opts.RsInitStoreP2P)
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -483,7 +483,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("rs", "GM06")
+					.Set("rs", _opts.RsInitRecurrentP2P)
 					.Set("merchant_transaction_id", data.TransactionId)
 					.Set("original_init_id", data.InitialGWTransactionId)
 					.Set("amount", data.AmountCents.ToString())
@@ -617,10 +617,10 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 
 			public string FormatProviderMessage() {
 				return (""
-					+ (ChargeResultCodeString ?? "") + "; "
-					+ (ChargeResultCode ?? "") + "; "
-					+ (ProcessorError ?? "") + "; "
-				).Trim(';', ' ');
+					+ (ChargeResultCodeString ?? "") + " / "
+					+ (ChargeResultCode ?? "") + " / "
+					+ (ProcessorError ?? "") + " / "
+				).Trim('/', ' ');
 			}
 
 			public string FormatProviderStatus() {
@@ -851,7 +851,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 			ret.ChargeDetails = rawPairs.GetValueOrDefault("ExtendedErrorCode");
 
 			// 3-character code of transaction charge details converted into the string with it's description(In this case, return can be longer than 256 bytes)
-			ret.ChargeResultCodeString = rawPairs.GetValueOrDefault("ResultCodeString");
+			ret.ChargeResultCodeString = rawPairs.GetValueOrDefault("ResultCodeStr");
 
 			// Contains an error, obtained from a processor if transaction has unsuccessful status.Will be empty for successful transaction.
 			ret.ProcessorError = rawPairs.GetValueOrDefault("ProcessorError");
@@ -873,5 +873,11 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		public string MerchantGuid { get; set; }
 		public string ProcessingPassword { get; set; }
 		public string Gateway { get; set; }
+		public string RsInitStoreSms { get; set; }
+		public string RsInitRecurrent { get; set; }
+		public string RsInitStoreCrd { get; set; }
+		public string RsInitRecurrentCrd { get; set; }
+		public string RsInitStoreP2P { get; set; }
+		public string RsInitRecurrentP2P { get; set; }
 	}
 }

@@ -23,19 +23,19 @@ import { KYCProfile } from '../models/kyc-profile';
 // import { MessageBoxService as MessageBox } from './message-box.service';
 
 import { environment } from '../../environments/environment';
-import { filter } from "rxjs/operator/filter";
 import {GoldHwSellResponse} from "../interfaces/api-response/gold-hw-sell";
 import {GoldHwBuyResponse} from "../interfaces/api-response/gold-hw-buy";
 import {GoldHwTransferResponse} from "../interfaces/api-response/gold-hw-transfer";
+import {Subject} from "rxjs/Subject";
 
 
 @Injectable()
 export class APIService {
   private _baseUrl = environment.apiUrl;
+  public transferTradingError$ = new Subject();
+  public transferTradingLimit$ = new Subject();
 
-  constructor(
-    private _http: HttpClient,
-    /*private _router: Router,*/) {
+  constructor(private _http: HttpClient) {
     console.log('APIService constructor');
   }
 
@@ -69,6 +69,15 @@ export class APIService {
       .pipe(
       catchError(this._handleError),
       shareReplay()
+      );
+  }
+
+  getTradingStatus() {
+    return this._http
+      .get(`${this._baseUrl}/commons/status`, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
       );
   }
 
@@ -243,7 +252,7 @@ export class APIService {
 
   getFiatCards(): Observable<APIResponse<CardsList>> {
     return this._http
-      .get(`${this._baseUrl}/user/fiat/card/list`, this.jwt())
+      .get(`${this._baseUrl}/user/ccard/list`, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -257,7 +266,7 @@ export class APIService {
 
   addFiatCard(redirect: string): Observable<APIResponse<CardAddResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/add`, { redirect: redirect }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/add`, { redirect: redirect }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -271,7 +280,7 @@ export class APIService {
 
   removeFiatCard(cardId: number): Observable<APIResponse<CardAddResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/remove`, { cardId }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/remove`, { cardId }, this.jwt())
       .pipe(
         catchError(this._handleError)
       );
@@ -279,7 +288,7 @@ export class APIService {
 
   getFiatCardStatus(cardId: number): Observable<APIResponse<CardStatusResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/status`, { cardId: cardId }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/status`, { cardId: cardId }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -293,7 +302,7 @@ export class APIService {
 
   confirmFiatCard(cardId: number, redirect: string): Observable<APIResponse<CardConfirmResponse>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/confirm`, { cardId: cardId, redirect: redirect }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/confirm`, { cardId: cardId, redirect: redirect }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -307,7 +316,7 @@ export class APIService {
 
   verifyFiatCard(cardId: number, code: number | string): Observable<APIResponse<any>> {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/verify`, { cardId: cardId, code: code }, this.jwt())
+      .post(`${this._baseUrl}/user/ccard/verify`, { cardId: cardId, code: code }, this.jwt())
       .pipe(
       catchError(this._handleError),
       shareReplay(),
@@ -383,10 +392,9 @@ export class APIService {
       );
   }
   // -------
-  goldBuyAsset(ethAddress: string, amount: BigNumber) {
-    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -411,10 +419,9 @@ export class APIService {
       );
   }
 
-  goldSellAsset(ethAddress: string, amount: BigNumber) {
-    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
+  goldSellAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -443,6 +450,28 @@ export class APIService {
     var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
     return this._http
       .post(`${this._baseUrl}/user/exchange/gold/hw/transfer`, { ethAddress, amount: wei.toString() }, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
+    const params = {cardId, ethAddress, currency, amount, reversed}
+
+    return this._http
+      .post(`${this._baseUrl}/user/gold/buy/ccard`, params, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
+  sellGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
+    const params = {cardId, ethAddress, currency, amount, reversed}
+
+    return this._http
+      .post(`${this._baseUrl}/user/gold/sell/ccard`, params, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay(),

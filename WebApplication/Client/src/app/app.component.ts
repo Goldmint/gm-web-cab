@@ -25,6 +25,18 @@ export class AppComponent {
         });
       }
     });
+
+    document.addEventListener('focusout', event => {
+      if (event.target instanceof HTMLInputElement) {
+        let value = event.target.value;
+        event.target.value = value.trim();
+        if (value !== event.target.value) {
+          var evt = document.createEvent('HTMLEvents');
+          evt.initEvent('input', true, true);
+          event.target.dispatchEvent(evt);
+        }
+      }
+    });
   }
 
   ngOnInit() {

@@ -84,6 +84,13 @@
 		public ServicesSection Services { get; set; } = new ServicesSection();
 		public class ServicesSection {
 
+			public GoogleSheetsSection GoogleSheets { get; set; } = null;
+			public class GoogleSheetsSection {
+
+				public string ClientSecret64 { get; set; } = "";
+				public string SheetId { get; set; } = "";
+			}
+
 			public RecaptchaSection Recaptcha { get; set; } = new RecaptchaSection();
 			public class RecaptchaSection {
 
@@ -114,6 +121,12 @@
 				public string MerchantGuid { get; set; } = "";
 				public string ProcessingPassword { get; set; } = "";
 				public string Gateway { get; set; } = "";
+				public string RsInitStoreSms { get; set; } = "";
+				public string RsInitRecurrent { get; set; } = "";
+				public string RsInitStoreCrd { get; set; } = "";
+				public string RsInitRecurrentCrd { get; set; } = "";
+				public string RsInitStoreP2P { get; set; } = "";
+				public string RsInitRecurrentP2P { get; set; } = "";
 			}
 
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
@@ -123,6 +136,7 @@
 				public string StorageControllerContractAddress { get; set; } = "";
 				public string StorageControllerManagerPk { get; set; } = "";
 
+				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
 			}
@@ -171,15 +185,15 @@
 				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
 
 				public class WorkerSettings {
-					public int PeriodSec { get; set; } = 10;
+					public int PeriodSec { get; set; } = 60;
 				}
 
 				public class DbWorkerSettings : WorkerSettings {
-					public int ItemsPerRound { get; set; } = 100;
+					public int ItemsPerRound { get; set; } = 50;
 				}
 
 				public class EthWorkerSettings : DbWorkerSettings {
-					public int EthConfirmations { get; set; } = 6;
+					public int EthConfirmations { get; set; } = 30;
 				}
 			}
 		}

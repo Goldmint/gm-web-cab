@@ -56,6 +56,8 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			foreach (var row in rows) {
 
+				if (IsCancelled()) return;
+
 				_dbContext.DetachEverything();
 
 				if (await CoreLogic.Finance.EthereumContract.ExecuteOperation(_services, row.Id, _ethConfirmations)) {
@@ -71,10 +73,10 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 			// tele
 			_coreTelemetryAccum.AccessData(tel => {
-				tel.EthOpsProcessor.Load = StatAverageLoad;
-				tel.EthOpsProcessor.Exceptions = StatExceptionsCounter;
-				tel.EthOpsProcessor.ProcessedSinceStartup = _statProcessed;
-				tel.EthOpsProcessor.FailedSinceStartup = _statFailed;
+				tel.EthereumOperations.Load = StatAverageLoad;
+				tel.EthereumOperations.Exceptions = StatExceptionsCounter;
+				tel.EthereumOperations.ProcessedSinceStartup = _statProcessed;
+				tel.EthereumOperations.FailedSinceStartup = _statFailed;
 			});
 		}
 	}

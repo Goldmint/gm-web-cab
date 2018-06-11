@@ -76,21 +76,16 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// Persist user activity record
 		/// </summary>
-		public static async Task SaveActivity(IServiceProvider services, DAL.Models.Identity.User user, UserActivityType type, string comment, string ip, string agent) {
-
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-
-			var activity = new DAL.Models.UserActivity() {
+		public static DAL.Models.UserActivity CreateUserActivity(DAL.Models.Identity.User user, UserActivityType type, string comment, string ip, string agent, Locale locale) {
+			return new DAL.Models.UserActivity() {
 				UserId = user.Id,
 				Ip = ip,
 				Agent = agent.LimitLength(DAL.Models.FieldMaxLength.UserAgent),
 				Type = type.ToString().ToLowerInvariant(),
 				Comment = comment.LimitLength(DAL.Models.FieldMaxLength.Comment),
 				TimeCreated = DateTime.UtcNow,
+				Locale = locale,
 			};
-
-			dbContext.Add(activity);
-			await dbContext.SaveChangesAsync();
 		}
 
 		/// <summary>

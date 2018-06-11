@@ -1,25 +1,25 @@
 ﻿using Goldmint.CoreLogic.Services.Blockchain;
 using Goldmint.CoreLogic.Services.Blockchain.Impl;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.The1StPayments;
-using Goldmint.CoreLogic.Services.Oplog;
-using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.DAL;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Goldmint.QueueService {
@@ -74,6 +74,11 @@ namespace Goldmint.QueueService {
 
 			// rates helper
 			services.AddSingleton<SafeRatesFiatAdapter>();
+
+			// google sheets
+			if (_appConfig.Services.GoogleSheets != null) {
+				services.AddSingleton(new Sheets(_appConfig));
+			}
 			
 			// ---
 
@@ -144,6 +149,12 @@ namespace Goldmint.QueueService {
 						opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
 						opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
 						opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
+						opts.RsInitStoreSms = _appConfig.Services.The1StPayments.RsInitStoreSms;
+						opts.RsInitRecurrent = _appConfig.Services.The1StPayments.RsInitRecurrent;
+						opts.RsInitStoreCrd = _appConfig.Services.The1StPayments.RsInitStoreCrd;
+						opts.RsInitRecurrentCrd = _appConfig.Services.The1StPayments.RsInitRecurrentCrd;
+						opts.RsInitStoreP2P = _appConfig.Services.The1StPayments.RsInitStoreP2P;
+						opts.RsInitRecurrentP2P = _appConfig.Services.The1StPayments.RsInitRecurrentP2P;
 					}, LogManager.LogFactory);
 				});
 
@@ -194,6 +205,25 @@ namespace Goldmint.QueueService {
 				
 				services.AddSingleton(_coreTelemetryAccumulator);
 			}
+
+			/*var sh = new Sheets(_appConfig);
+			for (var i = 0; i < 10; ++i) {
+				sh.InsertUser(new UserInfoCreate() {
+					UserId = i+ 1,
+					UserName = "u" + i,
+					Birthday = "" + i + " June 1999",
+					FirstName = "Name " + i,
+					LastName = "Lastname "+ i,
+					Country = "ru",
+				});
+			}
+			for (var i = 0; i < 10; ++i) {
+				sh.UpdateUserGoldInfo(new UserInfoGoldUpdate() {
+					UserId = 0 + 1,
+					GoldSoldDelta = 0.123,
+					GoldBoughtDelta = 0.321,
+				});
+			}*/
 		}
 
 		private static void RunServices() {

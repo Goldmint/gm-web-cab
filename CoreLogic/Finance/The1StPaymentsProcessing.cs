@@ -1,18 +1,16 @@
 ﻿using Goldmint.Common;
-using Goldmint.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.The1StPayments;
-using Microsoft.Extensions.DependencyInjection;
 using Goldmint.CoreLogic.Services.Mutex;
-using Goldmint.DAL;
-using Goldmint.CoreLogic.Services.Oplog;
-using Microsoft.AspNetCore.Hosting;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
-using System.Linq;
+using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.The1StPayments;
+using Goldmint.DAL;
+using Goldmint.DAL.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -21,7 +19,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New card input data operation to enqueue
 		/// </summary>
-		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string deskTicketId) {
+		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId) {
 
 			// if (card.User == null) throw new ArgumentException("User not included");
 
@@ -34,8 +32,8 @@ namespace Goldmint.CoreLogic.Finance {
 				UserId = card.UserId,
 				Currency = FiatCurrency.Usd,
 				AmountCents = 0,
-				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				Status = CardPaymentStatus.Unconfirmed,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
 			};
@@ -44,7 +42,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New verification payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateVerificationPayment(IServiceProvider services, UserCreditCard card, string deskTicketId) {
+		private static async Task<CreditCardPayment> CreateVerificationPayment(IServiceProvider services, UserCreditCard card, string oplogId) {
 
 			// if (card.User == null) throw new ArgumentException("User not included");
 
@@ -69,7 +67,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = FiatCurrency.Usd,
 				AmountCents = amountCents,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
 			};
@@ -78,7 +76,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New deposit payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateDepositPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, string deskTicketId) {
+		public static async Task<CreditCardPayment> CreateDepositPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, long buyRequestId, string oplogId) {
 
 			if (amountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 			if (card.State != CardState.Verified) throw new ArgumentException("Card not verified");
@@ -106,8 +104,9 @@ namespace Goldmint.CoreLogic.Finance {
 				UserId = card.UserId,
 				Currency = currency,
 				AmountCents = amountCents,
-				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				Status = CardPaymentStatus.Unconfirmed,
+				RelatedExchangeRequestId = buyRequestId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
 			};
@@ -116,7 +115,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New payment refund
 		/// </summary>
-		public static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string deskTicketId) {
+		private static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string oplogId) {
 
 			if (refPayment.Type != CardPaymentType.Deposit && refPayment.Type != CardPaymentType.Verification) {
 				throw new ArgumentException("Ref payment must be of deposit or verification type");
@@ -136,7 +135,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Currency = refPayment.Currency,
 				AmountCents = refPayment.AmountCents,
 				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
 			};
@@ -145,7 +144,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New withdraw payment
 		/// </summary>
-		public static async Task<CreditCardPayment> CreateWithdrawPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, string deskTicketId) {
+		public static async Task<CreditCardPayment> CreateWithdrawPayment(IServiceProvider services, UserCreditCard card, FiatCurrency currency, long amountCents, long sellRequestId, string oplogId) {
 
 			if (amountCents <= 0) throw new ArgumentException("Amount must be greater than zero");
 			if (card.State != CardState.Verified) throw new ArgumentException("Card not verified");
@@ -173,8 +172,9 @@ namespace Goldmint.CoreLogic.Finance {
 				UserId = card.UserId,
 				Currency = currency,
 				AmountCents = amountCents,
-				Status = CardPaymentStatus.Pending,
-				OplogId = deskTicketId,
+				Status = CardPaymentStatus.Unconfirmed,
+				RelatedExchangeRequestId = sellRequestId,
+				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
 				TimeNextCheck = DateTime.UtcNow.AddSeconds(0),
 			};
@@ -183,12 +183,11 @@ namespace Goldmint.CoreLogic.Finance {
 		// ---
 
 		/// <summary>
-		/// Checks card data input transaction (actually this is not payment)
+		/// Process card data input transaction (api call)
 		/// </summary>
 		public static async Task<ProcessPendingCardDataInputPaymentResult> ProcessPendingCardDataInputPayment(IServiceProvider services, long paymentId) {
 
 			var logger = services.GetLoggerFor(typeof(The1StPaymentsProcessing));
-			var appConfig = services.GetRequiredService<AppConfig>();
 			var mutexHolder = services.GetRequiredService<IMutexHolder>();
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var cardAcquirer = services.GetRequiredService<The1StPayments>();
@@ -227,7 +226,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 					// not found
 					if (payment == null) {
-						ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.NothingToDo;
+						ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.NotFound;
 						return ret;
 					}
 
@@ -317,8 +316,7 @@ namespace Goldmint.CoreLogic.Finance {
 									try {
 										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Card with the same mask exists {cardMask}");
 									}
-									catch {
-									}
+									catch { }
 
 									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DuplicateCard;
 								}
@@ -332,8 +330,7 @@ namespace Goldmint.CoreLogic.Finance {
 									try {
 										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Provided card data on first step is saved");
 									}
-									catch {
-									}
+									catch { }
 
 									// ok
 									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DepositDataOk;
@@ -342,8 +339,10 @@ namespace Goldmint.CoreLogic.Finance {
 								// this is 2nd step - withdraw data - must be the same card
 								else if (cardPrevState == CardState.InputWithdrawData && card.CardMask != null) {
 
+									var allowAnyCard = hostingEnv.IsDevelopment() || hostingEnv.IsStaging() || hostingEnv.IsProduction();
+
 									// mask matched
-									if (card.CardMask == cardMask || !(hostingEnv?.IsProduction() ?? true)) {
+									if (card.CardMask == cardMask || allowAnyCard) {
 
 										card.State = CardState.Payment;
 
@@ -357,7 +356,7 @@ namespace Goldmint.CoreLogic.Finance {
 											var verPayment = await CreateVerificationPayment(
 												services: services,
 												card: card,
-												deskTicketId: payment.OplogId
+												oplogId: payment.OplogId
 											);
 											dbContext.CreditCardPayment.Add(verPayment);
 											verificationPaymentEnqueued = verPayment;
@@ -405,9 +404,8 @@ namespace Goldmint.CoreLogic.Finance {
 		}
 
 		/// <summary>
-		/// Checks verification card payment vs acquirer with exclusive write access on this payment
+		/// Charge verification payment and enqueue refund (core-worker or api call)
 		/// </summary>
-		/// <exception cref="Exception"></exception>
 		public static async Task<ProcessVerificationPaymentResult> ProcessVerificationPayment(IServiceProvider services, long paymentId) {
 
 			var logger = services.GetLoggerFor(typeof(The1StPaymentsProcessing));
@@ -446,7 +444,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 					// not found
 					if (payment == null) {
-						ret.Result = ProcessVerificationPaymentResult.ResultEnum.NothingToDo;
+						ret.Result = ProcessVerificationPaymentResult.ResultEnum.NotFound;
 						return ret;
 					}
 
@@ -466,7 +464,7 @@ namespace Goldmint.CoreLogic.Finance {
 						result = await cardAcquirer.DoPaymentCharge(payment.GwTransactionId);
 					}
 					catch (Exception e) {
-						logger?.Error(e, $"Failed to charge of payment #{payment.Id}");
+						logger?.Error(e, $"Failed to charge payment #{payment.Id}");
 					}
 
 					// update ticket
@@ -528,13 +526,8 @@ namespace Goldmint.CoreLogic.Finance {
 						ret.Result = ProcessVerificationPaymentResult.ResultEnum.ChargeFailed;
 					}
 
-					try {
-						await dbContext.SaveChangesAsync();
-					}
-					catch (Exception e) {
-						logger?.Error(e);
-						throw e;
-					}
+					// save
+					await dbContext.SaveChangesAsync();
 
 					// update ticket
 					try {
@@ -551,7 +544,6 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// Process pending refunds
 		/// </summary>
-		/// <exception cref="Exception"></exception>
 		public static async Task<bool> ProcessRefundPayment(IServiceProvider services, long paymentId) {
 
 			var logger = services.GetLoggerFor(typeof(The1StPaymentsProcessing));
@@ -578,7 +570,7 @@ namespace Goldmint.CoreLogic.Finance {
 					.AsNoTracking()
 					.FirstOrDefaultAsync();
 
-					if (payment == null || payment.RelPaymentId == null) return false;
+					if (payment?.RelPaymentId == null) return false;
 
 					// get ref payment
 					var refPayment = await (
@@ -602,21 +594,21 @@ namespace Goldmint.CoreLogic.Finance {
 					await dbContext.SaveChangesAsync();
 
 					// charge
-					string resultGWTID = null;
+					string resultGwTxId = null;
 					try {
-						resultGWTID = await cardAcquirer.RefundPayment(new RefundPayment() {
+						resultGwTxId = await cardAcquirer.RefundPayment(new RefundPayment() {
 							AmountCents = (int)payment.AmountCents,
 							TransactionId = payment.TransactionId,
 							RefGWTransactionId = refPayment.GwTransactionId,
 						});
 					}
 					catch (Exception e) {
-						logger?.Error(e, $"Failed to make charge of payment #{payment.Id} (refund of payment #{refPayment.Id})");
+						logger?.Error(e, $"Failed to charge payment #{payment.Id} (refund of payment #{refPayment.Id})");
 					}
 
 					// update ticket
 					try {
-						if (resultGWTID != null) {
+						if (resultGwTxId != null) {
 							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Refunded successfully");
 						}
 						else {
@@ -632,9 +624,9 @@ namespace Goldmint.CoreLogic.Finance {
 					// payment.TimeNextCheck = doesn't matter
 
 					// update payment
-					if (resultGWTID != null) {
+					if (resultGwTxId != null) {
 						payment.Status = CardPaymentStatus.Success;
-						payment.GwTransactionId = resultGWTID;
+						payment.GwTransactionId = resultGwTxId;
 						payment.ProviderStatus = "Refund Success";
 						payment.ProviderMessage = "Refund Success";
 					}
@@ -645,6 +637,204 @@ namespace Goldmint.CoreLogic.Finance {
 					return payment.Status == CardPaymentStatus.Success;
 				}
 				return false;
+			});
+		}
+
+		/// <summary>
+		/// Process deposit payment
+		/// </summary>
+		public static async Task<ProcessDepositPaymentResult> ProcessDepositPayment(IServiceProvider services, long paymentId) {
+
+			var logger = services.GetLoggerFor(typeof(The1StPaymentsProcessing));
+			var mutexHolder = services.GetRequiredService<IMutexHolder>();
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var cardAcquirer = services.GetRequiredService<The1StPayments>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
+
+			// lock payment updating by payment id
+			var mutexBuilder =
+				new MutexBuilder(mutexHolder)
+				.Mutex(MutexEntity.CardPaymentCheck, paymentId)
+			;
+
+			// by default
+			var ret = new ProcessDepositPaymentResult() {
+				Result = ProcessDepositPaymentResult.ResultEnum.Pending,
+			};
+
+			return await mutexBuilder.CriticalSection<ProcessDepositPaymentResult>(async (ok) => {
+				if (ok) {
+
+					// get payment from db
+					var payment = await (
+						from p in dbContext.CreditCardPayment
+						where 
+							p.Id == paymentId && 
+							p.Type == CardPaymentType.Deposit && 
+							p.Status == CardPaymentStatus.Pending
+						select p
+					)
+						.Include(p => p.User)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
+
+					// not found
+					if (payment == null) {
+						ret.Result = ProcessDepositPaymentResult.ResultEnum.NotFound;
+						return ret;
+					}
+
+					try {
+						await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, $"Charging { TextFormatter.FormatAmount(payment.AmountCents, payment.Currency) }");
+					}
+					catch { }
+
+					// prevent double spending
+					payment.Status = CardPaymentStatus.Charging;
+					dbContext.Update(payment);
+					await dbContext.SaveChangesAsync();
+
+					// charge
+					ChargeResult result = null;
+					try {
+						result = await cardAcquirer.DoPaymentCharge(payment.GwTransactionId);
+					}
+					catch (Exception e) {
+						logger?.Error(e, $"Failed to process payment #{payment.Id} (deposit)");
+					}
+
+					// update ticket
+					try {
+						if (result?.Success ?? false) {
+							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Charged successfully");
+						}
+						else {
+							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, "Charge failed");
+						}
+					}
+					catch { }
+
+					// assume failed by default
+					payment.Status = CardPaymentStatus.Failed;
+					payment.ProviderStatus = result?.ProviderStatus;
+					payment.ProviderMessage = result?.ProviderMessage;
+					payment.TimeCompleted = DateTime.UtcNow;
+					// payment.TimeNextCheck = doesn't matter
+					ret.Result = ProcessDepositPaymentResult.ResultEnum.Failed;
+
+					// success
+					if (result?.Success ?? false) {
+						payment.Status = CardPaymentStatus.Success;
+						ret.Result = ProcessDepositPaymentResult.ResultEnum.Charged;
+					}
+
+					// payment will be updated
+					dbContext.Update(payment);
+
+					// save
+					await dbContext.SaveChangesAsync();
+				}
+				return ret;
+			});
+		}
+
+		/// <summary>
+		/// Process deposit payment
+		/// </summary>
+		public static async Task<ProcessWithdrawalPaymentResult> ProcessWithdrawPayment(IServiceProvider services, long paymentId) {
+
+			var logger = services.GetLoggerFor(typeof(The1StPaymentsProcessing));
+			var mutexHolder = services.GetRequiredService<IMutexHolder>();
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			var cardAcquirer = services.GetRequiredService<The1StPayments>();
+			var ticketDesk = services.GetRequiredService<IOplogProvider>();
+
+			// lock payment updating by payment id
+			var mutexBuilder =
+				new MutexBuilder(mutexHolder)
+				.Mutex(MutexEntity.CardPaymentCheck, paymentId)
+			;
+
+			// by default
+			var ret = new ProcessWithdrawalPaymentResult() {
+				Result = ProcessWithdrawalPaymentResult.ResultEnum.Pending,
+			};
+
+			return await mutexBuilder.CriticalSection<ProcessWithdrawalPaymentResult>(async (ok) => {
+				if (ok) {
+
+					// get payment from db
+					var payment = await (
+						from p in dbContext.CreditCardPayment
+						where 
+							p.Id == paymentId && 
+							p.Type == CardPaymentType.Withdraw && 
+							p.Status == CardPaymentStatus.Pending
+						select p
+					)
+						.Include(p => p.User)
+						.AsNoTracking()
+						.FirstOrDefaultAsync()
+					;
+
+					// not found
+					if (payment == null) {
+						ret.Result = ProcessWithdrawalPaymentResult.ResultEnum.NotFound;
+						return ret;
+					}
+
+					try {
+						await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, $"Withdraw of { TextFormatter.FormatAmount(payment.AmountCents, payment.Currency) }");
+					}
+					catch { }
+
+					// prevent double spending
+					payment.Status = CardPaymentStatus.Charging;
+					dbContext.Update(payment);
+					await dbContext.SaveChangesAsync();
+
+					// charge
+					ChargeResult result = null;
+					try {
+						result = await cardAcquirer.DoCreditCharge(payment.GwTransactionId);
+					}
+					catch (Exception e) {
+						logger?.Error(e, $"Failed to process payment #{payment.Id} (withdraw)");
+					}
+
+					// update ticket
+					try {
+						if (result?.Success ?? false) {
+							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Withdrawn successfully");
+						}
+						else {
+							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, "Withdrawal payment failed");
+						}
+					}
+					catch { }
+
+					// assume failed by default
+					payment.Status = CardPaymentStatus.Failed;
+					payment.ProviderStatus = result?.ProviderStatus;
+					payment.ProviderMessage = result?.ProviderMessage;
+					payment.TimeCompleted = DateTime.UtcNow;
+					// payment.TimeNextCheck = doesn't matter
+					ret.Result = ProcessWithdrawalPaymentResult.ResultEnum.Failed;
+
+					// payment will be updated
+					dbContext.Update(payment);
+
+					// success
+					if (result?.Success ?? false) {
+						payment.Status = CardPaymentStatus.Success;
+						ret.Result = ProcessWithdrawalPaymentResult.ResultEnum.Withdrawn;
+					}
+
+					// save
+					await dbContext.SaveChangesAsync();
+				}
+				return ret;
 			});
 		}
 
@@ -666,7 +856,7 @@ namespace Goldmint.CoreLogic.Finance {
 			public long? VerificationPaymentId { get; set; }
 
 			public enum ResultEnum {
-				NothingToDo,
+				NotFound,
 				Pending,
 				DuplicateCard,
 				DepositDataOk,
@@ -685,11 +875,41 @@ namespace Goldmint.CoreLogic.Finance {
 			public long? RefundPaymentId { get; set; }
 
 			public enum ResultEnum {
-				NothingToDo,
+				NotFound,
 				Pending,
 				ChargeFailed,
 				RefundFailed,
 				Refunded
+			}
+		}
+
+		/// <summary>
+		/// Deposit payment result
+		/// </summary>
+		public class ProcessDepositPaymentResult {
+
+			public ResultEnum Result { get; set; }
+
+			public enum ResultEnum {
+				NotFound,
+				Pending,
+				Failed,
+				Charged,
+			}
+		}
+		
+		/// <summary>
+		/// Withdrawal payment result
+		/// </summary>
+		public class ProcessWithdrawalPaymentResult {
+
+			public ResultEnum Result { get; set; }
+
+			public enum ResultEnum {
+				NotFound,
+				Pending,
+				Failed,
+				Withdrawn,
 			}
 		}
 	}

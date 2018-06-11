@@ -44,6 +44,11 @@
 		/// </summary>
 		TradingNotAllowed = 103,
 
+		/// <summary>
+		/// Exchange value requested is out of limits
+		/// </summary>
+		TradingExchangeLimit = 104,
+
 		/* [1000..1999] Account errors */
 
 		/// <summary>
@@ -70,26 +75,27 @@
 		/// Specified email is already taken
 		/// </summary>
 		AccountEmailTaken = 1004,
+	
+		/*
+		/// <summary>
+		/// -
+		/// </summary>
+		- = 1005,
 
 		/// <summary>
-		/// Deposit limit reached
+		/// -
 		/// </summary>
-		AccountDepositLimit = 1005,
+		- = 1006,
 
 		/// <summary>
-		/// Withdraw limit reached
+		/// -
 		/// </summary>
-		AccountWithdrawLimit = 1006,
+		- = 1007,
 
 		/// <summary>
-		/// Card deposit failure
+		/// -
 		/// </summary>
-		AccountCardDepositFail = 1007,
-
-		/// <summary>
-		/// Card withdraw failure
-		/// </summary>
-		AccountCardWithdrawFail = 1008,
+		- = 1008,
 
 		/// <summary>
 		/// TFA must be enabled
@@ -100,7 +106,8 @@
 		/// User has pending operation. One of: buying, selling, deposit, withdraw, transfer, etc.
 		/// </summary>
 		AccountPendingBlockchainOperation = 1010,
-		
+		*/
+
 		/// <summary>
 		/// DPA is not signed
 		/// </summary>

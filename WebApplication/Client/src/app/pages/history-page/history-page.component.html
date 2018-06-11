@@ -110,7 +110,7 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column prop="srcAmount" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ngx-datatable-column prop="srcAmount" [draggable]="false" [resizeable]="false" [sortable]="false" [minWidth]="105">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
               {{ "PAGES.History.Table.Columns.FromAmount" | translate }}

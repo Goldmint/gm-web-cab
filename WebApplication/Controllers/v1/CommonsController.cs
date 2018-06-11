@@ -118,5 +118,25 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				ret
 			);
 		}
+
+		/// <summary>
+		/// System status
+		/// </summary>
+		[AnonymousAccess]
+		[HttpGet, Route("status")]
+		[ProducesResponseType(typeof(StatusView), 200)]
+		public APIResponse Status() {
+
+			var rcfg = RuntimeConfigHolder.Clone();
+
+			var ret = new StatusView() {
+				Trading = new StatusViewTrading() {
+					EthAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingEth,
+					CreditCardAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingCreditCard,
+				}
+			};
+
+			return APIResponse.Success(ret);
+		}
 	}
 }
