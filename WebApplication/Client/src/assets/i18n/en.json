@@ -58,7 +58,7 @@
         },
         "SuccessModal": {
           "Heading": "Transaction in Process:",
-          "Steps": "Please wait at least 12 confirmation steps",
+          "Steps": "Please wait at least 100 confirmation steps (about 30 minutes).",
           "Hash": "Your transaction hash is:",
           "Link": "View your transaction on EtherScan"
         },
