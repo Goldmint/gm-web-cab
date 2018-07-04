@@ -33,7 +33,9 @@ export class SettingsVerificationPageComponent implements OnInit {
   public phase: Phase;
   public countries: Country[];
   public regions: Region[];
+  public states = [];
   public errors = [];
+  public patternErrors = {};
 
   public kycProfile = new KYCProfile();
   public dateOfBirth: { day: number, month: number, year: number | '' };
@@ -90,6 +92,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   }
 
   onCountrySelect(reset: boolean = true) {
+    this.states = [];
     const country = <Country>this.countries.find(country => country.countryShortCode === this.kycProfile.country);
 
     if (reset) this.kycProfile.state = null;
@@ -97,10 +100,29 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (country != null) {
       this.selectedCountry = country;
       this.regions = country.regions;
+      this.regions.forEach(item => {
+        this.states.push(item.name);
+      });
       if (!this.kycProfile.isFormFilled) {
         this.kycProfile.phoneNumber = country['phoneCode'];
       }
     }
+    this._cdRef.markForCheck();
+  }
+
+  onStateInput(event) {
+    const value = event.target.value;
+    const isValid = /^[\w '`.-]*$/.test(value);
+
+    this.kycProfile.state = value;
+    this.patternErrors['state'] = !isValid ? true : false;
+    this._cdRef.markForCheck();
+  }
+
+  onStateSelect(event) {
+    this.kycProfile.state = event.value;
+    this.patternErrors['state'] = false;
+    this._cdRef.markForCheck();
   }
 
   onPhoneNumberChanged(event) {

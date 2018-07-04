@@ -514,22 +514,33 @@
             <div class="form-group">
               <label for="selectState">{{ "PAGES.Settings.KYC.FormSection.Labels.State" | translate }}</label>
               <div class="kyc-required">
-                <select id="selectState" required
-                        name="state" [(ngModel)]="kycProfile.state" #state="ngModel"
-                        class="custom-select"
-                        [ngClass]="{'is-invalid': (errors?.State || !state.valid) && !state.pristine}"
-                        (ngModelChange)="errors.State = false"
-                        [disabled]="kycProfile.isFormFilled === true || processing || !kycProfile.country">
+              <input name="state"
+                     id="selectState"
+                     ngModel
+                     #state="ngModel"
+                     [typeahead]="states"
+                     [typeaheadMinLength]="0"
+                     [typeaheadOptionsLimit]="1000"
+                     [typeaheadOptionsInScrollableView]="10"
+                     [typeaheadScrollable]="true"
+                     placeholder='{{ "PAGES.Settings.KYC.FormSection.Placeholders.ChooseState" | translate }}'
+                     [ngClass]="{'is-invalid': (errors?.State || !state.valid || patternErrors?.state) && !state.pristine}"
+                     (ngModelChange)="errors.State = false"
+                     [disabled]="kycProfile.isFormFilled === true || processing || !kycProfile.country"
+                     class="form-control"
+                     (input)="onStateInput($event)"
+                     (typeaheadOnSelect)="onStateSelect($event)"
+                     autocomplete="nope"
+                     required>
 
-                  <option [value]="null" disabled>{{ "PAGES.Settings.KYC.FormSection.Placeholders.ChooseState" | translate }}</option>
-                  <option *ngFor="let region of regions" [value]="region.name">{{ region.name }}</option>
-                </select>
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
-
                 <div class="invalid-feedback" *ngIf="state.errors?.required">
                   {{ "PAGES.Settings.KYC.FormSection.Errors.State.required" | translate }}
+                </div>
+                <div class="invalid-feedback" *ngIf="patternErrors?.state">
+                  {{ "PAGES.Settings.KYC.FormSection.Errors.FirstName.pattern" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="errors?.State">
                   {{ errors?.State }}
@@ -600,7 +611,7 @@
 
         <div class="row mt-2 mb-4 pr-0 pr-sm-4 justify-content-sm-start justify-content-center" *ngIf="!kycProfile.isFormFilled">
           <div class="form-group col-auto col-sm-6 mb-2">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched || patternErrors?.state">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}
               <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
             </button>

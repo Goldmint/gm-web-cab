@@ -976,10 +976,10 @@
             "Three": "3. Scan QR-code",
             "Four": "4. Type current code"
           },
+          "Notification": "Please check time on your device where you run Google Authenticator. It must be set correctly. Otherwise 2FA code can be invalid.",
           "Errors": {
             "pattern": "Only 6-digits numeric code is allowed",
-            "InvalidCode": "Invalid dode",
-            "TimeError": "Please check time settings on your phone. The time must be set correctly. Turn on time synchronization if it is disabled."
+            "InvalidCode": "Invalid dode"
           },
           "Buttons": {
             "Enable": "Enable 2FA",
