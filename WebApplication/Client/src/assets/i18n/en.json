@@ -824,7 +824,10 @@
 		"WarningSection": {
           "Title": "Advanced verification",
 		  "Widget": "Not verified",
-          "Text": "Unverified accounts cannot make any fiat operaions. You will be redirected to identity verification service.",
+          "Notification": {
+            "Unverified": "Unverified accounts cannot make any fiat operations. You will be redirected to identity verification service.",
+            "Documents": "Please use only documents where your name is written with latin characters and exactly matches with name that you provided below in Basis Verification. Otherwise the verification will be failed."
+          },
 		  "TextPending": "We are still checking verification status. In case of problem you will be able to make another verification attempt in 30 minutes.",
 		  "Button": "Get verified"
         },

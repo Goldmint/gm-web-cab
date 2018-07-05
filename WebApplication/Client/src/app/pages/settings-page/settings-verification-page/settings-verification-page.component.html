@@ -72,8 +72,8 @@
     </h2>
 
     <div class="section__content kyc pt-2">
-      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Text' | translate"></p>
-
+      <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.Unverified' | translate"></p>
+      <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.Documents' | translate"></p>
       <div class="text-center">
         <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
           {{ "PAGES.Settings.KYC.WarningSection.Button" | translate }}
