@@ -824,7 +824,10 @@
 		"WarningSection": {
           "Title": "Advanced verification",
 		  "Widget": "Not verified",
-          "Text": "Unverified accounts cannot make any fiat operaions. You will be redirected to identity verification service.",
+          "Notification": {
+            "Unverified": "Unverified accounts cannot make any fiat operations. You will be redirected to identity verification service.",
+            "Documents": "Please use only documents where your name is written with latin characters and exactly matches with name that you provided below in Basis Verification. Otherwise the verification will be failed."
+          },
 		  "TextPending": "We are still checking verification status. In case of problem you will be able to make another verification attempt in 30 minutes.",
 		  "Button": "Get verified"
         },
@@ -976,10 +979,10 @@
             "Three": "3. Scan QR-code",
             "Four": "4. Type current code"
           },
+          "Notification": "Please check time on your device where you run Google Authenticator. It must be set correctly. Otherwise 2FA code can be invalid.",
           "Errors": {
             "pattern": "Only 6-digits numeric code is allowed",
-            "InvalidCode": "Invalid dode",
-            "TimeError": "Please check time settings on your phone. The time must be set correctly. Turn on time synchronization if it is disabled."
+            "InvalidCode": "Invalid dode"
           },
           "Buttons": {
             "Enable": "Enable 2FA",
