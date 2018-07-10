@@ -47,7 +47,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (window.innerWidth > 767) {
+    if (window.innerWidth > 992) {
       this.isMobile = this.isShowMobileMenu = false;
     } else {
       this.isMobile = true;
@@ -57,7 +57,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     window.onresize = () => {
       this._userService.windowSize$.next(window.innerWidth);
 
-      if (window.innerWidth > 767) {
+      if (window.innerWidth > 992) {
         this.isMobile = this.isShowMobileMenu = false;
         document.body.style.overflow = 'visible';
       } else {

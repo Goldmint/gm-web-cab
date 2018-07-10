@@ -15,7 +15,8 @@
       "Sell": "Sell GOLD",
       "Buy": "Buy GOLD",
       "Transfer": "Transfer GOLD",
-      "Finance": "Finance"
+      "Finance": "Finance",
+      "Blockchain": "Goldmint blockchain"
     }
   },
   "FOOTER": {
@@ -174,6 +175,29 @@
         "InvalidAddress": "Invalid address",
         "InvalidAmount": "Invalid amount value",
         "AddressMatches": "Address matches to active Metamask wallet address"
+      }
+    },
+    "Blockchain": {
+      "Heading": "Goldmint blockchain",
+      "Description": "Пожалуйста, укажите Ваш публичный ключ и имя кошелька в блокчейне Goldmint. Это необходимо для миграции токенов MNTP. Создать новый кошелек в блокчейне GOLDMINT Вы можете",
+      "Links": {
+        "Here": "тут"
+      },
+      "Labels": {
+        "Migration": "Migration",
+        "Key": "Your public key",
+        "Wallet": "Your wallet name"
+      },
+      "MigrationSteps": {
+        "First": "1. Миграция токенов MNTP в блокчейн GOLDMINT. <b>Это необходимо для запуска ноды и участия в процессе майнинга</b>. После миграции токены MNT будут выпущены на указанный выше кошелек",
+        "Second": "2. Миграция токенов MNT из блокчейна GOLDMINT в блокчейн Ethereum. Это необходимо для участия в торгах токена MNTP на биржах. После миграции токены MNT будут выпущены на активный кошелек в Metamask. <br>Для запуска миграции отправьте Ваши токены MNT в блокчейне GOLDMINT на адрес",
+        "Third": "3. Миграция токенов PAWNLGOLD из блокчейна GOLDMINT в токены GOLD в ETHEREUM. <b>Это необходимо для обмена токенов GOLD на другие валюты.</b> Для запуска миграци отправьте Ваши токены PAWNGOLD в блокчейне GOLDMINT на адрес"
+      },
+      "Buttons": {
+        "StartMigration": "Запустить миграцию"
+      },
+      "Errors": {
+        "Required": "Field is required"
       }
     },
     "Finance": {
