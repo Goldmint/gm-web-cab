@@ -14,6 +14,7 @@ using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Requests;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4.Data;
+using NLog;
 
 namespace Goldmint.CoreLogic.Services.Google.Impl {
 
@@ -21,30 +22,28 @@ namespace Goldmint.CoreLogic.Services.Google.Impl {
 
 		private readonly AppConfig _appConfig;
 		private readonly SheetsService _service;
-		private readonly ServiceAccountCredential _credential;
-		private readonly BaseClientService.Initializer _initializer;
-		private readonly object _locker;
+		private readonly ILogger _logger;
 
-		public Sheets(AppConfig appConfig) {
-			_locker = new object();
+		public Sheets(AppConfig appConfig, LogFactory logFactory) {
+			_logger = logFactory.GetLoggerFor(this);
+			ServiceAccountCredential credential;
+
 			_appConfig = appConfig;
 
 			using (var ms = new MemoryStream(Convert.FromBase64String(_appConfig.Services.GoogleSheets.ClientSecret64))) {
 				string[] scopes = {
 					SheetsService.Scope.Spreadsheets
 				};
-				_credential = GoogleCredential.FromStream(ms).CreateScoped(scopes).UnderlyingCredential as ServiceAccountCredential;
+				credential = GoogleCredential.FromStream(ms).CreateScoped(scopes).UnderlyingCredential as ServiceAccountCredential;
 			}
 
-			_initializer = new BaseClientService.Initializer() {
-				HttpClientInitializer = _credential,
+			var initializer = new BaseClientService.Initializer() {
+				HttpClientInitializer = credential,
 				ApplicationName = "Goldmint Backend",
 				GZipEnabled = true,
 			};
 
-			_service = new SheetsService(_initializer);
-
-			// TODO: use logger
+			_service = new SheetsService(initializer);
 		}
 
 		public async Task<bool> InsertUser(UserInfoCreate data) {
@@ -73,7 +72,7 @@ namespace Goldmint.CoreLogic.Services.Google.Impl {
 				return true;
 			}
 			catch (Exception e) {
-				// TODO: log error
+				_logger.Error(e, $"Failed to insert user {data.UserId} into Google sheets");
 			}
 			return false;
 		}
@@ -115,7 +114,7 @@ namespace Goldmint.CoreLogic.Services.Google.Impl {
 				return true;
 			}
 			catch (Exception e) {
-				// TODO: log error
+				_logger.Error(e, $"Failed to update user {data.UserId} on Google sheets");
 			}
 
 			return false;

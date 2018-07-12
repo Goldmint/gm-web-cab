@@ -30,13 +30,189 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		/// Get redirect to save card for deposits
 		/// </summary>
 		/// <returns>Redirect or throws exception</returns>
-		public async Task<StartCardStoreResult> StartPaymentCardStore(StartPaymentCardStore data) {
+		public async Task<StartCardStoreResult> StartPaymentCardStore3D(StartPaymentCardStore3D data) {
 
 			try {
 
 				// validate
 				{
-					var v = new InlineValidator<StartPaymentCardStore>();
+					var v = new InlineValidator<StartPaymentCardStore3D>();
+
+					v.RuleFor(_ => _.RedirectUrl).Must(ValidationRules.BeValidUrl);
+
+					v.RuleFor(_ => _.TransactionId).Length(5, 50);
+					//v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
+					v.RuleFor(_ => _.Currency).NotNull();
+					v.RuleFor(_ => _.Purpose).Length(5, 255);
+
+					v.RuleFor(_ => _.SenderName).Length(2, 100);
+					v.RuleFor(_ => _.SenderEmail).EmailAddress().Length(1, 100);
+					v.RuleFor(_ => _.SenderPhone).Length(5, 25).Must(ValidationRules.BeValidPhone);
+					v.RuleFor(_ => _.SenderIP).NotNull();
+
+					v.RuleFor(_ => _.SenderAddressCountry).NotNull().Must(ValidationRules.BeValidCountryCodeAlpha2);
+					v.RuleFor(_ => _.SenderAddressState).Length(2, 20);
+					v.RuleFor(_ => _.SenderAddressCity).Length(2, 25);
+					v.RuleFor(_ => _.SenderAddressStreet).Length(2, 50);
+					v.RuleFor(_ => _.SenderAddressZip).Length(2, 15);
+
+					v.ValidateAndThrow(data);
+				}
+
+				var fields = new Parameters()
+					.Set("rs", _opts.RsInitStoreSms3D)
+					.Set("save_card", "4")
+					.Set("custom_return_url", data.RedirectUrl)
+
+					.Set("merchant_transaction_id", data.TransactionId)
+					.Set("amount", "0")
+					.Set("currency", data.Currency.ToString().ToUpper())
+					.Set("description", data.Purpose)
+
+					.Set("name_on_card", data.SenderName)
+					.Set("email", data.SenderEmail)
+					.Set("phone", data.SenderPhone)
+					.Set("user_ip", data.SenderIP.MapToIPv4().ToString())
+
+					.Set("country", data.SenderAddressCountry)
+					.Set("state", data.SenderAddressState)
+					.Set("city", data.SenderAddressCity)
+					.Set("street", data.SenderAddressStreet)
+					.Set("zip", data.SenderAddressZip)
+				;
+
+				var pairs = await SendRequest("init", fields);
+
+				if (pairs.ContainsKey("ERROR")) {
+					throw new Exception($"Error response: `{pairs["_RAW_"]}`");
+				}
+
+				var txid = pairs.GetValueOrDefault("OK");
+				if (string.IsNullOrWhiteSpace(txid)) {
+					throw new Exception("Service transaction ID is empty");
+				}
+
+				var redirect = pairs.GetValueOrDefault("RedirectOnsite");
+				if (string.IsNullOrWhiteSpace(redirect)) {
+					throw new Exception("Redirect is empty");
+				}
+
+				return new StartCardStoreResult() {
+					Redirect = redirect,
+					GWTransactionId = txid,
+				};
+			}
+			catch (Exception e) {
+				_logger?.Error(e, "[1STP] Failed to start transaction");
+				throw e;
+			}
+		}
+
+		/// <summary>
+		/// Start charging of saved card
+		/// </summary>
+		/// <returns>New transaction ID or throws exception</returns>
+		public async Task<string> StartPaymentCharge3D(StartPaymentCharge3D data) {
+
+			try {
+
+				// validate
+				{
+					var v = new InlineValidator<StartPaymentCharge3D>();
+
+					v.RuleFor(_ => _.InitialGWTransactionId).Length(40);
+					v.RuleFor(_ => _.TransactionId).Length(5, 50);
+
+					v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
+					v.RuleFor(_ => _.Purpose).Length(5, 255);
+					v.RuleFor(_ => _.DynamicDescriptor).Must(BeValidDynamicDescriptor).When(_ => _.DynamicDescriptor != null);
+
+					v.ValidateAndThrow(data);
+				}
+
+				var fields = new Parameters()
+					.Set("rs", _opts.RsInitRecurrent3D)
+					.Set("merchant_transaction_id", data.TransactionId)
+					.Set("original_init_id", data.InitialGWTransactionId)
+					.Set("amount", data.AmountCents.ToString())
+					.Set("description", data.Purpose.ToString())
+					.Set("use_saved_card", "1")
+				;
+				if (!string.IsNullOrWhiteSpace(data.DynamicDescriptor)) {
+					fields.Set("merchant_referring_name", " " + data.DynamicDescriptor);
+				}
+
+				var pairs = await SendRequest("init", fields);
+				if (pairs.ContainsKey("ERROR")) {
+					throw new Exception($"Error response: `{pairs["_RAW_"]}`");
+				}
+
+				var txid = pairs.GetValueOrDefault("OK");
+				if (string.IsNullOrWhiteSpace(txid)) {
+					throw new Exception("Service transaction ID is empty");
+				}
+
+				return txid;
+			}
+			catch (Exception e) {
+				_logger?.Error(e, "[1STP] Failed to start transaction");
+				throw e;
+			}
+		}
+
+		/// <summary>
+		/// Does charging
+		/// </summary>
+		/// <returns>Final result of charging or throws exception</returns>
+		public async Task<ChargeResult> DoPaymentCharge3D(string gwTransactionId) {
+
+			try {
+
+				// validate
+				if (string.IsNullOrWhiteSpace(gwTransactionId) || gwTransactionId.Length != 40) {
+					throw new Exception("Illegal transaction ID format");
+				}
+
+				var fields = new Parameters()
+					.Set("init_transaction_id", gwTransactionId)
+					.Set("f_extended", "100")
+				;
+
+				var pairs = await SendRequest("charge", fields);
+				if (pairs.ContainsKey("ERROR")) {
+					return new ChargeResult() {
+						Success = false,
+						ProviderMessage = pairs["_RAW_"],
+						ProviderStatus = "Error",
+					};
+				}
+
+				var status = DeserializeTransactionStatus(pairs);
+				return new ChargeResult() {
+					Success = status.StatusId == TransactionStatusId.Success,
+					ProviderMessage = status.FormatProviderMessage(),
+					ProviderStatus = status.FormatProviderStatus(),
+				};
+			}
+			catch (Exception e) {
+				_logger?.Error(e, "[1STP] Failed to start transaction");
+				throw e;
+			}
+		}
+
+		// ---
+
+		/// <summary>
+		/// Get redirect to save card for deposits
+		/// </summary>
+		/// <returns>Redirect or throws exception</returns>
+		public async Task<StartCardStoreResult> StartPaymentCardStoreNon3D(StartPaymentCardStoreNon3D data) {
+
+			try {
+
+				// validate
+				{
+					var v = new InlineValidator<StartPaymentCardStoreNon3D>();
 
 					v.RuleFor(_ => _.RedirectUrl).Must(ValidationRules.BeValidUrl);
 
@@ -102,7 +278,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				};
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -111,13 +287,13 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		/// Start charging of saved card
 		/// </summary>
 		/// <returns>New transaction ID or throws exception</returns>
-		public async Task<string> StartPaymentCharge(StartPaymentCharge data) {
+		public async Task<string> StartPaymentChargeNon3D(StartPaymentChargeNon3D data) {
 
 			try {
 
 				// validate
 				{
-					var v = new InlineValidator<StartPaymentCharge>();
+					var v = new InlineValidator<StartPaymentChargeNon3D>();
 
 					v.RuleFor(_ => _.InitialGWTransactionId).Length(40);
 					v.RuleFor(_ => _.TransactionId).Length(5, 50);
@@ -153,7 +329,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				return txid;
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -162,7 +338,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		/// Does charging
 		/// </summary>
 		/// <returns>Final result of charging or throws exception</returns>
-		public async Task<ChargeResult> DoPaymentCharge(string gwTransactionId) {
+		public async Task<ChargeResult> DoPaymentChargeNon3D(string gwTransactionId) {
 
 			try {
 
@@ -193,7 +369,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				};
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -275,7 +451,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				};
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -325,7 +501,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				return gwtid;
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -365,188 +541,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				};
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
-				throw e;
-			}
-		}
-
-		// ---
-
-		/// <summary>
-		/// Get redirect to save card for p2p payments
-		/// </summary>
-		/// <returns>Redirect or throws exception</returns>
-		public async Task<StartCardStoreResult> StartP2PCardStore(StartP2PCardStore data) {
-
-			try {
-
-				// validation
-				{
-					var v = new InlineValidator<StartP2PCardStore>();
-
-					v.RuleFor(_ => _.RedirectUrl).Must(ValidationRules.BeValidUrl);
-
-					v.RuleFor(_ => _.TransactionId).Length(5, 50);
-					v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
-					v.RuleFor(_ => _.Currency).NotNull();
-					v.RuleFor(_ => _.Purpose).Length(5, 255);
-
-					v.RuleFor(_ => _.RecipientCardHolder).Length(1, 255);
-					v.RuleFor(_ => _.RecipientName).Length(1, 45);
-
-					v.RuleFor(_ => _.SenderEmail).EmailAddress().Length(1, 100);
-					v.RuleFor(_ => _.SenderPhone).Length(5, 25).Must(ValidationRules.BeValidPhone);
-					v.RuleFor(_ => _.SenderBirthDate).NotNull();
-					v.RuleFor(_ => _.SenderIP).NotNull();
-					v.RuleFor(_ => _.SenderName).Length(2, 25); // visa = 25, mc = 30, general = 100
-
-					v.RuleFor(_ => _.SenderAddressCountry).NotNull().Must(ValidationRules.BeValidCountryCodeAlpha2);
-					v.RuleFor(_ => _.SenderAddressState).Length(2, 20);
-					v.RuleFor(_ => _.SenderAddressCity).Length(2, 25);
-					v.RuleFor(_ => _.SenderAddressStreet).Length(2, 30); // visa = 30, mc = 35, general = 50
-					v.RuleFor(_ => _.SenderAddressZip).Length(2, 10); // 10, but general is 15
-
-					v.ValidateAndThrow(data);
-				}
-
-				var fields = new Parameters()
-					.Set("rs", _opts.RsInitStoreP2P)
-					.Set("custom_return_url", data.RedirectUrl)
-
-					.Set("merchant_transaction_id", data.TransactionId)
-					.Set("amount", data.AmountCents.ToString())
-					.Set("currency", data.Currency.ToString().ToUpper())
-					.Set("description", data.Purpose)
-
-					.Set("cardname", data.RecipientCardHolder)
-					.Set("recipient_name", data.RecipientName)
-
-					.Set("email", data.SenderEmail)
-					.Set("phone", data.SenderPhone)
-					.Set("client_birth_date", data.SenderBirthDate.ToString("MMddyyyy"))
-					.Set("user_ip", data.SenderIP.MapToIPv4().ToString())
-					.Set("name_on_card", data.SenderName)
-
-					.Set("country", data.SenderAddressCountry)
-					.Set("state", data.SenderAddressState)
-					.Set("city", data.SenderAddressCity)
-					.Set("street", data.SenderAddressStreet)
-					.Set("zip", data.SenderAddressZip)
-				;
-
-				var pairs = await SendRequest("init_store_card_p2p", fields);
-				if (pairs.ContainsKey("ERROR")) {
-					throw new Exception($"Error response: `{pairs["_RAW_"]}`");
-				}
-
-				var gwtid = pairs.GetValueOrDefault("OK");
-				if (string.IsNullOrWhiteSpace(gwtid)) {
-					throw new Exception("Service transaction ID is empty");
-				}
-
-				var redirect = pairs.GetValueOrDefault("RedirectOnsite");
-				if (string.IsNullOrWhiteSpace(redirect)) {
-					throw new Exception("Redirect is empty");
-				}
-
-				return new StartCardStoreResult() {
-					Redirect = redirect,
-					GWTransactionId = gwtid,
-				};
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
-				throw e;
-			}
-		}
-
-		/// <summary>
-		/// Start payment to saved card
-		/// </summary>
-		/// <returns>New transaction ID or throws exception</returns>
-		public async Task<string> StartP2PCharge(StartP2PCharge data) {
-
-			try {
-
-				// validate
-				{
-					var v = new InlineValidator<StartP2PCharge>();
-
-					v.RuleFor(_ => _.InitialGWTransactionId).Length(40);
-					v.RuleFor(_ => _.TransactionId).Length(5, 50);
-
-					v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
-					v.RuleFor(_ => _.Purpose).Length(5, 255);
-					v.RuleFor(_ => _.DynamicDescriptor).Must(BeValidDynamicDescriptor).When(_ => _.DynamicDescriptor != null);
-
-					v.ValidateAndThrow(data);
-				}
-
-				var fields = new Parameters()
-					.Set("rs", _opts.RsInitRecurrentP2P)
-					.Set("merchant_transaction_id", data.TransactionId)
-					.Set("original_init_id", data.InitialGWTransactionId)
-					.Set("amount", data.AmountCents.ToString())
-					.Set("description", data.Purpose.ToString())
-				;
-				if (!string.IsNullOrWhiteSpace(data.DynamicDescriptor)) {
-					fields.Set("merchant_referring_name", " " + data.DynamicDescriptor);
-				}
-
-				var pairs = await SendRequest("init_recurrent_p2p", fields);
-				if (pairs.ContainsKey("ERROR")) {
-					throw new Exception($"Error response: `{pairs["_RAW_"]}`");
-				}
-
-				var gwtid = pairs.GetValueOrDefault("OK");
-				if (string.IsNullOrWhiteSpace(gwtid)) {
-					throw new Exception("Service transaction ID is empty");
-				}
-
-				return gwtid;
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
-				throw e;
-			}
-		}
-
-		/// <summary>
-		/// Does payment
-		/// </summary>
-		/// <returns>Final result of payment or throws exception</returns>
-		public async Task<ChargeResult> DoP2PCharge(string gwTransactionId) {
-
-			try {
-
-				// validate
-				if (string.IsNullOrWhiteSpace(gwTransactionId) || gwTransactionId.Length != 40) {
-					throw new Exception("Illegal transaction ID format");
-				}
-
-				var fields = new Parameters()
-					.Set("init_transaction_id", gwTransactionId)
-					.Set("f_extended", "100")
-				;
-
-				var pairs = await SendRequest("do_recurrent_p2p", fields);
-				if (pairs.ContainsKey("ERROR")) {
-					return new ChargeResult() {
-						Success = false,
-						ProviderMessage = pairs["_RAW_"],
-						ProviderStatus = "Error",
-					};
-				}
-
-				var status = DeserializeTransactionStatus(pairs);
-				return new ChargeResult() {
-					Success = status.StatusId == TransactionStatusId.P2PSuccess,
-					ProviderMessage = status.FormatProviderMessage(),
-					ProviderStatus = status.FormatProviderStatus(),
-				};
-			}
-			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -573,7 +568,8 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				}
 
 				var fields = new Parameters()
-					.Set("guid", "").Set("account_guid", _opts?.MerchantGuid) // what a motherfuckers!
+					.Set("guid", "")
+					.Set("account_guid", _opts?.MerchantGuid)
 					.Set("init_transaction_id", data.RefGWTransactionId)
 					.Set("amount_to_refund", data.AmountCents.ToString())
 					.Set("merchant_transaction_id", data.TransactionId)
@@ -590,7 +586,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				return null;
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to start transaction");
+				_logger?.Error(e, "[1STP] Failed to start transaction");
 				throw e;
 			}
 		}
@@ -607,6 +603,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 
 			public string CardHolder { get; internal set; }
 			public string CardMask { get; internal set; }
+			public string CardSaveStatus { get; internal set; }
 
 			public string ChargeResultCode { get; internal set; }
 			public string ChargeDetails { get; internal set; }
@@ -713,7 +710,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				return result;
 			}
 			catch (Exception e) {
-				_logger?.Error(e, "Failed to get transaction status");
+				_logger?.Error(e, "[1STP] Failed to get transaction status");
 				throw e;
 			}
 		}
@@ -726,11 +723,34 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 
 			// not found
 			if (result == null) {
-				_logger?.Error($"Transaction not found: {gwStoreTransactionId}");
+				_logger?.Error($"[1STP] Transaction not found: {gwStoreTransactionId}");
 
 				return new CheckStoreCardResult() {
 					Status = CardGatewayTransactionStatus.NotFound,
 				};
+			}
+
+			// failed
+			switch (result.CardSaveStatus) {
+				case "2": // Successfully saved
+				case "7": // Successfully saved on a merchant side
+				case "10": // Successfully saved for MOTO
+					break;
+
+				case "0": // Not to be saved
+				case "1": // Needs to be saved
+				case "3": // Failed to save card
+				case "4": // Failed to save card
+				case "5": // Saved data will be used
+				case "6": // Needs to be saved on a merchant side
+				case "8": // Failed to save card on a merchant side
+				case "9": // Needs to be saved for MOTO
+				case "11": //Saved data will be used for MOTO
+				default:
+					_logger?.Error($"[1STP] Card has not been saved (status {result.CardSaveStatus}) for transaction {gwStoreTransactionId}");
+					return new CheckStoreCardResult() {
+						Status = CardGatewayTransactionStatus.Failed,
+					};
 			}
 
 			return new CheckStoreCardResult() {
@@ -767,7 +787,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 					.OnResult(async (res) => {
 						var raw = await res.ToRawString();
 
-						_logger?.Debug($"Method {method} responded with status `{res.GetHttpStatus()}`. Raw: `" + raw + "`");
+						_logger?.Info($"[1STP] Method {method} responded with status `{res.GetHttpStatus()}`. Raw: `" + raw + "`");
 
 						if (res.GetHttpStatus() == null || res.GetHttpStatus().Value != HttpStatusCode.OK) {
 							throw new Exception($"Unexpected status code received: {res.GetHttpStatus().Value}");
@@ -824,7 +844,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 			}
 
 			// Status of card data in the TransactPro internal system for further operations without card data input from a card holder
-			// rawPairs.GetValueOrDefault("CardSaveStatus";
+			ret.CardSaveStatus = rawPairs.GetValueOrDefault("CardSaveStatus");
 
 			// A merchant_referring_name parameter’s value from a transaction request, if a dynamic descriptor was used
 			// rawPairs.GetValueOrDefault("MerchantReferringName"
@@ -873,6 +893,8 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		public string MerchantGuid { get; set; }
 		public string ProcessingPassword { get; set; }
 		public string Gateway { get; set; }
+		public string RsInitStoreSms3D { get; set; }
+		public string RsInitRecurrent3D { get; set; }
 		public string RsInitStoreSms { get; set; }
 		public string RsInitRecurrent { get; set; }
 		public string RsInitStoreCrd { get; set; }
