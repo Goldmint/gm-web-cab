@@ -81,7 +81,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			// ---
 
-			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging() || HostingEnvironment.IsProduction();
+			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();
 
 			// verification payment
 			var verificationAmountCents = 100L + (SecureRandom.GetPositiveInt() % 100);
@@ -168,6 +168,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			);
 		}
 
+		/*
 		/// <summary>
 		/// Confirm card
 		/// </summary>
@@ -292,6 +293,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				}
 			);
 		}
+		*/
 
 		/// <summary>
 		/// Verify card by security code

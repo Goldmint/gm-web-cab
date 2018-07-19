@@ -859,7 +859,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 			// rawPairs.GetValueOrDefault("CardIssuerCountry"
 
 			// Name, passed as name printed on card
-			ret.CardHolder = rawPairs.GetValueOrDefault("NameOnCard");
+			ret.CardHolder = rawPairs.GetValueOrDefault("NameOnCard")?.ToUpper();
 
 			// Card number, in 4111********1111 format
 			ret.CardMask = rawPairs.GetValueOrDefault("CardMasked");

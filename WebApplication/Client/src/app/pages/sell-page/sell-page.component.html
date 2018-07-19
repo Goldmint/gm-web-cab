@@ -103,13 +103,13 @@
               <div class="col col-xl-3 form-group text-center" *ngIf="hasExtraRights">
                 <label for="btnPaymentCard">{{ "PAGES.Sell.Method.PaymentCard" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                        [disabled]="!tradingStatus.creditCardAllowed">
+                        [disabled]="!tradingStatus.creditCardSellingAllowed">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-card"></use>
                   </svg>
                 </button>
                 <div class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!tradingStatus.creditCardAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
+                  <div *ngIf="!tradingStatus.creditCardSellingAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>
 

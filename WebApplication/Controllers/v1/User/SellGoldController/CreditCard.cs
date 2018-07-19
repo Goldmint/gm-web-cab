@@ -73,7 +73,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var rcfg = RuntimeConfigHolder.Clone();
-			if (!rcfg.Gold.AllowTradingCreditCard) {
+			if (!rcfg.Gold.AllowSellingCreditCard) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 

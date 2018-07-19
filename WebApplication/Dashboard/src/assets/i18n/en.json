@@ -126,9 +126,9 @@
     },
     "TradeRequests": {
       "Heading": "Trade Requests",
-      "Issued": "Total issued:",
-      "Burnt": "Total burnt:",
-      "Circulation": "Total in circulation:"
+      "Issued": "Issued:",
+      "Burnt": "Burnt:",
+      "Circulation": "Circulation:"
     },
     "Telemetry": {
       "Heading": "Telemetry"
