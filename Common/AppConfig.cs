@@ -109,7 +109,7 @@
 
 			public ShuftiProSection ShuftiPro { get; set; } = new ShuftiProSection();
 			public class ShuftiProSection {
-
+			
 				public string ClientId { get; set; } = "";
 				public string ClientSecret { get; set; } = "";
 				public string CallbackSecret { get; set; } = "";
@@ -121,6 +121,8 @@
 				public string MerchantGuid { get; set; } = "";
 				public string ProcessingPassword { get; set; } = "";
 				public string Gateway { get; set; } = "";
+				public string RsInitStoreSms3D { get; set; } = "";
+				public string RsInitRecurrent3D { get; set; } = "";
 				public string RsInitStoreSms { get; set; } = "";
 				public string RsInitRecurrent { get; set; } = "";
 				public string RsInitStoreCrd { get; set; } = "";

@@ -41,7 +41,14 @@ import { EqualValidatorDirective } from './directives/equal-validator.directive'
 /*
   UI components
  */
-import {BsDropdownModule, ModalModule, ButtonsModule, TabsModule, TypeaheadModule} from 'ngx-bootstrap';
+import {
+  BsDropdownModule,
+  ModalModule,
+  ButtonsModule,
+  TabsModule,
+  TypeaheadModule
+} from 'ngx-bootstrap';
+
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 // import { NgxPhoneMaskModule } from 'ngx-phone-mask';

@@ -142,18 +142,6 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column prop="isBuying" [draggable]="false" [resizeable]="false" [sortable]="false">
-            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-              <span class="datatable-header-cell-wrapper" (click)="sort()">
-                Type
-              </span>
-            </ng-template>
-
-            <ng-template let-isBuying="value" ngx-datatable-cell-template>
-              {{ isBuying ? 'Buy' : 'Sell' }}
-            </ng-template>
-          </ngx-datatable-column>
-
           <ngx-datatable-column prop="requestId" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
@@ -176,13 +164,27 @@
             </ng-template>
           </ngx-datatable-column>
 
+		  <ngx-datatable-column prop="isBuying" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Type
+              </span>
+            </ng-template>
+
+            <ng-template let-isBuying="value" ngx-datatable-cell-template>
+              <span [ngClass]="{'trade-color-red': !isBuying, 'trade-color-green': isBuying}">
+                {{ isBuying ? 'Bought' : 'Sold' }}
+			  </span>
+            </ng-template>
+          </ngx-datatable-column>
+		  
           <ngx-datatable-column prop="amount" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template ngx-datatable-header-template>
               Amount
             </ng-template>
 
             <ng-template let-amount="value" let-row="row" ngx-datatable-cell-template>
-              <span [ngClass]="{'trade-color-red': row.isBuying}">
+              <span [ngClass]="{'trade-color-red': !row.isBuying, 'trade-color-green': row.isBuying}">
                 {{ amount * degree }}
               </span>
             </ng-template>
@@ -190,7 +192,7 @@
 
           <ngx-datatable-column prop="ethTxId" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template ngx-datatable-header-template>
-              Link
+              Etherscan
             </ng-template>
 
             <ng-template let-ethTxId="value" ngx-datatable-cell-template>

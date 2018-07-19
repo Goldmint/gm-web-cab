@@ -26,7 +26,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public user: User;
   public tfaInfo: TFAInfo;
   public hasExtraRights: boolean = true;
-  public tradingStatus: {creditCardAllowed: boolean, ethAllowed: boolean};
+  public tradingStatus: {creditCardBuyingAllowed: boolean, ethAllowed: boolean};
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 

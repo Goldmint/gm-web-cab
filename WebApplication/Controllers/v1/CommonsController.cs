@@ -132,7 +132,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var ret = new StatusView() {
 				Trading = new StatusViewTrading() {
 					EthAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingEth,
-					CreditCardAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingCreditCard,
+					CreditCardBuyingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowBuyingCreditCard,
+					CreditCardSellingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowSellingCreditCard,
 				}
 			};
 

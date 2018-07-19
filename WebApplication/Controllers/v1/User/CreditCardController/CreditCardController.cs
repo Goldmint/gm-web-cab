@@ -81,7 +81,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			// ---
 
-			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging() || HostingEnvironment.IsProduction();
+			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();
 
 			// verification payment
 			var verificationAmountCents = 100L + (SecureRandom.GetPositiveInt() % 100);
@@ -109,12 +109,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			var transId = CoreLogic.Finance.The1StPaymentsProcessing.GenerateTransactionId();
 			var transCurrency = FiatCurrency.Usd;
 
-			var transData = new CoreLogic.Services.The1StPayments.StartPaymentCardStore() {
+			var transData = new CoreLogic.Services.The1StPayments.StartPaymentCardStore3D() {
 
 				RedirectUrl = model.Redirect,
 
 				TransactionId = transId,
-				AmountCents = 100,
+				//AmountCents = 100,
 				Currency = transCurrency,
 				Purpose = "Card data for deposit payments at goldmint.io",
 
@@ -131,7 +131,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			};
 
 			// get redirect
-			var paymentResult = await The1StPayments.StartPaymentCardStore(transData);
+			var paymentResult = await The1StPayments.StartPaymentCardStore3D(transData);
 			if (paymentResult.Redirect == null) {
 				throw new Exception("Redirect is null");
 			}
@@ -168,6 +168,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			);
 		}
 
+		/*
 		/// <summary>
 		/// Confirm card
 		/// </summary>
@@ -292,6 +293,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				}
 			);
 		}
+		*/
 
 		/// <summary>
 		/// Verify card by security code

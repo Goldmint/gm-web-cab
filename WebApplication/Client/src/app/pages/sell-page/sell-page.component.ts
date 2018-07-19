@@ -25,7 +25,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public tfaInfo: TFAInfo;
   public isMetamask = true;
   public hasExtraRights: boolean = true;
-  public tradingStatus: {creditCardAllowed: boolean, ethAllowed: boolean};
+  public tradingStatus: {creditCardSellingAllowed: boolean, ethAllowed: boolean};
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
