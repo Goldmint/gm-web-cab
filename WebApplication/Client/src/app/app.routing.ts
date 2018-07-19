@@ -40,7 +40,6 @@ import {SettingsCardsPageComponent} from "./pages/settings-page/settings-cards-p
 import {BuyCardPageComponent} from "./pages/buy-page/buy-card-page/buy-card-page.component";
 import {SellCardPageComponent} from "./pages/sell-page/sell-card-page/sell-card-page.component";
 import {TransferPageComponent} from "./pages/transfer-page/transfer-page.component";
-import {GmBlockchainPageComponent} from "./pages/gm-blockchain-page/gm-blockchain-page.component";
 
 
 const appRoutes: Routes = [
@@ -64,7 +63,6 @@ const appRoutes: Routes = [
   { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'sell/payment-card', component: SellCardPageComponent, canActivate: [AuthGuard] },
   { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
-  { path: 'goldmint-blockchain', component: GmBlockchainPageComponent, canActivate: [AuthGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {

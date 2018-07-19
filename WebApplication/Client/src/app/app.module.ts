@@ -46,8 +46,7 @@ import {
   ModalModule,
   ButtonsModule,
   TabsModule,
-  TypeaheadModule,
-  TooltipModule
+  TypeaheadModule
 } from 'ngx-bootstrap';
 
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -110,7 +109,6 @@ import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-car
 import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
-import { GmBlockchainPageComponent } from './pages/gm-blockchain-page/gm-blockchain-page.component';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -136,7 +134,6 @@ export function getGoldmintToken() {
     ButtonsModule.forRoot(),
     TabsModule.forRoot(),
     NgxDatatableModule,
-    TooltipModule.forRoot(),
     TypeaheadModule,
     NgxQRCodeModule,
     // NgxPhoneMaskModule,
@@ -207,8 +204,7 @@ export function getGoldmintToken() {
     SellCardPageComponent,
     PaymentCardBlockComponent,
     CryptocurrencyBlockComponent,
-    TimerComponent,
-    GmBlockchainPageComponent
+    TimerComponent
   ],
   exports: [],
   providers: [
