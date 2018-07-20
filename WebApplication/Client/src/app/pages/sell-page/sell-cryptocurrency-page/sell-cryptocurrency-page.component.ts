@@ -327,6 +327,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
         this.goldAmount = this.currentValue = +this.substrValue((this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance);
         this.isFirstLoad = this.loading = this.isTradingError = this.isTradingLimit = false;
         this._cdRef.markForCheck();
+      }, error => {
+        if (error.error.errorCode === 104) {
+          this.calculateStartGoldValue(error.error.data.max);
+        }
       });
   }
 
