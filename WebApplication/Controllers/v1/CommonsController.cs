@@ -129,12 +129,39 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			var rcfg = RuntimeConfigHolder.Clone();
 
+			var ethDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, CryptoCurrency.Eth);
+			var ethWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, CryptoCurrency.Eth);
+			var ccDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, FiatCurrency.Usd);
+			var ccWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, FiatCurrency.Usd);
+
 			var ret = new StatusView() {
 				Trading = new StatusViewTrading() {
 					EthAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingEth,
 					CreditCardBuyingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowBuyingCreditCard,
 					CreditCardSellingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowSellingCreditCard,
-				}
+				},
+				Limits = new StatusViewLimits() {
+					Eth = new StatusViewLimits.Method() {
+						Deposit = new StatusViewLimits.MinMax() {
+							Min = ethDepositLimits.Min.ToString(),
+							Max = ethDepositLimits.Max.ToString(),
+						},
+						Withdraw = new StatusViewLimits.MinMax() {
+							Min = ethWithdrawLimits.Min.ToString(),
+							Max = ethWithdrawLimits.Max.ToString(),
+						}
+					},
+					CreditCardUsd = new StatusViewLimits.Method() {
+						Deposit = new StatusViewLimits.MinMax() {
+							Min = (long)ccDepositLimits.Min / 100d,
+							Max = (long)ccDepositLimits.Max / 100d,
+						},
+						Withdraw = new StatusViewLimits.MinMax() {
+							Min = (long)ccWithdrawLimits.Min / 100d,
+							Max = (long)ccWithdrawLimits.Max / 100d,
+						}
+					},
+				},
 			};
 
 			return APIResponse.Success(ret);

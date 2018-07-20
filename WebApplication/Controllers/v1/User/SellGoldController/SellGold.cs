@@ -319,14 +319,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		// ---
 
-		internal class WithdrawalLimitsResult {
+		public class WithdrawalLimitsResult {
 
 			public BigInteger Min { get; set; }
 			public BigInteger Max { get; set; }
 		}
 
 		[NonAction]
-		private WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency) {
+		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency) {
 
 			var cryptoAccuracy = 8;
 			var decimals = cryptoAccuracy;
@@ -351,7 +351,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, FiatCurrency fiatCurrency) {
+		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, FiatCurrency fiatCurrency) {
 
 			var min = 0d;
 			var max = 0d;
