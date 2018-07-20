@@ -4,7 +4,38 @@ using System.Net;
 
 namespace Goldmint.CoreLogic.Services.The1StPayments {
 
-	public sealed class StartPaymentCardStore {
+	public sealed class StartPaymentCardStore3D {
+
+		public string RedirectUrl;
+
+		public string TransactionId;
+		//public int AmountCents;
+		public FiatCurrency Currency;
+		public string Purpose;
+
+		public string SenderName;
+		public string SenderEmail;
+		public string SenderPhone;
+		public IPAddress SenderIP;
+
+		public string SenderAddressCountry;
+		public string SenderAddressState;
+		public string SenderAddressCity;
+		public string SenderAddressStreet;
+		public string SenderAddressZip;
+	}
+
+	public sealed class StartPaymentCharge3D {
+
+		public string InitialGWTransactionId;
+		public string TransactionId;
+
+		public int AmountCents;
+		public string Purpose;
+		public string DynamicDescriptor;
+	}
+
+	public sealed class StartPaymentCardStoreNon3D {
 
 		public string RedirectUrl;
 
@@ -25,7 +56,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		public string SenderAddressZip;
 	}
 
-	public sealed class StartPaymentCharge {
+	public sealed class StartPaymentChargeNon3D {
 
 		public string InitialGWTransactionId;
 		public string TransactionId;

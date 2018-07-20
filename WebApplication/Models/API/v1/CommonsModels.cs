@@ -201,9 +201,15 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		public bool EthAllowed { get; set; }
 
 		/// <summary>
-		/// Overall trading status
+		/// Credit card trading status
 		/// </summary>
 		[Required]
-		public bool CreditCardAllowed { get; set; }
+		public bool CreditCardBuyingAllowed { get; set; }
+		
+		/// <summary>
+		/// Credit card trading status
+		/// </summary>
+		[Required]
+		public bool CreditCardSellingAllowed { get; set; }
 	}
 }

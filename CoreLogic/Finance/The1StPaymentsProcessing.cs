@@ -21,8 +21,6 @@ namespace Goldmint.CoreLogic.Finance {
 		/// </summary>
 		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId) {
 
-			// if (card.User == null) throw new ArgumentException("User not included");
-
 			// new deposit payment
 			return new CreditCardPayment() {
 				CardId = card.Id,
@@ -51,7 +49,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var amountCents = card.VerificationAmountCents;
 			var tid = GenerateTransactionId();
 
-			var gwTransactionId = await cardAcquirer.StartPaymentCharge(new StartPaymentCharge() {
+			var gwTransactionId = await cardAcquirer.StartPaymentCharge3D(new StartPaymentCharge3D() {
 				AmountCents = (int)amountCents,
 				TransactionId = tid,
 				InitialGWTransactionId = card.GwInitialDepositCardTransactionId,
@@ -88,7 +86,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 			var tid = GenerateTransactionId();
 
-			var gwTransactionId = await cardAcquirer.StartPaymentCharge(new StartPaymentCharge() {
+			var gwTransactionId = await cardAcquirer.StartPaymentCharge3D(new StartPaymentCharge3D() {
 				AmountCents = (int)amountCents,
 				TransactionId = tid,
 				InitialGWTransactionId = card.GwInitialDepositCardTransactionId,
@@ -214,7 +212,11 @@ namespace Goldmint.CoreLogic.Finance {
 						from p in dbContext.CreditCardPayment
 						where
 						p.Id == paymentId &&
-						(p.Type == CardPaymentType.CardDataInputSMS || p.Type == CardPaymentType.CardDataInputCRD || p.Type == CardPaymentType.CardDataInputP2P) &&
+						(
+							p.Type == CardPaymentType.CardDataInputSMS ||
+							p.Type == CardPaymentType.CardDataInputCRD || 
+							p.Type == CardPaymentType.CardDataInputP2P
+						) &&
 						p.Status == CardPaymentStatus.Pending
 						select p
 					)
@@ -295,8 +297,8 @@ namespace Goldmint.CoreLogic.Finance {
 							if (cardHolder != null &&
 								cardMask != null &&
 								User.HasFilledPersonalData(payment.User?.UserVerification) &&
-								cardHolder.Contains(payment.User?.UserVerification.FirstName) &&
-								cardHolder.Contains(payment.User?.UserVerification.LastName)
+								cardHolder.Contains(payment.User?.UserVerification.FirstName?.ToUpper()) &&
+								cardHolder.Contains(payment.User?.UserVerification.LastName?.ToUpper())
 							) {
 
 								// check for duplicate
@@ -321,8 +323,46 @@ namespace Goldmint.CoreLogic.Finance {
 									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DuplicateCard;
 								}
 
+								// [!] ONE STEP FLOW
 								// this is 1st step - deposit data
 								else if (cardPrevState == CardState.InputDepositData) {
+
+									card.HolderName = cardHolder;
+									card.CardMask = cardMask;
+
+									try {
+										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Provided card data on first step is saved");
+									}
+									catch { }
+
+									card.State = CardState.Payment;
+
+									// enqueue verification payment
+									try {
+										var verPayment = await CreateVerificationPayment(
+											services: services,
+											card: card,
+											oplogId: payment.OplogId
+										);
+										dbContext.CreditCardPayment.Add(verPayment);
+										verificationPaymentEnqueued = verPayment;
+
+										// ok, for now
+										ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.WithdrawDataOk;
+									}
+									catch (Exception e) {
+										logger?.Error(e, $"[1STP] Failed to start verification charge for this payment");
+
+										// failed to charge
+										ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.FailedToChargeVerification;
+									}
+								}
+
+								/*
+								[!] TWO STEPS FLOW
+								// this is 1st step - deposit data
+								else if (cardPrevState == CardState.InputDepositData) {
+
 									card.State = CardState.InputWithdrawData;
 									card.HolderName = cardHolder;
 									card.CardMask = cardMask;
@@ -336,10 +376,11 @@ namespace Goldmint.CoreLogic.Finance {
 									ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.DepositDataOk;
 								}
 
-								// this is 2nd step - withdraw data - must be the same card
+								 // [!] TWO STEPS FLOW
+								 //this is 2nd step - withdraw data - must be the same card
 								else if (cardPrevState == CardState.InputWithdrawData && card.CardMask != null) {
 
-									var allowAnyCard = hostingEnv.IsDevelopment() || hostingEnv.IsStaging() || hostingEnv.IsProduction();
+									var allowAnyCard = hostingEnv.IsDevelopment() || hostingEnv.IsStaging();
 
 									// mask matched
 									if (card.CardMask == cardMask || allowAnyCard) {
@@ -365,7 +406,7 @@ namespace Goldmint.CoreLogic.Finance {
 											ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.WithdrawDataOk;
 										}
 										catch (Exception e) {
-											logger?.Error(e, $"Failed to start verification charge for this payment");
+											logger?.Error(e, $"[1STP] Failed to start verification charge for this payment");
 
 											// failed to charge
 											ret.Result = ProcessPendingCardDataInputPaymentResult.ResultEnum.FailedToChargeVerification;
@@ -378,6 +419,7 @@ namespace Goldmint.CoreLogic.Finance {
 										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, "Provided card data is mismatched");
 									}
 								}
+								*/
 							}
 						}
 						else if (payment.Status == CardPaymentStatus.Failed) {
@@ -461,10 +503,10 @@ namespace Goldmint.CoreLogic.Finance {
 					// charge
 					ChargeResult result = null;
 					try {
-						result = await cardAcquirer.DoPaymentCharge(payment.GwTransactionId);
+						result = await cardAcquirer.DoPaymentCharge3D(payment.GwTransactionId);
 					}
 					catch (Exception e) {
-						logger?.Error(e, $"Failed to charge payment #{payment.Id}");
+						logger?.Error(e, $"[1STP] Failed to process payment #{payment.Id} (verification)");
 					}
 
 					// update ticket
@@ -511,7 +553,7 @@ namespace Goldmint.CoreLogic.Finance {
 							ret.RefundPaymentId = refund.Id;
 						}
 						catch (Exception e) {
-							logger?.Error(e, $"Failed to enqueue verification refund for payment #{payment.Id}`");
+							logger?.Error(e, $"[1STP] Failed to enqueue verification refund for payment #{payment.Id}`");
 
 							// refund failed
 							ret.Result = ProcessVerificationPaymentResult.ResultEnum.RefundFailed;
@@ -603,7 +645,7 @@ namespace Goldmint.CoreLogic.Finance {
 						});
 					}
 					catch (Exception e) {
-						logger?.Error(e, $"Failed to charge payment #{payment.Id} (refund of payment #{refPayment.Id})");
+						logger?.Error(e, $"[1STP] Failed to charge payment #{payment.Id} (refund of payment #{refPayment.Id})");
 					}
 
 					// update ticket
@@ -698,10 +740,10 @@ namespace Goldmint.CoreLogic.Finance {
 					// charge
 					ChargeResult result = null;
 					try {
-						result = await cardAcquirer.DoPaymentCharge(payment.GwTransactionId);
+						result = await cardAcquirer.DoPaymentCharge3D(payment.GwTransactionId);
 					}
 					catch (Exception e) {
-						logger?.Error(e, $"Failed to process payment #{payment.Id} (deposit)");
+						logger?.Error(e, $"[1STP] Failed to process payment #{payment.Id} (deposit)");
 					}
 
 					// update ticket
@@ -800,7 +842,7 @@ namespace Goldmint.CoreLogic.Finance {
 						result = await cardAcquirer.DoCreditCharge(payment.GwTransactionId);
 					}
 					catch (Exception e) {
-						logger?.Error(e, $"Failed to process payment #{payment.Id} (withdraw)");
+						logger?.Error(e, $"[1STP] Failed to process payment #{payment.Id} (withdraw)");
 					}
 
 					// update ticket
@@ -860,6 +902,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Pending,
 				DuplicateCard,
 				DepositDataOk,
+				FailedToCharge3DTransaction,
 				WithdrawCardDataMismatched,
 				FailedToChargeVerification,
 				WithdrawDataOk

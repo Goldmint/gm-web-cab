@@ -41,7 +41,14 @@ import { EqualValidatorDirective } from './directives/equal-validator.directive'
 /*
   UI components
  */
-import { BsDropdownModule, ModalModule, ButtonsModule, TabsModule } from 'ngx-bootstrap';
+import {
+  BsDropdownModule,
+  ModalModule,
+  ButtonsModule,
+  TabsModule,
+  TypeaheadModule
+} from 'ngx-bootstrap';
+
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 // import { NgxPhoneMaskModule } from 'ngx-phone-mask';
@@ -127,6 +134,7 @@ export function getGoldmintToken() {
     ButtonsModule.forRoot(),
     TabsModule.forRoot(),
     NgxDatatableModule,
+    TypeaheadModule,
     NgxQRCodeModule,
     // NgxPhoneMaskModule,
     // InternationalPhoneNumberModule,
@@ -147,14 +155,12 @@ export function getGoldmintToken() {
   ],
   declarations: [
     AppComponent,
-
     LanguageSwitcherBlockComponent,
     HeaderBlockComponent,
     NavbarBlockComponent,
     FooterBlockComponent,
     MessageBoxComponent,
     SpriteComponent,
-
     BuyPageComponent,
     HistoryPageComponent,
     HomePageComponent,
@@ -216,10 +222,6 @@ export function getGoldmintToken() {
         siteKey: environment.recaptchaSiteKey
       }
     },
-    // {
-    //   provide: RECAPTCHA_LANGUAGE,
-    //   useValue: 'fr'
-    // },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: APIHttpInterceptor,

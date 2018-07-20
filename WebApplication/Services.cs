@@ -214,6 +214,8 @@ namespace Goldmint.WebApplication {
 					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
 					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
 					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
+					opts.RsInitStoreSms3D = _appConfig.Services.The1StPayments.RsInitStoreSms3D;
+					opts.RsInitRecurrent3D = _appConfig.Services.The1StPayments.RsInitRecurrent3D;
 					opts.RsInitStoreSms = _appConfig.Services.The1StPayments.RsInitStoreSms;
 					opts.RsInitRecurrent = _appConfig.Services.The1StPayments.RsInitRecurrent;
 					opts.RsInitStoreCrd = _appConfig.Services.The1StPayments.RsInitStoreCrd;
@@ -304,7 +306,7 @@ namespace Goldmint.WebApplication {
 
 			// google sheets
 			if (_appConfig.Services.GoogleSheets != null) {
-				services.AddSingleton(new Sheets(_appConfig));
+				services.AddSingleton(new Sheets(_appConfig, LogManager.LogFactory));
 			}
 
 			return services.BuildServiceProvider();

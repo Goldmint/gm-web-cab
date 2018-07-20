@@ -169,7 +169,15 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				FiatContractAddress
 			);
 
-			var hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			HexBigInteger hexLaxtestBlock;
+			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+			if (syncResp.IsSyncing) {
+				hexLaxtestBlock = syncResp.CurrentBlock;
+			}
+			else {
+				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			}
+
 			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
 			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
@@ -214,7 +222,15 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				FiatContractAddress
 			);
 
-			var hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			HexBigInteger hexLaxtestBlock;
+			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+			if (syncResp.IsSyncing) {
+				hexLaxtestBlock = syncResp.CurrentBlock;
+			}
+			else {
+				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			}
+
 			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
 			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
@@ -260,7 +276,14 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				FiatContractAddress
 			);
 
-			var hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			HexBigInteger hexLaxtestBlock;
+			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+			if (syncResp.IsSyncing) {
+				hexLaxtestBlock = syncResp.CurrentBlock;
+			}
+			else {
+				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			}
 			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
 			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
@@ -296,7 +319,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 		*/
-		
+
 		// ---
 
 		[FunctionOutput]
