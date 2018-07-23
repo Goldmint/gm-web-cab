@@ -74,11 +74,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			// extra access
-			if (HostingEnvironment.IsProduction() && (user.AccessRights & (long)AccessRights.ClientExtraAccess) != (long)AccessRights.ClientExtraAccess) {
-				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-			}
-
 			// ---
 
 			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();

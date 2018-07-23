@@ -24,7 +24,6 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public user: User;
   public tfaInfo: TFAInfo;
   public isMetamask = true;
-  public hasExtraRights: boolean = true;
   public tradingStatus: {creditCardSellingAllowed: boolean, ethAllowed: boolean};
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -49,10 +48,6 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this.user = res[1].data;
         this.tradingStatus = res[2].data.trading;
         this.loading = false;
-
-        if (environment.detectExtraRights) {
-          this.hasExtraRights = this.user.hasExtraRights;
-        }
 
         if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
