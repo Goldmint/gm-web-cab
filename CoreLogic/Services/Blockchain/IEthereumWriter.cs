@@ -7,7 +7,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 	public interface IEthereumWriter {
 
 		/// <summary>
-		/// Transfer GOLD from hot wallet to an address
+		/// Transfer GOLD from hot wallet to the address
 		/// </summary>
 		Task<string> TransferGoldFromHotWallet(string userId, string userAddress, BigInteger amount);
 
@@ -30,5 +30,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Buy/sell request cancellation
 		/// </summary>
 		Task<string> CancelRequest(BigInteger requestIndex);
+
+		/// <summary>
+		/// Transfer Ether from to the address
+		/// </summary>
+		Task<string> TransferEther(string address, BigInteger amount);
 	}
 }

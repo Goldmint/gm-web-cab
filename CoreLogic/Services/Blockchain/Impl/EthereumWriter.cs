@@ -6,6 +6,7 @@ using NLog;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Nethereum.RPC.Eth.DTOs;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
@@ -187,6 +188,26 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				gas,
 				new HexBigInteger(0),
 				requestIndex, centsPerGold
+			);
+		}
+
+		public async Task<string> TransferEther(string address, BigInteger amount) {
+
+			if (amount < 1) {
+				throw new ArgumentException("Amount is equal to 0");
+			}
+			if (!ValidationRules.BeValidEthereumAddress(address)) {
+				throw new ArgumentException("Invalid eth address");
+			}
+
+			var web3 = new Web3(_gmAccount, EthProvider);
+			var gas = await GetWritingGas();
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+
+			return await web3.TransactionManager.SendTransactionAsync(
+				_gmAccount.Address,
+				address,
+				new HexBigInteger(amount)
 			);
 		}
 	}

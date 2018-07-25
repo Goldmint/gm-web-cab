@@ -546,6 +546,41 @@ namespace Goldmint.CoreLogic.Finance {
 							catch {
 							}
 
+							// enqueue support ehter transfer
+							try {
+								if (runtimeConfig.Gold.SupportingEther.Enable && runtimeConfig.Gold.SupportingEther.EtherToSend > 0) {
+
+									// eth operation
+									var transOp = new DAL.Models.EthereumOperation() {
+										Type = EthereumOperationType.SendBuyingSupportEther,
+										Status = EthereumOperationStatus.Prepared,
+										RelatedExchangeRequestId = ethOp.RelatedExchangeRequestId,
+
+										DestinationAddress = ethOp.DestinationAddress,
+										Rate = "0",
+										GoldAmount = "0",
+										EthRequestIndex = null,
+										OplogId = ethOp.OplogId,
+										TimeCreated = timeNow,
+										TimeNextCheck = timeNow,
+
+										UserId = ethOp.UserId,
+										RelUserFinHistoryId = ethOp.RelUserFinHistoryId,
+									};
+									dbContext.EthereumOperation.Add(transOp);
+									await dbContext.SaveChangesAsync();
+
+									try {
+										await ticketDesk.Update(ethOp.OplogId, UserOpLogStatus.Pending, $"Supporting ether will be sent. Ethereum operation #{transOp.Id} enqueued");
+									}
+									catch {
+									}
+								}
+							}
+							catch (Exception e) {
+								logger.Error($"Failed to enqueue support ether transfer for request #{request.Id}");
+							}
+
 							return BuySellRequestProcessingResult.Success;
 						}
 						// failed
@@ -744,8 +779,7 @@ namespace Goldmint.CoreLogic.Finance {
 				var templateProvider = services.GetRequiredService<ITemplateProvider>();
 
 				// buying / GOLD issued
-				if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
-				    ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
+				if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth || ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
 
 					// get exchange request
 					var request = await (

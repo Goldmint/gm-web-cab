@@ -24,12 +24,14 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 			public bool AllowTradingEth { get; set; } = true;
 			public bool AllowBuyingCreditCard { get; set; } = true;
 			public bool AllowSellingCreditCard { get; set; } = true;
+			public SupportingEtherSection SupportingEther { get; set; } = new SupportingEtherSection();
 			public SafeRateSection SafeRate { get; set; } = new SafeRateSection();
 			public TimeoutsSection Timeouts { get; set; } = new TimeoutsSection();
 			public PaymentMehtodsSection PaymentMehtods { get; set; } = new PaymentMehtodsSection();
 
 			public static IValidator<GoldSection> GetValidator() {
 				var v = new InlineValidator<GoldSection>() { CascadeMode = CascadeMode.Continue };
+				v.RuleFor(_ => _.SupportingEther).NotNull().SetValidator(SupportingEtherSection.GetValidator());
 				v.RuleFor(_ => _.SafeRate).NotNull().SetValidator(SafeRateSection.GetValidator());
 				v.RuleFor(_ => _.Timeouts).NotNull().SetValidator(TimeoutsSection.GetValidator());
 				v.RuleFor(_ => _.PaymentMehtods).NotNull().SetValidator(PaymentMehtodsSection.GetValidator());
@@ -37,6 +39,18 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 			}
 
 			// ---
+
+			public class SupportingEtherSection {
+
+				public bool Enable { get; set; } = false;
+				public double EtherToSend { get; set; } = 0.0001;
+
+				public static IValidator<SupportingEtherSection> GetValidator() {
+					var v = new InlineValidator<SupportingEtherSection>() { CascadeMode = CascadeMode.Continue };
+					v.RuleFor(_ => _.EtherToSend).GreaterThanOrEqualTo(0);
+					return v;
+				}
+			}
 
 			public class SafeRateSection {
 

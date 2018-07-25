@@ -12,6 +12,7 @@ using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Numerics;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using NLog;
 
 namespace Goldmint.CoreLogic.Finance {
@@ -88,6 +89,9 @@ namespace Goldmint.CoreLogic.Finance {
 									break;
 								case EthereumOperationType.ContractProcessSellRequestFiat:
 									processor = new ProcessSellRequestFiatOperation();
+									break;
+								case EthereumOperationType.SendBuyingSupportEther:
+									processor = new SendBuyingSupportEtherOperation();
 									break;
 								default:
 									logger.Error($"Ethereum contract processor is not implemented for type {op.Type.ToString()} of operation #{op.Id}");
@@ -483,6 +487,54 @@ namespace Goldmint.CoreLogic.Finance {
 				};
 			}
 		}
+		
+		/// <summary>
+		/// Send ether to the address
+		/// </summary>
+		internal sealed class SendBuyingSupportEtherOperation : IEthereumOperation {
+
+			public Task<CheckResult> Check(IServiceProvider services, DAL.Models.EthereumOperation op) {
+				return Task.FromResult(new CheckResult() {
+					Success = true,
+				});
+			}
+
+			public async Task<ExecResult> Exec(IServiceProvider services, DAL.Models.EthereumOperation op) {
+
+				var ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+				var rcfgHolder = services.GetRequiredService<RuntimeConfigHolder>();
+				var rcfg = rcfgHolder.Clone();
+
+				string txid = null;
+
+				// check one more time
+				if (rcfg.Gold.SupportingEther.Enable && rcfg.Gold.SupportingEther.EtherToSend > 0) {
+					var amount = BigInteger.Zero;
+					try {
+						amount = new BigInteger(
+							decimal.Floor(
+								(decimal)BigInteger.Pow(10, Tokens.ETH.Decimals) * (decimal)rcfg.Gold.SupportingEther.EtherToSend
+							)
+						);
+					}
+					catch (Exception e) {
+					}
+
+					if (amount > 0) {
+						txid = await ethereumWriter.TransferEther(
+							op.DestinationAddress,
+							amount
+						);
+					}
+				}
+
+				return new ExecResult() {
+					Success = txid != null,
+					TxId = txid,
+				};
+			}
+		}
+
 		// ---
 
 		internal class CheckResult {

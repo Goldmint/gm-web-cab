@@ -309,6 +309,11 @@ namespace Goldmint.Common {
 		/// Call contract for request processing (fiat)
 		/// </summary>
 		ContractProcessSellRequestFiat,
+
+		/// <summary>
+		/// Transfer ether to the specified address
+		/// </summary>
+		SendBuyingSupportEther,
 	}
 
 	public enum EthereumOperationStatus {
