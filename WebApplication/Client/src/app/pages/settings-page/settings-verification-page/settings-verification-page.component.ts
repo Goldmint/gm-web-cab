@@ -29,6 +29,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   public processing = false;
   public repeat = Array;
   public isAgreeCheck: false;
+  public locale: string;
 
   public phase: Phase;
   public countries: Country[];
@@ -44,6 +45,7 @@ export class SettingsVerificationPageComponent implements OnInit {
 
   private selectedCountry;
   private interval: Subscription;
+  private sub1: Subscription;
 
   constructor(
     private _apiService: APIService,
@@ -56,6 +58,10 @@ export class SettingsVerificationPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.sub1 = this._userService.currentLocale.subscribe(currentLocale => {
+      this.locale = currentLocale;
+    });
+
     this.phase = Phase.Start;
     this.refreshPage();
   }
@@ -134,7 +140,6 @@ export class SettingsVerificationPageComponent implements OnInit {
   }
 
   submit(kycForm?: NgForm) {
-
     if (this.phase == Phase.Basic && kycForm) {
       this.submitBasicInformation(kycForm);
     }
@@ -142,8 +147,6 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (this.phase == Phase.Kyc) {
       this.startKYCVerification();
     }
-
-    console.log("SUBMIT");
   }
 
   submitBasicInformation(kycForm: NgForm) {
@@ -162,7 +165,6 @@ export class SettingsVerificationPageComponent implements OnInit {
       .subscribe(
       (res: APIResponse<KYCProfile>) => {
         this.kycProfile = res.data;
-        // this.startKYCVerification();
         this.onPhaseUpdate();
         window.scrollTo(0, 0);
       },
@@ -255,6 +257,7 @@ export class SettingsVerificationPageComponent implements OnInit {
 
   ngOnDestroy() {
     this.interval && this.interval.unsubscribe();
+    this.sub1 && this.sub1.unsubscribe();
   }
 
 }

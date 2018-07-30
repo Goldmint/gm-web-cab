@@ -74,6 +74,7 @@
     <div class="section__content kyc pt-2">
       <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.Unverified' | translate"></p>
       <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.Documents' | translate"></p>
+      <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.UsePassportRus' | translate" *ngIf="locale === 'ru'"></p>
       <div class="text-center">
         <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
           {{ "PAGES.Settings.KYC.WarningSection.Button" | translate }}
@@ -243,9 +244,11 @@
     </h2>
 
     <div class="section__content kyc pt-2">
-
-      <p [innerHTML]="'PAGES.Settings.KYC.FormSection.NewAccountText' | translate" *ngIf="!kycProfile.isFormFilled"></p>
-      <p [innerHTML]="'PAGES.Settings.KYC.FormSection.Important' | translate" *ngIf="!kycProfile.isFormFilled"></p>
+      <div *ngIf="!kycProfile.isFormFilled">
+        <p [innerHTML]="'PAGES.Settings.KYC.FormSection.NewAccountText' | translate"></p>
+        <p [innerHTML]="'PAGES.Settings.KYC.FormSection.Important' | translate"></p>
+        <p [innerHTML]="'PAGES.Settings.KYC.FormSection.ImportantRus' | translate" *ngIf="locale === 'ru'"></p>
+      </div>
 
       <p class="kyc-required" *ngIf="!kycProfile.isFormFilled"><span>*</span> {{ "PAGES.Settings.KYC.FormSection.RequiredFields" | translate }}</p>
 
@@ -605,6 +608,15 @@
                   {{ errors?.PhoneNumber }}
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div class="col-12 mb-2" *ngIf="!kycProfile.isFormFilled">
+            <div class="custom-control custom-checkbox my-3">
+              <input type="checkbox" class="custom-control-input" id="checkWrite" ngModel name="checkWrite" required>
+              <label class="custom-control-label custom-control-label-agree" for="checkWrite">
+                {{ "PAGES.Settings.KYC.FormSection.CheckWrite" | translate }}
+              </label>
             </div>
           </div>
         </div>
