@@ -303,7 +303,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.currentValue = +event.target.value;
     event.target.setSelectionRange(event.target.value.length, event.target.value.length);
 
-    status !== this.isReversed && (this.isReversed = status);
+    status !== this.isReversed && this.ethAddress && (this.isReversed = status);
   }
 
   calculateStartGoldValue(value: number) {
@@ -353,7 +353,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   }
 
   setGoldBalance(percent) {
-    this.isReversed = false;
+    this.ethAddress && (this.isReversed = false);
     const value = this.substrValue(this.currentBalance * percent);
     this.currentValue = this.goldAmount = +value;
     this._cdRef.markForCheck();
