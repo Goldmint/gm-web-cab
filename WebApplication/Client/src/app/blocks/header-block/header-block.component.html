@@ -48,7 +48,7 @@
                 <use xlink:href="#cur-gold"></use>
               </svg>
               <span class="balance__value">
-              {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-2':locale}}
+              {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-5':locale}}
               {{'OZ'}}
               <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_usd_rate | number:'1.2-2':locale }})</span>
             </span>

@@ -35,7 +35,9 @@ export class BuyCardPageComponent implements OnInit {
   public ethAddress: string = '';
   public currentValue: number;
   public estimatedAmount: BigNumber;
-  public cards: CardsList;
+  public cards: CardsList = {
+    list: []
+  };
   public selectedCard: number;
   public transferData: object;
 
@@ -79,7 +81,9 @@ export class BuyCardPageComponent implements OnInit {
 
     this._apiService.getFiatCards()
       .subscribe(cards => {
-        this.cards = cards.data;
+        cards.data.list.forEach(card => {
+          card.status === 'verified' && this.cards.list.push(card);
+        });
         this.isDataLoaded = true;
 
         if (this.cards.list && this.cards.list.length) {

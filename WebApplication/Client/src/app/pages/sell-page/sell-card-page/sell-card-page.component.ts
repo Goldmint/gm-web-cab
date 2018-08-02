@@ -35,7 +35,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public usdAmount: number = 0;
   public currentValue: number;
   public estimatedAmount: BigNumber;
-  public cards: CardsList;
+  public cards: CardsList = {
+    list: []
+  };
   public user: User;
   public selectedCard: number;
   public transferData: object;
@@ -86,7 +88,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       this._apiService.getFiatCards(),
       this._apiService.getProfile()
     ).subscribe((res) => {
-      this.cards = res[0].data;
+      res[0].data.list.forEach(card => {
+        card.status === 'verified' && this.cards.list.push(card);
+      });
       this.user = res[1].data;
 
       this.isDataLoaded = true;
