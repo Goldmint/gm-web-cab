@@ -105,7 +105,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
       if (bal != null) {
-        this.goldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
+        this.goldBalance = bal.toString().replace(/^(\d+\.\d{2,)\d+$/, '$1');
         this._cdRef.markForCheck();
       }
     });
