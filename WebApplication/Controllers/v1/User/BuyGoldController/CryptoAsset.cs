@@ -88,7 +88,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				OplogId = ticket,
 				TimeCreated = timeNow,
-				TimeExpires = timeExpires,
+				TimeExpires = timeExpires.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest), // double time
 				UserId = user.Id,
 			};
 
