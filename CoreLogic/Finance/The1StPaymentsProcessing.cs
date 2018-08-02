@@ -294,12 +294,7 @@ namespace Goldmint.CoreLogic.Finance {
 						if (payment.Status == CardPaymentStatus.Success) {
 
 							// set next step
-							if (cardHolder != null &&
-								cardMask != null &&
-								User.HasFilledPersonalData(payment.User?.UserVerification) &&
-								cardHolder.Contains(payment.User?.UserVerification.FirstName?.ToUpper()) &&
-								cardHolder.Contains(payment.User?.UserVerification.LastName?.ToUpper())
-							) {
+							if (cardHolder != null && cardMask != null) {
 
 								// check for duplicate
 								if (
@@ -420,6 +415,9 @@ namespace Goldmint.CoreLogic.Finance {
 									}
 								}
 								*/
+							}
+							else {
+								await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Did not get card holder or card mask from gateway");
 							}
 						}
 						else if (payment.Status == CardPaymentStatus.Failed) {
