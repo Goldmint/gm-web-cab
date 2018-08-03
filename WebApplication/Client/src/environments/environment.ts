@@ -2,6 +2,7 @@ export const environment = {
   production: false,
   detectExtraRights: false,
   apiUrl: 'https://staging.goldmint.io/api/v1',
+  gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
   infuraUrl: 'https://rinkeby.infura.io/ErpvjHXqcahfBLahHPfh',

@@ -169,7 +169,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
           this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
             if (price !== null && this.isFirstTransaction) {
               this.showConfirmBlock = true;
-              this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, amount, +price);
+              this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, amount, +price * Math.pow(10, 9));
               this.isFirstTransaction = false;
               this._cdRef.markForCheck();
             }

@@ -13,6 +13,7 @@ import {Subject} from "rxjs/Subject";
 export class EthereumService {
   private _infuraUrl = environment.infuraUrl;
   private _etherscanGetABIUrl = environment.etherscanGetABIUrl;
+  private _gasPriceLink = environment.gasPriceLink;
   // main contract
   private EthContractAddress = environment.EthContractAddress;
   private EthContractABI: string;
@@ -213,14 +214,10 @@ export class EthereumService {
   }
 
   private getGasPrice() {
-    this._web3Metamask && this._web3Metamask.eth.getGasPrice((err, res) => {
-      this._obsGasPriceSubject.next(res);
+    this._http.get(this._gasPriceLink).subscribe(data => {
+      this._obsGasPriceSubject.next(data['fast']);
     });
   }
-
-  // private getGasLimit() {
-  //   this._web3Metamask && this._web3Metamask.eth.estimateGas({from: this._lastAddress, to: this.EthContractAddress, amount: this._web3Metamask.toWei(1, "ether")}, (err, res) => {});
-  // }
 
   // ---
 

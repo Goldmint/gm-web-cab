@@ -145,7 +145,7 @@ export class CryptocurrencyBlockComponent implements OnInit {
       this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
         if (price !== null && this.isFirstTransaction) {
           this.showConfirmBlock = true;
-          this._ethService.sendBuyRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price);
+          this._ethService.sendBuyRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price * Math.pow(10, 9));
           this.isFirstTransaction = false;
           this._cdRef.markForCheck();
         }
@@ -164,7 +164,7 @@ export class CryptocurrencyBlockComponent implements OnInit {
       this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
         if (price !== null && this.isFirstTransaction) {
           this.showConfirmBlock = true;
-          this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price);
+          this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price * Math.pow(10, 9));
           this.isFirstTransaction = false;
           this._cdRef.markForCheck();
         }

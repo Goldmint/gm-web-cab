@@ -159,7 +159,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
         this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
           if (price !== null && this.isFirstTransaction) {
             this.showConfirmBlock = true;
-            this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.sellRequestId, this.goldAmount.toString(), +price);
+            this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.sellRequestId, this.goldAmount.toString(), +price * Math.pow(10, 9));
             this.isFirstTransaction = false;
             this._cdRef.markForCheck();
           }
