@@ -649,7 +649,7 @@ namespace Goldmint.CoreLogic.Finance {
 					// update ticket
 					try {
 						if (resultGwTxId != null) {
-							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Refunded successfully");
+							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Completed, "Refunded successfully");
 						}
 						else {
 							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Card verification refund #{payment.Id} failed and requires manual processing");

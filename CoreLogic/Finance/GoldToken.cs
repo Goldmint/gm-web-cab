@@ -163,6 +163,28 @@ namespace Goldmint.CoreLogic.Finance {
 						// expired
 						else {
 
+							// eth operation
+							var ethOp = new DAL.Models.EthereumOperation() {
+								Type = EthereumOperationType.ContractCancelBuyRequest,
+								Status = EthereumOperationStatus.Initial,
+								RelatedExchangeRequestId = request.Id,
+
+								DestinationAddress = request.EthAddress,
+								Rate = "0",
+								GoldAmount = "0",
+								EthRequestIndex = requestIndex.ToString(),
+								OplogId = request.OplogId,
+								TimeCreated = timeNow,
+								TimeNextCheck = timeNow,
+
+								UserId = request.UserId,
+								RelUserFinHistoryId = request.RelUserFinHistoryId,
+							};
+							dbContext.EthereumOperation.Add(ethOp);
+							await dbContext.SaveChangesAsync();
+
+							// expired
+							ethOp.Status = EthereumOperationStatus.Prepared;
 							request.Status = BuyGoldRequestStatus.Expired;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;
@@ -171,7 +193,7 @@ namespace Goldmint.CoreLogic.Finance {
 							await dbContext.SaveChangesAsync();
 
 							try {
-								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired");
+								await ticketDesk.Update(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired. Ethereum operation #{ ethOp.Id } enqueued");
 							}
 							catch {
 							}
@@ -329,8 +351,7 @@ namespace Goldmint.CoreLogic.Finance {
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending,
-										$"Request #{request.Id} processed. Ethereum operation #{ethOp.Id} enqueued");
+									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"Request #{request.Id} processed. Ethereum operation #{ethOp.Id} enqueued");
 								}
 								catch {
 								}
@@ -341,6 +362,28 @@ namespace Goldmint.CoreLogic.Finance {
 							// expired
 							else {
 
+								// eth operation
+								var ethOp = new DAL.Models.EthereumOperation() {
+									Type = EthereumOperationType.ContractCancelSellRequest,
+									Status = EthereumOperationStatus.Initial,
+									RelatedExchangeRequestId = request.Id,
+
+									DestinationAddress = request.EthAddress,
+									Rate = "0",
+									GoldAmount = "0",
+									EthRequestIndex = requestIndex.ToString(),
+									OplogId = request.OplogId,
+									TimeCreated = timeNow,
+									TimeNextCheck = timeNow,
+
+									UserId = request.UserId,
+									RelUserFinHistoryId = request.RelUserFinHistoryId,
+								};
+								dbContext.EthereumOperation.Add(ethOp);
+								await dbContext.SaveChangesAsync();
+
+								// expired
+								ethOp.Status = EthereumOperationStatus.Prepared;
 								request.Status = SellGoldRequestStatus.Expired;
 								request.TimeNextCheck = timeNow;
 								request.TimeCompleted = timeNow;
@@ -349,7 +392,7 @@ namespace Goldmint.CoreLogic.Finance {
 								await dbContext.SaveChangesAsync();
 
 								try {
-									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired");
+									await ticketDesk.Update(request.OplogId, UserOpLogStatus.Failed, $"Request #{request.Id} is expired. Ethereum operation #{ethOp.Id} enqueued");
 								}
 								catch {
 								}
