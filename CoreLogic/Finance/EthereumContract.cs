@@ -196,7 +196,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								try {
 									if (op.Status == EthereumOperationStatus.Success) {
-										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Pending, "Request has been saved on blockchain");
+										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Completed, "Request has been saved on blockchain");
 									}
 									if (op.Status == EthereumOperationStatus.Failed) {
 										await ticketDesk.Update(op.OplogId, UserOpLogStatus.Failed, "Request has NOT been saved on blockchain");
