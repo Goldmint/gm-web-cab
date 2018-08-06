@@ -874,7 +874,7 @@
           "Important": "<b>IMPORTANT:</b> Once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
           "ImportantRus": "",
           "RequiredFields": "Required fields",
-          "CheckWrite": "Я внимательно заполнил персональные данные и понимаю, что не смогу их изменить в будущем.",
+          "CheckWrite": "I carefully filled in the personal data, and I understand that I won't be able to change them in the future.",
           "Labels": {
             "FirstName": "First Name",
             "MiddleName": "Middle Name",
