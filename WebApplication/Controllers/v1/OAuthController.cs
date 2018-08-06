@@ -178,7 +178,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				return Redirect("/");
 			}
 
-			// doesnt exists yet
+			// doesnt exist yet
 			else {
 				Logger.Info($"User {userInfo.Id} - account creation");
 
