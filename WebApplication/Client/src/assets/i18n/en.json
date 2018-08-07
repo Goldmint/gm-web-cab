@@ -92,6 +92,8 @@
         "InvalidGold": "Invalid GOLD amount",
         "InvalidUsd": "Invalid USD amount",
         "InvalidEth": "Invalid ETH amount",
+        "minLimit": "Amount is less than minimum limit",
+        "maxLimit": "Amount is greater than maximum limit",
         "UseMM": "Use metamask",
         "NotAllow": "Method is not allowed now"
       }

@@ -32,7 +32,8 @@
                              ngModel
                              autocomplete="off"
                              (input)="changeValue(false, $event)"
-                             [ngClass]="{'is-invalid': (invalidBalance || !goldAmount) && !isReversed && !isFirstLoad}"
+                             [ngClass]="{'is-invalid': ((invalidBalance || !goldAmount) && !isReversed && !isFirstLoad)
+                                                       || ((limitError.min || limitError.max) && !isFirstLoad)}"
                              [disabled]="isReversed && loading"
                       >
                     </div>
@@ -44,6 +45,12 @@
                     </div>
                     <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && !isReversed && !isFirstLoad">
                       {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
+                    </div>
+                    <div class="invalid-feedback" *ngIf="limitError.min && !isFirstLoad">
+                      {{ "PAGES.Sell.Errors.minLimit" | translate }}
+                    </div>
+                    <div class="invalid-feedback" *ngIf="limitError.max && !isFirstLoad">
+                      {{ "PAGES.Sell.Errors.maxLimit" | translate }}
                     </div>
                   </div>
                 </div>

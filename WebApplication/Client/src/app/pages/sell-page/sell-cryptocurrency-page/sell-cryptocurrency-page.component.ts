@@ -19,6 +19,7 @@ import {Router} from "@angular/router";
 import {environment} from "../../../../environments/environment";
 import {Subscription} from "rxjs/Subscription";
 import * as Web3 from "web3";
+import {LimitErrors} from "../../../models/limitErrors";
 
 @Component({
   selector: 'app-sell-cryptocurrency-page',
@@ -54,7 +55,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public ethLimit: BigNumber = null;
   public goldLimit: number | null = null;
   public selectedWallet = 0;
-
+  public limitError: LimitErrors = new LimitErrors();
   public coinList = ['BTC', 'ETH'];
   public currentCoin = this.coinList[1];
   public isReversed: boolean = true;
@@ -244,11 +245,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.loading = true;
 
     if (!this.isReversed) {
+      this.limitError = new LimitErrors();
       if (value > this.goldLimit && +this.ethLimit !== 0 && this.currentBalance) {
         this.isModalShow = true;
         this.loading = false;
         return
       }
+      this.invalidBalance = false;
 
       if (value > 0 && value <= this.currentBalance) {
         const wei = this.Web3.toWei(value);
@@ -262,19 +265,21 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
           this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
           this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
           this.invalidBalance = this.isTradingError = this.isTradingLimit = false;
-        }, () => {
-          this.setError();
+        }, (error) => {
+            error.error.errorCode === 104 ? this.setLimitError() : this.setError();
         });
       } else {
         this.setError();
       }
     }
     if (this.isReversed) {
+      this.limitError = new LimitErrors();
       if (value > +this.ethLimit && +this.ethLimit !== 0 && this.currentBalance) {
         this.isModalShow = true;
         this.loading = false;
         return
       }
+      this.invalidBalance = false;
 
       if (value > 0 && value <= +this.ethLimit) {
         const wei = this.Web3.toWei(value);
@@ -289,8 +294,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
             this.isTradingError = this.isTradingLimit = false;
             this.coinAmountToUSD = (this.coinAmount / this.ethRate) * this.goldRate;
             this.invalidBalance = (this.goldAmount > this.currentBalance) ? true : false;
-        }, () => {
-          this.setError();
+        }, (error) => {
+            this.setError();
         });
       } else {
         this.setError();
@@ -401,6 +406,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.invalidBalance = true;
     this.loading = false;
     this._cdRef.markForCheck();
+  }
+
+  setLimitError() {
+    this.limitError.min = this.coinAmount < +this.isTradingLimit['min'];
+    this.limitError.max = this.coinAmount > +this.isTradingLimit['max'];
   }
 
   onSubmit() {
