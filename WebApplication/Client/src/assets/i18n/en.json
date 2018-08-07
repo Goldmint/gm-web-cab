@@ -185,6 +185,7 @@
       },
       "KYC": {
         "Text": "<span class=\"lead\">We need to confirm your identity</span>",
+        "BlockedCountry": "Actions BUY/SELL of GOLD cryptoasset are not available for your country",
         "Pros": {
           "Secure": {
             "Title": "Secure",
@@ -872,7 +873,8 @@
           "StatusText": "Basic information filled",
           "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it exists on your government identification.",
           "Important": "<b>IMPORTANT:</b> Once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
-          "ImportantRus": "",
+          "ImportantRus": "Use your international passport or driving license.",
+          "notificationForRussian": "Verification is possible using international passport or driving license only for Russian Federation citizens.",
           "RequiredFields": "Required fields",
           "CheckWrite": "I carefully filled in the personal data, and I understand that I won't be able to change them in the future.",
           "Labels": {

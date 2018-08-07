@@ -25,6 +25,8 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public tfaInfo: TFAInfo;
   public isMetamask = true;
   public tradingStatus: {creditCardSellingAllowed: boolean, ethAllowed: boolean};
+  public blockedCountriesList = ['US', 'CA', 'CN', 'SG'];
+  public isBlockedCountry: boolean = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -41,12 +43,19 @@ export class SellPageComponent implements OnInit, OnDestroy {
     Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile(),
-      this._apiService.getTradingStatus()
+      this._apiService.getTradingStatus(),
+      this._apiService.getKYCProfile()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
         this.tradingStatus = res[2].data.trading;
+
+        this.isBlockedCountry = this.blockedCountriesList.indexOf(res[3].data['country']) >= 0;
+        !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
+          this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
+        });
+
         this.loading = false;
 
         if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {

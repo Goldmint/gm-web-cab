@@ -44,6 +44,10 @@ export class UserService {
     }
   }
 
+  public getIPInfo() {
+    return this.http.get('https://ipinfo.io');
+  }
+
   public processToken(token: string) {
     this._processLoginResponse({ data: { token: token } });
   }

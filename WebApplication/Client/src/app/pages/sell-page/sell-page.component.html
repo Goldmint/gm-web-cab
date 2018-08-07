@@ -10,13 +10,8 @@
     </div>
 
     <ng-template #blockLoaded>
-
-      <div *ngIf="false" class="text-center mt-3 transactions-paused">
-        {{ "PAGES.Sell.Paused" | translate }}
-      </div>
-
       <!-- KYC REQUIRED -->
-      <div *ngIf="true">
+      <div *ngIf="!isBlockedCountry">
         <ng-container *ngIf="!user.verifiedL1; else blockMethods">
 
           <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
@@ -136,6 +131,10 @@
 
           </ng-container>
         </ng-template>
+      </div>
+
+      <div *ngIf="isBlockedCountry" class="mt-4 text-center">
+        <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></p>
       </div>
 
     </ng-template>

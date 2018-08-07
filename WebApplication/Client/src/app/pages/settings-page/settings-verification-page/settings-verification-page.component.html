@@ -74,9 +74,10 @@
     <div class="section__content kyc pt-2">
       <p class="mb-3" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.Unverified' | translate"></p>
       <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.Documents' | translate"></p>
-      <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.UsePassportRus' | translate" *ngIf="locale === 'ru'"></p>
+      <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.WarningSection.Notification.UsePassportRus' | translate" *ngIf="!isRussian && locale === 'ru'"></p>
+      <p class="mb-3 icon--red" [innerHTML]="'PAGES.Settings.KYC.FormSection.notificationForRussian' | translate" *ngIf="isRussian"></p>
       <div class="text-center">
-        <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="submit()">
+        <button type="button" class="btn btn-primary mt-3 mb-5" [disabled]="processing" (click)="startKYCVerification()">
           {{ "PAGES.Settings.KYC.WarningSection.Button" | translate }}
           <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
         </button>
@@ -244,15 +245,15 @@
     </h2>
 
     <div class="section__content kyc pt-2">
-      <div *ngIf="!kycProfile.isFormFilled">
+      <div *ngIf="!kycProfile.isKycFinished">
         <p [innerHTML]="'PAGES.Settings.KYC.FormSection.NewAccountText' | translate"></p>
         <p [innerHTML]="'PAGES.Settings.KYC.FormSection.Important' | translate"></p>
         <p [innerHTML]="'PAGES.Settings.KYC.FormSection.ImportantRus' | translate" *ngIf="locale === 'ru'"></p>
       </div>
 
-      <p class="kyc-required" *ngIf="!kycProfile.isFormFilled"><span>*</span> {{ "PAGES.Settings.KYC.FormSection.RequiredFields" | translate }}</p>
+      <p class="kyc-required" *ngIf="!kycProfile.isKycFinished"><span>*</span> {{ "PAGES.Settings.KYC.FormSection.RequiredFields" | translate }}</p>
 
-      <form name="kycForm" (ngSubmit)="kycForm.form.valid && submit(kycForm)" #kycForm="ngForm" novalidate>
+      <form name="kycForm" (ngSubmit)="kycForm.form.valid && submitBasicInformation(kycForm)" #kycForm="ngForm" novalidate>
         <div class="row mt-3">
           <div class="col-sm-6">
             <div class="form-group">
@@ -264,7 +265,7 @@
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.FirstName || !firstName.valid) && (kycForm.submitted || !firstName.pristine)}"
                        (ngModelChange)="errors.FirstName = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing">
+                       [readonly]="kycProfile.isKycFinished === true || processing">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -291,7 +292,7 @@
                      class="form-control"
                      [ngClass]="{'is-invalid': (errors?.MiddleName || !middleName.valid) && (kycForm.submitted || !middleName.pristine)}"
                      (ngModelChange)="errors.MiddleName = false"
-                     [readonly]="kycProfile.isFormFilled === true || processing">
+                     [readonly]="kycProfile.isKycFinished === true || processing">
 
               <div class="invalid-feedback" *ngIf="middleName.errors?.pattern">
                 {{ "PAGES.Settings.KYC.FormSection.Errors.MiddleName.pattern" | translate }}
@@ -310,7 +311,7 @@
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.LastName || !lastName.valid) && (kycForm.submitted || !lastName.pristine)}"
                        (ngModelChange)="errors.LastName = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing">
+                       [readonly]="kycProfile.isKycFinished === true || processing">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -340,7 +341,7 @@
                         class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.BirthMonth || !birthMonth.valid) && !birthMonth.pristine}"
                         (ngModelChange)="errors.BirthMonth = false"
-                        [disabled]="kycProfile.isFormFilled === true || processing">
+                        [disabled]="kycProfile.isKycFinished === true || processing">
 
                   <option value="1">{{ "PAGES.Settings.KYC.FormSection.Month.January" | translate }}</option>
                   <option value="2">{{ "PAGES.Settings.KYC.FormSection.Month.February" | translate }}</option>
@@ -376,7 +377,7 @@
                         class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.BirthDay || !birthDay.valid) && !birthDay.pristine}"
                         (ngModelChange)="errors.BirthDay = false"
-                        [disabled]="kycProfile.isFormFilled === true || processing">
+                        [disabled]="kycProfile.isKycFinished === true || processing">
 
                   <option *ngFor="let x of repeat(31).fill(1); let i = index" [value]="i + 1">{{ i + 1 }}</option>
                 </select>
@@ -401,7 +402,7 @@
                         class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.BirthYear || !birthYear.valid) && !birthYear.pristine}"
                         (ngModelChange)="errors.BirthYear = false"
-                        [disabled]="kycProfile.isFormFilled === true || processing">
+                        [disabled]="kycProfile.isKycFinished === true || processing">
 
                   <option [value]="null" disabled>{{ "PAGES.Settings.KYC.FormSection.Placeholders.ChooseBirthYear" | translate }}</option>
                   <option *ngFor="let x of repeat(75).fill(1); let i = index" [value]="minBirthYear - i">{{ minBirthYear - i }}</option>
@@ -427,11 +428,11 @@
               <label for="selectCountry">{{ "PAGES.Settings.KYC.FormSection.Labels.Country" | translate }}</label>
               <div class="kyc-required">
                 <select id="selectCountry" required
-                        name="country" [(ngModel)]="kycProfile.country" #country="ngModel" (change)="onCountrySelect()"
+                        name="country" [(ngModel)]="kycProfile.country" #country="ngModel" (change)="onCountrySelect(stateField)"
                         class="custom-select"
                         [ngClass]="{'is-invalid': (errors?.Country || !country.valid) && !country.pristine}"
                         (ngModelChange)="errors.Country = false"
-                        [disabled]="kycProfile.isFormFilled === true || processing">
+                        [disabled]="kycProfile.isKycFinished === true || processing">
 
                   <option [value]="null" disabled>{{ "PAGES.Settings.KYC.FormSection.Placeholders.ChooseCountry" | translate }}</option>
                   <option *ngFor="let country of countries" [value]="country.countryShortCode">{{ country.countryName }}</option>
@@ -457,7 +458,7 @@
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.Street || !street.valid) && (kycForm.submitted || !street.pristine)}"
                        (ngModelChange)="errors.Street = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing">
+                       [readonly]="kycProfile.isKycFinished === true || processing">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -480,7 +481,7 @@
                      name="apartment" [(ngModel)]="kycProfile.apartment" #apartment="ngModel"
                      class="form-control"
                      [ngClass]="{'is-invalid': !apartment.valid && (kycForm.submitted || !apartment.pristine)}"
-                     [readonly]="kycProfile.isFormFilled === true || processing" pattern="[\w /'`.-]*">
+                     [readonly]="kycProfile.isKycFinished === true || processing" pattern="[\w /'`.-]*">
 
               <div class="invalid-feedback" *ngIf="apartment.errors?.pattern">
                 {{ "PAGES.Settings.KYC.FormSection.Errors.Street.pattern" | translate }}
@@ -495,7 +496,7 @@
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.City || !city.valid) && (kycForm.submitted || !city.pristine)}"
                        (ngModelChange)="errors.City = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing">
+                       [readonly]="kycProfile.isKycFinished === true || processing">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -521,6 +522,7 @@
                      id="selectState"
                      ngModel
                      #state="ngModel"
+                     #stateField
                      [typeahead]="states"
                      [typeaheadMinLength]="0"
                      [typeaheadOptionsLimit]="1000"
@@ -529,7 +531,7 @@
                      placeholder='{{ "PAGES.Settings.KYC.FormSection.Placeholders.ChooseState" | translate }}'
                      [ngClass]="{'is-invalid': (errors?.State || !state.valid || patternErrors?.state) && !state.pristine}"
                      (ngModelChange)="errors.State = false"
-                     [disabled]="kycProfile.isFormFilled === true || processing || !kycProfile.country"
+                     [disabled]="kycProfile.isKycFinished === true || processing || !kycProfile.country"
                      class="form-control"
                      (input)="onStateInput($event)"
                      (typeaheadOnSelect)="onStateSelect($event)"
@@ -554,12 +556,12 @@
             <div class="form-group">
               <label for="inputPostalCode">{{ "PAGES.Settings.KYC.FormSection.Labels.PostalCode" | translate }}</label>
               <div class="kyc-required">
-                <input type="text" id="inputPostalCode" required pattern="[\d]*"
+                <input type="text" id="inputPostalCode" required pattern="[\w\s]*"
                        name="postalCode" [(ngModel)]="kycProfile.postalCode" #postalCode="ngModel"
                        class="form-control"
                        [ngClass]="{'is-invalid': (errors?.PostalCode || !postalCode.valid) && (kycForm.submitted || !postalCode.pristine)}"
                        (ngModelChange)="errors.PostalCode = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing">
+                       [readonly]="kycProfile.isKycFinished === true || processing">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
@@ -592,7 +594,7 @@
                        class="form-control" (input)="onPhoneNumberChanged($event)"
                        [ngClass]="{'is-invalid': (errors?.PhoneNumber || !phoneNumber.valid) && (kycForm.submitted || !phoneNumber.pristine)}"
                        (ngModelChange)="errors.PhoneNumber = false"
-                       [readonly]="kycProfile.isFormFilled === true || processing" [disabled]="!kycProfile.country"
+                       [readonly]="kycProfile.isKycFinished === true || processing" [disabled]="!kycProfile.country"
                        pattern="^\+\d{8,}$">
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
@@ -611,7 +613,7 @@
             </div>
           </div>
 
-          <div class="col-12 mb-2" *ngIf="!kycProfile.isFormFilled">
+          <div class="col-12 mb-2" *ngIf="!kycProfile.isKycFinished">
             <div class="custom-control custom-checkbox my-3">
               <input type="checkbox" class="custom-control-input" id="checkWrite" ngModel name="checkWrite" required>
               <label class="custom-control-label custom-control-label-agree" for="checkWrite">
@@ -621,7 +623,7 @@
           </div>
         </div>
 
-        <div class="row mt-2 mb-4 pr-0 pr-sm-4 justify-content-sm-start justify-content-center" *ngIf="!kycProfile.isFormFilled">
+        <div class="row mt-2 mb-4 pr-0 pr-sm-4 justify-content-sm-start justify-content-center" *ngIf="!kycProfile.isKycFinished">
           <div class="form-group col-auto col-sm-6 mb-2">
             <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched || patternErrors?.state">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}

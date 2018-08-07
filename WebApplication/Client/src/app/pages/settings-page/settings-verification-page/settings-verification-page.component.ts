@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 // import { PhoneNumberComponent } from 'ngx-international-phone-number';
 import 'rxjs/add/operator/finally';
@@ -42,6 +48,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   public dateOfBirth: { day: number, month: number, year: number | '' };
   public minBirthYear = 1999;
   public userData: User;
+  public isRussian: boolean = false;
 
   private selectedCountry;
   private interval: Subscription;
@@ -97,8 +104,9 @@ export class SettingsVerificationPageComponent implements OnInit {
     this.phase = phase;
   }
 
-  onCountrySelect(reset: boolean = true) {
+  onCountrySelect(state, reset: boolean = true) {
     this.states = [];
+    state && (state.value = '');
     const country = <Country>this.countries.find(country => country.countryShortCode === this.kycProfile.country);
 
     if (reset) this.kycProfile.state = null;
@@ -134,18 +142,8 @@ export class SettingsVerificationPageComponent implements OnInit {
   onPhoneNumberChanged(event) {
     event.target.value = event.target.value.replace(/(?!^\+)[^\d]/g, '');
 
-    if (this.kycProfile.phoneNumber.indexOf(this.selectedCountry.phoneCode)) {
-      event.target.value = this.selectedCountry.phoneCode;
-    }
-  }
-
-  submit(kycForm?: NgForm) {
-    if (this.phase == Phase.Basic && kycForm) {
-      this.submitBasicInformation(kycForm);
-    }
-
-    if (this.phase == Phase.Kyc) {
-      this.startKYCVerification();
+    if (this.kycProfile.phoneNumber.indexOf('+') !== 0) {
+      event.target.value = '+' + event.target.value;
     }
   }
 
