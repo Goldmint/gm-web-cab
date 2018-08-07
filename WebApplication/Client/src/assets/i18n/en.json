@@ -855,7 +855,7 @@
         },
         "ProofResidency": {
           "Heading": "Proof of Residency",
-          "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
+          "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement. This document can be in your domestic language.",
           "Button": "Send a request",
           "Success": {
             "Heading": "Proof of residency verification",

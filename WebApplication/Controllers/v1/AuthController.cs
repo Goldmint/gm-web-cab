@@ -59,6 +59,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
 				if (user.UserOptions != null) {
 					await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
+
+					// check if dpa is signed but email is not confirmed
+					if (!user.EmailConfirmed && (user.UserOptions.DpaDocument?.IsSigned ?? false)) {
+						user.EmailConfirmed = true;
+						await DbContext.SaveChangesAsync();
+					}
 				}
 
 				var sres = OnSignInResultCheck(
