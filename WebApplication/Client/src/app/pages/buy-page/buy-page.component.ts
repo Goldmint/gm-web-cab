@@ -55,9 +55,11 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         this.isBlockedCountry = this.blockedCountriesList.indexOf(res[3].data['country']) >= 0;
         !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
           this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
+          this.loading = false;
+          this._cdRef.markForCheck();
         });
 
-        this.loading = false;
+        this.isBlockedCountry && (this.loading = false);
 
         if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {

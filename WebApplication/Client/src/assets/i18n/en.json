@@ -686,8 +686,8 @@
           }
         },
         "Buttons": {
-          "Setup": "Setup 2FA",
-          "Keep": "Keep 2FA disabled"
+          "Setup": "Setup two-factor authentication",
+          "Keep": "Keep two-factor authentication disabled"
         }
       },
       "SecurityIssueBlock": {
@@ -955,7 +955,7 @@
             },
             "PostalCode": {
               "required": "This field is required",
-              "pattern": "Only numbers allowed"
+              "pattern": "Only numbers and latin characters allowed"
             },
             "PhoneNumber": {
               "required": "This field is required",
