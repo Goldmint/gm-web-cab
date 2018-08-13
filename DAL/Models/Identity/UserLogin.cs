@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models.Identity {
 
+    [Table("gm_user_login")]
 	public class UserLogin : IdentityUserLogin<long> {
 
 		public UserLogin() : base() {}
