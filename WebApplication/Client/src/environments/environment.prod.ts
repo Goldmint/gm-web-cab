@@ -1,6 +1,10 @@
 export const environment = {
   production: true,
   detectExtraRights: true,
+  MMNetwork: {
+    name: 'Main',
+    index: 1
+  },
   apiUrl: 'https://app.goldmint.io/api/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',

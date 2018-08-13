@@ -73,6 +73,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public subGetGas: Subscription;
   public interval: Subscription;
   public getLimitSub: Subscription;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -173,6 +175,18 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
       this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
       this.setGoldBalance(1);
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
     });
   }
 

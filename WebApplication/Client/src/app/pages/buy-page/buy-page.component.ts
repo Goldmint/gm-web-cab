@@ -28,6 +28,8 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public tradingStatus: {creditCardBuyingAllowed: boolean, ethAllowed: boolean};
   public blockedCountriesList = ['US', 'CA', 'CN', 'SG'];
   public isBlockedCountry: boolean = false;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -79,6 +81,18 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         this.selectedWallet = 1;
       }
       this._cdRef.markForCheck();
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
     });
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {

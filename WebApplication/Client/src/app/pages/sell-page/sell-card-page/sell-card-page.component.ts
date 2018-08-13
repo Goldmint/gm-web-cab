@@ -51,6 +51,8 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
   constructor(
     private _userService: UserService,
@@ -139,6 +141,17 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
+    });
   }
 
   initInputValueChanges() {

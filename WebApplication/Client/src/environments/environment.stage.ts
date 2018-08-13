@@ -1,6 +1,10 @@
 export const environment = {
   production: true,
   detectExtraRights: false,
+  MMNetwork: {
+    name: 'Rinkeby',
+    index: 4
+  },
   apiUrl: 'https://staging.goldmint.io/api/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',

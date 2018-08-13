@@ -82,7 +82,7 @@
                 <div class="col-12 mb-5">
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Buy.Errors.UseMM" | translate }}</div>
-                  <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || processing">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+                  <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || isInvalidNetwork || processing">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
               </div>

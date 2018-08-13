@@ -1264,6 +1264,7 @@
       "HeadingSell": "SELL GOLD",
       "Text": "Please login to your account"
     },
+    "InvalidNetwork": "You must use {{ network }} network",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached"

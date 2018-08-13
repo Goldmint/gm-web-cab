@@ -54,6 +54,8 @@ export class EthereumService {
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
   private _obsGasPriceSubject = new BehaviorSubject<Object>(null);
   private _obsGasPrice: Observable<Object> = this._obsGasPriceSubject.asObservable();
+  private _obsNetworkSubject = new BehaviorSubject<Number>(null);
+  private _obsNetwork: Observable<Number> = this._obsNetworkSubject.asObservable();
 
   public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
@@ -115,6 +117,8 @@ export class EthereumService {
         this._contractMetamask = this._web3Metamask.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
         this._contractGold = this._web3Metamask.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
         this._contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
+
+        this._obsNetworkSubject.next(this._web3Metamask.version.network);
       } else {
         this._web3Metamask = null;
       }
@@ -255,6 +259,10 @@ export class EthereumService {
 
   public getObservableTotalGoldBalances(): Observable<Object> {
     return this._obsTotalGoldBalances;
+  }
+
+  public getObservableNetwork(): Observable<Number> {
+    return this._obsNetwork;
   }
 
   public getObservableGasPrice(): Observable<Object> {

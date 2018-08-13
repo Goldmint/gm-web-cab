@@ -85,7 +85,7 @@
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                        [disabled]="!tradingStatus.ethAllowed">
+                        [disabled]="!tradingStatus.ethAllowed || isInvalidNetwork">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-crypto"></use>
                   </svg>
@@ -98,7 +98,7 @@
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnPaymentCard">{{ "PAGES.Buy.Method.PaymentCard" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                        [disabled]="!tradingStatus.creditCardBuyingAllowed">
+                        [disabled]="!tradingStatus.creditCardBuyingAllowed || isInvalidNetwork">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-card"></use>
                   </svg>

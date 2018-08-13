@@ -42,6 +42,8 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   public amountValue: number;
   public ethAddress: string = '';
   public selectedWallet = 0;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
   public etherscanUrl = environment.etherscanUrl;
   private sub1: Subscription;
@@ -108,6 +110,18 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         if (this.isFirstLoad) {
           this.isFirstLoad = false;
           this.setGoldBalance();
+        }
+        this._cdRef.markForCheck();
+      }
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
         }
         this._cdRef.markForCheck();
       }

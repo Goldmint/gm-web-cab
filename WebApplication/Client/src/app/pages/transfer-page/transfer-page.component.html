@@ -100,7 +100,7 @@
             </div>
 
             <div class="col mt-1 mb-5">
-              <button class="btn btn-primary" [disabled]="invalidAmount || !walletChecked || coincidesAddress" (click)="onSubmit()">{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
+              <button class="btn btn-primary" [disabled]="invalidAmount || !walletChecked || coincidesAddress || isInvalidNetwork" (click)="onSubmit()">{{ "PAGES.Transfer.Buttons.Send" | translate }}</button>
               <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
             </div>
 

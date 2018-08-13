@@ -62,6 +62,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
   public interval: Subscription;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -139,6 +141,18 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         this.router.navigate(['buy']);
       }
       this._cdRef.markForCheck();
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
     });
   }
 
