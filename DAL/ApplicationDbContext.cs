@@ -38,14 +38,6 @@ namespace Goldmint.DAL {
 		protected override void OnModelCreating(ModelBuilder builder) {
 			base.OnModelCreating(builder);
 
-			builder.Entity<Role>().ToTable("gm_role");
-			builder.Entity<RoleClaim>().ToTable("gm_role_claim");
-			builder.Entity<User>().ToTable("gm_user");
-			builder.Entity<UserClaim>().ToTable("gm_user_claim");
-			builder.Entity<UserLogin>().ToTable("gm_user_login");
-			builder.Entity<UserRole>().ToTable("gm_user_role");
-			builder.Entity<UserToken>().ToTable("gm_user_token");
-
 			// for currency amount
 			foreach (var property in builder.Model.GetEntityTypes().SelectMany(t => t.GetProperties()).Where(p => p.ClrType == typeof(decimal))) {
 				property.Relational().ColumnType = "decimal(26, 2)";

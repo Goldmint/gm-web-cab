@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models.Identity {
 
+    [Table("gm_role")]
 	public class Role : IdentityRole<long> {
 
 		public Role() : base() { }
