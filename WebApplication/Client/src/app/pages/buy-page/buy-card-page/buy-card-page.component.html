@@ -10,6 +10,8 @@
     </div>
 
     <ng-container *ngIf="isDataLoaded && cards.list && cards.list.length && !showPaymentCardBlock">
+      <div class="mb-4">{{ "PAGES.Buy.Message.BuyLimit" | translate }}</div>
+
       <form #buyFrom="ngForm" (ngSubmit)="onSubmit()">
         <div>
           <div class="col-12">

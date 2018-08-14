@@ -138,7 +138,8 @@
         "Deposit": "Deposit"
       },
       "Message": {
-        "Progress": "Your request is in progress now!"
+        "Progress": "Your request is in progress now!",
+        "BuyLimit": "Due to recent modifications in AML KYC policy, purchase of GOLD in amount of more than 15,000 USD is temporarily unavailable."
       },
       "Errors": {
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
