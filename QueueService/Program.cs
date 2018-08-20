@@ -79,7 +79,6 @@ namespace Goldmint.QueueService {
 					.SetBasePath(cfgDir)
 					.AddJsonFile("appsettings.json", optional: false)
 					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", optional: false)
-					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.Private.json", optional: true)
 					.Build()
 				;
 

@@ -663,10 +663,10 @@ namespace Goldmint.Common {
 		CardPaymentCheck,
 
 		/// <summary>
-		/// Support exchange request state (request-wide)
+		/// Support exchange request state (user-wide)
 		/// </summary>
-		SupportBuyRequestProc,
-		SupportSellRequestProc,
+		UserBuying,
+		UserSelling,
 	}
 
 	public enum NotificationType {

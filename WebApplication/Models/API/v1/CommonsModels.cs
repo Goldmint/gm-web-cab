@@ -263,6 +263,18 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 			/// </summary>
 			[Required]
 			public object Max { get; set; }
+
+			/// <summary>
+			/// Account limit amount
+			/// </summary>
+			[Required]
+			public object AccountMax { get; set; }
+
+			/// <summary>
+			/// Account limit usage amount
+			/// </summary>
+			[Required]
+			public object AccountUsed { get; set; }
 		}
 	}
 }

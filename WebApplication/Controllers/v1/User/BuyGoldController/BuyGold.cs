@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 using System.Globalization;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
+using Goldmint.DAL;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -52,11 +53,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			var user = GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var limits = cryptoCurrency != null
 				? DepositLimits(rcfg, cryptoCurrency.Value)
-				: DepositLimits(rcfg, exchangeCurrency)
+				: await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency)
 			;
 
 			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
@@ -172,6 +174,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				payment.Status = CardPaymentStatus.Pending;
 				DbContext.CreditCardPayment.Add(payment);
 				await DbContext.SaveChangesAsync();
+
+				
 			}
 
 			// TODO: email?
@@ -339,6 +343,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			public BigInteger Min { get; set; }
 			public BigInteger Max { get; set; }
+			public BigInteger AccountMax { get; set; }
+			public BigInteger AccountUsed { get; set; }
 		}
 
 		[NonAction]
@@ -367,24 +373,42 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		public static DepositLimitsResult DepositLimits(RuntimeConfig rcfg, FiatCurrency fiatCurrency) {
+		public static async Task<DepositLimitsResult> DepositLimits(RuntimeConfig rcfg, ApplicationDbContext dbContext, long userId, FiatCurrency fiatCurrency) {
 
 			var min = 0d;
 			var max = 0d;
+			var accMax = 0d;
+			var accUsed = 0d;
 
-			if (fiatCurrency == FiatCurrency.Usd) {
-				min = rcfg.Gold.PaymentMehtods.CreditCardDepositMinUsd;
-				max = rcfg.Gold.PaymentMehtods.CreditCardDepositMaxUsd;
+			var userLimits = await CoreLogic.User.GetUserLimits(dbContext, userId);
+
+			switch (fiatCurrency) {
+
+				case FiatCurrency.Usd:
+					min = rcfg.Gold.PaymentMehtods.CreditCardDepositMinUsd;
+					max = rcfg.Gold.PaymentMehtods.CreditCardDepositMaxUsd;
+
+					// has limit
+					accMax = rcfg.Gold.PaymentMehtods.FiatUserDepositLimitUsd;
+					if (accMax > 0) {
+						accUsed = userLimits.FiatUsdDeposited / 100d;
+						max = Math.Min(
+							max,
+							Math.Max(0, accMax - accUsed)
+						);
+					}
+					break;
+
+				default:
+					throw new NotImplementedException($"{fiatCurrency} currency is not implemented");
 			}
 
-			if (min > 0 && max > 0) {
-				return new DepositLimitsResult() {
-					Min = (long)Math.Floor(min * 100d),
-					Max = (long)Math.Floor(max * 100d),
-				};
-			}
-
-			throw new NotImplementedException($"{fiatCurrency} currency is not implemented");
+			return new DepositLimitsResult() {
+				Min = (long)Math.Floor(min * 100d),
+				Max = (long)Math.Floor(max * 100d),
+				AccountMax = (long)Math.Floor(accMax * 100d),
+				AccountUsed = (long)Math.Floor(accUsed * 100d),
+			};
 		}
 	}
 }

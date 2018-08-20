@@ -107,6 +107,9 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 				public double CreditCardWithdrawMinUsd { get; set; } = 100.00d;
 				public double CreditCardWithdrawMaxUsd { get; set; } = 1000.00d;
 
+				public double FiatUserDepositLimitUsd { get; set; } = 15000.00d;
+				public double FiatUserWithdrawLimitUsd { get; set; } = 1000.00d;
+
 				public static IValidator<PaymentMehtodsSection> GetValidator() {
 					var v = new InlineValidator<PaymentMehtodsSection>() { CascadeMode = CascadeMode.Continue };
 
@@ -118,7 +121,10 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 					v.RuleFor(_ => _.CreditCardDepositMinUsd).GreaterThan(0);
 					v.RuleFor(_ => _.CreditCardDepositMaxUsd).GreaterThan(0);
 					v.RuleFor(_ => _.CreditCardWithdrawMinUsd).GreaterThan(0);
-					v.RuleFor(_ => _.CreditCardWithdrawMaxUsd).GreaterThan(0);
+					v.RuleFor(_ => _.CreditCardWithdrawMinUsd).GreaterThan(0);
+
+					v.RuleFor(_ => _.FiatUserDepositLimitUsd).GreaterThanOrEqualTo(0);
+					v.RuleFor(_ => _.FiatUserWithdrawLimitUsd).GreaterThanOrEqualTo(0);
 
 					return v;
 				}

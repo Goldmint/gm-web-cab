@@ -13,6 +13,7 @@ using System;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using System.IO;
 using System.Text;
+using System.Reflection;
 
 namespace Goldmint.WebApplication {
 
@@ -40,13 +41,11 @@ namespace Goldmint.WebApplication {
 					.SetBasePath(cfgDir)
 					.AddJsonFile("appsettings.json", optional: false)
 					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", optional: false)
-					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.Private.json", optional: true)
 					.Build()
 				;
 				
 				_appConfig = new AppConfig();
 				_configuration.Bind(_appConfig);
-
 				
 			} catch (Exception e) {
 				throw new Exception("Failed to get app settings", e);

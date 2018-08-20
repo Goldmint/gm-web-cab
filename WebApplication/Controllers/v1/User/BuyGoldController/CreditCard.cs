@@ -72,7 +72,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var limits = DepositLimits(rcfg, exchangeCurrency);
+			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
 			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {

@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.DAL;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -51,11 +52,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
+			var user = GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var limits = cryptoCurrency != null
 				? WithdrawalLimits(rcfg, cryptoCurrency.Value)
-				: WithdrawalLimits(rcfg, exchangeCurrency)
+				: await WithdrawalLimits(rcfg, DbContext, user.Id, exchangeCurrency)
 			;
 
 			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
@@ -323,6 +325,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			public BigInteger Min { get; set; }
 			public BigInteger Max { get; set; }
+			public BigInteger AccountMax { get; set; }
+			public BigInteger AccountUsed { get; set; }
 		}
 
 		[NonAction]
@@ -351,24 +355,42 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, FiatCurrency fiatCurrency) {
+		public static async Task<WithdrawalLimitsResult> WithdrawalLimits(RuntimeConfig rcfg, ApplicationDbContext dbContext, long userId, FiatCurrency fiatCurrency) {
 
 			var min = 0d;
 			var max = 0d;
+			var accMax = 0d;
+			var accUsed = 0d;
 
-			if (fiatCurrency == FiatCurrency.Usd) {
-				min = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMinUsd;
-				max = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMaxUsd;
+			var userLimits = await CoreLogic.User.GetUserLimits(dbContext, userId);
+
+			switch (fiatCurrency) {
+
+				case FiatCurrency.Usd:
+					min = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMinUsd;
+					max = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMaxUsd;
+
+					// has limit
+					accMax = rcfg.Gold.PaymentMehtods.FiatUserWithdrawLimitUsd;
+					if (accMax > 0) {
+						accUsed = userLimits.FiatUsdWithdrawn / 100d;
+						max = Math.Min(
+							max,
+							Math.Max(0, accMax - accUsed)
+						);
+					}
+					break;
+
+				default:
+					throw new NotImplementedException($"{fiatCurrency} currency is not implemented");
 			}
 
-			if (min > 0 && max > 0) {
-				return new WithdrawalLimitsResult() {
-					Min = (long)Math.Floor(min * 100d),
-					Max = (long)Math.Floor(max * 100d),
-				};
-			}
-
-			throw new NotImplementedException($"{fiatCurrency} currency is not implemented");
+			return new WithdrawalLimitsResult() {
+				Min = (long)Math.Floor(min * 100d),
+				Max = (long)Math.Floor(max * 100d),
+				AccountMax = (long)Math.Floor(accMax * 100d),
+				AccountUsed = (long)Math.Floor(accUsed * 100d),
+			};
 		}
 	}
 }

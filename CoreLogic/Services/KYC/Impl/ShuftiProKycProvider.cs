@@ -74,6 +74,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 				.Set("phone_number", "+" + user.PhoneNumber.Trim('+'))
 				.Set("callback_url", callbackUrl)
 				.Set("redirect_url", userRedirectUrl)
+				.Set("background_checks", "0")
 			;
 			fields.Set("signature", CalcSignature(fields.GetDictionary()));
 

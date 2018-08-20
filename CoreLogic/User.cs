@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.DAL.Models;
 
 namespace Goldmint.CoreLogic {
 
@@ -116,5 +117,69 @@ namespace Goldmint.CoreLogic {
 			return null;
 		}
 
+		// ---
+
+		public sealed class UpdateUserLimitsData {
+
+			public decimal EthDeposited { get; set; }
+			public decimal EthWithdrawn { get; set; }
+			public long FiatUsdDeposited { get; set; }
+			public long FiatUsdWithdrawn { get; set; }
+		}
+
+		/// <summary>
+		/// Change user limits
+		/// </summary>
+		public static async Task UpdateUserLimits(ApplicationDbContext dbContext, long userId, UpdateUserLimitsData data) {
+
+			var nowTime = DateTime.UtcNow;
+			var today = new DateTime(nowTime.Year, nowTime.Month, nowTime.Day, 0, 0, 0, DateTimeKind.Utc);
+			var isNew = false;
+
+			// get from db
+			var limits = await dbContext.UserLimits.FirstOrDefaultAsync(_ => _.UserId == userId && _.TimeCreated == today);
+
+			// doesn't exist
+			if (limits == null) {
+				limits = new UserLimits() {
+					UserId = userId,
+					TimeCreated = today,
+				};
+				isNew = true;
+			}
+
+			limits.EthDeposited += data.EthDeposited;
+			limits.EthWithdrawn += data.EthWithdrawn;
+			limits.FiatDeposited += data.FiatUsdDeposited;
+			limits.FiatWithdrawn += data.FiatUsdWithdrawn;
+
+			if (isNew) {
+				await dbContext.UserLimits.AddAsync(limits);
+			}
+
+			await dbContext.SaveChangesAsync();
+		}
+
+		/// <summary>
+		/// Get user limits
+		/// </summary>
+		public static async Task<UpdateUserLimitsData> GetUserLimits(ApplicationDbContext dbContext, long userId) {
+
+			var limits = await dbContext.UserLimits
+				.Where(_ => _.UserId == userId)
+				.GroupBy(_ => _.UserId)
+				.Select(g => new UpdateUserLimitsData() {
+					EthDeposited = g.Sum(_ => _.EthDeposited),
+					EthWithdrawn = g.Sum(_ => _.EthWithdrawn),
+					FiatUsdDeposited = g.Sum(_ => _.FiatDeposited),
+					FiatUsdWithdrawn = g.Sum(_ => _.FiatWithdrawn),
+				})
+				.FirstOrDefaultAsync();
+			;
+			if (limits == null) {
+				limits = new UpdateUserLimitsData();
+			}
+			return limits;
+		}
 	}
 }

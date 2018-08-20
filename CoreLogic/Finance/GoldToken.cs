@@ -621,7 +621,21 @@ namespace Goldmint.CoreLogic.Finance {
 								}
 							}
 							catch (Exception e) {
-								logger.Error($"Failed to enqueue support ether transfer for request #{request.Id}");
+								logger.Error(e, $"Failed to enqueue support ether transfer for request #{request.Id}");
+							}
+
+							// update limits
+							try {
+								await CoreLogic.User.UpdateUserLimits(
+									dbContext,
+									request.UserId,
+									new CoreLogic.User.UpdateUserLimitsData() {
+										FiatUsdDeposited = payment.AmountCents,
+									}
+								);
+							}
+							catch (Exception e) {
+								logger.Error(e, $"Failed to update user limits for request #{request.Id}");
 							}
 
 							return BuySellRequestProcessingResult.Success;
@@ -745,6 +759,20 @@ namespace Goldmint.CoreLogic.Finance {
 									await dbContext.SaveChangesAsync();
 
 									payment.Status = CardPaymentStatus.Pending;
+
+									// update limits
+									try {
+										await CoreLogic.User.UpdateUserLimits(
+											dbContext,
+											request.UserId,
+											new CoreLogic.User.UpdateUserLimitsData() {
+												FiatUsdWithdrawn = payment.AmountCents,
+											}
+										);
+									}
+									catch (Exception e) {
+										logger.Error(e, $"Failed to update user limits for request #{request.Id}");
+									}
 								}
 								catch (Exception e) {
 									logger.Error(e, $"Failed to init withdrawal transaction for request #{request.Id}");
@@ -758,7 +786,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 						// done
 						if (payment != null) {
-							
+
 							request.Status = SellGoldRequestStatus.Success;
 							request.TimeNextCheck = timeNow;
 							request.TimeCompleted = timeNow;

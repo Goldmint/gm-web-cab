@@ -122,17 +122,18 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// System status
 		/// </summary>
-		[AnonymousAccess]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpGet, Route("status")]
 		[ProducesResponseType(typeof(StatusView), 200)]
-		public APIResponse Status() {
+		public async Task<APIResponse> Status() {
 
+			var user = await GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var ethDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, CryptoCurrency.Eth);
 			var ethWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, CryptoCurrency.Eth);
-			var ccDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, FiatCurrency.Usd);
-			var ccWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, FiatCurrency.Usd);
+			var ccDepositLimits = await v1.User.BuyGoldController.DepositLimits(rcfg, DbContext, user.Id, FiatCurrency.Usd);
+			var ccWithdrawLimits = await v1.User.SellGoldController.WithdrawalLimits(rcfg, DbContext, user.Id, FiatCurrency.Usd);
 
 			var ret = new StatusView() {
 				Trading = new StatusViewTrading() {
@@ -145,20 +146,28 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						Deposit = new StatusViewLimits.MinMax() {
 							Min = ethDepositLimits.Min.ToString(),
 							Max = ethDepositLimits.Max.ToString(),
+							AccountMax = "0",
+							AccountUsed = "0",
 						},
 						Withdraw = new StatusViewLimits.MinMax() {
 							Min = ethWithdrawLimits.Min.ToString(),
 							Max = ethWithdrawLimits.Max.ToString(),
+							AccountMax = "0",
+							AccountUsed = "0",
 						}
 					},
 					CreditCardUsd = new StatusViewLimits.Method() {
 						Deposit = new StatusViewLimits.MinMax() {
 							Min = (long)ccDepositLimits.Min / 100d,
 							Max = (long)ccDepositLimits.Max / 100d,
+							AccountMax = (long)ccDepositLimits.AccountMax / 100d,
+							AccountUsed = (long)ccDepositLimits.AccountUsed / 100d,
 						},
 						Withdraw = new StatusViewLimits.MinMax() {
 							Min = (long)ccWithdrawLimits.Min / 100d,
 							Max = (long)ccWithdrawLimits.Max / 100d,
+							AccountMax = (long)ccWithdrawLimits.AccountMax / 100d,
+							AccountUsed = (long)ccWithdrawLimits.AccountUsed / 100d,
 						}
 					},
 				},
