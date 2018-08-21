@@ -517,7 +517,7 @@ namespace Goldmint.CoreLogic.Finance {
 							)
 						);
 					}
-					catch (Exception e) {
+					catch {
 					}
 
 					if (amount > 0) {

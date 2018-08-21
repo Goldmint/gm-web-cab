@@ -40,6 +40,12 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.UsersModels {
 		public string Username { get; set; }
 
 		/// <summary>
+		/// Email
+		/// </summary>
+		[Required]
+		public string Email { get; set; }
+
+		/// <summary>
 		/// Name
 		/// </summary>
 		[Required]

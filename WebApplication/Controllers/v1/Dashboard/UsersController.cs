@@ -64,6 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				select new ListViewItem() {
 					Id = i.Id,
 					Username = i.UserName,
+					Email = i.Email,
 					Name = string.Format(
 						"{0} {1}",
 						i.UserVerification?.FirstName ?? "",
