@@ -24,6 +24,7 @@ export class UserService {
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
   public canShowNav$ = new Subject();
+  public userListOffset: number = null;
 
   constructor(
     private _router: Router,

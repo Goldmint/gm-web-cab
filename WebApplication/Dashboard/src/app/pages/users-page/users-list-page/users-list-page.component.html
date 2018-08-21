@@ -1,3 +1,7 @@
+<div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+  <div class="container"></div>
+</div>
+
 <div class="trn-info">
   <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" (ngSubmit)="userFilter()">
 
@@ -99,6 +103,16 @@
         </ng-template>
       </ngx-datatable-column>
 
+      <ngx-datatable-column prop="email" [draggable]="false" [resizeable]="false" [sortable]="false" [minWidth]="200">
+        <ng-template ngx-datatable-header-template>
+          Email
+        </ng-template>
+
+        <ng-template let-email="value" ngx-datatable-cell-template>
+          {{ email }}
+        </ng-template>
+      </ngx-datatable-column>
+
       <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="160">
         <ng-template let-column="column" ngx-datatable-header-template></ng-template>
 
@@ -123,7 +137,7 @@
         <ng-template let-column="column" ngx-datatable-header-template></ng-template>
 
         <ng-template ngx-datatable-cell-template let-row="row">
-            <button type="button" [routerLink]="['/users/' + row.id]" class="btn btn-sm btn-primary btn-block" [disabled]="loading">{{ "PAGES.Users.Table.Buttons.Click" | translate }}</button>
+            <button type="button" (click)="showUserDetails(row.id)" class="btn btn-sm btn-primary btn-block" [disabled]="loading">{{ "PAGES.Users.Table.Buttons.Click" | translate }}</button>
         </ng-template>
       </ngx-datatable-column>
 
