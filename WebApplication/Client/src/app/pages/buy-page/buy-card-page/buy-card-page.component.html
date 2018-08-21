@@ -10,8 +10,6 @@
     </div>
 
     <ng-container *ngIf="isDataLoaded && cards.list && cards.list.length && !showPaymentCardBlock">
-      <div class="mb-4">{{ "PAGES.Buy.Message.BuyLimit" | translate }}</div>
-
       <form #buyFrom="ngForm" (ngSubmit)="onSubmit()">
         <div>
           <div class="col-12">
@@ -48,7 +46,7 @@
                        ngModel
                        autocomplete="off"
                        (input)="changeValue(false, $event)"
-                       [ngClass]="{'is-invalid': (invalidBalance && !isReversed) || isTradingLimit}"
+                       [ngClass]="{'is-invalid': (invalidBalance && !isReversed) || isTradingLimit || isBuyLimit}"
                        [disabled]="isReversed && loading"
                 >
               </div>
@@ -58,6 +56,9 @@
               <div class="invalid-feedback" *ngIf="isTradingLimit">
                 {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} usd<br>
                 {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} usd
+              </div>
+              <div class="invalid-feedback" *ngIf="isBuyLimit">
+                {{ "PAGES.Buy.Errors.BuyLimit" | translate }} {{ buyLimit?.accountMax }} usd
               </div>
             </div>
           </div>
@@ -90,7 +91,7 @@
           <div class="col-12 mb-5">
             <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
             <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Buy.Errors.UseMM" | translate }}</div>
-            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit || !ethAddress || processing">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit || !ethAddress || processing || isBuyLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </div>

@@ -27,6 +27,8 @@ export class BuyCardPageComponent implements OnInit {
   public showPaymentCardBlock: boolean = false;
   public isTradingError = false;
   public isTradingLimit: object | boolean = false;
+  public isBuyLimit: boolean = false;
+  public buyLimit = {};
 
   public isReversed: boolean = false;
   public isDataLoaded: boolean = false;
@@ -65,11 +67,11 @@ export class BuyCardPageComponent implements OnInit {
 
     this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
       this.isTradingLimit = limit;
-
       if (this.isReversed) {
         this.usdAmount = this.isTradingLimit['cur'];
       }
 
+      this.isReversed && this.checkBuyLimit(limit['cur']);
       this._cdRef.markForCheck();
     });
 
@@ -79,11 +81,14 @@ export class BuyCardPageComponent implements OnInit {
       }, 3000);
     }
 
-    this._apiService.getFiatCards()
-      .subscribe(cards => {
-        cards.data.list.forEach(card => {
+    Observable.combineLatest(
+      this._apiService.getFiatCards(),
+      this._apiService.getTradingStatus()
+    ).subscribe(data => {
+        data[0].data.list.forEach(card => {
           card.status === 'verified' && this.cards.list.push(card);
         });
+        this.buyLimit = data[1].data.limits.creditCardUsd.deposit;
         this.isDataLoaded = true;
 
         if (this.cards.list && this.cards.list.length) {
@@ -141,6 +146,12 @@ export class BuyCardPageComponent implements OnInit {
     if (!this.isReversed) {
       if (value > 0 && value.toString().length <= 15) {
 
+        this.checkBuyLimit(value);
+        if (this.isBuyLimit ) {
+          this.loading = false;
+          return;
+        }
+
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
         const usd = (value * 100).toFixed();
 
@@ -172,6 +183,8 @@ export class BuyCardPageComponent implements OnInit {
           this.usdAmount = data.data.amount;
           this.isTradingError = this.isTradingLimit = this.processing = false;
           this.invalidBalance = (this.usdAmount <= 1) ? true : false;
+
+          this.checkBuyLimit(this.usdAmount);
         });
       } else {
         this.setError();
@@ -183,6 +196,12 @@ export class BuyCardPageComponent implements OnInit {
     this.invalidBalance = true;
     this.loading = false;
     this._cdRef.markForCheck();
+  }
+
+  checkBuyLimit(value: number) {
+    const allowValue = this.buyLimit['accountMax'] - this.buyLimit['accountUsed'];
+    this.isBuyLimit = value > allowValue;
+    this.isBuyLimit && (this.isTradingLimit = false);
   }
 
   changeValue(status: boolean, event) {

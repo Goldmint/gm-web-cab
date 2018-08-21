@@ -138,8 +138,7 @@
         "Deposit": "Deposit"
       },
       "Message": {
-        "Progress": "Your request is in progress now!",
-        "BuyLimit": "Due to recent modifications in AML KYC policy, purchase of GOLD in amount of more than 15,000 USD is temporarily unavailable."
+        "Progress": "Your request is in progress now!"
       },
       "Errors": {
         "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
@@ -149,7 +148,8 @@
         "InvalidEth": "Invalid ETH amount",
         "InvalidUsd": "Invalid USD amount",
         "InvalidGold": "Invalid GOLD amount",
-        "EnoughMoney": "You don't have enough money"
+        "EnoughMoney": "You don't have enough money",
+        "BuyLimit": "The purchase limit has been exceeded. Maximum amount value is"
       }
     },
     "Transfer": {
