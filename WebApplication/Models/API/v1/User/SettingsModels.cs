@@ -141,7 +141,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		public string City { get; set; }
 
 		/// <summary>
-		/// Postal or zip /[0-9]{3,16}/
+		/// Postal or zip /[0-9a-zA-Z]{3,16}/
 		/// </summary>
 		[Required]
 		public string PostalCode { get; set; }
@@ -198,7 +198,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 			;
 
 			v.RuleFor(_ => _.PostalCode)
-				.Must(Common.ValidationRules.ContainOnlyDigits).WithMessage("Invalid format")
+				.Must(Common.ValidationRules.ContainLatinAndPuncts).WithMessage("Invalid format")
 				.Length(3, 16).WithMessage("Invalid length")
 			;
 

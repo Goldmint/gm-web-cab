@@ -45,7 +45,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user);
 
 			// on tier-0
-			if (userTier == UserTier.Tier0) {
+			if (userTier == UserTier.Tier0 || (userTier == UserTier.Tier1 && !CoreLogic.User.HasKycVerification(user.UserVerification))) {
 
 				// format phone number
 				var phoneFormatted = Common.TextFormatter.NormalizePhoneNumber(model.PhoneNumber);

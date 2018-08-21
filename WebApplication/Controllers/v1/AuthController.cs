@@ -257,6 +257,43 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
 		}
 
+#if DEBUG
+
+		/// <summary>
+		/// DPA check
+		/// </summary>
+		[AnonymousAccess]
+		[HttpGet, Route("debugAuth")]
+		[ProducesResponseType(typeof(AuthenticateView), 200)]
+		public async Task<APIResponse> DebugAuth(long id, string audi) {
+
+			var user = await UserManager.FindByIdAsync(id.ToString());
+
+			JwtAudience audience = JwtAudience.Cabinet;
+			if (!string.IsNullOrWhiteSpace(audi)) {
+				if (Enum.TryParse(audi, true, out JwtAudience aud)) {
+					audience = aud;
+				}
+			}
+
+			// denied
+			var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, user);
+			if (accessRightsMask == null) return null;
+
+			return APIResponse.Success(
+				new AuthenticateView() {
+				Token = JWT.CreateAuthToken(
+					appConfig: AppConfig,
+					user: user,
+					audience: audience,
+					area: JwtArea.Authorized,
+					rightsMask: accessRightsMask.Value
+				),
+				TfaRequired = false,
+			});
+		}
+#endif
+
 		// ---
 
 		[NonAction]
