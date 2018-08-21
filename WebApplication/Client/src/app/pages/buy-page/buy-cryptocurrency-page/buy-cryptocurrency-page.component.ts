@@ -112,6 +112,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
+
+        !this.user.verifiedL0 && this.router.navigate(['/buy']);
         this._cdRef.markForCheck();
       });
 

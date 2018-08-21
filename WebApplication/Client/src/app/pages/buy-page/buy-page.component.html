@@ -12,39 +12,56 @@
     <ng-template #blockLoaded>
       <!-- KYC REQUIRED -->
       <div *ngIf="!isBlockedCountry">
-        <ng-container *ngIf="!user.verifiedL1; else blockMethods">
+        <div class="row mb-4 align-items-baseline">
 
-          <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
+            <div class="col col-xl-3 form-group text-center">
+              <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
+              <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
+                      [disabled]="!tradingStatus.ethAllowed || isInvalidNetwork">
+                <svg class="icon" width="56px" height="56px">
+                  <use xlink:href="#payment-crypto"></use>
+                </svg>
+              </button>
+              <div  class="text-left pt-1 blocked-notification text-center">
+                <div *ngIf="!tradingStatus.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
+              </div>
+            </div>
 
-          <div class="row kyc-pros mb-4 pb-2">
-            <div class="col-lg-3">
-              <svg class="kyc-pros__icon" width="33px" height="44px">
-                <use xlink:href="#verify-secure"></use>
-              </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+            <div class="col col-xl-3 form-group text-center">
+              <label for="btnPaymentCard">{{ "PAGES.Buy.Method.PaymentCard" | translate }}</label>
+              <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
+                      [disabled]="!tradingStatus.creditCardBuyingAllowed || isInvalidNetwork || !user.verifiedL1">
+                <svg class="icon" width="56px" height="56px">
+                  <use xlink:href="#payment-card"></use>
+                </svg>
+              </button>
+              <div class="text-left pt-1 blocked-notification text-center">
+                <div *ngIf="!tradingStatus.creditCardBuyingAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
+                <div *ngIf="!user.verifiedL1 && !loading">{{ "PAGES.Buy.Errors.NoKyc" | translate }}</div>
+              </div>
             </div>
-            <div class="col-lg-3">
-              <svg class="kyc-pros__icon" width="28px" height="44px">
-                <use xlink:href="#verify-simple"></use>
-              </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
-            </div>
-            <div class="col-lg-3">
-              <svg class="kyc-pros__icon" width="36px" height="44px">
-                <use xlink:href="#verify-complaint"></use>
-              </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
-            </div>
-            <div class="col-lg-3 pl-lg-4 align-self-center">
-              <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
-            </div>
-          </div>
-        </ng-container>
 
-        <ng-template #blockMethods>
+            <div class="col col-xl-3 form-group text-center">
+              <label for="btnCapital">{{ "PAGES.Buy.Method.CryptoCapital" | translate }}</label>
+              <button class="btn btn-primary btn-block" id="btnCapital"
+                      [disabled]="true">
+                <svg class="icon" width="56px" height="56px">
+                  <use xlink:href="#crypto-capital"></use>
+                </svg>
+              </button>
+            </div>
+
+            <!-- <div class="col col-lg-6 col-xl form-group text-center">
+               <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
+               <button class="btn btn-primary btn-block" id="btnPaymentBank"
+                       (click)="goto(pages.BankTransfer)">
+                 <svg class="icon" width="107px" height="56px">
+                   <use xlink:href="#payment-bank"></use>
+                 </svg>
+               </button>
+             </div>-->
+        </div>
+
           <!-- TFA REQUIRED -->
           <!-- <ng-container *ngIf="!tfaInfo.enabled">
 
@@ -77,60 +94,6 @@
                </div>
              </div>
            </ng-container>-->
-
-          <!-- WITHDRAWAL METHODS -->
-          <ng-container>
-            <div class="row mb-4 align-items-baseline">
-
-              <div class="col col-xl-3 form-group text-center">
-                <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                        [disabled]="!tradingStatus.ethAllowed || isInvalidNetwork">
-                  <svg class="icon" width="56px" height="56px">
-                    <use xlink:href="#payment-crypto"></use>
-                  </svg>
-                </button>
-                <div  class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!tradingStatus.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
-                </div>
-              </div>
-
-              <div class="col col-xl-3 form-group text-center">
-                <label for="btnPaymentCard">{{ "PAGES.Buy.Method.PaymentCard" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                        [disabled]="!tradingStatus.creditCardBuyingAllowed || isInvalidNetwork">
-                  <svg class="icon" width="56px" height="56px">
-                    <use xlink:href="#payment-card"></use>
-                  </svg>
-                </button>
-                <div class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!tradingStatus.creditCardBuyingAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
-                </div>
-              </div>
-
-              <div class="col col-xl-3 form-group text-center">
-                <label for="btnCapital">{{ "PAGES.Buy.Method.CryptoCapital" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnCapital"
-                        [disabled]="true">
-                  <svg class="icon" width="56px" height="56px">
-                    <use xlink:href="#crypto-capital"></use>
-                  </svg>
-                </button>
-              </div>
-
-              <!-- <div class="col col-lg-6 col-xl form-group text-center">
-                 <label for="btnPaymentBank">{{ "PAGES.Withdraw.Method.Transfer" | translate }}</label>
-                 <button class="btn btn-primary btn-block" id="btnPaymentBank"
-                         (click)="goto(pages.BankTransfer)">
-                   <svg class="icon" width="107px" height="56px">
-                     <use xlink:href="#payment-bank"></use>
-                   </svg>
-                 </button>
-               </div>-->
-            </div>
-
-          </ng-container>
-        </ng-template>
       </div>
 
       <div *ngIf="isBlockedCountry" class="mt-4 text-center">

@@ -83,8 +83,11 @@ export class BuyCardPageComponent implements OnInit {
 
     Observable.combineLatest(
       this._apiService.getFiatCards(),
-      this._apiService.getTradingStatus()
+      this._apiService.getTradingStatus(),
+      this._apiService.getProfile()
     ).subscribe(data => {
+        !data[2].data.verifiedL1 && this.router.navigate(['/buy']);
+
         data[0].data.list.forEach(card => {
           card.status === 'verified' && this.cards.list.push(card);
         });

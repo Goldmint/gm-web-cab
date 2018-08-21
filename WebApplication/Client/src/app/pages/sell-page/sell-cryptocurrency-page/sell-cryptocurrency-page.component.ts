@@ -123,6 +123,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
+
+        !this.user.verifiedL1 && this.router.navigate(['/sell']);
         this.loading = false;
         this._cdRef.markForCheck();
       });
