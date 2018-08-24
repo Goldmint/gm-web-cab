@@ -31,6 +31,7 @@ namespace Goldmint.DAL {
 		public DbSet<UserCreditCard> UserCreditCard { get; set; }
 		public DbSet<CreditCardPayment> CreditCardPayment { get; set; }
 		public DbSet<UserLimits> UserLimits { get; set; }
+		public DbSet<PromoCode> PromoCode { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}

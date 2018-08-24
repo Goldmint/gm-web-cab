@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Goldmint.DAL.Models;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -74,7 +75,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
-			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			// get promocode
+			var promoCode = await GetPromoCode(""?.ToUpper());
+
+			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -128,6 +132,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				GoldRateCents = estimation.CentsPerGoldRate,
 				InputExpected = estimation.ResultCurrencyAmount.ToString(),
 
+				PromoCodeId = promoCode?.Id,
 				OplogId = ticket,
 				TimeCreated = timeNow,
 				TimeExpires = timeExpires,

@@ -1,9 +1,11 @@
 ﻿using Goldmint.Common;
+using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -55,7 +57,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var limits = DepositLimits(rcfg, CryptoCurrency.Eth);
 
-			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			// get promocode
+			var promoCode = await GetPromoCode(""?.ToUpper());
+
+			// must have kyc to use promocode here
+			if (promoCode != null && userTier < UserTier.Tier2) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
+			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -110,6 +120,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				GoldRateCents = estimation.CentsPerGoldRate,
 				InputExpected = estimation.ResultCurrencyAmount.ToString(),
 
+				PromoCodeId = promoCode?.Id,
 				OplogId = ticket,
 				TimeCreated = timeNow,
 				TimeExpires = timeExpires,

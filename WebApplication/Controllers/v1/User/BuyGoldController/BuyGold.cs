@@ -12,6 +12,7 @@ using System.Numerics;
 using System.Globalization;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.DAL;
+using Goldmint.DAL.Models;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -61,7 +62,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				: await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency)
 			;
 
-			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			// get promocode
+			var promoCode = await GetPromoCode(model.PromoCode?.ToUpper());
+
+			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -109,6 +113,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (request == null) {
 				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
 			}
+
+			get promocode and check again then mark it as used
 
 			// activity
 			var userActivity = CoreLogic.User.CreateUserActivity(
@@ -187,6 +193,21 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		// ---
 
+		[NonAction]
+		private async Task<PromoCode> GetPromoCode(string str) {
+			if (ValidationRules.BeValidPromoCode(str?.ToUpper())) {
+				return await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+					_ => 
+						_.Code == str.ToUpper() &&
+						_.UserId == null &&
+						_.TimeExpires > DateTime.UtcNow
+				);
+			}
+			return null;
+		}
+
+		// ---
+
 		internal class EstimationResult {
 
 			public bool TradingAllowed { get; set; }
@@ -199,7 +220,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed, BigInteger depositLimitMin, BigInteger depositLimitMax) {
+		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, bool reversed, PromoCode promoCode, BigInteger depositLimitMin, BigInteger depositLimitMax) {
 
 			bool allowed = false;
 			
@@ -212,6 +233,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			string viewAmountCurrency = "";
 
 			var limitsData = (EstimateLimitsView) null;
+
+			apply promocode
 
 			// default estimation: specified currency to GOLD
 			if (!reversed) {

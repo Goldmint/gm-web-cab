@@ -23,6 +23,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public bool Reversed { get; set; }
 
+		/// <summary>
+		/// Promo code
+		/// </summary>
+		public string PromoCode { get; set; }
+
 		// ---
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
