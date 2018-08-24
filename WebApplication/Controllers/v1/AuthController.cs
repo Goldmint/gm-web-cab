@@ -37,15 +37,21 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var agent = GetUserAgentInfo();
 			var userLocale = GetUserLocale();
 
-			// captcha
-			if (!HostingEnvironment.IsDevelopment()) {
-				if (!await Core.Recaptcha.Verify(AppConfig.Services.Recaptcha.SecretKey, model.Captcha, agent.Ip)) {
-					return APIResponse.BadRequest(APIErrorCode.AccountNotFound, notFoundDesc);
-				}
-			}
-
 			var user = await UserManager.FindByNameAsync(model.Username) ?? await UserManager.FindByEmailAsync(model.Username);
 			if (user != null) {
+
+				bool isLockedOut = false;
+
+				// locked out
+				if (user.LockoutEnd != null && user.LockoutEnd.Value.UtcDateTime > DateTime.UtcNow) {
+					//if (!await Core.Recaptcha.Verify(AppConfig.Services.Recaptcha.SecretKey, model.Captcha, agent.Ip)) {
+					//	return APIResponse.BadRequest(APIErrorCode.AccountLocked, "Too many unsuccessful attempts. Account is locked, try to sign in later");
+					//}
+
+					// unlock before this check
+					isLockedOut = true;
+					user.LockoutEnd = null;
+				}
 
 				// get audience
 				JwtAudience audience = JwtAudience.Cabinet;
@@ -100,6 +106,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					return sres;
+				}
+
+				// was locked before
+				if (isLockedOut) {
+					await UserManager.SetLockoutEndDateAsync(user, (DateTimeOffset) DateTime.UtcNow.AddMinutes(60));
+					return APIResponse.BadRequest(APIErrorCode.AccountLocked, "Too many unsuccessful attempts. Account is locked, try to sign in later");
 				}
 			}
 				

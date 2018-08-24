@@ -95,7 +95,7 @@ namespace Goldmint.WebApplication {
 					opts.Password.RequireLowercase = false;
 					opts.Password.RequiredUniqueChars = 1;
 
-					opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+					opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(60);
 					opts.Lockout.MaxFailedAccessAttempts = 5;
 					opts.Lockout.AllowedForNewUsers = true;
 				})

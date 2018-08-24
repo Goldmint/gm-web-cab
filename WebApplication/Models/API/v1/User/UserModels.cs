@@ -19,9 +19,8 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		public string Password { get; set; }
 
 		/// <summary>
-		/// Captcha /.{1,1024}/
+		/// Captcha /.{1,1024}/ or null
 		/// </summary>
-		[Required]
 		public string Captcha { get; set; }
 
 		/// <summary>
@@ -50,7 +49,7 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 			;
 
 			v.RuleFor(_ => _.Captcha)
-				.Must(Common.ValidationRules.BeValidCaptchaLength).WithMessage("Invalid length")
+				.Must(Common.ValidationRules.BeValidCaptchaLength).When(_ => !string.IsNullOrWhiteSpace(_.Captcha)).WithMessage("Invalid length")
 			;
 
 			return v.Validate(this);
