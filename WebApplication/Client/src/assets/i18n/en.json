@@ -568,6 +568,7 @@
           "maxlength": "The password is too long",
           "pairNotFound": "User/password pair not found"
         },
+        "AccountBlocked": "Your account is blocked. For unblocking sign in using recaptcha.",
         "TFACode": {
           "pattern": "Only 6-digits numeric code is allowed"
         }

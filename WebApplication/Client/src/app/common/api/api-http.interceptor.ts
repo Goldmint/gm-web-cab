@@ -57,6 +57,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
         103,  // TradingNotAllowed
         104,  // TradingExchangeLimit
 				1000,	// AccountNotFound
+        1001, // AccountLocked
 				1011,	// AccountDpaNotSigned
         1004 /// AccountEmailTaken
 			];

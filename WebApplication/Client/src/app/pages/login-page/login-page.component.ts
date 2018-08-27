@@ -31,6 +31,7 @@ export class LoginPageComponent implements OnInit {
 
   public tfaRequired: boolean;
   public autofill: boolean = false;
+  public isLockedAccount: boolean = false;
   private _returnUrl: string;
 
   constructor(
@@ -51,12 +52,12 @@ export class LoginPageComponent implements OnInit {
   }
 
   ngOnInit() {
-
-    // if (isDevMode()) {
-    //   this.loginModel.recaptcha = "devmode";
-    // }
-
     this.matchesPolyfill();
+    this.loginModel.recaptcha = null;
+
+    setTimeout(() => {
+      this.detectAutofill();
+    }, 2000);
 
     this._userService.currentUser.subscribe(currentUser => {
       if (currentUser && currentUser.hasOwnProperty('challenges')) {
@@ -102,7 +103,7 @@ export class LoginPageComponent implements OnInit {
           }
         },
         err => {
-          this.captchaRef.reset();
+          this.captchaRef && this.captchaRef.reset();
 
           if (err.error && err.error.errorCode) {
             switch (err.error.errorCode) {
@@ -123,13 +124,11 @@ export class LoginPageComponent implements OnInit {
                 this._router.navigate(['/signin/dpa/required']);
                 break;
 
-              // case 1001: // AccountLocked
-              //   this._translate.get('ERRORS.Login.AccountLocked').subscribe(phrase => {
-              //     this._messageBox.alert(phrase);
-              //     this.resetStorage();
-              //   });
-              //   break;
-              //
+              case 1001: // AccountLocked
+                this.isLockedAccount = true;
+                this._cdRef.markForCheck();
+                break;
+
               // case 1002: // AccountEmailNotConfirmed
               //   this._translate.get('ERRORS.Login.AccountEmailNotConfirmed').subscribe(phrase => {
               //     this._messageBox.alert(phrase);
@@ -201,12 +200,7 @@ export class LoginPageComponent implements OnInit {
     }
   }
 
-  public captchaResolved(captchaResponse: string, loginForm: NgForm) {
-    console.log(`Resolved captcha with response ${captchaResponse}:`);
-
-    this.errors['Captcha'] = false;
-    this.loginModel.recaptcha = captchaResponse;
-
+  public detectAutofill() {
     const name = this.userNameElement.nativeElement;
     const pass = this.userPassElement.nativeElement;
 
@@ -214,6 +208,11 @@ export class LoginPageComponent implements OnInit {
       this.autofill = true;
       this._cdRef.markForCheck();
     }
+  }
+
+  public captchaResolved(captchaResponse: string) {
+    this.errors['Captcha'] = false;
+    this.loginModel.recaptcha = captchaResponse;
   }
 
   private resetStorage() {
