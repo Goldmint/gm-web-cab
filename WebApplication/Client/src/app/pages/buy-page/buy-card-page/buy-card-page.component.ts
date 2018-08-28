@@ -42,6 +42,7 @@ export class BuyCardPageComponent implements OnInit {
   };
   public selectedCard: number;
   public transferData: object;
+  public allowValue: number;
 
   private timeoutPopUp;
   private Web3 = new Web3();
@@ -202,8 +203,8 @@ export class BuyCardPageComponent implements OnInit {
   }
 
   checkBuyLimit(value: number) {
-    const allowValue = this.buyLimit['accountMax'] - this.buyLimit['accountUsed'];
-    this.isBuyLimit = value > allowValue;
+    this.allowValue = this.buyLimit['accountMax'] - this.buyLimit['accountUsed'];
+    this.isBuyLimit = value > this.allowValue;
     this.isBuyLimit && (this.isTradingLimit = false);
   }
 

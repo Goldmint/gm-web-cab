@@ -54,11 +54,11 @@
                 {{ "PAGES.Buy.Errors.InvalidUsd" | translate }}
               </div>
               <div class="invalid-feedback" *ngIf="isTradingLimit">
-                {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} usd<br>
-                {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} usd
+                {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} USD<br>
+                {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} USD
               </div>
               <div class="invalid-feedback" *ngIf="isBuyLimit">
-                {{ "PAGES.Buy.Errors.BuyLimit" | translate }} {{ buyLimit?.accountMax }} usd
+                {{ "PAGES.Buy.Errors.BuyLimit" | translate: {allow: allowValue, limit: buyLimit?.accountMax} }}
               </div>
             </div>
           </div>
