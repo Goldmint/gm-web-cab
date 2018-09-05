@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.RuntimeConfig;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL.Models;
 
 namespace Goldmint.CoreLogic {
@@ -45,10 +47,11 @@ namespace Goldmint.CoreLogic {
 			;
 		}
 
-		public static bool HasProvedResidence(DAL.Models.UserVerification data) {
+		public static bool HasProvedResidence(DAL.Models.UserVerification data, bool residenceRequried) {
 			return
-				data?.ProvedResidence ?? false
-				;
+			    residenceRequried
+                //data?.ProvedResidence ?? false
+                ;
 		}
 
 		// ---
@@ -56,13 +59,13 @@ namespace Goldmint.CoreLogic {
 		/// <summary>
 		/// User's tier
 		/// </summary>
-		public static UserTier GetTier(DAL.Models.Identity.User user) {
+		public static UserTier GetTier(DAL.Models.Identity.User user, RuntimeConfig rc) {
 			var tier = UserTier.Tier0;
 
 			var hasDpa = HasSignedDpa(user?.UserOptions);
 			var hasPersData = HasFilledPersonalData(user?.UserVerification);
 			var hasKyc = HasKycVerification(user?.UserVerification);
-			var hasProvedResidence = HasProvedResidence(user?.UserVerification);
+			var hasProvedResidence = HasProvedResidence(user?.UserVerification, rc.Tier2ResidenceRequried);
 			var hasAgreement = HasTosSigned(user?.UserVerification);
 
 			if (hasDpa && hasPersData) tier = UserTier.Tier1;

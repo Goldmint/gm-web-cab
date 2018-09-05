@@ -9,7 +9,10 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 		public EthereumSection Ethereum { get; set; } = new EthereumSection();
 		public string Stamp { get; set; } = "default";
 
-		public static IValidator<RuntimeConfig> GetValidator() {
+        public bool Tier2ResidenceRequried { get; set; } = true;
+
+
+        public static IValidator<RuntimeConfig> GetValidator() {
 			var v = new InlineValidator<RuntimeConfig>() { CascadeMode = CascadeMode.Continue };
 			v.RuleFor(_ => _.Gold).NotNull().SetValidator(GoldSection.GetValidator());
 			v.RuleFor(_ => _.Ethereum).NotNull().SetValidator(EthereumSection.GetValidator());

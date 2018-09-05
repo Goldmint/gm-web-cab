@@ -64,10 +64,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// ---
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -305,11 +306,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			// get code digits
 			model.Code = string.Join("", model.Code.Where(char.IsDigit).Select(_ => _.ToString()).ToArray());
-			
-			// ---
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+            // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
@@ -378,10 +379,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// ---
-
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {

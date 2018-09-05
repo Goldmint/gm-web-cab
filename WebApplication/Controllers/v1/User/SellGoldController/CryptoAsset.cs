@@ -36,10 +36,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				exchangeCurrency = fc;
 			}
 
-			// ---
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -48,7 +49,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var rcfg = RuntimeConfigHolder.Clone();
 			if (!rcfg.Gold.AllowTradingEth) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}

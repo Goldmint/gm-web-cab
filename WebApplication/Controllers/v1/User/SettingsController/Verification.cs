@@ -41,8 +41,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 
 			// on tier-0
 			if (userTier == UserTier.Tier0 || (userTier == UserTier.Tier1 && !CoreLogic.User.HasKycVerification(user.UserVerification))) {
@@ -92,8 +93,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 
 			// on tier-1 + KYC is not completed
 			if (userTier != UserTier.Tier1 || CoreLogic.User.HasKycVerification(user.UserVerification)) {
@@ -162,12 +164,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> AgreedWithTos() {
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var userLocale = GetUserLocale();
 
 			// on tier-1 + KYC completed + residence proved + agreement is not signed
-			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKycVerification(user.UserVerification) || !CoreLogic.User.HasProvedResidence(user.UserVerification) || CoreLogic.User.HasTosSigned(user.UserVerification)) {
+			if (userTier != UserTier.Tier1 || 
+			    !CoreLogic.User.HasKycVerification(user.UserVerification) || 
+			    !CoreLogic.User.HasProvedResidence(user.UserVerification, rcfg.Tier2ResidenceRequried) || 
+			    CoreLogic.User.HasTosSigned(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -196,7 +203,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					(DateTime.UtcNow - user.UserVerification.LastKycTicket.TimeCreated) < AllowedPeriodBetweenKycRequests
 				;
 
-			var residProved = CoreLogic.User.HasProvedResidence(user.UserVerification);
+		    var rcfg = RuntimeConfigHolder.Clone();
+
+            var residProved = CoreLogic.User.HasProvedResidence(user.UserVerification, rcfg.Tier2ResidenceRequried);
 			var residPending = !residProved && kycFinished;
 
 			var agrSigned = CoreLogic.User.HasTosSigned(user.UserVerification);
@@ -210,8 +219,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				IsResidencePending = residPending,
 				IsResidenceProved = residProved,
+			    IsResidenceRequired = rcfg.Tier2ResidenceRequried,
 
-				IsAgreementSigned = agrSigned,
+                IsAgreementSigned = agrSigned,
 
 				FirstName = user.UserVerification?.FirstName ?? "",
 				MiddleName = user.UserVerification?.MiddleName ?? "",

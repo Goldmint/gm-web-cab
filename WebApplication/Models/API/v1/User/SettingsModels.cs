@@ -78,10 +78,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SettingsModels {
 		[Required]
 		public bool IsResidencePending { get; set; }
 
-		/// <summary>
-		/// Residence is proved
-		/// </summary>
-		[Required]
+	    /// <summary>
+	    /// Is residence provement required
+	    /// </summary>
+	    [Required]
+	    public bool IsResidenceRequired { get; set; }
+
+        /// <summary>
+        /// Residence is proved
+        /// </summary>
+        [Required]
 		public bool IsResidenceProved { get; set; }
 		
 		/// <summary>
