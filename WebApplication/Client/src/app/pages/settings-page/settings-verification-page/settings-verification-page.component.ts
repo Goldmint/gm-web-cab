@@ -83,11 +83,15 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (this.kycProfile.isAgreementSigned) {
       this.phase = Phase.Finished;
     }
-    else if (this.kycProfile.isResidenceProved) {
+    else if (this.kycProfile.isResidenceRequired && this.kycProfile.isResidenceProved) {
       this.phase = Phase.ToS;
     }
     else if (this.kycProfile.isKycFinished) {
-      this.phase = Phase.ResidencePending;
+      if (this.kycProfile.isResidenceRequired) {
+        this.phase = Phase.ResidencePending;
+      } else {
+        this.phase = Phase.ToS;
+      }
     }
     else if (this.kycProfile.isKycPending) {
       this.phase = Phase.KycPending;

@@ -179,7 +179,7 @@
 </ng-container>
 
 <!--PROOF OF RESIDENCY FINISHED-->
-<ng-container *ngIf="kycProfile && kycProfile.isResidenceProved">
+<ng-container *ngIf="kycProfile && kycProfile.isResidenceProved && kycProfile.isResidenceRequired">
   <section class="section section--no-bottom">
     <h2 class="section__title">
       <span>{{ "PAGES.Settings.KYC.ProofResidency.Success.Heading" | translate }}</span>
