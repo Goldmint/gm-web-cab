@@ -59,7 +59,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
 			);
 
-			var list =
+		    var rcfg = RuntimeConfigHolder.Clone();
+
+            var list =
 				from i in page.Selected
 				select new ListViewItem() {
 					Id = i.Id,
@@ -70,7 +72,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 						i.UserVerification?.FirstName ?? "",
 						i.UserVerification?.LastName ?? ""
 					).Trim(' '),
-					ProvedResidence = CoreLogic.User.HasProvedResidence(i.UserVerification),
+					ProvedResidence = CoreLogic.User.HasProvedResidence(i.UserVerification, rcfg.Tier2ResidenceRequried),
 					TimeRegistered = ((DateTimeOffset)i.TimeRegistered).ToUnixTimeSeconds(),
 				}
 			;
@@ -118,7 +120,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			const string yes = "OK";
 			const string no = "-";
 
-			var properties = new List<AccountView.PropertiesItem>() {
+		    var rcfg = RuntimeConfigHolder.Clone();
+
+            var properties = new List<AccountView.PropertiesItem>() {
 				new AccountView.PropertiesItem(){ N = "ID", V = account.Id.ToString() },
 				new AccountView.PropertiesItem(){ N = "Username", V = account.UserName ?? "-" },
 				new AccountView.PropertiesItem(){ N = "Email", V = account.Email ?? "-" },
@@ -127,7 +131,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				new AccountView.PropertiesItem(){ N = "DpaSigned", V = CoreLogic.User.HasSignedDpa(account.UserOptions) ? yes: no },
 				new AccountView.PropertiesItem(){ N = "PersonalDataFilled", V = CoreLogic.User.HasFilledPersonalData(account.UserVerification) ? yes: no },
 				new AccountView.PropertiesItem(){ N = "KycVerification", V = CoreLogic.User.HasKycVerification(account.UserVerification) ? yes: no },
-				new AccountView.PropertiesItem(){ N = "ProvedResidence", V = CoreLogic.User.HasProvedResidence(account.UserVerification) ? yes: no },
+				new AccountView.PropertiesItem(){ N = "ProvedResidence", V = CoreLogic.User.HasProvedResidence(account.UserVerification, rcfg.Tier2ResidenceRequried) ? yes: no },
 				new AccountView.PropertiesItem(){ N = "TosSigned", V = CoreLogic.User.HasTosSigned(account.UserVerification) ? yes: no },
 			};
 
