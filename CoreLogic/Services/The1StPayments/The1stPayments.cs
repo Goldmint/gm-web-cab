@@ -41,7 +41,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 					v.RuleFor(_ => _.RedirectUrl).Must(ValidationRules.BeValidUrl);
 
 					v.RuleFor(_ => _.TransactionId).Length(5, 50);
-					//v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
+					v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
 					v.RuleFor(_ => _.Currency).NotNull();
 					v.RuleFor(_ => _.Purpose).Length(5, 255);
 
@@ -65,7 +65,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
-					.Set("amount", "0")
+					.Set("amount", data.AmountCents.ToString())
 					.Set("currency", data.Currency.ToString().ToUpper())
 					.Set("description", data.Purpose)
 
