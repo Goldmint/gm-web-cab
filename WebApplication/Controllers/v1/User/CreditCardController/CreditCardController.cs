@@ -110,7 +110,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				RedirectUrl = model.Redirect,
 
 				TransactionId = transId,
-				//AmountCents = 100,
+				AmountCents = 100,
 				Currency = transCurrency,
 				Purpose = "Card data for deposit payments at goldmint.io",
 

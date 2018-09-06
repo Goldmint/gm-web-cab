@@ -9,7 +9,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 		public string RedirectUrl;
 
 		public string TransactionId;
-		//public int AmountCents;
+		public int AmountCents;
 		public FiatCurrency Currency;
 		public string Purpose;
 
