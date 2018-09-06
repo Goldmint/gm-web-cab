@@ -48,10 +48,9 @@ namespace Goldmint.CoreLogic {
 		}
 
 		public static bool HasProvedResidence(DAL.Models.UserVerification data, bool residenceRequried) {
-			return
-			    residenceRequried
-                //data?.ProvedResidence ?? false
-                ;
+		    if (residenceRequried)
+		        return data?.ProvedResidence ?? false;
+		    return true;
 		}
 
 		// ---
