@@ -65,7 +65,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 					.Set("custom_return_url", data.RedirectUrl)
 
 					.Set("merchant_transaction_id", data.TransactionId)
-					.Set("amount", "0")
+					.Set("amount", data.AmountCents.ToString())
 					.Set("currency", data.Currency.ToString().ToUpper())
 					.Set("description", data.Purpose)
 

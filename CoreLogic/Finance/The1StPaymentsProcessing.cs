@@ -29,7 +29,7 @@ namespace Goldmint.CoreLogic.Finance {
 				Type = type,
 				UserId = card.UserId,
 				Currency = FiatCurrency.Usd,
-				AmountCents = 0,
+				AmountCents = 100,
 				Status = CardPaymentStatus.Unconfirmed,
 				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
