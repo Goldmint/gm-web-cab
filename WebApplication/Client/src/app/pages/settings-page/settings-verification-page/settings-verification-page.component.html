@@ -529,7 +529,7 @@
                      [typeaheadOptionsInScrollableView]="10"
                      [typeaheadScrollable]="true"
                      placeholder='{{ "PAGES.Settings.KYC.FormSection.Placeholders.ChooseState" | translate }}'
-                     [ngClass]="{'is-invalid': (errors?.State || !state.valid || patternErrors?.state) && !state.pristine}"
+                     [ngClass]="{'is-invalid': (errors?.State || !state.valid || patternErrors?.state || !kycProfile.state) && !state.pristine}"
                      (ngModelChange)="errors.State = false"
                      [disabled]="kycProfile.isKycFinished === true || processing || !kycProfile.country"
                      class="form-control"
@@ -541,7 +541,7 @@
                 <svg class="asterisk" width="6px" height="6px" *ngIf="!kycProfile.isFormFilled">
                   <use xlink:href="#asterisk"></use>
                 </svg>
-                <div class="invalid-feedback" *ngIf="state.errors?.required">
+                <div class="invalid-feedback" *ngIf="state.errors?.required || (!kycProfile.state && state.touched)">
                   {{ "PAGES.Settings.KYC.FormSection.Errors.State.required" | translate }}
                 </div>
                 <div class="invalid-feedback" *ngIf="patternErrors?.state">
@@ -625,7 +625,7 @@
 
         <div class="row mt-2 mb-4 pr-0 pr-sm-4 justify-content-sm-start justify-content-center" *ngIf="!kycProfile.isKycFinished">
           <div class="form-group col-auto col-sm-6 mb-2">
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched || patternErrors?.state">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="processing || kycForm.form.invalid || kycForm.form.untouched || patternErrors?.state || !kycProfile.state">
               {{ "PAGES.Settings.KYC.FormSection.Buttons.Submit" | translate }}
               <img *ngIf="processing" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
             </button>
