@@ -628,7 +628,11 @@ namespace Goldmint.CoreLogic.Finance {
 					// get payment from db
 					var payment = await (
 						from p in dbContext.CreditCardPayment
-						where p.Id == paymentId && p.Type == CardPaymentType.Refund && p.Status == CardPaymentStatus.Pending
+						where 
+							p.Id == paymentId && 
+							p.Type == CardPaymentType.Refund && 
+							p.Status == CardPaymentStatus.Pending &&
+							p.AmountCents > 0
 						select p
 					)
 					.Include(p => p.User)
@@ -642,7 +646,7 @@ namespace Goldmint.CoreLogic.Finance {
 						from p in dbContext.CreditCardPayment
 						where
 						p.Id == payment.RelPaymentId.Value &&
-						(p.Type == CardPaymentType.Deposit || p.Type == CardPaymentType.Verification) &&
+						(p.Type == CardPaymentType.CardDataInputSMS || p.Type == CardPaymentType.Deposit || p.Type == CardPaymentType.Verification) &&
 						p.Status == CardPaymentStatus.Success
 						select p
 					)
