@@ -41,7 +41,7 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 					v.RuleFor(_ => _.RedirectUrl).Must(ValidationRules.BeValidUrl);
 
 					v.RuleFor(_ => _.TransactionId).Length(5, 50);
-					//v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(100);
+					v.RuleFor(_ => _.AmountCents).GreaterThanOrEqualTo(0);
 					v.RuleFor(_ => _.Currency).NotNull();
 					v.RuleFor(_ => _.Purpose).Length(5, 255);
 
@@ -202,6 +202,10 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 
 		// ---
 
+		/*
+
+		NON-3D operations currently are unused
+		
 		/// <summary>
 		/// Get redirect to save card for deposits
 		/// </summary>
@@ -373,6 +377,8 @@ namespace Goldmint.CoreLogic.Services.The1StPayments {
 				throw e;
 			}
 		}
+		
+		*/
 
 		// ---
 

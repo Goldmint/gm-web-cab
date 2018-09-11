@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
@@ -77,11 +78,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			// ---
 
-			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();
+			var oneDollarVerification = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();
 
 			// verification payment
 			var verificationAmountCents = 100L + (SecureRandom.GetPositiveInt() % 100);
-			if (allowAnyCard) {
+			if (oneDollarVerification) {
 				verificationAmountCents = 100L;
 			}
 
@@ -120,10 +121,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				SenderIP = agent.IpObject,
 
 				SenderAddressCountry = user.UserVerification.CountryCode,
-				SenderAddressState = user.UserVerification.State,
-				SenderAddressCity = user.UserVerification.City,
-				SenderAddressStreet = user.UserVerification.Street,
-				SenderAddressZip = user.UserVerification.PostalCode,
+				SenderAddressState = user.UserVerification.State?.LimitLength(20),
+				SenderAddressCity = user.UserVerification.City?.LimitLength(25),
+				SenderAddressStreet = user.UserVerification.Street?.LimitLength(50),
+				SenderAddressZip = user.UserVerification.PostalCode?.LimitLength(15),
 			};
 
 			// get redirect
@@ -145,7 +146,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				type: CardPaymentType.CardDataInputSMS,
 				transactionId: transId,
 				gwTransactionId: paymentResult.GWTransactionId,
-				oplogId: ticketId
+				oplogId: ticketId,
+				amountCents: 100
 			);
 			payment.Status = CardPaymentStatus.Pending;
 			DbContext.CreditCardPayment.Add(payment);

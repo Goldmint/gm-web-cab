@@ -19,7 +19,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New card input data operation to enqueue
 		/// </summary>
-		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId) {
+		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId, long amountCents) {
 
 			// new deposit payment
 			return new CreditCardPayment() {
@@ -29,11 +29,11 @@ namespace Goldmint.CoreLogic.Finance {
 				Type = type,
 				UserId = card.UserId,
 				Currency = FiatCurrency.Usd,
-				AmountCents = 100,
+				AmountCents = amountCents,
 				Status = CardPaymentStatus.Unconfirmed,
 				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
-				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
+				TimeNextCheck = DateTime.UtcNow.AddMinutes(15),
 			};
 		}
 
@@ -418,6 +418,18 @@ namespace Goldmint.CoreLogic.Finance {
 							}
 							else {
 								await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Did not get card holder or card mask from gateway");
+							}
+
+							// refund payment if amount is non-zero
+							if (payment.AmountCents > 0) {
+								try {
+									var refund = CreateRefundPayment(payment, payment.OplogId);
+									dbContext.CreditCardPayment.Add(refund);
+									await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Refund for card data input step is enqueued");
+								}
+								catch (Exception e) {
+									logger?.Error(e, $"[1STP] Failed to enqueue card input refund for payment #{payment.Id}`");
+								}
 							}
 						}
 						else if (payment.Status == CardPaymentStatus.Failed) {
