@@ -115,11 +115,16 @@ namespace Goldmint.CoreLogic.Finance {
 		/// </summary>
 		private static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string oplogId) {
 
-			if (refPayment.Type != CardPaymentType.Deposit && refPayment.Type != CardPaymentType.Verification) {
-				throw new ArgumentException("Ref payment must be of deposit or verification type");
+			if (!(
+				refPayment.Type == CardPaymentType.CardDataInputSMS ||
+			    refPayment.Type == CardPaymentType.Deposit ||
+			    refPayment.Type == CardPaymentType.Verification
+			)) {
+				throw new ArgumentException("Ref payment has invalid type to refund");
 			}
 			if (refPayment.Status != CardPaymentStatus.Success) throw new ArgumentException("Cant refund unsuccessful payment");
 			if (refPayment.CreditCard == null) throw new ArgumentException("Card not included");
+			if (refPayment.AmountCents <= 0) throw new ArgumentException("Amount is invalid");
 			// if (refPayment.User == null) throw new ArgumentException("User not included");
 
 			// new refund payment
@@ -293,6 +298,24 @@ namespace Goldmint.CoreLogic.Finance {
 
 						if (payment.Status == CardPaymentStatus.Success) {
 
+							// refund payment if amount is non-zero
+							if (payment.AmountCents > 0) {
+								try {
+									var refund = CreateRefundPayment(payment, payment.OplogId);
+									dbContext.CreditCardPayment.Add(refund);
+									try {
+										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, $"Refund for card store step is enqueued for payment #{payment.Id}");
+									} catch { }
+								}
+								catch (Exception e) {
+									logger?.Error(e, $"[1STP] Failed to enqueue card input refund for payment #{payment.Id}");
+									try {
+										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Refund for card store step is failed to enqueue  for payment #{payment.Id}");
+									}
+									catch { }
+								}
+							}
+
 							// set next step
 							if (cardHolder != null && cardMask != null) {
 
@@ -417,19 +440,9 @@ namespace Goldmint.CoreLogic.Finance {
 								*/
 							}
 							else {
-								await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Did not get card holder or card mask from gateway");
-							}
-
-							// refund payment if amount is non-zero
-							if (payment.AmountCents > 0) {
-								try {
-									var refund = CreateRefundPayment(payment, payment.OplogId);
-									dbContext.CreditCardPayment.Add(refund);
-									await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Refund for card data input step is enqueued");
-								}
-								catch (Exception e) {
-									logger?.Error(e, $"[1STP] Failed to enqueue card input refund for payment #{payment.Id}`");
-								}
+								try { 
+									await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Did not get card holder or card mask from gateway");
+								} catch { }
 							}
 						}
 						else if (payment.Status == CardPaymentStatus.Failed) {
