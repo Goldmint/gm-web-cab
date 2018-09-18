@@ -38,17 +38,30 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 		/// </summary>
 		[Required]
 		public string Code { get; set; }
+	    /// <summary>
+	    /// Eth = 1,
+	    /// Mnt = 2,
+	    /// Gold = 3
+	    /// </summary>
+	    [Required]
+	    public CryptoCurrency TokenType { get; set; }
 
-		/// <summary>
-		/// Value
-		/// </summary>
-		[Required]
-		public string Value { get; set; }
-		
-		/// <summary>
-		/// Used by user or null
-		/// </summary>
-		[Required]
+	    /// <summary>
+	    /// Maximum tokens count
+	    /// </summary>
+	    [Required]
+	    public decimal Limit { get; set; }
+
+	    /// <summary>
+	    /// Value of discount: (0, 100] %
+	    /// </summary>
+	    [Required]
+	    public string DiscountValue { get; set; }
+
+        /// <summary>
+        /// Used by user or null
+        /// </summary>
+        [Required]
 		public string Username { get; set; }
 
 		/// <summary>
@@ -72,24 +85,39 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 
 	// ---
 
-	public class GenerateModel : BaseValidableModel {
+	public class GenerateModel : BaseValidableModel
+	{
 
-		/// <summary>
-		/// Count to generate
-		/// </summary>
-		[Required]
-		public long Count { get; set; }
+        /// <summary>
+        /// Eth = 1,
+        /// Mnt = 2,
+        /// Gold = 3
+        /// </summary>
+        [Required]
+	    public CryptoCurrency TokenType { get; set; }
 
-		/// <summary>
-		/// Value of discount: from 0 to 0.999
-		/// </summary>
-		[Required]
-		public double Value { get; set; }
+	    /// <summary>
+	    /// Maximum tokens count (^18)
+	    /// </summary>
+	    [Required]
+	    public long Limit { get; set; }
 
-		/// <summary>
-		/// Valid duration
-		/// </summary>
-		[Required]
+        /// <summary>
+        /// Value of discount (0-100000)
+        /// </summary>
+        [Required]
+		public long DiscountValue { get; set; }
+
+        /// <summary>
+        /// Count to generate
+        /// </summary>
+        [Required]
+	    public long Count { get; set; }
+
+        /// <summary>
+        /// Valid duration: (0, 500] days
+        /// </summary>
+        [Required]
 		public long ValidForDays { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -99,8 +127,8 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 				.GreaterThan(0).LessThanOrEqualTo(500).WithMessage("Invalid format")
 				;
 
-			v.RuleFor(_ => _.Value)
-				.GreaterThanOrEqualTo(0).LessThanOrEqualTo(0.999).WithMessage("Invalid format")
+			v.RuleFor(_ => _.DiscountValue)
+				.GreaterThan(0).LessThanOrEqualTo(1).WithMessage("Invalid format")
 				;
 
 			v.RuleFor(_ => _.ValidForDays)

@@ -607,6 +607,8 @@ namespace Goldmint.Common {
 	public enum CryptoCurrency {
 
 		Eth = 1,
+        Mnt = 2,
+        Gold = 3
 	}
 
 	public enum FiatCurrency {

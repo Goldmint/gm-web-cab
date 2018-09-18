@@ -5,36 +5,35 @@ using Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
-using Goldmint.CoreLogic.Services.Notification.Impl;
-using Goldmint.CoreLogic.Services.Localization;
-using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
+namespace Goldmint.WebApplication.Controllers.v1.Dashboard
+{
 
 	[Route("api/v1/dashboard/promo")]
-	public class PromoController : BaseController {
+	public class PromoController : BaseController
+	{
 
 		/// <summary>
 		/// Codes list
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
+		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("list")]
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List([FromBody] ListModel model) {
 
-			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.PromoCode, object>>>() {
+			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.PromoCode, object>>>()
+			{
 				{ "id",   _ => _.Id },
 			};
 
 			// validate
-			if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields)) {
+			if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields))
+			{
 				return APIResponse.BadRequest(errFields);
 			}
 
@@ -47,10 +46,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				query = query.Where(_ => _.Code.Contains(model.Filter) || (_.User != null && _.User.UserName.Contains(model.Filter)));
 			}
 			if (model.FilterUsed != null) {
-				if (model.FilterUsed.Value) {
+				if (model.FilterUsed.Value)
+				{
 					query = query.Where(_ => _.UserId != null);
 				}
-				else {
+				else
+				{
 					query = query.Where(_ => _.UserId == null);
 				}
 			}
@@ -61,11 +62,14 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			var list =
 				from i in page.Selected
-				select new ListViewItem() {
+				select new ListViewItem()
+				{
 					Id = i.Id,
 					Username = i.User?.UserName,
 					Code = i.Code,
-					Value = i.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),
+				    TokenType = i.TokenType,
+				    Limit = i.Limit,
+                    DiscountValue = i.DiscountValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
 					TimeCreated = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
 					TimeExpires = ((DateTimeOffset)i.TimeExpires).ToUnixTimeSeconds(),
 					TimeUsed = i.TimeUsed != null? ((DateTimeOffset)i.TimeUsed.Value).ToUnixTimeSeconds(): (long?)(null),
@@ -85,38 +89,47 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 		/// <summary>
 		/// Generate promo codes
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
 		[HttpPost, Route("generate")]
 		[ProducesResponseType(typeof(GenerateView), 200)]
-		public async Task<APIResponse> Generate([FromBody] GenerateModel model) {
+		public async Task<APIResponse> Generate([FromBody] GenerateModel model)
+		{
 
 			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+			if (BaseValidableModel.IsInvalid(model, out var errFields))
+			{
 				return APIResponse.BadRequest(errFields);
 			}
 
 			var chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZ".ToCharArray();
-			var makeCode = new Func<string>(() => {
-				using (var alg = System.Security.Cryptography.SHA1.Create()) {
-					var hash = alg.ComputeHash(Guid.NewGuid().ToByteArray());
-					var result = new char[hash.Length / 2];
-					for (int i = 0; i < result.Length; i++) {
-						var v = BitConverter.ToUInt16(hash, i * 2);
-						result[i] = chars[v % chars.Length];
-					}
-					return (new string(result)).Insert(5, "-");
-				}
+			var makeCode = new Func<string>(() => 
+			{
+                using (var alg = System.Security.Cryptography.SHA1.Create())
+                {
+                    var hash = alg.ComputeHash(Guid.NewGuid().ToByteArray());
+                    var result = new char[hash.Length / 2];
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        var v = BitConverter.ToUInt16(hash, i * 2);
+                        result[i] = chars[v % chars.Length];
+                    }
+                    return (new string(result)).Insert(5, "-");
+                }
 			});
 
 			var now = DateTime.UtcNow;
 			var until = now.AddDays(model.ValidForDays);
 
-			var list = new List<PromoCode>();
-			for (var i = 0; i < model.Count; ++i) {
+            var list = new List<PromoCode>();
+			for (var i = 0; i < model.Count; ++i)
+			{
 				list.Add(
-					new PromoCode() {
+					new PromoCode()
+					{
 						Code = makeCode(),
-						Value = new decimal(model.Value),
+                        TokenType = model.TokenType,
+					    Limit = model.Limit,
+                        DiscountValue = model.DiscountValue,
 						TimeCreated = now,
 						TimeExpires = until,
 						TimeUsed = null,
@@ -126,10 +139,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			}
 
 			DbContext.AddRange(list);
-			await DbContext.SaveChangesAsync();
+
+		    await DbContext.SaveChangesAsync();
 			
 			return APIResponse.Success(
-				new GenerateView() {
+				new GenerateView()
+				{
 					Codes = list.Select(_ => _.Code).ToArray(),
 				}
 			);

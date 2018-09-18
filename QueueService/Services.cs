@@ -36,7 +36,8 @@ namespace Goldmint.QueueService {
 		private static CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator _coreTelemetryAccumulator;
 		private static CoreLogic.Services.Bus.Telemetry.WorkerTelemetryAccumulator _workerTelemetryAccumulator;
 
-		private static void SetupCommonServices(ServiceCollection services) {
+		private static void SetupCommonServices(ServiceCollection services)
+		{
 			
 			// app config
 			services.AddSingleton(_environment);

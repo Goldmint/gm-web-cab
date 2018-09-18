@@ -20,13 +20,15 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 		}
 	}
 
-	public class SafeCurrencyRate : CurrencyRate {
+	public class SafeCurrencyRate : CurrencyRate
+	{
 
 		private readonly bool _canBuy;
 		private readonly bool _canSell;
 		private readonly TimeSpan _ttl;
 
-		public SafeCurrencyRate(bool canBuy, bool canSell, TimeSpan ttl, CurrencyRateType cur, DateTime stamp, long usd) : base(cur, stamp, usd) {
+		public SafeCurrencyRate(bool canBuy, bool canSell, TimeSpan ttl, CurrencyRateType cur, DateTime stamp, long usd) : base(cur, stamp, usd)
+		{
 			_canBuy = canBuy;
 			_canSell = canSell;
 			_ttl = ttl;

@@ -1,21 +1,26 @@
 ﻿using Goldmint.DAL.Models.Identity;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 using Goldmint.Common;
 
-namespace Goldmint.DAL.Models {
+namespace Goldmint.DAL.Models
+{
 
 	[Table("gm_promo_code")]
-	public class PromoCode : BaseEntity, IConcurrentUpdate {
-
+	public class PromoCode : BaseEntity, IConcurrentUpdate
+	{
 		[Column("code"), MaxLength(32), Required]
 		public string Code { get; set; }
 
-		[Column("value"), Required]
-		public decimal Value { get; set; }
+	    [Column("token_type"), Required]
+	    public CryptoCurrency TokenType { get; set; }
+
+	    [Column("limit"), Required]
+	    public long Limit { get; set; }
+
+        [Column("discount_value"), Required]
+		public long DiscountValue { get; set; }
 
 		[Column("user_id")]
 		public long? UserId { get; set; }
@@ -37,7 +42,8 @@ namespace Goldmint.DAL.Models {
 
 		// ---
 
-		public void OnConcurrencyStampRegen() {
+		public void OnConcurrencyStampRegen()
+		{
 			this.ConcurrencyStamp = ConcurrentStamp.GetGuid();
 		}
 	}

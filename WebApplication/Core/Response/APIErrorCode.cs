@@ -49,12 +49,18 @@
 		/// </summary>
 		TradingExchangeLimit = 104,
 
-		/* [1000..1999] Account errors */
+        /// <summary>
+        /// PromoCode not applicable
+        /// </summary>
+        PromoCodeNotApplicable = 105,
 
-		/// <summary>
-		/// Account not found
-		/// </summary>
-		AccountNotFound = 1000,
+
+        /* [1000..1999] Account errors */
+
+        /// <summary>
+        /// Account not found
+        /// </summary>
+        AccountNotFound = 1000,
 
 		/// <summary>
 		/// Account locked (automatic lockout)
