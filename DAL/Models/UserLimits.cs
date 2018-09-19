@@ -21,14 +21,5 @@ namespace Goldmint.DAL.Models {
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
-
-		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
-		public string ConcurrencyStamp { get; set; }
-
-		// ---
-
-		public void OnConcurrencyStampRegen() {
-			this.ConcurrencyStamp = ConcurrentStamp.GetGuid();
-		}
 	}
 }

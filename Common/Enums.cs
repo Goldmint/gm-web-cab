@@ -91,9 +91,9 @@ namespace Goldmint.Common {
 		SellRequestsWriteAccess = 0x4000000L,
 		
 		/// <summary>
-		/// Dashboard: _
+		/// Dashboard: promo codes access
 		/// </summary>
-		// _ = 0x8000000L,
+		PromoCodesWriteAccess = 0x8000000L,
 
 		/// <summary>
 		/// Dashboard: user list write access
@@ -607,6 +607,8 @@ namespace Goldmint.Common {
 	public enum CryptoCurrency {
 
 		Eth = 1,
+        Mnt = 2,
+        Gold = 3
 	}
 
 	public enum FiatCurrency {
@@ -661,17 +663,10 @@ namespace Goldmint.Common {
 		/// Payment check (payment-wide)
 		/// </summary>
 		CardPaymentCheck,
-
-		/// <summary>
-		/// Support exchange request state (user-wide)
-		/// </summary>
-		UserBuying,
-		UserSelling,
 	}
 
 	public enum NotificationType {
 
 		Email = 1,
 	}
-
 }

@@ -247,13 +247,16 @@ namespace Goldmint.WebApplication {
 				new Uri(_appConfig.Bus.CentralPub.Endpoint),
 				LogManager.LogFactory
 			);
+
 			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, (p, s) => {
 				_busSafeRatesSource.OnNewRates(p, s);
 				_apiTelemetryAccumulator.AccessData(_ => _.RatesData = p as CoreLogic.Services.Bus.Proto.SafeRates.SafeRatesMessage);
 			});
+
 			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.AggregatedTelemetry, (p, s) => {
 				_aggregatedTelemetryHolder.OnUpdate(p, s);
 			});
+
 			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => {
 				Task.Factory.StartNew(async () => {
 					await _runtimeConfigHolder.Reload();

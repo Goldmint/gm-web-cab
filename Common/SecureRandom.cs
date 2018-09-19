@@ -21,13 +21,10 @@ namespace Goldmint.Common {
 		private readonly static char[] PATTERN_AZ = (DICT_AZ).ToCharArray();
 
 		// ---
-		
-		/// <summary>
-		/// Random string of fixed length from specified chars subset
-		/// </summary>
+
 		public static string GetString(int length, char[] characterSet) {
-			if (length < 0 || length > 1024) {
-				throw new ArgumentException("length < 0 || length > 1024");
+			if (length < 1 || length > 1024) {
+				throw new ArgumentException("length < 1 || length > 1024");
 			}
 			if (characterSet == null || characterSet.Length == 0) {
 				throw new ArgumentException("characterSet == null || characterSet.Length == 0");

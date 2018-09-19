@@ -99,9 +99,17 @@ namespace Goldmint.CoreLogic.Finance {
 			);
 		}
 
-		public static Task<BuyGoldCryptoResult> BuyGoldCrypto(IServiceProvider services, CryptoCurrency cryptoCurrency, FiatCurrency fiatCurrency, BigInteger cryptoAmount, long? knownGoldRateCents = null, long? knownCryptoRateCents = null) {
+		public static Task<BuyGoldCryptoResult> BuyGoldCrypto(
+		    IServiceProvider services, 
+		    CryptoCurrency cryptoCurrency, 
+		    FiatCurrency fiatCurrency, 
+		    BigInteger cryptoAmount, 
+		    long? knownGoldRateCents = null, 
+		    long? knownCryptoRateCents = null)
+		{
 
-			if (cryptoAmount <= 0) {
+			if (cryptoAmount <= 0)
+			{
 				return Task.FromResult(new BuyGoldCryptoResult());
 			}
 
@@ -109,17 +117,22 @@ namespace Goldmint.CoreLogic.Finance {
 			var cryptoRate = (long?)0L;
 			var decimals = 0;
 
-			if (cryptoCurrency == CryptoCurrency.Eth) {
+			if (cryptoCurrency == CryptoCurrency.Eth)
+			{
 				decimals = Common.Tokens.ETH.Decimals;
 				cryptoRate = safeRates.GetRateForSelling(CurrencyRateType.Eth, fiatCurrency);
 			}
-			else {
+			else
+			{
 				throw new NotImplementedException($"Not implemented for { cryptoCurrency.ToString() }");
 			}
 
+
 			cryptoRate = knownCryptoRateCents ?? cryptoRate;
-			if (cryptoRate == null || cryptoRate <= 0) {
-				return Task.FromResult(new BuyGoldCryptoResult() {
+			if (cryptoRate == null || cryptoRate <= 0)
+			{
+				return Task.FromResult(new BuyGoldCryptoResult()
+				{
 					Status = BuyGoldStatus.TradingDisallowed,
 				});
 			}

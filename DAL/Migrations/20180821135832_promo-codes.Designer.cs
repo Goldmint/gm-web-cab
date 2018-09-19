@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180821135832_promo-codes")]
+    partial class promocodes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,9 +94,6 @@ namespace Goldmint.DAL.Migrations
                     b.Property<int>("Output")
                         .HasColumnName("output");
 
-                    b.Property<long?>("PromoCodeId")
-                        .HasColumnName("promo_code_id");
-
                     b.Property<long?>("RelInputId")
                         .HasColumnName("rel_input_id");
 
@@ -121,8 +119,6 @@ namespace Goldmint.DAL.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PromoCodeId");
 
                     b.HasIndex("RelUserFinHistoryId");
 
@@ -653,6 +649,9 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<DateTime?>("TimeUsed")
                         .HasColumnName("time_used");
+
+                    b.Property<int>("Type")
+                        .HasColumnName("type");
 
                     b.Property<long?>("UserId")
                         .HasColumnName("user_id");
@@ -1280,10 +1279,6 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.BuyGoldRequest", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.PromoCode", "PromoCode")
-                        .WithMany()
-                        .HasForeignKey("PromoCodeId");
-
                     b.HasOne("Goldmint.DAL.Models.UserFinHistory", "RelUserFinHistory")
                         .WithMany()
                         .HasForeignKey("RelUserFinHistoryId")

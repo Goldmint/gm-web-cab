@@ -18,6 +18,7 @@ namespace Goldmint.Common {
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");
 		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
 		public static readonly Regex RexEthereumTransactionId = new Regex(@"^0x[0-9abcdefABCDEF]{64}$");
+		public static readonly Regex RexPromoCode = new Regex("^[0-9A-Z]{5}-[0-9A-Z]{5}$");
 
 		// ---
 
@@ -101,6 +102,10 @@ namespace Goldmint.Common {
 
 		public static bool BeValidEthereumTransactionId(string x) {
 			return x != null && RexEthereumTransactionId.IsMatch(x);
+		}
+
+		public static bool BeValidPromoCode(string x) {
+			return x != null && RexPromoCode.IsMatch(x);
 		}
 	}
 }

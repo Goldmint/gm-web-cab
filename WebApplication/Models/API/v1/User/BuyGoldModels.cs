@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
+namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
+{
 
-	public class EstimateModel : BaseValidableModel {
+	public class EstimateModel : BaseValidableModel
+	{
 
 		/// <summary>
 		/// Fiat currency or cryptoasset 
@@ -23,9 +25,15 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public bool Reversed { get; set; }
 
+		/// <summary>
+		/// Promo code
+		/// </summary>
+		public string PromoCode { get; set; }
+
 		// ---
 
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+		protected override FluentValidation.Results.ValidationResult ValidateFields()
+		{
 			var v = new InlineValidator<EstimateModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.Currency)
@@ -36,11 +44,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 				.NotEmpty().WithMessage("Invalid amount")
 				;
 
-			return v.Validate(this);
+            return v.Validate(this);
 		}
 	}
 
-	public class EstimateView {
+	public class EstimateView
+	{
 
 		/// <summary>
 		/// Estimated amount. GOLD amount (string, Reversed is false) or Currency amount (string or float, Reversed is true)
@@ -90,7 +99,8 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 
 	// ---
 
-	public class ConfirmModel : BaseValidableModel {
+	public class ConfirmModel : BaseValidableModel
+	{
 
 		/// <summary>
 		/// Request ID
@@ -98,9 +108,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public long RequestId { get; set; }
 
-		// ---
+	    /// <summary>
+	    /// Promo code
+	    /// </summary>
+	    public string PromoCode { get; set; }
 
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+        // ---
+
+        protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<ConfirmModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.RequestId)
@@ -111,12 +126,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		}
 	}
 
-	public class ConfirmView {
+	public class ConfirmView
+	{
 	}
 
 	// ---
 
-	public class AssetEthModel : BaseValidableModel {
+	public class AssetEthModel : BaseValidableModel
+	{
 
 		/// <summary>
 		/// Address
@@ -142,9 +159,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public string Currency { get; set; }
 
-		// ---
+	    /// <summary>
+	    /// Promo code
+	    /// </summary>
+	    public string PromoCode { get; set; }
 
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+        // ---
+
+        protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<AssetEthModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.EthAddress)
@@ -243,9 +265,14 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels {
 		[Required]
 		public bool Reversed { get; set; }
 
-		// ---
+	    /// <summary>
+	    /// Promo code
+	    /// </summary>
+	    public string PromoCode { get; set; }
 
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+        // ---
+
+        protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<CreditCardModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			v.RuleFor(_ => _.CardId)

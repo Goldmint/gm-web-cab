@@ -1,17 +1,22 @@
 ﻿using Goldmint.Common;
+using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
+using Goldmint.DAL.Migrations;
 
-namespace Goldmint.WebApplication.Controllers.v1.User {
+namespace Goldmint.WebApplication.Controllers.v1.User
+{
 
-	public partial class BuyGoldController : BaseController {
+	public partial class BuyGoldController : BaseController
+	{
 
 		/// <summary>
 		/// ETH to GOLD
@@ -19,21 +24,24 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
-		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
-
+		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model)
+		{
 			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+			if (BaseValidableModel.IsInvalid(model, out var errFields))
+			{
 				return APIResponse.BadRequest(errFields);
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1)
+			{
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
 			// try parse fiat currency
 			var exchangeCurrency = FiatCurrency.Usd;
-			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc))
+			{
 				exchangeCurrency = fc;
 			}
 
@@ -46,19 +54,30 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
-			if (userTier < UserTier.Tier1) {
+			if (userTier < UserTier.Tier1)
+			{
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
 			// ---
 
-			if (!rcfg.Gold.AllowTradingEth) {
+			if (!rcfg.Gold.AllowTradingEth)
+			{
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
 			var limits = DepositLimits(rcfg, CryptoCurrency.Eth);
 
-			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+            // get promocode
+		    var promoCode = await GetPromoCode(model.PromoCode);
+
+            // must have kyc to use promocode here
+            if (promoCode != null && userTier < UserTier.Tier2)
+			{
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
+			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -79,7 +98,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			);
 
 			// history
-			var finHistory = new DAL.Models.UserFinHistory() {
+			var finHistory = new DAL.Models.UserFinHistory()
+			{
 
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldBuy,
@@ -113,6 +133,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				GoldRateCents = estimation.CentsPerGoldRate,
 				InputExpected = estimation.ResultCurrencyAmount.ToString(),
 
+				PromoCodeId = promoCode?.Id,
 				OplogId = ticket,
 				TimeCreated = timeNow,
 				TimeExpires = timeExpires,
