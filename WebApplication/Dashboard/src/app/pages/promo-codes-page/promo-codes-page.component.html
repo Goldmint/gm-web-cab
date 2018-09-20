@@ -1,0 +1,149 @@
+<div class="page">
+  <h1 class="page__heading">PROMOCODES</h1>
+  
+  <div class="page__section">
+    
+	
+	<div class="trn-info">
+      <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" >
+
+        <div class="row align-items-start">                    
+
+          <div class="col-lg-auto pb-3 pt-3">
+            <button type="submit" (click)="genPromoCode()" class="btn btn-primary btn-generate" >{{ "Generate" }}</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+	
+
+   <section class="section section--table">
+
+      <div class="section__content user-list-section">
+        <ngx-datatable class="table table--no-footer" #table
+                       [rows]="rows"
+                       [columnMode]="'force'"
+                       [sorts]="sorts"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="page.totalElements"
+                       [offset]="page.pageNumber"
+                       [limit]="page.size"
+                       [externalSorting]="true"
+                       (sort)="onSort($event)"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages">
+
+         <ngx-datatable-column prop="timeCreated" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Created Date
+              </span>
+            </ng-template>
+
+            <ng-template let-timeCreated="value" let-row="row" ngx-datatable-cell-template>
+              {{ row.timeCreated * 1000 | date:'short':'':locale }}
+            </ng-template>
+        </ngx-datatable-column>
+		
+		<ngx-datatable-column prop="timeUsed" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Used Date
+              </span>
+            </ng-template>
+
+            <ng-template let-timeUsed="value" let-row="row" ngx-datatable-cell-template>
+              {{ row.timeUsed * 1000 | date:'short':'':locale }}
+            </ng-template>
+        </ngx-datatable-column>
+		
+		<ngx-datatable-column prop="timeExpires" [draggable]="false" [resizeable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Expired Date
+              </span>
+            </ng-template>
+
+            <ng-template let-timeExpires="value" let-row="row" ngx-datatable-cell-template>
+              {{ row.timeExpires * 1000 | date:'short':'':locale }}
+            </ng-template>
+        </ngx-datatable-column>
+		
+		<ngx-datatable-column prop="code" [draggable]="false" [resizeable]="false">
+        <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                PromoCode
+              </span>
+        </ng-template>
+        </ngx-datatable-column>  
+	  	
+		<ngx-datatable-column prop="discountValue" [draggable]="false" [resizeable]="false">
+		<ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+				Discount Value
+			</span> 
+            </ng-template>
+
+            <ng-template let-discountValue="value" let-row="row" ngx-datatable-cell-template>
+              {{ discountValue * degree3 }}              
+            </ng-template>
+          </ngx-datatable-column>
+		
+		<ngx-datatable-column prop="limit" [draggable]="false" [resizeable]="false">
+		<ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper" (click)="sort()">
+				Limit
+			</span> 
+            </ng-template>
+
+            <ng-template let-limit="value" let-row="row" ngx-datatable-cell-template>
+              {{ limit * degree18 }}              
+            </ng-template>
+          </ngx-datatable-column>
+		
+		
+		<ngx-datatable-column prop="username" [draggable]="false" [resizeable]="false">
+        <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.Users.Table.UserName" | translate }}
+              </span>
+        </ng-template>
+
+        <ng-template let-username="value" let-row="row" ngx-datatable-cell-template>
+          {{ username }}
+        </ng-template>
+        </ngx-datatable-column>   
+		
+
+        </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-5" *ngIf="page.totalElements">
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+              <svg class="icon icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+              <svg class="icon icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+  </div>
+</div>
+
+
