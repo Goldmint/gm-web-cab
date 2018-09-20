@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// Codes list
 		/// </summary>
-		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("list")]
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List([FromBody] ListModel model) {
@@ -89,7 +89,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// Generate promo codes
 		/// </summary>
-		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
 		[HttpPost, Route("generate")]
 		[ProducesResponseType(typeof(GenerateView), 200)]
 		public async Task<APIResponse> Generate([FromBody] GenerateModel model)
