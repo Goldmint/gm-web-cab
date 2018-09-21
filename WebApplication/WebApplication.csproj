@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.1</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Goldmint.WebApplication</AssemblyName>
     <PackageId>Goldmint.WebApplication</PackageId>
     <RootNamespace>Goldmint.WebApplication</RootNamespace>

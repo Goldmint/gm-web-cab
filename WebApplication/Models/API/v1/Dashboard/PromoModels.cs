@@ -93,31 +93,31 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
         /// Mnt = 2,
         /// Gold = 3
         /// </summary>
-        [Required]
+        //[Required]
 	    public CryptoCurrency TokenType { get; set; }
 
 	    /// <summary>
 	    /// Maximum tokens count (^18)
 	    /// </summary>
-	    [Required]
+	    //[Required]
 	    public long Limit { get; set; }
 
         /// <summary>
         /// Value of discount (0-100000)
         /// </summary>
-        [Required]
+        //[Required]
 		public long DiscountValue { get; set; }
 
         /// <summary>
         /// Count to generate
         /// </summary>
-        [Required]
+        //[Required]
 	    public long Count { get; set; }
 
         /// <summary>
         /// Valid duration: (0, 500] days
         /// </summary>
-        [Required]
+        //[Required]
 		public long ValidForDays { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
@@ -128,7 +128,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 				;
 
 			v.RuleFor(_ => _.DiscountValue)
-				.GreaterThan(0).LessThanOrEqualTo(1).WithMessage("Invalid format")
+				.GreaterThan(0).LessThanOrEqualTo(100000).WithMessage("Invalid format")
 				;
 
 			v.RuleFor(_ => _.ValidForDays)

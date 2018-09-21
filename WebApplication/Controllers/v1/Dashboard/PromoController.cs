@@ -89,7 +89,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// Generate promo codes
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized)/*, RequireAccessRights(AccessRights.PromoCodesWriteAccess)*/]
 		[HttpPost, Route("generate")]
 		[ProducesResponseType(typeof(GenerateView), 200)]
 		public async Task<APIResponse> Generate([FromBody] GenerateModel model)
