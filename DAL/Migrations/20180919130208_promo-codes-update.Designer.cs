@@ -661,7 +661,7 @@ namespace Goldmint.DAL.Migrations
                     b.Property<DateTime?>("TimeUsed")
                         .HasColumnName("time_used");
 
-                    b.Property<int>("TokenType")
+                    b.Property<int>("Currency")
                         .HasColumnName("token_type");
 
                     b.Property<long?>("UserId")

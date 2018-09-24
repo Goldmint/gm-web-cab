@@ -71,7 +71,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
             // get promocode
 		    var promoCode = await GetPromoCode(model.PromoCode);
 
-            if (promoCode != null && promoCode.TokenType != CryptoCurrency.Gold)
+            if (promoCode != null && promoCode.Currency != CryptoCurrency.Gold)
 		    {
 		        return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
             }
@@ -86,7 +86,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
-		    if (promoCode != null && promoCode.Limit < estimation.ResultGoldAmount)
+		    if (promoCode != null && promoCode.Limit < (decimal)estimation.ResultGoldAmount)
 		    {
 		        return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
             }
@@ -257,16 +257,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 	    private static BigInteger ApplyPromoCode(BigInteger amount, PromoCode pc)
 	    {
             if(pc != null)
-	            return (amount * pc.DiscountValue / 100000) + amount;
+                //return amount * pc.DiscountValue + amount;
+                return 0;
 
-	        return amount;
+            return amount;
 	    }
 
 	    [NonAction]
 	    private static BigInteger ApplyPromoCodeReversed(BigInteger amount, PromoCode pc)
 	    {
 	        if (pc != null)
-	            return amount - (amount * pc.DiscountValue / 100000);
+	            //return amount - (amount * pc.DiscountValue / 100000);
+	            return 0;
 
 	        return amount;
 	    }

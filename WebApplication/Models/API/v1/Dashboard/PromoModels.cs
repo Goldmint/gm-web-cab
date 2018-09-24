@@ -44,7 +44,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 	    /// Gold = 3
 	    /// </summary>
 	    [Required]
-	    public CryptoCurrency TokenType { get; set; }
+	    public CryptoCurrency Currency { get; set; }
 
 	    /// <summary>
 	    /// Maximum tokens count
@@ -93,47 +93,35 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
         /// Mnt = 2,
         /// Gold = 3
         /// </summary>
-        //[Required]
-	    public CryptoCurrency TokenType { get; set; }
+        [Required]
+	    public string Currency { get; set; }
 
 	    /// <summary>
 	    /// Maximum tokens count (^18)
 	    /// </summary>
-	    //[Required]
-	    public long Limit { get; set; }
+	    [Required]
+	    public string Limit { get; set; }
 
         /// <summary>
         /// Value of discount (0-100000)
         /// </summary>
-        //[Required]
-		public long DiscountValue { get; set; }
+        [Required]
+		public string DiscountValue { get; set; }
 
         /// <summary>
         /// Count to generate
         /// </summary>
-        //[Required]
-	    public long Count { get; set; }
+        [Required]
+	    public int Count { get; set; }
 
         /// <summary>
         /// Valid duration: (0, 500] days
         /// </summary>
-        //[Required]
-		public long ValidForDays { get; set; }
+        [Required]
+		public double ValidForDays { get; set; }
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<GenerateModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
-
-			v.RuleFor(_ => _.Count)
-				.GreaterThan(0).LessThanOrEqualTo(500).WithMessage("Invalid format")
-				;
-
-			v.RuleFor(_ => _.DiscountValue)
-				.GreaterThan(0).LessThanOrEqualTo(100000).WithMessage("Invalid format")
-				;
-
-			v.RuleFor(_ => _.ValidForDays)
-				.GreaterThan(0).WithMessage("Invalid format")
-				;
 
 			return v.Validate(this);
 		}

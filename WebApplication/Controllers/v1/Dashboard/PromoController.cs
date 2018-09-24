@@ -5,7 +5,9 @@ using Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Models.API;
@@ -13,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 {
-
 	[Route("api/v1/dashboard/promo")]
 	public class PromoController : BaseController
 	{
@@ -45,15 +46,11 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 			if (!string.IsNullOrWhiteSpace(model.Filter)) {
 				query = query.Where(_ => _.Code.Contains(model.Filter) || (_.User != null && _.User.UserName.Contains(model.Filter)));
 			}
-			if (model.FilterUsed != null) {
-				if (model.FilterUsed.Value)
-				{
-					query = query.Where(_ => _.UserId != null);
-				}
-				else
-				{
-					query = query.Where(_ => _.UserId == null);
-				}
+			if (model.FilterUsed != null)
+			{
+			    query = model.FilterUsed.Value 
+			        ? query.Where(_ => _.UserId != null) 
+			        : query.Where(_ => _.UserId == null);
 			}
 
 			var page = await query.PagerAsync(model.Offset, model.Limit,
@@ -67,7 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 					Id = i.Id,
 					Username = i.User?.UserName,
 					Code = i.Code,
-				    TokenType = i.TokenType,
+				    Currency = i.Currency,
 				    Limit = i.Limit,
                     DiscountValue = i.DiscountValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
 					TimeCreated = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
@@ -77,7 +74,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 			;
 
 			return APIResponse.Success(
-				new ListView() {
+				new ListView()
+				{
 					Items = list.ToArray(),
 					Limit = model.Limit,
 					Offset = model.Offset,
@@ -89,7 +87,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// Generate promo codes
 		/// </summary>
-		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized)/*, RequireAccessRights(AccessRights.PromoCodesWriteAccess)*/]
+		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
 		[HttpPost, Route("generate")]
 		[ProducesResponseType(typeof(GenerateView), 200)]
 		public async Task<APIResponse> Generate([FromBody] GenerateModel model)
@@ -101,14 +99,30 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZ".ToCharArray();
+		    CryptoCurrency cryptoCurrency;
+		    decimal limit;
+		    double discount;
+
+            try
+		    {
+		        cryptoCurrency = Enum.Parse<CryptoCurrency>(model.Currency, true);
+		        limit = decimal.Parse(model.Limit, CultureInfo.InvariantCulture);            //less zero ?
+		        discount = double.Parse(model.DiscountValue, CultureInfo.InvariantCulture);  //less zero ?  
+
+            }
+		    catch (Exception)
+            {
+		        return APIResponse.BadRequest(APIErrorCode.InvalidParameter);
+            }
+
+            var chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZ".ToCharArray();
 			var makeCode = new Func<string>(() => 
 			{
                 using (var alg = System.Security.Cryptography.SHA1.Create())
                 {
                     var hash = alg.ComputeHash(Guid.NewGuid().ToByteArray());
                     var result = new char[hash.Length / 2];
-                    for (int i = 0; i < result.Length; i++)
+                    for (var i = 0; i < result.Length; i++)
                     {
                         var v = BitConverter.ToUInt16(hash, i * 2);
                         result[i] = chars[v % chars.Length];
@@ -119,7 +133,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 
 			var now = DateTime.UtcNow;
 			var until = now.AddDays(model.ValidForDays);
-
+            
             var list = new List<PromoCode>();
 			for (var i = 0; i < model.Count; ++i)
 			{
@@ -127,9 +141,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 					new PromoCode()
 					{
 						Code = makeCode(),
-                        TokenType = model.TokenType,
-					    Limit = model.Limit,
-                        DiscountValue = model.DiscountValue,
+					    Currency = cryptoCurrency,
+					    Limit = limit,
+                        DiscountValue = discount,
 						TimeCreated = now,
 						TimeExpires = until,
 						TimeUsed = null,

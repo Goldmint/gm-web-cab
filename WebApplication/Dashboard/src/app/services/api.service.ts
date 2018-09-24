@@ -409,11 +409,9 @@ export class APIService {
       );
   }
   
-  generatePromoCode(tokenType: number, limit: number, discountValue: number, count: number, validForDays: number) {
+  generatePromoCode(currency: string, limit: string, discountValue: string, count: number, validForDays: number) {
 	  
-	  let params = {tokenType, limit, discountValue, count, validForDays};
-	  
-	   console.info(params);
+	  let params = {currency, limit, discountValue, count, validForDays};	  	   
 	  
       let httpOptions = {
          headers: this.jwt().headers.append('Content-Type', 'application/json')

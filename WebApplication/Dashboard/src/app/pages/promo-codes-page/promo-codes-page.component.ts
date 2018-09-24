@@ -38,11 +38,10 @@ export class PromoCodesPageComponent implements OnInit {
   public currentId: number;
   public userInfo: object;
   public isRefuse = false;
-  public degree18 = Math.pow(10, -18);
-  public degree3 = Math.pow(10, -3);
+  //public degree18 = Math.pow(10, -18);
+  //public degree3 = Math.pow(10, -3);
   
-  public form: FormGroup;
-  private filterValue = '';
+  public form: FormGroup;  
 
   constructor(
     private apiService: APIService,
@@ -54,13 +53,15 @@ export class PromoCodesPageComponent implements OnInit {
   ) {
 
     this.page.pageNumber = 0;
-    this.page.size = 5;
+    this.page.size = 10;
   }
 
   ngOnInit() {
-    //this.currentTable = this.tables.Deposit;
     this.form = this.formBuilder.group({
-      'filter': ['', Validators.required]
+      'discount': [''],
+	  'limit': [''],
+	  'count': [''],
+	  'valid': [''],
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -85,13 +86,18 @@ export class PromoCodesPageComponent implements OnInit {
     this.cdRef.detectChanges();
   }
   
-    genPromoCode() {
+  genPromoCode() {
     this.loading = true;
     this.form.disable();
     this.cdRef.detectChanges();	
 	
-    this.apiService.generatePromoCode(3, 10000000000000000000, 25000, 1, 200).subscribe(() => {
-      this._messageBox.alert('Changes saved');
+	const discount = this.form.controls.discount.value;	
+	const limit = this.form.controls.limit.value;	
+	const count = this.form.controls.count.value;	
+	const valid = this.form.controls.valid.value;	
+	
+    this.apiService.generatePromoCode("GOLD", limit, discount, count, valid).subscribe(() => {
+      this._messageBox.alert('Success');
       this.loading = false;
     }, error => {
       this._messageBox.alert('Error');

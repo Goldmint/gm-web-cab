@@ -211,11 +211,14 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
   onAmountChanged(value: number) {
     this.loading = true;
-
+    	
+	
     if (!this.isReversed) {
       if (value > 0 && value <= +this.ethBalance) {
 
         const wei = this.Web3.toWei(value);
+		
+		
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
         this._apiService.goldBuyEstimate(this.currentCoin, wei, false)

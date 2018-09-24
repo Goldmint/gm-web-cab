@@ -5,12 +5,36 @@
     
 	
 	<div class="trn-info">
-      <form class="w-100 transparency-form" [formGroup]="form" #formDir="ngForm" >
+      <form class="promocodes" [formGroup]="form" #formDir="ngForm" (ngSubmit)="genPromoCode()">
 
-        <div class="row align-items-start">                    
+        <div class="align-items-start">          
 
+          <div class="col-lg pt-4">
+            <div class="from-row form-group">
+              <input type="text" class="form-control" placeholder="Discount" formControlName="discount">
+            </div>
+          </div>                    
+		  
+		  <div class="col-lg pt-4">
+            <div class="from-row form-group">
+              <input type="text" class="form-control" placeholder="Limit" formControlName="limit">
+            </div>
+          </div>  
+		  
+		  <div class="col-lg pt-4">
+            <div class="from-row form-group">
+              <input type="text" class="form-control" placeholder="Count" formControlName="count">
+            </div>
+          </div>   		  
+		  
+		  <div class="col-lg pt-4">
+            <div class="from-row form-group">
+              <input type="text" class="form-control" placeholder="Days valid" formControlName="valid">
+            </div>
+          </div>  
+		  
           <div class="col-lg-auto pb-3 pt-3">
-            <button type="submit" (click)="genPromoCode()" class="btn btn-primary btn-generate" >{{ "Generate" }}</button>
+            <button type="submit" class="btn btn-primary btn-generate" >{{ "Generate" }}</button>
           </div>
         </div>
 
@@ -86,12 +110,12 @@
 		<ngx-datatable-column prop="discountValue" [draggable]="false" [resizeable]="false">
 		<ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
-				Discount Value
+				Discount
 			</span> 
             </ng-template>
 
             <ng-template let-discountValue="value" let-row="row" ngx-datatable-cell-template>
-              {{ discountValue * degree3 }}              
+              {{ discountValue }}              
             </ng-template>
           </ngx-datatable-column>
 		
@@ -103,7 +127,7 @@
             </ng-template>
 
             <ng-template let-limit="value" let-row="row" ngx-datatable-cell-template>
-              {{ limit * degree18 }}              
+              {{ limit  }}              
             </ng-template>
           </ngx-datatable-column>
 		
