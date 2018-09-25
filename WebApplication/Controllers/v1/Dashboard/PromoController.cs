@@ -27,7 +27,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List([FromBody] ListModel model) {
 
-			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<DAL.Models.PromoCode, object>>>()
+			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<PromoCode, object>>>()
 			{
 				{ "id",   _ => _.Id },
 			};
@@ -87,7 +87,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// Generate promo codes
 		/// </summary>
-		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
 		[HttpPost, Route("generate")]
 		[ProducesResponseType(typeof(GenerateView), 200)]
 		public async Task<APIResponse> Generate([FromBody] GenerateModel model)

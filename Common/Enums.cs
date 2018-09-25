@@ -601,10 +601,73 @@ namespace Goldmint.Common {
 		Exchange,
 	}
 
-	#endregion
+    #endregion
 
+    #region CustodyBot
 
-	public enum CryptoCurrency {
+    public enum ClientRole
+    {
+        RoleUnknown = 0,
+        RoleAdmin = 1,
+        RoleSupport = 2,
+        RoleViewer = 3,
+        RoleOrgOwner = 10,
+        RoleOrgManager = 11,
+        RoleOrgMerchant = 12,
+        RoleOrgBot = 13,
+    }
+
+    public enum UploadType
+    {
+        UploadUnknown = 0,
+        UploadCustodyPhoto = 1,
+    }
+
+    public enum CustodyStatus
+    {
+        CustodyStatusUnknown = 0,
+        CustodyStatusUnconfirmed = 1,
+        CustodyStatusLocked = 2,
+        CustodyStatusBurning = 3,
+        CustodyStatusUnlocked = 4,
+    }
+
+    public enum EmissionStatus
+    {
+        EmissionStatusUnknown = 0,
+        EmissionStatusInitial = 1,
+        EmissionStatusTxPosting = 2,
+        EmissionStatusTxConfirming = 3,
+        EmissionStatusTxFailed = 4,
+        EmissionStatusSuccess = 5,
+    }
+
+    public enum BurningStatus
+    {
+        BURNING_STATUS_UNKNOWN = 0,
+        BURNING_STATUS_INITIAL = 1,
+        BURNING_STATUS_APPROVING = 2,
+        BURNING_STATUS_CANCELLED = 3,
+        BURNING_STATUS_APPROVED = 4,
+        BURNING_STATUS_TX_POSTING = 5,
+        BURNING_STATUS_TX_CONFIRMING = 6,
+        BURNING_STATUS_TX_FAILED = 7,
+        BURNING_STATUS_SUCCESS = 8,
+    }
+
+    public enum FiatPaymentStatus
+    {
+        FIAT_PAYMENT_STATUS_UNKNOWN = 0,
+        FIAT_PAYMENT_STATUS_INITIAL = 1,
+        FIAT_PAYMENT_STATUS_PAY = 2,
+        FIAT_PAYMENT_STATUS_CHECKING = 3,
+        FIAT_PAYMENT_STATUS_FAILED = 4,
+        FIAT_PAYMENT_STATUS_SUCCESS = 5,
+    }
+
+    #endregion
+
+    public enum CryptoCurrency {
 
 		Eth = 1,
         Mnt = 2,

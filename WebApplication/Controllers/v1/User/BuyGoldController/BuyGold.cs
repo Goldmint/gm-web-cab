@@ -69,7 +69,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
 
             // get promocode
-		    var promoCode = await GetPromoCode(model.PromoCode);
+            var promoCode = await GetPromoCode(model.PromoCode);
+		    //var promoCode = await GetPromoCode("YZA3N-L2EQ6");
 
             if (promoCode != null && promoCode.Currency != CryptoCurrency.Gold)
 		    {
@@ -86,9 +87,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
-		    if (promoCode != null && promoCode.Limit < (decimal)estimation.ResultGoldAmount)
-		    {
-		        return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
+            if (promoCode != null)
+            {
+                //TODO -> const
+                var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, 18));
+                if(limit < estimation.ResultGoldAmount)
+                    return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
             }
 
 			return APIResponse.Success(estimation.View);
@@ -256,21 +260,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 	    [NonAction]
 	    private static BigInteger ApplyPromoCode(BigInteger amount, PromoCode pc)
 	    {
-            if(pc != null)
-                //return amount * pc.DiscountValue + amount;
-                return 0;
+	        if (pc == null) return amount;
 
-            return amount;
+	        var discount = new BigInteger(pc.DiscountValue * 100);
+	        return amount * discount / 10000 + amount;
+
 	    }
 
 	    [NonAction]
 	    private static BigInteger ApplyPromoCodeReversed(BigInteger amount, PromoCode pc)
 	    {
-	        if (pc != null)
-	            //return amount - (amount * pc.DiscountValue / 100000);
-	            return 0;
+	        if (pc == null) return amount;
 
-	        return amount;
+	        var discount = new BigInteger(pc.DiscountValue * 100);
+	        return amount - amount * discount / 10000;
 	    }
 
         // ---
@@ -459,7 +462,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		[NonAction]
 		public static DepositLimitsResult DepositLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency)
 		{
-
+            //TODO: -> const
 			const int cryptoAccuracy = 8;
 			var decimals = cryptoAccuracy;
 			var min = 0d;

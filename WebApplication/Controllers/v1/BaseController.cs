@@ -11,7 +11,6 @@ using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.WebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -24,15 +23,18 @@ using System.Threading.Tasks;
 using Goldmint.CoreLogic.Services.The1StPayments;
 using Goldmint.CoreLogic.Services.Google.Impl;
 
-namespace Goldmint.WebApplication.Controllers.v1 {
+namespace Goldmint.WebApplication.Controllers.v1
+{
 
-	public abstract class BaseController : Controller {
+	public abstract class BaseController : Controller
+	{
 
 		protected AppConfig AppConfig { get; private set; }
 		protected IHostingEnvironment HostingEnvironment { get; private set; }
 		protected ILogger Logger { get; private set; }
 		protected DAL.ApplicationDbContext DbContext { get; private set; }
-		protected IMutexHolder MutexHolder { get; private set; }
+	    protected DAL.CustodyBotDbContext CBotDbContext { get; private set; }
+        protected IMutexHolder MutexHolder { get; private set; }
 		protected SignInManager<DAL.Models.Identity.User> SignInManager { get; private set; }
 		protected UserManager<DAL.Models.Identity.User> UserManager { get; private set; }
 		protected IKycProvider KycExternalProvider { get; private set; }
@@ -50,12 +52,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected BaseController() { }
 
 		[NonAction]
-		private void InitServices(IServiceProvider services) {
+		private void InitServices(IServiceProvider services)
+		{
 			Logger = services.GetLoggerFor(this.GetType());
 			AppConfig = services.GetRequiredService<AppConfig>();
 			HostingEnvironment = services.GetRequiredService<IHostingEnvironment>();
 			DbContext = services.GetRequiredService<DAL.ApplicationDbContext>();
-			MutexHolder = services.GetRequiredService<IMutexHolder>();
+		    CBotDbContext = services.GetRequiredService<DAL.CustodyBotDbContext>();
+            MutexHolder = services.GetRequiredService<IMutexHolder>();
 			SignInManager = services.GetRequiredService<SignInManager<DAL.Models.Identity.User>>();
 			UserManager = services.GetRequiredService<UserManager<DAL.Models.Identity.User>>();
 			KycExternalProvider = services.GetRequiredService<IKycProvider>();
@@ -74,13 +78,15 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		// ---
 
 		[NonAction]
-		public override void OnActionExecuted(ActionExecutedContext context) {
+		public override void OnActionExecuted(ActionExecutedContext context)
+		{
 			InitServices(context?.HttpContext?.RequestServices);
 			base.OnActionExecuted(context);
 		}
 
 		[NonAction]
-		public override void OnActionExecuting(ActionExecutingContext context) {
+		public override void OnActionExecuting(ActionExecutingContext context)
+		{
 			base.OnActionExecuting(context);
 		}
 

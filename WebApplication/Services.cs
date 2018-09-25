@@ -78,8 +78,14 @@ namespace Goldmint.WebApplication {
 				});
 			});
 
-			// runtime config
-			services.AddSingleton(_runtimeConfigHolder);
+		    services.AddDbContext<CustodyBotDbContext>(opts => {
+		        opts.UseMySql(_appConfig.ConnectionStrings.CustodyBot, myopts => {
+		            myopts.UseRelationalNulls(true);
+		        });
+		    });
+
+            // runtime config
+            services.AddSingleton(_runtimeConfigHolder);
 			services.AddSingleton<IRuntimeConfigLoader, DbRuntimeConfigLoader>();
 
 			// identity
