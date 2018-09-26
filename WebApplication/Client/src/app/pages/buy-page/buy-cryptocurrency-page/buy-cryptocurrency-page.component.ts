@@ -65,6 +65,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
 
+  public promoCode: string = null;
+  public discount: number = 0;
+  public isInvalidPromoCode: boolean = false;
+
+  private promoCodeLength: number = 11;
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -211,23 +216,21 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
   onAmountChanged(value: number) {
     this.loading = true;
-    	
-	
+
     if (!this.isReversed) {
       if (value > 0 && value <= +this.ethBalance) {
 
         const wei = this.Web3.toWei(value);
-		
-		
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate(this.currentCoin, wei, false)
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, false, this.promoCode)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
+            this.checkDiscount(data.data.discount);
             this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
         });
       } else {
@@ -242,13 +245,14 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate(this.currentCoin, wei, true)
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, true, this.promoCode)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
+            this.checkDiscount(data.data.discount);
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
             this.isTradingError = this.isTradingLimit = this.processing = false;
         });
@@ -258,6 +262,26 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         this._cdRef.markForCheck();
       }
     }
+  }
+
+  checkDiscount(dicsount: number) {
+    this.discount = dicsount;
+    this.discount === 0 && (this.promoCode = null);
+  }
+
+  inputPromoCode(code: string) {
+    this.isInvalidPromoCode = true;
+    this.promoCode = null;
+    if (code === '') {
+      this.isInvalidPromoCode = false;
+      this.onAmountChanged(this.currentValue);
+    }
+    if (code.length === this.promoCodeLength) {
+      this.promoCode = code;
+      this.isInvalidPromoCode = false;
+      this.onAmountChanged(this.currentValue);
+    }
+    this._cdRef.markForCheck();
   }
 
   changeValue(status: boolean, event) {
@@ -312,7 +336,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
       currency: this.currentCoin,
       amount: this.estimatedAmount,
       coinAmount: this.coinAmount,
-      reversed: this.isReversed
+      reversed: this.isReversed,
+      promoCode: this.promoCode
     };
 
     this.showCryptoCurrencyBlock = true;

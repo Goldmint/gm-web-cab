@@ -392,27 +392,27 @@ export class APIService {
       );
   }
   // -------
-  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
+  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string, promoCode: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency, promoCode }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
       );
   }
 
-  goldBuyConfirm(requestId: number) {
+  goldBuyConfirm(requestId: number, promoCode: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/confirm`, { requestId }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/confirm`, { requestId, promoCode }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
       );
   }
 
-  goldBuyEstimate(currency: string, amount: string, reversed: boolean) {
+  goldBuyEstimate(currency: string, amount: string, reversed: boolean, promoCode: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount, reversed }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount, reversed, promoCode }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -456,8 +456,8 @@ export class APIService {
       );
   }
 
-  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
-    const params = {cardId, ethAddress, currency, amount, reversed}
+  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean, promoCode: string) {
+    const params = {cardId, ethAddress, currency, amount, reversed, promoCode}
 
     return this._http
       .post(`${this._baseUrl}/user/gold/buy/ccard`, params, this.jwt())

@@ -109,10 +109,18 @@
         "PaymentCard": "Payment card"
       },
       "Paused": "Buy transactions are paused",
+      "Promo": {
+        "PromoInfo": {
+          "Text": "Your discount is",
+          "Or": "or"
+        },
+        "PromoPermission": "You should pass advanced verification for using promo code"
+      },
       "CtyptoCurrency": {
         "Heading": "Cryptocurrency",
         "Labels": {
-          "Amount": "Estimates Amount"
+          "Amount": "Estimates Amount",
+          "PromoCode": "Your promo code"
         },
         "SuccessModal": {
           "Heading": "Transaction in Process:",
@@ -126,7 +134,8 @@
         "Labels": {
           "SelectCard": "Select a card",
           "Amount": "Amount",
-          "Estimate": "Estimates Amount"
+          "Estimate": "Estimates Amount",
+          "PromoCode": "Your promo code"
         }
       },
       "Labels": {
@@ -150,7 +159,8 @@
         "InvalidGold": "Invalid GOLD amount",
         "EnoughMoney": "You don't have enough money",
         "BuyLimit": "The purchase limit has been exceeded. You are allowed to make a purchase for {{ allow }} USD of {{ limit }} USD",
-        "NoKyc": "You need to pass the KYC verification"
+        "NoKyc": "You need to pass the KYC verification",
+        "IncorrectPromo": "Incorrect promo code"
       }
     },
     "Transfer": {
