@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
-import { Router } from '@angular/router';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { /*RECAPTCHA_LANGUAGE,*/ RECAPTCHA_SETTINGS,
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RECAPTCHA_SETTINGS,
   RecaptchaModule
 } from 'ng-recaptcha';
 
@@ -27,7 +26,6 @@ import { APIHttpInterceptor } from './common/api/api-http.interceptor'
  */
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-// import { TranslatePoHttpLoader } from '@biesbjerg/ngx-translate-po-http-loader';
 import {DatePipe, registerLocaleData} from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 registerLocaleData(localeRu);
@@ -51,8 +49,6 @@ import {
 
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
-// import { NgxPhoneMaskModule } from 'ngx-phone-mask';
-// import { InternationalPhoneNumberModule } from 'ngx-international-phone-number';
 
 /*
   Blocks
@@ -92,8 +88,6 @@ import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards
 import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
-import { DepositPageComponent } from './pages/deposit-page/deposit-page.component';
-import { WithdrawPageComponent } from './pages/withdraw-page/withdraw-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import { StaticPagesComponent } from './pages/static-pages/static-pages.component';
@@ -109,14 +103,13 @@ import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-car
 import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
+import {NgxMaskModule} from "ngx-mask";
+import {GoldDiscount} from "./pipres/gold-discount";
 
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-// export function createTranslateLoader(http: HttpClient) {
-//   return new TranslatePoHttpLoader(http, 'assets/i18n', '.po');
-// }
 
 export function getGoldmintToken() {
 	return localStorage.getItem('gmint_token');
@@ -136,8 +129,6 @@ export function getGoldmintToken() {
     NgxDatatableModule,
     TypeaheadModule,
     NgxQRCodeModule,
-    // NgxPhoneMaskModule,
-    // InternationalPhoneNumberModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {
@@ -151,7 +142,8 @@ export function getGoldmintToken() {
         useFactory: createTranslateLoader,
         deps: [HttpClient]
       }
-    })
+    }),
+    NgxMaskModule.forRoot()
   ],
   declarations: [
     AppComponent,
@@ -188,12 +180,11 @@ export function getGoldmintToken() {
     BlurDirective,
     EqualValidatorDirective,
     TransparencyPageComponent,
-    DepositPageComponent,
-    WithdrawPageComponent,
     FinancePageComponent,
     NoautocompleteDirective,
     StaticPagesComponent,
     SafePipe,
+    GoldDiscount,
     LoginDpaRequiredComponent,
     LoginDpaSignedComponent,
     LegalSecurityPageComponent,

@@ -19,6 +19,10 @@ namespace Goldmint.DAL.Models {
 	    public const int CreditCardMask = 64;
 	    public const int CreditCardHolderName = 128;
 
+        public const int EthereumAddress = 42;
+        public const int SumusAddress = 128;
+        public const int SumusTransactionHash = 128;
+
         public const int CustodyBotName = 256;
         public const int CustodyBotSalt = 64;
         public const int CustodyBotId = 64;

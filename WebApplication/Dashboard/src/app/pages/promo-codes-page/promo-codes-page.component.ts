@@ -1,4 +1,11 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {APIService, MessageBoxService, UserService} from "../../services";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {Page} from "../../models/page";
@@ -12,7 +19,8 @@ enum Tables { Deposit, Withdraw }
   selector: 'app-promo-codes-page',
   templateUrl: './promo-codes-page.component.html',
   styleUrls: ['./promo-codes-page.component.sass'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PromoCodesPageComponent implements OnInit {
 
@@ -20,27 +28,20 @@ export class PromoCodesPageComponent implements OnInit {
   @ViewChild('comment') comment;
   @ViewChild('refuseComment') refuseComment;
 
-  public tables = Tables;
-  public currentTable: any;
-
   public locale: string;
   public loading: boolean;
   public progress: boolean;
   public page = new Page();
-  public isExclude = false;
-  public showModal: boolean = false;
+  public filterValue: string;
+  public filterUsed = {
+    used: false,
+    unused: false
+  };
+  private currentUsedFilter: boolean | null = null;
 
   public rows = [];
   public sorts: Array<any> = [{prop: 'id', dir: 'desc'}];
   public messages:    any  = {emptyMessage: 'No Data'};
-
-  public dataType: number = 1;
-  public currentId: number;
-  public userInfo: object;
-  public isRefuse = false;
-  //public degree18 = Math.pow(10, -18);
-  //public degree3 = Math.pow(10, -3);
-  
   public form: FormGroup;  
 
   constructor(
@@ -51,17 +52,16 @@ export class PromoCodesPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private _messageBox: MessageBoxService
   ) {
-
     this.page.pageNumber = 0;
     this.page.size = 10;
   }
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      'discount': [''],
-	  'limit': [''],
-	  'count': [''],
-	  'valid': [''],
+      'discount': ['', [Validators.required, Validators.max(100)]],
+      'limit': ['', Validators.required],
+      'count': ['', [Validators.required, Validators.min(1)]],
+      'valid': ['', [Validators.required, Validators.min(1)]]
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -80,26 +80,38 @@ export class PromoCodesPageComponent implements OnInit {
     this.setPage({ offset: 0 });
   }
 
-  excludeCompleted(exclude) {
-    this.isExclude = exclude.checked;
-    this.setPage({ offset: this.page.pageNumber });
-    this.cdRef.detectChanges();
+  promoCodeFilter() {
+    this.setPage({ offset: 0 });
   }
-  
+
+  onFilterUsed(status) {
+    if (status && this.filterUsed.used) {
+      this.currentUsedFilter = true;
+      this.filterUsed.unused = false;
+    } else if (!status && this.filterUsed.unused) {
+      this.currentUsedFilter = this.filterUsed.used = false;
+    } else {
+      this.currentUsedFilter = null;
+    }
+    this.setPage({ offset: 0 });
+    this.cdRef.markForCheck();
+  }
+
   genPromoCode() {
     this.loading = true;
     this.form.disable();
     this.cdRef.detectChanges();	
 	
-	const discount = this.form.controls.discount.value;	
-	const limit = this.form.controls.limit.value;	
-	const count = this.form.controls.count.value;	
-	const valid = this.form.controls.valid.value;	
+    const discount = this.form.controls.discount.value;
+    const limit = this.form.controls.limit.value;
+    const count = this.form.controls.count.value;
+    const valid = this.form.controls.valid.value;
 	
     this.apiService.generatePromoCode("GOLD", limit, discount, count, valid).subscribe(() => {
       this._messageBox.alert('Success');
+      this.setPage({ offset: 0 });
       this.loading = false;
-    }, error => {
+    }, () => {
       this._messageBox.alert('Error');
     });
   }
@@ -110,7 +122,7 @@ export class PromoCodesPageComponent implements OnInit {
     this.cdRef.detectChanges();
     this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getPromoCodesList("", null, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getPromoCodesList(this.filterValue, this.currentUsedFilter, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
           this.rows = data.data.items;
@@ -119,13 +131,7 @@ export class PromoCodesPageComponent implements OnInit {
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
 
           this.loading = false;
-          this.cdRef.detectChanges();
-
-          const tableTitle = document.getElementById('pageSectionTitle');
-          if (tableTitle && tableTitle.getBoundingClientRect().top < 0) {
-            tableTitle.scrollIntoView();
-          }
+          this.cdRef.markForCheck();
         });
   }
-
 }

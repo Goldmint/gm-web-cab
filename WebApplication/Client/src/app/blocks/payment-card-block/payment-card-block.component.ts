@@ -76,7 +76,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
     if (this.transferData.type === 'buy') {
       let amount = this.transferData.reversed ? this.Web3.toWei(+this.transferData.amount) : (+this.transferData.amount * 100);
 
-      this._apiService.buyGoldFiat(this.transferData.cardId, this.transferData.ethAddress, this.transferData.currency, amount.toString(), this.transferData.reversed)
+      this._apiService.buyGoldFiat(this.transferData.cardId, this.transferData.ethAddress, this.transferData.currency, amount.toString(), this.transferData.reversed, this.transferData.promoCode)
         .subscribe((res) => {
           this.expiresTime = res.data.expires;
 
@@ -137,7 +137,7 @@ export class PaymentCardBlockComponent implements OnInit, OnDestroy {
 
   buyMethod() {
     this.loading = true;
-    this._apiService.goldBuyConfirm(this.buyRequestId)
+    this._apiService.goldBuyConfirm(this.buyRequestId, this.transferData.promoCode)
       .finally(() => {
         this.loading = this.agreeCheck = false;
         this._cdRef.markForCheck();
