@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes, CanActivate } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from './guards/index';
 
@@ -7,15 +7,11 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { SellPageComponent } from './pages/sell-page/sell-page.component';
 import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
-import { DepositPageComponent } from './pages/deposit-page/deposit-page.component';
-import { WithdrawPageComponent } from './pages/withdraw-page/withdraw-page.component';
 import { HistoryPageComponent } from './pages/history-page/history-page.component';
 import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
 import { SupportPageComponent } from './pages/support-page/support-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { PagerBlockComponent } from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
-// import { LoginOntokenPageComponent }  from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
 import { PasswordResetPageComponent } from './pages/login-page/password-reset-page/password-reset-page.component';
 import { LoginDpaRequiredComponent } from "./pages/login-page/login-dpa-required/login-dpa-required.component";
 import { LoginDpaSignedComponent } from "./pages/login-page/login-dpa-signed/login-dpa-signed.component";
@@ -43,7 +39,6 @@ import {TransferPageComponent} from "./pages/transfer-page/transfer-page.compone
 
 
 const appRoutes: Routes = [
-
   { path: 'signin', component: LoginPageComponent },
   { path: 'signin/onToken/:token', component: LoginPageComponent },  // @todo: remove with controller
   { path: 'signin/restore', component: PasswordResetPageComponent },
@@ -69,8 +64,6 @@ const appRoutes: Routes = [
     path: 'finance', component: FinancePageComponent, canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'history', pathMatch: 'full' },
-      // { path: 'deposit', component: DepositPageComponent },
-      // { path: 'withdraw', component: WithdrawPageComponent },
       { path: 'history', component: HistoryPageComponent }
     ]
   },
@@ -92,12 +85,7 @@ const appRoutes: Routes = [
   },
   { path: 'transparency', component: TransparencyPageComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: '**', component: NotFoundPageComponent },
-  // {
-  //   path: 'compose',
-  //   component: ComposeMessageComponent,
-  //   outlet: 'popup'
-  // },
+  { path: '**', component: NotFoundPageComponent }
 ];
 
 @NgModule({
