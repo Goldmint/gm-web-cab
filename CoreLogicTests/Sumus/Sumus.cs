@@ -70,5 +70,97 @@ namespace Goldmint.CoreLogicTests.Sumus {
 			var signature = sig.Sign(message);
 			Assert.True(Signer.Verify(sig.PublicKeyBytes, message, signature));
 		}
+
+		[Fact]
+		public void Serializer() {
+
+			using (var s = new Serializer()) {
+				s.Write("asdasd語でゼ");
+			}
+
+			try {
+				using (var s = new Serializer()) {
+					s.Write("言語でゼロ埋め言言語でゼロ埋め言言語でゼロ埋め言言語でゼロ埋め言言語でゼロ埋め言言語でゼロ埋め言言語でゼロ埋め言言語でゼロ埋め言");
+				}
+				Assert.True(false);
+			}
+			catch {
+			}
+
+			using (var s = new Serializer()) {
+				s.Write(new Amount("1234.000000000000001234"));
+				Assert.True(s.Hex() == "003412000000000000003412000000");
+			}
+
+			using (var s = new Serializer()) {
+				s.Write(new Amount("-0.123400000000004321"));
+				Assert.True(s.Hex() == "012143000000000034120000000000");
+			}
+
+			using (var s = new Serializer()) {
+				s.Write(new Amount("1.123456789123456789"));
+				Assert.True(s.Hex() == "008967452391785634120100000000");
+			}
+		}
+
+		[Fact]
+		public void Deserializer() {
+
+			var b = (byte) 142;
+			var u16 = (ushort) 0xDEAD;
+			var u32 = (uint) 0xDEADBEEF;
+			var u64 = (ulong) 0xDEADBEEF1337C0DE;
+			var str64 = "961D2014E3E93AC701A6A5F25824DB66";
+			var str64Full = "1EF8C0F73B2370D14330C487A70618E0333EAEBA8313EC87131B8F67D964D097";
+			var amo1 = new Amount("1234567890.123456789123456789");
+			var amo2 = new Amount("-987654321.102030405060708090");
+			var amo3 = new Amount("1000");
+			var amo4 = new Amount("1");
+			var amo5 = new Amount("0");
+
+			byte[] bytes;
+			using (var s = new Serializer()) {
+				s.Write(b);
+				s.Write(u16);
+				s.Write(u32);
+				s.Write(u64);
+				s.Write(str64);
+				s.Write(str64Full);
+				s.Write(amo1);
+				s.Write(amo2);
+				s.Write(amo3);
+				s.Write(amo4);
+				s.Write(amo5);
+				bytes = s.Data();
+			}
+
+			using (var d = new Deserializer(bytes)) {
+				Assert.True(d.ReadByte(out var xb) && xb == b);
+				Assert.True(d.ReadUint16(out var xu16) && xu16 == u16);
+				Assert.True(d.ReadUint32(out var xu32) && xu32 == u32);
+				Assert.True(d.ReadUint64(out var xu64) && xu64 == u64);
+				Assert.True(d.ReadString(out var xstr64) && xstr64 == str64);
+				Assert.True(d.ReadString(out var xstr64Full) && xstr64Full == str64Full);
+				Assert.True(d.ReadAmount(out var xamo1) && xamo1.Value == amo1.Value);
+				Assert.True(d.ReadAmount(out var xamo2) && xamo2.Value == amo2.Value);
+				Assert.True(d.ReadAmount(out var xamo3) && xamo3.Value == amo3.Value);
+				Assert.True(d.ReadAmount(out var xamo4) && xamo4.Value == amo4.Value);
+				Assert.True(d.ReadAmount(out var xamo5) && xamo5.Value == amo5.Value);
+			}
+		}
+
+		[Fact]
+		public void TransferAssetTransaction() {
+
+			Assert.True(Goldmint.Common.Sumus.Pack58.Unpack("TBzyWv8Dga5aN4Hai2nFTwyTXvDJKkJhq8HMDPC9zqTWLSTLo4jFFKKnVS52a1kp7YJdm2b8HrR2Buk9PqyD1DwhxUzsJ", out var srcpk));
+			Assert.True(Goldmint.Common.Sumus.Pack58.Unpack("FhM2u3UMtexZ3TU57G6d9iDpcmynBSpzmTZq6YaMPeA6DHFdEht3jcZUDpXyVbXGoXoWiYB9z8QVKjGhZuKCqMGYZE2P6", out var dstpk));
+
+			var src = new Signer(srcpk);
+			var dst = new Signer(dstpk);
+
+			var tx = Transaction.TransferAsset(src, 3, dst.PublicKeyBytes, new Amount("1000", Amount.TokenType.Mnt));
+
+			Assert.True(tx.Data == "03000000000000000000eea0728dfee30d6a65ff2e5c07ddbc4c304cc9005abe2640822adc1ec944201df42378223753e3f5410b427d4c49df8dee069d798eb5cfb0a4e3bd197b0797b7000000000000000000000010000000010e4b042527eafe9f5c8d90da41d4e062fd044a84e3c1dbcda9342b4921798d9ee56310dda763c137e0ec4e521d2738249120edc7149018eb15240ba373e6090a");
+		}
 	}
 }
