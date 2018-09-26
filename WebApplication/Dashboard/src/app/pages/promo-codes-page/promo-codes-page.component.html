@@ -5,42 +5,96 @@
     
 	
 	<div class="trn-info">
-      <form class="promocodes" [formGroup]="form" #formDir="ngForm" (ngSubmit)="genPromoCode()">
+      <form class="promocodes w-100" [formGroup]="form" #formDir="ngForm" (ngSubmit)="genPromoCode()">
 
-        <div class="align-items-start">          
-
-          <div class="col-lg pt-4">
+        <div class="row">
+          <div class="col-6 pt-4">
             <div class="from-row form-group">
-              <input type="text" class="form-control" placeholder="Discount" formControlName="discount">
+              <input type="number" class="form-control" placeholder="Discount"
+                     [ngClass]="{'is-invalid': form.get('discount').invalid && form.get('discount').dirty}"
+                     formControlName="discount">
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('discount').invalid && form.get('discount').dirty">
+                    <span *ngIf="form.get('discount')['errors']['required']">Field is required.</span>
+                    <span *ngIf="form.get('discount')['errors']['max']">Maximum value is 100.</span>
+                </div>
             </div>
           </div>                    
 		  
-		  <div class="col-lg pt-4">
+		  <div class="col-6 pt-4">
             <div class="from-row form-group">
-              <input type="text" class="form-control" placeholder="Limit" formControlName="limit">
+              <input type="number" class="form-control" placeholder="Limit"
+                     [ngClass]="{'is-invalid': form.get('limit').invalid && form.get('limit').dirty}"
+                     formControlName="limit">
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('limit').invalid && form.get('limit').dirty">
+                    <span *ngIf="form.get('limit')['errors']['required']">Field is required.</span>
+                </div>
             </div>
           </div>  
 		  
-		  <div class="col-lg pt-4">
+		  <div class="col-6 pt-4">
             <div class="from-row form-group">
-              <input type="text" class="form-control" placeholder="Count" formControlName="count">
+              <input type="number" class="form-control" placeholder="Count"
+                     [ngClass]="{'is-invalid': form.get('count').invalid && form.get('count').dirty}"
+                     formControlName="count">
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('count').invalid && form.get('count').dirty">
+                    <span *ngIf="form.get('count')['errors']['required']">Field is required.</span>
+                    <span *ngIf="form.get('count')['errors']['min']">Minimum value is 1.</span>
+                </div>
             </div>
           </div>   		  
 		  
-		  <div class="col-lg pt-4">
+		  <div class="col-6 pt-4">
             <div class="from-row form-group">
-              <input type="text" class="form-control" placeholder="Days valid" formControlName="valid">
+              <input type="number" class="form-control" placeholder="Days valid"
+                     [ngClass]="{'is-invalid': form.get('valid').invalid && form.get('valid').dirty}"
+                     formControlName="valid">
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('valid').invalid && form.get('valid').dirty">
+                    <span *ngIf="form.get('valid')['errors']['required']">Field is required.</span>
+                    <span *ngIf="form.get('valid')['errors']['min']">Minimum value is 1.</span>
+                </div>
             </div>
           </div>  
 		  
           <div class="col-lg-auto pb-3 pt-3">
-            <button type="submit" class="btn btn-primary btn-generate" >{{ "Generate" }}</button>
+            <button type="submit" class="btn btn-primary btn-generate" [disabled]="form.invalid">{{ "Generate" }}</button>
           </div>
         </div>
 
       </form>
     </div>
-	
+
+  <div>
+      <div class="trn-info mt-4">
+          <form class="w-100 transparency-form">
+              <div class="row align-items-start">
+                  <div class="col-lg-3 pt-3">
+                      <div class="from-row form-group">
+                          <input type="text" class="form-control" placeholder="Filter" name="filter" [(ngModel)]="filterValue">
+                      </div>
+                  </div>
+
+                  <div class="col-lg-auto pb-3 pt-3">
+                      <button type="submit" class="btn btn-sm btn-primary btn-block" (click)="promoCodeFilter()">Filter</button>
+                  </div>
+              </div>
+          </form>
+      </div>
+
+      <div>
+          <div class="custom-control custom-checkbox">
+              <input class="custom-control-input" id="onlyApproved" name="onlyApproved" type="checkbox"
+                     (change)="onFilterUsed(true)"
+                     [(ngModel)]="filterUsed.used">
+              <label class="custom-control-label" for="onlyApproved">Only used promo code</label>
+          </div>
+          <div class="custom-control custom-checkbox">
+              <input class="custom-control-input" id="onlyDisapprove" name="onlyDisapprove" type="checkbox"
+                     (change)="onFilterUsed(false)"
+                     [(ngModel)]="filterUsed.unused">
+              <label class="custom-control-label" for="onlyDisapprove">Only unused promo code</label>
+          </div>
+      </div>
+  </div>
 
    <section class="section section--table">
 
@@ -63,7 +117,7 @@
                        (page)='setPage($event)'
                        [messages]="messages">
 
-         <ngx-datatable-column prop="timeCreated" [draggable]="false" [resizeable]="false">
+         <ngx-datatable-column prop="timeCreated" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 Created Date
@@ -75,7 +129,7 @@
             </ng-template>
         </ngx-datatable-column>
 		
-		<ngx-datatable-column prop="timeUsed" [draggable]="false" [resizeable]="false">
+		<ngx-datatable-column prop="timeUsed" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 Used Date
@@ -87,7 +141,7 @@
             </ng-template>
         </ngx-datatable-column>
 		
-		<ngx-datatable-column prop="timeExpires" [draggable]="false" [resizeable]="false">
+		<ngx-datatable-column prop="timeExpires" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 Expired Date
@@ -99,7 +153,7 @@
             </ng-template>
         </ngx-datatable-column>
 		
-		<ngx-datatable-column prop="code" [draggable]="false" [resizeable]="false">
+		<ngx-datatable-column prop="code" [draggable]="false" [resizeable]="false" [sortable]="false">
         <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 PromoCode
@@ -107,7 +161,7 @@
         </ng-template>
         </ngx-datatable-column>  
 	  	
-		<ngx-datatable-column prop="discountValue" [draggable]="false" [resizeable]="false">
+		<ngx-datatable-column prop="discountValue" [draggable]="false" [resizeable]="false" [sortable]="false">
 		<ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
 				Discount
@@ -119,7 +173,7 @@
             </ng-template>
           </ngx-datatable-column>
 		
-		<ngx-datatable-column prop="limit" [draggable]="false" [resizeable]="false">
+		<ngx-datatable-column prop="limit" [draggable]="false" [resizeable]="false" [sortable]="false">
 		<ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper" (click)="sort()">
 				Limit
@@ -132,7 +186,7 @@
           </ngx-datatable-column>
 		
 		
-		<ngx-datatable-column prop="username" [draggable]="false" [resizeable]="false">
+		<ngx-datatable-column prop="username" [draggable]="false" [resizeable]="false" [sortable]="false">
         <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
                 {{ "PAGES.Users.Table.UserName" | translate }}
