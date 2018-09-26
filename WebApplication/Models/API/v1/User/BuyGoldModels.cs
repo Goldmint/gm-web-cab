@@ -72,7 +72,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 		/// </summary>
 		[Required]
 		public EstimateLimitsView Limits { get; set; }
-	}
+
+	    /// <summary>
+	    /// PromoCode discount
+	    /// </summary>
+	    public double Discount { get; set; }
+    }
 
 	public class EstimateLimitsView {
 
