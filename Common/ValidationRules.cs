@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Goldmint.Common {
+namespace Goldmint.Common
+{
 
-	public static class ValidationRules {
+	public static class ValidationRules
+	{
 
 		public const int PasswordMinLength = 6;
 		public const int PasswordMaxLength = 128;
@@ -100,12 +102,14 @@ namespace Goldmint.Common {
 			return x != null && RexEthereumAddress.IsMatch(x);
 		}
 
-		public static bool BeValidEthereumTransactionId(string x) {
+		public static bool BeValidEthereumTransactionId(string x)
+		{
 			return x != null && RexEthereumTransactionId.IsMatch(x);
 		}
 
-		public static bool BeValidPromoCode(string x) {
-			return x != null && RexPromoCode.IsMatch(x);
+		public static bool BeValidPromoCode(string x)
+		{
+		    return string.IsNullOrEmpty(x) || RexPromoCode.IsMatch(x);
 		}
 	}
 }

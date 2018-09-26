@@ -28,7 +28,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		[ProducesResponseType(typeof(EstimateView), 200)]
 		public async Task<APIResponse> Estimate([FromBody] EstimateModel model)
 		{
-			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
 			{
 				return APIResponse.BadRequest(errFields);
@@ -93,6 +92,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User
                 var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, 18));
                 if(limit < estimation.ResultGoldAmount)
                     return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
+
+                estimation.View.Discount = promoCode.DiscountValue;
             }
 
 			return APIResponse.Success(estimation.View);
@@ -107,7 +108,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model)
 		{
 
-			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
 			{
 				return APIResponse.BadRequest(errFields);
@@ -225,7 +225,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		[NonAction]
 		private async Task<PromoCode> GetPromoCode(string str)
 		{
-			if (ValidationRules.BeValidPromoCode(str?.ToUpper()))
+			if (!string.IsNullOrEmpty(str))
 			{
 				return await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
 					_ => 

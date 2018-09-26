@@ -1,23 +1,18 @@
 ﻿using Goldmint.Common;
-using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.DAL.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User
 {
 
 	public partial class BuyGoldController : BaseController
 	{
-
 		/// <summary>
 		/// ETH to GOLD
 		/// </summary>
@@ -69,7 +64,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			var limits = DepositLimits(rcfg, CryptoCurrency.Eth);
 
             // get promocode
-		    var promoCode = await GetPromoCode(model.PromoCode);
+		    //var promoCode = await GetPromoCode(model.PromoCode);
+		    var promoCode = await GetPromoCode("YZA3N-L2EQ6");
 
             // must have kyc to use promocode here
             if (promoCode != null && userTier < UserTier.Tier2)
@@ -78,10 +74,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			}
 
 			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
-			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
+			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1)
+			{
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
-			if (estimation.IsLimitExceeded) {
+			if (estimation.IsLimitExceeded)
+			{
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 

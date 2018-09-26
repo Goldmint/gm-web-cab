@@ -44,6 +44,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 				.NotEmpty().WithMessage("Invalid amount")
 				;
 
+		    v.RuleFor(_ => _.PromoCode)
+		        .Must(Common.ValidationRules.BeValidPromoCode).WithMessage("Invalid promocode")
+		        ;
+
             return v.Validate(this);
 		}
 	}
@@ -68,7 +72,12 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 		/// </summary>
 		[Required]
 		public EstimateLimitsView Limits { get; set; }
-	}
+
+	    /// <summary>
+	    /// PromoCode discount
+	    /// </summary>
+	    public double Discount { get; set; }
+    }
 
 	public class EstimateLimitsView {
 
@@ -182,7 +191,11 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 				.When(_ => _.Currency != null)
 				;
 
-			return v.Validate(this);
+            v.RuleFor(_ => _.PromoCode)
+                .Must(Common.ValidationRules.BeValidPromoCode).WithMessage("Invalid promocode")
+                ;
+
+            return v.Validate(this);
 		}
 	}
 

@@ -644,25 +644,25 @@ namespace Goldmint.Common {
 
     public enum BurningStatus
     {
-        BURNING_STATUS_UNKNOWN = 0,
-        BURNING_STATUS_INITIAL = 1,
-        BURNING_STATUS_APPROVING = 2,
-        BURNING_STATUS_CANCELLED = 3,
-        BURNING_STATUS_APPROVED = 4,
-        BURNING_STATUS_TX_POSTING = 5,
-        BURNING_STATUS_TX_CONFIRMING = 6,
-        BURNING_STATUS_TX_FAILED = 7,
-        BURNING_STATUS_SUCCESS = 8,
+        BurningStatusUnknown = 0,
+        BurningStatusInitial = 1,
+        BurningStatusApproving = 2,
+        BurningStatusCancelled = 3,
+        BurningStatusApproved = 4,
+        BurningStatusTxPosting = 5,
+        BurningStatusTxConfirming = 6,
+        BurningStatusTxFailed = 7,
+        BurningStatusSuccess = 8,
     }
 
     public enum FiatPaymentStatus
     {
-        FIAT_PAYMENT_STATUS_UNKNOWN = 0,
-        FIAT_PAYMENT_STATUS_INITIAL = 1,
-        FIAT_PAYMENT_STATUS_PAY = 2,
-        FIAT_PAYMENT_STATUS_CHECKING = 3,
-        FIAT_PAYMENT_STATUS_FAILED = 4,
-        FIAT_PAYMENT_STATUS_SUCCESS = 5,
+        FiatPaymentStatusUnknown = 0,
+        FiatPaymentStatusInitial = 1,
+        FiatPaymentStatusPay = 2,
+        FiatPaymentStatusChecking = 3,
+        FiatPaymentStatusFailed = 4,
+        FiatPaymentStatusSuccess = 5,
     }
 
     #endregion
