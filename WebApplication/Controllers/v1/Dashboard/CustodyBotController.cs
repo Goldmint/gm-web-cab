@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.DAL.CustodyBotModels;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.Dashboard;
@@ -17,10 +18,10 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
         /// <summary>
         /// Get bots and merchants list
         /// </summary>
-        [RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
+        //[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
 		[HttpPost, Route("bot_list")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> List([FromBody] NoInputPagerModel model)
+		public async Task<APIResponse> BotList([FromBody] NoInputPagerModel model)
         {
 
 			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<BotsInfo, object>>>()
@@ -64,14 +65,36 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// get custody pawns
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
 		[HttpPost, Route("pawns")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> Generate([FromBody] NoInputPagerModel model)
+		public async Task<APIResponse> Pawns([FromBody] NoInputPagerModel model)
 		{
+		    var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<Custodies, object>>>()
+		    {
+		        { "id",   _ => _.Id },
+		    };
 
-			
-			return APIResponse.Success();
+		    if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields))
+		    {
+		        return APIResponse.BadRequest(errFields);
+		    }
+
+		    var pages = await CBotDbContext.Custodies
+		        .OrderByDescending(_ => _.Id)
+		        .Take((int)(model.Limit + model.Offset * model.Limit))
+		        .PagerAsync(model.Offset, model.Limit,
+		            sortExpression.GetValueOrDefault(model.Sort), model.Ascending);
+
+
+            return APIResponse.Success(
+                new PawnsPagerView()
+            {
+                Items = pages.Selected.ToArray(),
+                Limit = model.Limit,
+                Offset = model.Offset,
+                Total = pages.TotalCount,
+            });
 		}
 	}
 }

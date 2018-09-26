@@ -23,5 +23,8 @@ namespace Goldmint.DAL.Models {
         public const int CustodyBotSalt = 64;
         public const int CustodyBotId = 64;
         public const int CustodyPaymentRoute = 64;
+        public const int CustodyTicket = 32;
+        public const int CustodyFileName = 128;
+        public const int CustodyFileExtension = 8;
     }
 }

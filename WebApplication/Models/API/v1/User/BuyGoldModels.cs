@@ -44,6 +44,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 				.NotEmpty().WithMessage("Invalid amount")
 				;
 
+		    v.RuleFor(_ => _.PromoCode)
+		        .Must(Common.ValidationRules.BeValidPromoCode).WithMessage("Invalid promocode")
+		        ;
+
             return v.Validate(this);
 		}
 	}
