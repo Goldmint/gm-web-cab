@@ -667,6 +667,82 @@ namespace Goldmint.Common {
 
     #endregion
 
+    #region TokenMigration
+
+    public enum MigrationRequestAsset : int
+    {
+
+        /// <summary>
+        /// GOLD token
+        /// </summary>
+        Gold = 1,
+
+        /// <summary>
+        /// MINT token
+        /// </summary>
+        Mint,
+    }
+
+    public enum MigrationRequestStatus : int
+    {
+
+        /// <summary>
+        /// Enqueued
+        /// </summary>
+        Initial = 1,
+
+        /// <summary>
+        /// Awaiting for transferring confirmation
+        /// </summary>
+        TransferConfirmation,
+
+        /// <summary>
+        /// Emission step
+        /// </summary>
+        Emission,
+
+        /// <summary>
+        /// Emission step started
+        /// </summary>
+        EmissionStarted,
+
+        /// <summary>
+        /// Awaiting for emission confirmation
+        /// </summary>
+        EmissionConfirmation,
+
+        /// <summary>
+        /// Done
+        /// </summary>
+        Completed,
+
+        /// <summary>
+        /// Failure
+        /// </summary>
+        Failed,
+    }
+
+    public enum SumusTransactionStatus
+    {
+
+        /// <summary>
+        /// Unconfirmed status, still outside of any block
+        /// </summary>
+        Pending = 1,
+
+        /// <summary>
+        /// Transaction confirmed
+        /// </summary>
+        Success,
+
+        /// <summary>
+        /// Transaction cancelled or failed
+        /// </summary>
+        Failed,
+    }
+
+    #endregion
+
     public enum CryptoCurrency {
 
 		Eth = 1,

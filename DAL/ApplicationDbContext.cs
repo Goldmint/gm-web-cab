@@ -32,7 +32,10 @@ namespace Goldmint.DAL {
 		public DbSet<UserLimits> UserLimits { get; set; }
 		public DbSet<PromoCode> PromoCode { get; set; }
 
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
+	    public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
+	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
 		}
 
 		protected override void OnModelCreating(ModelBuilder builder) {
