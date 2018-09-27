@@ -6,7 +6,7 @@ using Goldmint.Common;
 namespace Goldmint.DAL.Models
 {
 
-	[Table("gm_es_migration")]
+	[Table("gm_es_token_migration")]
 	public class MigrationEthereumToSumusRequest : BaseEntity, IConcurrentUpdate
 	{
 

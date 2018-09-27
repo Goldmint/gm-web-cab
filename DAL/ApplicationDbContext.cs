@@ -31,7 +31,6 @@ namespace Goldmint.DAL {
 		public DbSet<CreditCardPayment> CreditCardPayment { get; set; }
 		public DbSet<UserLimits> UserLimits { get; set; }
 		public DbSet<PromoCode> PromoCode { get; set; }
-
 	    public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
 	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
 
