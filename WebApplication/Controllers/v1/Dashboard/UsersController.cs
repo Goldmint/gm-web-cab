@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;

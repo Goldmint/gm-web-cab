@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Models {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models {
 
 	public sealed class BuySellRequestBaseInfo {
 

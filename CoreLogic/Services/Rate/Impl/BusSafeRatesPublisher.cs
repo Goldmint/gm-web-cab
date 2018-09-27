@@ -4,6 +4,7 @@ using Goldmint.CoreLogic.Services.Rate.Models;
 using NLog;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 

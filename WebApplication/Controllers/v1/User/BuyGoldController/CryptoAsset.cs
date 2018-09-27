@@ -61,7 +61,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var limits = DepositLimits(rcfg, CryptoCurrency.Eth);
+			var limits = DepositLimits(rcfg, EthereumToken.Eth);
 
             // get promocode
 		    //var promoCode = await GetPromoCode(model.PromoCode);
@@ -73,7 +73,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
+			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1)
 			{
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
@@ -88,7 +88,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
 			var ticket = await OplogProvider.NewGoldBuyingRequestForCryptoasset(
 				userId: user.Id,
-				cryptoCurrency: CryptoCurrency.Eth,
+				ethereumToken: EthereumToken.Eth,
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
 				inputRate: estimation.CentsPerAssetRate,
@@ -145,10 +145,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			DbContext.BuyGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
-			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
+			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, Tokens.ETH.Decimals) }";
+			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

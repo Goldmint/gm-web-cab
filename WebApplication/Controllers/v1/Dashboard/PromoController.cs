@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
@@ -99,13 +100,13 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 				return APIResponse.BadRequest(errFields);
 			}
 
-		    CryptoCurrency cryptoCurrency;
+		    EthereumToken ethereumToken;
 		    decimal limit;
 		    double discount;
 
             try
 		    {
-		        cryptoCurrency = Enum.Parse<CryptoCurrency>(model.Currency, true);
+		        ethereumToken = Enum.Parse<EthereumToken>(model.Currency, true);
 		        limit = decimal.Parse(model.Limit, CultureInfo.InvariantCulture);            //less zero ?
 		        discount = double.Parse(model.DiscountValue, CultureInfo.InvariantCulture);  //less zero ?  
 
@@ -141,7 +142,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 					new PromoCode()
 					{
 						Code = makeCode(),
-					    Currency = cryptoCurrency,
+					    Currency = ethereumToken,
 					    Limit = limit,
                         DiscountValue = discount,
 						TimeCreated = now,

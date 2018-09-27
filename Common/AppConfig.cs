@@ -135,13 +135,30 @@
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
 			public class EthereumSection {
 
-				public string StorageControllerContractAbi { get; set; } = "";
-				public string StorageControllerContractAddress { get; set; } = "";
-				public string StorageControllerManagerPk { get; set; } = "";
+				public string StorageContractAbi { get; set; } = "";
+				public string StorageContractAddress { get; set; } = "";
+				public string StorageManagerPk { get; set; } = "";
+
+				public string MigrationContractAbi { get; set; } = "";
+				public string MigrationContractAddress { get; set; } = "";
+				public string MigrationManagerPk { get; set; } = "";
+				
+				public string GoldContractAbi { get; set; } = "";
+				public string GoldContractAddress { get; set; } = "";
+
+				public string MntpContractAbi { get; set; } = "";
+				public string MntpContractAddress { get; set; } = "";
 
 				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
+			}
+
+			public SumusSection Sumus { get; set; } = new SumusSection();
+			public class SumusSection {
+
+				public string MigrationHolderAddress { get; set; } = "";
+
 			}
 
 			public IpfsSection Ipfs { get; set; } = new IpfsSection();

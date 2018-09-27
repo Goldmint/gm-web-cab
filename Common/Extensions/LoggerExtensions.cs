@@ -2,7 +2,7 @@
 using NLog;
 using System;
 
-namespace Goldmint.Common {
+namespace Goldmint.Common.Extensions {
 
 	public static class LoggerExtensions {
 

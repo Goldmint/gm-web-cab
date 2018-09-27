@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -265,10 +266,10 @@ namespace Goldmint.CoreLogic.Finance {
 								break;
 						}
 
-						// set additinal fields
+						// set additional fields
 						payment.ProviderStatus = result.ProviderStatus;
 						payment.ProviderMessage = result.ProviderMessage;
-						payment.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(payment.TimeCreated, TimeSpan.FromSeconds(15 * 60), 1);
+						payment.TimeNextCheck = DateTime.UtcNow.AddMinutes(15);
 
 						// get card data if possible
 						if (result.CardHolder != null) {

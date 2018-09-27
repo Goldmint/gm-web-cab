@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
+using Goldmint.Common.Extensions;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.CoreLogic.Services.Oplog.Impl {
@@ -57,16 +58,16 @@ namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 			}
 		}
 
-		public async Task<string> NewGoldBuyingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long inputRate, long goldRate) {
-			return await CreateEntry(userId, $"New GOLD buying #? for { cryptoCurrency.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(inputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+		public async Task<string> NewGoldBuyingRequestForCryptoasset(long userId, EthereumToken ethereumToken, string destAddress, FiatCurrency fiatCurrency, long inputRate, long goldRate) {
+			return await CreateEntry(userId, $"New GOLD buying #? for { ethereumToken.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(inputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
 		}
 
-		public async Task<string> NewGoldSellingRequestForCryptoasset(long userId, CryptoCurrency cryptoCurrency, string destAddress, FiatCurrency fiatCurrency, long outputRate, long goldRate) { 
-			return await CreateEntry(userId, $"New GOLD selling #? for { cryptoCurrency.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(outputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+		public async Task<string> NewGoldSellingRequestForCryptoasset(long userId, EthereumToken ethereumToken, string destAddress, FiatCurrency fiatCurrency, long outputRate, long goldRate) { 
+			return await CreateEntry(userId, $"New GOLD selling #? for { ethereumToken.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(outputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
 		}
 
 		public async Task<string> NewGoldTransfer(long userId, string ethAddress, BigInteger goldAmount) {
-			return await CreateEntry(userId, $"New gold transfer #? of {TextFormatter.FormatTokenAmount(goldAmount, Tokens.GOLD.Decimals)} oz requested from HW to {TextFormatter.MaskBlockchainAddress(ethAddress)}");
+			return await CreateEntry(userId, $"New gold transfer #? of {TextFormatter.FormatTokenAmount(goldAmount, TokensPrecision.EthereumGold)} oz requested from HW to {TextFormatter.MaskBlockchainAddress(ethAddress)}");
 		}
 
 		public async Task<string> NewCardVerification(long userId, long cardId, long centsAmount, FiatCurrency fiatCurrency) {

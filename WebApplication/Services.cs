@@ -1,6 +1,7 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
-using Goldmint.CoreLogic.Services.Blockchain.Impl;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.KYC.Impl;
 using Goldmint.CoreLogic.Services.Localization;
@@ -11,14 +12,14 @@ using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.OpenStorage.Impl;
+using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 using Goldmint.CoreLogic.Services.The1StPayments;
-using Goldmint.CoreLogic.Services.Oplog;
-using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Services.OAuth.Impl;
@@ -33,7 +34,6 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Google.Impl;
 
 namespace Goldmint.WebApplication {
 

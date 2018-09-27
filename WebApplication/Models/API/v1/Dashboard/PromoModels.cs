@@ -44,7 +44,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 	    /// Gold = 3
 	    /// </summary>
 	    [Required]
-	    public CryptoCurrency Currency { get; set; }
+	    public EthereumToken Currency { get; set; }
 
 	    /// <summary>
 	    /// Maximum tokens count

@@ -8,19 +8,23 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Nethereum.RPC.Eth.DTOs;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 
 	public sealed class EthereumWriter : EthereumBaseClient, IEthereumWriter {
 
 		private readonly RuntimeConfigHolder _runtimeConfig;
-		private readonly Nethereum.Web3.Accounts.Account _gmAccount;
+		private readonly Nethereum.Web3.Accounts.Account _gmStorageManager;
+		private readonly Nethereum.Web3.Accounts.Account _gmMigrationManager;
 
 		public EthereumWriter(AppConfig appConfig, RuntimeConfigHolder runtimeConfig, LogFactory logFactory) : base(appConfig, logFactory) {
 			_runtimeConfig = runtimeConfig;
-			_gmAccount = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.StorageControllerManagerPk);
+
+			_gmStorageManager = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.StorageManagerPk);
+			_gmMigrationManager = new Nethereum.Web3.Accounts.Account(appConfig.Services.Ethereum.MigrationManagerPk);
 
 			// uses semaphore inside:
-			_gmAccount.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmAccount.Address, EthProvider);
+			_gmStorageManager.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmStorageManager.Address, EthProvider);
+			_gmMigrationManager.NonceService = new Nethereum.RPC.NonceServices.InMemoryNonceService(_gmMigrationManager.Address, EthProvider);
 		}
 
 		private Task<HexBigInteger> GetWritingGas() {
@@ -59,18 +63,18 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid eth address");
 			}
 
-			var web3 = new Web3(_gmAccount, EthProvider);
+			var web3 = new Web3(_gmStorageManager, EthProvider);
 			var gas = await GetWritingGas();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmStorageManager.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			return await SendTransaction(
 				contract, "transferGoldFromHotWallet",
-				_gmAccount.Address,
+				_gmStorageManager.Address,
 				gas,
 				new HexBigInteger(0),
 				userAddress, amount, userId
@@ -86,18 +90,18 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid rate");
 			}
 
-			var web3 = new Web3(_gmAccount, EthProvider);
+			var web3 = new Web3(_gmStorageManager, EthProvider);
 			var gas = await GetWritingGas();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmStorageManager.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			return await SendTransaction(
 				contract, "processRequest",
-				_gmAccount.Address,
+				_gmStorageManager.Address,
 				gas,
 				new HexBigInteger(0),
 				requestIndex, ethPerGold
@@ -110,18 +114,18 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid request index");
 			}
 
-			var web3 = new Web3(_gmAccount, EthProvider);
+			var web3 = new Web3(_gmStorageManager, EthProvider);
 			var gas = await GetWritingGas();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmStorageManager.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			return await SendTransaction(
 				contract, "cancelRequest",
-				_gmAccount.Address,
+				_gmStorageManager.Address,
 				gas,
 				new HexBigInteger(0),
 				requestIndex
@@ -146,18 +150,18 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid rate");
 			}
 
-			var web3 = new Web3(_gmAccount, EthProvider);
+			var web3 = new Web3(_gmStorageManager, EthProvider);
 			var gas = await GetWritingGas();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmStorageManager.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			return await SendTransaction(
 				contract, "processBuyRequestFiat",
-				_gmAccount.Address,
+				_gmStorageManager.Address,
 				gas,
 				new HexBigInteger(0),
 				userId, reference, userAddress, amountCents, centsPerGold
@@ -173,18 +177,18 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid rate");
 			}
 
-			var web3 = new Web3(_gmAccount, EthProvider);
+			var web3 = new Web3(_gmStorageManager, EthProvider);
 			var gas = await GetWritingGas();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmStorageManager.Address);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			return await SendTransaction(
 				contract, "processSellRequestFiat",
-				_gmAccount.Address,
+				_gmStorageManager.Address,
 				gas,
 				new HexBigInteger(0),
 				requestIndex, centsPerGold
@@ -200,15 +204,58 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 				throw new ArgumentException("Invalid eth address");
 			}
 
-			var web3 = new Web3(_gmAccount, EthProvider);
+			var web3 = new Web3(_gmStorageManager, EthProvider);
 			var gas = await GetWritingGas();
-			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmAccount.Address);
+			var txCount = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_gmStorageManager.Address);
 
 			return await web3.TransactionManager.SendTransactionAsync(
-				_gmAccount.Address,
+				_gmStorageManager.Address,
 				address,
 				new HexBigInteger(amount)
 			);
+		}
+
+		public async Task<string> MigrationContractUnholdToken(string address, MigrationRequestAsset asset, BigInteger amount) {
+
+			if (amount < 1) {
+				throw new ArgumentException("Amount is equal to 0");
+			}
+			if (!ValidationRules.BeValidEthereumAddress(address)) {
+				throw new ArgumentException("Invalid eth address");
+			}
+
+			var web3 = new Web3(_gmMigrationManager, EthProvider);
+			var gas = await GetWritingGas();
+
+			var contract = web3.Eth.GetContract(
+				MigrationContractAbi,
+				MigrationContractAddress
+			);
+
+			string funcName = null;
+			Nethereum.Contracts.Function func = null;
+
+			if (asset == MigrationRequestAsset.Gold) {
+				funcName = "unholdGold";
+				func = contract.GetFunction(funcName);
+			}
+			else if (asset == MigrationRequestAsset.Mnt) {
+				funcName = "unholdMntp";
+				func = contract.GetFunction(funcName);
+			}
+			else {
+				throw new ArgumentException("Invalid asset");
+			}
+
+			try {
+				Logger.Info($"Calling {funcName}() at gas {gas.Value.ToString()}");
+				return await func.SendTransactionAsync(_gmMigrationManager.Address, gas, new HexBigInteger(0), address, amount);
+			}
+			catch (Exception e) {
+				Logger.Error(e, $"Failed to call {funcName}() at gas {gas}");
+			}
+
+			return null;
 		}
 	}
 }

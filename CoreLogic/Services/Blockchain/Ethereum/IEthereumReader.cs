@@ -1,11 +1,17 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain.Models;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models.Event;
 
-namespace Goldmint.CoreLogic.Services.Blockchain {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 
 	public interface IEthereumReader {
+
+		/// <summary>
+		/// Get latest block number on the logs provider side
+		/// </summary>
+		Task<BigInteger> GetLogsLatestBlockNumber();
 
 		/// <summary>
 		/// Check chain transaction by it's ID
@@ -60,5 +66,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// </summary>
 		Task<GatheredRequestProcessedEvents> GatherRequestProcessedEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 		*/
+
+		/// <summary>
+		/// Get migration contract transfers
+		/// </summary>
+		Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 	}
 }

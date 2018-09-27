@@ -1,14 +1,16 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.OpenStorage;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.The1StPayments;
 using Goldmint.WebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -20,11 +22,9 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.The1StPayments;
-using Goldmint.CoreLogic.Services.Google.Impl;
+using Goldmint.Common.Extensions;
 
-namespace Goldmint.WebApplication.Controllers.v1
-{
+namespace Goldmint.WebApplication.Controllers.v1 {
 
 	public abstract class BaseController : Controller
 	{

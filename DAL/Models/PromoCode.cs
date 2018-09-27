@@ -14,7 +14,7 @@ namespace Goldmint.DAL.Models
 		public string Code { get; set; }
 
 	    [Column("token_type"), Required]
-	    public CryptoCurrency Currency { get; set; }
+	    public EthereumToken Currency { get; set; }
 
 	    [Column("limit"), Required]
 	    public decimal Limit { get; set; }

@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
+﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Numerics;
-using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using NLog;
+using System;
+using System.Linq;
+using System.Numerics;
+using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -66,7 +65,7 @@ namespace Goldmint.CoreLogic.Finance {
 					try {
 
 						// set next check time
-						op.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(op.TimeCreated, TimeSpan.FromSeconds(15), confirmationsRequired);
+						op.TimeNextCheck = DateTime.UtcNow.AddSeconds(60);
 
 						// initiate blockchain transaction
 						if (op.Status == EthereumOperationStatus.Prepared) {
@@ -513,7 +512,7 @@ namespace Goldmint.CoreLogic.Finance {
 					try {
 						amount = new BigInteger(
 							decimal.Floor(
-								(decimal)BigInteger.Pow(10, Tokens.ETH.Decimals) * (decimal)rcfg.Gold.SupportingEther.EtherToSend
+								(decimal)BigInteger.Pow(10, TokensPrecision.Ethereum) * (decimal)rcfg.Gold.SupportingEther.EtherToSend
 							)
 						);
 					}

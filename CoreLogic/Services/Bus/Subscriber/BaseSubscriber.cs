@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.Bus.Proto;
 
 namespace Goldmint.CoreLogic.Services.Bus.Subscriber {

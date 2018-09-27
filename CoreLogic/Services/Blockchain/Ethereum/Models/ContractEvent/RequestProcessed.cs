@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Models.ContractEvent {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models.ContractEvent {
 
 	public sealed class RequestProcessed {
 

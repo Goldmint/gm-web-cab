@@ -5,6 +5,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl
 {

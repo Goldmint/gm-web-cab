@@ -1,5 +1,5 @@
-﻿using Goldmint.CoreLogic.Services.Blockchain;
-using Goldmint.CoreLogic.Services.Blockchain.Impl;
+﻿using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl;
 using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;

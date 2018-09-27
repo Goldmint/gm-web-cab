@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 
-namespace Goldmint.Common {
+namespace Goldmint.Common.Extensions {
 
 	public static class DalExtensions {
 

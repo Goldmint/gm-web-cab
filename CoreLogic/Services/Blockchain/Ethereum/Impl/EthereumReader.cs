@@ -5,13 +5,15 @@ using Nethereum.Web3;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Nethereum.RPC.Eth.DTOs;
-using Goldmint.CoreLogic.Services.Blockchain.Models;
-using Goldmint.CoreLogic.Services.Blockchain.Models.ContractEvent;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models.ContractEvent;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models.Event;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 
 	public class EthereumReader : EthereumBaseClient, IEthereumReader {
 
@@ -22,6 +24,16 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 		public async Task<BigInteger> GetCurrentGasPrice() {
 			return (await GasPrice()).Value;
+		}
+
+		public async Task<BigInteger> GetLogsLatestBlockNumber() {
+			var web3 = new Web3(EthLogsProvider);
+
+			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+			if (syncResp.IsSyncing) {
+				return syncResp.CurrentBlock;
+			}
+			return await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
 		}
 
 		public async Task<TransactionInfo> CheckTransaction(string txid, int confirmationsRequired) {
@@ -78,10 +90,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			var web3 = new Web3(EthProvider);
 
-			var contract = web3.Eth.GetContract(
-				"[{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
-				MntpTokenContractAddress
-			);
+			var contract = web3.Eth.GetContract(MntpContractAbi, MntpContractAddress);
 			var func = contract.GetFunction("balanceOf");
 			var funcRet = await func.CallAsync<BigInteger>(address);
 
@@ -96,10 +105,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			var web3 = new Web3(EthProvider);
 
-			var contract = web3.Eth.GetContract(
-				"[{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
-				GoldTokenContractAddress
-			);
+			var contract = web3.Eth.GetContract(GoldContractAbi, GoldContractAddress);
 			var func = contract.GetFunction("balanceOf");
 			var funcRet = await func.CallAsync<BigInteger>(address);
 
@@ -114,8 +120,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 
 			var web3 = new Web3(EthProvider);
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			var func = contract.GetFunction("getUserHotGoldBalance");
@@ -131,8 +137,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(EthProvider);
 
 			var contract = web3.Eth.GetContract(
-					FiatContractAbi,
-					FiatContractAddress
+					StorageContractAbi,
+					StorageContractAddress
 				);
 			var func = contract.GetFunction("getRequestsCount");
 			return await func.CallAsync<BigInteger>();
@@ -143,8 +149,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(EthProvider);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 			var func = contract.GetFunction("getRequestBaseInfo");
 			var funcRet = await func.CallDeserializingToObjectAsync<BuySellRequestBaseInfoMapping>(requestIndex);
@@ -165,8 +171,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(EthLogsProvider);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			HexBigInteger hexLaxtestBlock;
@@ -218,8 +224,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			var web3 = new Web3(EthLogsProvider);
 
 			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
+				StorageContractAbi,
+				StorageContractAddress
 			);
 
 			HexBigInteger hexLaxtestBlock;
@@ -319,6 +325,58 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Impl {
 			};
 		}
 		*/
+
+		public async Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+
+			var web3 = new Web3(EthLogsProvider);
+			var events = new List<MigrationContractTransferEvent>();
+
+			var latestBlock = await GetLogsLatestBlockNumber();
+			var latestConfirmedBlock = latestBlock - confirmationsRequired;
+			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+
+			foreach (var contractData in new[] {
+				new {Abi = GoldContractAbi, Address = GoldContractAddress},
+				new {Abi = MntpContractAbi, Address = MntpContractAddress}
+			}) {
+				var contract = web3.Eth.GetContract(
+					contractData.Abi,
+					contractData.Address
+				);
+				var evnt = contract.GetEvent("Transfer");
+				var filter = await evnt.CreateFilterAsync(
+					null,
+					new object[] { MigrationContractAddress },
+					new BlockParameter(hexFromBlock),
+					new BlockParameter(hexToBlock)
+				);
+
+				// get and filter
+				var logs = await evnt.GetAllChanges<Erc20TransferEventMapping>(filter);
+				logs = logs
+						.Where(_ => !_.Log.Removed)
+						.GroupBy(_ => _.Event.From)
+						.Select(grp => grp.OrderByDescending(_ => _.Event.Value).FirstOrDefault())
+						.ToList()
+					;
+
+				foreach (var v in logs) {
+					events.Add(new MigrationContractTransferEvent(
+						contractData.Address,
+						v.Log.BlockNumber,
+						v.Log.TransactionHash,
+						v.Event
+					));
+				}
+			}
+
+			return new GatheredLog<MigrationContractTransferEvent>() {
+				FromBlock = hexFromBlock.Value,
+				ToBlock = hexToBlock.Value,
+				Events = events.ToArray(),
+			};
+		}
 
 		// ---
 

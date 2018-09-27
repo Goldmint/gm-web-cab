@@ -1,9 +1,7 @@
 ﻿using Goldmint.Common;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Models {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Models {
 
 	public sealed class TransactionInfo {
 

@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Threading.Tasks;
 
-namespace Goldmint.CoreLogic.Services.Blockchain {
+namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 
 	public interface IEthereumWriter {
 
@@ -35,5 +35,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain {
 		/// Transfer Ether from to the address
 		/// </summary>
 		Task<string> TransferEther(string address, BigInteger amount);
+
+		/// <summary>
+		/// Send token amount to the address
+		/// </summary>
+		Task<string> MigrationContractUnholdToken(string address, MigrationRequestAsset asset, BigInteger amount);
 	}
 }

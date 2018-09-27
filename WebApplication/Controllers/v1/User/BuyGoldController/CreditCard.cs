@@ -111,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Source = exchangeCurrency.ToString().ToUpper(),
 				SourceAmount = TextFormatter.FormatAmount((long)estimation.ResultCurrencyAmount),
 				Destination = "GOLD",
-				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, Tokens.GOLD.Decimals),
+				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.EthereumGold),
 				Comment = "", // see below
 
 				OplogId = ticket,

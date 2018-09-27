@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -130,8 +131,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var user = await GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
-			var ethDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, CryptoCurrency.Eth);
-			var ethWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, CryptoCurrency.Eth);
+			var ethDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, EthereumToken.Eth);
+			var ethWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, EthereumToken.Eth);
 			var ccDepositLimits = await v1.User.BuyGoldController.DepositLimits(rcfg, DbContext, user.Id, FiatCurrency.Usd);
 			var ccWithdrawLimits = await v1.User.SellGoldController.WithdrawalLimits(rcfg, DbContext, user.Id, FiatCurrency.Usd);
 

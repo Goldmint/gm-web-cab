@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 using Goldmint.DAL.CustodyBotModels;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Models.API;

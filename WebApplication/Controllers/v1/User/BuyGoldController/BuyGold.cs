@@ -34,7 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			}
 			
 			var exchangeCurrency = FiatCurrency.Usd;
-			CryptoCurrency? cryptoCurrency = null;
+			EthereumToken? ethereumToken = null;
 
 			// try parse fiat currency
 			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc))
@@ -42,9 +42,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				exchangeCurrency = fc;
 			}
 			// or crypto currency
-			else if (Enum.TryParse(model.Currency, true, out CryptoCurrency cc))
+			else if (Enum.TryParse(model.Currency, true, out EthereumToken cc))
 			{
-				cryptoCurrency = cc;
+				ethereumToken = cc;
 			}
 			else
 			{
@@ -52,7 +52,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (cryptoCurrency == null && !model.Reversed && inputAmount > long.MaxValue))
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (ethereumToken == null && !model.Reversed && inputAmount > long.MaxValue))
 			{
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
@@ -62,8 +62,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			var user = GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
-			var limits = cryptoCurrency != null
-				? DepositLimits(rcfg, cryptoCurrency.Value)
+			var limits = ethereumToken != null
+				? DepositLimits(rcfg, ethereumToken.Value)
 				: await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
 
@@ -71,12 +71,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User
             var promoCode = await GetPromoCode(model.PromoCode);
 		    //var promoCode = await GetPromoCode("YZA3N-L2EQ6");
 
-            if (promoCode != null && promoCode.Currency != CryptoCurrency.Gold)
+            if (promoCode != null && promoCode.Currency != EthereumToken.Gold)
 		    {
 		        return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
             }
 
-            var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
+            var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed)
 			{
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
@@ -88,8 +88,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
             if (promoCode != null)
             {
-                //TODO -> const
-                var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, 18));
+                var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
                 if(limit < estimation.ResultGoldAmount)
                     return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
 
@@ -293,7 +292,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		private async Task<EstimationResult> Estimation(
 		    RuntimeConfig rcfg, 
 		    BigInteger inputAmount, 
-		    CryptoCurrency? cryptoCurrency, 
+		    EthereumToken? ethereumToken, 
 		    FiatCurrency fiatCurrency, 
 		    bool reversed, 
 		    PromoCode promoCode, 
@@ -317,7 +316,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			if (!reversed)
 			{
 				// fiat
-				if (cryptoCurrency == null)
+				if (ethereumToken == null)
 				{
 					var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
 						services: HttpContext.RequestServices,
@@ -347,7 +346,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				{
 				    var res = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
 						services: HttpContext.RequestServices,
-						cryptoCurrency: cryptoCurrency.Value,
+						ethereumToken: ethereumToken.Value,
 						fiatCurrency: fiatCurrency,
 						cryptoAmount: inputAmount
 					);
@@ -375,7 +374,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			else
 			{
 				// fiat
-				if (cryptoCurrency == null)
+				if (ethereumToken == null)
 				{
 					var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
 						services: HttpContext.RequestServices,
@@ -405,7 +404,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				{
 					var res = await CoreLogic.Finance.Estimation.BuyGoldCryptoRev(
 						services: HttpContext.RequestServices,
-						cryptoCurrency: cryptoCurrency.Value,
+						ethereumToken: ethereumToken.Value,
 						fiatCurrency: fiatCurrency,
 						requiredGoldAmount: inputAmount
 					);
@@ -417,7 +416,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
                     resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = resultCurrencyAmount.ToString();
-					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
+					viewAmountCurrency = ethereumToken.Value.ToString().ToUpper();
 
 					limitsData = new EstimateLimitsView()
 					{
@@ -460,7 +459,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		}
 
 		[NonAction]
-		public static DepositLimitsResult DepositLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency)
+		public static DepositLimitsResult DepositLimits(RuntimeConfig rcfg, EthereumToken ethereumToken)
 		{
             //TODO: -> const
 			const int cryptoAccuracy = 8;
@@ -468,9 +467,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			var min = 0d;
 			var max = 0d;
 
-			if (cryptoCurrency == CryptoCurrency.Eth)
+			if (ethereumToken == EthereumToken.Eth)
 			{
-				decimals = Tokens.ETH.Decimals;
+				decimals = TokensPrecision.Ethereum;
 				min = rcfg.Gold.PaymentMehtods.EthDepositMinEther;
 				max = rcfg.Gold.PaymentMehtods.EthDepositMaxEther;
 			}
@@ -485,7 +484,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				};
 			}
 			
-			throw new NotImplementedException($"{cryptoCurrency} currency is not implemented");
+			throw new NotImplementedException($"{ethereumToken} currency is not implemented");
 		}
 
 		[NonAction]
