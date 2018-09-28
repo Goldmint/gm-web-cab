@@ -3,27 +3,23 @@ using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.DAL.Extensions;
 using Goldmint.DAL.Models;
+using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Goldmint.WebApplication.Controllers.v1.Migration
+namespace Goldmint.WebApplication.Controllers.v1.User
 {
-
 	[Route("api/v1/migration")]
-	//[ApiController]
 	public class MigrationController : BaseController
 	{
-
-		// TODO: move to AppConfig
-		public static TimeSpan SumusNextCheckDelay = TimeSpan.FromSeconds(20);
-
-		/// <summary>
-		/// MNTP token migration Ethereum to Sumus
-		/// </summary>
-		[HttpPost, Route("mint/sumus")]
+        /// <summary>
+        /// MNTP token migration Ethereum to Sumus
+        /// </summary>
+        [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+        [HttpPost, Route("mint/sumus")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> MintToSumus([FromBody] Models.API.v1.Migration.MigrationController.EthSumModel model)
+		public async Task<APIResponse> MintToSumus([FromBody] Models.API.v1.User.MigrationController.EthSumModel model)
 		{
 
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
@@ -31,7 +27,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 				return APIResponse.BadRequest(errFields);
 			}
 
-			try
+		    if (await GetUserTier() == UserTier.Tier2)
+		    {
+		        return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+		    }
+
+            try
 			{
 			    DbContext.MigrationEthereumToSumusRequest.Add(new MigrationEthereumToSumusRequest
 			    {
@@ -41,8 +42,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 					SumAddress = model.SumusAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow
-				});
+					TimeNextCheck = DateTime.UtcNow,
+                    User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -58,12 +60,13 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 			return APIResponse.Success();
 		}
 
-		/// <summary>
-		/// MNTP token migration Sumus to Ethereum
-		/// </summary>
-		[HttpPost, Route("mint/ethereum")]
+        /// <summary>
+        /// MNTP token migration Sumus to Ethereum
+        /// </summary>
+        [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+        [HttpPost, Route("mint/ethereum")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> MintToEthereum([FromBody] Models.API.v1.Migration.MigrationController.SumEthModel model)
+		public async Task<APIResponse> MintToEthereum([FromBody] Models.API.v1.User.MigrationController.SumEthModel model)
 		{
 
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
@@ -71,7 +74,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 				return APIResponse.BadRequest(errFields);
 			}
 
-			try
+		    if (await GetUserTier() == UserTier.Tier2)
+		    {
+		        return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+		    }
+
+            try
 			{
 			    DbContext.MigrationSumusToEthereumRequest.Add(new MigrationSumusToEthereumRequest
 			    {
@@ -81,8 +89,10 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 					EthAddress = model.EthereumAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow.Add(SumusNextCheckDelay)
-				});
+					TimeNextCheck = DateTime.UtcNow.Add(
+					    TimeSpan.FromSeconds(AppConfig.Services.Sumus.SumusNextCheckDelay)),
+			        User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -103,7 +113,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 		/// </summary>
 		[HttpPost, Route("gold/sumus")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> GoldToSumus([FromBody] Models.API.v1.Migration.MigrationController.EthSumModel model)
+		public async Task<APIResponse> GoldToSumus([FromBody] Models.API.v1.User.MigrationController.EthSumModel model)
 		{
 
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
@@ -111,7 +121,12 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 				return APIResponse.BadRequest(errFields);
 			}
 
-			try
+		    if (await GetUserTier() == UserTier.Tier2)
+		    {
+		        return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+		    }
+
+            try
 			{
 			    DbContext.MigrationEthereumToSumusRequest.Add(new MigrationEthereumToSumusRequest
 			    {
@@ -121,8 +136,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 					SumAddress = model.SumusAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow
-				});
+					TimeNextCheck = DateTime.UtcNow,
+			        User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -143,15 +159,19 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 		/// </summary>
 		[HttpPost, Route("gold/ethereum")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> GoldToEthereum([FromBody] Models.API.v1.Migration.MigrationController.SumEthModel model)
+		public async Task<APIResponse> GoldToEthereum([FromBody] Models.API.v1.User.MigrationController.SumEthModel model)
 		{
-
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
 			{
 				return APIResponse.BadRequest(errFields);
 			}
 
-			try
+		    if (await GetUserTier() == UserTier.Tier2)
+		    {
+		        return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+		    }
+
+            try
 			{
 			    DbContext.MigrationSumusToEthereumRequest.Add(new MigrationSumusToEthereumRequest
 			    {
@@ -161,8 +181,10 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 					EthAddress = model.EthereumAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow.Add(SumusNextCheckDelay)
-				});
+					TimeNextCheck = DateTime.UtcNow.Add(
+					    TimeSpan.FromSeconds(AppConfig.Services.Sumus.SumusNextCheckDelay)),
+			        User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -174,7 +196,6 @@ namespace Goldmint.WebApplication.Controllers.v1.Migration
 			{
 				return APIResponse.GeneralInternalFailure(e);
 			}
-
 			return APIResponse.Success();
 		}
 	}

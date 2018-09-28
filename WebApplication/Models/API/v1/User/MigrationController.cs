@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 
-namespace Goldmint.WebApplication.Models.API.v1.Migration
+namespace Goldmint.WebApplication.Models.API.v1.User
 {
 	public static class MigrationController
 	{

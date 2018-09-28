@@ -158,8 +158,9 @@
 			public class SumusSection {
 
 				public string MigrationHolderAddress { get; set; } = "";
+			    public int SumusNextCheckDelay { get; set; } = 20;
 
-			}
+            }
 
 			public IpfsSection Ipfs { get; set; } = new IpfsSection();
 			public class IpfsSection {

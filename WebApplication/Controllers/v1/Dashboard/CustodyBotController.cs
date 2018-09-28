@@ -19,7 +19,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
         /// <summary>
         /// Get bots and merchants list
         /// </summary>
-        //[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
+        [RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
 		[HttpPost, Route("bot_list")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> BotList([FromBody] NoInputPagerModel model)
@@ -66,7 +66,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// <summary>
 		/// get custody pawns
 		/// </summary>
-		//[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Owner)]
 		[HttpPost, Route("pawns")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> Pawns([FromBody] NoInputPagerModel model)

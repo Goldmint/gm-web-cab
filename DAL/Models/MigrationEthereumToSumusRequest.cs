@@ -7,7 +7,7 @@ namespace Goldmint.DAL.Models
 {
 
 	[Table("gm_es_token_migration")]
-	public class MigrationEthereumToSumusRequest : BaseEntity, IConcurrentUpdate
+	public class MigrationEthereumToSumusRequest : BaseUserEntity, IConcurrentUpdate
 	{
 
 		[Column("asset"), Required]

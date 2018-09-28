@@ -42,12 +42,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
             // ---
 
-
 		    var rcfg = RuntimeConfigHolder.Clone();
 
             var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
-			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier1)
 			{
@@ -64,7 +62,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			var limits = DepositLimits(rcfg, EthereumToken.Eth);
 
             // get promocode
-		    //var promoCode = await GetPromoCode(model.PromoCode);
 		    var promoCode = await GetPromoCode("YZA3N-L2EQ6");
 
             // must have kyc to use promocode here
