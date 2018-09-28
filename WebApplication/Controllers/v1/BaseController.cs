@@ -200,5 +200,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 			return Locale.En;
 		}
-	}
+
+	    [NonAction]
+	    protected async Task<UserTier> GetUserTier()
+	    {
+	        var rcfg = RuntimeConfigHolder.Clone();
+
+	        var user = await GetUserFromDb();
+	        return CoreLogic.User.GetTier(user, rcfg);
+        }
+    }
 }
