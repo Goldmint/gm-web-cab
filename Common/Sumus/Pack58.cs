@@ -36,7 +36,27 @@ namespace Goldmint.Common.Sumus {
 			return false;
 		}
 
-		public static string PackHash(byte[] addr, ulong nonce) {
+	    public static bool Check(string addr)
+	    {
+	        if (!BitConverter.IsLittleEndian) throw new Exception("Big-endian is not supported");
+
+	        try
+	        {
+	            var bytes = Multiformats.Base.Multibase.Base58.Decode(addr);
+	            if (bytes != null && bytes.Length > 4)
+	            {
+	                var payloadBytes = bytes.Take(bytes.Length - 4).ToArray();
+	                var crcBytes = bytes.Skip(bytes.Length - 4).Take(4).ToArray();
+	                var payloadCrc = Crc32.Crc32Algorithm.Compute(payloadBytes);
+	                var crc = BitConverter.ToUInt32(crcBytes, 0);
+	                return payloadCrc == crc;
+	            }
+	        }
+	        catch { }
+	        return false;
+	    }
+
+        public static string PackHash(byte[] addr, ulong nonce) {
 			if (addr == null || addr.Length != 32) {
 				throw new ArgumentException("Invalid address");
 			}

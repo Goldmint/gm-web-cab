@@ -54,6 +54,12 @@
         /// </summary>
         PromoCodeNotApplicable = 105,
 
+	    /// <summary>
+	    /// Duplicate migration request
+	    /// </summary>
+	    MigrationDuplicateRequest = 106,
+
+
 
         /* [1000..1999] Account errors */
 

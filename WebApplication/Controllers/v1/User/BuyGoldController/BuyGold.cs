@@ -69,7 +69,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
             // get promocode
             var promoCode = await GetPromoCode(model.PromoCode);
-		    //var promoCode = await GetPromoCode("YZA3N-L2EQ6");
 
             if (promoCode != null && promoCode.Currency != EthereumToken.Gold)
 		    {
