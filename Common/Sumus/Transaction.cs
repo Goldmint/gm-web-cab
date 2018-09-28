@@ -30,10 +30,12 @@ namespace Goldmint.Common.Sumus {
 				s.Write(nonce);
 				txname = write(s);
 
-				byte[] digest;
-				using (var hasher = SHA512.Create()) { // TODO: implement sha-3 256 bit
-					digest = hasher.ComputeHash(s.Data());
-				}
+				var payload = s.Data();
+				var hasher = new Org.BouncyCastle.Crypto.Digests.Sha3Digest(256);
+				hasher.BlockUpdate(payload, 0, payload.Length);
+
+				var digest = new byte[32];
+				hasher.DoFinal(digest, 0);
 
 				var signature = signer.Sign(digest);
 

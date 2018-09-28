@@ -40,5 +40,40 @@ namespace Goldmint.Common.Sumus.Ed25519.Internal.Ed25519Ref10
 				CryptoBytes.Wipe(s);
 			}
 		}
+
+		public static void crypto_sign_prehashed(
+			byte[] sig,
+			byte[] m, int mlen,
+			byte[] sk,
+			byte[] pk
+			) {
+
+			byte[] r, hram;
+			GroupElementP3 R;
+			var hasher = new Sha512();
+			{
+				hasher.Init();
+				hasher.Update(sk, 32, 32);
+				hasher.Update(m, 0, mlen);
+				r = hasher.Finalize();
+
+				ScalarOperations.sc_reduce(r);
+				GroupOperations.ge_scalarmult_base(out R, r, 0);
+				GroupOperations.ge_p3_tobytes(sig, 0, ref R);
+
+				hasher.Init();
+				hasher.Update(sig, 0, 32);
+				hasher.Update(pk, 0, 32);
+				hasher.Update(m, 0, mlen);
+				hram = hasher.Finalize();
+
+				ScalarOperations.sc_reduce(hram);
+				var s = new byte[32];//todo: remove allocation
+				Array.Copy(sig, 32, s, 0, 32);
+				ScalarOperations.sc_muladd(s, hram, sk, r);
+				Array.Copy(s, 0, sig, 32, 32);
+				CryptoBytes.Wipe(s);
+			}
+		}
 	}
 }

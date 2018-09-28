@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.3" />
     <PackageReference Include="Crc32" Version="1.1.0" />
     <PackageReference Include="FluentValidation" Version="7.5.2" />
     <PackageReference Include="libphonenumber-csharp" Version="8.9.3" />

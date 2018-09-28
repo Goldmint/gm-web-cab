@@ -20,6 +20,17 @@ namespace Goldmint.Common.Sumus.Ed25519.Internal.Ed25519Ref10
             CryptoBytes.Wipe(h);
         }
 
+	    public static void crypto_sign_private_prehash(byte[] sk, byte[] prehashedSk) {
+			var prehashed = new byte[64];
+			Array.Copy(sk, prehashed, 64);
+		    var hasher = new Sha512();
+			hasher.Update(sk, 0, 64);
+			var h = hasher.Finalize();
+			ScalarOperations.sc_clamp(h, 0);
+			Array.Copy(h, prehashed, 32);
+			Array.Copy(prehashed, prehashedSk, 64);
+	    }
+
 	    public static void crypto_sign_keypair_prehashed(byte[] pk, int pkoffset, byte[] sk, int skoffset) {
 		    GroupElementP3 A;
 

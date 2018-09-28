@@ -49,109 +49,133 @@ namespace Goldmint.Common.Sumus.Ed25519 {
 			return Ed25519Operations.crypto_sign_verify(signature, 0, message, 0, message.Length, publicKey, 0);
 		}
 
-		/// <summary>
-		/// Create new Ed25519 signature
-		/// </summary>
-		/// <param name="signature">Buffer for signature</param>
-		/// <param name="message">Message bytes</param>
-		/// <param name="expandedPrivateKey">Expanded form of private key</param>
-		public static void Sign(ArraySegment<byte> signature, ArraySegment<byte> message, ArraySegment<byte> expandedPrivateKey) {
-			Contract.Requires<ArgumentNullException>(signature.Array != null && message.Array != null && expandedPrivateKey.Array != null);
-			Contract.Requires<ArgumentException>(expandedPrivateKey.Count == ExpandedPrivateKeySize);
+		///// <summary>
+		///// Create new Ed25519 signature
+		///// </summary>
+		///// <param name="signature">Buffer for signature</param>
+		///// <param name="message">Message bytes</param>
+		///// <param name="expandedPrivateKey">Expanded form of private key</param>
+		//public static void Sign(ArraySegment<byte> signature, ArraySegment<byte> message, ArraySegment<byte> expandedPrivateKey) {
+		//	Contract.Requires<ArgumentNullException>(signature.Array != null && message.Array != null && expandedPrivateKey.Array != null);
+		//	Contract.Requires<ArgumentException>(expandedPrivateKey.Count == ExpandedPrivateKeySize);
 
-			Ed25519Operations.crypto_sign(signature.Array, signature.Offset, message.Array, message.Offset, message.Count, expandedPrivateKey.Array, expandedPrivateKey.Offset);
-		}
+		//	Ed25519Operations.crypto_sign(signature.Array, signature.Offset, message.Array, message.Offset, message.Count, expandedPrivateKey.Array, expandedPrivateKey.Offset);
+		//}
 
-		/// <summary>
-		/// Create new Ed25519 signature
-		/// </summary>
-		/// <param name="signature">Buffer for signature</param>
-		/// <param name="message">Message bytes</param>
-		/// <param name="expandedPrivateKey">Expanded form of private key</param>
-		public static byte[] Sign(byte[] message, byte[] expandedPrivateKey) {
-			Contract.Requires<ArgumentNullException>(message != null && expandedPrivateKey != null);
-			Contract.Requires<ArgumentException>(expandedPrivateKey.Length == ExpandedPrivateKeySize);
+		///// <summary>
+		///// Create new Ed25519 signature
+		///// </summary>
+		///// <param name="signature">Buffer for signature</param>
+		///// <param name="message">Message bytes</param>
+		///// <param name="expandedPrivateKey">Expanded form of private key</param>
+		//public static byte[] Sign(byte[] message, byte[] expandedPrivateKey) {
+		//	Contract.Requires<ArgumentNullException>(message != null && expandedPrivateKey != null);
+		//	Contract.Requires<ArgumentException>(expandedPrivateKey.Length == ExpandedPrivateKeySize);
+
+		//	var signature = new byte[SignatureSize];
+		//	Sign(new ArraySegment<byte>(signature), new ArraySegment<byte>(message), new ArraySegment<byte>(expandedPrivateKey));
+		//	return signature;
+		//}
+		
+		public static byte[] SignWithPrehashed(byte[] message, byte[] privateKey, byte[] publicKey) {
+			Contract.Requires<ArgumentNullException>(message != null && privateKey != null && publicKey != null);
+			Contract.Requires<ArgumentException>(privateKey.Length == ExpandedPrivateKeySize);
+			Contract.Requires<ArgumentException>(publicKey.Length == PublicKeySize);
 
 			var signature = new byte[SignatureSize];
-			Sign(new ArraySegment<byte>(signature), new ArraySegment<byte>(message), new ArraySegment<byte>(expandedPrivateKey));
+			Ed25519Operations.crypto_sign_prehashed(signature, message, message.Length, privateKey, publicKey);
 			return signature;
 		}
 
-		/// <summary>
-		/// Calculate public key from private key seed
-		/// </summary>
-		/// <param name="privateKeySeed">Private key seed value</param>
-		/// <returns></returns>
-		public static byte[] PublicKeyFromSeed(byte[] privateKeySeed) {
-			Contract.Requires<ArgumentNullException>(privateKeySeed != null);
-			Contract.Requires<ArgumentException>(privateKeySeed.Length == PrivateKeySeedSize);
+		///// <summary>
+		///// Calculate public key from private key seed
+		///// </summary>
+		///// <param name="privateKeySeed">Private key seed value</param>
+		///// <returns></returns>
+		//public static byte[] PublicKeyFromSeed(byte[] privateKeySeed) {
+		//	Contract.Requires<ArgumentNullException>(privateKeySeed != null);
+		//	Contract.Requires<ArgumentException>(privateKeySeed.Length == PrivateKeySeedSize);
 
-			byte[] privateKey;
-			byte[] publicKey;
-			KeyPairFromSeed(out publicKey, out privateKey, privateKeySeed);
-			CryptoBytes.Wipe(privateKey);
-			return publicKey;
-		}
+		//	byte[] privateKey;
+		//	byte[] publicKey;
+		//	KeyPairFromSeed(out publicKey, out privateKey, privateKeySeed);
+		//	CryptoBytes.Wipe(privateKey);
+		//	return publicKey;
+		//}
 
-		/// <summary>
-		/// Calculate expanded form of private key from the key seed.
-		/// </summary>
-		/// <param name="privateKeySeed">Private key seed value</param>
-		/// <returns>Expanded form of the private key</returns>
-		public static byte[] ExpandedPrivateKeyFromSeed(byte[] privateKeySeed) {
-			Contract.Requires<ArgumentNullException>(privateKeySeed != null);
-			Contract.Requires<ArgumentException>(privateKeySeed.Length == PrivateKeySeedSize);
+		///// <summary>
+		///// Calculate expanded form of private key from the key seed.
+		///// </summary>
+		///// <param name="privateKeySeed">Private key seed value</param>
+		///// <returns>Expanded form of the private key</returns>
+		//public static byte[] ExpandedPrivateKeyFromSeed(byte[] privateKeySeed) {
+		//	Contract.Requires<ArgumentNullException>(privateKeySeed != null);
+		//	Contract.Requires<ArgumentException>(privateKeySeed.Length == PrivateKeySeedSize);
 
-			byte[] privateKey;
-			byte[] publicKey;
-			KeyPairFromSeed(out publicKey, out privateKey, privateKeySeed);
-			CryptoBytes.Wipe(publicKey);
-			return privateKey;
-		}
+		//	byte[] privateKey;
+		//	byte[] publicKey;
+		//	KeyPairFromSeed(out publicKey, out privateKey, privateKeySeed);
+		//	CryptoBytes.Wipe(publicKey);
+		//	return privateKey;
+		//}
 
-		/// <summary>
-		/// Calculate key pair from the key seed.
-		/// </summary>
-		/// <param name="publicKey">Public key</param>
-		/// <param name="expandedPrivateKey">Expanded form of the private key</param>
-		/// <param name="privateKeySeed">Private key seed value</param>
-		public static void KeyPairFromSeed(out byte[] publicKey, out byte[] expandedPrivateKey, byte[] privateKeySeed) {
+		///// <summary>
+		///// Calculate key pair from the key seed.
+		///// </summary>
+		///// <param name="publicKey">Public key</param>
+		///// <param name="expandedPrivateKey">Expanded form of the private key</param>
+		///// <param name="privateKeySeed">Private key seed value</param>
+		//public static void KeyPairFromSeed(out byte[] publicKey, out byte[] expandedPrivateKey, byte[] privateKeySeed) {
+		//	Contract.Requires<ArgumentNullException>(privateKeySeed != null);
+		//	Contract.Requires<ArgumentException>(privateKeySeed.Length == PrivateKeySeedSize);
+
+		//	var pk = new byte[PublicKeySize];
+		//	var sk = new byte[ExpandedPrivateKeySize];
+
+		//	Ed25519Operations.crypto_sign_keypair(pk, 0, sk, 0, privateKeySeed, 0);
+		//	publicKey = pk;
+		//	expandedPrivateKey = sk;
+		//}
+
+		public static void PrehashedKeyPairFromSeed(out byte[] publicKey, out byte[] prehashedPrivateKey, byte[] privateKeySeed) {
 			Contract.Requires<ArgumentNullException>(privateKeySeed != null);
 			Contract.Requires<ArgumentException>(privateKeySeed.Length == PrivateKeySeedSize);
 
 			var pk = new byte[PublicKeySize];
 			var sk = new byte[ExpandedPrivateKeySize];
+			var skh = new byte[ExpandedPrivateKeySize];
 
 			Ed25519Operations.crypto_sign_keypair(pk, 0, sk, 0, privateKeySeed, 0);
 			publicKey = pk;
-			expandedPrivateKey = sk;
+			Ed25519Operations.crypto_sign_private_prehash(sk, skh);
+			prehashedPrivateKey = skh;
 		}
 
-		public static void PublicKeyFromPrehashedPrivateKey(out byte[] publicKey, byte[] expandedPrivateKey) {
-			Contract.Requires<ArgumentNullException>(expandedPrivateKey != null);
-			Contract.Requires<ArgumentException>(expandedPrivateKey.Length == ExpandedPrivateKeySize);
+		public static void PublicKeyFromPrehashedPrivateKey(out byte[] publicKey, byte[] prehashedPrivateKey) {
+			Contract.Requires<ArgumentNullException>(prehashedPrivateKey != null);
+			Contract.Requires<ArgumentException>(prehashedPrivateKey.Length == ExpandedPrivateKeySize);
 
 			var pk = new byte[PublicKeySize];
 
-			Ed25519Operations.crypto_sign_keypair_prehashed(pk, 0, expandedPrivateKey, 0);
+			Ed25519Operations.crypto_sign_keypair_prehashed(pk, 0, prehashedPrivateKey, 0);
 			publicKey = pk;
 		}
 
-		/// <summary>
-		/// Calculate key pair from the key seed.
-		/// </summary>
-		/// <param name="publicKey">Public key</param>
-		/// <param name="expandedPrivateKey">Expanded form of the private key</param>
-		/// <param name="privateKeySeed">Private key seed value</param>
-		public static void KeyPairFromSeed(ArraySegment<byte> publicKey, ArraySegment<byte> expandedPrivateKey, ArraySegment<byte> privateKeySeed) {
-			Contract.Requires<ArgumentNullException>(publicKey.Array != null && expandedPrivateKey.Array != null && privateKeySeed.Array != null);
-			Contract.Requires<ArgumentException>(expandedPrivateKey.Count == ExpandedPrivateKeySize && privateKeySeed.Count == PrivateKeySeedSize);
-			Contract.Requires<ArgumentException>(publicKey.Count == PublicKeySize);
+		///// <summary>
+		///// Calculate key pair from the key seed.
+		///// </summary>
+		///// <param name="publicKey">Public key</param>
+		///// <param name="expandedPrivateKey">Expanded form of the private key</param>
+		///// <param name="privateKeySeed">Private key seed value</param>
+		//public static void KeyPairFromSeed(ArraySegment<byte> publicKey, ArraySegment<byte> expandedPrivateKey, ArraySegment<byte> privateKeySeed) {
+		//	Contract.Requires<ArgumentNullException>(publicKey.Array != null && expandedPrivateKey.Array != null && privateKeySeed.Array != null);
+		//	Contract.Requires<ArgumentException>(expandedPrivateKey.Count == ExpandedPrivateKeySize && privateKeySeed.Count == PrivateKeySeedSize);
+		//	Contract.Requires<ArgumentException>(publicKey.Count == PublicKeySize);
 
-			Ed25519Operations.crypto_sign_keypair(
-				publicKey.Array, publicKey.Offset,
-				expandedPrivateKey.Array, expandedPrivateKey.Offset,
-				privateKeySeed.Array, privateKeySeed.Offset);
-		}
+		//	Ed25519Operations.crypto_sign_keypair(
+		//		publicKey.Array, publicKey.Offset,
+		//		expandedPrivateKey.Array, expandedPrivateKey.Offset,
+		//		privateKeySeed.Array, privateKeySeed.Offset);
+		//}
 	}
 }

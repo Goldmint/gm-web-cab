@@ -18,7 +18,8 @@ namespace Goldmint.Common.Sumus {
 			using (var rnd = new RNGCryptoServiceProvider()) {
 				rnd.GetBytes(seed);
 			}
-			Ed25519.Ed25519.KeyPairFromSeed(out PublicKeyBytes, out PrivateKeyBytes, seed);
+			Ed25519.Ed25519.PrehashedKeyPairFromSeed(out _, out PrivateKeyBytes, seed);
+			Ed25519.Ed25519.PublicKeyFromPrehashedPrivateKey(out PublicKeyBytes, PrivateKeyBytes);
 			PrivateKey = Pack58.Pack(PrivateKeyBytes);
 			PublicKey = Pack58.Pack(PublicKeyBytes);
 		}
@@ -43,7 +44,7 @@ namespace Goldmint.Common.Sumus {
 			if ((message?.Length ?? 0) == 0) {
 				throw new ArgumentException("Can't sign empty message");
 			}
-			return Ed25519.Ed25519.Sign(message, PrivateKeyBytes);
+			return Ed25519.Ed25519.SignWithPrehashed(message, PrivateKeyBytes, PublicKeyBytes);
 		}
 
 		public static bool Verify(byte[] addr, byte[] message, byte[] signature) {
