@@ -64,19 +64,21 @@ namespace Goldmint.Common.Sumus {
 			this.Write(b);
 		}
 
-		public void Write(Amount a) {
+		public void WriteAmount(BigInteger v) {
 			const int imax = 10;
 			const int fmax = 18;
 
-			_buffer.WriteByte(a.Value < 0 ? (byte)1 : (byte)0);
+			_buffer.WriteByte(v < 0 ? (byte)1 : (byte)0);
 
-			var v = a.ToString().TrimStart('-');
-			if (!v.Contains(".")) {
+			var str = v.ToString().TrimStart('-').PadLeft(TokensPrecision.Sumus + 1, '0');
+			str = str.Substring(0, str.Length - TokensPrecision.Sumus) + "." + str.Substring(str.Length - TokensPrecision.Sumus);
+
+			if (!str.Contains(".")) {
 				this.Write(FlipAmountString("".PadRight(fmax, '0')));
-				this.Write(FlipAmountString(v.PadLeft(imax, '0')));
+				this.Write(FlipAmountString(str.PadLeft(imax, '0')));
 			}
 			else {
-				var p = v.Split('.', 2);
+				var p = str.Split('.', 2);
 				this.Write(FlipAmountString(p[1].PadRight(fmax, '0')));
 				this.Write(FlipAmountString(p[0].PadLeft(imax, '0')));
 			}
@@ -175,11 +177,11 @@ namespace Goldmint.Common.Sumus {
 			return false;
 		}
 
-		public bool ReadAmount(out Amount a) {
+		public bool ReadAmount(out BigInteger v) {
 			const int imax = 10;
 			const int fmax = 18;
 
-			a = null;
+			v = BigInteger.Zero;
 
 			if (!this.ReadByte(out var sign) || sign > 1) {
 				return false;
@@ -194,9 +196,12 @@ namespace Goldmint.Common.Sumus {
 			var fracp = FlipAmountString(fracBytes);
 			var intp = FlipAmountString(intBytes);
 
-			a = new Amount(string.Format("{0}.{1}", intp, fracp));
+
+			if (!BigInteger.TryParse(string.Format("{0}.{1}", intp, fracp), out v)) {
+				return false;
+			}
 			if (sign == 1) {
-				a.Value *= BigInteger.MinusOne;
+				v *= BigInteger.MinusOne;
 			}
 
 			return true;

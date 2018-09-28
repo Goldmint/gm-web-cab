@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Security.Cryptography;
 
 namespace Goldmint.Common.Sumus {
@@ -56,15 +57,15 @@ namespace Goldmint.Common.Sumus {
 
 		// ---
 
-		public static Transaction TransferAsset(Signer signer, ulong nonce, byte[] addr, Amount amount) {
-			if (signer == null || addr == null || addr.Length != 32 || amount.Token == null) {
+		public static Transaction TransferAsset(Signer signer, ulong nonce, byte[] addr, ushort token, BigInteger amount) {
+			if (signer == null || addr == null || addr.Length != 32) {
 				throw new ArgumentException("Invalid signer, address or amount (token) specified");
 			}
 			return Construct(signer, nonce, (Serializer s) => {
-				s.Write((ushort)amount.Token.Value);
+				s.Write(token);
 				s.Write(signer.PublicKeyBytes);
 				s.Write(addr);
-				s.Write(amount);
+				s.WriteAmount(amount);
 				return TxTransferAsset;
 			});
 		}

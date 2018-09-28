@@ -88,17 +88,17 @@ namespace Goldmint.CoreLogicTests.Sumus {
 			}
 
 			using (var s = new Serializer()) {
-				s.Write(new Amount("1234.000000000000001234"));
+				s.WriteAmount(BigInteger.Parse("1234000000000000001234"));
 				Assert.True(s.Hex() == "003412000000000000003412000000");
 			}
 
 			using (var s = new Serializer()) {
-				s.Write(new Amount("-0.123400000000004321"));
+				s.WriteAmount(BigInteger.Parse("-123400000000004321"));
 				Assert.True(s.Hex() == "012143000000000034120000000000");
 			}
 
 			using (var s = new Serializer()) {
-				s.Write(new Amount("1.123456789123456789"));
+				s.WriteAmount(BigInteger.Parse("1123456789123456789"));
 				Assert.True(s.Hex() == "008967452391785634120100000000");
 			}
 		}
@@ -112,11 +112,11 @@ namespace Goldmint.CoreLogicTests.Sumus {
 			var u64 = (ulong) 0xDEADBEEF1337C0DE;
 			var str64 = "961D2014E3E93AC701A6A5F25824DB66";
 			var str64Full = "1EF8C0F73B2370D14330C487A70618E0333EAEBA8313EC87131B8F67D964D097";
-			var amo1 = new Amount("1234567890.123456789123456789");
-			var amo2 = new Amount("-987654321.102030405060708090");
-			var amo3 = new Amount("1000");
-			var amo4 = new Amount("1");
-			var amo5 = new Amount("0");
+			var amo1 = BigInteger.Parse("1234567890123456789123456789");
+			var amo2 = BigInteger.Parse("-987654321102030405060708090");
+			var amo3 = BigInteger.Parse("1000000000000000000000");
+			var amo4 = BigInteger.Parse("1000000000000000000");
+			var amo5 = BigInteger.Parse("0");
 
 			byte[] bytes;
 			using (var s = new Serializer()) {
@@ -126,11 +126,11 @@ namespace Goldmint.CoreLogicTests.Sumus {
 				s.Write(u64);
 				s.Write(str64);
 				s.Write(str64Full);
-				s.Write(amo1);
-				s.Write(amo2);
-				s.Write(amo3);
-				s.Write(amo4);
-				s.Write(amo5);
+				s.WriteAmount(amo1);
+				s.WriteAmount(amo2);
+				s.WriteAmount(amo3);
+				s.WriteAmount(amo4);
+				s.WriteAmount(amo5);
 				bytes = s.Data();
 			}
 
@@ -141,11 +141,11 @@ namespace Goldmint.CoreLogicTests.Sumus {
 				Assert.True(d.ReadUint64(out var xu64) && xu64 == u64);
 				Assert.True(d.ReadString(out var xstr64) && xstr64 == str64);
 				Assert.True(d.ReadString(out var xstr64Full) && xstr64Full == str64Full);
-				Assert.True(d.ReadAmount(out var xamo1) && xamo1.Value == amo1.Value);
-				Assert.True(d.ReadAmount(out var xamo2) && xamo2.Value == amo2.Value);
-				Assert.True(d.ReadAmount(out var xamo3) && xamo3.Value == amo3.Value);
-				Assert.True(d.ReadAmount(out var xamo4) && xamo4.Value == amo4.Value);
-				Assert.True(d.ReadAmount(out var xamo5) && xamo5.Value == amo5.Value);
+				Assert.True(d.ReadAmount(out var xamo1) && xamo1 == amo1);
+				Assert.True(d.ReadAmount(out var xamo2) && xamo2 == amo2);
+				Assert.True(d.ReadAmount(out var xamo3) && xamo3 == amo3);
+				Assert.True(d.ReadAmount(out var xamo4) && xamo4 == amo4);
+				Assert.True(d.ReadAmount(out var xamo5) && xamo5 == amo5);
 			}
 		}
 
@@ -158,7 +158,7 @@ namespace Goldmint.CoreLogicTests.Sumus {
 			var src = new Signer(srcpk);
 			var dst = new Signer(dstpk);
 
-			var tx = Transaction.TransferAsset(src, 3, dst.PublicKeyBytes, new Amount("1000", Amount.TokenType.Mnt));
+			var tx = Transaction.TransferAsset(src, 3, dst.PublicKeyBytes, 0, BigInteger.Parse("1000000000000000000000"));
 
 			Assert.True(tx.Data == "03000000000000000000eea0728dfee30d6a65ff2e5c07ddbc4c304cc9005abe2640822adc1ec944201df42378223753e3f5410b427d4c49df8dee069d798eb5cfb0a4e3bd197b0797b7000000000000000000000010000000010e4b042527eafe9f5c8d90da41d4e062fd044a84e3c1dbcda9342b4921798d9ee56310dda763c137e0ec4e521d2738249120edc7149018eb15240ba373e6090a");
 		}

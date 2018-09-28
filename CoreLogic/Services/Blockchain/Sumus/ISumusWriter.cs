@@ -1,5 +1,6 @@
 ﻿using Goldmint.Common;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Sumus {
 
@@ -8,6 +9,6 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus {
 		/// <summary>
 		/// Send token amount to the address
 		/// </summary>
-		Task<string> TransferToken(string toAddress, MigrationRequestAsset asset, decimal amount);
+		Task<SentTransaction> TransferToken(byte[] privateKey, ulong nonce, byte[] addr, SumusToken asset, decimal amount);
 	}
 }

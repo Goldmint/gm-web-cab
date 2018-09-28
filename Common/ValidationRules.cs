@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Goldmint.Common
-{
+namespace Goldmint.Common {
 
-	public static class ValidationRules
-	{
+	public static class ValidationRules {
 
 		public const int PasswordMinLength = 6;
 		public const int PasswordMaxLength = 128;
@@ -18,8 +16,8 @@ namespace Goldmint.Common
 		public static readonly Regex RexTfaToken = new Regex("^[0-9]{6}$");
 		public static readonly Regex RexLatinAndPuncts = new Regex(@"^[a-zA-Z0-9]+[a-zA-Z0-9 \-\,\.\(\)\/]*$");
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");
-	    public static readonly Regex RexSumusAddress = new Regex(@"^[0-9a-zA-Z]{32,128}$");
-        public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
+		public static readonly Regex RexSumusAddress = new Regex(@"^[0-9a-zA-Z]{32,128}$");
+		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
 		public static readonly Regex RexEthereumTransactionId = new Regex(@"^0x[0-9abcdefABCDEF]{64}$");
 		public static readonly Regex RexPromoCode = new Regex("^[0-9A-Z]{5}-[0-9A-Z]{5}$");
 
@@ -99,24 +97,20 @@ namespace Goldmint.Common
 			return x != null && Uri.TryCreate(x, UriKind.Absolute, out var test) && (test.Scheme == "http" || test.Scheme == "https");
 		}
 
-	    public static bool BeValidSumusAddress(string x)
-	    {
-	        return x != null && RexSumusAddress.IsMatch(x) && Common.Sumus.Pack58.Check(x);
-	    }
+		public static bool BeValidSumusAddress(string x) {
+			return x != null && RexSumusAddress.IsMatch(x) && Common.Sumus.Pack58.IsAddress(x);
+		}
 
-        public static bool BeValidEthereumAddress(string x)
-		{
+		public static bool BeValidEthereumAddress(string x) {
 			return x != null && RexEthereumAddress.IsMatch(x);
 		}
 
-		public static bool BeValidEthereumTransactionId(string x)
-		{
+		public static bool BeValidEthereumTransactionId(string x) {
 			return x != null && RexEthereumTransactionId.IsMatch(x);
 		}
 
-		public static bool BeValidPromoCode(string x)
-		{
-		    return string.IsNullOrEmpty(x) || RexPromoCode.IsMatch(x);
+		public static bool BeValidPromoCode(string x) {
+			return string.IsNullOrEmpty(x) || RexPromoCode.IsMatch(x);
 		}
 	}
 }

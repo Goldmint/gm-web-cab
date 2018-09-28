@@ -3,6 +3,7 @@ using System.Numerics;
 
 namespace Goldmint.Common.Sumus {
 
+	/*
 	public class Amount {
 
 		public TokenType? Token { get; set; }
@@ -90,4 +91,5 @@ namespace Goldmint.Common.Sumus {
 			}
 		}
 	}
+	*/
 }

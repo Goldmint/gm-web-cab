@@ -666,6 +666,7 @@ namespace Goldmint.Common {
 
 	#region Token migration (Ethereum <-> Sumus)
 
+	// TODO: use SumusToken
 	public enum MigrationRequestAsset : int {
 
 		/// <summary>
