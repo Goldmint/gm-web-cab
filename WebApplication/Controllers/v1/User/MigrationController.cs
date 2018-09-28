@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Goldmint.WebApplication.Controllers.v1.User
 {
-
 	[Route("api/v1/migration")]
 	public class MigrationController : BaseController
 	{
@@ -20,7 +19,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
         [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
         [HttpPost, Route("mint/sumus")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> MintToSumus([FromBody] Models.API.v1.Migration.MigrationController.EthSumModel model)
+		public async Task<APIResponse> MintToSumus([FromBody] Models.API.v1.User.MigrationController.EthSumModel model)
 		{
 
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
@@ -43,8 +42,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 					SumAddress = model.SumusAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow
-				});
+					TimeNextCheck = DateTime.UtcNow,
+                    User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -66,7 +66,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
         [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
         [HttpPost, Route("mint/ethereum")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> MintToEthereum([FromBody] Models.API.v1.Migration.MigrationController.SumEthModel model)
+		public async Task<APIResponse> MintToEthereum([FromBody] Models.API.v1.User.MigrationController.SumEthModel model)
 		{
 
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
@@ -79,7 +79,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		        return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 		    }
 
-
             try
 			{
 			    DbContext.MigrationSumusToEthereumRequest.Add(new MigrationSumusToEthereumRequest
@@ -91,8 +90,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
 					TimeNextCheck = DateTime.UtcNow.Add(
-					    TimeSpan.FromSeconds(AppConfig.Services.Sumus.SumusNextCheckDelay))
-				});
+					    TimeSpan.FromSeconds(AppConfig.Services.Sumus.SumusNextCheckDelay)),
+			        User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -113,7 +113,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		/// </summary>
 		[HttpPost, Route("gold/sumus")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> GoldToSumus([FromBody] Models.API.v1.Migration.MigrationController.EthSumModel model)
+		public async Task<APIResponse> GoldToSumus([FromBody] Models.API.v1.User.MigrationController.EthSumModel model)
 		{
 
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
@@ -136,8 +136,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 					SumAddress = model.SumusAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
-					TimeNextCheck = DateTime.UtcNow
-				});
+					TimeNextCheck = DateTime.UtcNow,
+			        User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -158,7 +159,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		/// </summary>
 		[HttpPost, Route("gold/ethereum")]
 		[ProducesResponseType(typeof(object), 200)]
-		public async Task<APIResponse> GoldToEthereum([FromBody] Models.API.v1.Migration.MigrationController.SumEthModel model)
+		public async Task<APIResponse> GoldToEthereum([FromBody] Models.API.v1.User.MigrationController.SumEthModel model)
 		{
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
 			{
@@ -181,8 +182,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
 					TimeNextCheck = DateTime.UtcNow.Add(
-					    TimeSpan.FromSeconds(AppConfig.Services.Sumus.SumusNextCheckDelay))
-				});
+					    TimeSpan.FromSeconds(AppConfig.Services.Sumus.SumusNextCheckDelay)),
+			        User = await GetUserFromDb()
+                });
 
 				await DbContext.SaveChangesAsync();
 			}
@@ -194,7 +196,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			{
 				return APIResponse.GeneralInternalFailure(e);
 			}
-
 			return APIResponse.Success();
 		}
 	}
