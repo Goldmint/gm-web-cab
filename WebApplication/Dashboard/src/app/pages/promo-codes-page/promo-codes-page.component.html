@@ -16,6 +16,7 @@
                 <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('discount').invalid && form.get('discount').dirty">
                     <span *ngIf="form.get('discount')['errors']['required']">Field is required.</span>
                     <span *ngIf="form.get('discount')['errors']['max']">Maximum value is 100.</span>
+                    <span *ngIf="form.get('discount')['errors']['pattern']">Value must be greater than 0.</span>
                 </div>
             </div>
           </div>                    
@@ -27,6 +28,7 @@
                      formControlName="limit">
                 <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('limit').invalid && form.get('limit').dirty">
                     <span *ngIf="form.get('limit')['errors']['required']">Field is required.</span>
+                    <span *ngIf="form.get('limit')['errors']['pattern']">Value must be greater than 0.</span>
                 </div>
             </div>
           </div>  
@@ -38,7 +40,7 @@
                      formControlName="count">
                 <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('count').invalid && form.get('count').dirty">
                     <span *ngIf="form.get('count')['errors']['required']">Field is required.</span>
-                    <span *ngIf="form.get('count')['errors']['min']">Minimum value is 1.</span>
+                    <span *ngIf="form.get('count')['errors']['pattern']">Value must be integer and greater than 0.</span>
                 </div>
             </div>
           </div>   		  
@@ -50,7 +52,7 @@
                      formControlName="valid">
                 <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('valid').invalid && form.get('valid').dirty">
                     <span *ngIf="form.get('valid')['errors']['required']">Field is required.</span>
-                    <span *ngIf="form.get('valid')['errors']['min']">Minimum value is 1.</span>
+                    <span *ngIf="form.get('valid')['errors']['pattern']">Value must be integer and greater than 0.</span>
                 </div>
             </div>
           </div>  

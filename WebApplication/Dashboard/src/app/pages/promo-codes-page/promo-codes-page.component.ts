@@ -58,10 +58,10 @@ export class PromoCodesPageComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      'discount': ['', [Validators.required, Validators.max(100)]],
-      'limit': ['', Validators.required],
-      'count': ['', [Validators.required, Validators.min(1)]],
-      'valid': ['', [Validators.required, Validators.min(1)]]
+      'discount': ['', [Validators.required, Validators.max(100), Validators.pattern(/^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$/)]],
+      'limit': ['', [Validators.required, Validators.pattern(/^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$/)]],
+      'count': ['', [Validators.required, Validators.pattern(/^[1-9][0-9]*$/)]],
+      'valid': ['', [Validators.required, Validators.pattern(/^[1-9][0-9]*$/)]]
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
