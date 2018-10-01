@@ -31,8 +31,10 @@ export class PromoCodesPageComponent implements OnInit {
   public locale: string;
   public loading: boolean;
   public progress: boolean;
+  public isDataLoaded: boolean = false;
   public page = new Page();
   public filterValue: string;
+  public promoCodesWriteAccess: boolean = false;
   public filterUsed = {
     used: false,
     unused: false
@@ -70,6 +72,21 @@ export class PromoCodesPageComponent implements OnInit {
 
     this.userService.currentLocale.subscribe(currentLocale => {
       this.locale = currentLocale;
+    });
+
+    this.apiService.getProfile().subscribe(profile => {
+      let id = +profile['data'].id.slice(1);
+
+      this.apiService.getUsersAccountInfo(id).subscribe(data => {
+        data['data'].accessRights.forEach(item => {
+          if (item.n === 'PromoCodesWriteAccess') {
+            this.promoCodesWriteAccess = item.c;
+          }
+        });
+
+        this.isDataLoaded = true;
+        this.cdRef.markForCheck();
+      });
     });
 
     this.setPage({ offset: 0 });

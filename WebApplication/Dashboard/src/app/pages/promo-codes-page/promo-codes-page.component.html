@@ -58,7 +58,10 @@
           </div>  
 		  
           <div class="col-lg-auto pb-3 pt-3">
-            <button type="submit" class="btn btn-primary btn-generate" [disabled]="form.invalid">{{ "Generate" }}</button>
+            <button type="submit" class="btn btn-primary btn-generate" [disabled]="form.invalid || !promoCodesWriteAccess">{{ "Generate" }}</button>
+          </div>
+          <div class="col-12" *ngIf="isDataLoaded && !promoCodesWriteAccess">
+            You don't have access rights for generate promo codes
           </div>
         </div>
 
