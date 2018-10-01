@@ -100,8 +100,7 @@ export class PromoCodesPageComponent implements OnInit {
   genPromoCode() {
     this.loading = true;
     this.form.disable();
-    this.cdRef.detectChanges();	
-	
+
     const discount = this.form.controls.discount.value;
     const limit = this.form.controls.limit.value;
     const count = this.form.controls.count.value;
@@ -109,10 +108,15 @@ export class PromoCodesPageComponent implements OnInit {
 	
     this.apiService.generatePromoCode("GOLD", limit, discount, count, valid).subscribe(() => {
       this._messageBox.alert('Success');
-      this.setPage({ offset: 0 });
+      this.form.enable();
+      this.form.reset();
       this.loading = false;
+      this.setPage({ offset: 0 });
+      this.cdRef.markForCheck();
     }, () => {
       this._messageBox.alert('Error');
+      this.form.enable();
+      this.cdRef.markForCheck();
     });
   }
   
