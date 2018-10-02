@@ -15,7 +15,8 @@
       "Sell": "Sell GOLD",
       "Buy": "Buy GOLD",
       "Transfer": "Transfer GOLD",
-      "Finance": "Finance"
+      "Finance": "Finance",
+	  "MasterNode": "Master node"
     }
   },
   "FOOTER": {
@@ -231,6 +232,74 @@
             "Unlimited": "Unlimited",
             "LimitUsed": "Limit used:"
           }
+        }
+      }
+    },
+	"MasterNode": {
+      "Heading": "Master Node",
+      "Tabs": {
+        "Overview": "Overview",
+        "Launch": "Launch master node",
+        "Migration": "Token migration"
+      },
+      "LaunchPage": {
+        "Heading": "Launch Master Node",
+        "Description": "Here you can find the installation and configuration instructions for your blockchain Goldmint master-node for OS",
+        "Labels": {
+          "ChooseOS": "Choose OS",
+          "VideoInst": "Video instruction",
+          "TextInst": "Text instruction",
+          "InstFor": "Instruction for"
+        },
+        "Buttons": {
+          "Migrate": "I'm ready for doing the migration of my MNTP tokens to start mining",
+          "MigrateSmall": "I'm ready for doing the migration"
+        }
+      },
+      "MigrationPage": {
+        "Heading": "Token Migration",
+        "TransferDescr": "You have to transfer your tokens to this address:",
+        "Labels": {
+          "Amount": "Amount",
+          "Address": "Sumus address"
+        },
+        "Errors": {
+          "InvalidAmount": "Invalid amount",
+          "Maximum": "Maximum amount is",
+          "Required": "Field is required",
+          "InvalidAddress": "Invalid address"
+        },
+        "Buttons": {
+          "go": "GO"
+        }
+      },
+      "Overview": {
+        "Heading": "Overview",
+        "Labels": {
+          "Nodes": "Total running nodes:",
+          "MNT": "Total MNT holded:",
+          "Reward": "Total reward earned:",
+          "ActiveNodes": "Current active nodes"
+        },
+        "Links": {
+          "LatestReward": "Latest reward distributions"
+        },
+        "Table": {
+          "Node": "Node wallet",
+          "Date": "Launch date",
+          "MNT": "MNT Holded",
+          "Reward": "Total reward earned",
+          "Chart": "Mini chart"
+        },
+        "Chart": "Reward Progress Chart"
+      },
+      "LatestReward": {
+        "Heading": "Latest reward distributions",
+        "Table": {
+          "Date": "Date",
+          "TxAmount": "Tx amount",
+          "TransferredToken": "Transferred token amount",
+          "RewardAmount": "Reward amount"
         }
       }
     },

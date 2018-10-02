@@ -78,6 +78,7 @@ namespace Goldmint.WebApplication {
 				});
 			});
 
+            
 		    services.AddDbContext<CustodyBotDbContext>(opts => {
 		        opts.UseMySql(_appConfig.ConnectionStrings.CustodyBot, myopts => {
 		            myopts.UseRelationalNulls(true);

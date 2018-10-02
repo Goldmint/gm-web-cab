@@ -98,14 +98,20 @@ import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-se
 import { SettingsFeesPageComponent } from './pages/settings-page/settings-fees-page/settings-fees-page.component';
 import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component';
 import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
+import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
+import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
+import { TokenMigrationPageComponent } from './pages/master-node-page/token-migration-page/token-migration-page.component';
+import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
 import { BuyCardPageComponent } from './pages/buy-page/buy-card-page/buy-card-page.component';
 import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-card-page.component';
 import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
 import {NgxMaskModule} from "ngx-mask";
-import {GoldDiscount} from "./pipres/gold-discount";
-
+import {GoldDiscount} from "./pipes/gold-discount";
+import {SubstrPipe} from "./pipes/substr.pipe";
+import {NoexpPipe} from "./pipes/noexp.pipe";
+import {DeviceDetectorModule} from "ngx-device-detector";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -154,6 +160,10 @@ export function getGoldmintToken() {
     MessageBoxComponent,
     SpriteComponent,
     BuyPageComponent,
+	MasterNodePageComponent,
+    LaunchNodePageComponent,
+	OverviewPageComponent,
+	TokenMigrationPageComponent,
     HistoryPageComponent,
     HomePageComponent,
     LimitsPageComponent,
@@ -184,6 +194,8 @@ export function getGoldmintToken() {
     NoautocompleteDirective,
     StaticPagesComponent,
     SafePipe,
+	SubstrPipe,
+    NoexpPipe,
     GoldDiscount,
     LoginDpaRequiredComponent,
     LoginDpaSignedComponent,

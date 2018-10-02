@@ -36,6 +36,7 @@ import {SettingsCardsPageComponent} from "./pages/settings-page/settings-cards-p
 import {BuyCardPageComponent} from "./pages/buy-page/buy-card-page/buy-card-page.component";
 import {SellCardPageComponent} from "./pages/sell-page/sell-card-page/sell-card-page.component";
 import {TransferPageComponent} from "./pages/transfer-page/transfer-page.component";
+import {MasterNodePageComponent} from "./pages/master-node-page/master-node-page.component";
 
 
 const appRoutes: Routes = [
@@ -52,6 +53,7 @@ const appRoutes: Routes = [
   { path: 'signup/2fa', component: RegisterTfaPageComponent },
   { path: 'home', component: HomePageComponent, canActivate: [AuthGuard] },
   { path: 'buy', component: BuyPageComponent, canActivate: [AuthGuard] },
+  { path: 'master-node', component: MasterNodePageComponent, canActivate: [AuthGuard] },
   { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'buy/payment-card', component: BuyCardPageComponent, canActivate: [AuthGuard] },
   { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },

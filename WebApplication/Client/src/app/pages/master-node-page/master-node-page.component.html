@@ -1,0 +1,30 @@
+<div class="page">
+  <h1 class="page__heading">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
+
+  <div>
+    <div class="col-auto btn-group p-0 mn-tabs">
+      <label class="btn btn-primary btn-sm active wrap"
+             name="limitsSwitchModel.type"
+             [(ngModel)]="switchModel.type"
+             btnRadio="overview">{{ "PAGES.MasterNode.Tabs.Overview" | translate }}</label>
+      <label class="btn btn-primary btn-sm active wrap"
+             name="limitsSwitchModel.type"
+             [(ngModel)]="switchModel.type"
+             btnRadio="launch">{{ "PAGES.MasterNode.Tabs.Launch" | translate }}</label>
+      <label class="btn btn-primary btn-sm wrap"
+             name="limitsSwitchModel.type"
+             [(ngModel)]="switchModel.type"
+             btnRadio="migration">{{ "PAGES.MasterNode.Tabs.Migration" | translate }}</label>
+    </div>
+
+    <div *ngIf="switchModel.type === 'overview'">
+      <app-overview-page></app-overview-page>
+    </div>
+    <div *ngIf="switchModel.type === 'launch'">
+      <app-launch-node-page (migration)="goToMigration($event)"></app-launch-node-page>
+    </div>
+    <div *ngIf="switchModel.type === 'migration'">
+      <app-token-migration-page></app-token-migration-page>
+    </div>
+  </div>
+</div>
