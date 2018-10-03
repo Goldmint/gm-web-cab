@@ -55,8 +55,14 @@
                     <span *ngIf="form.get('valid')['errors']['pattern']">Value must be integer and greater than 0.</span>
                 </div>
             </div>
-          </div>  
-		  
+          </div>
+
+          <div class="custom-control custom-checkbox col-12 ml-2">
+              <input class="custom-control-input" id="usageType" name="usageType" type="checkbox"
+                     formControlName="usageType">
+              <label class="custom-control-label" for="usageType">Multiple</label>
+          </div>
+
           <div class="col-lg-auto pb-3 pt-3">
             <button type="submit" class="btn btn-primary btn-generate" [disabled]="form.invalid || !promoCodesWriteAccess">{{ "Generate" }}</button>
           </div>
@@ -201,8 +207,19 @@
         <ng-template let-username="value" let-row="row" ngx-datatable-cell-template>
           {{ username }}
         </ng-template>
-        </ngx-datatable-column>   
-		
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="usageType" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Usage type
+              </span>
+            </ng-template>
+
+            <ng-template let-usageType="value" let-row="row" ngx-datatable-cell-template>
+                {{ usageType == 1 ? 'Single' : 'Multiple' }}
+            </ng-template>
+        </ngx-datatable-column>
 
         </ngx-datatable>
 
