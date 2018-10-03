@@ -15,7 +15,7 @@ export class MasterNodePageComponent implements OnInit {
 
   ngOnInit() {
     this.switchModel = {
-      type: 'overview'
+      type: 'migration'
     };
   }
 
