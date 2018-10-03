@@ -137,8 +137,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
 			}
 
-            //get promocode and check again then mark it as used
-            await MarkAsUsed(model.PromoCode, user.Id, model.RequestId);
+		    if (model.PromoCode != null)
+		    {
+		        //get promocode and check again then mark it as used
+		        await MarkAsUsed(model.PromoCode, user.Id, model.RequestId);
+            }
 
             // activity
             var userActivity = CoreLogic.User.CreateUserActivity(
@@ -307,7 +310,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			var resultGoldAmount = BigInteger.Zero;
 
 			object viewAmount = null;
-			string viewAmountCurrency = "";
+			var viewAmountCurrency = "";
 
 			var limitsData = (EstimateLimitsView) null;
 
