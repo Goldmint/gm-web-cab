@@ -598,11 +598,26 @@ namespace Goldmint.Common {
 		Exchange,
 	}
 
-	#endregion
+    public enum PromoCodeUsageType
+    {
 
-	#region CustodyBot
+        /// <summary>
+        /// For one user
+        /// </summary>
+        Single = 1,
 
-	public enum ClientRole {
+        /// <summary>
+        /// For multiple users
+        /// </summary>
+        Multiple
+    }
+
+
+    #endregion
+
+    #region CustodyBot
+
+    public enum ClientRole {
 
 		RoleUnknown = 0,
 		RoleAdmin = 1,
