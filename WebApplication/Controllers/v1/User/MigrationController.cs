@@ -9,6 +9,7 @@ using Goldmint.WebApplication.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
+
 	[Route("api/v1/user/migration")]
 	public class MigrationController : BaseController {
 		/// <summary>
@@ -31,7 +32,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DbContext.MigrationEthereumToSumusRequest.Add(new MigrationEthereumToSumusRequest {
 					Asset = MigrationRequestAsset.Mnt,
 					Status = MigrationRequestStatus.TransferConfirmation,
-					EthAddress = model.EthereumAddress,
+					EthAddress = model.EthereumAddress?.ToLowerInvariant(),
 					SumAddress = model.SumusAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
@@ -72,7 +73,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Asset = MigrationRequestAsset.Mnt,
 					Status = MigrationRequestStatus.TransferConfirmation,
 					SumAddress = model.SumusAddress,
-					EthAddress = model.EthereumAddress,
+					EthAddress = model.EthereumAddress?.ToLowerInvariant(),
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
 					TimeNextCheck = DateTime.UtcNow.Add(TimeSpan.FromSeconds(AppConfig.Services.Sumus.MigrationRequestNextCheckDelay)),
@@ -110,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DbContext.MigrationEthereumToSumusRequest.Add(new MigrationEthereumToSumusRequest {
 					Asset = MigrationRequestAsset.Gold,
 					Status = MigrationRequestStatus.TransferConfirmation,
-					EthAddress = model.EthereumAddress,
+					EthAddress = model.EthereumAddress?.ToLowerInvariant(),
 					SumAddress = model.SumusAddress,
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
@@ -149,7 +150,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Asset = MigrationRequestAsset.Gold,
 					Status = MigrationRequestStatus.TransferConfirmation,
 					SumAddress = model.SumusAddress,
-					EthAddress = model.EthereumAddress,
+					EthAddress = model.EthereumAddress?.ToLowerInvariant(),
 					Block = 0,
 					TimeCreated = DateTime.UtcNow,
 					TimeNextCheck = DateTime.UtcNow.Add(

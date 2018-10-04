@@ -40,7 +40,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 								ret = des.res;
 							}
 						})
-						.SendGet(url, TimeSpan.FromSeconds(90))
+						.SendPost(url, TimeSpan.FromSeconds(90))
 					;
 			}
 			return ret;
