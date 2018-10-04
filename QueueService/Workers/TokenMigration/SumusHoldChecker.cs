@@ -82,22 +82,22 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				if (IsCancelled()) return;
 				_dbContext.DetachEverything();
 
-				_logger.Debug($"Trying to process transfer at {v.Hash}");
+				_logger.Debug($"Trying to process transfer at {v.Data.Hash}");
 
-				if (v.TokenAmount <= 0) {
-					_logger.Debug($"Invalid amount of transfer at {v.Hash}");
+				if (v.Data.TokenAmount <= 0) {
+					_logger.Debug($"Invalid amount of transfer at {v.Data.Hash}");
 					continue;
 				}
 
 				MigrationRequestAsset asset;
 
 				// gold
-				if (v.Token == SumusToken.Gold) asset = MigrationRequestAsset.Gold;
+				if (v.Data.Token == SumusToken.Gold) asset = MigrationRequestAsset.Gold;
 				// mint
-				else if (v.Token == SumusToken.Mnt) asset = MigrationRequestAsset.Mnt;
+				else if (v.Data.Token == SumusToken.Mnt) asset = MigrationRequestAsset.Mnt;
 				// unknown
 				else {
-					_logger.Debug($"Unsupported token type {v.Token} at {v.Hash}");
+					_logger.Debug($"Unsupported token type {v.Data.Token} at {v.Data.Hash}");
 					continue;
 				}
 
@@ -107,7 +107,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 						where
 							r.Asset == asset &&
 							r.Status == MigrationRequestStatus.TransferConfirmation &&
-							r.SumAddress == v.From
+							r.SumAddress == v.Data.From
 						select r
 					)
 					.AsTracking()
@@ -116,15 +116,15 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 				// not found
 				if (row == null) {
-					_logger.Debug($"Transfer at {v.Hash} not found in DB (or previously processed)");
+					_logger.Debug($"Transfer at {v.Data.Hash} not found in DB (or previously processed)");
 					continue;
 				}
 
 				// update
 				row.Status = MigrationRequestStatus.Emission;
-				row.Amount = v.TokenAmount;
-				row.Block = v.BlockNumber;
-				row.SumTransaction = v.Hash;
+				row.Amount = v.Data.TokenAmount;
+				row.Block = v.Data.BlockNumber;
+				row.SumTransaction = v.Data.Hash;
 				row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
 
 				// save
@@ -132,11 +132,11 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 					await _dbContext.SaveChangesAsync();
 				}
 				catch (Exception e) when (e.IsMySqlDuplicateException()) {
-					_logger.Debug($"Transfer at {v.Hash} is already processed");
+					_logger.Debug($"Transfer at {v.Data.Hash} is already processed");
 					continue;
 				}
 
-				_logger.Info($"Transfer at {v.Hash} is processed");
+				_logger.Info($"Transfer at {v.Data.Hash} is processed");
 				++_statProcessed;
 			}
 

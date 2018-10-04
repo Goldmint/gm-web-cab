@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.Common.Extensions;
-using Goldmint.Common.Sumus;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
 using Goldmint.DAL;
@@ -22,7 +21,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private ISumusWriter _sumusWriter;
-		private Goldmint.Common.Sumus.Signer _emitterSigner;
+		private Common.Sumus.Signer _emitterSigner;
 
 		private long _statProcessed = 0;
 		private long _statFailed = 0;
@@ -39,7 +38,13 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_sumusWriter = services.GetRequiredService<ISumusWriter>();
 
-			// _emitterSigner = new Signer(appConfig.Services.Sumus.MigrationEmitterPk);
+			if (!Common.Sumus.Pack58.Unpack(appConfig.Services.Sumus.MigrationEmissionPk, out var pk)) {
+				throw new ArgumentException("Sumus emission private key is invalid");
+			}
+			_emitterSigner = new Common.Sumus.Signer(pk, 0);
+
+
+
 			return Task.CompletedTask;
 		}
 
@@ -75,7 +80,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 				SentTransaction sumTransaction = null;
 
-				if (row.Amount != null && Pack58.Unpack(row.SumAddress, out var sumusAddressBytes)) {
+				if (row.Amount != null && Common.Sumus.Pack58.Unpack(row.SumAddress, out var sumusAddressBytes)) {
 					SumusToken stoken = 0;
 					switch (row.Asset) {
 						case MigrationRequestAsset.Gold: 
@@ -86,23 +91,25 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 							break;
 					}
 					sumTransaction = await _sumusWriter.TransferToken(
-						_emitterSigner.PrivateKeyBytes, 
+						_emitterSigner, 
 						_emitterSigner.NextNonce(), 
 						sumusAddressBytes, 
 						stoken, 
-						row.Amount ?? 0M
+						row.Amount.Value.ToSumus()
 					);
 				}
 
 				if (sumTransaction != null) {
-					row.Status = MigrationRequestStatus.Completed;
-					row.SumTransaction = sumTransaction.Hash;
-					row.TimeCompleted = DateTime.UtcNow;
+					row.TimeEmitted = DateTime.UtcNow;
 
 					// TODO: check?
 					// row.Status = MigrationRequestStatus.EmissionConfirmation;
 					// row.SumTransaction = sumTransaction;
 					// row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
+					
+					row.Status = MigrationRequestStatus.Completed;
+					row.SumTransaction = sumTransaction.Hash;
+					row.TimeCompleted = DateTime.UtcNow;
 				}
 				else {
 					row.Status = MigrationRequestStatus.Failed;

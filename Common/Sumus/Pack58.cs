@@ -17,12 +17,12 @@ namespace Goldmint.Common.Sumus {
 			return Multiformats.Base.Multibase.Base58.Encode(data.Concat(crc).ToArray());
 		}
 
-		public static bool Unpack(string addr, out byte[] data) {
+		public static bool Unpack(string str, out byte[] data) {
 			if (!BitConverter.IsLittleEndian) throw new Exception("Big-endian is not supported");
 
 			data = null;
 			try {
-				var bytes = Multiformats.Base.Multibase.Base58.Decode(addr);
+				var bytes = Multiformats.Base.Multibase.Base58.Decode(str);
 				if (bytes != null && bytes.Length > 4) {
 					var payloadBytes = bytes.Take(bytes.Length - 4).ToArray();
 					var crcBytes = bytes.Skip(bytes.Length - 4).Take(4).ToArray();

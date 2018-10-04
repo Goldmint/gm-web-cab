@@ -55,6 +55,12 @@ namespace Goldmint.Common.Sumus {
 			return ret;
 		}
 
+		public void SetNonce(ulong nonce) {
+			_nonceLocker.EnterWriteLock();
+			_nonce = nonce;
+			_nonceLocker.ExitWriteLock();
+		}
+
 		public byte[] Sign(byte[] message) {
 			if ((message?.Length ?? 0) == 0) {
 				throw new ArgumentException("Can't sign empty message");

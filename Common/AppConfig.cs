@@ -5,6 +5,7 @@
 		public ConnectionStringsSection ConnectionStrings { get; set; } = new ConnectionStringsSection();
 		public class ConnectionStringsSection {
 			public string Default { get; set; } = "";
+			public string Scanner { get; set; } = "";
 		    public string CustodyBot { get; set; } = "";
         }
 
@@ -158,8 +159,11 @@
 			public class SumusSection {
 
 				public string MigrationHolderAddress { get; set; } = "";
-			    public int SumusNextCheckDelay { get; set; } = 20;
+				public string MigrationEmissionPk { get; set; } = "";
 
+				public string SumusNodeProxyUrl { get; set; } = "";
+
+			    public int MigrationRequestNextCheckDelay { get; set; } = 20;
             }
 
 			public IpfsSection Ipfs { get; set; } = new IpfsSection();

@@ -7,6 +7,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Models {
 	public sealed class TransactionInfo {
 
 		public SumusTransactionStatus Status { get; internal set; }
+		public TransactionData Data { get; internal set; }
+	}
+
+	public sealed class TransactionData {
 		public ulong Id { get; internal set; }
 		public string Hash { get; internal set; }
 		public ulong BlockNumber { get; internal set; }
