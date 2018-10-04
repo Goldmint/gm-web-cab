@@ -77,8 +77,11 @@ namespace Goldmint.WebApplication {
 					myopts.UseRelationalNulls(true);
 				});
 			});
-
-            
+			services.AddDbContext<ScannerDbContext>(opts => {
+		        opts.UseMySql(_appConfig.ConnectionStrings.Scanner, myopts => {
+		            myopts.UseRelationalNulls(true);
+		        });
+		    });
 		    services.AddDbContext<CustodyBotDbContext>(opts => {
 		        opts.UseMySql(_appConfig.ConnectionStrings.CustodyBot, myopts => {
 		            myopts.UseRelationalNulls(true);

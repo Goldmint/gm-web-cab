@@ -63,7 +63,8 @@ export class PromoCodesPageComponent implements OnInit {
       'discount': ['', [Validators.required, Validators.max(100), Validators.pattern(/^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$/)]],
       'limit': ['', [Validators.required, Validators.pattern(/^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$/)]],
       'count': ['', [Validators.required, Validators.pattern(/^[1-9][0-9]*$/)]],
-      'valid': ['', [Validators.required, Validators.pattern(/^[1-9][0-9]*$/)]]
+      'valid': ['', [Validators.required, Validators.pattern(/^[1-9][0-9]*$/)]],
+      'usageType': [false, null]
     });
 
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -122,8 +123,9 @@ export class PromoCodesPageComponent implements OnInit {
     const limit = this.form.controls.limit.value;
     const count = this.form.controls.count.value;
     const valid = this.form.controls.valid.value;
-	
-    this.apiService.generatePromoCode("GOLD", limit, discount, count, valid).subscribe(() => {
+    const usageType = this.form.controls.usageType.value ? 2 : 1;
+
+    this.apiService.generatePromoCode("GOLD", limit, discount, usageType, count, valid).subscribe(() => {
       this._messageBox.alert('Success');
       this.form.enable();
       this.form.reset();

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus {
 		/// <summary>
 		/// Get transaction info or null (not found)
 		/// </summary>
-		Task<TransactionInfo> GetTransactionInfo(string hash);
+		Task<TransactionInfo> GetTransactionInfo(string hash, DateTime? postedAtTime = null);
 
 		/// <summary>
 		/// Get last processed block number
@@ -21,5 +22,9 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus {
 		/// </summary>
 		Task<List<TransactionInfo>> GetBlocksSpanTransaction(string destinationWallet, ulong beginBlock, ulong endBlock);
 
+		/// <summary>
+		/// Get wallet state
+		/// </summary>
+		Task<WalletState> GetWalletState(string addr);
 	}
 }

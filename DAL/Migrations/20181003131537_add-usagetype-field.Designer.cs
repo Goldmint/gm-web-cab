@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181003131537_add-usagetype-field")]
+    partial class addusagetypefield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -628,10 +629,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<DateTime>("TimeCreated")
                         .HasColumnName("time_created");
-
-                    b.Property<DateTime?>("TimeEmitted")
-                        .IsRequired()
-                        .HasColumnName("time_emitted");
 
                     b.Property<DateTime>("TimeNextCheck")
                         .HasColumnName("time_next_check");

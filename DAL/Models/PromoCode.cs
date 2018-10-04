@@ -22,7 +22,10 @@ namespace Goldmint.DAL.Models
         [Column("discount_value"), Required]
 		public double DiscountValue { get; set; }
 
-		[Column("user_id")]
+	    [Column("usage_type"), Required]
+	    public PromoCodeUsageType UsageType { get; set; }
+
+        [Column("user_id")]
 		public long? UserId { get; set; }
 
 		[ForeignKey(nameof(UserId))]

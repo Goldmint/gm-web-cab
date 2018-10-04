@@ -58,6 +58,12 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 	    [Required]
 	    public string DiscountValue { get; set; }
 
+	    /// <summary>
+	    /// PromoCode valid for all GM users
+	    /// </summary>
+	    [Required]
+	    public PromoCodeUsageType UsageType { get; set; }
+
         /// <summary>
         /// Used by user or null
         /// </summary>
@@ -87,7 +93,6 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
 
 	public class GenerateModel : BaseValidableModel
 	{
-
         /// <summary>
         /// Eth = 1,
         /// Mnt = 2,
@@ -108,6 +113,12 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
         [Required]
 		public string DiscountValue { get; set; }
 
+	    /// <summary>
+	    /// PromoCode valid for all GM users
+	    /// </summary>
+	    [Required]
+	    public PromoCodeUsageType UsageType { get; set; }
+
         /// <summary>
         /// Count to generate
         /// </summary>
@@ -120,7 +131,7 @@ namespace Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels {
         [Required]
 		public double ValidForDays { get; set; }
 
-		protected override FluentValidation.Results.ValidationResult ValidateFields() {
+        protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<GenerateModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
 			return v.Validate(this);
