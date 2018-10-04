@@ -9,7 +9,7 @@ using Goldmint.WebApplication.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
-	[Route("api/v1/migration")]
+	[Route("api/v1/user/migration")]
 	public class MigrationController : BaseController {
 		/// <summary>
 		/// MNTP token migration Ethereum to Sumus
