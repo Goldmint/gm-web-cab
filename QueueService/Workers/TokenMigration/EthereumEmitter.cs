@@ -14,7 +14,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 	public class EthereumEmitter : BaseWorker {
 
 		private readonly int _rowsPerRound;
-		private readonly int _nextCheckDelay;
 
 		private ILogger _logger;
 		private AppConfig _appConfig;
@@ -26,9 +25,8 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		// ---
 
-		public EthereumEmitter(int rowsPerRound, int nextCheckDelay) {
+		public EthereumEmitter(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
-			_nextCheckDelay = Math.Max(1, nextCheckDelay);
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -44,7 +42,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 			_dbContext.DetachEverything();
 
 			var nowTime = DateTime.UtcNow;
-			var nextCheckDelay = TimeSpan.FromSeconds(_nextCheckDelay);
 
 			var rows = await (
 					from r in _dbContext.MigrationSumusToEthereumRequest
@@ -79,7 +76,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				if (ethTransaction != null) {
 					row.Status = MigrationRequestStatus.EmissionConfirmation;
 					row.EthTransaction = ethTransaction;
-					row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
+					row.TimeNextCheck = DateTime.UtcNow.AddSeconds(30);
 				}
 				else {
 					row.Status = MigrationRequestStatus.Failed;

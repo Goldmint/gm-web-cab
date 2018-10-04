@@ -10,7 +10,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus {
 		/// <summary>
 		/// Get transaction info or null (not found)
 		/// </summary>
-		Task<TransactionInfo> GetTransactionInfo(string hash, DateTime? postedAtTime);
+		Task<TransactionInfo> GetTransactionInfo(string hash, DateTime? postedAtTime = null);
 
 		/// <summary>
 		/// Get last processed block number

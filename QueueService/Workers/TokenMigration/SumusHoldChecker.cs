@@ -18,7 +18,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 	public class SumusHoldChecker : BaseWorker {
 
 		private readonly int _blocksPerRound;
-		private readonly int _nextCheckDelay;
 
 		private ILogger _logger;
 		private AppConfig _appConfig;
@@ -31,9 +30,8 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		// ---
 
-		public SumusHoldChecker(int blocksPerRound, int nextCheckDelay) {
+		public SumusHoldChecker(int blocksPerRound) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
-			_nextCheckDelay = Math.Max(1, nextCheckDelay);
 		}
 
 		protected override async Task OnInit(IServiceProvider services) {
@@ -57,8 +55,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		protected override async Task OnUpdate() {
 
 			_dbContext.DetachEverything();
-
-			var nextCheckDelay = TimeSpan.FromSeconds(_nextCheckDelay);
 
 			var maxBlock = await _sumusReader.GetLastBlockNumber();
 			var blockFrom = Math.Min((ulong) _lastBlock, maxBlock);
@@ -125,7 +121,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				row.Amount = v.Data.TokenAmount;
 				row.Block = v.Data.BlockNumber;
 				row.SumTransaction = v.Data.Hash;
-				row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
+				row.TimeNextCheck = DateTime.UtcNow.AddSeconds(0);
 
 				// save
 				try {

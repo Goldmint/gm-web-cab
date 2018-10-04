@@ -1,16 +1,14 @@
-﻿using Common;
+﻿using Goldmint.Common;
+using Goldmint.Common.Extensions;
+using Goldmint.CoreLogic.Services.Blockchain.Sumus;
+using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
+using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.Common.Extensions;
-using Goldmint.CoreLogic.Services.Blockchain.Sumus;
-using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
-using Goldmint.DAL;
 
 namespace Goldmint.QueueService.Workers.TokenMigration {
 

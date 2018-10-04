@@ -14,7 +14,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 	public class SumusEmissionConfirm : BaseWorker {
 
 		private readonly int _rowsPerRound;
-		private readonly int _nextCheckDelay;
 
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
@@ -25,9 +24,8 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		// ---
 
-		public SumusEmissionConfirm(int rowsPerRound, int nextCheckDelay) {
+		public SumusEmissionConfirm(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
-			_nextCheckDelay = Math.Max(1, nextCheckDelay);
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -42,7 +40,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 			_dbContext.DetachEverything();
 
 			var nowTime = DateTime.UtcNow;
-			var nextCheckDelay = TimeSpan.FromSeconds(_nextCheckDelay);
 
 			var rows = await (
 					from r in _dbContext.MigrationEthereumToSumusRequest
@@ -65,7 +62,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 				if (IsCancelled()) return;
 
-				var info = await _sumusReader.GetTransactionInfo(row.SumTransaction);
+				var info = await _sumusReader.GetTransactionInfo(row.SumTransaction, row.TimeEmitted);
 
 				// not found / failed
 				if (info == null || info.Status == SumusTransactionStatus.Failed) {
@@ -85,7 +82,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				}
 				// pending
 				else {
-					row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
+					row.TimeNextCheck = DateTime.UtcNow.AddSeconds(15);
 					_logger.Info($"Request {row.Id} - emission is still pending");
 				}
 				await _dbContext.SaveChangesAsync();
