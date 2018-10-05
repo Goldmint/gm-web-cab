@@ -37,6 +37,9 @@ namespace Goldmint.DAL.Models
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 
+		[Column("time_emitted"), Required]
+		public DateTime? TimeEmitted { get; set; }
+
 		[Column("time_next_check"), Required]
 		public DateTime TimeNextCheck { get; set; }
 

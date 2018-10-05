@@ -17,7 +17,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		private readonly int _blocksPerRound;
 		private readonly int _confirmationsRequired;
-		private readonly int _nextCheckDelay;
 
 		private ILogger _logger;
 		private AppConfig _appConfig;
@@ -30,10 +29,9 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		// ---
 
-		public EthereumHoldChecker(int blocksPerRound, int confirmationsRequired, int nextCheckDelay) {
+		public EthereumHoldChecker(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
-			_nextCheckDelay = Math.Max(1, nextCheckDelay);
 		}
 
 		protected override async Task OnInit(IServiceProvider services) {
@@ -57,8 +55,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		protected override async Task OnUpdate() {
 
 			_dbContext.DetachEverything();
-
-			var nextCheckDelay = TimeSpan.FromSeconds(_nextCheckDelay);
 
 			// get events
 			var log = await _ethereumReader.GatherMigrationContractTransfers(_lastBlock, _lastBlock + _blocksPerRound, _confirmationsRequired);
@@ -137,7 +133,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				row.Amount = decAmount;
 				row.Block = longBlock;
 				row.EthTransaction = v.Transaction;
-				row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
+				row.TimeNextCheck = DateTime.UtcNow.AddSeconds(0);
 
 				// save
 				try {

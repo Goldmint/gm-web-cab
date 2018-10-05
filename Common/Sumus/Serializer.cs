@@ -36,6 +36,18 @@ namespace Goldmint.Common.Sumus {
 		public void Write(byte v) {
 			_buffer.WriteByte(v);
 		}
+		
+		public void Write(SumusToken v) {
+			if (v == SumusToken.Mnt) {
+				this.Write((ushort)0);
+			}
+			else if (v == SumusToken.Gold) {
+				this.Write((ushort)1);
+			}
+			else {
+				throw new NotImplementedException("Can't serialize sumus token");
+			}
+		}
 
 		public void Write(byte[] v) {
 			if (v == null) throw new ArgumentException("Array is null");
@@ -69,6 +81,11 @@ namespace Goldmint.Common.Sumus {
 			const int fmax = 18;
 
 			_buffer.WriteByte(v < 0 ? (byte)1 : (byte)0);
+
+			// ensure we can fit amount
+			if (v.ToString().TrimStart('-').Length > imax + fmax) {
+				throw new ArgumentException($"Can't serialize {v.ToString().TrimStart('-')}");
+			}
 
 			var str = v.ToString().TrimStart('-').PadLeft(TokensPrecision.Sumus + 1, '0');
 			str = str.Substring(0, str.Length - TokensPrecision.Sumus) + "." + str.Substring(str.Length - TokensPrecision.Sumus);

@@ -15,6 +15,7 @@ namespace Goldmint.Common.Sumus {
 		public string Name;
 		public string Data;
 		public string Hash;
+		public string Digest;
 
 		public Transaction() {
 		}
@@ -26,6 +27,7 @@ namespace Goldmint.Common.Sumus {
 			var txname = "";
 			var txdata = "";
 			var txhash = "";
+			var txdigest = "";
 
 			using (var s = new Serializer()) {
 				s.Write(nonce);
@@ -45,6 +47,7 @@ namespace Goldmint.Common.Sumus {
 
 				txdata = s.Hex();
 				txhash = Pack58.PackHash(signer.PublicKeyBytes, nonce);
+				txdigest = Pack58.Pack(digest);
 			}
 
 			return new Transaction() {
@@ -52,12 +55,13 @@ namespace Goldmint.Common.Sumus {
 				Hash = txhash,
 				Name = txname,
 				Nonce = nonce,
+				Digest = txdigest,
 			};
 		}
 
 		// ---
 
-		public static Transaction TransferAsset(Signer signer, ulong nonce, byte[] addr, ushort token, BigInteger amount) {
+		public static Transaction TransferAsset(Signer signer, ulong nonce, byte[] addr, SumusToken token, BigInteger amount) {
 			if (signer == null || addr == null || addr.Length != 32) {
 				throw new ArgumentException("Invalid signer, address or amount (token) specified");
 			}

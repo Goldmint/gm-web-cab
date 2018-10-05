@@ -15,7 +15,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		private readonly int _rowsPerRound;
 		private readonly int _confirmationsRequired;
-		private readonly int _nextCheckDelay;
 
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
@@ -26,10 +25,9 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		// ---
 
-		public EthereumEmissionConfirm(int rowsPerRound, int confirmationsRequired, int nextCheckDelay) {
+		public EthereumEmissionConfirm(int rowsPerRound, int confirmationsRequired) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
-			_nextCheckDelay = Math.Max(1, nextCheckDelay);
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -44,7 +42,6 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 			_dbContext.DetachEverything();
 
 			var nowTime = DateTime.UtcNow;
-			var nextCheckDelay = TimeSpan.FromSeconds(_nextCheckDelay);
 
 			var rows = await (
 					from r in _dbContext.MigrationSumusToEthereumRequest
@@ -87,7 +84,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				}
 				// pending
 				else {
-					row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
+					row.TimeNextCheck = DateTime.UtcNow.AddSeconds(30);
 					_logger.Info($"Request {row.Id} - emission is still pending");
 				}
 				await _dbContext.SaveChangesAsync();
