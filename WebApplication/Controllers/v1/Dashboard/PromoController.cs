@@ -1,7 +1,6 @@
 ﻿using Goldmint.Common;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
-using Goldmint.WebApplication.Models.API.v1.Dashboard.PromoModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,9 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
 using Goldmint.DAL.Models;
+using Goldmint.DAL.Models.PromoCode;
 using Goldmint.WebApplication.Models.API;
+using Goldmint.WebApplication.Models.API.v1.Dashboard;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard
@@ -25,8 +26,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
 		[HttpPost, Route("list")]
-		[ProducesResponseType(typeof(ListView), 200)]
-		public async Task<APIResponse> List([FromBody] ListModel model) {
+		[ProducesResponseType(typeof(object), 200)]
+		public async Task<APIResponse> List([FromBody] NoInputPagerModel model) {
 
 			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<PromoCode, object>>>()
 			{
@@ -38,62 +39,70 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 			{
 				return APIResponse.BadRequest(errFields);
 			}
+           
+		    var pages = await DbContext.PromoCode
+		        .OrderByDescending(_ => _.Id)
+		        .Take((int)(model.Limit + model.Offset * model.Limit))
+		        .PagerAsync(model.Offset, model.Limit,
+		            sortExpression.GetValueOrDefault(model.Sort), model.Ascending);
 
-			var query = DbContext.PromoCode
-				.Include(_ => _.User)
-				.AsNoTracking()
-				.AsQueryable();
-
-			if (!string.IsNullOrWhiteSpace(model.Filter)) {
-				query = query.Where(_ => _.Code.Contains(model.Filter) || (_.User != null && _.User.UserName.Contains(model.Filter)));
-			}
-			if (model.FilterUsed != null)
-			{
-			    query = model.FilterUsed.Value 
-			        ? query.Where(_ => _.UserId != null) 
-			        : query.Where(_ => _.UserId == null);
-			}
-
-			var page = await query.PagerAsync(model.Offset, model.Limit,
-				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
-			);
-
-			var list =
-				from i in page.Selected
-				select new ListViewItem()
-				{
-					Id = i.Id,
-					Username = i.User?.UserName,
-					Code = i.Code,
-				    Currency = i.Currency,
-				    Limit = i.Limit,
-                    DiscountValue = i.DiscountValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
-					TimeCreated = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
-					TimeExpires = ((DateTimeOffset)i.TimeExpires).ToUnixTimeSeconds(),
-					TimeUsed = i.TimeUsed != null? ((DateTimeOffset)i.TimeUsed.Value).ToUnixTimeSeconds(): (long?)(null),
-				}
-			;
-
-			return APIResponse.Success(
-				new ListView()
-				{
-					Items = list.ToArray(),
-					Limit = model.Limit,
-					Offset = model.Offset,
-					Total = page.TotalCount,
-				}
-			);
+		    
+            return APIResponse.Success(new PromoCodesPagerView()
+            {
+                Items = pages.Selected.ToArray(),
+                Limit = model.Limit,
+                Offset = model.Offset,
+                Total = pages.TotalCount,
+            });
 		}
 
-		/// <summary>
-		/// Generate promo codes
-		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
+	    /// <summary>
+	    /// PromoCode users info
+	    /// </summary>
+	    [RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
+	    [HttpPost, Route("info")]
+	    [ProducesResponseType(typeof(object), 200)]
+	    public async Task<APIResponse> PromoCodeInfo([FromBody] UsersInfo model)
+	    {
+
+	        var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<UsedPromoCodes, object>>>()
+	        {
+	            { "id",   _ => _.Id },
+	        };
+
+	        // validate
+	        if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields))
+	        {
+	            return APIResponse.BadRequest(errFields);
+	        }
+
+	        var query = (
+	            from r in DbContext.UsedPromoCodes
+	            where
+	                r.PromoCodeId == model.Id
+	            select r
+	        );
+
+	        var pages = await query.PagerAsync(model.Offset, model.Limit,
+	            sortExpression.GetValueOrDefault(model.Sort), model.Ascending);
+
+	        return APIResponse.Success(new UsedCodesPagerView()
+	        {
+	            Items = pages.Selected.ToArray(),
+	            Limit = model.Limit,
+	            Offset = model.Offset,
+	            Total = pages.TotalCount,
+	        });
+	    }
+
+        /// <summary>
+        /// Generate promo codes
+        /// </summary>
+        [RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.PromoCodesWriteAccess)]
 		[HttpPost, Route("generate")]
 		[ProducesResponseType(typeof(GenerateView), 200)]
 		public async Task<APIResponse> Generate([FromBody] GenerateModel model)
 		{
-
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields))
 			{
@@ -107,8 +116,8 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
             try
 		    {
 		        ethereumToken = Enum.Parse<EthereumToken>(model.Currency, true);
-		        limit = decimal.Parse(model.Limit, CultureInfo.InvariantCulture);            //less zero ?
-		        discount = double.Parse(model.DiscountValue, CultureInfo.InvariantCulture);  //less zero ?  
+		        limit = decimal.Parse(model.Limit, CultureInfo.InvariantCulture);            
+		        discount = double.Parse(model.DiscountValue, CultureInfo.InvariantCulture);  
 
             }
 		    catch (Exception)
@@ -145,10 +154,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 					    Currency = ethereumToken,
 					    Limit = limit,
                         DiscountValue = discount,
-						TimeCreated = now,
+					    UsageType = model.UsageType,
+                        TimeCreated = now,
 						TimeExpires = until,
-						TimeUsed = null,
-						UserId = null,
 					}
 				);
 			}

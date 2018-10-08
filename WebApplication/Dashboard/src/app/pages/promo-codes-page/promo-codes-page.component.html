@@ -74,39 +74,7 @@
       </form>
     </div>
 
-  <div>
-      <div class="trn-info mt-4">
-          <form class="w-100 transparency-form">
-              <div class="row align-items-start">
-                  <div class="col-lg-3 pt-3">
-                      <div class="from-row form-group">
-                          <input type="text" class="form-control" placeholder="Filter" name="filter" [(ngModel)]="filterValue">
-                      </div>
-                  </div>
-
-                  <div class="col-lg-auto pb-3 pt-3">
-                      <button type="submit" class="btn btn-sm btn-primary btn-block" (click)="promoCodeFilter()">Filter</button>
-                  </div>
-              </div>
-          </form>
-      </div>
-
-      <div>
-          <div class="custom-control custom-checkbox">
-              <input class="custom-control-input" id="onlyApproved" name="onlyApproved" type="checkbox"
-                     (change)="onFilterUsed(true)"
-                     [(ngModel)]="filterUsed.used">
-              <label class="custom-control-label" for="onlyApproved">Only used promo code</label>
-          </div>
-          <div class="custom-control custom-checkbox">
-              <input class="custom-control-input" id="onlyDisapprove" name="onlyDisapprove" type="checkbox"
-                     (change)="onFilterUsed(false)"
-                     [(ngModel)]="filterUsed.unused">
-              <label class="custom-control-label" for="onlyDisapprove">Only unused promo code</label>
-          </div>
-      </div>
-  </div>
-
+  
    <section class="section section--table">
 
       <div class="section__content user-list-section">
@@ -140,17 +108,6 @@
             </ng-template>
         </ngx-datatable-column>
 		
-		<ngx-datatable-column prop="timeUsed" [draggable]="false" [resizeable]="false" [sortable]="false">
-            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-              <span class="datatable-header-cell-wrapper" (click)="sort()">
-                Used Date
-              </span>
-            </ng-template>
-
-            <ng-template let-timeUsed="value" let-row="row" ngx-datatable-cell-template>
-              {{ row.timeUsed * 1000 | date:'short':'':locale }}
-            </ng-template>
-        </ngx-datatable-column>
 		
 		<ngx-datatable-column prop="timeExpires" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
@@ -197,18 +154,7 @@
           </ngx-datatable-column>
 		
 		
-		<ngx-datatable-column prop="username" [draggable]="false" [resizeable]="false" [sortable]="false">
-        <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-              <span class="datatable-header-cell-wrapper" (click)="sort()">
-                {{ "PAGES.Users.Table.UserName" | translate }}
-              </span>
-        </ng-template>
-
-        <ng-template let-username="value" let-row="row" ngx-datatable-cell-template>
-          {{ username }}
-        </ng-template>
-        </ngx-datatable-column>
-
+		
         <ngx-datatable-column prop="usageType" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">

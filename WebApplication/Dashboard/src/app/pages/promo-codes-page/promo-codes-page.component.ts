@@ -145,7 +145,7 @@ export class PromoCodesPageComponent implements OnInit {
     this.cdRef.detectChanges();
     this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getPromoCodesList(this.filterValue, this.currentUsedFilter, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getPromoCodesList(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
           this.rows = data.data.items;

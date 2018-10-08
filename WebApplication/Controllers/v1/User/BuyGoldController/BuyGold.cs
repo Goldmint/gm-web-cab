@@ -12,6 +12,7 @@ using System.Numerics;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.DAL;
 using Goldmint.DAL.Models;
+using Goldmint.DAL.Models.PromoCode;
 
 namespace Goldmint.WebApplication.Controllers.v1.User
 {
@@ -67,12 +68,25 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				: await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
 
-            // get promocode
-            var promoCode = await GetPromoCode(model.PromoCode);
-
-            if (promoCode != null && promoCode.Currency != EthereumToken.Gold)
+            // check promocode
+		    PromoCode promoCode;
+            var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+		    switch (codeStatus)
 		    {
-		        return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
+                case PromoCodeStatus.NotEnter:
+                    promoCode = null;
+                    break;
+		        case PromoCodeStatus.Valid:
+		            {
+		                if (await GetUserTier() != UserTier.Tier2)
+		                    return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+
+                        promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+		                    _ => _.Code == model.PromoCode.ToUpper());
+                    }
+		            break;
+                default:
+                    return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable, codeStatus);
             }
 
             var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
@@ -85,16 +99,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
-            if (promoCode != null)
-            {
-                var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
-                if(limit < estimation.ResultGoldAmount)
-                    return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable);
+		    if (codeStatus == PromoCodeStatus.NotEnter)
+		        return APIResponse.Success(estimation.View);
 
-                estimation.View.Discount = promoCode.DiscountValue;
+		    if (promoCode != null)
+		    {
+		        var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
+
+		        if (limit < estimation.ResultGoldAmount)
+		            return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable, PromoCodeStatus.ExceedLimit);
+
+		        estimation.View.Discount = promoCode.DiscountValue;
             }
 
-			return APIResponse.Success(estimation.View);
+		    return APIResponse.Success(estimation.View);
 		}
 
 		/// <summary>
@@ -210,7 +228,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				payment.Status = CardPaymentStatus.Pending;
 				DbContext.CreditCardPayment.Add(payment);
 				await DbContext.SaveChangesAsync();
-
 				
 			}
 
@@ -224,21 +241,45 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		// ---
 
 		[NonAction]
-		private async Task<PromoCode> GetPromoCode(string str)
+		private async Task<PromoCodeStatus> GetPromoCodeStatus(string str)
 		{
-			if (!string.IsNullOrEmpty(str))
-			{
-				return await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-					_ => 
-						_.Code == str.ToUpper() &&
-						_.UserId == null &&
-						_.TimeExpires > DateTime.UtcNow
-				);
-			}
-			return null;
-		}
+            //promocode params checking
+		    if (string.IsNullOrEmpty(str)) return PromoCodeStatus.NotEnter;
 
-	    private async Task MarkAsUsed(string str, long userId, long requestId)
+            var code = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+		        _ => _.Code == str.ToUpper());
+
+		    if (code == null)
+		        return PromoCodeStatus.NotFound;
+
+		    if (code.TimeExpires > DateTime.UtcNow)
+		        return PromoCodeStatus.Expired;
+
+		    if (code.UsageType == PromoCodeUsageType.Single)
+		    {
+		        var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
+		            _ => _.PromoCodeId == code.Id); 
+
+                if (used != null)
+		            return PromoCodeStatus.Used;
+
+		    }
+		    if (code.UsageType == PromoCodeUsageType.Multiple)
+		    {
+		        var user = await GetUserFromDb();
+		        var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
+		            _ => _.PromoCodeId == code.Id &&
+		                 _.UserId == user.Id);
+
+                if (used != null)
+		            return PromoCodeStatus.Used;
+		    }
+
+		    return PromoCodeStatus.Valid;
+		}
+	    
+	    [NonAction]
+        private async Task MarkAsUsed(string str, long userId, long requestId)
 	    {
 	        var pc = await (
 	                from c in DbContext.PromoCode
@@ -252,10 +293,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User
             if(pc == null)
 	            throw new Exception($"PromoCode not found for #{ requestId }");
 
-            pc.TimeUsed = DateTime.UtcNow;
-	        pc.UserId = userId;
+	        await DbContext.AddAsync(new UsedPromoCodes()
+	        {
+	            PromoCodeId = userId,
+	            TimeUsed = DateTime.UtcNow,
+	            UserId = userId
+	        });
 
-	        await DbContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync();
         }
 
 	    [NonAction]
@@ -265,7 +310,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
 	        var discount = new BigInteger(pc.DiscountValue * 100);
 	        return amount * discount / 10000 + amount;
-
 	    }
 
 	    [NonAction]

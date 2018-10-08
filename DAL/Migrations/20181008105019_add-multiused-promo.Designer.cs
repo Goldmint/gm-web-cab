@@ -12,9 +12,10 @@ using System;
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181008105019_add-multiused-promo")]
+    partial class addmultiusedpromo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -804,6 +805,11 @@ namespace Goldmint.DAL.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnName("code")
+                        .HasMaxLength(32);
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnName("concurrency_stamp")
@@ -815,14 +821,12 @@ namespace Goldmint.DAL.Migrations
                     b.Property<DateTime?>("TimeUsed")
                         .HasColumnName("time_used");
 
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id");
+                    b.Property<int>("UsageType")
+                        .HasColumnName("usage_type");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PromoCodeId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("gm_used_promo_codes");
                 });
@@ -1558,11 +1562,6 @@ namespace Goldmint.DAL.Migrations
                     b.HasOne("Goldmint.DAL.Models.PromoCode.PromoCode", "PromoCode")
                         .WithMany()
                         .HasForeignKey("PromoCodeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

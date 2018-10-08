@@ -612,6 +612,40 @@ namespace Goldmint.Common {
         Multiple
     }
 
+    public enum PromoCodeStatus
+    {
+
+        /// <summary>
+        /// User did not enter promocode
+        /// </summary>
+        NotEnter = 1,
+
+        /// <summary>
+        /// PromoCode is valid
+        /// </summary>
+        Valid,
+
+        /// <summary>
+        /// PromoCode not found
+        /// </summary>
+        NotFound,
+
+        /// <summary>
+        /// PromoCode has expired
+        /// </summary>
+        Expired,
+
+        /// <summary>
+        /// PromoCode already used
+        /// </summary>
+        Used,
+
+        /// <summary>
+        /// PromoCode limit exceeded
+        /// </summary>
+        ExceedLimit
+    }
+
 
     #endregion
 

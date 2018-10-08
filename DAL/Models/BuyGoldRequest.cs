@@ -39,7 +39,7 @@ namespace Goldmint.DAL.Models {
 		public long? PromoCodeId { get; set; }
 
 		[ForeignKey(nameof(PromoCodeId))]
-		public virtual PromoCode PromoCode { get; set; }
+		public virtual PromoCode.PromoCode PromoCode { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

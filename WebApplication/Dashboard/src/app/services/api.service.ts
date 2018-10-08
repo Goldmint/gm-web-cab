@@ -394,9 +394,9 @@ export class APIService {
       );
   }
   
-  getPromoCodesList(filter: string, filterUsed: boolean | null, offset: number = 0, limit: number = 5,
+  getPromoCodesList(offset: number = 0, limit: number = 5,
                   sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
-    let params = {filter, filterUsed, offset, limit, sort, ascending: ascending === 'asc'};
+    let params = {offset, limit, sort, ascending: ascending === 'asc'};
 
    let httpOptions = {
       headers: this.jwt().headers.append('Content-Type', 'application/json')

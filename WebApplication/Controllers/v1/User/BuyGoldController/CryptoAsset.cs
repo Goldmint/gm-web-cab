@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.DAL.Models.PromoCode;
+using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User
 {
@@ -61,16 +63,28 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
 			var limits = DepositLimits(rcfg, EthereumToken.Eth);
 
-            // get promocode
-		    var promoCode = await GetPromoCode("YZA3N-L2EQ6");
+		    // check promocode
+		    PromoCode promoCode;
+		    var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+		    switch (codeStatus)
+		    {
+		        case PromoCodeStatus.NotEnter:
+		            promoCode = null;
+		            break;
+		        case PromoCodeStatus.Valid:
+		        {
+		            if (await GetUserTier() != UserTier.Tier2)
+		                return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 
-            // must have kyc to use promocode here
-            if (promoCode != null && userTier < UserTier.Tier2)
-			{
-				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-			}
+		            promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+		                _ => _.Code == model.PromoCode.ToUpper());
+		        }
+		            break;
+		        default:
+		            return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable, codeStatus);
+		    }
 
-			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
+            var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1)
 			{
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
