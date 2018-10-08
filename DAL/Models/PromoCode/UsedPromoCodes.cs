@@ -11,7 +11,7 @@ namespace Goldmint.DAL.Models.PromoCode
         public long PromoCodeId { get; set; }
 
         [ForeignKey(nameof(PromoCodeId))]
-        public virtual PromoCode PromoCode { get; set; }
+        public virtual Pawn PromoCode { get; set; }
 
 	    [Column("time_used")]
 	    public DateTime? TimeUsed { get; set; }

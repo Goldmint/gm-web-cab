@@ -64,7 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			var limits = DepositLimits(rcfg, EthereumToken.Eth);
 
 		    // check promocode
-		    PromoCode promoCode;
+		    Pawn promoCode;
 		    var codeStatus = await GetPromoCodeStatus(model.PromoCode);
 		    switch (codeStatus)
 		    {

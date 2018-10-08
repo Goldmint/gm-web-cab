@@ -6,7 +6,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Goldmint.DAL.Models.MarketPlace;
 using Goldmint.DAL.Models.PromoCode;
+using Pawn = Goldmint.DAL.Models.PromoCode.Pawn;
 
 namespace Goldmint.DAL {
 
@@ -31,15 +33,17 @@ namespace Goldmint.DAL {
 		public DbSet<UserCreditCard> UserCreditCard { get; set; }
 		public DbSet<CreditCardPayment> CreditCardPayment { get; set; }
 		public DbSet<UserLimits> UserLimits { get; set; }
-		public DbSet<PromoCode> PromoCode { get; set; }
+		public DbSet<Pawn> PromoCode { get; set; }
 	    public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
         public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
 	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
+	    public DbSet<Pawn> Pawn { get; set; }
+	    public DbSet<TemporaryWallet> TemporaryWallet { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
-		}
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
-		protected override void OnModelCreating(ModelBuilder builder) {
+		protected override void OnModelCreating(ModelBuilder builder)
+		{
 			base.OnModelCreating(builder);
 
 			builder.Entity<User>(entity => { entity.ToTable(name: "gm_user"); });

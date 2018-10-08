@@ -69,7 +69,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
 
             // check promocode
-		    PromoCode promoCode;
+		    Pawn promoCode;
             var codeStatus = await GetPromoCodeStatus(model.PromoCode);
 		    switch (codeStatus)
 		    {
@@ -304,7 +304,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
         }
 
 	    [NonAction]
-	    private static BigInteger ApplyPromoCode(BigInteger amount, PromoCode pc)
+	    private static BigInteger ApplyPromoCode(BigInteger amount, Pawn pc)
 	    {
 	        if (pc == null) return amount;
 
@@ -313,7 +313,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 	    }
 
 	    [NonAction]
-	    private static BigInteger ApplyPromoCodeReversed(BigInteger amount, PromoCode pc)
+	    private static BigInteger ApplyPromoCodeReversed(BigInteger amount, Pawn pc)
 	    {
 	        if (pc == null) return amount;
 
@@ -341,7 +341,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		    EthereumToken? ethereumToken, 
 		    FiatCurrency fiatCurrency, 
 		    bool reversed, 
-		    PromoCode promoCode, 
+		    Pawn promoCode, 
 		    BigInteger depositLimitMin, 
 		    BigInteger depositLimitMax)
 		{

@@ -3,10 +3,12 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Goldmint.DAL.Models {
+namespace Goldmint.DAL.Models
+{
 
 	[Table("gm_buy_gold_request")]
-	public class BuyGoldRequest : BaseUserFinHistoryEntity, IConcurrentUpdate {
+	public class BuyGoldRequest : BaseUserFinHistoryEntity, IConcurrentUpdate
+	{
 
 		[Column("status"), Required]
 		public BuyGoldRequestStatus Status { get; set; }
@@ -39,7 +41,7 @@ namespace Goldmint.DAL.Models {
 		public long? PromoCodeId { get; set; }
 
 		[ForeignKey(nameof(PromoCodeId))]
-		public virtual PromoCode.PromoCode PromoCode { get; set; }
+		public virtual PromoCode.Pawn PromoCode { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

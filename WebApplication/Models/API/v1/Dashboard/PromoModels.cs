@@ -6,7 +6,7 @@ using Goldmint.DAL.Models.PromoCode;
 namespace Goldmint.WebApplication.Models.API.v1.Dashboard
 {
     
-    public class PromoCodesPagerView : BasePagerView<PromoCode> {}
+    public class PromoCodesPagerView : BasePagerView<Pawn> {}
 
     public class UsedCodesPagerView : BasePagerView<UsedPromoCodes> {}
 

@@ -81,7 +81,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
 		    // check promocode
-		    PromoCode promoCode;
+		    Pawn promoCode;
 		    var codeStatus = await GetPromoCodeStatus(model.PromoCode);
 		    switch (codeStatus)
 		    {

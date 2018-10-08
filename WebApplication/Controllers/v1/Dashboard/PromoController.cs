@@ -29,7 +29,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> List([FromBody] NoInputPagerModel model) {
 
-			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<PromoCode, object>>>()
+			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<Pawn, object>>>()
 			{
 				{ "id",   _ => _.Id },
 			};
@@ -144,11 +144,11 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard
 			var now = DateTime.UtcNow;
 			var until = now.AddDays(model.ValidForDays);
             
-            var list = new List<PromoCode>();
+            var list = new List<Pawn>();
 			for (var i = 0; i < model.Count; ++i)
 			{
 				list.Add(
-					new PromoCode()
+					new Pawn()
 					{
 						Code = makeCode(),
 					    Currency = ethereumToken,

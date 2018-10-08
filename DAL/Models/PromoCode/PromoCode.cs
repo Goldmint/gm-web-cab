@@ -2,12 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Goldmint.Common;
-using Goldmint.DAL.Models.Identity;
 
 namespace Goldmint.DAL.Models.PromoCode
 {
 	[Table("gm_promo_code")]
-	public class PromoCode : BaseEntity, IConcurrentUpdate
+	public class Pawn : BaseEntity, IConcurrentUpdate
 	{
 		[Column("code"), MaxLength(32), Required]
 		public string Code { get; set; }
@@ -23,21 +22,12 @@ namespace Goldmint.DAL.Models.PromoCode
 
 	    [Column("usage_type"), Required]
 	    public PromoCodeUsageType UsageType { get; set; }
-
-        /*[Column("user_id")]
-		public long? UserId { get; set; }
-
-		[ForeignKey(nameof(UserId))]
-		public virtual User User { get; set; }*/
-
+        
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 
 		[Column("time_expires"), Required]
 		public DateTime TimeExpires { get; set; }
-
-		/*[Column("time_used")]
-		public DateTime? TimeUsed { get; set; }*/
 
 		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
