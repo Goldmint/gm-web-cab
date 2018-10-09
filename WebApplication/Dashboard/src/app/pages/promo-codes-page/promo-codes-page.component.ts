@@ -148,7 +148,11 @@ export class PromoCodesPageComponent implements OnInit {
     this.apiService.getPromoCodesList(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .subscribe(
         data => {
-          this.rows = data.data.items;
+          this.rows = data.data.items.map(item => {
+            item.timeCreated = new Date(item.timeCreated.toString() + 'Z');
+            item.timeExpires = new Date(item.timeExpires.toString() + 'Z');
+            return item;
+          });
 
           this.page.totalElements = data.data.total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);

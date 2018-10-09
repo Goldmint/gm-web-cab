@@ -73,6 +73,7 @@ import { PromoCodesPageComponent } from './pages/promo-codes-page/promo-codes-pa
 import { TradeRequestsPageComponent } from './pages/trade-requests-page/trade-requests-page.component';
 import {EthereumService} from "./services/ethereum.service";
 import { TelemetryPageComponent } from './pages/telemetry-page/telemetry-page.component';
+import {PromoCodesInfoPageComponent} from "./pages/promo-codes-info-page/promo-codes-info-page.component";
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -136,9 +137,10 @@ export function getGoldmintToken() {
     UsersListPageComponent,
     FeesPageComponent,
     SwiftPageComponent,
-	PromoCodesPageComponent,
+	  PromoCodesPageComponent,
     TradeRequestsPageComponent,
     TelemetryPageComponent,
+    PromoCodesInfoPageComponent
   ],
   exports: [],
   providers: [

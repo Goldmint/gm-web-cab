@@ -2,8 +2,7 @@
   <h1 class="page__heading">PROMOCODES</h1>
   
   <div class="page__section">
-    
-	
+
 	<div class="trn-info">
       <form class="promocodes w-100" [formGroup]="form" #formDir="ngForm" (ngSubmit)="genPromoCode()">
 
@@ -104,7 +103,7 @@
             </ng-template>
 
             <ng-template let-timeCreated="value" let-row="row" ngx-datatable-cell-template>
-              {{ row.timeCreated * 1000 | date:'short':'':locale }}
+              {{ row.timeCreated | date:'short':'':locale }}
             </ng-template>
         </ngx-datatable-column>
 		
@@ -117,14 +116,14 @@
             </ng-template>
 
             <ng-template let-timeExpires="value" let-row="row" ngx-datatable-cell-template>
-              {{ row.timeExpires * 1000 | date:'short':'':locale }}
+              {{ row.timeExpires | date:'short':'':locale }}
             </ng-template>
         </ngx-datatable-column>
 		
 		<ngx-datatable-column prop="code" [draggable]="false" [resizeable]="false" [sortable]="false">
         <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
-                PromoCode
+                Promo Code
               </span>
         </ng-template>
         </ngx-datatable-column>  
@@ -152,18 +151,28 @@
               {{ limit  }}              
             </ng-template>
           </ngx-datatable-column>
-		
-		
-		
+
         <ngx-datatable-column prop="usageType" [draggable]="false" [resizeable]="false" [sortable]="false">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper" (click)="sort()">
-                Usage type
+                Usage Type
               </span>
             </ng-template>
 
             <ng-template let-usageType="value" let-row="row" ngx-datatable-cell-template>
                 {{ usageType == 1 ? 'Single' : 'Multiple' }}
+            </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="usageType" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                Promo Code Info
+              </span>
+            </ng-template>
+
+            <ng-template let-usageType="value" let-row="row" ngx-datatable-cell-template>
+                <a [routerLink]="'/promocodes/info/' + row.id">Info</a>
             </ng-template>
         </ngx-datatable-column>
 
