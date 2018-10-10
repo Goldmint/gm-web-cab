@@ -68,6 +68,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public promoCode: string = null;
   public discount: number = 0;
   public isInvalidPromoCode: boolean = false;
+  public promoCodeErrorCode: string = null;
 
   private promoCodeLength: number = 11;
   private timeoutPopUp;
@@ -232,6 +233,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.checkDiscount(data.data.discount);
             this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
+        }, error => {
+            this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.invalidBalance = true;
@@ -255,6 +258,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
             this.checkDiscount(data.data.discount);
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
             this.isTradingError = this.isTradingLimit = this.processing = false;
+        }, error => {
+            this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.invalidBalance = true;
@@ -266,12 +271,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
   checkDiscount(dicsount: number) {
     this.discount = dicsount;
-    this.discount === 0 && (this.promoCode = null);
   }
 
   inputPromoCode(code: string) {
     this.isInvalidPromoCode = true;
-    this.promoCode = null;
+    this.promoCode = this.promoCodeErrorCode = null;
     if (code === '') {
       this.isInvalidPromoCode = false;
       this.onAmountChanged(this.currentValue);
@@ -280,6 +284,14 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
       this.promoCode = code;
       this.isInvalidPromoCode = false;
       this.onAmountChanged(this.currentValue);
+    }
+    this._cdRef.markForCheck();
+  }
+
+  setPromoCodeError(errorCode) {
+    if (errorCode > 500 && errorCode < 510) {
+      this.isInvalidPromoCode = true;
+      this.promoCodeErrorCode = errorCode;
     }
     this._cdRef.markForCheck();
   }

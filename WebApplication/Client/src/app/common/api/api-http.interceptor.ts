@@ -56,6 +56,11 @@ export class APIHttpInterceptor implements HttpInterceptor {
 				100, 	// InvalidParameter
         103,  // TradingNotAllowed
         104,  // TradingExchangeLimit
+        501,  // PromoCodeNotEnter
+        502,  // PromoCodeNotFound
+        503,  // PromoCodeExpired
+        504,  // PromoCodeIsUsed
+        505,  // PromoCodeLimitExceeded
 				1000,	// AccountNotFound
         1001, // AccountLocked
 				1011,	// AccountDpaNotSigned

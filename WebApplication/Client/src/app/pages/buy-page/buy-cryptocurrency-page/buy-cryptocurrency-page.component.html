@@ -97,8 +97,11 @@
                              [ngClass]="{'is-invalid': isInvalidPromoCode}"
                              [disabled]="loading || !user?.verifiedL1">
                     </div>
-                    <div class="invalid-feedback" *ngIf="isInvalidPromoCode">
+                    <div class="invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
                       {{ "PAGES.Buy.Errors.IncorrectPromo" | translate }}
+                    </div>
+                    <div class="invalid-feedback" *ngIf="isInvalidPromoCode && promoCodeErrorCode">
+                      {{ "PAGES.Buy.Errors.PromoCodeErrors." + promoCodeErrorCode | translate }}
                     </div>
                     <div *ngIf="!isInvalidPromoCode && user?.verifiedL1">
                       {{ "PAGES.Buy.Promo.PromoInfo.Text" | translate }} {{ discount }}%

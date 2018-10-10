@@ -47,6 +47,7 @@ export class BuyCardPageComponent implements OnInit {
   public promoCode: string = null;
   public discount: number = 0;
   public isInvalidPromoCode: boolean = false;
+  public promoCodeErrorCode: string = null;
 
   private promoCodeLength: number = 11;
   private timeoutPopUp;
@@ -172,6 +173,8 @@ export class BuyCardPageComponent implements OnInit {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
           this.checkDiscount(data.data.discount);
           this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
+        }, error => {
+          this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.goldAmount = 0;
@@ -195,6 +198,8 @@ export class BuyCardPageComponent implements OnInit {
             this.invalidBalance = (this.usdAmount <= 1) ? true : false;
 
             this.checkBuyLimit(this.usdAmount);
+        }, error => {
+          this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.setError();
@@ -216,12 +221,11 @@ export class BuyCardPageComponent implements OnInit {
 
   checkDiscount(dicsount: number) {
     this.discount = dicsount;
-    this.discount === 0 && (this.promoCode = null);
   }
 
   inputPromoCode(code: string) {
     this.isInvalidPromoCode = true;
-    this.promoCode = null;
+    this.promoCode = this.promoCodeErrorCode = null;
     if (code === '') {
       this.isInvalidPromoCode = false;
       this.onAmountChanged(this.currentValue);
@@ -230,6 +234,14 @@ export class BuyCardPageComponent implements OnInit {
       this.promoCode = code;
       this.isInvalidPromoCode = false;
       this.onAmountChanged(this.currentValue);
+    }
+    this._cdRef.markForCheck();
+  }
+
+  setPromoCodeError(errorCode) {
+    if (errorCode > 500 && errorCode < 510) {
+      this.isInvalidPromoCode = true;
+      this.promoCodeErrorCode = errorCode;
     }
     this._cdRef.markForCheck();
   }

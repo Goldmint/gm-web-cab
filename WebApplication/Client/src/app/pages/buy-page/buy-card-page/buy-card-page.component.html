@@ -106,8 +106,11 @@
                        [ngClass]="{'is-invalid': isInvalidPromoCode}"
                        [disabled]="loading">
               </div>
-              <div class="invalid-feedback" *ngIf="isInvalidPromoCode">
+              <div class="invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
                 {{ "PAGES.Buy.Errors.IncorrectPromo" | translate }}
+              </div>
+              <div class="invalid-feedback" *ngIf="isInvalidPromoCode && promoCodeErrorCode">
+                {{ "PAGES.Buy.Errors.PromoCodeErrors." + promoCodeErrorCode | translate }}
               </div>
               <div *ngIf="!isInvalidPromoCode">
                 {{ "PAGES.Buy.Promo.PromoInfo.Text" | translate }} {{ discount }}%
