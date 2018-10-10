@@ -80,25 +80,26 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
-		    // check promocode
+            // check promocode
 		    PromoCode promoCode;
 		    var codeStatus = await GetPromoCodeStatus(model.PromoCode);
-		    switch (codeStatus)
-		    {
-		        case PromoCodeStatus.NotEnter:
-		            promoCode = null;
-		            break;
-		        case PromoCodeStatus.Valid:
-		        {
-		            if (await GetUserTier() != UserTier.Tier2)
-		                return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 
-		            promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-		                _ => _.Code == model.PromoCode.ToUpper());
+		    if (codeStatus.Valid == false)
+		    {
+		        if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
+		            promoCode = null;
+		        else
+		        {
+		            return APIResponse.BadRequest(codeStatus.ErrorCode);
 		        }
-		            break;
-		        default:
-		            return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable, codeStatus);
+		    }
+		    else
+		    {
+		        if (await GetUserTier() != UserTier.Tier2)
+		            return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+
+		        promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+		            _ => _.Code == model.PromoCode.ToUpper());
 		    }
 
             var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);

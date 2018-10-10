@@ -56,8 +56,4 @@
 	<None Remove="Client/*.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
   
-  <ItemGroup>
-    <Folder Include="Controllers\v1\Migration\" />
-  </ItemGroup>
-  
 </Project>

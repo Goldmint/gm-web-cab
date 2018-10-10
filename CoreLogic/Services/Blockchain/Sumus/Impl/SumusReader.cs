@@ -111,11 +111,13 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 			return ret;
 		}
 
-		public async Task<ulong> GetLastBlockNumber() {
+		public async Task<ulong> GetLastBlockNumber()
+		{
 			return await _dbContext.Block.MaxAsync(_ => _.Number);
 		}
 
-		public async Task<WalletState> GetWalletState(string addr) {
+		public async Task<WalletState> GetWalletState(string addr)
+		{
 			var url = string.Format("{0}/wallet/{1}", _appConfig.Services.Sumus.SumusNodeProxyUrl, addr);
 			var res = await SumusNodeProxy.Get<ProxyWalletStateResult>(url, _logger);
 			if (res == null) {

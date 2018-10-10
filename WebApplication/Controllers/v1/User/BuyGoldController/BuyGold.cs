@@ -71,22 +71,23 @@ namespace Goldmint.WebApplication.Controllers.v1.User
             // check promocode
 		    PromoCode promoCode;
             var codeStatus = await GetPromoCodeStatus(model.PromoCode);
-		    switch (codeStatus)
-		    {
-                case PromoCodeStatus.NotEnter:
-                    promoCode = null;
-                    break;
-		        case PromoCodeStatus.Valid:
-		            {
-		                if (await GetUserTier() != UserTier.Tier2)
-		                    return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 
-                        promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-		                    _ => _.Code == model.PromoCode.ToUpper());
-                    }
-		            break;
-                default:
-                    return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable, codeStatus);
+		    if (codeStatus.Valid == false)
+		    {
+                if(codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
+                    promoCode = null;
+                else
+                {
+                    return APIResponse.BadRequest(codeStatus.ErrorCode);
+                }
+            }
+		    else
+		    {
+		        if (await GetUserTier() != UserTier.Tier2)
+		            return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+
+		        promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+		            _ => _.Code == model.PromoCode.ToUpper());
             }
 
             var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
@@ -99,18 +100,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
-		    if (codeStatus == PromoCodeStatus.NotEnter)
-		        return APIResponse.Success(estimation.View);
+		    if (promoCode == null) return APIResponse.Success(estimation.View);
 
-		    if (promoCode != null)
-		    {
-		        var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
+		    var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
 
-		        if (limit < estimation.ResultGoldAmount)
-		            return APIResponse.BadRequest(APIErrorCode.PromoCodeNotApplicable, PromoCodeStatus.ExceedLimit);
+		    if (limit < estimation.ResultGoldAmount)
+		        return APIResponse.BadRequest(APIErrorCode.PromoCodeLimitExceeded);
 
-		        estimation.View.Discount = promoCode.DiscountValue;
-            }
+		    estimation.View.Discount = promoCode.DiscountValue;
 
 		    return APIResponse.Success(estimation.View);
 		}
@@ -243,27 +240,42 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		[NonAction]
 		private async Task<PromoCodeStatus> GetPromoCodeStatus(string str)
 		{
-            //promocode params checking
-		    if (string.IsNullOrEmpty(str)) return PromoCodeStatus.NotEnter;
+		    if (string.IsNullOrEmpty(str))
+		        return new PromoCodeStatus
+		        {
+		            Valid = false,
+                    ErrorCode = APIErrorCode.PromoCodeNotEnter
+		        };
 
             var code = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
 		        _ => _.Code == str.ToUpper());
 
 		    if (code == null)
-		        return PromoCodeStatus.NotFound;
+		        return new PromoCodeStatus
+		        {
+		            Valid = false,
+		            ErrorCode = APIErrorCode.PromoCodeNotFound
+		        };
 
-		    if (code.TimeExpires > DateTime.UtcNow)
-		        return PromoCodeStatus.Expired;
+            if (code.TimeExpires > DateTime.UtcNow)
+                return new PromoCodeStatus
+                {
+                    Valid = false,
+                    ErrorCode = APIErrorCode.PromoCodeExpired
+                };
 
-		    if (code.UsageType == PromoCodeUsageType.Single)
+            if (code.UsageType == PromoCodeUsageType.Single)
 		    {
 		        var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
 		            _ => _.PromoCodeId == code.Id); 
 
                 if (used != null)
-		            return PromoCodeStatus.Used;
-
-		    }
+                    return new PromoCodeStatus
+                    {
+                        Valid = false,
+                        ErrorCode = APIErrorCode.PromoCodeIsUsed
+                    };
+            }
 		    if (code.UsageType == PromoCodeUsageType.Multiple)
 		    {
 		        var user = await GetUserFromDb();
@@ -272,11 +284,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		                 _.UserId == user.Id);
 
                 if (used != null)
-		            return PromoCodeStatus.Used;
-		    }
+                    return new PromoCodeStatus
+                    {
+                        Valid = false,
+                        ErrorCode = APIErrorCode.PromoCodeIsUsed
+                    };
+            }
 
-		    return PromoCodeStatus.Valid;
-		}
+            return new PromoCodeStatus
+		    {
+		        Valid = true
+		    };
+        }
 	    
 	    [NonAction]
         private async Task MarkAsUsed(string str, long userId, long requestId)
@@ -322,6 +341,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 	    }
 
         // ---
+
+	    internal class PromoCodeStatus
+	    {
+	        public bool Valid { get; set; }
+            public APIErrorCode ErrorCode { get; set; }
+        }
 
         internal class EstimationResult
 		{

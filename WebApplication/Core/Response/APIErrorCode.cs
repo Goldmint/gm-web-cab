@@ -1,8 +1,10 @@
-﻿namespace Goldmint.WebApplication.Core.Response {
+﻿namespace Goldmint.WebApplication.Core.Response
+{
 
-	public enum APIErrorCode {
+	public enum APIErrorCode
+	{
 
-		/* [1..999] General errors, authorization */
+		/* [1..500] General errors, authorization */
 
 		/// <summary>
 		/// Just failure without any additional data
@@ -49,17 +51,37 @@
 		/// </summary>
 		TradingExchangeLimit = 104,
 
-        /// <summary>
-        /// PromoCode not applicable
-        /// </summary>
-        PromoCodeNotApplicable = 105,
-
 	    /// <summary>
 	    /// Duplicate migration request
 	    /// </summary>
 	    MigrationDuplicateRequest = 106,
 
 
+        /* [501..599] PromoCodes errors */
+        /// <summary>
+        /// User did not enter promocode
+        /// </summary>
+        PromoCodeNotEnter = 501,
+
+        /// <summary>
+        /// PromoCode not found
+        /// </summary>
+        PromoCodeNotFound = 502,
+
+        /// <summary>
+        /// PromoCode has expired
+        /// </summary>
+        PromoCodeExpired = 503,
+
+        /// <summary>
+        /// PromoCode already used
+        /// </summary>
+        PromoCodeIsUsed = 504,
+
+        /// <summary>
+        /// PromoCode limit exceeded
+        /// </summary>
+        PromoCodeLimitExceeded = 505,
 
         /* [1000..1999] Account errors */
 
