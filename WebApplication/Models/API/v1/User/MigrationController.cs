@@ -68,5 +68,5 @@ namespace Goldmint.WebApplication.Models.API.v1.User
 				return v.Validate(this);
 			}
 		}
-	}
+    }
 }

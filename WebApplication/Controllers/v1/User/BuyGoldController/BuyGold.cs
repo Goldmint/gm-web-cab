@@ -257,7 +257,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 		            ErrorCode = APIErrorCode.PromoCodeNotFound
 		        };
 
-            if (code.TimeExpires > DateTime.UtcNow)
+            if (code.TimeExpires < DateTime.UtcNow)
                 return new PromoCodeStatus
                 {
                     Valid = false,
@@ -499,9 +499,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				}
             }
 
-            var limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
+		    var limitExceeded = false;
+            if (promoCode != null && resultCurrencyAmount != 0)     //discount 100%
+            {
+                limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
+            }
 
-			return new EstimationResult()
+            return new EstimationResult()
 			{
 				TradingAllowed = allowed,
 				IsLimitExceeded = limitExceeded,
