@@ -50,10 +50,10 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   public balanceError: boolean = false;
   public isFirstSend: boolean = true;
   public isMetamask: boolean = false;
-  // public isValidSumusAddress: boolean = false;
   public tokenAmount: number;
   public currentBalance: number;
   public isAddressLoaded: boolean = false;
+  public etherscanUrl = environment.etherscanUrl;
 
   private Web3: Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -106,38 +106,11 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    if (window.hasOwnProperty('web3')) {
-      this.timeoutPopUp = setTimeout(() => {
-        this.loading = false;
-        !this.isMetamask && this.userService.showLoginToMMBox('HeadingMigration');
-        this._cdRef.markForCheck();
-      }, 3000);
-    } else {
-      setTimeout(() => {
-        this.translate.get('MessageBox.MetaMask').subscribe(phrase => {
-          this.messageBox.alert(phrase.Text, phrase.Heading);
-        });
-      }, 200);
-    }
+    this.detectMetaMask();
+    this.detectLiteWallet();
 
-    if (window.hasOwnProperty('GoldMint')) {
-      this.liteWallet.getAccount().then(res => {
-        this.sumusAddress = res.length ? res[0] : null;
-
-        !this.sumusAddress && setTimeout(() => {
-          this.userService.showLoginToLiteWallet();
-        }, 200);
-        this._cdRef.markForCheck();
-      });
-    } else {
-      setTimeout(() => {
-        this.translate.get('MessageBox.LiteWallet').subscribe(phrase => {
-          this.messageBox.alert(`
-            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Goldmint Lite Wallet</a></div>
-      `, phrase.Heading);
-        });
-      }, 200);
-    }
+    this.initGoldMigrationModal();
+    this.initMntpMigrationModal();
 
     this.ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
       this.ethAddress = address;
@@ -156,6 +129,68 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       this.sumusMigrationAddress = data.data.sumus.migrationAddress;
       this.isAddressLoaded = true;
       this._cdRef.markForCheck();
+    });
+  }
+
+  detectMetaMask() {
+    if (window.hasOwnProperty('web3')) {
+      this.timeoutPopUp = setTimeout(() => {
+        this.loading = false;
+        !this.isMetamask && this.userService.showLoginToMMBox('HeadingMigration');
+        this._cdRef.markForCheck();
+      }, 3000);
+    } else {
+      setTimeout(() => {
+        this.translate.get('MessageBox.MetaMask').subscribe(phrase => {
+          this.messageBox.alert(phrase.Text, phrase.Heading);
+        });
+      }, 200);
+    }
+  }
+
+  detectLiteWallet() {
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet.getAccount().then(res => {
+        this.sumusAddress = res.length ? res[0] : null;
+
+        !this.sumusAddress && setTimeout(() => {
+          this.userService.showLoginToLiteWallet();
+        }, 200);
+        this._cdRef.markForCheck();
+      });
+    } else {
+      setTimeout(() => {
+        this.translate.get('MessageBox.LiteWallet').subscribe(phrase => {
+          this.messageBox.alert(`
+            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Goldmint Lite Wallet</a></div>
+      `, phrase.Heading);
+        });
+      }, 200);
+    }
+  }
+
+  initGoldMigrationModal() {
+    this.ethService.getSuccessMigrationGoldLink$.takeUntil(this.destroy$).subscribe((hash: string) => {
+      hash && this.successMigrationModal(hash);
+    });
+  }
+
+  initMntpMigrationModal() {
+    this.ethService.getSuccessMigrationMntpLink$.takeUntil(this.destroy$).subscribe((hash: string) => {
+      hash && this.successMigrationModal(hash);
+    });
+  }
+
+  successMigrationModal(hash: string) {
+    this.translate.get('PAGES.MasterNode.MigrationPage.SuccessModal').subscribe(phrases => {
+      this.messageBox.alert(`
+         <div class="text-center">
+            <div class="font-weight-500 mb-2">${phrases.Heading}</div>
+            <div>${phrases.Hash}</div>
+            <div class="mb-2 migration-hash">${hash}</div>
+            <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
+        </div>
+       `);
     });
   }
 
@@ -231,10 +266,11 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       MNTPsumus: this.apiService.mintMigrationSumus
     };
     this.isFirstSend = true;
+    this.loading = true;
+    this._cdRef.markForCheck();
 
     methodsMap[this.direction]
       .call(this.apiService, this.sumusAddress, this.ethAddress).subscribe(() => {
-        this.loading = true;
         this.ethService.getObservableGasPrice().subscribe((price) => {
           if (price !== null && this.isFirstSend) {
             this.isFirstSend = false;
@@ -253,7 +289,6 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
         });
       }, error => {
         this.loading = false;
-        this.messageBox.alert(error.error.errorDesc);
         this._cdRef.markForCheck();
     });
   }

@@ -263,6 +263,11 @@
           "Amount": "Количество",
           "Address": "Sumus адрес"
         },
+        "SuccessModal": {
+          "Heading": "Транзакция в процессе:",
+          "Hash": "Хэш вашей транзакции:",
+          "Link": "Просмотр транзакции на EtherScan"
+        },
         "Errors": {
           "InvalidAmount": "Неверное количество",
           "Maximum": "Максимальное количество - ",
@@ -271,6 +276,9 @@
         },
         "Buttons": {
           "go": "Вперед"
+        },
+        "Popover": {
+          "Copied": "Скопировано"
         }
       },
       "Overview": {
@@ -1341,9 +1349,19 @@
       "Heading": "Чтобы продолжить, Вам понадобится Metamask",
       "Text": "MetaMask - это мост, который позволяет вам посещать распределенную сеть будущего в вашем браузере сегодня. Он позволяет запускать Ethereum dApps прямо в вашем браузере без запуска полного узла Ethereum. Пожалуйста, установите расширение MetaMask в браузере Chrome, Firefox или Opera. Узнать о <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
+    "LiteWallet": {
+      "Heading": "Чтобы продолжить, Вам понадобится Lite Wallet",
+      "Text": "Goldmint Lite Wallet предоставлен для безопасного хранения, отправки или получения токенов MINT или GOLD. Это позволит вам иметь несколько кошельков для хранения MINT/GOLD. Получить"
+    },
     "LoginToMM": {
       "HeadingBuy": "КУПИТЬ GOLD",
       "HeadingSell": "ПРОДАТЬ GOLD",
+      "HeadingTransfer": "ПЕРЕВОД GOLD",
+      "HeadingMigration": "МИГРАЦИЯ ТОКЕНОВ",
+      "Text": "Войдите в свой аккаунт"
+    },
+    "LoginToLiteWallet": {
+      "Heading": "МИГРАЦИЯ ТОКЕНОВ",
       "Text": "Войдите в свой аккаунт"
     },
     "InvalidNetwork": "Вы должны использовать {{ network }} сеть",
