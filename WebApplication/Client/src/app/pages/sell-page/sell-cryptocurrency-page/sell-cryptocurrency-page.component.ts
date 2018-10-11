@@ -112,7 +112,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
 
     if (window.hasOwnProperty('web3')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingSell');
       }, 3000);
     }
 

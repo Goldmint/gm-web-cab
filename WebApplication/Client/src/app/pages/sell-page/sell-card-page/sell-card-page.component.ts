@@ -82,7 +82,7 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
     if (window.hasOwnProperty('web3')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingSell');
       }, 3000);
     }
 

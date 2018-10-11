@@ -44,7 +44,7 @@ import {
   ModalModule,
   ButtonsModule,
   TabsModule,
-  TypeaheadModule
+  TypeaheadModule, PopoverModule
 } from 'ngx-bootstrap';
 
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -112,6 +112,7 @@ import {GoldDiscount} from "./pipes/gold-discount";
 import {SubstrPipe} from "./pipes/substr.pipe";
 import {NoexpPipe} from "./pipes/noexp.pipe";
 import {DeviceDetectorModule} from "ngx-device-detector";
+import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -137,6 +138,7 @@ export function getGoldmintToken() {
     NgxQRCodeModule,
     HttpClientModule,
     DeviceDetectorModule.forRoot(),
+    PopoverModule.forRoot(),
     JwtModule.forRoot({
       config: {
         tokenGetter: getGoldmintToken,
@@ -208,7 +210,8 @@ export function getGoldmintToken() {
     SellCardPageComponent,
     PaymentCardBlockComponent,
     CryptocurrencyBlockComponent,
-    TimerComponent
+    TimerComponent,
+    LatestRewardPageComponent
   ],
   exports: [],
   providers: [

@@ -295,4 +295,16 @@ export class EthereumService {
       this.getSuccessSellRequestLink$.next(res);
     });
   }
+
+  public goldTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
+    if (this._contractGold == null) return;
+    this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+    });
+  }
+
+  public mntpTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
+    if (this._contractMntp == null) return;
+    this._contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+    });
+  }
 }

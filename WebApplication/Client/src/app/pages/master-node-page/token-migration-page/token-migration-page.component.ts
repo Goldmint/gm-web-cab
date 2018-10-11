@@ -11,13 +11,12 @@ import {EthereumService} from "../../../services/ethereum.service";
 import {Subject} from "rxjs/Subject";
 import {BigNumber} from "bignumber.js";
 import * as Web3 from "web3";
-import * as bs58 from 'bs58';
-import * as CRC32 from 'crc-32';
 import {MessageBoxService} from "../../../services/message-box.service";
-import {Status} from "../../../interfaces/status";
 import {Subscription} from "rxjs/Subscription";
 import {combineLatest} from "rxjs/observable/combineLatest";
 import {TranslateService} from "@ngx-translate/core";
+import {interval} from "rxjs/observable/interval";
+import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-token-migration-page',
@@ -28,7 +27,8 @@ import {TranslateService} from "@ngx-translate/core";
 })
 export class TokenMigrationPageComponent implements OnInit, OnDestroy {
 
-  public sumusAddress: string = '';
+  public getLiteWalletLink = environment.getLiteWalletLink;
+  public sumusAddress: string = null;
   public ethMigrationAddress: string = '';
   public sumusMigrationAddress: string = '';
   public direction: string;
@@ -50,14 +50,16 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   public balanceError: boolean = false;
   public isFirstSend: boolean = true;
   public isMetamask: boolean = false;
-  public isValidSumusAddress: boolean = false;
+  // public isValidSumusAddress: boolean = false;
   public tokenAmount: number;
   public currentBalance: number;
+  public isAddressLoaded: boolean = false;
 
   private Web3: Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private sub1: Subscription;
   private timeoutPopUp;
+  private liteWallet = window['GoldMint'];
 
   constructor(
     private messageBox: MessageBoxService,
@@ -69,6 +71,8 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     ) { }
 
   ngOnInit() {
+    interval(500).subscribe(this.checkLiteWallet.bind(this));
+
     this.loading = true;
     this.tokenModel = {
       type: 'GOLD'
@@ -105,13 +109,32 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     if (window.hasOwnProperty('web3')) {
       this.timeoutPopUp = setTimeout(() => {
         this.loading = false;
-        !this.isMetamask && this.userService.showLoginToMMBox();
+        !this.isMetamask && this.userService.showLoginToMMBox('HeadingMigration');
         this._cdRef.markForCheck();
       }, 3000);
     } else {
       setTimeout(() => {
-        this.translate.get('MESSAGE.MetaMask').subscribe(phrase => {
+        this.translate.get('MessageBox.MetaMask').subscribe(phrase => {
           this.messageBox.alert(phrase.Text, phrase.Heading);
+        });
+      }, 200);
+    }
+
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet.getAccount().then(res => {
+        this.sumusAddress = res.length ? res[0] : null;
+
+        !this.sumusAddress && setTimeout(() => {
+          this.userService.showLoginToLiteWallet();
+        }, 200);
+        this._cdRef.markForCheck();
+      });
+    } else {
+      setTimeout(() => {
+        this.translate.get('MessageBox.LiteWallet').subscribe(phrase => {
+          this.messageBox.alert(`
+            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Goldmint Lite Wallet</a></div>
+      `, phrase.Heading);
         });
       }, 200);
     }
@@ -128,10 +151,23 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
-    /*this.apiService.getStatus().subscribe((data: Status) => {
+    this.apiService.getMigrationStatus().subscribe((data: any) => {
       this.ethMigrationAddress = data.data.ethereum.migrationAddress;
       this.sumusMigrationAddress = data.data.sumus.migrationAddress;
-    });*/
+      this.isAddressLoaded = true;
+      this._cdRef.markForCheck();
+    });
+  }
+
+  checkLiteWallet() {
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet.getAccount().then(res => {
+        if (this.sumusAddress != res[0]) {
+          this.sumusAddress = res.length ? res[0] : null;
+          this._cdRef.markForCheck();
+        }
+      });
+    }
   }
 
   chooseToken() {
@@ -148,27 +184,6 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       this.checkBalance();
     }
     this._cdRef.markForCheck();
-  }
-
-  checkSumusAddressValidity(address: string) {
-    let bytes;
-    try {
-      bytes = bs58.decode(address);
-    } catch (e) {
-      this.isValidSumusAddress = false;
-      return
-    }
-
-    if (bytes.length <= 4 || this.sumusAddress.length <= 4) {
-      this.isValidSumusAddress = false;
-      return
-    }
-
-    let payloadCrc = CRC32.buf(bytes.slice(0, -4));
-    let crcBytes = bytes.slice(-4);
-    let crc = crcBytes[0] | crcBytes[1] << 8 | crcBytes[2] << 16 | crcBytes[3] << 24;
-
-    this.isValidSumusAddress = payloadCrc === crc;
   }
 
   onCopyData(input) {
@@ -208,7 +223,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
-  /*onSubmit() {
+  onSubmit() {
     let methodsMap = {
       GOLDeth: this.apiService.goldMigrationEth,
       GOLDsumus: this.apiService.goldMigrationSumus,
@@ -241,7 +256,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
         this.messageBox.alert(error.error.errorDesc);
         this._cdRef.markForCheck();
     });
-  }*/
+  }
 
   ngOnDestroy() {
     this.destroy$.next(true);

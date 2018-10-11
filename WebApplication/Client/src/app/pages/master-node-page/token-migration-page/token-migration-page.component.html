@@ -61,35 +61,8 @@
             </div>
           </div>
 
-          <div class="col-12">
-            <div class="from-row form-group">
-              <label for="sumusAddress">{{ "PAGES.MasterNode.MigrationPage.Labels.Address" | translate }}</label>
-              <div class="d-flex align-items-center">
-                <div class="form-currency form-currency--gold">
-                  <svg class="icon">
-                    <use xlink:href="#wallet"></use>
-                  </svg>
-                </div>
-                <input type="text" class="form-control" id="sumusAddress" name="sumusAddress-amount"
-                       #sumusAddressInput="ngModel"
-                       [(ngModel)]="sumusAddress"
-                       (input)="checkSumusAddressValidity($event.target.value)"
-                       [ngClass]="{'is-invalid': (sumusAddressInput.invalid || !isValidSumusAddress) && sumusAddressInput.dirty}"
-                       autocomplete="off"
-                       [disabled]="loading || !isMetamask"
-                       required>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="sumusAddressInput.invalid && sumusAddressInput.dirty">
-                  {{ "PAGES.MasterNode.MigrationPage.Errors.Required" | translate }}
-                </div>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="!isValidSumusAddress && migrationForm.valid && sumusAddressInput.dirty">
-                  {{ "PAGES.MasterNode.MigrationPage.Errors.InvalidAddress" | translate }}
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="col mt-1 mb-5">
-            <button class="btn btn-primary" [disabled]="(migrationForm.invalid || migrationForm.pristine || invalidAmount || balanceError || loading) || !isValidSumusAddress"
+            <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !sumusAddress || !isAddressLoaded || loading"
                     (click)="onSubmit()">Go</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
@@ -101,9 +74,9 @@
     <div class="my-3" *ngIf="isSumusSuccess && (direction === 'GOLDsumus' || direction === 'MNTPsumus')">
       <div>{{ "PAGES.MasterNode.MigrationPage.TransferDescr" | translate }}</div>
       <input type="text" class="input-copy" value="{{ sumusMigrationAddress }}" #secondAddress readonly>
-      <!--<span class="migration-address-link" (click)="onCopyData(secondAddress)"
+      <span class="migration-address-link" (click)="onCopyData(secondAddress)"
             popover="Copied" [outsideClick]="true"
-      ><b>{{ sumusMigrationAddress }}</b></span>-->
+      ><b>{{ sumusMigrationAddress }}</b></span>
     </div>
 
   </section>
