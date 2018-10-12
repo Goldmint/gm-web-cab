@@ -696,12 +696,31 @@ export class APIService {
       );
   }
 
+  getMigrationStatus() {
+    return this._http.get(`${this._baseUrl}/user/migration/status`, this.jwt());
+  }
+
+  goldMigrationSumus(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/gold/ethereum`, {sumusAddress, ethereumAddress}, this.jwt());
+  }
+
+  goldMigrationEth(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/gold/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
+  }
+
+  mintMigrationSumus(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/mint/ethereum`, {sumusAddress, ethereumAddress}, this.jwt());
+  }
+
+  mintMigrationEth(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/mint/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
+  }
+
   getSwiftDepositInvoice(amount: number): Observable<APIResponse<SwiftInvoice>> {
     let data = {
       amount: amount,
     };
     let headers = this.jwt();
-    console.log(headers);
     return this._http
       .post(`${this._baseUrl}/user/fiat/swift/deposit`, data, headers)
       .pipe(

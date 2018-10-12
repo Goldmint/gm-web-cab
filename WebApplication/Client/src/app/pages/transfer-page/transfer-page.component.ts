@@ -84,7 +84,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
 
     if (window.hasOwnProperty('web3')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.isMetamask && this._userService.showLoginToMMBox()
+        !this.isMetamask && this._userService.showLoginToMMBox('HeadingTransfer')
       }, 3000);
     }
 

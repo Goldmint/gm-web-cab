@@ -3,6 +3,7 @@ using Goldmint.DAL;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Linq;
 using Goldmint.Common.Extensions;
@@ -124,10 +125,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 				return null;
 			}
 
-			if (!decimal.TryParse(res.balance.gold, out var goldDec)) {
+			if (!decimal.TryParse(res.balance.gold, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var goldDec)) {
 				throw new Exception("Failed to parse GOLD token amount");
 			}
-			if (!decimal.TryParse(res.balance.gold, out var mntDec)) {
+			if (!decimal.TryParse(res.balance.gold, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var mntDec)) {
 				throw new Exception("Failed to parse MNT token amount");
 			}
 

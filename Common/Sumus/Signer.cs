@@ -49,8 +49,8 @@ namespace Goldmint.Common.Sumus {
 
 		public ulong NextNonce() {
 			_nonceLocker.EnterWriteLock();
-			ulong ret = _nonce;
 			_nonce++;
+			ulong ret = _nonce;
 			_nonceLocker.ExitWriteLock();
 			return ret;
 		}

@@ -15,7 +15,8 @@
       "Sell": "Sell GOLD",
       "Buy": "Buy GOLD",
       "Transfer": "Transfer GOLD",
-      "Finance": "Finance"
+      "Finance": "Finance",
+	  "MasterNode": "Master node"
     }
   },
   "FOOTER": {
@@ -238,6 +239,82 @@
             "Unlimited": "Unlimited",
             "LimitUsed": "Limit used:"
           }
+        }
+      }
+    },
+	"MasterNode": {
+      "Heading": "Master Node",
+      "Tabs": {
+        "Overview": "Overview",
+        "Launch": "Launch master node",
+        "Migration": "Token migration"
+      },
+      "LaunchPage": {
+        "Heading": "Launch Master Node",
+        "Description": "Here you can find the installation and configuration instructions for your blockchain Goldmint master-node for OS",
+        "Labels": {
+          "ChooseOS": "Choose OS",
+          "VideoInst": "Video instruction",
+          "TextInst": "Text instruction",
+          "InstFor": "Instruction for"
+        },
+        "Buttons": {
+          "Migrate": "I'm ready for doing the migration of my MNTP tokens to start mining",
+          "MigrateSmall": "I'm ready for doing the migration"
+        }
+      },
+      "MigrationPage": {
+        "Heading": "Token Migration",
+        "TransferDescr": "You have to transfer your tokens to this address:",
+        "Labels": {
+          "Amount": "Amount",
+          "Address": "Sumus address"
+        },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
+        },
+        "Errors": {
+          "InvalidAmount": "Invalid amount",
+          "Maximum": "Maximum amount is",
+          "Required": "Field is required",
+          "InvalidAddress": "Invalid address"
+        },
+        "Buttons": {
+          "go": "GO"
+        },
+        "Popover": {
+          "Copied": "Copied"
+        }
+      },
+      "Overview": {
+        "Heading": "Overview",
+        "Labels": {
+          "Nodes": "Total running nodes:",
+          "MNT": "Total MNT holded:",
+          "Reward": "Total reward earned:",
+          "ActiveNodes": "Current active nodes"
+        },
+        "Links": {
+          "LatestReward": "Latest reward distributions"
+        },
+        "Table": {
+          "Node": "Node wallet",
+          "Date": "Launch date",
+          "MNT": "MNT Holded",
+          "Reward": "Total reward earned",
+          "Chart": "Mini chart"
+        },
+        "Chart": "Reward Progress Chart"
+      },
+      "LatestReward": {
+        "Heading": "Latest reward distributions",
+        "Table": {
+          "Date": "Date",
+          "TxAmount": "Tx amount",
+          "TransferredToken": "Transferred token amount",
+          "RewardAmount": "Reward amount"
         }
       }
     },
@@ -1279,9 +1356,19 @@
       "Heading": "To continue you'll need to have Metamask",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
+    "LiteWallet": {
+      "Heading": "To continue you'll need to have Lite Wallet",
+      "Text": "Goldmint Lite Wallet is provided for token holders to safely and securely store, send or receive MINT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MINT/GOLD. Get"
+    },
     "LoginToMM": {
       "HeadingBuy": "BUY GOLD",
       "HeadingSell": "SELL GOLD",
+      "HeadingTransfer": "TRANSFER GOLD",
+      "HeadingMigration": "TOKEN MIGRATION",
+      "Text": "Please login to your account"
+    },
+    "LoginToLiteWallet": {
+      "Heading": "TOKEN MIGRATION",
       "Text": "Please login to your account"
     },
     "InvalidNetwork": "You must use {{ network }} network",

@@ -107,7 +107,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
     if (window.hasOwnProperty('web3')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingBuy');
       }, 3000);
     }
 

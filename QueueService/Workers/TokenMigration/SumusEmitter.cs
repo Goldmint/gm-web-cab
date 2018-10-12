@@ -18,6 +18,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
+		private ISumusReader _sumusReader;
 		private ISumusWriter _sumusWriter;
 		private Common.Sumus.Signer _emitterSigner;
 
@@ -30,20 +31,25 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 		}
 
-		protected override Task OnInit(IServiceProvider services) {
+		protected override async Task OnInit(IServiceProvider services) {
 			var appConfig = services.GetRequiredService<AppConfig>();
 			_logger = services.GetLoggerFor(this.GetType());
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
+			_sumusReader = services.GetRequiredService<ISumusReader>();
 			_sumusWriter = services.GetRequiredService<ISumusWriter>();
 
-			if (!Common.Sumus.Pack58.Unpack(appConfig.Services.Sumus.MigrationEmissionPk, out var pk)) {
-				throw new ArgumentException("Sumus emission private key is invalid");
+			// emitter
+			{
+				if (!Common.Sumus.Pack58.Unpack(appConfig.Services.Sumus.MigrationEmissionPk, out var pk)) {
+					throw new ArgumentException("Sumus emission private key is invalid");
+				}
+				_emitterSigner = new Common.Sumus.Signer(pk, 0);
+				var ws = await _sumusReader.GetWalletState(_emitterSigner.PublicKey);
+				if (ws == null) {
+					throw new Exception("Failed to get sumus emitter wallet state");
+				}
+				_emitterSigner.SetNonce(ws.LastNonce);
 			}
-			_emitterSigner = new Common.Sumus.Signer(pk, 0);
-
-
-
-			return Task.CompletedTask;
 		}
 
 		protected override async Task OnUpdate() {

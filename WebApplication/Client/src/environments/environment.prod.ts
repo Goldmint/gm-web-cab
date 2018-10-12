@@ -11,5 +11,6 @@ export const environment = {
   etherscanUrl: 'https://etherscan.io/tx/',
   infuraUrl: 'https://service.goldmint.io/proxy/infura/mainnet',
   etherscanGetABIUrl: 'https://api.etherscan.io',
-  EthContractAddress: '0x1d9be4a5681374c54b1821d0beac3a678ad128a4'
+  EthContractAddress: '0x1d9be4a5681374c54b1821d0beac3a678ad128a4',
+  getLiteWalletLink: 'https://wallet.goldmint.io/#/wallet'
 };

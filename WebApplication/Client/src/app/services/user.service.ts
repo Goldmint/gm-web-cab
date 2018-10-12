@@ -169,13 +169,23 @@ export class UserService {
     this.onWalletSwitch$.next(wallet);
   }
 
-  showLoginToMMBox() {
+  showLoginToMMBox(heading: string) {
     this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
       this._messageBox.alert(`
         <div class="text-center">${phrase.Text}</div>
         <div class="metamask-icon"></div>
         <div class="text-center mt-2 mb-2">MetaMask</div>
-      `, phrase.HeadingSell);
+      `, phrase[heading]);
+    });
+  }
+
+  showLoginToLiteWallet() {
+    this._translate.get('MessageBox.LoginToLiteWallet').subscribe(phrase => {
+      this._messageBox.alert(`
+        <div class="text-center">${phrase.Text}</div>
+        <div class="gold-circle-icon"></div>
+        <div class="text-center mt-2 mb-2">Goldmint Lite Wallet</div>
+      `, phrase.Heading);
     });
   }
 

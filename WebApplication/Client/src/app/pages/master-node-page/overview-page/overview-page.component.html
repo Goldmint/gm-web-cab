@@ -1,0 +1,167 @@
+<div class="mt-4 pt-1">
+  <section class="page__section section pb-4">
+    <h2 class="section__title">{{ "PAGES.MasterNode.Overview.Heading" | translate }}</h2>
+
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <div *ngIf="isDataLoaded">
+      <div class="mt-4 line-height">
+        <div><b>{{ "PAGES.MasterNode.Overview.Labels.Nodes" | translate }} </b>{{ numberNodes }}</div>
+        <div><b>{{ "PAGES.MasterNode.Overview.Labels.MNT" | translate }} </b>{{ numberMNT }} MNT</div>
+        <div><b>{{ "PAGES.MasterNode.Overview.Labels.Reward" | translate }}</b> {{ numberReward | substr:7 }} GOLD</div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4 mb-1">
+      <div class="table-heading">{{ "PAGES.MasterNode.Overview.Labels.ActiveNodes" | translate }}</div>
+      <div class="a-link text-right" [routerLink]="'/master-node/overview/latest-reward-distributions'">
+        {{ "PAGES.MasterNode.Overview.Links.LatestReward" | translate }}
+      </div>
+    </div>
+
+    <ngx-datatable class="table table--no-footer txs-table" #table
+                   [rows]="rows"
+                   [columnMode]="'force'"
+                   [sorts]="sorts"
+                   [headerHeight]="53"
+                   [rowHeight]="'auto'"
+                   [footerHeight]="135"
+                   [reorderable]="false"
+                   [loadingIndicator]="loading"
+                   [count]="page.totalElements"
+                   [offset]="page.pageNumber"
+                   [limit]="page.size"
+                   [externalSorting]="true"
+                   (sort)="onSort($event)"
+                   [externalPaging]="true"
+                   (page)='setPage($event)'
+                   [messages]="messages">
+
+      <div *ngIf="!isMobile">
+        <ngx-datatable-column prop="nodeWallet" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+               {{ "PAGES.MasterNode.Overview.Table.Node" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-nodeWallet="value" let-row="row" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.nodeInfo?.nodeWallet">{{ row.nodeInfo?.nodeWallet }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [sortable]="true">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.MasterNode.Overview.Table.Date" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-launchDate="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">{{ row.nodeInfo?.launchDate | date }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="utilityAmount" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-sort="sortFn" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">
+            {{ "PAGES.MasterNode.Overview.Table.MNT" | translate }}
+           </span>
+          </ng-template>
+
+          <ng-template let-utilityAmount="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">{{ row.nodeInfo?.utilityAmount }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="utRewardTotal" [draggable]="false" [resizeable]="false" [sortable]="false" [minWidth]="250">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            {{ "PAGES.MasterNode.Overview.Table.Reward" | translate }}
+          </ng-template>
+
+          <ng-template let-utRewardTotal="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ row.rewardData?.ctRewardTotal | substr:7 }} GOLD</div>
+              <div>{{ row.rewardData?.utRewardTotal | substr:7 }} MNT</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="destinationWallet" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            {{ "PAGES.MasterNode.Overview.Table.Chart" | translate }}
+          </ng-template>
+
+          <ng-template let-destinationWallet="value" let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+            <div [ngClass]="{'pointer': row.chartData.length}" (click)="row.chartData.length && showDetailsChart(row.chartData, template)">
+              <div id="chart-container-{{ rowIndex }}" class="mini-chart-container"></div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </div>
+
+      <ngx-datatable-column *ngIf="isMobile" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">{{ "PAGES.MasterNode.Overview.Table.Node" | translate }}</span>
+        </ng-template>
+
+        <ng-template let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
+          <div class="font-weight-500 mt-1 mb-1 a-link" [routerLink]="'/scanner/address/' + row.nodeInfo?.nodeWallet">
+            {{ row.nodeInfo?.nodeWallet }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.MasterNode.Overview.Table.Date" | translate }}:</span>
+            {{ row.nodeInfo?.launchDate | date }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.MasterNode.Overview.Table.MNT" | translate }}:</span>
+            {{ row.nodeInfo?.utilityAmount }}
+          </div>
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.MasterNode.Overview.Table.Reward" | translate }}:</span>
+            <div class="ml-1">
+              <div>{{ row.rewardData?.ctRewardTotal | substr:7 }} GOLD</div>
+              <div>{{ row.rewardData?.utRewardTotal | substr:7 }} MNT</div>
+            </div>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.MasterNode.Overview.Table.Chart" | translate }}:</span>
+            <div [ngClass]="{'d-none': !row.chartData.length}" (click)="row.chartData.length && showDetailsChart(row.chartData, template)">
+              <div id="chart-container-{{ rowIndex }}" class="mini-chart-container"></div>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+
+    <ul class="pagination pagination--small mb-2" *ngIf="page.totalElements">
+      <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+          <svg class="icon--previous" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+      <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+          <svg class="icon--next" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+
+  </section>
+</div>
+
+<ng-template #template>
+  <button type="button" class="message-box__close" (click)="modalRef.hide()">
+    <svg class="icon">
+      <use xlink:href="#close"></use>
+    </svg>
+  </button>
+  <div id="details-chart-container"></div>
+</ng-template>
