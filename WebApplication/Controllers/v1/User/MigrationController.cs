@@ -93,10 +93,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success();
 		}
 
-		/// <summary>
-		/// GOLD token migration Ethereum to Sumus
-		/// </summary>
-		[HttpPost, Route("gold/sumus")]
+        /// <summary>
+        /// GOLD token migration Ethereum to Sumus
+        /// </summary>
+        [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+        [HttpPost, Route("gold/sumus")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> GoldToSumus([FromBody] Models.API.v1.User.MigrationController.EthSumModel model) {
 
@@ -132,10 +133,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success();
 		}
 
-		/// <summary>
-		/// GOLD token migration Sumus to Ethereum
-		/// </summary>
-		[HttpPost, Route("gold/ethereum")]
+        /// <summary>
+        /// GOLD token migration Sumus to Ethereum
+        /// </summary>
+        [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+        [HttpPost, Route("gold/ethereum")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> GoldToEthereum([FromBody] Models.API.v1.User.MigrationController.SumEthModel model) {
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
@@ -173,7 +175,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
         // <summary>
         /// Get contract info
         /// </summary>
-        //[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+        [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
         [HttpGet, Route("status")]
         [ProducesResponseType(typeof(object), 200)]
         public async Task<APIResponse> GetMigrationInfo()
