@@ -61,21 +61,20 @@
             </div>
           </div>
 
-          <div class="col mt-1 mb-5">
+          <div class="col mt-1 mb-4">
             <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !sumusAddress || !isAddressLoaded || loading"
                     (click)="onSubmit()">Go</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
-
         </div>
       </form>
     </div>
 
-    <div class="my-3" *ngIf="isSumusSuccess && (direction === 'GOLDsumus' || direction === 'MNTPsumus')">
+    <div class="mb-4" *ngIf="isSumusSuccess && (direction === 'GOLDsumus' || direction === 'MNTPsumus')">
       <div>{{ "PAGES.MasterNode.MigrationPage.TransferDescr" | translate }}</div>
       <input type="text" class="input-copy" value="{{ sumusMigrationAddress }}" #secondAddress readonly>
       <span class="migration-address-link" (click)="onCopyData(secondAddress)"
-            popover="Copied" [outsideClick]="true"
+            popover='{{ "PAGES.MasterNode.MigrationPage.Popover.Copied" | translate }}' [outsideClick]="true"
       ><b>{{ sumusMigrationAddress }}</b></span>
     </div>
 

@@ -263,6 +263,11 @@
           "Amount": "Amount",
           "Address": "Sumus address"
         },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
+        },
         "Errors": {
           "InvalidAmount": "Invalid amount",
           "Maximum": "Maximum amount is",
@@ -271,6 +276,9 @@
         },
         "Buttons": {
           "go": "GO"
+        },
+        "Popover": {
+          "Copied": "Copied"
         }
       },
       "Overview": {
@@ -1343,7 +1351,7 @@
     },
     "LiteWallet": {
       "Heading": "To continue you'll need to have Lite Wallet",
-      "Text": "Goldmint Lite Wallet is provided for token holders to safely and securely store, send or receive MINT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MINT/GOLD if needed. Get"
+      "Text": "Goldmint Lite Wallet is provided for token holders to safely and securely store, send or receive MINT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MINT/GOLD. Get"
     },
     "LoginToMM": {
       "HeadingBuy": "BUY GOLD",
