@@ -22,7 +22,7 @@ namespace Goldmint.DAL.Models.PromoCode
 
 	    [Column("usage_type"), Required]
 	    public PromoCodeUsageType UsageType { get; set; }
-
+        
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 

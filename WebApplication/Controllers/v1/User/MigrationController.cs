@@ -198,7 +198,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			}
 			return APIResponse.Success();
 		}
-        // <summary>
+        /// <summary>
         /// Get contract info
         /// </summary>
         [RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]

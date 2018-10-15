@@ -292,7 +292,8 @@ namespace Goldmint.CoreLogic.Finance {
 			public BigInteger ResultGoldAmount { get; internal set; }
 		}
 
-		public sealed class BuyGoldCryptoResult {
+		public sealed class BuyGoldCryptoResult
+		{
 
 			/// <summary>
 			/// Overall status
