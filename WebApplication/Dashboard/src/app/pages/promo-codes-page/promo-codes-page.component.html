@@ -14,7 +14,7 @@
                      formControlName="discount">
                 <div class="invalid-feedback invalid-feedback--abs" *ngIf="form.get('discount').invalid && form.get('discount').dirty">
                     <span *ngIf="form.get('discount')['errors']['required']">Field is required.</span>
-                    <span *ngIf="form.get('discount')['errors']['max']">Maximum value is 100.</span>
+                    <span *ngIf="form.get('discount')['errors']['max']">Maximum value is 99.9.</span>
                     <span *ngIf="form.get('discount')['errors']['pattern']">Value must be greater than 0.</span>
                 </div>
             </div>

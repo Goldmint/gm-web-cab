@@ -232,7 +232,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.checkDiscount(data.data.discount);
-            this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
+            this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
         }, error => {
             this.setPromoCodeError(error.error.errorCode);
         });
@@ -257,7 +257,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
             this.checkDiscount(data.data.discount);
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
-            this.isTradingError = this.isTradingLimit = this.processing = false;
+            this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
         }, error => {
             this.setPromoCodeError(error.error.errorCode);
         });

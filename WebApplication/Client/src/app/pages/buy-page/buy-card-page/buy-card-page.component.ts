@@ -172,7 +172,7 @@ export class BuyCardPageComponent implements OnInit {
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
           this.checkDiscount(data.data.discount);
-          this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
         }, error => {
           this.setPromoCodeError(error.error.errorCode);
         });
@@ -194,7 +194,7 @@ export class BuyCardPageComponent implements OnInit {
           }).subscribe(data => {
             this.usdAmount = data.data.amount;
             this.checkDiscount(data.data.discount);
-            this.isTradingError = this.isTradingLimit = this.processing = false;
+            this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
             this.invalidBalance = (this.usdAmount <= 1) ? true : false;
 
             this.checkBuyLimit(this.usdAmount);
