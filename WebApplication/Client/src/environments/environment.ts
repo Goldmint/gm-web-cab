@@ -12,5 +12,5 @@ export const environment = {
   infuraUrl: 'https://service.goldmint.io/proxy/infura/rinkeby',
   etherscanGetABIUrl: 'https://api-rinkeby.etherscan.io',
   EthContractAddress: '0x8B3Cc4BCf7cb3727565Bb69cb23Ae7D810988Df2',
-  getLiteWalletLink: 'https://staging.goldmint.io/wallet/#/wallet'
+  getLiteWalletLink: 'https://chrome.google.com/webstore/detail/goldmint-lite-wallet/fnabdmcgpkkjjegokfcnfbpneacddpfh'
 };

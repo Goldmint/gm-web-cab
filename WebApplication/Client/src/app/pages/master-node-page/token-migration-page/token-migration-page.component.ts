@@ -17,6 +17,7 @@ import {combineLatest} from "rxjs/observable/combineLatest";
 import {TranslateService} from "@ngx-translate/core";
 import {interval} from "rxjs/observable/interval";
 import {environment} from "../../../../environments/environment";
+import {User} from "../../../interfaces/user";
 
 @Component({
   selector: 'app-token-migration-page',
@@ -45,6 +46,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     type: 'eth'|'sumus'
   };
   public loading: boolean = false;
+  public isDataLoaded: boolean = false;
   public isSumusSuccess: boolean = false;
   public invalidAmount: boolean = false;
   public balanceError: boolean = false;
@@ -54,6 +56,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   public currentBalance: number;
   public isAddressLoaded: boolean = false;
   public etherscanUrl = environment.etherscanUrl;
+  public user: User;
 
   private Web3: Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -82,6 +85,26 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     };
     this.direction = this.tokenModel.type + this.directionModel.type;
 
+    this.apiService.getProfile().subscribe(data => {
+      this.user = data.data;
+      this.isDataLoaded = true;
+
+      if (this.user.verifiedL0) {
+        this.initGoldMigrationModal();
+        this.initMntpMigrationModal();
+
+        this.getTokenBalance();
+        this.getEthAddress();
+        this.getMigrationStatus();
+
+        this.detectMetaMask();
+        this.detectLiteWallet();
+      }
+      this._cdRef.markForCheck();
+    });
+  }
+
+  getTokenBalance() {
     const combined = combineLatest(
       this.ethService.getObservableGoldBalance(),
       this.ethService.getObservableMntpBalance()
@@ -105,13 +128,9 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       }
     });
+  }
 
-    this.detectMetaMask();
-    this.detectLiteWallet();
-
-    this.initGoldMigrationModal();
-    this.initMntpMigrationModal();
-
+  getEthAddress() {
     this.ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
       this.ethAddress = address;
       if (this.ethAddress !== null) {
@@ -124,6 +143,9 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
+  }
+
+  getMigrationStatus() {
     this.apiService.getMigrationStatus().subscribe((data: any) => {
       this.ethMigrationAddress = data.data.ethereum.migrationAddress;
       this.sumusMigrationAddress = data.data.sumus.migrationAddress;
