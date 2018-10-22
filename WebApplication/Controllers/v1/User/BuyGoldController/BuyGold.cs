@@ -314,7 +314,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 
 	        await DbContext.AddAsync(new UsedPromoCodes()
 	        {
-	            PromoCodeId = userId,
+	            PromoCodeId = pc.Id,
 	            TimeUsed = DateTime.UtcNow,
 	            UserId = userId
 	        });
