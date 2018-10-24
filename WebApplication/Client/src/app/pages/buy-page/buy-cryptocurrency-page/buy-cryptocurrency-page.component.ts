@@ -105,7 +105,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
     this.iniTransactionHashModal();
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
         !this.ethAddress && this._userService.showLoginToMMBox('HeadingBuy');
       }, 3000);

@@ -63,7 +63,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
 
         this.isBlockedCountry && (this.loading = false);
 
-        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
             this._messageBox.alert(phrase.Text, phrase.Heading);
           });

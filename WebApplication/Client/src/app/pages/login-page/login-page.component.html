@@ -77,7 +77,7 @@
               <div class="form-group row pt-3">
                 <div class="col-auto">
                   <button class="btn btn-primary" [blur]="buttonBlur" [disabled]="
-                  (!autofill && !loginForm.form.valid) || (autofill && loginForm.form.valid) || (!loginModel.recaptcha && isLockedAccount) || loading">
+                  (!autofill && !loginForm.form.valid) || (autofill && loginForm.form.valid) || (!loginModel.recaptcha && isLockedAccount) || (!autofill && loginForm.form.pristine) || loading">
                     {{ "PAGES.Login.Buttons.LogIn" | translate }}
                   </button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">

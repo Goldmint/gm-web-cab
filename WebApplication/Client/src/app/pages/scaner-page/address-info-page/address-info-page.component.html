@@ -1,0 +1,179 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Scanner.AddressInfo.Heading" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <div class="line-height mb-4" *ngIf="isDataLoaded">
+      <div class="d-flex"><b>{{ "PAGES.Scanner.AddressInfo.Labels.Address" | translate }}</b> <div class="overflow-ellipsis ml-1">{{ sumusAddress }}</div></div>
+      <div class="d-flex">
+        <b>{{ "PAGES.Scanner.AddressInfo.Labels.Balance" | translate }}</b>
+        <div class="ml-1">
+          <div>{{ balance?.mintAmount }} MNT (${{ balance?.usdFromMint.toFixed(2) }})</div>
+          <div>{{ balance?.goldAmount }} GOLD (${{ balance?.usdFromGold.toFixed(2) }})</div>
+        </div>
+       </div>
+      <div><b>{{ "PAGES.Scanner.AddressInfo.Labels.Transactions" | translate }}</b> {{ page?.totalElements }}</div>
+    </div>
+
+    <ngx-datatable class="table table--no-footer txs-table" #table
+                   [rows]="rows"
+                   [columnMode]="'force'"
+                   [sorts]="sorts"
+                   [headerHeight]="53"
+                   [rowHeight]="'auto'"
+                   [footerHeight]="135"
+                   [reorderable]="false"
+                   [loadingIndicator]="loading"
+                   [count]="page.totalElements"
+                   [offset]="page.pageNumber"
+                   [limit]="page.size"
+                   [externalSorting]="true"
+                   (sort)="onSort($event)"
+                   [externalPaging]="true"
+                   (page)='setPage($event)'
+                   [messages]="messages">
+
+      <div *ngIf="!isMobile">
+        <ngx-datatable-column prop="uniqueId" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.Scanner.AddressInfo.Table.Hash" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-uniqueId="value" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + uniqueId">{{ uniqueId }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="blockNumber" [draggable]="false" [resizeable]="false" [sortable]="false" [width]="120">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper" (click)="sort()">
+                {{ "PAGES.Scanner.AddressInfo.Table.Block" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-blockNumber="value" ngx-datatable-cell-template>
+            <div class="text-center a-link" [routerLink]="'/scanner/transactions-in-block/' + blockNumber">{{ blockNumber }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [sortable]="true">
+          <ng-template let-sort="sortFn" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper" (click)="sort()">
+            {{ "PAGES.Scanner.AddressInfo.Table.Date" | translate }}
+           </span>
+          </ng-template>
+
+          <ng-template let-timeStamp="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">{{ row.timeStamp | date: 'MMM d, y, HH:mm:ss' }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="sourceWallet" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            {{ "PAGES.Scanner.AddressInfo.Table.From" | translate }}
+          </ng-template>
+
+          <ng-template let-sourceWallet="value" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + sourceWallet">{{ sourceWallet }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="destinationWallet" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            {{ "PAGES.Scanner.AddressInfo.Table.To" | translate }}
+          </ng-template>
+
+          <ng-template let-destinationWallet="value" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + destinationWallet">{{ destinationWallet }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="tokensCount" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            {{ "PAGES.Scanner.AddressInfo.Table.Value" | translate }}
+          </ng-template>
+
+          <ng-template let-tokensCount="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">{{ tokensCount | noexp }} <span *ngIf="row.tokenType === 'utility'; else commodity"> MNT</span>
+              <ng-template #commodity> GOLD</ng-template></div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="transactionFee" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            {{ "PAGES.Scanner.AddressInfo.Table.Fee" | translate }}
+          </ng-template>
+
+          <ng-template let-transactionFee="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">{{ transactionFee | noexp }} <span *ngIf="row.tokenType === 'utility'; else commodity"> MNT</span>
+              <ng-template #commodity> GOLD</ng-template></div>
+          </ng-template>
+        </ngx-datatable-column>
+      </div>
+
+      <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">TxHash</span>
+        </ng-template>
+
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="font-weight-500 mt-1 mb-1 a-link" [routerLink]="'/scanner/tx/' + row.uniqueId">
+            {{ row.uniqueId }}
+          </div>
+          <div [routerLink]="'/scanner/transactions-in-block/' + row.blockNumber">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.Block" | translate }}:</span>
+            <span class="a-link">{{ row.blockNumber }}</span>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.Date" | translate }}:</span>
+            {{ row.timeStamp | date: 'MMM d, y, HH:mm:ss' }}
+          </div>
+          <div [routerLink]="'/scanner/address/' + row.sourceWallet">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.From" | translate }}:</span>
+            <span class="a-link">{{ row.sourceWallet }}</span>
+          </div>
+          <div [routerLink]="'/scanner/address/' + row.destinationWallet">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.To" | translate }}:</span>
+            <span class="a-link">{{ row.destinationWallet }}</span>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.Value" | translate }}:</span>
+            {{ row.tokensCount | noexp }} <span *ngIf="row.tokenType === 'utility'; else commodity"> MNT</span>
+            <ng-template #commodity> GOLD</ng-template>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.Fee" | translate }}:</span>
+            {{ row.transactionFee | noexp }} <span *ngIf="row.tokenType === 'utility'; else commodity"> MNT</span>
+            <ng-template #commodity> GOLD</ng-template>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+
+    <ul class="pagination pagination--small mb-2" *ngIf="page.totalElements">
+      <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+          <svg class="icon--previous" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+      <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+          <svg class="icon--next" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>

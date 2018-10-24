@@ -5,6 +5,7 @@
   background-color: $color-black
   padding: 0
   width: 100%
+  align-items: flex-start
 
 .nav
   width: 100%
@@ -16,14 +17,14 @@
     &:not(:first-of-type)
       margin: 0 2px
 
+    &.active > .nav-link
+      background-color: $color-white
+      color: $color-black
+      transition: none
+
     &.active
-      border-bottom-color: $color-white
-
-      .nav-link
-        background-color: $color-white
-        color: $color-black
-        transition: none
-
+      .sub-nav-container
+        display: block
 
   .nav-link
     white-space: nowrap
@@ -41,6 +42,7 @@
     line-height: rem(18px)
     letter-spacing: .1em
     padding: rem(10px)
+    max-height: 42px
 
     &:not(:hover),
     &:not(:active)
@@ -53,3 +55,23 @@
     &:active
       color: $color-white
       background-color: $color-brand-hover
+
+.sub-nav-container
+  height: 33px
+  display: none
+
+.sub-nav
+  margin-top: 4px
+  height: 29px
+  position: absolute
+  left: 0
+
+  .nav-item
+    &.active
+      border-bottom-color: $color-white
+
+  .nav-link
+    padding: 0 0.625rem
+    height: 25px
+    min-height: 0
+

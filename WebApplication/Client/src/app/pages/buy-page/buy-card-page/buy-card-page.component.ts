@@ -82,7 +82,7 @@ export class BuyCardPageComponent implements OnInit {
       this._cdRef.markForCheck();
     });
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
         !this.ethAddress && this._userService.showLoginToMMBox('HeadingBuy');
       }, 3000);

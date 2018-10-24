@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header" [ngClass]="{'header-mobile': isMobile}">
   <div class="container flex-row flex-lg-column">
     <div class="header__row justify-content-between pt-2 pb-2 pt-lg-0 pb-lg-0">
       <div class="d-flex">
@@ -81,7 +81,6 @@
         <ng-template #loginBlock>
           <div class="col-auto auth-info">
             <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
-            <!--a *ngIf="!router.isActive('/signin')" routerLink="/signin" [ngClass]="{'btn btn-primary btn-sm': router.isActive('/signup')}" class="ml-3" [blur]="signupButtonBlur" (click)="signupButtonBlur.emit()">{{ 'HEADER.SignIn' | translate }}</a-->
           </div>
         </ng-template>
 
@@ -99,7 +98,7 @@
       </svg>
     </div>
 
-    <app-navbar class="d-sm-flex" *ngIf="!isMobile"></app-navbar>
+    <app-navbar *ngIf="!isMobile"></app-navbar>
   </div>
 
   <div id="mobile-menu-container" *ngIf="isShowMobileMenu">

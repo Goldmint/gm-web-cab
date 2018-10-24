@@ -1,0 +1,149 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Scanner.Caption" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded || loading">
+      <div class="container"></div>
+    </div>
+
+    <div *ngIf="isDataLoaded">
+      <form #searchForm="ngForm">
+        <div class="row">
+
+          <div class="col-12">
+            <div class="form-group">
+              <div class="d-flex">
+                <input type="text" class="form-control" id="searchValue" name="searchValue"
+                       #searchField="ngModel"
+                       [(ngModel)]="searchValue"
+                       (input)="checkSearchField($event.target.value)"
+                       [ngClass]="{'is-invalid': (searchField.invalid || !isValidSumusAddress || !isValidHash) && searchField.dirty}"
+                       autocomplete="off"
+                       [disabled]="loading"
+                       placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.Placeholder' | translate }}"
+                       pattern="[^а-яА-ЯёЁ]*"
+                       required>
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchField.errors?.required && searchField.dirty">
+                  {{ "PAGES.Scanner.Errors.Required" | translate }}
+                </div>
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchField.errors?.pattern">
+                  {{ "PAGES.Scanner.Errors.Pattern" | translate }}
+                </div>
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="!isValidSumusAddress && searchForm.valid && searchField.dirty">
+                  {{ "PAGES.Scanner.Errors.InvalidAddress" | translate }}
+                </div>
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="!isValidHash && searchForm.valid && searchField.dirty">
+                  {{ "PAGES.Scanner.Errors.InvalidHash" | translate }}
+                </div>
+                <div>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="onSubmit()" [disabled]="searchForm.invalid || !isValidSumusAddress || !isValidHash || loading">
+                    {{ "PAGES.Scanner.Buttons.Go" | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+      <div class="mt-4 scaner-info-container line-height">
+        <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Caption" | translate }}</h5>
+        <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityNodes" | translate }} </b>{{ numberNodes }}</div>
+        <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityMNT" | translate }} </b>{{ numberMNT }} MNT</div>
+        <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.Remuneration" | translate }}</b> {{ numberReward | noexp }} GOLD</div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap mt-4">
+      <div id="reward-chart-container">
+        <div class="col-auto btn-group p-0 mn-tabs commission-chart-switch-cont" *ngIf="isDataLoaded">
+          <label class="btn btn-primary btn-sm active wrap commission-chart-switch"
+                 name="limitsSwitchModel.type"
+                 [(ngModel)]="switchModel.type"
+                 btnRadio="gold"
+                 (click)="toggleCommissionChart(true)">GOLD</label>
+          <label class="btn btn-primary btn-sm active wrap commission-chart-switch"
+                 name="limitsSwitchModel.type"
+                 [(ngModel)]="switchModel.type"
+                 btnRadio="mnt"
+                 (click)="toggleCommissionChart(false)">MNT</label>
+        </div>
+      </div>
+      <div id="tx-chart-container"></div>
+    </div>
+
+    <div class="d-flex justify-content-between flex-wrap mt-5 details-statistic-info" *ngIf="isDataLoaded">
+      <div class="blocks-container">
+        <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Blocks.Heading" | translate }}</h5>
+
+        <div *ngIf="!blocksList.length; else lastBlocks">
+          {{ "MESSAGE.NoData" | translate }}
+        </div>
+        <ng-template #lastBlocks>
+          <div *ngFor="let b of blocksList" class="trs-block mb-2 pb-1">
+            <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Number" | translate }}</b>
+              <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + b.number">{{ b.number }}</div>
+            </div>
+            <div class="d-flex">
+              <b class="nowrap">{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Mined" | translate }} </b>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + b.minerNode">{{ b.minerNode }}</div>
+            </div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Count" | translate }}</b> {{ b.transactionCount }}</div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.TotalAmount" | translate }}</b>
+              {{ b.transferredGold | noexp }} GOLD, {{ b.transferredMnt | noexp }} MNT
+            </div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Fee" | translate }}</b>
+              {{ b.goldFee | noexp }} GOLD, {{ b.mntFee | noexp }} MNT
+            </div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b> {{ b.timeStamp | amTimeAgo }}</div>
+          </div>
+        </ng-template>
+
+        <div class="mt-4 text-right">
+          <button type="button" class="btn btn-sm btn-primary" routerLink="/scanner/blocks"
+                  [disabled]="!blocksList.length">{{ "PAGES.Scanner.LatestStatistic.Blocks.Buttons.More" | translate }}</button>
+        </div>
+      </div>
+
+      <div class="transaction-container mt-4 mt-lg-0">
+        <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Transactions.Heading" | translate }}</h5>
+
+        <div *ngIf="!transactionsList.length; else lastTx">
+          {{ "MESSAGE.NoData" | translate }}
+        </div>
+        <ng-template #lastTx>
+          <div *ngFor="let t of transactionsList" class="trs-block mb-2 pb-1">
+            <div class="d-flex"><b>TxId: </b>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + t.uniqueId"> {{ t.uniqueId }}</div>
+            </div>
+            <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.From" | translate }}</b>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + t.sourceWallet"> {{ t.sourceWallet }}</div>
+            </div>
+            <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.To" | translate }}</b>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + t.destinationWallet"> {{ t.destinationWallet }}</div>
+            </div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Amount" | translate }}</b>
+              {{ t.tokensCount | noexp }}<span *ngIf="t.tokenType === 'utility'; else commodity"> MNT</span>
+              <ng-template #commodity> GOLD</ng-template>
+            </div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Fee" | translate }}</b>
+              {{ t.transactionFee }}<span *ngIf="t.tokenType === 'utility'; else commodity"> MNT</span>
+              <ng-template #commodity> GOLD</ng-template>
+            </div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Date" | translate }}</b> {{ t.timeStamp | amTimeAgo }}</div>
+          </div>
+        </ng-template>
+
+        <div class="mt-4 text-right">
+          <button type="button" class="btn btn-sm btn-primary" routerLink="/scanner/transactions"
+                  [disabled]="!transactionsList.length">{{ "PAGES.Scanner.LatestStatistic.Transactions.Buttons.More" | translate }}</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

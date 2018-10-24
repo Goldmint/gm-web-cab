@@ -110,7 +110,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
 
     this.iniTransactionHashModal();
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
         !this.ethAddress && this._userService.showLoginToMMBox('HeadingSell');
       }, 3000);

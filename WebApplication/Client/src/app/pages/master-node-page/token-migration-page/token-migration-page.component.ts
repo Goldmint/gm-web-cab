@@ -155,7 +155,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   }
 
   detectMetaMask() {
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
         this.loading = false;
         !this.isMetamask && this.userService.showLoginToMMBox('HeadingMigration');

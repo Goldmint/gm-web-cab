@@ -12,11 +12,20 @@
     "SignOut": "Выход",
     "AccountInfo": "Аккаунт",
     "Menu": {
-      "Sell": "Продать",
-      "Buy": "Купить",
-      "Transfer": "Перевод активов",
-      "Finance": "Финансы",
-	  "MasterNode": "Мастер нода"
+      "Exchange": {
+        "Heading": "Обмен",
+        "Sell": "Продать GOLD",
+        "Buy": "Купить GOLD",
+        "Transfer": "Перевод GOLD",
+        "Finance": "Финансы"
+      },
+      "GoldmintBlockchain": {
+        "Heading": "Goldmint Blockchain",
+        "Wallet": "Кошелек",
+        "MasterNode": "Мастер нода",
+        "Scanner": "Сканер"
+      },
+      "PAWN": "PAWN MARKETPLACE"
     }
   },
   "FOOTER": {
@@ -316,6 +325,131 @@
           "TransferredToken": "Переданное количество токенов",
           "RewardAmount": "Сумма вознаграждения"
         }
+      }
+    },
+    "Scanner": {
+      "Heading": "Сканер",
+      "Caption": "Goldmint blockchain сканер",
+      "LatestStatistic": {
+        "Caption": "Последняя статистика",
+        "Input": {
+          "Placeholder": "Поиск по Адресу / Хэшу транзакции"
+        },
+        "Labels": {
+          "QuantityNodes": "Количество нод:",
+          "QuantityMNT": "Количество MNT на надох всего:",
+          "Remuneration": "Сумма вознаграждения за 1 MNT в день:"
+        },
+        "Charts": {
+          "Reward": "График собранной комиссии по дням",
+          "Tx": "График количества транзакций по дням"
+        },
+        "Blocks": {
+          "Heading": "Блоки",
+          "Labels": {
+            "Number": "Номер:",
+            "Mined": "Замайнил:",
+            "Count": "Количество транзакций:",
+            "TotalAmount": "Общее количество:",
+            "Fee": "Комиссия:",
+            "Date": "Дата:"
+          },
+          "Buttons": {
+            "More": "Показать больше"
+          }
+        },
+        "Transactions": {
+          "Heading": "Транзакции",
+          "Labels": {
+            "From": "Из:",
+            "To": "В:",
+            "Amount": "Количество:",
+            "Fee": "Комиссия:",
+            "Date": "Дата:"
+          },
+          "Buttons": {
+            "More": "Показать больше"
+          }
+        }
+      },
+      "AllBlocks": {
+        "Heading": "Блоки",
+        "Labels": {
+          "Number": "Номер",
+          "Mined": "Замайнил",
+          "Count": "Количество транзакций",
+          "ctFee": "GOLD комиссия",
+          "utFee": "MNT комиссия",
+          "Date": "Дата"
+        }
+      },
+      "AllTransactions": {
+        "Heading": "Транзакции",
+        "Labels": {
+          "From": "Из",
+          "To": "В",
+          "Count": "Количество",
+          "Fee": "Комиссия",
+          "Date": "Дата"
+        }
+      },
+      "TransactionsInBlock": {
+        "Heading": "Список транзакций в блоке",
+        "Labels": {
+          "From": "Из",
+          "To": "В",
+          "Count": "Количество",
+          "Fee": "Комиссия",
+          "Date": "Дата"
+        }
+      },
+      "AddressInfo" : {
+        "Heading": "Информация адреса",
+        "Labels": {
+          "Address": "Адрес:",
+          "Balance": "Баланс:",
+          "Transactions": "Транзакции:"
+        },
+        "Table": {
+          "Hash": "Хэш",
+          "Block": "Блок",
+          "Date": "Дата",
+          "From": "Из",
+          "To": "В",
+          "Value": "Количество",
+          "Fee": "Комиссия"
+        }
+      },
+      "TransactionInfo": {
+        "Heading": "Информация транзакции",
+        "Labels": {
+          "Hash": "Хэш транзакции:",
+          "TimeStamp": "TimeStamp:",
+          "Destination": "Кошелек получателя:",
+          "Source": "Кошелек отправителя:",
+          "TokenType": "Тип токена:",
+          "BlockNumber": "Номер блока:",
+          "Amount": "Количество:",
+          "Fee": "Комиссия:",
+          "Id": "Id транзакции:",
+          "Status": "Статус транзакции:"
+        },
+        "Status": {
+          "1": "В процессе",
+          "2": "Успешна",
+          "3": "Неудачна"
+        },
+        "NotFound": "Транзакция не найдена",
+        "Pending": "Транзакция в ожидании"
+      },
+      "Errors": {
+        "Required": "Поле обязательно",
+        "Pattern": "Поле должно содержать цифры и латинские буквы",
+        "InvalidAddress": "Неверный адрес",
+        "InvalidHash": "Неверный хэш"
+      },
+      "Buttons": {
+        "Go": "Вперед"
       }
     },
     "Deposit": {
@@ -1276,6 +1410,12 @@
         }
       }
     },
+    "Wallet": {
+      "Heading": "Кошелек",
+      "Items": {
+        "GetWallet": "Получить Lite Wallet"
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Ошибка 404. Страница не найдена",
@@ -1365,7 +1505,7 @@
       "HeadingSell": "ПРОДАТЬ GOLD",
       "HeadingTransfer": "ПЕРЕВОД GOLD",
       "HeadingMigration": "МИГРАЦИЯ ТОКЕНОВ",
-      "Text": "Войдите в свой аккаунт"
+      "Text": "Войдите в свой аккаунт или разрешите доступ к Ethereum blockchain"
     },
     "LoginToLiteWallet": {
       "Heading": "МИГРАЦИЯ ТОКЕНОВ",

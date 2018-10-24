@@ -1,0 +1,44 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Scanner.TransactionInfo.Heading" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="loading">
+      <div class="container"></div>
+    </div>
+
+    <div class="scanner-info-container" *ngIf="transactionInfo && !isPending">
+      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Hash" | translate }} </b>
+        <div class="overflow-ellipsis ml-1"> {{ txHash }}</div>
+      </div>
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.TimeStamp" | translate }} </b>{{ transactionInfo.tx?.timeStamp | date: 'MMM d, y, HH:mm:ss' }}</div>
+      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Destination" | translate }} </b>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + transactionInfo.tx?.destinationWallet"> {{ transactionInfo.tx?.destinationWallet }}</div>
+      </div>
+      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Source" | translate }} </b>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + transactionInfo.tx?.sourceWallet"> {{ transactionInfo.tx?.sourceWallet }}</div>
+      </div>
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
+        {{ transactionInfo.tx?.tokensCount | noexp }}<span *ngIf="transactionInfo.tx?.tokenType === 'utility'; else commodity"> MNT</span>
+        <ng-template #commodity> GOLD</ng-template>
+      </div>
+      <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.BlockNumber" | translate }} </b>
+        <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + transactionInfo.tx?.blockNumber"> {{ transactionInfo.tx?.blockNumber }}</div>
+      </div>
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Fee" | translate }} </b>
+        {{ transactionInfo.tx?.transactionFee | noexp }}<span *ngIf="transactionInfo.tx?.tokenType === 'utility'; else commodity"> MNT</span>
+        <ng-template #commodity> GOLD</ng-template>
+      </div>
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Status" | translate }} </b>
+        <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + transactionInfo?.status" class="tx-status-{{ transactionInfo?.status }}"></span>
+      </div>
+    </div>
+
+    <div class="text-center" *ngIf="isNotFound">{{ "PAGES.Scanner.TransactionInfo.NotFound" | translate }}</div>
+
+    <div class="text-center" *ngIf="transactionInfo && isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
+
+  </div>
+</section>

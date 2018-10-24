@@ -6,6 +6,7 @@ export const environment = {
     index: 1
   },
   apiUrl: 'https://app.goldmint.io/api/v1',
+  walletApiUrl: 'https://app.goldmint.io/wallet/api/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://etherscan.io/tx/',
