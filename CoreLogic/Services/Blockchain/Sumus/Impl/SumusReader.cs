@@ -125,15 +125,19 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 				return null;
 			}
 
-			if (!decimal.TryParse(res.balance.gold, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var goldDec)) {
+			if (!decimal.TryParse(res.balance.gold, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var goldDec))
+			{
 				throw new Exception("Failed to parse GOLD token amount");
 			}
-			if (!decimal.TryParse(res.balance.gold, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var mntDec)) {
+			if (!decimal.TryParse(res.balance.mint, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var mntDec))
+			{
 				throw new Exception("Failed to parse MNT token amount");
 			}
 
-			return new WalletState() {
-				Balance = new WalletState.BalanceData() {
+			return new WalletState()
+			{
+				Balance = new WalletState.BalanceData()
+				{
 					Gold = goldDec.ToSumus(),
 					Mnt = mntDec.ToSumus(),
 				},
@@ -145,14 +149,16 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 
 		// ---
 
-		internal class ProxyWalletStateResult {
+		internal class ProxyWalletStateResult
+		{
 			public ProxyWalletStateResultBalance balance { get;set; }
 			public bool exist { get;set; }
 			public ulong approved_nonce { get;set; }
 			public string[] tags { get;set; }
 		}
 
-		internal class ProxyWalletStateResultBalance {
+		internal class ProxyWalletStateResultBalance
+		{
 			public string gold { get;set; }
 			public string mint { get;set; }
 		}

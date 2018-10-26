@@ -6,9 +6,11 @@ using Goldmint.Common.WebRequest;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
 using NLog;
 
-namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
+namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl
+{
 
-	public sealed class SumusWriter : ISumusWriter {
+	public sealed class SumusWriter : ISumusWriter
+	{
 
 		private readonly AppConfig _appConfig;
 		private readonly LogFactory _logFactory;
