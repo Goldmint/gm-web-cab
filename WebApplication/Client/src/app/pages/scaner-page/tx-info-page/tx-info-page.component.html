@@ -9,36 +9,60 @@
       <div class="container"></div>
     </div>
 
-    <div class="scanner-info-container" *ngIf="transactionInfo && !isPending">
+    <div class="scanner-info-container" *ngIf="tx && tx.transaction && !isPending">
       <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Hash" | translate }} </b>
-        <div class="overflow-ellipsis ml-1"> {{ txHash }}</div>
+        <div class="overflow-ellipsis ml-1"> {{ digest }}</div>
       </div>
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.TimeStamp" | translate }} </b>{{ transactionInfo.tx?.timeStamp | date: 'MMM d, y, HH:mm:ss' }}</div>
+
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.TimeStamp" | translate }} </b>
+        {{ tx.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+      </div>
+
       <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Destination" | translate }} </b>
-        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + transactionInfo.tx?.destinationWallet"> {{ transactionInfo.tx?.destinationWallet }}</div>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + tx.transaction.to">
+          {{ tx.transaction.to }}
+        </div>
       </div>
+
       <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Source" | translate }} </b>
-        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + transactionInfo.tx?.sourceWallet"> {{ transactionInfo.tx?.sourceWallet }}</div>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + tx.transaction.from">
+          {{ tx.transaction.from }}
+        </div>
       </div>
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
-        {{ transactionInfo.tx?.tokensCount | noexp }}<span *ngIf="transactionInfo.tx?.tokenType === 'utility'; else commodity"> MNT</span>
-        <ng-template #commodity> GOLD</ng-template>
+
+      <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
+        <span class="ml-2">
+          <div>{{ +tx.transaction.amount_gold }} GOLD</div>
+          <div>{{ +tx.transaction.amount_mnt }} MNT</div>
+        </span>
       </div>
+
       <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.BlockNumber" | translate }} </b>
-        <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + transactionInfo.tx?.blockNumber"> {{ transactionInfo.tx?.blockNumber }}</div>
+        <div class="ml-1 a-link" [routerLink]="'/scanner/block/' + tx.transaction.block">
+          {{ tx.transaction.block }}
+        </div>
       </div>
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Fee" | translate }} </b>
-        {{ transactionInfo.tx?.transactionFee | noexp }}<span *ngIf="transactionInfo.tx?.tokenType === 'utility'; else commodity"> MNT</span>
-        <ng-template #commodity> GOLD</ng-template>
+
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataSize" | translate }} </b>
+        {{ tx.transaction.data_size }}
       </div>
+
+      <div class="word-break"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataPiece" | translate }} </b>
+        {{ tx.transaction.data_piece }}
+      </div>
+
+      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Name" | translate }} </b>
+        {{ tx.transaction.name }}
+      </div>
+
       <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Status" | translate }} </b>
-        <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + transactionInfo?.status" class="tx-status-{{ transactionInfo?.status }}"></span>
+        <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + tx.status" class="tx-status-{{ tx.status }}"></span>
       </div>
     </div>
 
     <div class="text-center" *ngIf="isNotFound">{{ "PAGES.Scanner.TransactionInfo.NotFound" | translate }}</div>
 
-    <div class="text-center" *ngIf="transactionInfo && isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
+    <div class="text-center" *ngIf="tx && tx.transaction && isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
 
   </div>
 </section>

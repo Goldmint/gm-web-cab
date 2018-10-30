@@ -36,7 +36,7 @@
           </ng-template>
 
           <ng-template let-number="value" ngx-datatable-cell-template>
-            <div class="a-link" [routerLink]="'/scanner/transactions-in-block/' + number">{{ number }}</div>
+            <div class="a-link" [routerLink]="'/scanner/block/' + number">{{ number }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -113,7 +113,7 @@
         </ng-template>
 
         <ng-template let-row="row" ngx-datatable-cell-template>
-          <div class="font-weight-500 mt-1 mb-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + row.number">
+          <div class="font-weight-500 mt-1 mb-1 a-link" [routerLink]="'/scanner/block/' + row.number">
             {{ row.number }}
           </div>
           <div class="d-flex">

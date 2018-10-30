@@ -3,7 +3,7 @@ import {APIService, UserService} from "../../../services";
 import {Subject} from "rxjs/Subject";
 import {ActivatedRoute} from "@angular/router";
 import {Page} from "../../../models/page";
-import {Balance} from "../../../interfaces/balance";
+import {Block} from "../../../interfaces/block";
 
 @Component({
   selector: 'app-transactions-in-block-page',
@@ -15,14 +15,10 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   public page = new Page();
-  public rows: Array<any> = [];
-  public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
-  public messages: any  = {emptyMessage: 'No data'};
-  public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
-  public balance: Balance;
   public blockNumber: number;
+  public block: Block;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -34,46 +30,24 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.page.pageNumber = 0;
-    this.page.size = 10;
-
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
       this.blockNumber = params.id;
-      this.setPage({ offset: 0 });
-    });
-
-    this.isMobile = (window.innerWidth <= 992);
-    this.userService.windowSize$.takeUntil(this.destroy$).subscribe(width => {
-      this.isMobile = width <= 992;
-      this.cdRef.markForCheck();
+      this.setPage();
     });
   }
 
-  onSort(event) {
-    this.sorts = event.sorts;
-    this.setPage({ offset: 0 });
-  }
-
-  setPage(pageInfo) {
+  setPage() {
     this.loading = true;
-    this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getTransactionsInBlock(this.blockNumber, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getTransactionsInBlock(this.blockNumber)
       .finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
         this.cdRef.markForCheck();
       })
-      .subscribe(
-        res => {
-          this.rows = res['data'].items.map(item => {
-            item.timeStamp = new Date(item.timeStamp.toString() + 'Z');
-            return item;
-          });
-
-          this.page.totalElements = res['data'].total;
-          this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
-        });
+      .subscribe((data: any) => {
+        this.block = data.res;
+      });
   }
 
   ngOnDestroy() {

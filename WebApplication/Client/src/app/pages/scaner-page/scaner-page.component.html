@@ -4,45 +4,83 @@
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.Scanner.Caption" | translate }}</h2>
 
-  <div class="section__content py-4">
+  <div class="section__content py-4 scanner">
     <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded || loading">
       <div class="container"></div>
     </div>
 
     <div *ngIf="isDataLoaded">
-      <form #searchForm="ngForm">
+      <form #searchAddressForm="ngForm">
         <div class="row">
 
           <div class="col-12">
             <div class="form-group">
               <div class="d-flex">
-                <input type="text" class="form-control" id="searchValue" name="searchValue"
-                       #searchField="ngModel"
-                       [(ngModel)]="searchValue"
-                       (input)="checkSearchField($event.target.value)"
-                       [ngClass]="{'is-invalid': (searchField.invalid || !isValidSumusAddress || !isValidHash) && searchField.dirty}"
+                <input type="text" class="form-control bdr-none" id="searchByAddress" name="searchByAddress"
+                       #searchAddressField="ngModel"
+                       [(ngModel)]="searchAddress"
+                       (input)="checkAddress($event.target.value, 'address')"
+                       [ngClass]="{'is-invalid': (searchAddressField.invalid || !isValidSumusAddress) && searchAddressField.dirty}"
                        autocomplete="off"
                        [disabled]="loading"
-                       placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.Placeholder' | translate }}"
+                       placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.AddressPlaceholder' | translate }}"
                        pattern="[^а-яА-ЯёЁ]*"
                        required>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchField.errors?.required && searchField.dirty">
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.required && searchAddressField.dirty">
                   {{ "PAGES.Scanner.Errors.Required" | translate }}
                 </div>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchField.errors?.pattern">
+                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.pattern">
                   {{ "PAGES.Scanner.Errors.Pattern" | translate }}
                 </div>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="!isValidSumusAddress && searchForm.valid && searchField.dirty">
+                <div class="invalid-feedback invalid-feedback--abs"
+                     *ngIf="!isValidSumusAddress && searchAddressForm.valid && searchAddressField.dirty">
                   {{ "PAGES.Scanner.Errors.InvalidAddress" | translate }}
                 </div>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="!isValidHash && searchForm.valid && searchField.dirty">
-                  {{ "PAGES.Scanner.Errors.InvalidHash" | translate }}
-                </div>
                 <div>
-                  <button type="button" class="btn btn-sm btn-primary" (click)="onSubmit()" [disabled]="searchForm.invalid || !isValidSumusAddress || !isValidHash || loading">
+                  <button type="button" class="btn btn-sm btn-primary" (click)="searchByAddress()"
+                          [disabled]="searchAddressForm.invalid || !isValidSumusAddress || loading">
                     {{ "PAGES.Scanner.Buttons.Go" | translate }}
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+      <form #searchDigestForm="ngForm">
+        <div class="row">
+
+          <div class="col-12">
+            <div class="form-group">
+              <div class="d-flex">
+                <input type="text" class="form-control bdr-none" id="searchByDigest" name="searchByDigest"
+                       #searchDigestField="ngModel"
+                       [(ngModel)]="searchDigest"
+                       (input)="checkAddress($event.target.value, 'digest')"
+                       [ngClass]="{'is-invalid': (searchDigestField.invalid || !isValidDigest) && searchDigestField.dirty}"
+                       autocomplete="off"
+                       [disabled]="loading"
+                       placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.DigestPlaceholder' | translate }}"
+                       pattern="[^а-яА-ЯёЁ]*"
+                       required>
+                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchDigestField.errors?.required && searchDigestField.dirty">
+                      {{ "PAGES.Scanner.Errors.Required" | translate }}
+                  </div>
+                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchDigestField.errors?.pattern">
+                      {{ "PAGES.Scanner.Errors.Pattern" | translate }}
+                  </div>
+                  <div class="invalid-feedback invalid-feedback--abs"
+                       *ngIf="!isValidDigest && searchDigestField.valid && searchDigestField.dirty">
+                      {{ "PAGES.Scanner.Errors.InvalidDigest" | translate }}
+                  </div>
+                  <div>
+                      <button type="button" class="btn btn-sm btn-primary" (click)="searchByDigest()"
+                              [disabled]="searchDigestField.invalid || !isValidDigest || loading">
+                          {{ "PAGES.Scanner.Buttons.Go" | translate }}
+                      </button>
+                  </div>
               </div>
             </div>
           </div>
@@ -86,7 +124,7 @@
         <ng-template #lastBlocks>
           <div *ngFor="let b of blocksList" class="trs-block mb-2 pb-1">
             <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Number" | translate }}</b>
-              <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + b.number">{{ b.number }}</div>
+              <div class="ml-1 a-link" [routerLink]="'/scanner/block/' + b.number">{{ b.number }}</div>
             </div>
             <div class="d-flex">
               <b class="nowrap">{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Mined" | translate }} </b>

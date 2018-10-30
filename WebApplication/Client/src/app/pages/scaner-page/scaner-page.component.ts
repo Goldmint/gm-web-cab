@@ -6,7 +6,6 @@ import {
   OnInit,
   ViewEncapsulation
 } from '@angular/core';
-import {FormBuilder, FormGroup} from "@angular/forms";
 import {APIService, UserService} from "../../services";
 import {MessageBoxService} from "../../services/message-box.service";
 import 'anychart';
@@ -17,7 +16,7 @@ import * as CRC32 from 'crc-32';
 import {combineLatest} from "rxjs/observable/combineLatest";
 import {Router} from "@angular/router";
 import {TranslateService} from "@ngx-translate/core";
-import {Subscription} from "rxjs/Subscription";
+import {Subject} from "rxjs/Subject";
 
 
 @Component({
@@ -31,14 +30,12 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') class = 'page';
 
-  public form: FormGroup;
-
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isValidSumusAddress: boolean = false;
-  public isValidHash: boolean = false;
-  public isHash: boolean = false;
-  public searchValue: string = '';
+  public isValidDigest: boolean = false;
+  public searchAddress: string = '';
+  public searchDigest: string = '';
   public numberNodes: number;
   public numberMNT: number;
   public numberReward: number = 0;
@@ -50,13 +47,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     type: 'gold'|'mnt'
   };
 
-  private sub1: Subscription;
+  private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
   private lastItems: number = 5;
-  private searchStrLength = {
-    hash: 60,
-    sumus: 50
-  };
   private charts = {
     reward: {},
     tx: {}
@@ -65,7 +58,6 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: APIService,
     private userService: UserService,
-    private formBuilder: FormBuilder,
     private cdRef: ChangeDetectorRef,
     private messageBox: MessageBoxService,
     private translate: TranslateService,
@@ -77,7 +69,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       type: 'gold'
     };
 
-    this.sub1 = this.userService.currentLocale.subscribe(() => {
+    this.userService.currentLocale.takeUntil(this.destroy$).subscribe(() => {
       if (this.isDataLoaded) {
         this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
           this.charts['reward']['chart'].title(phrase);
@@ -88,13 +80,19 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.apiService.transferCurrentSumusNetwork.subscribe(() => {
+      this.updateData();
+    });
+
     const combined = combineLatest(
       this.apiService.getNodesCount(),
       this.apiService.getMNTCount(),
       this.apiService.getMNTRewardDay(-1),
-      this.apiService.getTxDay(),
+
       this.apiService.getTransactions(this.lastItems),
-      this.apiService.getBlocks(this.lastItems)
+      this.apiService.getBlocks(this.lastItems),
+
+      this.apiService.getDailyStatistic()
     );
 
     combined.subscribe(data => {
@@ -103,11 +101,12 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       this.numberMNT = data[1]['data'];
       rewardList !== null && (this.numberReward = rewardList[rewardList.length -1].commodityReward);
 
-      this.getChartsData(rewardList, data[3]['data'].txDayList);
+      this.getChartsData(data[5]['res']);
+
       this.initRewardChart();
       this.initTxChart();
 
-      this.setBlockAndTransactionsInfo(data[4]['data'], data[5]['data'])
+      this.setBlockAndTransactionsInfo(data[3]['data'], data[4]['data'])
 
       this.isDataLoaded = true;
       this.cdRef.markForCheck();
@@ -121,14 +120,14 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   updateData() {
     const combined = combineLatest(
       this.apiService.getMNTRewardDay(-1),
-      this.apiService.getTxDay(),
       this.apiService.getTransactions(this.lastItems),
-      this.apiService.getBlocks(this.lastItems)
+      this.apiService.getBlocks(this.lastItems),
+      this.apiService.getDailyStatistic()
     );
 
     combined.subscribe(data => {
-      this.getChartsData(data[0]['data'].rewardList, data[1]['data'].txDayList);
-      this.setBlockAndTransactionsInfo(data[2]['data'], data[3]['data']);
+      this.getChartsData(data[3]['res']);
+      this.setBlockAndTransactionsInfo(data[1]['data'], data[2]['data']);
       this.updateChartsData();
 
       this.cdRef.markForCheck();
@@ -142,9 +141,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.charts['tx']['table'].addData(this.anyChartTxData);
   }
 
-  getChartsData(rewardData, txData) {
-    this.setRewardChartData(rewardData);
-    this.setTxChartData(txData);
+  getChartsData(res) {
+    this.setCommissionChartData(res);
+    this.setTxChartData(res);
   }
 
   setBlockAndTransactionsInfo(txs, blocks) {
@@ -159,28 +158,22 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  checkSearchField(address: string) {
-    if (address.length <= this.searchStrLength.sumus) {
-      this.isHash = false;
-      this.checkSumusAddressValidity(address);
-    } else {
-      this.isHash = true;
-      this.checkHashValidity(address);
-    }
+  checkAddress(address: string, type: string) {
+    this.checkSumusAddressValidity(address, type);
   }
 
-  checkSumusAddressValidity(address: string) {
-    this.isValidHash = true;
+  checkSumusAddressValidity(address: string, type: string) {
     let bytes;
     try {
       bytes = bs58.decode(address);
     } catch (e) {
-      this.isValidSumusAddress = false;
+      type === 'address' ? this.isValidSumusAddress = false : this.isValidDigest = false;
       return
     }
 
-    if (bytes.length <= 4 || this.searchValue.length <= 4) {
-      this.isValidSumusAddress = false;
+    let field = type === 'address' ? this.searchAddress : this.searchDigest;
+    if (bytes.length <= 4 || field.length <= 4) {
+      type === 'address' ? this.isValidSumusAddress = false : this.isValidDigest = false;
       return
     }
 
@@ -188,22 +181,17 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     let crcBytes = bytes.slice(-4);
     let crc = crcBytes[0] | crcBytes[1] << 8 | crcBytes[2] << 16 | crcBytes[3] << 24;
 
-    this.isValidSumusAddress = payloadCrc === crc;
+    type === 'address' ? this.isValidSumusAddress = payloadCrc === crc : this.isValidDigest = payloadCrc === crc;
   }
 
-  checkHashValidity(address: string) {
-    this.isValidSumusAddress = true;
-    this.isValidHash = address.length >= this.searchStrLength.hash;
-  }
-
-  setRewardChartData(data) {
+  setCommissionChartData(data) {
     if (data) {
       data.forEach(item => {
-        const date = new Date(item.createDate.toString() + 'Z');
+        const date = new Date(item.timestamp * 1000);
         let month = (date.getMonth()+1).toString();
         month.length === 1 && (month = '0' + month);
         const dateString = date.getFullYear() + '-' + month + '-' + date.getDate();
-        this.anyChartRewardData.push([dateString, item.commodityReward, item.utilityReward]);
+        this.anyChartRewardData.push([dateString, +item.fee_gold, +item.fee_mnt]);
       });
     }
   }
@@ -211,11 +199,11 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   setTxChartData(data) {
     if (data) {
       data.forEach(item => {
-        const date = new Date(item.transactionDate.toString() + 'Z');
+        const date = new Date(item.timestamp * 1000);
         let month = (date.getMonth()+1).toString();
         month.length === 1 && (month = '0' + month);
         const dateString = date.getFullYear() + '-' + month + '-' + date.getDate();
-        this.anyChartTxData.push([dateString, item.count]);
+        this.anyChartTxData.push([dateString, item.transactions]);
       });
     }
   }
@@ -282,13 +270,16 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSubmit() {
-    this.isHash ? this.router.navigate(['/scanner/tx', this.searchValue]) :
-                  this.router.navigate(['/scanner/address', this.searchValue]);
+  searchByAddress() {
+    this.router.navigate(['/scanner/address', this.searchAddress]);
+  }
+
+  searchByDigest() {
+    this.router.navigate(['/scanner/tx', this.searchDigest]);
   }
 
   ngOnDestroy() {
     clearInterval(this.interval);
-    this.sub1 && this.sub1.unsubscribe();
+    this.destroy$.next(true);
   }
 }

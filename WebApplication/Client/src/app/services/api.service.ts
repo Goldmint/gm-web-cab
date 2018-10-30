@@ -23,12 +23,20 @@ import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class APIService {
+
   private _baseUrl = environment.apiUrl;
   private _walletBaseUrl = environment.walletApiUrl;
+  private _sumusBaseUrl;
+
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
+  public transferCurrentSumusNetwork = new Subject();
 
-  constructor(private _http: HttpClient) { }
+  constructor(private _http: HttpClient) {
+    this.transferCurrentSumusNetwork.subscribe((network: any) => {
+      this._sumusBaseUrl = environment.sumusNetworkUrl[network];
+    });
+  }
 
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {
     return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/auth/authenticate`, { username: username, password: password, captcha: captcha, audience: "app" })
@@ -496,9 +504,27 @@ export class APIService {
 
   // scanner methods
 
-  checkTransactionStatus(hash: string) {
-    return this._http.post(`${this._walletBaseUrl}/explorer/transaction`, {hash});
+  getDailyStatistic() {
+    return this._http.get(`${this._sumusBaseUrl}/status/daily`);
   }
+
+  getWalletBalance(sumusAddress: string) {
+    return this._http.get(`${this._sumusBaseUrl}/wallet/${sumusAddress}`);
+  }
+
+  checkTransactionStatus(digest: string) {
+    return this._http.get(`${this._sumusBaseUrl}/tx/${digest}`);
+  }
+
+  getTransactionsInBlock(blockNumber: number) {
+    return this._http.get(`${this._sumusBaseUrl}/block/${blockNumber}`);
+  }
+
+  // ---//
+
+  // checkTransactionStatus(hash: string) {
+  //   return this._http.post(`${this._walletBaseUrl}/explorer/transaction`, {hash});
+  // }
 
   getNodesCount() {
     return this._http.get(`${this._walletBaseUrl}/statistics/nodes/nodes_count`);
@@ -528,9 +554,9 @@ export class APIService {
     return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_by_address`, { sumusAddress, offset, limit, sort, ascending: order === 'asc' });
   }
 
-  getWalletBalance(sumusAddress: string) {
-    return this._http.post(`${this._walletBaseUrl}/statistics/tokens/wallet_balance`, { sumusAddress });
-  }
+  // getWalletBalance(sumusAddress: string) {
+  //   return this._http.post(`${this._walletBaseUrl}/statistics/tokens/wallet_balance`, { sumusAddress });
+  // }
 
   getAllBlocks(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
     return this._http.post(`${this._walletBaseUrl}/statistics/blocks/blocks_by_page`, { offset, limit, sort, ascending: order === 'asc' });
@@ -544,9 +570,9 @@ export class APIService {
     return this._http.post(`${this._walletBaseUrl}/statistics/nodes/active_nodes`, { offset, limit, sort, ascending: order === 'asc' });
   }
 
-  getTransactionsInBlock(blockNumber: number, offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_from_block`, {blockNumber,  offset, limit, sort, ascending: order === 'asc' });
-  }
+  // getTransactionsInBlock(blockNumber: number, offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+  //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_from_block`, {blockNumber,  offset, limit, sort, ascending: order === 'asc' });
+  // }
 
   getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
     return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });

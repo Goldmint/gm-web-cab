@@ -14,11 +14,19 @@
       <div class="d-flex">
         <b>{{ "PAGES.Scanner.AddressInfo.Labels.Balance" | translate }}</b>
         <div class="ml-1">
-          <div>{{ balance?.mintAmount }} MNT (${{ balance?.usdFromMint.toFixed(2) }})</div>
-          <div>{{ balance?.goldAmount }} GOLD (${{ balance?.usdFromGold.toFixed(2) }})</div>
+          <div>{{ +walletInfo?.balance.gold }} MNT</div>
+          <div>{{ +walletInfo?.balance.mint }} GOLD</div>
         </div>
        </div>
-      <div><b>{{ "PAGES.Scanner.AddressInfo.Labels.Transactions" | translate }}</b> {{ page?.totalElements }}</div>
+      <div>
+        <b>{{ "PAGES.Scanner.AddressInfo.Labels.Exists.Label" | translate }}</b>
+        <span [translate]="'PAGES.Scanner.AddressInfo.Labels.Exists.' + walletInfo.exists"></span>
+      </div>
+      <div *ngIf="walletInfo.tags.length">
+        <b>{{ "PAGES.Scanner.AddressInfo.Labels.Tags" | translate }}</b>
+        <span *ngFor="let t of walletInfo.tags; index as i ">{{ t }}<span *ngIf="i !== walletInfo.tags.length-1">, </span></span>
+      </div>
+      <!--<div><b>{{ "PAGES.Scanner.AddressInfo.Labels.Transactions" | translate }}</b> {{ page?.totalElements }}</div>-->
     </div>
 
     <ngx-datatable class="table table--no-footer txs-table" #table
@@ -60,7 +68,7 @@
           </ng-template>
 
           <ng-template let-blockNumber="value" ngx-datatable-cell-template>
-            <div class="text-center a-link" [routerLink]="'/scanner/transactions-in-block/' + blockNumber">{{ blockNumber }}</div>
+            <div class="text-center a-link" [routerLink]="'/scanner/block/' + blockNumber">{{ blockNumber }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -128,7 +136,7 @@
           <div class="font-weight-500 mt-1 mb-1 a-link" [routerLink]="'/scanner/tx/' + row.uniqueId">
             {{ row.uniqueId }}
           </div>
-          <div [routerLink]="'/scanner/transactions-in-block/' + row.blockNumber">
+          <div [routerLink]="'/scanner/block/' + row.blockNumber">
             <span class="font-weight-500">{{ "PAGES.Scanner.AddressInfo.Table.Block" | translate }}:</span>
             <span class="a-link">{{ row.blockNumber }}</span>
           </div>

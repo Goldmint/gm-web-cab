@@ -11,6 +11,11 @@
     "SignUp": "Sign up",
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
+    "Network": {
+      "Label": "network",
+      "MainNet": "MainNet network",
+      "TestNet": "TestNet network"
+    },
     "Menu": {
       "Exchange": {
         "Heading": "Exchange",
@@ -333,7 +338,8 @@
       "LatestStatistic": {
         "Caption": "Latest statistics",
         "Input": {
-          "Placeholder": "Search by Address / Txhash"
+          "AddressPlaceholder": "Search by Address",
+          "DigestPlaceholder": "Search by Digest"
         },
         "Labels": {
           "QuantityNodes": "Quantity of nodes:",
@@ -394,13 +400,18 @@
         }
       },
       "TransactionsInBlock": {
-        "Heading": "Transaction list in the block",
+        "Heading": "Block - ",
         "Labels": {
-          "From": "From",
-          "To": "To",
-          "Count": "Amount",
-          "Fee": "Fee",
-          "Date": "Create date"
+          "Block": "Block:",
+          "TimeStamp": "TimeStamp:",
+          "Transactions": "Transactions:",
+          "TotalUserData": "Total user data:",
+          "Signers": "Signers:",
+          "Total": "Total:",
+          "Fee": "Fee:",
+          "Orchestrator": "Mined by:",
+          "PrevDigest": "Previous digest:",
+          "MerkleRoot": "Merkle root:"
         }
       },
       "AddressInfo" : {
@@ -408,7 +419,13 @@
         "Labels": {
           "Address": "Address:",
           "Balance": "Balance:",
-          "Transactions": "Transactions:"
+          "Transactions": "Transactions:",
+          "Exists": {
+            "Label": "Exists:",
+            "true": "Yes",
+            "false": "No"
+          },
+          "Tags": "Tags:"
         },
         "Table": {
           "Hash": "TxHash",
@@ -423,21 +440,24 @@
       "TransactionInfo": {
         "Heading": "Transaction info",
         "Labels": {
-          "Hash": "Tx Hash:",
+          "Hash": "Digest:",
           "TimeStamp": "TimeStamp:",
           "Destination": "Destination wallet:",
           "Source": "Source wallet:",
           "TokenType": "Token type:",
           "BlockNumber": "Block number:",
           "Amount": "Amount:",
-          "Fee": "Fee:",
-          "Id": "Transaction Id:",
+          "Name": "Name:",
+          "DataSize": "Data size:",
+          "DataPiece": "Data piece:",
           "Status": "Transaction status:"
         },
         "Status": {
-          "1": "Pending",
-          "2": "Success",
-          "3": "Failed"
+          "pending": "Pending",
+          "approved": "Approved",
+          "failed": "Failed",
+          "stale": "Stale",
+          "notfound": "Not found"
         },
         "NotFound": "Transaction not found",
         "Pending": "Transaction is pending"
@@ -446,7 +466,7 @@
         "Required": "Field is required",
         "Pattern": "Field must contains digits and latin letters",
         "InvalidAddress": "Invalid address",
-        "InvalidHash": "Invalid hash"
+        "InvalidDigest": "Invalid digest"
       },
       "Buttons": {
         "Go": "Go"

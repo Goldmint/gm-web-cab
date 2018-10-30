@@ -101,7 +101,7 @@ const appRoutes: Routes = [
   { path: 'scanner/address/:id', component: AddressInfoPageComponent },
   { path: 'scanner/blocks', component: AllBlocksPageComponent },
   { path: 'scanner/transactions', component: AllTransactionsPageComponent },
-  { path: 'scanner/transactions-in-block/:id', component: TransactionsInBlockPageComponent },
+  { path: 'scanner/block/:id', component: TransactionsInBlockPageComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }
 ];

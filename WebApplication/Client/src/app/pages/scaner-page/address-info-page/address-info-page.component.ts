@@ -13,6 +13,7 @@ import {Subject} from "rxjs/Subject";
 import {ActivatedRoute} from "@angular/router";
 import {Page} from "../../../models/page";
 import {Balance} from "../../../interfaces/balance";
+import {WalletInfo} from "../../../interfaces/wallet-info";
 
 @Component({
   selector: 'app-address-info-page',
@@ -32,7 +33,7 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
-  public balance: Balance;
+  public walletInfo: WalletInfo;
 
   private sumusAddress: string;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -52,8 +53,8 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
       this.sumusAddress = params.id;
       this.setPage({ offset: 0 });
-      this.apiService.getWalletBalance(this.sumusAddress).subscribe((balance: any) => {
-        this.balance = balance.data;
+      this.apiService.getWalletBalance(this.sumusAddress).subscribe((data: any) => {
+        this.walletInfo = data.res;
         this.isDataLoaded = true;
         this.cdRef.markForCheck();
       }, () => {

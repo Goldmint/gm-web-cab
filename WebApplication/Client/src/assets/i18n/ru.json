@@ -11,6 +11,11 @@
     "SignUp": "Регистрация",
     "SignOut": "Выход",
     "AccountInfo": "Аккаунт",
+    "Network": {
+      "Label": "сеть",
+      "MainNet": "MainNet сеть",
+      "TestNet": "TestNet сеть"
+    },
     "Menu": {
       "Exchange": {
         "Heading": "Обмен",
@@ -333,7 +338,8 @@
       "LatestStatistic": {
         "Caption": "Последняя статистика",
         "Input": {
-          "Placeholder": "Поиск по Адресу / Хэшу транзакции"
+          "AddressPlaceholder": "Поиск по Адресу",
+          "DigestPlaceholder": "Поиск по Digest"
         },
         "Labels": {
           "QuantityNodes": "Количество нод:",
@@ -394,13 +400,18 @@
         }
       },
       "TransactionsInBlock": {
-        "Heading": "Список транзакций в блоке",
+        "Heading": "Блок - ",
         "Labels": {
-          "From": "Из",
-          "To": "В",
-          "Count": "Количество",
-          "Fee": "Комиссия",
-          "Date": "Дата"
+          "Block": "Блок:",
+          "TimeStamp": "TimeStamp:",
+          "Transactions": "Транзакции:",
+          "TotalUserData": "Всего пользовательских данных:",
+          "Signers": "Подписал:",
+          "Total": "Всего:",
+          "Fee": "Комиссия:",
+          "Orchestrator": "Замайнил:",
+          "PrevDigest": "Предыдущий digest:",
+          "MerkleRoot": "Merkle root:"
         }
       },
       "AddressInfo" : {
@@ -408,10 +419,16 @@
         "Labels": {
           "Address": "Адрес:",
           "Balance": "Баланс:",
-          "Transactions": "Транзакции:"
+          "Transactions": "Транзакции:",
+          "Exists": {
+            "Label": "Существует:",
+            "true": "Да",
+            "false": "Нет"
+          },
+          "Tags": "Теги:"
         },
         "Table": {
-          "Hash": "Хэш",
+          "Hash": "Digest",
           "Block": "Блок",
           "Date": "Дата",
           "From": "Из",
@@ -423,21 +440,24 @@
       "TransactionInfo": {
         "Heading": "Информация транзакции",
         "Labels": {
-          "Hash": "Хэш транзакции:",
+          "Hash": "Digest транзакции:",
           "TimeStamp": "TimeStamp:",
           "Destination": "Кошелек получателя:",
           "Source": "Кошелек отправителя:",
           "TokenType": "Тип токена:",
           "BlockNumber": "Номер блока:",
           "Amount": "Количество:",
-          "Fee": "Комиссия:",
-          "Id": "Id транзакции:",
+          "Name": "Название:",
+          "DataSize": "Размер данных:",
+          "DataPiece": "Часть данных:",
           "Status": "Статус транзакции:"
         },
         "Status": {
-          "1": "В процессе",
-          "2": "Успешна",
-          "3": "Неудачна"
+          "pending": "В ожидании",
+          "approved": "Одобрена",
+          "failed": "Неудачно",
+          "stale": "Просрочена",
+          "notfound": "Не найдена"
         },
         "NotFound": "Транзакция не найдена",
         "Pending": "Транзакция в ожидании"
@@ -446,7 +466,7 @@
         "Required": "Поле обязательно",
         "Pattern": "Поле должно содержать цифры и латинские буквы",
         "InvalidAddress": "Неверный адрес",
-        "InvalidHash": "Неверный хэш"
+        "InvalidDigest": "Неверный digest"
       },
       "Buttons": {
         "Go": "Вперед"

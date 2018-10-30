@@ -4,6 +4,7 @@ import {APIService} from "../../../services";
 import {ActivatedRoute} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {TransactionInfo} from "../../../interfaces/transaction-info";
+import {Base64} from 'js-base64';
 
 @Component({
   selector: 'app-tx-info-page',
@@ -16,12 +17,19 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   public loading: boolean = false;
-  public transactionInfo: TransactionInfo;
+  public tx: TransactionInfo = null;
   public isNotFound: boolean = false;
   public isPending: boolean = false;
-  public txHash: string;
+  public digest: string;
   private sub1: Subscription;
   private interval;
+  private txStatus = {
+    1: "pending",
+    2: "approved",
+    3: "failed",
+    4: "stale",
+    5: "notfound",
+  };
 
   constructor(
     private apiService: APIService,
@@ -33,15 +41,16 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.sub1 = this.route.params.subscribe(params => {
       this.loading = true;
-      this.txHash = params.id;
+      this.digest = params.id;
       this.getTransactionInfo();
     });
   }
 
   getTransactionInfo() {
-    this.apiService.checkTransactionStatus(this.txHash).subscribe(data => {
-      this.transactionInfo = data['data'];
-      if (this.transactionInfo.status === 3 && this.transactionInfo.tx === null) {
+    this.apiService.checkTransactionStatus(this.digest).subscribe((data: any) => {
+      this.tx = data.res;
+
+      if (this.tx.status === this.txStatus[1]) {
         this.isPending = true;
         clearInterval(this.interval);
         this.interval = setInterval(() => {
@@ -49,14 +58,12 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
         }, 30000);
         this.cdRef.markForCheck();
       } else {
-        this.isPending = false;
+        this.tx.status === this.txStatus[5] && (this.isNotFound = true);
+        this.isPending = this.loading = false;
         clearInterval(this.interval);
-        this.transactionInfo.tx && (this.transactionInfo.tx.timeStamp = new Date(this.transactionInfo.tx.timeStamp.toString() + 'Z'));
-        this.loading = false;
         this.cdRef.markForCheck();
       }
-    }, (error) => {
-      error.error.errorCode === 4 && (this.isNotFound = true);
+    }, () => {
       this.loading = false;
       this.cdRef.markForCheck();
     });
@@ -66,5 +73,4 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
     this.sub1 && this.sub1.unsubscribe();
     clearInterval(this.interval);
   }
-
 }
