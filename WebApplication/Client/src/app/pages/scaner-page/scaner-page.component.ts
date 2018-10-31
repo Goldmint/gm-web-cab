@@ -36,9 +36,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public isValidDigest: boolean = false;
   public searchAddress: string = '';
   public searchDigest: string = '';
-  public numberNodes: number;
-  public numberMNT: number;
-  public numberReward: number = 0;
+  public numberBlocks: number = 0;
+  public numberNodes: number = 0;
+  public numberTx: number = 0;
   public anyChartRewardData = [];
   public anyChartTxData = [];
   public transactionsList: TransactionsList[];
@@ -85,28 +85,20 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     });
 
     const combined = combineLatest(
-      this.apiService.getNodesCount(),
-      this.apiService.getMNTCount(),
-      this.apiService.getMNTRewardDay(-1),
-
+      this.apiService.getStatus(),
       this.apiService.getTransactions(this.lastItems),
       this.apiService.getBlocks(this.lastItems),
-
       this.apiService.getDailyStatistic()
     );
 
-    combined.subscribe(data => {
-      const rewardList = data[2]['data'].rewardList;
-      this.numberNodes = data[0]['data'];
-      this.numberMNT = data[1]['data'];
-      rewardList !== null && (this.numberReward = rewardList[rewardList.length -1].commodityReward);
-
-      this.getChartsData(data[5]['res']);
+    combined.subscribe((data: any) => {
+      this.setStatisticData(data[0]);
+      this.getChartsData(data[3]['res']);
 
       this.initRewardChart();
       this.initTxChart();
 
-      this.setBlockAndTransactionsInfo(data[3]['data'], data[4]['data'])
+      this.setBlockAndTransactionsInfo(data[1]['data'], data[2]['data'])
 
       this.isDataLoaded = true;
       this.cdRef.markForCheck();
@@ -119,15 +111,16 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
   updateData() {
     const combined = combineLatest(
-      this.apiService.getMNTRewardDay(-1),
+      this.apiService.getStatus(),
       this.apiService.getTransactions(this.lastItems),
       this.apiService.getBlocks(this.lastItems),
       this.apiService.getDailyStatistic()
     );
 
     combined.subscribe(data => {
-      this.getChartsData(data[3]['res']);
+      this.setStatisticData(data[0]);
       this.setBlockAndTransactionsInfo(data[1]['data'], data[2]['data']);
+      this.getChartsData(data[3]['res']);
       this.updateChartsData();
 
       this.cdRef.markForCheck();
@@ -144,6 +137,12 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   getChartsData(res) {
     this.setCommissionChartData(res);
     this.setTxChartData(res);
+  }
+
+  setStatisticData(data) {
+    this.numberBlocks = data.res.blockchain_state.block_count;
+    this.numberNodes = data.res.blockchain_state.node_count;
+    this.numberTx = data.res.blockchain_state.transaction_count;
   }
 
   setBlockAndTransactionsInfo(txs, blocks) {

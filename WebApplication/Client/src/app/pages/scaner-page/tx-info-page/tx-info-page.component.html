@@ -47,8 +47,26 @@
         {{ tx.transaction.data_size }}
       </div>
 
-      <div class="word-break"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataPiece" | translate }} </b>
-        {{ tx.transaction.data_piece }}
+      <div class="my-1" *ngIf="tx.transaction.data_piece"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataPiece" | translate }} </b>
+        <span class="ml-2">
+          <div class="col-auto btn-group p-0 mn-tabs">
+            <label class="btn btn-primary btn-sm active wrap data-piece-switcher"
+                   name="limitsSwitchModel.type"
+                   [(ngModel)]="switchModel.type"
+                   btnRadio="text"
+                   (click)="changeViewDataPiece(true)">TEXT</label>
+            <label class="btn btn-primary btn-sm active wrap data-piece-switcher"
+                   name="limitsSwitchModel.type"
+                   [(ngModel)]="switchModel.type"
+                   btnRadio="hex"
+                   (click)="changeViewDataPiece(false)">HEX</label>
+          </div>
+        </span>
+        <div class="word-break mt-2">
+          <span *ngIf="isTextDataPiece">{{ dataPiece.text }}</span>
+          <span *ngIf="!isTextDataPiece">0x{{ dataPiece.hex }}</span>
+          <div *ngIf="dataPiece.size"> {{ "PAGES.Scanner.TransactionInfo.Labels.MoreBytes" | translate:{bytes: dataPiece.size} }}</div>
+        </div>
       </div>
 
       <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Name" | translate }} </b>

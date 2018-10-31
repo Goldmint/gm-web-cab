@@ -20,7 +20,17 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   public tx: TransactionInfo = null;
   public isNotFound: boolean = false;
   public isPending: boolean = false;
+  public isTextDataPiece: boolean = true;
   public digest: string;
+  public dataPiece = {
+    text: null,
+    hex: null,
+    size: null
+  };
+  public switchModel: {
+    type: 'text'|'hex'
+  };
+
   private sub1: Subscription;
   private interval;
   private txStatus = {
@@ -39,6 +49,9 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.switchModel = {
+      type: 'text'
+    };
     this.sub1 = this.route.params.subscribe(params => {
       this.loading = true;
       this.digest = params.id;
@@ -49,6 +62,14 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   getTransactionInfo() {
     this.apiService.checkTransactionStatus(this.digest).subscribe((data: any) => {
       this.tx = data.res;
+
+      if (this.tx.transaction.data_piece) {
+        this.dataPiece.text = Base64.decode(this.tx.transaction.data_piece);
+        this.dataPiece.hex = this.base64toHEX(this.tx.transaction.data_piece);
+
+        this.dataPiece.hex.length / 2 > this.tx.transaction.data_size &&
+        (this.dataPiece.size = this.dataPiece.hex.length / 2 - this.tx.transaction.data_size);
+      }
 
       if (this.tx.status === this.txStatus[1]) {
         this.isPending = true;
@@ -67,6 +88,21 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
       this.loading = false;
       this.cdRef.markForCheck();
     });
+  }
+
+  changeViewDataPiece(isText: boolean) {
+    this.isTextDataPiece = isText;
+  }
+
+  base64toHEX(base64) {
+    let raw = atob(base64);
+    let HEX = '';
+
+    for (let i = 0; i < raw.length; i++ ) {
+      let _hex = raw.charCodeAt(i).toString(16);
+      HEX += (_hex.length==2?_hex:'0'+_hex);
+    }
+    return HEX.toUpperCase();
   }
 
   ngOnDestroy() {

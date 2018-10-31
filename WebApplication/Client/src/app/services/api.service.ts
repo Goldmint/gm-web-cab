@@ -504,6 +504,10 @@ export class APIService {
 
   // scanner methods
 
+  getStatus() {
+    return this._http.get(`${this._sumusBaseUrl}/status`);
+  }
+
   getDailyStatistic() {
     return this._http.get(`${this._sumusBaseUrl}/status/daily`);
   }

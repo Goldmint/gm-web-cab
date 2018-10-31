@@ -342,9 +342,9 @@
           "DigestPlaceholder": "Search by Digest"
         },
         "Labels": {
-          "QuantityNodes": "Quantity of nodes:",
-          "QuantityMNT": "Quantity of MNT for nodes:",
-          "Remuneration": "The remuneration amount for 1 MNT/per day:"
+          "QuantityBlocks": "Quantity of block:",
+          "QuantityTx": "Quantity of transactions:",
+          "QuantityNodes": "Quantity of nodes:"
         },
         "Charts": {
           "Reward": "Collected commission by days chart",
@@ -450,7 +450,8 @@
           "Name": "Name:",
           "DataSize": "Data size:",
           "DataPiece": "Data piece:",
-          "Status": "Transaction status:"
+          "Status": "Transaction status:",
+          "MoreBytes": "and {{ bytes }} more bytes"
         },
         "Status": {
           "pending": "Pending",

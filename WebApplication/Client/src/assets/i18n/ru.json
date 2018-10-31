@@ -342,9 +342,9 @@
           "DigestPlaceholder": "Поиск по Digest"
         },
         "Labels": {
-          "QuantityNodes": "Количество нод:",
-          "QuantityMNT": "Количество MNT на надох всего:",
-          "Remuneration": "Сумма вознаграждения за 1 MNT в день:"
+          "QuantityBlocks": "Количество блоков:",
+          "QuantityTx": "Количество транзакций:",
+          "QuantityNodes": "Количество нод:"
         },
         "Charts": {
           "Reward": "График собранной комиссии по дням",
@@ -450,7 +450,8 @@
           "Name": "Название:",
           "DataSize": "Размер данных:",
           "DataPiece": "Часть данных:",
-          "Status": "Статус транзакции:"
+          "Status": "Статус транзакции:",
+          "MoreBytes": "и еще {{ bytes }} байт"
         },
         "Status": {
           "pending": "В ожидании",
