@@ -26,15 +26,14 @@ using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
-	public abstract class BaseController : Controller
-	{
+	public abstract class BaseController : Controller {
 
 		protected AppConfig AppConfig { get; private set; }
 		protected IHostingEnvironment HostingEnvironment { get; private set; }
 		protected ILogger Logger { get; private set; }
 		protected DAL.ApplicationDbContext DbContext { get; private set; }
-	    protected DAL.CustodyBotDbContext CBotDbContext { get; private set; }
-        protected IMutexHolder MutexHolder { get; private set; }
+		protected DAL.CustodyBotDbContext CBotDbContext { get; private set; }
+		protected IMutexHolder MutexHolder { get; private set; }
 		protected SignInManager<DAL.Models.Identity.User> SignInManager { get; private set; }
 		protected UserManager<DAL.Models.Identity.User> UserManager { get; private set; }
 		protected IKycProvider KycExternalProvider { get; private set; }
@@ -52,14 +51,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected BaseController() { }
 
 		[NonAction]
-		private void InitServices(IServiceProvider services)
-		{
+		private void InitServices(IServiceProvider services) {
 			Logger = services.GetLoggerFor(this.GetType());
 			AppConfig = services.GetRequiredService<AppConfig>();
 			HostingEnvironment = services.GetRequiredService<IHostingEnvironment>();
 			DbContext = services.GetRequiredService<DAL.ApplicationDbContext>();
-		    CBotDbContext = services.GetRequiredService<DAL.CustodyBotDbContext>();
-            MutexHolder = services.GetRequiredService<IMutexHolder>();
+			CBotDbContext = services.GetRequiredService<DAL.CustodyBotDbContext>();
+			MutexHolder = services.GetRequiredService<IMutexHolder>();
 			SignInManager = services.GetRequiredService<SignInManager<DAL.Models.Identity.User>>();
 			UserManager = services.GetRequiredService<UserManager<DAL.Models.Identity.User>>();
 			KycExternalProvider = services.GetRequiredService<IKycProvider>();
@@ -78,15 +76,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		// ---
 
 		[NonAction]
-		public override void OnActionExecuted(ActionExecutedContext context)
-		{
+		public override void OnActionExecuted(ActionExecutedContext context) {
 			InitServices(context?.HttpContext?.RequestServices);
 			base.OnActionExecuted(context);
 		}
 
 		[NonAction]
-		public override void OnActionExecuting(ActionExecutingContext context)
-		{
+		public override void OnActionExecuting(ActionExecutingContext context) {
 			base.OnActionExecuting(context);
 		}
 
@@ -101,7 +97,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		public string MakeAppLink(JwtAudience audience, string fragment) {
 
-			var appUri = (string) null;
+			var appUri = (string)null;
 			if (audience == JwtAudience.Cabinet) {
 				appUri = AppConfig.Apps.Cabinet.Url;
 			}
@@ -192,8 +188,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		protected Locale GetUserLocale() {
 			if (
-				HttpContext.Request.Headers.TryGetValue("GM-LOCALE", out var localeHeader) && 
-				!string.IsNullOrWhiteSpace(localeHeader.ToString()) && 
+				HttpContext.Request.Headers.TryGetValue("GM-LOCALE", out var localeHeader) &&
+				!string.IsNullOrWhiteSpace(localeHeader.ToString()) &&
 				Enum.TryParse(localeHeader.ToString(), true, out Locale localeEnum)
 			) {
 				return localeEnum;
@@ -201,13 +197,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return Locale.En;
 		}
 
-	    [NonAction]
-	    protected async Task<UserTier> GetUserTier()
-	    {
-	        var rcfg = RuntimeConfigHolder.Clone();
+		[NonAction]
+		protected async Task<UserTier> GetUserTier() {
+			var rcfg = RuntimeConfigHolder.Clone();
 
-	        var user = await GetUserFromDb();
-	        return CoreLogic.User.GetTier(user, rcfg);
-        }
-    }
+			var user = await GetUserFromDb();
+			return CoreLogic.User.GetTier(user, rcfg);
+		}
+	}
 }

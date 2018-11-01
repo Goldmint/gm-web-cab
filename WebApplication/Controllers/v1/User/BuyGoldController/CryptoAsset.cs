@@ -10,88 +10,76 @@ using System.Threading.Tasks;
 using Goldmint.DAL.Models.PromoCode;
 using Microsoft.EntityFrameworkCore;
 
-namespace Goldmint.WebApplication.Controllers.v1.User
-{
+namespace Goldmint.WebApplication.Controllers.v1.User {
 
-	public partial class BuyGoldController : BaseController
-	{
+	public partial class BuyGoldController : BaseController {
+
 		/// <summary>
 		/// ETH to GOLD
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
-		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model)
-		{
+		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
 			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields))
-			{
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(errFields);
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1)
-			{
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
 			// try parse fiat currency
 			var exchangeCurrency = FiatCurrency.Usd;
-			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc))
-			{
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
 				exchangeCurrency = fc;
 			}
 
-            // ---
+			// ---
 
-		    var rcfg = RuntimeConfigHolder.Clone();
+			var rcfg = RuntimeConfigHolder.Clone();
 
-            var user = await GetUserFromDb();
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 
-			if (userTier < UserTier.Tier1)
-			{
+			if (userTier < UserTier.Tier1) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
 			// ---
 
-			if (!rcfg.Gold.AllowTradingEth)
-			{
+			if (!rcfg.Gold.AllowTradingEth) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
 			var limits = DepositLimits(rcfg, EthereumToken.Eth);
 
-            // check promocode
-		    PromoCode promoCode;
-		    var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+			// check promocode
+			PromoCode promoCode;
+			var codeStatus = await GetPromoCodeStatus(model.PromoCode);
 
-		    if (codeStatus.Valid == false)
-		    {
-		        if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
-		            promoCode = null;
-		        else
-		        {
-		            return APIResponse.BadRequest(codeStatus.ErrorCode);
-		        }
-		    }
-		    else
-		    {
-		        if (await GetUserTier() != UserTier.Tier2)
-		            return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			if (codeStatus.Valid == false) {
+				if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
+					promoCode = null;
+				else {
+					return APIResponse.BadRequest(codeStatus.ErrorCode);
+				}
+			}
+			else {
+				if (await GetUserTier() != UserTier.Tier2)
+					return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 
-		        promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-		            _ => _.Code == model.PromoCode.ToUpper());
-		    }
+				promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+					_ => _.Code == model.PromoCode.ToUpper());
+			}
 
-            var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
-			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1)
-			{
+			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
-			if (estimation.IsLimitExceeded)
-			{
+			if (estimation.IsLimitExceeded) {
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
@@ -108,8 +96,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 			);
 
 			// history
-			var finHistory = new DAL.Models.UserFinHistory()
-			{
+			var finHistory = new DAL.Models.UserFinHistory() {
 
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldBuy,
@@ -175,6 +162,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User
 				}
 			);
 		}
-		
+
 	}
 }

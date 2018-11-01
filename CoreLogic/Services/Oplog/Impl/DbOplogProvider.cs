@@ -27,7 +27,7 @@ namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 				Status = status,
 				UserId = userId,
 				RefId = refId,
-				Message = message.LimitLength(DAL.Models.FieldMaxLength.Comment),
+				Message = message.Limit(DAL.Models.FieldMaxLength.Comment),
 				TimeCreated = DateTime.UtcNow,
 			};
 			_dbContext.UserOpLog.Add(op);

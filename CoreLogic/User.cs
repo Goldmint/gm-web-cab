@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL.Models;
@@ -83,9 +84,9 @@ namespace Goldmint.CoreLogic {
 			return new DAL.Models.UserActivity() {
 				UserId = user.Id,
 				Ip = ip,
-				Agent = agent.LimitLength(DAL.Models.FieldMaxLength.UserAgent),
+				Agent = agent.Limit(DAL.Models.FieldMaxLength.UserAgent),
 				Type = type.ToString().ToLowerInvariant(),
-				Comment = comment.LimitLength(DAL.Models.FieldMaxLength.Comment),
+				Comment = comment.Limit(DAL.Models.FieldMaxLength.Comment),
 				TimeCreated = DateTime.UtcNow,
 				Locale = locale,
 			};

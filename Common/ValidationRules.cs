@@ -38,7 +38,7 @@ namespace Goldmint.Common {
 
 			try {
 				var plib = PhoneNumberUtil.GetInstance();
-				var numberObj = plib.Parse(x, RegionCode.ZZ);
+				var numberObj = plib.Parse(x, "ZZ");
 				return plib.IsValidNumber(numberObj);
 			}
 			catch {

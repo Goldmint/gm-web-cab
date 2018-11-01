@@ -20,7 +20,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Estimate
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		//[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[AnonymousAccess]
 		[HttpPost, Route("estimate")]
 		[ProducesResponseType(typeof(EstimateView), 200)]
 		public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
@@ -52,12 +53,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var user = GetUserFromDb();
+			var userOrNull = await GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var limits = ethereumToken != null
 				? WithdrawalLimits(rcfg, ethereumToken.Value)
-				: await WithdrawalLimits(rcfg, DbContext, user.Id, exchangeCurrency)
+				: await WithdrawalLimits(rcfg, DbContext, userOrNull?.Id, exchangeCurrency)
 			;
 
 			var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
@@ -355,14 +356,16 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		public static async Task<WithdrawalLimitsResult> WithdrawalLimits(RuntimeConfig rcfg, ApplicationDbContext dbContext, long userId, FiatCurrency fiatCurrency) {
+		public static async Task<WithdrawalLimitsResult> WithdrawalLimits(RuntimeConfig rcfg, ApplicationDbContext dbContext, long? userId, FiatCurrency fiatCurrency) {
 
 			var min = 0d;
 			var max = 0d;
 			var accMax = 0d;
 			var accUsed = 0d;
 
-			var userLimits = await CoreLogic.User.GetUserLimits(dbContext, userId);
+			var userLimits = userId != null 
+				? await CoreLogic.User.GetUserLimits(dbContext, userId.Value)
+				: (CoreLogic.User.UpdateUserLimitsData) null;
 
 			switch (fiatCurrency) {
 
@@ -373,7 +376,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// has limit
 					accMax = rcfg.Gold.PaymentMehtods.FiatUserWithdrawLimitUsd;
 					if (accMax > 0) {
-						accUsed = userLimits.FiatUsdWithdrawn / 100d;
+						accUsed = (userLimits?.FiatUsdWithdrawn ?? 0) / 100d;
 						max = Math.Min(
 							max,
 							Math.Max(0, accMax - accUsed)

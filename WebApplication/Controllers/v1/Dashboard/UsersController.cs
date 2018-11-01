@@ -310,7 +310,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			// ---
 
 			account.UserVerification.ProvedResidence = model.Proved;
-			account.UserVerification.ProvedResidenceComment = model.Comment?.LimitLength(DAL.Models.FieldMaxLength.Comment);
+			account.UserVerification.ProvedResidenceComment = model.Comment?.Limit(DAL.Models.FieldMaxLength.Comment);
 			await DbContext.SaveChangesAsync();
 
 			// notification
