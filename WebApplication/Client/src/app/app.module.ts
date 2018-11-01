@@ -107,12 +107,21 @@ import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-car
 import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
-import {NgxMaskModule} from "ngx-mask";
 import {GoldDiscount} from "./pipes/gold-discount";
 import {SubstrPipe} from "./pipes/substr.pipe";
 import {NoexpPipe} from "./pipes/noexp.pipe";
-import {DeviceDetectorModule} from "ngx-device-detector";
 import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
+import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
+import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
+import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
+import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions-page/all-transactions-page.component";
+import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
+import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
+import {MomentModule} from "ngx-moment";
+import {DeviceDetectorModule} from "ngx-device-detector";
+import {NgxMaskModule} from "ngx-mask";
+import { PawnMarketplacePageComponent } from './pages/pawn-marketplace-page/pawn-marketplace-page.component';
+import { WalletPageComponent } from './pages/wallet-page/wallet-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -133,6 +142,7 @@ export function getGoldmintToken() {
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
     TabsModule.forRoot(),
+    MomentModule,
     NgxDatatableModule,
     TypeaheadModule,
     NgxQRCodeModule,
@@ -211,7 +221,15 @@ export function getGoldmintToken() {
     PaymentCardBlockComponent,
     CryptocurrencyBlockComponent,
     TimerComponent,
-    LatestRewardPageComponent
+    LatestRewardPageComponent,
+    ScanerPageComponent,
+    TxInfoPageComponent,
+    TransactionsInBlockPageComponent,
+    AllTransactionsPageComponent,
+    AllBlocksPageComponent,
+    AddressInfoPageComponent,
+    PawnMarketplacePageComponent,
+    WalletPageComponent
   ],
   exports: [],
   providers: [

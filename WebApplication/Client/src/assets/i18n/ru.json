@@ -11,12 +11,26 @@
     "SignUp": "Регистрация",
     "SignOut": "Выход",
     "AccountInfo": "Аккаунт",
+    "Network": {
+      "Label": "сеть",
+      "MainNet": "MainNet сеть",
+      "TestNet": "TestNet сеть"
+    },
     "Menu": {
-      "Sell": "Продать",
-      "Buy": "Купить",
-      "Transfer": "Перевод активов",
-      "Finance": "Финансы",
-	  "MasterNode": "Мастер нода"
+      "Exchange": {
+        "Heading": "Обмен",
+        "Sell": "Продать GOLD",
+        "Buy": "Купить GOLD",
+        "Transfer": "Перевод GOLD",
+        "Finance": "Финансы"
+      },
+      "GoldmintBlockchain": {
+        "Heading": "Goldmint Blockchain",
+        "Wallet": "Кошелек",
+        "MasterNode": "Мастер нода",
+        "Scanner": "Сканер"
+      },
+      "PAWN": "PAWN MARKETPLACE"
     }
   },
   "FOOTER": {
@@ -316,6 +330,156 @@
           "TransferredToken": "Переданное количество токенов",
           "RewardAmount": "Сумма вознаграждения"
         }
+      }
+    },
+    "Scanner": {
+      "Heading": "Сканер",
+      "Caption": "Goldmint blockchain сканер",
+      "LatestStatistic": {
+        "Caption": "Последняя статистика",
+        "Input": {
+          "AddressPlaceholder": "Поиск по Адресу",
+          "DigestPlaceholder": "Поиск по Digest"
+        },
+        "Labels": {
+          "QuantityBlocks": "Количество блоков:",
+          "QuantityTx": "Количество транзакций:",
+          "QuantityNodes": "Количество нод:"
+        },
+        "Charts": {
+          "Reward": "График собранной комиссии по дням",
+          "Tx": "График количества транзакций по дням"
+        },
+        "Blocks": {
+          "Heading": "Блоки",
+          "Labels": {
+            "Number": "Номер:",
+            "Mined": "Замайнил:",
+            "Count": "Количество транзакций:",
+            "TotalAmount": "Общее количество:",
+            "Fee": "Комиссия:",
+            "Date": "Дата:"
+          },
+          "Buttons": {
+            "More": "Показать больше"
+          }
+        },
+        "Transactions": {
+          "Heading": "Транзакции",
+          "Labels": {
+            "From": "Из:",
+            "To": "В:",
+            "Amount": "Количество:",
+            "Name": "Название:",
+            "Status": "Статус:",
+            "Date": "Дата:"
+          },
+          "Buttons": {
+            "More": "Показать больше"
+          }
+        }
+      },
+      "AllBlocks": {
+        "Heading": "Блоки",
+        "Labels": {
+          "Number": "Номер",
+          "Mined": "Замайнил",
+          "Count": "Количество транзакций",
+          "ctFee": "GOLD комиссия",
+          "utFee": "MNT комиссия",
+          "Date": "Дата"
+        }
+      },
+      "AllTransactions": {
+        "Heading": "Транзакции",
+        "Labels": {
+          "From": "Из",
+          "To": "В",
+          "Count": "Количество",
+          "Name": "Название",
+          "Date": "Дата"
+        }
+      },
+      "TransactionsInBlock": {
+        "Heading": "Список транзакций в блоке",
+        "Labels": {
+          "Block": "Блок:",
+          "TimeStamp": "TimeStamp:",
+          "Transactions": "Транзакции:",
+          "TotalUserData": "Всего пользовательских данных:",
+          "Signers": "Подписал:",
+          "Total": "Всего:",
+          "Fee": "Комиссия:",
+          "Orchestrator": "Замайнил:",
+          "PrevDigest": "Предыдущий digest:",
+          "MerkleRoot": "Merkle root:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "From": "Из",
+          "To": "В",
+          "Count": "Количество",
+          "Name": "Название",
+          "Date": "Дата"
+        }
+      },
+      "AddressInfo" : {
+        "Heading": "Информация адреса",
+        "Labels": {
+          "Address": "Адрес:",
+          "Balance": "Баланс:",
+          "Transactions": "Транзакции:",
+          "Exists": {
+            "Label": "Существует:",
+            "true": "Да",
+            "false": "Нет"
+          },
+          "Tags": "Теги:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "Block": "Блок",
+          "Date": "Дата",
+          "From": "Из",
+          "To": "В",
+          "Value": "Количество",
+          "Name": "Название"
+        }
+      },
+      "TransactionInfo": {
+        "Heading": "Информация транзакции",
+        "Labels": {
+          "Hash": "Digest:",
+          "TimeStamp": "TimeStamp:",
+          "Destination": "Кошелек получателя:",
+          "Source": "Кошелек отправителя:",
+          "TokenType": "Тип токена:",
+          "BlockNumber": "Номер блока:",
+          "Amount": "Количество:",
+          "Name": "Название:",
+          "DataSize": "Размер данных:",
+          "DataPiece": "Часть данных:",
+          "Status": "Статус транзакции:",
+          "MoreBytes": "и еще {{ bytes }} байт"
+        },
+        "Status": {
+          "pending": "В ожидании",
+          "approved": "Одобрена",
+          "failed": "Неудачно",
+          "stale": "Просрочена",
+          "notfound": "Не найдена"
+        },
+        "NotFound": "Транзакция не найдена",
+        "Pending": "Транзакция в ожидании"
+      },
+      "Errors": {
+        "Required": "Поле обязательно",
+        "Pattern": "Поле должно содержать цифры и латинские буквы",
+        "InvalidAddress": "Неверный адрес",
+        "InvalidDigest": "Неверный digest"
+      },
+      "Buttons": {
+        "Go": "Вперед"
       }
     },
     "Deposit": {
@@ -1276,6 +1440,12 @@
         }
       }
     },
+    "Wallet": {
+      "Heading": "Кошелек",
+      "Items": {
+        "GetWallet": "Получить Lite Wallet"
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Ошибка 404. Страница не найдена",
@@ -1365,7 +1535,7 @@
       "HeadingSell": "ПРОДАТЬ GOLD",
       "HeadingTransfer": "ПЕРЕВОД GOLD",
       "HeadingMigration": "МИГРАЦИЯ ТОКЕНОВ",
-      "Text": "Войдите в свой аккаунт"
+      "Text": "Войдите в свой аккаунт или разрешите доступ к Ethereum blockchain"
     },
     "LoginToLiteWallet": {
       "Heading": "МИГРАЦИЯ ТОКЕНОВ",

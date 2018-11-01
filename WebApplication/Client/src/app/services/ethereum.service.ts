@@ -28,6 +28,7 @@ export class EthereumService {
   private _web3Metamask: Web3 = null;
   private _lastAddress: string | null;
   private _userId: string | null;
+  private _metamaskNetwork: number = null
 
   private _contractInfura: any;
   private _contractMetamask: any;
@@ -66,14 +67,11 @@ export class EthereumService {
     private _userService: UserService,
     private _http: HttpClient
   ) {
-    console.log('EthereumService constructor');
-
     this._userService.currentUser.subscribe(currentUser => {
       this._userId = currentUser != null && currentUser.id ? currentUser.id : null;
     });
 
     interval(500).subscribe(this.checkWeb3.bind(this));
-
     interval(7500).subscribe(this.checkBalance.bind(this));
   }
 
@@ -112,15 +110,20 @@ export class EthereumService {
       });
     }
 
-    if (!this._web3Metamask && window.hasOwnProperty('web3') && this.EthGoldContractABI) {
-      this._web3Metamask = new Web3(window['web3'].currentProvider);
+    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI) {
+      let ethereum = window['ethereum'];
+
+      if (ethereum) {
+        this._web3Metamask = new Web3(ethereum);
+        ethereum.enable().then().catch(() => { });
+      } else {
+        this._web3Metamask = new Web3(window['web3'].currentProvider);
+      }
 
       if (this._web3Metamask.eth) {
         this._contractMetamask = this._web3Metamask.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
         this._contractGold = this._web3Metamask.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
         this._contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
-
-        this._obsNetworkSubject.next(this._web3Metamask.version.network);
       } else {
         this._web3Metamask = null;
       }
@@ -131,18 +134,21 @@ export class EthereumService {
       this.checkBalance();
     }
 
+    if (this._web3Metamask && this._web3Metamask.version.network !== this._metamaskNetwork) {
+      this._metamaskNetwork = this._web3Metamask.version.network;
+      this._obsNetworkSubject.next(this._metamaskNetwork);
+    }
+
     var addr = this._web3Metamask && this._web3Metamask.eth && this._web3Metamask.eth.accounts.length
       ? this._web3Metamask.eth.accounts[0] : null;
     if (this._lastAddress != addr) {
       this._lastAddress = addr;
-      console.log("EthereumService: new eth address (MM): " + addr);
       this.emitAddress(addr);
     }
   }
 
   private checkBalance() {
     if (this._lastAddress != null) {
-      // check via eth
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
     }
@@ -225,8 +231,6 @@ export class EthereumService {
     });
   }
 
-  // ---
-
   public isValidAddress(addr: string): boolean {
     return (new Web3()).isAddress(addr);
   }
@@ -272,7 +276,6 @@ export class EthereumService {
     return this._obsGasPrice;
   }
 
-  // ---
   public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {
     if (this._contractMetamask == null) return;
     const reference = new BigNumber(requestId);

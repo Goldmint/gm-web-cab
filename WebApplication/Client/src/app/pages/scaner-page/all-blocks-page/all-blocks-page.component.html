@@ -1,0 +1,157 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Scanner.AllBlocks.Heading" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <ngx-datatable class="table table--no-footer txs-table" #table
+                   [rows]="rows"
+                   [columnMode]="'force'"
+                   [headerHeight]="53"
+                   [rowHeight]="'auto'"
+                   [footerHeight]="135"
+                   [reorderable]="false"
+                   [loadingIndicator]="loading"
+                   [count]="rows.length"
+                   [externalSorting]="true"
+                   [externalPaging]="true"
+                   (page)='setPage($event)'
+                   [messages]="messages">
+
+      <div *ngIf="!isMobile">
+        <ngx-datatable-column prop="id" [draggable]="false" [resizeable]="false" [sortable]="false" [width]="80">
+          <ng-template let-number="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.AllBlocks.Labels.Number" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-id="value" ngx-datatable-cell-template>
+            <div class="a-link" [routerLink]="'/scanner/transactions-in-block/' + id">{{ id }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="orchestrator" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.AllBlocks.Labels.Mined" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-orchestrator="value" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + orchestrator">{{ orchestrator }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="transactions" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.AllBlocks.Labels.Count" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-transactions="value" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ transactions }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="fee_gold" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" ngx-datatable-header-template>
+            {{ "PAGES.Scanner.AllBlocks.Labels.ctFee" | translate }}
+          </ng-template>
+
+          <ng-template let-fee_gold="value" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ +fee_gold }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="fee_mnt" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" ngx-datatable-header-template>
+            {{ "PAGES.Scanner.AllBlocks.Labels.utFee" | translate }}
+          </ng-template>
+
+          <ng-template let-fee_mnt="value" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ +fee_mnt }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="timestamp" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.AllBlocks.Labels.Date" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-timestamp="value" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </div>
+
+      <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">{{ "PAGES.Scanner.AllBlocks.Labels.Number" | translate }}</span>
+        </ng-template>
+
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="font-weight-500 mt-1 mb-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + row.id">
+            {{ row.id }}
+          </div>
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.Mined" | translate }}:</span>
+              <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.orchestrator">{{ row.orchestrator }}</div>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.Count" | translate }}:</span>
+            {{ row.transactions }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.ctFee" | translate }}:</span>
+            {{ +row.fee_gold }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.utFee" | translate }}:</span>
+            {{ +row.fee_mnt }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.Date" | translate }}:</span>
+            {{ row.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+
+    <ul class="pagination pagination--small mb-2" >
+      <li class="page-item" [ngClass]="{'hidden': offset === 0}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="prevPage()">
+          <svg class="icon--previous" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+      <li class="page-item" [ngClass]="{'hidden': isLastPage}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="nextPage()">
+          <svg class="icon--next" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>

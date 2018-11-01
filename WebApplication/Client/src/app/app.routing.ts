@@ -37,11 +37,19 @@ import {BuyCardPageComponent} from "./pages/buy-page/buy-card-page/buy-card-page
 import {SellCardPageComponent} from "./pages/sell-page/sell-card-page/sell-card-page.component";
 import {TransferPageComponent} from "./pages/transfer-page/transfer-page.component";
 import {MasterNodePageComponent} from "./pages/master-node-page/master-node-page.component";
+import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
+import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
+import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
+import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions-page/all-transactions-page.component";
+import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
+import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
+import {PawnMarketplacePageComponent} from "./pages/pawn-marketplace-page/pawn-marketplace-page.component";
+import {WalletPageComponent} from "./pages/wallet-page/wallet-page.component";
 
 
 const appRoutes: Routes = [
   { path: 'signin', component: LoginPageComponent },
-  { path: 'signin/onToken/:token', component: LoginPageComponent },  // @todo: remove with controller
+  { path: 'signin/onToken/:token', component: LoginPageComponent },
   { path: 'signin/restore', component: PasswordResetPageComponent },
   { path: 'signin/restore/:token', component: PasswordResetPageComponent },
   { path: 'signin/dpa/required', component: LoginDpaRequiredComponent },
@@ -85,7 +93,15 @@ const appRoutes: Routes = [
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
+  { path: 'pawn-marketplace', component: PawnMarketplacePageComponent, canActivate: [AuthGuard] },
+  { path: 'wallet', component: WalletPageComponent },
   { path: 'transparency', component: TransparencyPageComponent },
+  { path: 'scanner', component: ScanerPageComponent },
+  { path: 'scanner/tx/:id', component: TxInfoPageComponent },
+  { path: 'scanner/address/:id', component: AddressInfoPageComponent },
+  { path: 'scanner/blocks', component: AllBlocksPageComponent },
+  { path: 'scanner/transactions', component: AllTransactionsPageComponent },
+  { path: 'scanner/transactions-in-block/:id', component: TransactionsInBlockPageComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }
 ];

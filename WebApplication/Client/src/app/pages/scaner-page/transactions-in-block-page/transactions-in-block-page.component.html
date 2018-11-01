@@ -1,0 +1,222 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Scanner.TransactionsInBlock.Heading" | translate }} {{ blockNumber }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <div class="scanner-info-container mb-4" *ngIf="block">
+      <div><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Block" | translate }} </b>
+        {{ block.id }}
+      </div>
+
+      <div><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.TimeStamp" | translate }} </b>
+        {{ block.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+      </div>
+
+      <div><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Transactions" | translate }} </b>
+        {{ block.transactions }}
+      </div>
+
+      <div><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.TotalUserData" | translate }} </b>
+        {{ block.total_user_data }}
+      </div>
+
+      <div><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Signers" | translate }} </b>
+        {{ block.signers }}
+      </div>
+
+      <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Total" | translate }} </b>
+        <div class="ml-2">
+          <div>{{ +block.total_gold }} GOLD</div>
+          <div>{{ +block.total_mnt }} MNT</div>
+        </div>
+      </div>
+
+      <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Fee" | translate }} </b>
+        <div class="ml-2">
+          <div>{{ +block.fee_gold }} GOLD</div>
+          <div>{{ +block.fee_mnt }} MNT</div>
+        </div>
+      </div>
+
+      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionsInBlock.Labels.Orchestrator" | translate }} </b>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + block.orchestrator">
+          {{ block.orchestrator }}
+        </div>
+      </div>
+
+      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionsInBlock.Labels.PrevDigest" | translate }} </b>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + block.prev_digest">
+          {{ block.prev_digest }}
+        </div>
+      </div>
+
+      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionsInBlock.Labels.MerkleRoot" | translate }} </b>
+        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + block.merkle_root">
+          {{ block.merkle_root }}
+        </div>
+      </div>
+    </div>
+
+    <ngx-datatable class="table table--no-footer txs-table" #table
+                   [rows]="rows"
+                   [columnMode]="'force'"
+                   [headerHeight]="53"
+                   [rowHeight]="'auto'"
+                   [footerHeight]="135"
+                   [reorderable]="false"
+                   [loadingIndicator]="loading"
+                   [count]="rows.length"
+                   [externalSorting]="true"
+                   [externalPaging]="true"
+                   (page)='setPage($event)'
+                   [messages]="messages">
+
+      <div *ngIf="!isMobile">
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.TransactionsInBlock.Table.Digest" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.TransactionsInBlock.Table.From" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.TransactionsInBlock.Table.To" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.to">{{ row.transaction.to }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [width]="100">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.TransactionsInBlock.Table.Count" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ +row.transaction.amount_gold }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt }} MNT</div>
+              <div></div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [width]="100">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.TransactionsInBlock.Table.Name" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              {{ row.transaction.name }}
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [width]="100">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.TransactionsInBlock.Table.Date" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ row.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </div>
+
+      <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">
+            {{ "PAGES.Scanner.TransactionsInBlock.Table.Digest" | translate }}:
+          </span>
+        </ng-template>
+
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="mt-1 mb-1 font-weight-500">
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest }}</div>
+          </div>
+
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.Scanner.TransactionsInBlock.Table.From" | translate }}:</span>
+            <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from }}</div>
+          </div>
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.Scanner.TransactionsInBlock.Table.To" | translate }}:</span>
+            <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.transaction.to">{{ row.transaction.to }}</div>
+          </div>
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.Scanner.TransactionsInBlock.Table.Count" | translate }}:</span>
+            <div class="ml-2">
+              <div>{{ +row.transaction.amount_gold }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt }} MNT</div>
+            </div>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.TransactionsInBlock.Table.Name" | translate }}:</span>
+            {{ row.transaction.name }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.TransactionsInBlock.Table.Date" | translate }}:</span>
+            {{ row.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+
+    <ul class="pagination pagination--small mb-2">
+      <li class="page-item" [ngClass]="{'hidden': offset === 0}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="prevPage()">
+          <svg class="icon--previous" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+      <li class="page-item" [ngClass]="{'hidden': isLastPage}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="nextPage()">
+          <svg class="icon--next" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</section>

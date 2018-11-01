@@ -11,12 +11,26 @@
     "SignUp": "Sign up",
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
+    "Network": {
+      "Label": "network",
+      "MainNet": "MainNet network",
+      "TestNet": "TestNet network"
+    },
     "Menu": {
-      "Sell": "Sell GOLD",
-      "Buy": "Buy GOLD",
-      "Transfer": "Transfer GOLD",
-      "Finance": "Finance",
-	  "MasterNode": "Master node"
+      "Exchange": {
+        "Heading": "Exchange",
+        "Sell": "Sell GOLD",
+        "Buy": "Buy GOLD",
+        "Transfer": "Transfer GOLD",
+        "Finance": "Finance"
+      },
+      "GoldmintBlockchain": {
+        "Heading": "Goldmint Blockchain",
+        "Wallet": "Wallet",
+        "MasterNode": "Master node",
+        "Scanner": "Scanner"
+      },
+      "PAWN": "PAWN MARKETPLACE"
     }
   },
   "FOOTER": {
@@ -316,6 +330,156 @@
           "TransferredToken": "Transferred token amount",
           "RewardAmount": "Reward amount"
         }
+      }
+    },
+    "Scanner": {
+      "Heading": "Scanner",
+      "Caption": "Goldmint blockchain scanner",
+      "LatestStatistic": {
+        "Caption": "Latest statistics",
+        "Input": {
+          "AddressPlaceholder": "Search by Address",
+          "DigestPlaceholder": "Search by Digest"
+        },
+        "Labels": {
+          "QuantityBlocks": "Quantity of block:",
+          "QuantityTx": "Quantity of transactions:",
+          "QuantityNodes": "Quantity of nodes:"
+        },
+        "Charts": {
+          "Reward": "Collected commission by days chart",
+          "Tx": "Transactions amount by days chart"
+        },
+        "Blocks": {
+          "Heading": "Blocks",
+          "Labels": {
+            "Number": "Number:",
+            "Mined": "Mined by:",
+            "Count": "Transaction quantity:",
+            "TotalAmount": "Total amount:",
+            "Fee": "Fee:",
+            "Date": "Create date:"
+          },
+          "Buttons": {
+            "More": "View more"
+          }
+        },
+        "Transactions": {
+          "Heading": "Transactions",
+          "Labels": {
+            "From": "From:",
+            "To": "To:",
+            "Amount": "Amount:",
+            "Name": "Name:",
+            "Status": "Status:",
+            "Date": "Create date:"
+          },
+          "Buttons": {
+            "More": "View more"
+          }
+        }
+      },
+      "AllBlocks": {
+        "Heading": "Blocks",
+        "Labels": {
+          "Number": "Number",
+          "Mined": "Mined by",
+          "Count": "Transaction quantity",
+          "ctFee": "GOLD fee",
+          "utFee": "MNT fee",
+          "Date": "Create date"
+        }
+      },
+      "AllTransactions": {
+        "Heading": "Transactions",
+        "Labels": {
+          "From": "From",
+          "To": "To",
+          "Count": "Amount",
+          "Name": "Name",
+          "Date": "Create date"
+        }
+      },
+      "TransactionsInBlock": {
+        "Heading": "Transaction list in the block",
+        "Labels": {
+          "Block": "Block:",
+          "TimeStamp": "TimeStamp:",
+          "Transactions": "Transactions:",
+          "TotalUserData": "Total user data:",
+          "Signers": "Signers:",
+          "Total": "Total:",
+          "Fee": "Fee:",
+          "Orchestrator": "Mined by:",
+          "PrevDigest": "Previous digest:",
+          "MerkleRoot": "Merkle root:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "From": "From",
+          "To": "To",
+          "Count": "Amount",
+          "Name": "Name",
+          "Date": "Create date"
+        }
+      },
+      "AddressInfo" : {
+        "Heading": "Address info",
+        "Labels": {
+          "Address": "Address:",
+          "Balance": "Balance:",
+          "Transactions": "Transactions:",
+          "Exists": {
+            "Label": "Exists:",
+            "true": "Yes",
+            "false": "No"
+          },
+          "Tags": "Tags:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "Block": "Block",
+          "Date": "Date",
+          "From": "From",
+          "To": "To",
+          "Value": "Amount",
+          "Name": "Name"
+        }
+      },
+      "TransactionInfo": {
+        "Heading": "Transaction info",
+        "Labels": {
+          "Hash": "Digest:",
+          "TimeStamp": "TimeStamp:",
+          "Destination": "Destination wallet:",
+          "Source": "Source wallet:",
+          "TokenType": "Token type:",
+          "BlockNumber": "Block number:",
+          "Amount": "Amount:",
+          "Name": "Name:",
+          "DataSize": "Data size:",
+          "DataPiece": "Data piece:",
+          "Status": "Transaction status:",
+          "MoreBytes": "and {{ bytes }} more bytes"
+        },
+        "Status": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "failed": "Failed",
+          "stale": "Stale",
+          "notfound": "Not found"
+        },
+        "NotFound": "Transaction not found",
+        "Pending": "Transaction is pending"
+      },
+      "Errors": {
+        "Required": "Field is required",
+        "Pattern": "Field must contains digits and latin letters",
+        "InvalidAddress": "Invalid address",
+        "InvalidDigest": "Invalid digest"
+      },
+      "Buttons": {
+        "Go": "Go"
       }
     },
     "Deposit": {
@@ -1276,6 +1440,12 @@
         }
       }
     },
+    "Wallet": {
+      "Heading": "Wallet",
+      "Items": {
+        "GetWallet": "Get Lite Wallet"
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Error 404. Page not found",
@@ -1365,7 +1535,7 @@
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
       "HeadingMigration": "TOKEN MIGRATION",
-      "Text": "Please login to your account"
+      "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },
     "LoginToLiteWallet": {
       "Heading": "TOKEN MIGRATION",

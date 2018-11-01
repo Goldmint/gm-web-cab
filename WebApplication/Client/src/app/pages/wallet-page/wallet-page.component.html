@@ -1,0 +1,23 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Wallet.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Wallet.Heading" | translate }}</h2>
+
+  <div class="section__content pt-4">
+    <div class="row mb-4 align-items-baseline">
+
+      <div class="col col-lg-3 form-group text-center">
+        <label for="send-coins">{{ "PAGES.Wallet.Items.GetWallet" | translate }}</label>
+        <a [href]="getLiteWalletLink" target="_blank">
+          <button class="btn btn-primary btn-block" id="send-coins">
+            <svg class="icon" width="56px" height="56px">
+              <use xlink:href="#wallet"></use>
+            </svg>
+          </button>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>

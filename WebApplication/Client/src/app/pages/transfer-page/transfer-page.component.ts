@@ -73,7 +73,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this.user = res[1].data;
         this.loading = false;
 
-        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
             this._messageBox.alert(phrase.Text, phrase.Heading);
           });
@@ -82,7 +82,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
         !this.isMetamask && this._userService.showLoginToMMBox('HeadingTransfer')
       }, 3000);

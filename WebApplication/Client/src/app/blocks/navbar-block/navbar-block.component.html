@@ -1,19 +1,46 @@
 <nav class="navbar">
   <ul class="nav nav-pills nav-justified">
     <li class="nav-item" routerLinkActive="active">
-      <a class="nav-link" routerLink="/buy">{{ "HEADER.Menu.Buy" | translate }}</a>
+      <a class="nav-link" routerLink="/buy">{{ "HEADER.Menu.Exchange.Heading" | translate }}</a>
+
+      <div class="sub-nav-container">
+        <ul class="nav nav-pills nav-justified sub-nav">
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/buy">{{ "HEADER.Menu.Exchange.Buy" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/sell">{{ "HEADER.Menu.Exchange.Sell" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/transfer">{{ "HEADER.Menu.Exchange.Transfer" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/finance">{{ "HEADER.Menu.Exchange.Finance" | translate }}</a>
+          </li>
+        </ul>
+      </div>
     </li>
+
     <li class="nav-item" routerLinkActive="active">
-      <a class="nav-link" routerLink="/sell">{{ "HEADER.Menu.Sell" | translate }}</a>
+      <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.GoldmintBlockchain.Heading" | translate }}</a>
+
+      <div class="sub-nav-container">
+        <ul class="nav nav-pills nav-justified sub-nav">
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/wallet">{{ "HEADER.Menu.GoldmintBlockchain.Wallet" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.GoldmintBlockchain.MasterNode" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.GoldmintBlockchain.Scanner" | translate }}</a>
+          </li>
+        </ul>
+      </div>
     </li>
+
     <li class="nav-item" routerLinkActive="active">
-      <a class="nav-link" routerLink="/transfer">{{ "HEADER.Menu.Transfer" | translate }}</a>
-    </li>
-    <li class="nav-item" routerLinkActive="active">
-      <a class="nav-link" routerLink="/finance">{{ "HEADER.Menu.Finance" | translate }}</a>
-    </li>
-	<li class="nav-item" routerLinkActive="active">
-      <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.MasterNode" | translate }}</a>
+      <a class="nav-link" routerLink="/pawn-marketplace">{{ "HEADER.Menu.PAWN" | translate }}</a>
     </li>
   </ul>
 </nav>
