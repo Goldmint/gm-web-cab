@@ -504,11 +504,11 @@ export class APIService {
 
   // scanner methods
 
-  getStatus() {
+  getScannerStatus() {
     return this._http.get(`${this._sumusBaseUrl}/status`);
   }
 
-  getDailyStatistic() {
+  getScannerDailyStatistic() {
     return this._http.get(`${this._sumusBaseUrl}/status/daily`);
   }
 
@@ -522,6 +522,14 @@ export class APIService {
 
   getTransactionsInBlock(blockNumber: number) {
     return this._http.get(`${this._sumusBaseUrl}/block/${blockNumber}`);
+  }
+
+  getScannerBlockList(from: number) {
+    return this._http.get(`${this._sumusBaseUrl}/block/list/${from}`);
+  }
+
+  getScannerTxList(block: number, address: number | string, from: number | string) {
+    return this._http.get(`${this._sumusBaseUrl}/tx/list/${block}/${address}/${from}`);
   }
 
   // ---//

@@ -63,7 +63,7 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
     this.apiService.checkTransactionStatus(this.digest).subscribe((data: any) => {
       this.tx = data.res;
 
-      if (this.tx.transaction.data_piece) {
+      if (this.tx.transaction && this.tx.transaction.data_piece) {
         this.dataPiece.text = Base64.decode(this.tx.transaction.data_piece);
         this.dataPiece.hex = this.base64toHEX(this.tx.transaction.data_piece);
 

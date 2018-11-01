@@ -38,7 +38,7 @@
       </div>
 
       <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.BlockNumber" | translate }} </b>
-        <div class="ml-1 a-link" [routerLink]="'/scanner/block/' + tx.transaction.block">
+        <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + tx.transaction.block">
           {{ tx.transaction.block }}
         </div>
       </div>

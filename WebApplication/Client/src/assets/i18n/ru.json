@@ -370,7 +370,8 @@
             "From": "Из:",
             "To": "В:",
             "Amount": "Количество:",
-            "Fee": "Комиссия:",
+            "Name": "Название:",
+            "Status": "Статус:",
             "Date": "Дата:"
           },
           "Buttons": {
@@ -395,12 +396,12 @@
           "From": "Из",
           "To": "В",
           "Count": "Количество",
-          "Fee": "Комиссия",
+          "Name": "Название",
           "Date": "Дата"
         }
       },
       "TransactionsInBlock": {
-        "Heading": "Блок - ",
+        "Heading": "Список транзакций в блоке",
         "Labels": {
           "Block": "Блок:",
           "TimeStamp": "TimeStamp:",
@@ -412,6 +413,14 @@
           "Orchestrator": "Замайнил:",
           "PrevDigest": "Предыдущий digest:",
           "MerkleRoot": "Merkle root:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "From": "Из",
+          "To": "В",
+          "Count": "Количество",
+          "Name": "Название",
+          "Date": "Дата"
         }
       },
       "AddressInfo" : {
@@ -428,19 +437,19 @@
           "Tags": "Теги:"
         },
         "Table": {
-          "Hash": "Digest",
+          "Digest": "Digest",
           "Block": "Блок",
           "Date": "Дата",
           "From": "Из",
           "To": "В",
           "Value": "Количество",
-          "Fee": "Комиссия"
+          "Name": "Название"
         }
       },
       "TransactionInfo": {
         "Heading": "Информация транзакции",
         "Labels": {
-          "Hash": "Digest транзакции:",
+          "Hash": "Digest:",
           "TimeStamp": "TimeStamp:",
           "Destination": "Кошелек получателя:",
           "Source": "Кошелек отправителя:",

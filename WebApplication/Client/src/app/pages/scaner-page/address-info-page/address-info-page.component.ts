@@ -12,8 +12,8 @@ import {APIService, UserService} from "../../../services";
 import {Subject} from "rxjs/Subject";
 import {ActivatedRoute} from "@angular/router";
 import {Page} from "../../../models/page";
-import {Balance} from "../../../interfaces/balance";
 import {WalletInfo} from "../../../interfaces/wallet-info";
+import {TransactionsList} from "../../../interfaces/transactions-list";
 
 @Component({
   selector: 'app-address-info-page',
@@ -27,13 +27,18 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   public page = new Page();
-  public rows: Array<any> = [];
-  public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
+  public rows: TransactionsList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public walletInfo: WalletInfo;
+  public isLastPage: boolean = false;
+  public offset: number = 0;
+  public pagination = {
+    prev: '0',
+    next: '0'
+  }
 
   private sumusAddress: string;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -52,7 +57,8 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
 
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
       this.sumusAddress = params.id;
-      this.setPage({ offset: 0 });
+      this.setPage(0);
+
       this.apiService.getWalletBalance(this.sumusAddress).subscribe((data: any) => {
         this.walletInfo = data.res;
         this.isDataLoaded = true;
@@ -69,32 +75,33 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSort(event) {
-    this.sorts = event.sorts;
-    this.setPage({ offset: 0 });
+  setPage(from: number | string) {
+    this.loading = true;
+
+    this.apiService.getScannerTxList(0, this.sumusAddress, from)
+      .finally(() => {
+        this.loading = false;
+        this.cdRef.markForCheck();
+      })
+      .subscribe((data: any) => {
+        this.isLastPage = false;
+        this.rows = data.res.list ? data.res.list : [];
+
+        this.pagination.prev = this.offset > 1 ? this.pagination.next : '0';
+        this.pagination.next = this.rows.length && this.rows[this.rows.length - 1].transaction.digest;
+
+        !this.rows.length && (this.isLastPage = true);
+      });
   }
 
-  setPage(pageInfo) {
-    this.loading = true;
-    this.page.pageNumber = pageInfo.offset;
+  prevPage() {
+    this.offset--;
+    this.setPage(this.pagination.prev);
+  }
 
-    this.apiService.getTxByAddress(this.sumusAddress, this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
-      .subscribe(
-        res => {
-          this.rows = res['data'].items.map(item => {
-            item.timeStamp = new Date(item.timeStamp.toString() + 'Z');
-            return item;
-          });
-
-          this.page.totalElements = res['data'].total;
-          this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
-
-          this.loading = false;
-          this.cdRef.markForCheck();
-        }, () => {
-          this.loading = false;
-          this.cdRef.markForCheck();
-        });
+  nextPage() {
+    this.offset++;
+    this.setPage(this.pagination.next);
   }
 
   ngOnDestroy() {

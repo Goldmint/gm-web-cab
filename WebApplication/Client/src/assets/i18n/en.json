@@ -370,7 +370,8 @@
             "From": "From:",
             "To": "To:",
             "Amount": "Amount:",
-            "Fee": "Fee:",
+            "Name": "Name:",
+            "Status": "Status:",
             "Date": "Create date:"
           },
           "Buttons": {
@@ -395,12 +396,12 @@
           "From": "From",
           "To": "To",
           "Count": "Amount",
-          "Fee": "Fee",
+          "Name": "Name",
           "Date": "Create date"
         }
       },
       "TransactionsInBlock": {
-        "Heading": "Block - ",
+        "Heading": "Transaction list in the block",
         "Labels": {
           "Block": "Block:",
           "TimeStamp": "TimeStamp:",
@@ -412,6 +413,14 @@
           "Orchestrator": "Mined by:",
           "PrevDigest": "Previous digest:",
           "MerkleRoot": "Merkle root:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "From": "From",
+          "To": "To",
+          "Count": "Amount",
+          "Name": "Name",
+          "Date": "Create date"
         }
       },
       "AddressInfo" : {
@@ -428,13 +437,13 @@
           "Tags": "Tags:"
         },
         "Table": {
-          "Hash": "TxHash",
+          "Digest": "Digest",
           "Block": "Block",
           "Date": "Date",
           "From": "From",
           "To": "To",
           "Value": "Amount",
-          "Fee": "Fee"
+          "Name": "Name"
         }
       },
       "TransactionInfo": {

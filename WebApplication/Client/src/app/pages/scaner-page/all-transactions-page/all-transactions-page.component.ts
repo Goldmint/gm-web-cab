@@ -9,7 +9,7 @@ import {
 import {Subject} from "rxjs/Subject";
 import {APIService, UserService} from "../../../services";
 import {Page} from "../../../models/page";
-import {Balance} from "../../../interfaces/balance";
+import {TransactionsList} from "../../../interfaces/transactions-list";
 
 @Component({
   selector: 'app-all-transactions-page',
@@ -23,14 +23,17 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   public page = new Page();
-  public rows: Array<any> = [];
-  public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
+  public rows: TransactionsList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
-  public balance: Balance;
+  public offset: number = 0;
+  public pagination = {
+    prev: '0',
+    next: '0'
+  }
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -41,10 +44,7 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.page.pageNumber = 0;
-    this.page.size = 10;
-
-    this.setPage({ offset: 0 });
+    this.setPage(0);
 
     this.isMobile = (window.innerWidth <= 992);
     this.userService.windowSize$.takeUntil(this.destroy$).subscribe(width => {
@@ -53,33 +53,34 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSort(event) {
-    this.sorts = event.sorts;
-    this.setPage({ offset: 0 });
-  }
-
-  setPage(pageInfo) {
+  setPage(from: number | string) {
     this.loading = true;
-    this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getAllTransactions(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getScannerTxList(0, 0, from)
       .finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
         this.cdRef.markForCheck();
       })
-      .subscribe(
-        res => {
-          this.isLastPage = false;
-          this.rows = res['data'].items.map(item => {
-            item.timeStamp = new Date(item.timeStamp.toString() + 'Z');
-            return item;
-          });
+      .subscribe((data: any) => {
+        this.isLastPage = false;
+        this.rows = data.res.list ? data.res.list : [];
 
-          this.page.totalElements = res['data'].total;
-          this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
-          !this.rows.length && (this.isLastPage = true);
-        });
+        this.pagination.prev = this.offset > 1 ? this.pagination.next : '0';
+        this.pagination.next = this.rows.length && this.rows[this.rows.length - 1].transaction.digest;
+
+        !this.rows.length && (this.isLastPage = true);
+      });
+  }
+
+  prevPage() {
+    this.offset--;
+    this.setPage(this.pagination.prev);
+  }
+
+  nextPage() {
+    this.offset++;
+    this.setPage(this.pagination.next);
   }
 
   ngOnDestroy() {

@@ -41,15 +41,14 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public numberTx: number = 0;
   public anyChartRewardData = [];
   public anyChartTxData = [];
-  public transactionsList: TransactionsList[];
-  public blocksList: BlocksList[];
+  public transactionsList: TransactionsList[] = [];
+  public blocksList: BlocksList[] = [];
   public switchModel: {
     type: 'gold'|'mnt'
   };
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
-  private lastItems: number = 5;
   private charts = {
     reward: {},
     tx: {}
@@ -85,20 +84,19 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     });
 
     const combined = combineLatest(
-      this.apiService.getStatus(),
-      this.apiService.getTransactions(this.lastItems),
-      this.apiService.getBlocks(this.lastItems),
-      this.apiService.getDailyStatistic()
+      this.apiService.getScannerStatus(),
+      this.apiService.getScannerDailyStatistic(),
+      this.apiService.getScannerBlockList(0),
+      this.apiService.getScannerTxList(0, 0, 0)
     );
 
     combined.subscribe((data: any) => {
       this.setStatisticData(data[0]);
-      this.getChartsData(data[3]['res']);
+      this.setChartsData(data[1].res);
+      this.setBlockAndTransactionsInfo(data[2].res.list, data[3].res.list)
 
       this.initRewardChart();
       this.initTxChart();
-
-      this.setBlockAndTransactionsInfo(data[1]['data'], data[2]['data'])
 
       this.isDataLoaded = true;
       this.cdRef.markForCheck();
@@ -111,16 +109,16 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
   updateData() {
     const combined = combineLatest(
-      this.apiService.getStatus(),
-      this.apiService.getTransactions(this.lastItems),
-      this.apiService.getBlocks(this.lastItems),
-      this.apiService.getDailyStatistic()
+      this.apiService.getScannerStatus(),
+      this.apiService.getScannerDailyStatistic(),
+      this.apiService.getScannerBlockList(0),
+      this.apiService.getScannerTxList(0, 0, 0)
     );
 
-    combined.subscribe(data => {
+    combined.subscribe((data: any) => {
       this.setStatisticData(data[0]);
-      this.setBlockAndTransactionsInfo(data[1]['data'], data[2]['data']);
-      this.getChartsData(data[3]['res']);
+      this.setChartsData(data[1].res);
+      this.setBlockAndTransactionsInfo(data[2].res.list, data[3].res.list);
       this.updateChartsData();
 
       this.cdRef.markForCheck();
@@ -134,9 +132,21 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.charts['tx']['table'].addData(this.anyChartTxData);
   }
 
-  getChartsData(res) {
-    this.setCommissionChartData(res);
-    this.setTxChartData(res);
+  setChartsData(res) {
+    if (res) {
+      res.forEach(item => {
+        const date = new Date(item.timestamp * 1000);
+        let month = (date.getMonth()+1).toString(),
+            day = date.getDate().toString();
+
+        month.length === 1 && (month = '0' + month);
+        day.length === 1 && (day = '0' + day);
+
+        const dateString = date.getFullYear() + '-' + month + '-' + day;
+        this.anyChartRewardData.push([dateString, +item.fee_gold, +item.fee_mnt]);
+        this.anyChartTxData.push([dateString, item.transactions]);
+      });
+    }
   }
 
   setStatisticData(data) {
@@ -145,16 +155,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.numberTx = data.res.blockchain_state.transaction_count;
   }
 
-  setBlockAndTransactionsInfo(txs, blocks) {
-    this.transactionsList = txs.map(item => {
-      item.timeStamp = new Date(item.timeStamp.toString() + 'Z');
-      return item;
-    });
-
-    this.blocksList = blocks.map(item => {
-      item.timeStamp = new Date(item.timeStamp.toString() + 'Z');
-      return item;
-    });
+  setBlockAndTransactionsInfo(blockList: BlocksList[], txList: TransactionsList[]) {
+    blockList && (this.blocksList = blockList.slice(0, 5));
+    txList && (this.transactionsList = txList.slice(0, 5));
   }
 
   checkAddress(address: string, type: string) {
@@ -181,30 +184,6 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     let crc = crcBytes[0] | crcBytes[1] << 8 | crcBytes[2] << 16 | crcBytes[3] << 24;
 
     type === 'address' ? this.isValidSumusAddress = payloadCrc === crc : this.isValidDigest = payloadCrc === crc;
-  }
-
-  setCommissionChartData(data) {
-    if (data) {
-      data.forEach(item => {
-        const date = new Date(item.timestamp * 1000);
-        let month = (date.getMonth()+1).toString();
-        month.length === 1 && (month = '0' + month);
-        const dateString = date.getFullYear() + '-' + month + '-' + date.getDate();
-        this.anyChartRewardData.push([dateString, +item.fee_gold, +item.fee_mnt]);
-      });
-    }
-  }
-
-  setTxChartData(data) {
-    if (data) {
-      data.forEach(item => {
-        const date = new Date(item.timestamp * 1000);
-        let month = (date.getMonth()+1).toString();
-        month.length === 1 && (month = '0' + month);
-        const dateString = date.getFullYear() + '-' + month + '-' + date.getDate();
-        this.anyChartTxData.push([dateString, item.transactions]);
-      });
-    }
   }
 
   toggleCommissionChart(isGold: boolean) {
