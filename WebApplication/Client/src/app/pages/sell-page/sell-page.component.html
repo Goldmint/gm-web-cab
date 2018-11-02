@@ -11,7 +11,7 @@
 
     <ng-template #blockLoaded>
       <div *ngIf="!isBlockedCountry">
-        <ng-container *ngIf="!user.verifiedL1; else blockMethods">
+        <ng-container *ngIf="isAuthenticated && !user?.verifiedL1; else blockMethods">
 
           <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
 
@@ -50,26 +50,26 @@
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnCryptoCapital">{{ "PAGES.Sell.Method.CtyptoCurrency" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                        [disabled]="!tradingStatus.ethAllowed || isInvalidNetwork">
+                        [disabled]="isAuthenticated && (!tradingStatus?.ethAllowed || isInvalidNetwork)">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-crypto"></use>
                   </svg>
                 </button>
                 <div  class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!tradingStatus.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
+                  <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>
 
               <div class="col col-xl-3 form-group text-center">
                 <label for="btnPaymentCard">{{ "PAGES.Sell.Method.PaymentCard" | translate }}</label>
                 <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                        [disabled]="!tradingStatus.creditCardSellingAllowed || isInvalidNetwork">
+                        [disabled]="!isAuthenticated || (!tradingStatus?.creditCardSellingAllowed || isInvalidNetwork)">
                   <svg class="icon" width="56px" height="56px">
                     <use xlink:href="#payment-card"></use>
                   </svg>
                 </button>
                 <div class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="!tradingStatus.creditCardSellingAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
+                  <div *ngIf="!tradingStatus?.creditCardSellingAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>
 

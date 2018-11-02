@@ -146,7 +146,7 @@
         </div>
       </div>
 
-      <div class="col-auto mt-4 mb-3 mobile-account-info">
+      <div class="col-auto mt-4 mb-3 mobile-account-info" *ngIf="isLoggedIn()">
         <div class="auth-info">
           <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
             <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">

@@ -95,7 +95,7 @@
                              (input)="inputPromoCode($event.target.value)"
                              autocomplete="off"
                              [ngClass]="{'is-invalid': isInvalidPromoCode}"
-                             [disabled]="loading || !user?.verifiedL1">
+                             [disabled]="loading || (isAuthenticated && !user?.verifiedL1)">
                     </div>
                     <div class="invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
                       {{ "PAGES.Buy.Errors.IncorrectPromo" | translate }}
@@ -107,8 +107,8 @@
                       {{ "PAGES.Buy.Promo.PromoInfo.Text" | translate }} {{ discount }}%
                       {{ "PAGES.Buy.Promo.PromoInfo.Or" | translate }} {{ goldAmount | goldDiscount:discount }} GOLD
                     </div>
-                    <div *ngIf="!user?.verifiedL1">
-                      {{ "PAGES.Buy.CtyptoCurrency.Information.PromoPermission" | translate }}
+                    <div *ngIf="isAuthenticated && !user?.verifiedL1">
+                      {{ "PAGES.Buy.Promo.PromoPermission" | translate }}
                     </div>
                   </div>
                 </div>

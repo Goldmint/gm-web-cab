@@ -30,7 +30,12 @@
         "MasterNode": "Мастер нода",
         "Scanner": "Сканер"
       },
-      "PAWN": "PAWN MARKETPLACE"
+      "Pawnshop": {
+        "Heading": "Pawnshop Loans",
+        "Feed": "Feed",
+        "Buy": "Buy",
+        "Sell": "Sell"
+      }
     }
   },
   "FOOTER": {
@@ -759,6 +764,7 @@
     "History": {
       "Heading": "История",
       "SectionTitle": "Операции",
+      "noAuthenticatedBlock": "Здесь Вы увидите свои транзакции",
       "Table": {
         "Columns": {
           "Date": "Дата",
@@ -1446,6 +1452,17 @@
         "GetWallet": "Получить Lite Wallet"
       }
     },
+    "Pawnshop": {
+      "Feed": {
+        "Heading": "Feed"
+      },
+      "Buy": {
+        "Heading": "Buy"
+      },
+      "Sell": {
+        "Heading": "Sell"
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Ошибка 404. Страница не найдена",
@@ -1540,6 +1557,13 @@
     "LoginToLiteWallet": {
       "Heading": "МИГРАЦИЯ ТОКЕНОВ",
       "Text": "Войдите в свой аккаунт"
+    },
+    "AuthModal": {
+      "Text": "Чтоб продолжить, Вам необходимо войти в систему или создать новый аккаунт.",
+      "Buttons": {
+        "SignIn": "Войти",
+        "SignUp": "Создать аккаунт"
+      }
     },
     "InvalidNetwork": "Вы должны использовать {{ network }} сеть",
     "logOut": "Вы действительно хотите выйти?",

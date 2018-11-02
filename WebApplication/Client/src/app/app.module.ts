@@ -120,8 +120,12 @@ import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/ad
 import {MomentModule} from "ngx-moment";
 import {DeviceDetectorModule} from "ngx-device-detector";
 import {NgxMaskModule} from "ngx-mask";
-import { PawnMarketplacePageComponent } from './pages/pawn-marketplace-page/pawn-marketplace-page.component';
 import { WalletPageComponent } from './pages/wallet-page/wallet-page.component';
+import { AuthModalComponent } from './common/message-box/auth-modal/auth-modal.component';
+import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
+import { PawnshopFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component';
+import { PawnshopBuyPageComponent } from './pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component';
+import { PawnshopSellPageComponent } from './pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -228,8 +232,12 @@ export function getGoldmintToken() {
     AllTransactionsPageComponent,
     AllBlocksPageComponent,
     AddressInfoPageComponent,
-    PawnMarketplacePageComponent,
-    WalletPageComponent
+    WalletPageComponent,
+    AuthModalComponent,
+    PawnshopPageComponent,
+    PawnshopFeedPageComponent,
+    PawnshopBuyPageComponent,
+    PawnshopSellPageComponent
   ],
   exports: [],
   providers: [
@@ -254,7 +262,8 @@ export function getGoldmintToken() {
     }
   ],
   entryComponents: [
-    MessageBoxComponent
+    MessageBoxComponent,
+    AuthModalComponent
   ],
   bootstrap: [AppComponent]
 })

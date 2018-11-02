@@ -75,6 +75,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public getLimitSub: Subscription;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
 
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -91,6 +92,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   ) { }
 
   ngOnInit() {
+    this.isAuthenticated = this._userService.isAuthenticated();
+
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
       this._cdRef.markForCheck();
@@ -116,7 +119,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       }, 3000);
     }
 
-    Observable.combineLatest(
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
     )
@@ -430,6 +433,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this._messageBox.authModal();
+      return;
+    }
+
     this.transferData = {
       type: 'sell',
       ethAddress: this.ethAddress,

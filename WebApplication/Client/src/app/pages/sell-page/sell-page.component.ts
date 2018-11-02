@@ -29,6 +29,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public isBlockedCountry: boolean = false;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -42,7 +43,10 @@ export class SellPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(
+    this.isAuthenticated = this._userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile(),
       this._apiService.getTradingStatus(),

@@ -10,7 +10,7 @@ import { MessageType } from './message-box.enum';
 })
 export class MessageBoxComponent {
   public types = MessageType;
-  /*private _*/onClose: Subject<boolean|string|null>;
+  public onClose: Subject<boolean|string|null>;
   public _promptValue: string;
 
   public id: string;
@@ -51,9 +51,4 @@ export class MessageBoxComponent {
     this.callback(this);
     this._bsModalRef.hide();
   }
-
-  // get observable() {
-  //   this._onClose.asObservable();
-  // }
-
 }

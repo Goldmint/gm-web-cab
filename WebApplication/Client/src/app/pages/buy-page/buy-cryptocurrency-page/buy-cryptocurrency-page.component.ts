@@ -69,6 +69,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public discount: number = 0;
   public isInvalidPromoCode: boolean = false;
   public promoCodeErrorCode: string = null;
+  public isAuthenticated: boolean = false;
 
   private promoCodeLength: number = 11;
   private timeoutPopUp;
@@ -86,6 +87,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.isAuthenticated = this._userService.isAuthenticated();
+
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
       this._cdRef.markForCheck();
@@ -111,7 +114,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
       }, 3000);
     }
 
-    Observable.combineLatest(
+    this._userService.isAuthenticated() && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
     )
@@ -341,6 +344,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this._messageBox.authModal();
+      return;
+    }
+
     this.transferData = {
       type: 'buy',
       ethAddress: this.ethAddress,

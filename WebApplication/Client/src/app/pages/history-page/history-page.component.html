@@ -1,6 +1,4 @@
 <!-- <div class="page"> -->
-  <!-- <h1 class="page__heading">{{ "PAGES.History.Heading" | translate }}</h1> -->
-
   <section class="page__section section section--table">
     <h2 class="section__title" id="pageSectionTitle">{{ "PAGES.History.SectionTitle" | translate }}</h2>
 
@@ -8,7 +6,11 @@
       <div class="container"></div>
     </div>
 
-    <div class="section__content">
+    <div *ngIf="!isAuthenticated" class="mt-4">
+      {{ "PAGES.History.noAuthenticatedBlock" | translate }}
+    </div>
+
+    <div class="section__content" *ngIf="isAuthenticated">
       <ngx-datatable class="table history-table" #table
         [rows]="rows"
         [columnMode]="'force'"

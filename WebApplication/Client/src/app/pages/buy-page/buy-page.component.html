@@ -16,27 +16,27 @@
             <div class="col col-xl-3 form-group text-center">
               <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                      [disabled]="!tradingStatus.ethAllowed || isInvalidNetwork">
+                      [disabled]="isAuthenticated && (!tradingStatus?.ethAllowed || isInvalidNetwork)">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-crypto"></use>
                 </svg>
               </button>
               <div  class="text-left pt-1 blocked-notification text-center">
-                <div *ngIf="!tradingStatus.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
+                <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
               </div>
             </div>
 
             <div class="col col-xl-3 form-group text-center">
               <label for="btnPaymentCard">{{ "PAGES.Buy.Method.PaymentCard" | translate }}</label>
               <button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"
-                      [disabled]="!tradingStatus.creditCardBuyingAllowed || isInvalidNetwork || !user.verifiedL1">
+                      [disabled]="!tradingStatus?.creditCardBuyingAllowed || isInvalidNetwork || !user?.verifiedL1">
                 <svg class="icon" width="56px" height="56px">
                   <use xlink:href="#payment-card"></use>
                 </svg>
               </button>
               <div class="text-left pt-1 blocked-notification text-center">
-                <div *ngIf="!tradingStatus.creditCardBuyingAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
-                <div *ngIf="!user.verifiedL1 && !loading">{{ "PAGES.Buy.Errors.NoKyc" | translate }}</div>
+                <div *ngIf="isAuthenticated && !tradingStatus?.creditCardBuyingAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
+                <div *ngIf="!user?.verifiedL1 && !loading">{{ "PAGES.Buy.Errors.NoKyc" | translate }}</div>
               </div>
             </div>
 

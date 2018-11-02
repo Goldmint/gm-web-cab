@@ -57,6 +57,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   public isAddressLoaded: boolean = false;
   public etherscanUrl = environment.etherscanUrl;
   public user: User;
+  public isAuthenticated: boolean = false;
 
   private Web3: Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -74,8 +75,7 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     ) { }
 
   ngOnInit() {
-    interval(500).subscribe(this.checkLiteWallet.bind(this));
-
+    this.isAuthenticated = this.userService.isAuthenticated();
     this.loading = true;
     this.tokenModel = {
       type: 'GOLD'
@@ -85,23 +85,35 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     };
     this.direction = this.tokenModel.type + this.directionModel.type;
 
-    this.apiService.getProfile().subscribe(data => {
+    if (!this.isAuthenticated) {
+      this.getDataForMigration(false);
+      this.isDataLoaded = this.isAddressLoaded = true;
+      this._cdRef.markForCheck();
+    }
+
+    interval(500).subscribe(this.checkLiteWallet.bind(this));
+
+    this.isAuthenticated && this.apiService.getProfile().subscribe(data => {
       this.user = data.data;
       this.isDataLoaded = true;
 
       if (this.user.verifiedL0) {
-        this.initGoldMigrationModal();
-        this.initMntpMigrationModal();
-
-        this.getTokenBalance();
-        this.getEthAddress();
-        this.getMigrationStatus();
-
-        this.detectMetaMask();
-        this.detectLiteWallet();
+        this.getDataForMigration(true);
       }
       this._cdRef.markForCheck();
     });
+  }
+
+  getDataForMigration(isAuthenticated) {
+    this.initGoldMigrationModal();
+    this.initMntpMigrationModal();
+
+    this.getTokenBalance();
+    this.getEthAddress();
+    isAuthenticated && this.getMigrationStatus();
+
+    this.detectMetaMask();
+    this.detectLiteWallet();
   }
 
   getTokenBalance() {
@@ -281,6 +293,11 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this.messageBox.authModal();
+      return;
+    }
+
     let methodsMap = {
       GOLDeth: this.apiService.goldMigrationEth,
       GOLDsumus: this.apiService.goldMigrationSumus,

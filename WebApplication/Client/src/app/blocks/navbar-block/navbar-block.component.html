@@ -40,7 +40,21 @@
     </li>
 
     <li class="nav-item" routerLinkActive="active">
-      <a class="nav-link" routerLink="/pawn-marketplace">{{ "HEADER.Menu.PAWN" | translate }}</a>
+      <a class="nav-link" routerLink="/pawnshop-loans">{{ "HEADER.Menu.Pawnshop.Heading" | translate }}</a>
+
+      <div class="sub-nav-container">
+        <ul class="nav nav-pills nav-justified sub-nav">
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/pawnshop-loans/feed">{{ "HEADER.Menu.Pawnshop.Feed" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/pawnshop-loans/buy">{{ "HEADER.Menu.Pawnshop.Buy" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/pawnshop-loans/sell">{{ "HEADER.Menu.Pawnshop.Sell" | translate }}</a>
+          </li>
+        </ul>
+      </div>
     </li>
   </ul>
 </nav>

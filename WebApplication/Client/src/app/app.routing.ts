@@ -37,14 +37,17 @@ import {BuyCardPageComponent} from "./pages/buy-page/buy-card-page/buy-card-page
 import {SellCardPageComponent} from "./pages/sell-page/sell-card-page/sell-card-page.component";
 import {TransferPageComponent} from "./pages/transfer-page/transfer-page.component";
 import {MasterNodePageComponent} from "./pages/master-node-page/master-node-page.component";
-import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
 import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
 import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
 import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions-page/all-transactions-page.component";
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
-import {PawnMarketplacePageComponent} from "./pages/pawn-marketplace-page/pawn-marketplace-page.component";
 import {WalletPageComponent} from "./pages/wallet-page/wallet-page.component";
+import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
+import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
+import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component";
+import {PawnshopBuyPageComponent} from "./pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component";
+import {PawnshopSellPageComponent} from "./pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component";
 
 
 const appRoutes: Routes = [
@@ -59,19 +62,19 @@ const appRoutes: Routes = [
   { path: 'signup/confirmed/:token', component: RegisterEmailConfirmedPageComponent },
   { path: 'signup/emailTaken', component: RegisterEmailTakenPageComponent },
   { path: 'signup/2fa', component: RegisterTfaPageComponent },
-  { path: 'home', component: HomePageComponent, canActivate: [AuthGuard] },
-  { path: 'buy', component: BuyPageComponent, canActivate: [AuthGuard] },
-  { path: 'master-node', component: MasterNodePageComponent, canActivate: [AuthGuard] },
-  { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'home', component: HomePageComponent },
+  { path: 'buy', component: BuyPageComponent },
+  { path: 'master-node', component: MasterNodePageComponent},
+  { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent },
   { path: 'buy/payment-card', component: BuyCardPageComponent, canActivate: [AuthGuard] },
-  { path: 'sell', component: SellPageComponent, canActivate: [AuthGuard] },
-  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'sell', component: SellPageComponent },
+  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent },
   { path: 'sell/payment-card', component: SellCardPageComponent, canActivate: [AuthGuard] },
-  { path: 'transfer', component: TransferPageComponent, canActivate: [AuthGuard] },
+  { path: 'transfer', component: TransferPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {
-    path: 'finance', component: FinancePageComponent, canActivate: [AuthGuard],
+    path: 'finance', component: FinancePageComponent,
     children: [
       { path: '', redirectTo: 'history', pathMatch: 'full' },
       { path: 'history', component: HistoryPageComponent }
@@ -93,7 +96,6 @@ const appRoutes: Routes = [
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
-  { path: 'pawn-marketplace', component: PawnMarketplacePageComponent, canActivate: [AuthGuard] },
   { path: 'wallet', component: WalletPageComponent },
   { path: 'transparency', component: TransparencyPageComponent },
   { path: 'scanner', component: ScanerPageComponent },
@@ -102,6 +104,15 @@ const appRoutes: Routes = [
   { path: 'scanner/blocks', component: AllBlocksPageComponent },
   { path: 'scanner/transactions', component: AllTransactionsPageComponent },
   { path: 'scanner/transactions-in-block/:id', component: TransactionsInBlockPageComponent },
+  { path: 'pawnshop-loans', component: PawnshopPageComponent, /*canActivate: [AuthGuard],*/
+    children: [
+      { path: '', redirectTo: 'feed', pathMatch: 'full' },
+      { path: 'feed', component: PawnshopFeedPageComponent },
+      { path: 'buy', component: PawnshopBuyPageComponent },
+      { path: 'sell', component: PawnshopSellPageComponent }
+    ]
+  },
+
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }
 ];
