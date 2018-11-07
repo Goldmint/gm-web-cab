@@ -55,28 +55,28 @@
             </div>
           </div>
 
-          <div *ngIf="!isMobile">|</div>
+          <!--<div *ngIf="!isMobile">|</div>-->
 
-          <div class="col-auto" *ngIf="!isMobile">
-            <div class="auth-info">
-              <div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">
-                <div dropdown position="bottom right" class="language__select" #network="bs-dropdown">
-                  <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">
-                    {{ sumusNetwork }} {{ 'HEADER.Network.Label' | translate }}
-                  </a>
+          <!--<div class="col-auto" *ngIf="!isMobile">-->
+            <!--<div class="auth-info">-->
+              <!--<div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">-->
+                <!--<div dropdown position="bottom right" class="language__select" #network="bs-dropdown">-->
+                  <!--<a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">-->
+                    <!--{{ sumusNetwork }} {{ 'HEADER.Network.Label' | translate }}-->
+                  <!--</a>-->
 
-                  <ul *dropdownMenu class="dropdown-menu" role="menu">
-                    <li role="menuitem" (click)="changeSumusNetwork('MainNet')">
-                      <a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.MainNet' | translate }}</a>
-                    </li>
-                    <li role="menuitem" (click)="changeSumusNetwork('TestNet')">
-                      <a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.TestNet' | translate }}</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+                  <!--<ul *dropdownMenu class="dropdown-menu" role="menu">-->
+                    <!--<li role="menuitem" (click)="changeSumusNetwork('MainNet')">-->
+                      <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.MainNet' | translate }}</a>-->
+                    <!--</li>-->
+                    <!--<li role="menuitem" (click)="changeSumusNetwork('TestNet')">-->
+                      <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.TestNet' | translate }}</a>-->
+                    <!--</li>-->
+                  <!--</ul>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
 
           <div *ngIf="!isMobile">|</div>
 
@@ -101,6 +101,10 @@
         </div>
 
         <ng-template #loginBlock>
+          <div class="col-auto auth-info" *ngIf="!isLoggedInToMM && !metamaskAccount && !isMobile">
+            {{ 'HEADER.NotLoggedInMM' | translate }}
+          </div>
+
           <div class="col-auto auth-info">
             <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
           </div>
@@ -125,26 +129,26 @@
 
   <div id="mobile-menu-container" *ngIf="isShowMobileMenu">
     <div>
-      <div class="col-auto mt-4 mb-3 mobile-account-info">
-        <div class="auth-info">
-          <div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">
-            <div dropdown position="bottom right" class="language__select" #network="bs-dropdown">
-              <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">
-                {{ sumusNetwork }} {{ 'HEADER.Network.Label' | translate }}
-              </a>
+      <!--<div class="col-auto mt-4 mb-3 mobile-account-info">-->
+        <!--<div class="auth-info">-->
+          <!--<div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">-->
+            <!--<div dropdown position="bottom right" class="language__select" #network="bs-dropdown">-->
+              <!--<a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">-->
+                <!--{{ sumusNetwork }} {{ 'HEADER.Network.Label' | translate }}-->
+              <!--</a>-->
 
-              <ul *dropdownMenu class="dropdown-menu" role="menu">
-                <li role="menuitem" (click)="changeSumusNetwork('MainNet')">
-                  <a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.MainNet' | translate }}</a>
-                </li>
-                <li role="menuitem" (click)="changeSumusNetwork('TestNet')">
-                  <a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.TestNet' | translate }}</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+              <!--<ul *dropdownMenu class="dropdown-menu" role="menu">-->
+                <!--<li role="menuitem" (click)="changeSumusNetwork('MainNet')">-->
+                  <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.MainNet' | translate }}</a>-->
+                <!--</li>-->
+                <!--<li role="menuitem" (click)="changeSumusNetwork('TestNet')">-->
+                  <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.TestNet' | translate }}</a>-->
+                <!--</li>-->
+              <!--</ul>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
 
       <div class="col-auto mt-4 mb-3 mobile-account-info" *ngIf="isLoggedIn()">
         <div class="auth-info">

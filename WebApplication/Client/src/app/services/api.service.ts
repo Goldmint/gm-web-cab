@@ -26,16 +26,16 @@ export class APIService {
 
   private _baseUrl = environment.apiUrl;
   private _walletBaseUrl = environment.walletApiUrl;
-  private _sumusBaseUrl;
+  private _sumusBaseUrl = environment.sumusNetworkUrl;
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
   public transferCurrentSumusNetwork = new Subject();
 
   constructor(private _http: HttpClient) {
-    this.transferCurrentSumusNetwork.subscribe((network: any) => {
-      this._sumusBaseUrl = environment.sumusNetworkUrl[network];
-    });
+    // this.transferCurrentSumusNetwork.subscribe((network: any) => {
+    //   this._sumusBaseUrl = environment.sumusNetworkUrl[network];
+    // });
   }
 
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {

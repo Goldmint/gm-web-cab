@@ -101,7 +101,7 @@
               </div>
 
               <div class="col mt-1 mb-4">
-                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !sumusAddress || !isAddressLoaded || loading"
+                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !isMetamask || !sumusAddress || !isAddressLoaded || loading"
                         (click)="onSubmit()">Go</button>
                 <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
               </div>

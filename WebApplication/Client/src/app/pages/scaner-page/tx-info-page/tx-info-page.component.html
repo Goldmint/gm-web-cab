@@ -9,46 +9,48 @@
       <div class="container"></div>
     </div>
 
-    <div class="scanner-info-container" *ngIf="tx && tx.transaction && !isPending">
-      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Hash" | translate }} </b>
-        <div class="overflow-ellipsis ml-1"> {{ digest }}</div>
-      </div>
+    <div *ngIf="!isInvalidDigest">
 
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.TimeStamp" | translate }} </b>
-        {{ tx.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
-      </div>
-
-      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Destination" | translate }} </b>
-        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + tx.transaction.to">
-          {{ tx.transaction.to }}
+      <div class="scanner-info-container" *ngIf="tx && tx.transaction && !isPending">
+        <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Hash" | translate }} </b>
+          <div class="overflow-ellipsis ml-1"> {{ digest }}</div>
         </div>
-      </div>
 
-      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Source" | translate }} </b>
-        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + tx.transaction.from">
-          {{ tx.transaction.from }}
+        <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.TimeStamp" | translate }} </b>
+          {{ tx.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
         </div>
-      </div>
 
-      <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
-        <span class="ml-2">
+        <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Destination" | translate }} </b>
+          <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + tx.transaction.to">
+            {{ tx.transaction.to }}
+          </div>
+        </div>
+
+        <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionInfo.Labels.Source" | translate }} </b>
+          <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + tx.transaction.from">
+            {{ tx.transaction.from }}
+          </div>
+        </div>
+
+        <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
+          <span class="ml-2">
           <div>{{ +tx.transaction.amount_gold }} GOLD</div>
           <div>{{ +tx.transaction.amount_mnt }} MNT</div>
         </span>
-      </div>
-
-      <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.BlockNumber" | translate }} </b>
-        <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + tx.transaction.block">
-          {{ tx.transaction.block }}
         </div>
-      </div>
 
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataSize" | translate }} </b>
-        {{ tx.transaction.data_size }}
-      </div>
+        <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.BlockNumber" | translate }} </b>
+          <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + tx.transaction.block">
+            {{ tx.transaction.block }}
+          </div>
+        </div>
 
-      <div class="my-1" *ngIf="tx.transaction.data_piece"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataPiece" | translate }} </b>
-        <span class="ml-2">
+        <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataSize" | translate }} </b>
+          {{ tx.transaction.data_size }}
+        </div>
+
+        <div class="my-1" *ngIf="tx.transaction.data_piece"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.DataPiece" | translate }} </b>
+          <span class="ml-2">
           <div class="col-auto btn-group p-0 mn-tabs">
             <label class="btn btn-primary btn-sm active wrap data-piece-switcher"
                    name="limitsSwitchModel.type"
@@ -62,25 +64,29 @@
                    (click)="changeViewDataPiece(false)">HEX</label>
           </div>
         </span>
-        <div class="word-break mt-2">
-          <span *ngIf="isTextDataPiece">{{ dataPiece.text }}</span>
-          <span *ngIf="!isTextDataPiece">0x{{ dataPiece.hex }}</span>
-          <div *ngIf="dataPiece.size"> {{ "PAGES.Scanner.TransactionInfo.Labels.MoreBytes" | translate:{bytes: dataPiece.size} }}</div>
+          <div class="word-break mt-2">
+            <span *ngIf="isTextDataPiece">{{ dataPiece.text }}</span>
+            <span *ngIf="!isTextDataPiece">0x{{ dataPiece.hex }}</span>
+            <div *ngIf="dataPiece.size"> {{ "PAGES.Scanner.TransactionInfo.Labels.MoreBytes" | translate:{bytes: dataPiece.size} }}</div>
+          </div>
+        </div>
+
+        <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Name" | translate }} </b>
+          {{ tx.transaction.name }}
+        </div>
+
+        <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Status" | translate }} </b>
+          <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + tx.status" class="tx-status-{{ tx.status }}"></span>
         </div>
       </div>
 
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Name" | translate }} </b>
-        {{ tx.transaction.name }}
-      </div>
+      <div class="text-center" *ngIf="isNotFound">{{ "PAGES.Scanner.TransactionInfo.NotFound" | translate }}</div>
 
-      <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Status" | translate }} </b>
-        <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + tx.status" class="tx-status-{{ tx.status }}"></span>
-      </div>
+      <div class="text-center" *ngIf="tx && tx.transaction && isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
+
     </div>
 
-    <div class="text-center" *ngIf="isNotFound">{{ "PAGES.Scanner.TransactionInfo.NotFound" | translate }}</div>
-
-    <div class="text-center" *ngIf="tx && tx.transaction && isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
+    <div class="text-center" *ngIf="isInvalidDigest">{{ "PAGES.Scanner.TransactionInfo.InvalidDigest" | translate }}</div>
 
   </div>
 </section>

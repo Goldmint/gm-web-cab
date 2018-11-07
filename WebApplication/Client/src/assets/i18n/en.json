@@ -11,6 +11,7 @@
     "SignUp": "Sign up",
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
+    "NotLoggedInMM": "For smooth-running please authorize in your MetaMask account",
     "Network": {
       "Label": "network",
       "MainNet": "MainNet network",
@@ -18,7 +19,7 @@
     },
     "Menu": {
       "Exchange": {
-        "Heading": "Exchange",
+        "Heading": "Interchange",
         "Sell": "Sell GOLD",
         "Buy": "Buy GOLD",
         "Transfer": "Transfer GOLD",
@@ -349,7 +350,8 @@
         "Labels": {
           "QuantityBlocks": "Quantity of block:",
           "QuantityTx": "Quantity of transactions:",
-          "QuantityNodes": "Quantity of nodes:"
+          "QuantityNodes": "Quantity of nodes:",
+          "Or": "OR"
         },
         "Charts": {
           "Reward": "Collected commission by days chart",
@@ -375,7 +377,6 @@
             "From": "From:",
             "To": "To:",
             "Amount": "Amount:",
-            "Name": "Name:",
             "Status": "Status:",
             "Date": "Create date:"
           },
@@ -415,9 +416,8 @@
           "Signers": "Signers:",
           "Total": "Total:",
           "Fee": "Fee:",
-          "Orchestrator": "Mined by:",
-          "PrevDigest": "Previous digest:",
-          "MerkleRoot": "Merkle root:"
+          "Orchestrator": "Mined by master node:",
+          "PrevDigest": "Previous digest:"
         },
         "Table": {
           "Digest": "Digest",
@@ -449,7 +449,8 @@
           "To": "To",
           "Value": "Amount",
           "Name": "Name"
-        }
+        },
+        "InvalidAddress": "Invalid address"
       },
       "TransactionInfo": {
         "Heading": "Transaction info",
@@ -475,7 +476,8 @@
           "notfound": "Not found"
         },
         "NotFound": "Transaction not found",
-        "Pending": "Transaction is pending"
+        "Pending": "Transaction is pending",
+        "InvalidDigest": "Invalid digest"
       },
       "Errors": {
         "Required": "Field is required",
@@ -1514,6 +1516,7 @@
     "1010": "You have exceeded request frequency (One request for 30 minutes). Please try later",
     "1012": "Your previously blockchain operation is still pending",
     "default": "Sorry, somethings went wrong (error code {{ errorCode }})",
+    "wrong": "Sorry, somethings went wrong",
     "notFound": {
       "title": "Connection error",
       "message": "Goldmint server does not respond. Please try again in few minutes."

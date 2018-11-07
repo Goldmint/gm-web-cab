@@ -55,12 +55,6 @@
           {{ block.prev_digest }}
         </div>
       </div>
-
-      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionsInBlock.Labels.MerkleRoot" | translate }} </b>
-        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + block.merkle_root">
-          {{ block.merkle_root }}
-        </div>
-      </div>
     </div>
 
     <ngx-datatable class="table table--no-footer txs-table" #table

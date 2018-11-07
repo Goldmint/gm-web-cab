@@ -30,10 +30,23 @@
   margin-bottom: 0
 
 .scanner .invalid-feedback--abs
-  bottom: 5px
+  bottom: -20px
 
 .bdr-none
   border-right: none
+
+.scanner-address-input, .scanner-digest-input
+  width: 46%
+
+  .form-group
+    margin-bottom: 0
+    input
+      margin-bottom: 0
+
+.scanner-or-label
+  width: 8%
+  padding-top: 11px
+  text-align: center
 
 @media only screen and (max-width: 404px)
   .commission-chart-switch-cont
@@ -45,3 +58,9 @@
 
   .blocks-container, .transaction-container
     width: 100%
+
+  .scanner-address-input, .scanner-digest-input, .scanner-or-label
+    width: 100%
+
+  .scanner-or-label
+    padding: 1rem 0

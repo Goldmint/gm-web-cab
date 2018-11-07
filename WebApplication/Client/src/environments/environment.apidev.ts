@@ -5,10 +5,11 @@ export const environment = {
     name: 'Rinkeby',
     index: 4
   },
-  sumusNetworkUrl: {
-    MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
-    TestNet: 'https://service.goldmint.io/sumus/testnet/v1'
-  },
+  // sumusNetworkUrl: {
+  //   MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
+  //   TestNet: 'https://service.goldmint.io/sumus/testnet/v1'
+  // },
+  sumusNetworkUrl: 'https://service.goldmint.io/sumus/testnet/v1',
   apiUrl: 'http://localhost:8000/api/v1',
   walletApiUrl: 'https://staging.goldmint.io/wallet/api/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',

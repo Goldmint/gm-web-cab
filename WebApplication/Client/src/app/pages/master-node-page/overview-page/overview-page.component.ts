@@ -1,18 +1,18 @@
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Component,
+  Component, HostListener,
   OnDestroy,
   OnInit, TemplateRef,
   ViewEncapsulation
 } from '@angular/core';
 import {combineLatest} from "rxjs/observable/combineLatest";
 import {APIService, UserService} from "../../../services";
-//import {Balance} from "../../../interfaces/balance";
 import {Subject} from "rxjs/Subject";
 import {Page} from "../../../models/page";
 import {BsModalRef, BsModalService} from "ngx-bootstrap";
 import {TranslateService} from "@ngx-translate/core";
+import 'anychart';
 
 @Component({
   selector: 'app-overview-page',
@@ -22,6 +22,14 @@ import {TranslateService} from "@ngx-translate/core";
   encapsulation: ViewEncapsulation.None
 })
 export class OverviewPageComponent implements OnInit, OnDestroy {
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    let isMobile = event.target.innerWidth <= 992;
+    this.isMobile !== isMobile && this.redrawingMiniCharts();
+    this.isMobile = isMobile;
+    this.cdRef.markForCheck();
+  }
 
   public numberNodes: number;
   public numberMNT: number;
@@ -33,7 +41,6 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
-  //public balance: Balance;
 
   private charts = {};
   private miniCharts = [];
@@ -50,12 +57,13 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.isMobile = (window.innerWidth <= 992);
     this.page.pageNumber = 0;
     this.page.size = 10;
 
     this.setPage({ offset: 0 });
 
-    /*const combined = combineLatest(
+    const combined = combineLatest(
       this.apiService.getNodesCount(),
       this.apiService.getMNTCount(),
       this.apiService.getMNTRewardDay(1),
@@ -68,13 +76,6 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
       this.numberReward = data[3]['data'];
 
       this.isDataLoaded = true;
-      this.cdRef.markForCheck();
-    });*/
-
-    this.isMobile = (window.innerWidth <= 992);
-    this.userService.windowSize$.takeUntil(this.destroy$).subscribe((flag: boolean) => {
-      this.isMobile !== flag && this.redrawingMiniCharts();
-      this.isMobile = flag;
       this.cdRef.markForCheck();
     });
 
@@ -96,7 +97,7 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.page.pageNumber = pageInfo.offset;
 
-    /*this.apiService.getActiveNodes(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getActiveNodes(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .finally(() => {
         this.loading = false;
         this.cdRef.markForCheck();
@@ -136,22 +137,15 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
 
           this.page.totalElements = res['data'].total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
-        });*/
+        });
   }
 
-  /*createMiniChart(data: any[], i: number) {
+  createMiniChart(data: any[], i: number) {
     anychart.onDocumentReady( () => {
       this.miniCharts[i] = {};
       const container = 'chart-container-' + i;
       const child = document.querySelector(`#${container} > div`);
       child && child.remove();
-      // if (!this.miniCharts[i]) {
-      //   this.miniCharts[i] = {};
-      // } else {
-      //   this.miniCharts[i]['table'].remove();
-      //   this.miniCharts[i]['table'].addData(data);
-      //   return;
-      // }
 
       this.miniCharts[i]['table'] = anychart.data.table();
       this.miniCharts[i]['table'].addData(data);
@@ -168,21 +162,20 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
       this.miniCharts[i]['chart'].plot(0).yAxis().enabled(false);
       this.miniCharts[i]['chart'].plot(0).legend().enabled(false);
 
-      // const container = 'chart-container-' + i;
       if (document.getElementById(container)) {
         this.miniCharts[i]['chart'].container(container);
         this.miniCharts[i]['chart'].draw();
       }
     });
-  }*/
+  }
 
   showDetailsChart(data: any[], template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template);
     document.querySelector('modal-container').classList.add('modal-chart');
-    //this.initDetailsChart(data);
+    this.initDetailsChart(data);
   }
 
-  /*initDetailsChart(data: any[]) {
+  initDetailsChart(data: any[]) {
     anychart.onDocumentReady( () => {
       this.charts['table'] && this.charts['table'].remove();
 
@@ -208,16 +201,16 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
       this.charts['chart'].container('details-chart-container');
       this.charts['chart'].draw();
     });
-  }*/
+  }
 
   redrawingMiniCharts() {
-    /*this.miniCharts = [];
+    this.miniCharts = [];
     this.rows.forEach((item, i) => {
       setTimeout(() => {
         this.createMiniChart(item.chartData, i);
       }, 0);
       this.cdRef.markForCheck();
-    });*/
+    });
   }
 
   ngOnDestroy() {

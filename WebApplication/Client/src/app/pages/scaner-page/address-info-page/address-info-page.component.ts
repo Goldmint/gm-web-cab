@@ -14,6 +14,7 @@ import {ActivatedRoute} from "@angular/router";
 import {Page} from "../../../models/page";
 import {WalletInfo} from "../../../interfaces/wallet-info";
 import {TransactionsList} from "../../../interfaces/transactions-list";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-address-info-page',
@@ -38,7 +39,8 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
   public pagination = {
     prev: '0',
     next: '0'
-  }
+  };
+  public isInvalidAddress: boolean = false;
 
   private sumusAddress: string;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -48,6 +50,7 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     private messageBox: MessageBoxService,
+    private translate: TranslateService,
     private route: ActivatedRoute
   ) { }
 
@@ -63,8 +66,8 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
         this.walletInfo = data.res;
         this.isDataLoaded = true;
         this.cdRef.markForCheck();
-      }, () => {
-        this.cdRef.markForCheck();
+      }, (error) => {
+        this.catchError(error);
       })
     });
 
@@ -91,7 +94,21 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
         this.pagination.next = this.rows.length && this.rows[this.rows.length - 1].transaction.digest;
 
         !this.rows.length && (this.isLastPage = true);
+      }, (error) => {
+        this.catchError(error);
       });
+  }
+
+  catchError(error) {
+    if (error.status === 400) {
+      this.isInvalidAddress = true;
+    } else {
+      this.translate.get('APIErrors.wrong').subscribe(phrase => {
+        this.messageBox.alert(phrase);
+      });
+    }
+    this.isDataLoaded = true;
+    this.cdRef.markForCheck();
   }
 
   prevPage() {

@@ -1,5 +1,4 @@
-import {ChangeDetectorRef, Component, HostBinding, OnInit} from '@angular/core';
-//import {Balance} from "../../../../interfaces/balance";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, OnInit} from '@angular/core';
 import {APIService, UserService} from "../../../../services";
 import {Subject} from "rxjs/Subject";
 import {Page} from "../../../../models/page";
@@ -7,11 +6,18 @@ import {Page} from "../../../../models/page";
 @Component({
   selector: 'app-latest-reward-page',
   templateUrl: './latest-reward-page.component.html',
-  styleUrls: ['./latest-reward-page.component.sass']
+  styleUrls: ['./latest-reward-page.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LatestRewardPageComponent implements OnInit {
 
   @HostBinding('class') class = 'page';
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    let isMobile = event.target.innerWidth <= 992;
+    this.isMobile !== isMobile && (this.isMobile = isMobile);
+    this.cdRef.markForCheck();
+  }
 
   public page = new Page();
   public rows: Array<any> = [];
@@ -20,7 +26,6 @@ export class LatestRewardPageComponent implements OnInit {
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
-  //public balance: Balance;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -31,16 +36,11 @@ export class LatestRewardPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.isMobile = (window.innerWidth <= 992);
     this.page.pageNumber = 0;
     this.page.size = 10;
 
     this.setPage({ offset: 0 });
-
-    this.isMobile = (window.innerWidth <= 992);
-    this.userService.windowSize$.takeUntil(this.destroy$).subscribe((flag: boolean) => {
-      this.isMobile = flag;
-      this.cdRef.markForCheck();
-    });
   }
 
   onSort(event) {
@@ -52,7 +52,7 @@ export class LatestRewardPageComponent implements OnInit {
     this.loading = true;
     this.page.pageNumber = pageInfo.offset;
 
-    /*this.apiService.getRewardTransactions(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getRewardTransactions(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
       .finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
@@ -67,7 +67,7 @@ export class LatestRewardPageComponent implements OnInit {
 
           this.page.totalElements = res['data'].total;
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
-        });*/
+        });
   }
 
   ngOnDestroy() {

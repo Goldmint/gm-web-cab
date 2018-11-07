@@ -10,85 +10,89 @@
     </div>
 
     <div *ngIf="isDataLoaded">
-      <form #searchAddressForm="ngForm">
-        <div class="row">
+      <div class="d-flex flex-wrap">
+        <form #searchAddressForm="ngForm" class="scanner-address-input">
+          <div class="row">
 
-          <div class="col-12">
-            <div class="form-group">
-              <div class="d-flex">
-                <input type="text" class="form-control bdr-none" id="searchByAddress" name="searchByAddress"
-                       #searchAddressField="ngModel"
-                       [(ngModel)]="searchAddress"
-                       (input)="checkAddress($event.target.value, 'address')"
-                       [ngClass]="{'is-invalid': (searchAddressField.invalid || !isValidSumusAddress) && searchAddressField.dirty}"
-                       autocomplete="off"
-                       [disabled]="loading"
-                       placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.AddressPlaceholder' | translate }}"
-                       pattern="[^а-яА-ЯёЁ]*"
-                       required>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.required && searchAddressField.dirty">
-                  {{ "PAGES.Scanner.Errors.Required" | translate }}
-                </div>
-                <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.pattern">
-                  {{ "PAGES.Scanner.Errors.Pattern" | translate }}
-                </div>
-                <div class="invalid-feedback invalid-feedback--abs"
-                     *ngIf="!isValidSumusAddress && searchAddressForm.valid && searchAddressField.dirty">
-                  {{ "PAGES.Scanner.Errors.InvalidAddress" | translate }}
-                </div>
-                <div>
-                  <button type="button" class="btn btn-sm btn-primary" (click)="searchByAddress()"
-                          [disabled]="searchAddressForm.invalid || !isValidSumusAddress || loading">
-                    {{ "PAGES.Scanner.Buttons.Go" | translate }}
-                  </button>
+            <div class="col-12">
+              <div class="form-group">
+                <div class="d-flex">
+                  <input type="text" class="form-control bdr-none" id="searchByAddress" name="searchByAddress"
+                         #searchAddressField="ngModel"
+                         [(ngModel)]="searchAddress"
+                         (input)="checkAddress($event.target.value, 'address')"
+                         [ngClass]="{'is-invalid': (searchAddressField.invalid || !isValidSumusAddress) && searchAddressField.dirty}"
+                         autocomplete="off"
+                         [disabled]="loading"
+                         placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.AddressPlaceholder' | translate }}"
+                         pattern="[^а-яА-ЯёЁ]*"
+                         required>
+                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.required && searchAddressField.dirty">
+                    {{ "PAGES.Scanner.Errors.Required" | translate }}
+                  </div>
+                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.pattern">
+                    {{ "PAGES.Scanner.Errors.Pattern" | translate }}
+                  </div>
+                  <div class="invalid-feedback invalid-feedback--abs"
+                       *ngIf="!isValidSumusAddress && searchAddressForm.valid && searchAddressField.dirty">
+                    {{ "PAGES.Scanner.Errors.InvalidAddress" | translate }}
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-sm btn-primary" (click)="searchByAddress()"
+                            [disabled]="searchAddressForm.invalid || !isValidSumusAddress || loading">
+                      {{ "PAGES.Scanner.Buttons.Go" | translate }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
+        </form>
 
-        </div>
-      </form>
+        <span class="scanner-or-label">{{ "PAGES.Scanner.LatestStatistic.Labels.Or" | translate }}</span>
 
-      <form #searchDigestForm="ngForm">
-        <div class="row">
+        <form #searchDigestForm="ngForm" class="scanner-digest-input">
+          <div class="row">
 
-          <div class="col-12">
-            <div class="form-group">
-              <div class="d-flex">
-                <input type="text" class="form-control bdr-none" id="searchByDigest" name="searchByDigest"
-                       #searchDigestField="ngModel"
-                       [(ngModel)]="searchDigest"
-                       (input)="checkAddress($event.target.value, 'digest')"
-                       [ngClass]="{'is-invalid': (searchDigestField.invalid || !isValidDigest) && searchDigestField.dirty}"
-                       autocomplete="off"
-                       [disabled]="loading"
-                       placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.DigestPlaceholder' | translate }}"
-                       pattern="[^а-яА-ЯёЁ]*"
-                       required>
+            <div class="col-12">
+              <div class="form-group">
+                <div class="d-flex">
+                  <input type="text" class="form-control bdr-none" id="searchByDigest" name="searchByDigest"
+                         #searchDigestField="ngModel"
+                         [(ngModel)]="searchDigest"
+                         (input)="checkAddress($event.target.value, 'digest')"
+                         [ngClass]="{'is-invalid': (searchDigestField.invalid || !isValidDigest) && searchDigestField.dirty}"
+                         autocomplete="off"
+                         [disabled]="loading"
+                         placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.DigestPlaceholder' | translate }}"
+                         pattern="[^а-яА-ЯёЁ]*"
+                         required>
                   <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchDigestField.errors?.required && searchDigestField.dirty">
-                      {{ "PAGES.Scanner.Errors.Required" | translate }}
+                    {{ "PAGES.Scanner.Errors.Required" | translate }}
                   </div>
                   <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchDigestField.errors?.pattern">
-                      {{ "PAGES.Scanner.Errors.Pattern" | translate }}
+                    {{ "PAGES.Scanner.Errors.Pattern" | translate }}
                   </div>
                   <div class="invalid-feedback invalid-feedback--abs"
                        *ngIf="!isValidDigest && searchDigestField.valid && searchDigestField.dirty">
-                      {{ "PAGES.Scanner.Errors.InvalidDigest" | translate }}
+                    {{ "PAGES.Scanner.Errors.InvalidDigest" | translate }}
                   </div>
                   <div>
-                      <button type="button" class="btn btn-sm btn-primary" (click)="searchByDigest()"
-                              [disabled]="searchDigestField.invalid || !isValidDigest || loading">
-                          {{ "PAGES.Scanner.Buttons.Go" | translate }}
-                      </button>
+                    <button type="button" class="btn btn-sm btn-primary" (click)="searchByDigest()"
+                            [disabled]="searchDigestField.invalid || !isValidDigest || loading">
+                      {{ "PAGES.Scanner.Buttons.Go" | translate }}
+                    </button>
                   </div>
+                </div>
               </div>
             </div>
+
           </div>
+        </form>
+      </div>
 
-        </div>
-      </form>
-
-      <div class="mt-4 scaner-info-container line-height">
+      <div class="mt-5 scaner-info-container line-height">
         <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Caption" | translate }}</h5>
         <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityBlocks" | translate }} </b>{{ numberBlocks }}</div>
         <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityTx" | translate }} </b>{{ numberTx }}</div>
@@ -133,16 +137,16 @@
             <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Count" | translate }}</b> {{ b.transactions }}</div>
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.TotalAmount" | translate }}</b>
-              <div class="ml-2">
-                <div>{{ +b.total_gold }} GOLD</div>
-                <div>{{ +b.total_mnt }} MNT</div>
+              <div class="ml-1">
+                <span>{{ +b.total_gold }} GOLD</span>,
+                <span>{{ +b.total_mnt }} MNT</span>
               </div>
             </div>
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Fee" | translate }}</b>
-              <div class="ml-2">
-                <div>{{ +b.fee_gold }} GOLD</div>
-                <div>{{ +b.fee_mnt }} MNT</div>
+              <div class="ml-1">
+                <span>{{ +b.fee_gold }} GOLD</span>,
+                <span>{{ +b.fee_mnt }} MNT</span>
               </div>
             </div>
             <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b> {{ b.timeStamp | amTimeAgo }}</div>
@@ -174,12 +178,11 @@
             </div>
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Amount" | translate }}</b>
-              <div class="ml-2">
-                <div>{{ +t.transaction.amount_gold }} GOLD</div>
-                <div>{{ +t.transaction.amount_mnt }} MNT</div>
+              <div class="ml-1">
+                <span>{{ +t.transaction.amount_gold }} GOLD</span>,
+                <span>{{ +t.transaction.amount_mnt }} MNT</span>
               </div>
             </div>
-            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Name" | translate }}</b> {{ t.transaction.name }}</div>
             <div>
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Status" | translate }}</b>
               <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + t.status" class="tx-status-{{ t.status }}"></span>

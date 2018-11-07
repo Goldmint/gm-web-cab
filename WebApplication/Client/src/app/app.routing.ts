@@ -48,6 +48,7 @@ import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.compone
 import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component";
 import {PawnshopBuyPageComponent} from "./pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component";
 import {PawnshopSellPageComponent} from "./pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component";
+import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
 
 
 const appRoutes: Routes = [
@@ -65,6 +66,7 @@ const appRoutes: Routes = [
   { path: 'home', component: HomePageComponent },
   { path: 'buy', component: BuyPageComponent },
   { path: 'master-node', component: MasterNodePageComponent},
+  { path: 'master-node/overview/latest-reward-distributions', component: LatestRewardPageComponent },
   { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent },
   { path: 'buy/payment-card', component: BuyCardPageComponent, canActivate: [AuthGuard] },
   { path: 'sell', component: SellPageComponent },

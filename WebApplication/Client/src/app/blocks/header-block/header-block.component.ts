@@ -33,6 +33,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public shortAdr: string;
   public isShowMobileMenu: boolean = false;
   public isMobile: boolean = false;
+  public isLoggedInToMM: boolean = true;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
 
@@ -119,9 +120,16 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.sumusNetwork = localStorage.getItem('gmint_sumus_network') ?
-                        localStorage.getItem('gmint_sumus_network') : 'MainNet';
-    this._apiService.transferCurrentSumusNetwork.next(this.sumusNetwork);
+    // this.sumusNetwork = localStorage.getItem('gmint_sumus_network') ?
+    //                     localStorage.getItem('gmint_sumus_network') : 'MainNet';
+    // this._apiService.transferCurrentSumusNetwork.next(this.sumusNetwork);
+
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
+      setTimeout(() => {
+        !this.isLoggedIn() && !this.metamaskAccount && (this.isLoggedInToMM = false);
+        this._cdRef.markForCheck();
+      }, 3000);
+    }
 
     this._userService.currentWallet = this.activeWallet;
     this._cdRef.markForCheck();

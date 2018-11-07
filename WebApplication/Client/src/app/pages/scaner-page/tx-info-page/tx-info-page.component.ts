@@ -5,6 +5,7 @@ import {ActivatedRoute} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {TransactionInfo} from "../../../interfaces/transaction-info";
 import {Base64} from 'js-base64';
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-tx-info-page',
@@ -40,12 +41,14 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
     4: "stale",
     5: "notfound",
   };
+  public isInvalidDigest: boolean = false;
 
   constructor(
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
     private messageBox: MessageBoxService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService,
   ) { }
 
   ngOnInit() {
@@ -84,9 +87,8 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
         clearInterval(this.interval);
         this.cdRef.markForCheck();
       }
-    }, () => {
-      this.loading = false;
-      this.cdRef.markForCheck();
+    }, (error) => {
+      this.catchError(error);
     });
   }
 
@@ -103,6 +105,18 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
       HEX += (_hex.length==2?_hex:'0'+_hex);
     }
     return HEX.toUpperCase();
+  }
+
+  catchError(error) {
+    if (error.status === 400) {
+      this.isInvalidDigest = true;
+    } else {
+      this.translate.get('APIErrors.wrong').subscribe(phrase => {
+        this.messageBox.alert(phrase);
+      });
+    }
+    this.loading = false;
+    this.cdRef.markForCheck();
   }
 
   ngOnDestroy() {
