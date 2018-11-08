@@ -312,7 +312,7 @@
         "Heading": "Overview",
         "Labels": {
           "Nodes": "Total running nodes:",
-          "MNT": "Total MNT holded:",
+          "MNT": "Total MNT held:",
           "Reward": "Total reward earned:",
           "ActiveNodes": "Current active nodes"
         },
@@ -322,7 +322,7 @@
         "Table": {
           "Node": "Node wallet",
           "Date": "Launch date",
-          "MNT": "MNT Holded",
+          "MNT": "MNT Held",
           "Reward": "Total reward earned",
           "Chart": "Mini chart"
         },
