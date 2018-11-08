@@ -26,8 +26,8 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
   public isLastPage: boolean = false;
   public offset: number = 0;
   public pagination = {
-    prev: '0',
-    next: '0'
+    prev: null,
+    next: null
   }
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -47,7 +47,7 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
         this.block = data.res;
         this.isDataLoaded = true;
       });
-      this.setPage(0);
+      this.setPage(null);
     });
 
     this.isMobile = (window.innerWidth <= 992);
@@ -57,10 +57,10 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  setPage(from: number | string) {
+  setPage(from: string) {
     this.loading = true;
 
-    this.apiService.getScannerTxList(this.blockNumber, 0, from)
+    this.apiService.getScannerTxList(this.blockNumber, null, from)
       .finally(() => {
         this.loading = false;
         this.cdRef.markForCheck();
@@ -69,7 +69,7 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
 
-        this.pagination.prev = this.offset > 1 ? this.pagination.next : '0';
+        this.pagination.prev = this.offset > 1 ? this.pagination.next : null;
         this.pagination.next = this.rows.length && this.rows[this.rows.length - 1].transaction.digest;
 
         !this.rows.length && (this.isLastPage = true);

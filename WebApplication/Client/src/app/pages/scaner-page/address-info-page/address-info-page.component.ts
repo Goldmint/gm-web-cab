@@ -37,8 +37,8 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
   public isLastPage: boolean = false;
   public offset: number = 0;
   public pagination = {
-    prev: '0',
-    next: '0'
+    prev: null,
+    next: null
   };
   public isInvalidAddress: boolean = false;
 
@@ -60,7 +60,7 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
 
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
       this.sumusAddress = params.id;
-      this.setPage(0);
+      this.setPage(null);
 
       this.apiService.getWalletBalance(this.sumusAddress).subscribe((data: any) => {
         this.walletInfo = data.res;
@@ -78,10 +78,10 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  setPage(from: number | string) {
+  setPage(from: string) {
     this.loading = true;
 
-    this.apiService.getScannerTxList(0, this.sumusAddress, from)
+    this.apiService.getScannerTxList(null, this.sumusAddress, from)
       .finally(() => {
         this.loading = false;
         this.cdRef.markForCheck();
@@ -90,7 +90,7 @@ export class AddressInfoPageComponent implements OnInit, OnDestroy {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
 
-        this.pagination.prev = this.offset > 1 ? this.pagination.next : '0';
+        this.pagination.prev = this.offset > 1 ? this.pagination.next : null;
         this.pagination.next = this.rows.length && this.rows[this.rows.length - 1].transaction.digest;
 
         !this.rows.length && (this.isLastPage = true);

@@ -86,8 +86,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     const combined = combineLatest(
       this.apiService.getScannerStatus(),
       this.apiService.getScannerDailyStatistic(),
-      this.apiService.getScannerBlockList(0),
-      this.apiService.getScannerTxList(0, 0, 0)
+      this.apiService.getScannerBlockList(null),
+      this.apiService.getScannerTxList(null, null, null)
     );
 
     combined.subscribe((data: any) => {
@@ -111,8 +111,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     const combined = combineLatest(
       this.apiService.getScannerStatus(),
       this.apiService.getScannerDailyStatistic(),
-      this.apiService.getScannerBlockList(0),
-      this.apiService.getScannerTxList(0, 0, 0)
+      this.apiService.getScannerBlockList(null),
+      this.apiService.getScannerTxList(null, null, null)
     );
 
     combined.subscribe((data: any) => {

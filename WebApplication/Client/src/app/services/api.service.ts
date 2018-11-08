@@ -525,11 +525,17 @@ export class APIService {
   }
 
   getScannerBlockList(from: number) {
-    return this._http.get(`${this._sumusBaseUrl}/block/list/${from}`);
+    let _from: number|string = from;
+    if (from == null) _from = "-";
+    return this._http.get(`${this._sumusBaseUrl}/block/list/${_from}`);
   }
 
-  getScannerTxList(block: number, address: number | string, from: number | string) {
-    return this._http.get(`${this._sumusBaseUrl}/tx/list/${block}/${address}/${from}`);
+  getScannerTxList(block: number, address: string, from: string) {
+    let _block: number|string = block;
+    if (block == null) _block = "-";
+    if (address == null) address = "-";
+    if (from == null) from = "-";
+    return this._http.get(`${this._sumusBaseUrl}/tx/list/${_block}/${address}/${from}`);
   }
 
   // ---//
