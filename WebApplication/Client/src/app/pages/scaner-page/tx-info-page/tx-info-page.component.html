@@ -34,8 +34,8 @@
 
         <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
           <span class="ml-2">
-          <div>{{ +tx.transaction.amount_gold }} GOLD</div>
-          <div>{{ +tx.transaction.amount_mnt }} MNT</div>
+          <div>{{ +tx.transaction.amount_gold | noexp }} GOLD</div>
+          <div>{{ +tx.transaction.amount_mnt | noexp }} MNT</div>
         </span>
         </div>
 
@@ -76,13 +76,11 @@
         </div>
 
         <div><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Status" | translate }} </b>
-          <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + tx.status" class="tx-status-{{ tx.status }}"></span>
+          <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + tx.status" class="tx-status {{ tx.status }}"></span>
         </div>
       </div>
 
-      <div class="text-center" *ngIf="isNotFound">{{ "PAGES.Scanner.TransactionInfo.NotFound" | translate }}</div>
-
-      <div class="text-center" *ngIf="tx && tx.transaction && isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
+      <div class="text-center" *ngIf="isPending">{{ "PAGES.Scanner.TransactionInfo.Pending" | translate }}</div>
 
     </div>
 

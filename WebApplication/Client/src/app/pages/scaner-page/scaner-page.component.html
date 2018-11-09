@@ -138,15 +138,15 @@
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.TotalAmount" | translate }}</b>
               <div class="ml-1">
-                <span>{{ +b.total_gold }} GOLD</span>,
-                <span>{{ +b.total_mnt }} MNT</span>
+                <span>{{ +b.total_gold | noexp }} GOLD</span>,
+                <span>{{ +b.total_mnt | noexp }} MNT</span>
               </div>
             </div>
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Fee" | translate }}</b>
               <div class="ml-1">
-                <span>{{ +b.fee_gold }} GOLD</span>,
-                <span>{{ +b.fee_mnt }} MNT</span>
+                <span>{{ +b.fee_gold | noexp }} GOLD</span>,
+                <span>{{ +b.fee_mnt | noexp }} MNT</span>
               </div>
             </div>
             <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b> {{ b.timeStamp | amTimeAgo }}</div>
@@ -179,13 +179,13 @@
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Amount" | translate }}</b>
               <div class="ml-1">
-                <span>{{ +t.transaction.amount_gold }} GOLD</span>,
-                <span>{{ +t.transaction.amount_mnt }} MNT</span>
+                <span>{{ +t.transaction.amount_gold | noexp }} GOLD</span>,
+                <span>{{ +t.transaction.amount_mnt | noexp  }} MNT</span>
               </div>
             </div>
             <div>
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Status" | translate }}</b>
-              <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + t.status" class="tx-status-{{ t.status }}"></span>
+              <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + t.status" class="tx-status {{ t.status }}"></span>
             </div>
             <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Date" | translate }}</b> {{ t.timestamp | amTimeAgo }}</div>
           </div>

@@ -79,8 +79,14 @@ export class APIHttpInterceptor implements HttpInterceptor {
             } catch(e) {}
             this._router.navigate(['/signin']);
           } else {
-            let errorCode = parseInt(error.error.errorCode, 10);
-            ignoredErrors.indexOf(errorCode) < 0 && (translateKey = errorCode);
+            if (error.error.hasOwnProperty('errorCode')) {
+              let errorCode = parseInt(error.error.errorCode, 10);
+              ignoredErrors.indexOf(errorCode) < 0 && (translateKey = errorCode);
+            } else if (error.error.hasOwnProperty('msg')) {
+              this._translate.get('APIErrors.defaultMsg', {msg: error.error.msg}).subscribe(phrase => {
+                this._messageBox.alert(phrase);
+              });
+            }
           }
 
           translateKey && this._translate.get('APIErrors.' + translateKey, error.error).subscribe(phrase => {

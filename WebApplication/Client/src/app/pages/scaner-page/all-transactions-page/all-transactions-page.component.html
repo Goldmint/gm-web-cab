@@ -48,16 +48,16 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
           <ng-template ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper">
-                {{ "PAGES.Scanner.AllTransactions.Labels.To" | translate }}
+                {{ "PAGES.Scanner.AllTransactions.Labels.Status" | translate }}
               </span>
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.to">{{ row.transaction.to }}</div>
+              <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + row.status" class="tx-status {{ row.status }}"></span>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -71,8 +71,8 @@
 
           <ng-template let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              <div>{{ +row.transaction.amount_gold }} GOLD</div>
-              <div>{{ +row.transaction.amount_mnt }} MNT</div>
+              <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -121,14 +121,14 @@
             <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from }}</div>
           </div>
           <div class="d-flex">
-            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.To" | translate }}:</span>
-            <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.transaction.to">{{ row.transaction.to }}</div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.Status" | translate }}:</span>
+            <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + row.status" class="ml-1 tx-status {{ row.status }}"></span>
           </div>
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.Count" | translate }}:</span>
             <div class="ml-2">
-              <div>{{ +row.transaction.amount_gold }} GOLD</div>
-              <div>{{ +row.transaction.amount_mnt }} MNT</div>
+              <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
             </div>
           </div>
           <div>

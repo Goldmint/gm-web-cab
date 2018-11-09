@@ -19,7 +19,6 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
 
   public loading: boolean = false;
   public tx: TransactionInfo = null;
-  public isNotFound: boolean = false;
   public isPending: boolean = false;
   public isTextDataPiece: boolean = true;
   public digest: string;
@@ -74,7 +73,7 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
         (this.dataPiece.size = this.dataPiece.hex.length / 2 - this.tx.transaction.data_size);
       }
 
-      if (this.tx.status === this.txStatus[1]) {
+      if (!this.tx.transaction || this.tx.status === this.txStatus[5]) {
         this.isPending = true;
         clearInterval(this.interval);
         this.interval = setInterval(() => {
@@ -82,7 +81,6 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
         }, 30000);
         this.cdRef.markForCheck();
       } else {
-        this.tx.status === this.txStatus[5] && (this.isNotFound = true);
         this.isPending = this.loading = false;
         clearInterval(this.interval);
         this.cdRef.markForCheck();

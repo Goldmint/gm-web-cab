@@ -32,15 +32,15 @@
 
       <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Total" | translate }} </b>
         <div class="ml-2">
-          <div>{{ +block.total_gold }} GOLD</div>
-          <div>{{ +block.total_mnt }} MNT</div>
+          <div>{{ +block.total_gold | noexp }} GOLD</div>
+          <div>{{ +block.total_mnt | noexp }} MNT</div>
         </div>
       </div>
 
       <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Fee" | translate }} </b>
         <div class="ml-2">
-          <div>{{ +block.fee_gold }} GOLD</div>
-          <div>{{ +block.fee_mnt }} MNT</div>
+          <div>{{ +block.fee_gold | noexp }} GOLD</div>
+          <div>{{ +block.fee_mnt | noexp }} MNT</div>
         </div>
       </div>
 
@@ -119,8 +119,8 @@
 
           <ng-template let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              <div>{{ +row.transaction.amount_gold }} GOLD</div>
-              <div>{{ +row.transaction.amount_mnt }} MNT</div>
+              <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
               <div></div>
             </div>
           </ng-template>
@@ -178,8 +178,8 @@
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.Scanner.TransactionsInBlock.Table.Count" | translate }}:</span>
             <div class="ml-2">
-              <div>{{ +row.transaction.amount_gold }} GOLD</div>
-              <div>{{ +row.transaction.amount_mnt }} MNT</div>
+              <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
             </div>
           </div>
           <div>

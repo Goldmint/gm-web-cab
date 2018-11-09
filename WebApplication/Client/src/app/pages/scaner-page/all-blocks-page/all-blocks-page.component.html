@@ -71,7 +71,7 @@
 
           <ng-template let-fee_gold="value" ngx-datatable-cell-template>
             <div class="text-center">
-              <div>{{ +fee_gold }}</div>
+              <div>{{ +fee_gold | noexp }}</div>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -83,7 +83,7 @@
 
           <ng-template let-fee_mnt="value" ngx-datatable-cell-template>
             <div class="text-center">
-              <div>{{ +fee_mnt }}</div>
+              <div>{{ +fee_mnt | noexp }}</div>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -122,11 +122,11 @@
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.ctFee" | translate }}:</span>
-            {{ +row.fee_gold }}
+            {{ +row.fee_gold | noexp }}
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.utFee" | translate }}:</span>
-            {{ +row.fee_mnt }}
+            {{ +row.fee_mnt | noexp }}
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.Scanner.AllBlocks.Labels.Date" | translate }}:</span>
