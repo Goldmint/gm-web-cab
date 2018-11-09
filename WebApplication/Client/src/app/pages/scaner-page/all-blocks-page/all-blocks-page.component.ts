@@ -32,8 +32,8 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
   public isLastPage: boolean = false;
   public offset: number = 0;
   public pagination = {
-    prev: 0,
-    next: 0
+    prev: null,
+    next: null
   }
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -45,7 +45,7 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.setPage(0);
+    this.setPage(null);
 
     this.isMobile = (window.innerWidth <= 992);
     this.userService.windowSize$.takeUntil(this.destroy$).subscribe(width => {
@@ -67,11 +67,11 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
 
-        this.pagination.prev = this.offset > 1 ? this.pagination.next : 0;
+        this.pagination.prev = this.offset > 1 ? this.pagination.next : null;
         this.pagination.next = this.rows.length && +this.rows[this.rows.length - 1].id;
 
         !this.rows.length && (this.isLastPage = true);
-        });
+      });
   }
 
   prevPage() {
