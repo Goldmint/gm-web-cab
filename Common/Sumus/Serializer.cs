@@ -77,7 +77,7 @@ namespace Goldmint.Common.Sumus {
 		}
 
 		public void WriteAmount(BigInteger v) {
-			const int imax = 10;
+			const int imax = 12;
 			const int fmax = 18;
 
 			_buffer.WriteByte(v < 0 ? (byte)1 : (byte)0);
@@ -195,7 +195,7 @@ namespace Goldmint.Common.Sumus {
 		}
 
 		public bool ReadAmount(out BigInteger v) {
-			const int imax = 10;
+			const int imax = 12;
 			const int fmax = 18;
 
 			v = BigInteger.Zero;
