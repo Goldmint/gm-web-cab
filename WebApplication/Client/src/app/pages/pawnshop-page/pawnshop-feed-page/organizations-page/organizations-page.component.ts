@@ -33,30 +33,20 @@ export class OrganizationsPageComponent implements OnInit {
       if (data !== null) {
         this.stepperData = data;
         this.currentId = data.id;
-        this.checkStepAccess();
+        this.nextStep();
       }
     });
   }
 
-  checkStepAccess() {
-    this.isDenied = true;
-    this.isDenied = this.currentStep === 1 && !this.stepperData.org;
-    this.isDenied = this.currentStep === 2 && !this.stepperData.pawnshop;
-    this.cdRef.markForCheck();
-  }
-
   prevStep() {
     this.currentStep--;
-    this.userService.organizationStepper$.next(this.stepperData);
     this.cdRef.markForCheck();
   }
 
   nextStep() {
     this.currentStep++;
-    let data = this.stepperData;
-    data.step = this.currentStep;
-    data.id = this.currentId;
-    this.userService.organizationStepper$.next(data);
+    this.stepperData.step = this.currentStep;;
+    this.stepperData.id = this.currentId;
     this.cdRef.markForCheck();
   }
 

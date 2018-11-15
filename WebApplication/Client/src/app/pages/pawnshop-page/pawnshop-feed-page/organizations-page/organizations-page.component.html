@@ -11,8 +11,6 @@
         <button type="button" class="btn btn-sm btn-primary" *ngIf="currentStep > 1" (click)="prevStep()">
           {{ "PAGES.Pawnshop.Feed.Buttons.Back" | translate }}
         </button>
-        <button type="button" class="btn btn-sm btn-primary" *ngIf="currentStep < 3" (click)="nextStep()"
-                [disabled]="isDenied">{{ "PAGES.Pawnshop.Feed.Buttons.Next" | translate }}</button>
       </div>
 
       <div>

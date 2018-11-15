@@ -40,6 +40,7 @@ export class PawnshopsTableComponent implements OnInit {
   ngOnInit() {
     this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: {step: number, id: number}) => {
       if (data !== null && data.step === 2) {
+        this.paginationHistory = [];
         this.stepperData = data;
         this.pawnshopId = data.id;
         this.setPage(this.pawnshopId, null, true);

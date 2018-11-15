@@ -45,6 +45,7 @@ export class FeedTableComponent implements OnInit {
 
     this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: {step: number, id: number}) => {
       if (data !== null && data.step === 3) {
+        this.paginationHistory = [];
         this.pawnshopId = data.id;
         this.setPage(this.pawnshopId, null, true);
       }
