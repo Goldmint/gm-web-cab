@@ -1,0 +1,31 @@
+<div class="mt-4 pt-1">
+  <section class="page__section section">
+    <h2 class="section__title">{{ "PAGES.Pawnshop.Feed.Labels." + currentStep | translate }}</h2>
+
+    <div class="section__content py-4">
+      <div class="mb-3">
+        <div *ngIf="stepperData?.org"><b>{{ "PAGES.Pawnshop.Feed.Labels.Organization" | translate }}</b> {{ stepperData.org }}</div>
+        <div *ngIf="stepperData?.pawnshop"><b>{{ "PAGES.Pawnshop.Feed.Labels.Pawnshop" | translate }}</b> {{ stepperData.pawnshop }}</div>
+      </div>
+      <div class="w-100 text-right">
+        <button type="button" class="btn btn-sm btn-primary" *ngIf="currentStep > 1" (click)="prevStep()">
+          {{ "PAGES.Pawnshop.Feed.Buttons.Back" | translate }}
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" *ngIf="currentStep < 3" (click)="nextStep()"
+                [disabled]="isDenied">{{ "PAGES.Pawnshop.Feed.Buttons.Next" | translate }}</button>
+      </div>
+
+      <div>
+        <div [hidden]="currentStep !== 1">
+          <app-organizations-table></app-organizations-table>
+        </div>
+        <div [hidden]="currentStep !== 2">
+          <app-pawnshops-table></app-pawnshops-table>
+        </div>
+        <div [hidden]="currentStep !== 3">
+          <app-feed-table></app-feed-table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

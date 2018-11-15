@@ -49,7 +49,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
-  private charts = {
+  private charts: any = {
     reward: {},
     tx: {}
   };
@@ -71,10 +71,10 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.userService.currentLocale.takeUntil(this.destroy$).subscribe(() => {
       if (this.isDataLoaded) {
         this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
-          this.charts['reward']['chart'].title(phrase);
+          this.charts.reward.chart.title(phrase);
         });
         this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Tx').subscribe(phrase => {
-          this.charts['tx']['chart'].title(phrase);
+          this.charts.tx.chart.title(phrase);
         });
       }
     });
@@ -126,10 +126,10 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   }
 
   updateChartsData() {
-    this.charts['reward']['table'].remove();
-    this.charts['reward']['table'].addData(this.anyChartRewardData);
-    this.charts['tx']['table'].remove();
-    this.charts['tx']['table'].addData(this.anyChartTxData);
+    this.charts.reward.table.remove();
+    this.charts.reward.table.addData(this.anyChartRewardData);
+    this.charts.tx.table.remove();
+    this.charts.tx.table.addData(this.anyChartTxData);
   }
 
   setChartsData(res) {
@@ -187,64 +187,64 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   }
 
   toggleCommissionChart(isGold: boolean) {
-    this.charts['reward']['chart'].plot(0).enabled(isGold);
-    this.charts['reward']['chart'].plot(1).enabled(!isGold);
+    this.charts.reward.chart.plot(0).enabled(isGold);
+    this.charts.reward.chart.plot(1).enabled(!isGold);
   }
 
   initRewardChart() {
     anychart.onDocumentReady( () => {
-      this.charts['reward']['table'] = anychart.data['table']();
-      this.charts['reward']['table'].addData(this.anyChartRewardData);
+      this.charts.reward.table = anychart.data.table();
+      this.charts.reward.table.addData(this.anyChartRewardData);
 
-      this.charts['reward']['mapping_gold'] = this.charts['reward']['table'].mapAs();
-      this.charts['reward']['mapping_gold'].addField('value', 1);
+      this.charts.reward.mapping_gold = this.charts.reward.table.mapAs();
+      this.charts.reward.mapping_gold.addField('value', 1);
 
-      this.charts['reward']['mapping_mnt'] = this.charts['reward']['table'].mapAs();
-      this.charts['reward']['mapping_mnt'].addField('value', 2);
+      this.charts.reward.mapping_mnt = this.charts.reward.table.mapAs();
+      this.charts.reward.mapping_mnt.addField('value', 2);
 
-      this.charts['reward']['chart'] = anychart.stock();
+      this.charts.reward.chart = anychart.stock();
 
-      this.charts['reward']['chart'].plot(0).line(this.charts['reward']['mapping_gold']).name('GOLD');
-      this.charts['reward']['chart'].plot(1).line(this.charts['reward']['mapping_mnt']).name('MNT');
+      this.charts.reward.chart.plot(0).line(this.charts.reward.mapping_gold).name('GOLD');
+      this.charts.reward.chart.plot(1).line(this.charts.reward.mapping_mnt).name('MNT');
 
-      this.charts['reward']['chart'].plot(0).legend().itemsFormatter(() => {
+      this.charts.reward.chart.plot(0).legend().itemsFormatter(() => {
         return []
       });
-      this.charts['reward']['chart'].plot(1).legend().itemsFormatter(() => {
+      this.charts.reward.chart.plot(1).legend().itemsFormatter(() => {
         return []
       });
 
-      this.charts['reward']['chart'].plot(1).enabled(false);
+      this.charts.reward.chart.plot(1).enabled(false);
 
       this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
-        this.charts['reward']['chart'].title(phrase);
+        this.charts.reward.chart.title(phrase);
       });
-      this.charts['reward']['chart'].container('reward-chart-container');
-      this.charts['reward']['chart'].draw();
+      this.charts.reward.chart.container('reward-chart-container');
+      this.charts.reward.chart.draw();
     });
   }
 
   initTxChart() {
     anychart.onDocumentReady( () => {
-      this.charts['tx']['table'] = anychart.data['table']();
-      this.charts['tx']['table'].addData(this.anyChartTxData);
+      this.charts.tx.table = anychart.data.table();
+      this.charts.tx.table.addData(this.anyChartTxData);
 
-      this.charts['tx']['mapping'] = this.charts['tx']['table'].mapAs();
-      this.charts['tx']['mapping'].addField('value', 1);
+      this.charts.tx.mapping = this.charts.tx.table.mapAs();
+      this.charts.tx.mapping.addField('value', 1);
 
-      this.charts['tx']['chart'] = anychart.stock();
-      this.charts['tx']['chart'].plot(0).line(this.charts['tx']['mapping']).name('Transactions');
-      this.charts['tx']['chart'].plot(0).legend().itemsFormatter(() => {
+      this.charts.tx.chart = anychart.stock();
+      this.charts.tx.chart.plot(0).line(this.charts.tx.mapping).name('Transactions');
+      this.charts.tx.chart.plot(0).legend().itemsFormatter(() => {
         return [
           {text: "Transactions", iconFill:"#63B7F7"}
         ]
       });
 
       this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Tx').subscribe(phrase => {
-        this.charts['tx']['chart'].title(phrase);
+        this.charts.tx.chart.title(phrase);
       });
-      this.charts['tx']['chart'].container('tx-chart-container');
-      this.charts['tx']['chart'].draw();
+      this.charts.tx.chart.container('tx-chart-container');
+      this.charts.tx.chart.draw();
     });
   }
 

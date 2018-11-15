@@ -1,13 +1,22 @@
 <!-- host: .page -->
 <h1 class="page__heading">{{ "PAGES.Pawnshop.Feed.Heading" | translate }}</h1>
 
-<section class="page__section section">
-  <h2 class="section__title">{{ "PAGES.Pawnshop.Feed.Heading" | translate }}</h2>
-
-  <div class="section__content pt-4">
-    <div class="progress-linear progress-linear--tiny" *ngIf="false">
-      <div class="container"></div>
-    </div>
-
+<div>
+  <div class="col-auto btn-group p-0 mn-tabs feed-tabs">
+    <label class="btn btn-primary btn-sm active wrap"
+           name="limitsSwitchModel.type"
+           [(ngModel)]="switchModel.type"
+           btnRadio="feed">{{ "PAGES.Pawnshop.Feed.Tabs.AllFeed" | translate }}</label>
+    <label class="btn btn-primary btn-sm active wrap"
+           name="limitsSwitchModel.type"
+           [(ngModel)]="switchModel.type"
+           btnRadio="organizations">{{ "PAGES.Pawnshop.Feed.Tabs.Organizations" | translate }}</label>
   </div>
-</section>
+
+  <div *ngIf="switchModel.type === 'feed'">
+    <app-all-ticket-feed-page></app-all-ticket-feed-page>
+  </div>
+  <div *ngIf="switchModel.type === 'organizations'">
+    <app-organizations-page></app-organizations-page>
+  </div>
+</div>

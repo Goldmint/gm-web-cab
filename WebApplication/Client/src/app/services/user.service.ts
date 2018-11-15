@@ -28,6 +28,8 @@ export class UserService {
   public onWalletSwitch$ = new Subject();
   public currentWallet;
 
+  public organizationStepper$ = new ReplaySubject(null);
+
   public windowSize$ = new Subject();
 
   constructor(
@@ -53,15 +55,11 @@ export class UserService {
   }
 
   private _processLoginResponse(response: APIResponse<AuthResponse>) {
-    console.group('_processLoginResponse');
-    console.log('response', response);
 
     if (!response.errorCode && response.data.token) {
       localStorage.setItem('gmint_token', response.data.token);
 
       const jwt = this._jwtHelper.decodeToken(response.data.token);
-
-      console.log('jwt', jwt);
 
       if (jwt.gm_area === 'authorized') {
         if (jwt.gm_role === 'user' && jwt.gm_id) this._user.next({ name: jwt.gm_id });
@@ -87,19 +85,13 @@ export class UserService {
     else {
       this._messageBox.alert(response.errorDesc);
     }
-
-    console.groupEnd();
   }
-
-  // ---
 
   login(username: string, password: string, recaptcha: string) {
     return this._apiService.userLogin(username, password, recaptcha)
       .pipe(
       tap(
         (res: APIResponse<AuthResponse>) => {
-          console.info('User login result', res);
-
           this._processLoginResponse(res);
         },
         err => {
@@ -122,10 +114,7 @@ export class UserService {
       .pipe(
       tap(
         (res: APIResponse<AuthResponse>) => {
-          console.info('TFA code processing result', res);
-
           localStorage.removeItem('gmint_2fa');
-
           this._processLoginResponse(res);
         },
         err => {
@@ -152,8 +141,6 @@ export class UserService {
       .pipe(
       tap(
         (res: APIResponse<RegistrationResponse>) => {
-          console.info('User register result', res);
-
           if (res.errorCode) {
             this._messageBox.alert(res.errorDesc);
           }

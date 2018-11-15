@@ -1456,13 +1456,59 @@
     },
     "Pawnshop": {
       "Feed": {
-        "Heading": "Feed"
+        "Heading": "Активность",
+        "Tabs": {
+          "AllFeed": "Все билеты активности",
+          "Organizations": "Организации"
+        },
+        "Labels": {
+          "1": "Организации",
+          "2": "Ломбарды",
+          "3": "Активность",
+          "Organization": "Организация:",
+          "Pawnshop": "Ломбард:",
+          "AllFeed": "Все билеты активности"
+        },
+        "Buttons": {
+          "Back": "Назад",
+          "Next": "Далее"
+        },
+        "OrgTable": {
+          "Id": "Id",
+          "Name": "Название"
+        },
+        "PawnshopTable": {
+          "Id": "Id",
+          "Name": "Название"
+        },
+        "FeedTable": {
+          "Id": "Id",
+          "PawnshopId": "Id ломбарда",
+          "Num": "Номер",
+          "Weight": "Вес",
+          "OpenTx": "Входящая тр-я",
+          "CloseTx": "Исходящая тр-я",
+          "Status": "Статус",
+          "UpdateDate": "Дата обновления"
+        },
+        "PawnshopDetails": {
+          "Heading": "Активность",
+          "Labels": {
+            "Info": "Информация о ломбарде",
+            "Name": "Название:",
+            "OrgId": "Id организации:",
+            "Rate": "Ставка:"
+          },
+          "Charts": {
+            "Rate": "История ставки"
+          }
+        }
       },
       "Buy": {
-        "Heading": "Buy"
+        "Heading": "Купить"
       },
       "Sell": {
-        "Heading": "Sell"
+        "Heading": "Продать"
       }
     },
     "ErrorPage": {

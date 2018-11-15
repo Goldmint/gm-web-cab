@@ -27,6 +27,7 @@ export class APIService {
   private _baseUrl = environment.apiUrl;
   private _walletBaseUrl = environment.walletApiUrl;
   private _sumusBaseUrl = environment.sumusNetworkUrl;
+  private _marketBaseUrl = environment.marketApiUrl;
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
@@ -501,6 +502,31 @@ export class APIService {
   mintMigrationEth(sumusAddress: string, ethereumAddress: string) {
     return this._http.post(`${this._baseUrl}/user/migration/mint/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
   }
+
+  // pawnshop
+
+  getOrganizationList(from: number) {
+    let _from = from !== null ? from : '-'
+    return this._http.get(`${this._marketBaseUrl}/org/list/${_from}`);
+  }
+
+  getPawnshopList(org: number, from: number) {
+    let _org = org !== null ? org : '-';
+    let _from = from !== null ? from : '-';
+    return this._http.get(`${this._marketBaseUrl}/pawnshop/list/${_org}/${_from}`);
+  }
+
+  getPawnList(pawnshop: number, from: number) {
+    let _pawnshop = pawnshop !== null ? pawnshop : '-';
+    let _from = from !== null ? from : '-';
+    return this._http.get(`${this._marketBaseUrl}/pawn/list/${_pawnshop}/${_from}`);
+  }
+
+  getPawnshopDetails(id: number) {
+    return this._http.get(`${this._marketBaseUrl}/pawnshop/${id}`);
+  }
+
+  // --------
 
   // scanner methods
 

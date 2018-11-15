@@ -1,32 +1,24 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostBinding, OnDestroy,
-  OnInit,
-  ViewEncapsulation
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {APIService, UserService} from "../../../../../services";
 import {Subject} from "rxjs/Subject";
-import {APIService, UserService} from "../../../services";
-import {Page} from "../../../models/page";
-import {TransactionsList} from "../../../interfaces/transactions-list";
+import {Page} from "../../../../../models/page";
+import {FeedList} from "../../../../../interfaces/feed-list";
 
 @Component({
-  selector: 'app-all-transactions-page',
-  templateUrl: './all-transactions-page.component.html',
-  styleUrls: ['./all-transactions-page.component.sass'],
+  selector: 'app-feed-table',
+  templateUrl: './feed-table.component.html',
+  styleUrls: ['./feed-table.component.sass'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllTransactionsPageComponent implements OnInit, OnDestroy {
+export class FeedTableComponent implements OnInit {
 
-  @HostBinding('class') class = 'page';
-
+  public pawnshopId: number;
   public page = new Page();
-  public rows: TransactionsList[] = [];
+  public rows: FeedList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
-  public isMobile: boolean = false;
   public loading: boolean = false;
+  public isMobile: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
   public offset: number = 0;
@@ -35,7 +27,7 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
     next: null
   }
 
-  private paginationHistory: string[] = [];
+  private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -45,19 +37,24 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.setPage(null, true);
-
     this.isMobile = (window.innerWidth <= 992);
     this.userService.windowSize$.takeUntil(this.destroy$).subscribe(width => {
       this.isMobile = width <= 992;
       this.cdRef.markForCheck();
     });
+
+    this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: {step: number, id: number}) => {
+      if (data !== null && data.step === 3) {
+        this.pawnshopId = data.id;
+        this.setPage(this.pawnshopId, null, true);
+      }
+    });
   }
 
-  setPage(from: string, isNext: boolean = true) {
+  setPage(org: number, from: number = null, isNext: boolean = true) {
     this.loading = true;
 
-    this.apiService.getScannerTxList(null, null, from ? from : null)
+    this.apiService.getPawnList(org, from >= 0 ? from : null)
       .finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
@@ -70,9 +67,9 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
         if (this.rows.length) {
           if (!isNext) {
             this.paginationHistory.pop();
-            this.paginationHistory.length === 1 && (this.paginationHistory[0] = this.rows[this.rows.length - 1].transaction.digest);
+            this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
           }
-          isNext && this.paginationHistory.push(this.rows[this.rows.length - 1].transaction.digest);
+          isNext && this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
         } else {
           isNext && this.paginationHistory.push(null);
         }
@@ -83,15 +80,16 @@ export class AllTransactionsPageComponent implements OnInit, OnDestroy {
 
   prevPage() {
     this.offset--;
-    this.setPage(this.paginationHistory[this.paginationHistory.length - 3], false);
+    this.setPage(this.pawnshopId, this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
     this.offset++;
-    this.setPage(this.paginationHistory[this.paginationHistory.length - 1], true);
+    this.setPage(this.pawnshopId, this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
   ngOnDestroy() {
     this.destroy$.next(true);
   }
+
 }

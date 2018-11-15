@@ -1456,7 +1456,53 @@
     },
     "Pawnshop": {
       "Feed": {
-        "Heading": "Feed"
+        "Heading": "Feed",
+        "Tabs": {
+          "AllFeed": "All ticket feed",
+          "Organizations": "Organizations"
+        },
+        "Labels": {
+          "1": "Organizations",
+          "2": "Pawnshops",
+          "3": "Feed",
+          "Organization": "Organization:",
+          "Pawnshop": "Pawnshop:",
+          "AllFeed": "All ticket feed"
+        },
+        "Buttons": {
+          "Back": "Back",
+          "Next": "Next"
+        },
+        "OrgTable": {
+          "Id": "Id",
+          "Name": "Name"
+        },
+        "PawnshopTable": {
+          "Id": "Id",
+          "Name": "Name"
+        },
+        "FeedTable": {
+          "Id": "Id",
+          "PawnshopId": "Pawnshop id",
+          "Num": "Num",
+          "Weight": "Weight",
+          "OpenTx": "Inbound TX",
+          "CloseTx": "Outbound TX",
+          "Status": "Status",
+          "UpdateDate": "Update date"
+        },
+        "PawnshopDetails": {
+          "Heading": "Feed",
+          "Labels": {
+            "Info": "Pawnshop info",
+            "Name": "Name:",
+            "OrgId": "Organization Id:",
+            "Rate": "Rate:"
+          },
+          "Charts": {
+            "Rate": "Rate history"
+          }
+        }
       },
       "Buy": {
         "Heading": "Buy"

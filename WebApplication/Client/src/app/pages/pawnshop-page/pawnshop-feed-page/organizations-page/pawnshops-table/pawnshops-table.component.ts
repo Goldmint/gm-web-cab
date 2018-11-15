@@ -1,32 +1,22 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostBinding,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {APIService, UserService} from "../../../../../services";
 import {Subject} from "rxjs/Subject";
-import {APIService, UserService} from "../../../services";
-import {Page} from "../../../models/page";
-import {BlocksList} from "../../../interfaces/blocks-list";
+import {Page} from "../../../../../models/page";
+import {PawnshopList} from "../../../../../interfaces/pawnshop-list";
 
 @Component({
-  selector: 'app-all-blocks-page',
-  templateUrl: './all-blocks-page.component.html',
-  styleUrls: ['./all-blocks-page.component.sass'],
+  selector: 'app-pawnshops-table',
+  templateUrl: './pawnshops-table.component.html',
+  styleUrls: ['./pawnshops-table.component.sass'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllBlocksPageComponent implements OnInit, OnDestroy {
+export class PawnshopsTableComponent implements OnInit {
 
-  @HostBinding('class') class = 'page';
-
+  public pawnshopId: number;
   public page = new Page();
-  public rows: BlocksList[] = [];
+  public rows: PawnshopList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
-  public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
@@ -35,6 +25,8 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
     prev: null,
     next: null
   }
+  public selected: PawnshopList[] = [];
+  public stepperData;
 
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -46,19 +38,19 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.setPage(null, true);
-
-    this.isMobile = (window.innerWidth <= 992);
-    this.userService.windowSize$.takeUntil(this.destroy$).subscribe(width => {
-      this.isMobile = width <= 992;
-      this.cdRef.markForCheck();
+    this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: {step: number, id: number}) => {
+      if (data !== null && data.step === 2) {
+        this.stepperData = data;
+        this.pawnshopId = data.id;
+        this.setPage(this.pawnshopId, null, true);
+      }
     });
   }
 
-  setPage(from: number, isNext: boolean = true) {
+  setPage(org: number, from: number = null, isNext: boolean = true) {
     this.loading = true;
 
-    this.apiService.getScannerBlockList(from >= 0 ? from : null)
+    this.apiService.getPawnshopList(org, from >= 0 ? from : null)
       .finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
@@ -67,6 +59,9 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
       .subscribe((data: any) => {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
+        this.rows.forEach(item => {
+          this.selected[0] && item.id === this.selected[0].id && (this.selected = [item]);
+        });
 
         if (this.rows.length) {
           if (!isNext) {
@@ -84,12 +79,20 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
 
   prevPage() {
     this.offset--;
-    this.setPage(this.paginationHistory[this.paginationHistory.length - 3], false);
+    this.setPage(this.pawnshopId, this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
     this.offset++;
-    this.setPage(this.paginationHistory[this.paginationHistory.length - 1], true);
+    this.setPage(this.pawnshopId, this.paginationHistory[this.paginationHistory.length - 1], true);
+  }
+
+  onSelect({ selected }) {
+    let data = this.stepperData;
+    data.step = null;
+    data.id = selected[0].org_id;
+    data.pawnshop = selected[0].name;
+    this.userService.organizationStepper$.next(data);
   }
 
   ngOnDestroy() {

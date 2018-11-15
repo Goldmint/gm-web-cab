@@ -1,0 +1,21 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.Info" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <div *ngIf="isDataLoaded" class="pawnshop-info">
+      <div><b>{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.Name" | translate }}</b> {{ pawnshopDetails.name }}</div>
+      <div><b>{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.OrgId" | translate }}</b> {{ pawnshopDetails.org_id }}</div>
+      <div><b>{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.Rate" | translate }}</b> {{ rate | noexp }} GOLD</div>
+    </div>
+
+    <div id="daily-stats-chart-container"></div>
+
+  </div>
+</section>

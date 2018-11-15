@@ -49,6 +49,7 @@ import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-pag
 import {PawnshopBuyPageComponent} from "./pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component";
 import {PawnshopSellPageComponent} from "./pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component";
 import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
+import {PawnshopDetailsPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshop-details-page/pawnshop-details-page.component";
 
 
 const appRoutes: Routes = [
@@ -110,6 +111,7 @@ const appRoutes: Routes = [
     children: [
       { path: '', redirectTo: 'feed', pathMatch: 'full' },
       { path: 'feed', component: PawnshopFeedPageComponent },
+      { path: 'feed/pawnshop/:id', component: PawnshopDetailsPageComponent },
       { path: 'buy', component: PawnshopBuyPageComponent },
       { path: 'sell', component: PawnshopSellPageComponent }
     ]

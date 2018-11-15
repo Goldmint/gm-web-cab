@@ -30,6 +30,7 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
     next: null
   }
 
+  private paginationHistory: string[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
@@ -47,7 +48,7 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
         this.block = data.res;
         this.isDataLoaded = true;
       });
-      this.setPage(null);
+      this.setPage(null, true);
     });
 
     this.isMobile = (window.innerWidth <= 992);
@@ -57,10 +58,10 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  setPage(from: string) {
+  setPage(from: string, isNext: boolean = true) {
     this.loading = true;
 
-    this.apiService.getScannerTxList(this.blockNumber, null, from)
+    this.apiService.getScannerTxList(this.blockNumber, null, from ? from : null)
       .finally(() => {
         this.loading = false;
         this.cdRef.markForCheck();
@@ -69,21 +70,28 @@ export class TransactionsInBlockPageComponent implements OnInit, OnDestroy {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
 
-        this.pagination.prev = this.offset > 1 ? this.pagination.next : null;
-        this.pagination.next = this.rows.length && this.rows[this.rows.length - 1].transaction.digest;
+        if (this.rows.length) {
+          if (!isNext) {
+            this.paginationHistory.pop();
+            this.paginationHistory.length === 1 && (this.paginationHistory[0] = this.rows[this.rows.length - 1].transaction.digest);
+          }
+          isNext && this.paginationHistory.push(this.rows[this.rows.length - 1].transaction.digest);
+        } else {
+          isNext && this.paginationHistory.push(null);
+        }
 
-        !this.rows.length && (this.isLastPage = true);
+        (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
       });
   }
 
   prevPage() {
     this.offset--;
-    this.setPage(this.pagination.prev);
+    this.setPage(this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
     this.offset++;
-    this.setPage(this.pagination.next);
+    this.setPage(this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
   ngOnDestroy() {
