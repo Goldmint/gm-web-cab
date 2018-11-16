@@ -487,6 +487,9 @@
       },
       "Buttons": {
         "Go": "Go"
+      },
+      "Message": {
+        "NoData": "No data"
       }
     },
     "Deposit": {
@@ -1483,13 +1486,19 @@
         },
         "FeedTable": {
           "Id": "Id",
-          "PawnshopId": "Pawnshop id",
+          "Org": "Organization",
           "Num": "Num",
           "Weight": "Weight",
           "OpenTx": "Inbound TX",
           "CloseTx": "Outbound TX",
           "Status": "Status",
-          "UpdateDate": "Update date"
+          "UpdateDate": "Update date",
+          "StatusName": {
+            "new": "new",
+            "sold": "sold",
+            "boughtout": "bought out",
+            "discarded": "discarded"
+          }
         },
         "PawnshopDetails": {
           "Heading": "Feed",

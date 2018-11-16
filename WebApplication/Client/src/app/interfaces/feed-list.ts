@@ -9,4 +9,5 @@ export interface FeedList {
   pawnshop_id: number;
   status: string;
   weight: number;
+  org_name?: string;
 }

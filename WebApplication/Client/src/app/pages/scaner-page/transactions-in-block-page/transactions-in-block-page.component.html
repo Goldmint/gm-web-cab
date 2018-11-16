@@ -32,15 +32,15 @@
 
       <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Total" | translate }} </b>
         <div class="ml-2">
-          <div>{{ +block.total_gold | noexp }} GOLD</div>
-          <div>{{ +block.total_mnt | noexp }} MNT</div>
+          <span>{{ +block.total_gold | noexp }} GOLD</span>,
+          <span> {{ +block.total_mnt | noexp }} MNT</span>
         </div>
       </div>
 
       <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionsInBlock.Labels.Fee" | translate }} </b>
         <div class="ml-2">
-          <div>{{ +block.fee_gold | noexp }} GOLD</div>
-          <div>{{ +block.fee_mnt | noexp }} MNT</div>
+          <span>{{ +block.fee_gold | noexp }} GOLD</span>,
+          <span> {{ +block.fee_mnt | noexp }} MNT</span>
         </div>
       </div>
 

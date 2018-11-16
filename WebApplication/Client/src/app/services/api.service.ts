@@ -526,6 +526,10 @@ export class APIService {
     return this._http.get(`${this._marketBaseUrl}/pawnshop/${id}`);
   }
 
+  getOrganizationsName() {
+    return this._http.get(`${this._marketBaseUrl}/org/names`);
+  }
+
   // --------
 
   // scanner methods

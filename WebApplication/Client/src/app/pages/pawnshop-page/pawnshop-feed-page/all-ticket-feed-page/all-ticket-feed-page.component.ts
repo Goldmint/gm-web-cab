@@ -4,6 +4,7 @@ import {APIService, UserService} from "../../../../services";
 import {FeedList} from "../../../../interfaces/feed-list";
 import {Page} from "../../../../models/page";
 import {CommonService} from "../../../../services/common.service";
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'app-all-ticket-feed-page',
@@ -53,15 +54,24 @@ export class AllTicketFeedPageComponent implements OnInit {
     this.loading = true;
     clearInterval(this.interval);
 
-    this.apiService.getPawnList(org, from >= 0 ? from : null)
-      .finally(() => {
+    Observable.combineLatest(
+      this.apiService.getOrganizationsName(),
+      this.apiService.getPawnList(org, from >= 0 ? from : null)
+    ).finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
         this.cdRef.markForCheck();
       })
       .subscribe((data: any) => {
         this.isLastPage = false;
-        this.rows = data.res.list ? data.res.list : [];
+        let orgList = data[0].res.list;
+        this.rows = data[1].res.list ? data[1].res.list : [];
+
+        this.rows.forEach(row => {
+          for (let key in orgList) {
+            row.org_id === +key && (row.org_name = orgList[key]);
+          }
+        });
 
         this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows);
 

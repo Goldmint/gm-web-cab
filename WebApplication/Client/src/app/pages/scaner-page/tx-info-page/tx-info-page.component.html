@@ -33,9 +33,9 @@
         </div>
 
         <div class="d-flex"><b>{{ "PAGES.Scanner.TransactionInfo.Labels.Amount" | translate }} </b>
-          <span class="ml-2">
-          <div>{{ +tx.transaction.amount_gold | noexp }} GOLD</div>
-          <div>{{ +tx.transaction.amount_mnt | noexp }} MNT</div>
+          <span class="ml-1">
+          <span>{{ +tx.transaction.amount_gold | noexp }} GOLD</span>,
+          <span> {{ +tx.transaction.amount_mnt | noexp }} MNT</span>
         </span>
         </div>
 

@@ -3,6 +3,9 @@ import {APIService, UserService} from "../../../../../services";
 import {Subject} from "rxjs/Subject";
 import {Page} from "../../../../../models/page";
 import {FeedList} from "../../../../../interfaces/feed-list";
+import {PawnshopDetails} from "../../../../../interfaces/pawnshop-details";
+import {TranslateService} from "@ngx-translate/core";
+import 'anychart';
 
 @Component({
   selector: 'app-feed-table',
@@ -22,18 +25,19 @@ export class FeedTableComponent implements OnInit {
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
   public offset: number = 0;
-  public pagination = {
-    prev: null,
-    next: null
-  }
+  public pawnshopDetails: PawnshopDetails;
+  public rate: number;
+  public rateChartData = [];
 
+  private rateChart: any = {};
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private apiService: APIService,
     private userService: UserService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -47,8 +51,68 @@ export class FeedTableComponent implements OnInit {
       if (data !== null && data.step === 3) {
         this.paginationHistory = [];
         this.pawnshopId = data.id;
+
         this.setPage(this.pawnshopId, null, true);
+        this.getPawnshopDetails(this.pawnshopId);
       }
+    });
+  }
+
+  getPawnshopDetails(id) {
+    this.apiService.getPawnshopDetails(id).subscribe((data: any) => {
+      this.pawnshopDetails = data.res;
+      this.rate = this.pawnshopDetails.daily_stats[0].currently_opened_amount;
+      this.setChartsData(this.pawnshopDetails.daily_stats);
+      this.initDailyStatChart();
+
+      this.isDataLoaded = true;
+      this.cdRef.markForCheck();
+    });
+  }
+
+  setChartsData(res) {
+    if (res) {
+      res.forEach(item => {
+        const date = new Date(item.time * 1000);
+        let month = (date.getMonth()+1).toString(),
+          day = date.getDate().toString();
+
+        month.length === 1 && (month = '0' + month);
+        day.length === 1 && (day = '0' + day);
+
+        const dateString = date.getFullYear() + '-' + month + '-' + day;
+        this.rateChartData.push([dateString, +item.currently_opened_amount]);
+      });
+    }
+  }
+
+  initDailyStatChart() {
+    if (this.rateChart.hasOwnProperty('table')) {
+      this.rateChart.table.remove();
+      this.rateChart.table.addData(this.rateChartData);
+      return
+    }
+
+    anychart.onDocumentReady( () => {
+      this.rateChart.table = anychart.data['table']();
+      this.rateChart.table.addData(this.rateChartData);
+
+      this.rateChart.mapping = this.rateChart['table'].mapAs();
+      this.rateChart.mapping.addField('value', 1);
+
+      this.rateChart.chart = anychart.stock();
+      this.rateChart.chart.plot(0).line(this.rateChart.mapping).name('Rate');
+      this.rateChart.chart.plot(0).legend().itemsFormatter(() => {
+        return [
+          {text: "Rate", iconFill:"#63B7F7"}
+        ]
+      });
+
+      this.translate.get('PAGES.Pawnshop.Feed.PawnshopDetails.Charts.Rate').subscribe(phrase => {
+        this.rateChart.chart.title(phrase);
+      });
+      this.rateChart.chart.container('daily-stats-chart-container');
+      this.rateChart.chart.draw();
     });
   }
 
@@ -58,7 +122,6 @@ export class FeedTableComponent implements OnInit {
     this.apiService.getPawnList(org, from >= 0 ? from : null)
       .finally(() => {
         this.loading = false;
-        this.isDataLoaded = true;
         this.cdRef.markForCheck();
       })
       .subscribe((data: any) => {

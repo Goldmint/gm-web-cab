@@ -123,7 +123,7 @@
         <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Blocks.Heading" | translate }}</h5>
 
         <div *ngIf="!blocksList.length; else lastBlocks">
-          {{ "MESSAGE.NoData" | translate }}
+          {{ "PAGES.Scanner.Message.NoData" | translate }}
         </div>
         <ng-template #lastBlocks>
           <div *ngFor="let b of blocksList" class="trs-block mb-2 pb-1">
@@ -163,7 +163,7 @@
         <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Transactions.Heading" | translate }}</h5>
 
         <div *ngIf="!transactionsList.length; else lastTx">
-          {{ "MESSAGE.NoData" | translate }}
+          {{ "PAGES.Scanner.Message.NoData" | translate }}
         </div>
         <ng-template #lastTx>
           <div *ngFor="let t of transactionsList" class="trs-block mb-2 pb-1">

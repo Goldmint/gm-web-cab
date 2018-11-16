@@ -19,8 +19,8 @@
         <div class="d-flex">
           <b>{{ "PAGES.Scanner.AddressInfo.Labels.Balance" | translate }}</b>
           <div class="ml-1">
-            <div>{{ +walletInfo?.balance.gold | noexp }} MNT</div>
-            <div>{{ +walletInfo?.balance.mint | noexp }} GOLD</div>
+            <span>{{ +walletInfo?.balance.gold | noexp }} GOLD</span>,
+            <span> {{ +walletInfo?.balance.mint | noexp }} MNT</span>
           </div>
         </div>
         <div>

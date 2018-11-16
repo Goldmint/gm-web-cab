@@ -13,7 +13,7 @@ import {PawnshopList} from "../../../../../interfaces/pawnshop-list";
 })
 export class PawnshopsTableComponent implements OnInit {
 
-  public pawnshopId: number;
+  public orgId: number;
   public page = new Page();
   public rows: PawnshopList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
@@ -42,8 +42,8 @@ export class PawnshopsTableComponent implements OnInit {
       if (data !== null && data.step === 2) {
         this.paginationHistory = [];
         this.stepperData = data;
-        this.pawnshopId = data.id;
-        this.setPage(this.pawnshopId, null, true);
+        this.orgId = data.id;
+        this.setPage(this.orgId, null, true);
       }
     });
   }
@@ -80,18 +80,18 @@ export class PawnshopsTableComponent implements OnInit {
 
   prevPage() {
     this.offset--;
-    this.setPage(this.pawnshopId, this.paginationHistory[this.paginationHistory.length - 3], false);
+    this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
     this.offset++;
-    this.setPage(this.pawnshopId, this.paginationHistory[this.paginationHistory.length - 1], true);
+    this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
   onSelect({ selected }) {
     let data = this.stepperData;
     data.step = null;
-    data.id = selected[0].org_id;
+    data.id = selected[0].id;
     data.pawnshop = selected[0].name;
     this.userService.organizationStepper$.next(data);
   }

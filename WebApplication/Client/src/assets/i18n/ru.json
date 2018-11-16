@@ -487,6 +487,9 @@
       },
       "Buttons": {
         "Go": "Вперед"
+      },
+      "Message": {
+        "NoData": "Нет данных"
       }
     },
     "Deposit": {
@@ -1483,13 +1486,19 @@
         },
         "FeedTable": {
           "Id": "Id",
-          "PawnshopId": "Id ломбарда",
+          "Org": "Организация",
           "Num": "Номер",
           "Weight": "Вес",
           "OpenTx": "Входящая тр-я",
           "CloseTx": "Исходящая тр-я",
           "Status": "Статус",
-          "UpdateDate": "Дата обновления"
+          "UpdateDate": "Дата обновления",
+          "StatusName": {
+            "new": "Новый",
+            "sold": "Проданный",
+            "boughtout": "Погашение",
+            "discarded": "Изъят"
+          }
         },
         "PawnshopDetails": {
           "Heading": "Активность",
