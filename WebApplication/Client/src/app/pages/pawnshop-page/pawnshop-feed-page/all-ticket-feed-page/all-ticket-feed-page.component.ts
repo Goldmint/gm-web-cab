@@ -3,6 +3,7 @@ import {Subject} from "rxjs/Subject";
 import {APIService, UserService} from "../../../../services";
 import {FeedList} from "../../../../interfaces/feed-list";
 import {Page} from "../../../../models/page";
+import {CommonService} from "../../../../services/common.service";
 
 @Component({
   selector: 'app-all-ticket-feed-page',
@@ -15,22 +16,26 @@ export class AllTicketFeedPageComponent implements OnInit {
 
   public page = new Page();
   public rows: FeedList[] = [];
+  public prevRows: FeedList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
   public loading: boolean = false;
   public isMobile: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
   public offset: number = 0;
-  public pagination = {
-    prev: null,
-    next: null
-  }
 
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private interval;
+
+  rowClass = (row) => {
+    let itemClass = 'table-row-' + row.id;
+    return itemClass;
+  }
 
   constructor(
     private apiService: APIService,
+    private commonService: CommonService,
     private userService: UserService,
     private cdRef: ChangeDetectorRef
   ) { }
@@ -46,6 +51,7 @@ export class AllTicketFeedPageComponent implements OnInit {
 
   setPage(org: number, from: number = null, isNext: boolean = true) {
     this.loading = true;
+    clearInterval(this.interval);
 
     this.apiService.getPawnList(org, from >= 0 ? from : null)
       .finally(() => {
@@ -57,31 +63,47 @@ export class AllTicketFeedPageComponent implements OnInit {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
 
-        if (this.rows.length) {
-          if (!isNext) {
-            this.paginationHistory.pop();
-            this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
-          }
-          isNext && this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
-        } else {
-          isNext && this.paginationHistory.push(null);
-        }
+        this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows);
 
         (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
+
+        this.interval = setInterval(() => {
+          this.setPage(org, from, null);
+        }, 20000);
+
+        this.pagination(isNext);
+        this.cdRef.markForCheck();
       });
+  }
+
+  pagination(isNext) {
+    if(isNext === null) return;
+
+    if (this.rows.length) {
+      if (!isNext) {
+        this.paginationHistory.pop();
+        this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
+      }
+      isNext && this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
+    } else {
+      isNext && this.paginationHistory.push(null);
+    }
   }
 
   prevPage() {
     this.offset--;
+    this.prevRows = [];
     this.setPage(null, this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
     this.offset++;
+    this.prevRows = [];
     this.setPage(null, this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
   ngOnDestroy() {
+    clearInterval(this.interval);
     this.destroy$.next(true);
   }
 
