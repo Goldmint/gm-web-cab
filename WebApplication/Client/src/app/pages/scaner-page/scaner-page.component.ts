@@ -17,7 +17,8 @@ import {combineLatest} from "rxjs/observable/combineLatest";
 import {Router} from "@angular/router";
 import {TranslateService} from "@ngx-translate/core";
 import {Subject} from "rxjs/Subject";
-
+import * as moment from 'moment'
+import "moment/locale/ru"
 
 @Component({
   selector: 'app-scaner-page',
@@ -67,8 +68,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.switchModel = {
       type: 'gold'
     };
+    this.userService.currentLocale.takeUntil(this.destroy$).subscribe((locale) => {
+      locale && moment.locale(locale);
 
-    this.userService.currentLocale.takeUntil(this.destroy$).subscribe(() => {
       if (this.isDataLoaded) {
         this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
           this.charts.reward.chart.title(phrase);
@@ -76,7 +78,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
         this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Tx').subscribe(phrase => {
           this.charts.tx.chart.title(phrase);
         });
+        this.updateData();
       }
+      this.cdRef.markForCheck();
     });
 
     this.apiService.transferCurrentSumusNetwork.subscribe(() => {
