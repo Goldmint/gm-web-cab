@@ -149,7 +149,7 @@
                 <span>{{ +b.fee_mnt | noexp }} MNT</span>
               </div>
             </div>
-            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b> {{ b.timeStamp | amTimeAgo }}</div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b> {{ b.timestamp * 1000 | amTimeAgo }}</div>
           </div>
         </ng-template>
 
@@ -187,7 +187,7 @@
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Status" | translate }}</b>
               <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + t.status" class="tx-status {{ t.status }}"></span>
             </div>
-            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Date" | translate }}</b> {{ t.timestamp | amTimeAgo }}</div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Date" | translate }}</b> {{ t.transaction.timestamp * 1000 | amTimeAgo }}</div>
           </div>
         </ng-template>
 
