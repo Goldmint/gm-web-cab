@@ -28,8 +28,6 @@ export class UserService {
   public onWalletSwitch$ = new Subject();
   public currentWallet;
 
-  public organizationStepper$ = new ReplaySubject(null);
-
   public windowSize$ = new Subject();
 
   constructor(

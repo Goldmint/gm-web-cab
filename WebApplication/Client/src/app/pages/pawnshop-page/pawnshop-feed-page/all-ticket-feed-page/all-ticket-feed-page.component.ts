@@ -5,6 +5,7 @@ import {FeedList} from "../../../../interfaces/feed-list";
 import {Page} from "../../../../models/page";
 import {CommonService} from "../../../../services/common.service";
 import {Observable} from "rxjs/Observable";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-all-ticket-feed-page',
@@ -98,6 +99,10 @@ export class AllTicketFeedPageComponent implements OnInit {
     } else {
       isNext && this.paginationHistory.push(null);
     }
+  }
+
+  selectOrganization(id: number, name: string) {
+    this.commonService.setTwoOrganizationStep$.next({id, name});
   }
 
   prevPage() {

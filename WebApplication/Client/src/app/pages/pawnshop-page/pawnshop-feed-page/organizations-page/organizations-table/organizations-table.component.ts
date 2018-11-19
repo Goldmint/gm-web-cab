@@ -1,8 +1,9 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {OrganizationList} from "../../../../../interfaces/organization-list";
 import {Subject} from "rxjs/Subject";
-import {APIService, UserService} from "../../../../../services";
+import {APIService} from "../../../../../services";
 import {Page} from "../../../../../models/page";
+import {CommonService} from "../../../../../services/common.service";
 
 @Component({
   selector: 'app-organizations-table',
@@ -32,11 +33,22 @@ export class OrganizationsTableComponent implements OnInit {
 
   constructor(
     private apiService: APIService,
-    private userService: UserService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private commonService: CommonService
   ) { }
 
   ngOnInit() {
+    this.commonService.setTwoOrganizationStep$.takeUntil(this.destroy$).subscribe((data: any) => {
+      if (data !== null) {
+        let selected = {
+          step: null,
+          id: data.id,
+          org: data.name,
+          pawnshop: null
+        }
+        this.commonService.organizationStepper$.next(selected);
+        }
+    });
     this.setPage(null, true);
   }
 
@@ -80,14 +92,14 @@ export class OrganizationsTableComponent implements OnInit {
     this.setPage(this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
-  onSelect({ selected }) {
+  onSelect({ selected }: any) {
     let data = {
       step: null,
       id: selected[0].id,
       org: selected[0].name,
       pawnshop: null
     }
-    this.userService.organizationStepper$.next(data);
+    this.commonService.organizationStepper$.next(data);
   }
 
   ngOnDestroy() {

@@ -22,33 +22,6 @@
                    [messages]="messages">
 
       <div *ngIf="!isMobile">
-        <ngx-datatable-column prop="id" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="80">
-          <ng-template let-id="column" ngx-datatable-header-template>
-            <span class="datatable-header-cell-wrapper">
-              {{ "PAGES.Pawnshop.Feed.FeedTable.Id" | translate }}
-            </span>
-          </ng-template>
-
-          <ng-template let-id="value" let-row="row" ngx-datatable-cell-template>
-              <div class="d-flex align-items-center">
-                  <div>{{ id }}</div>
-                  <div class="status-marker {{ row.status }}"></div>
-              </div>
-          </ng-template>
-        </ngx-datatable-column>
-
-        <ngx-datatable-column prop="org_name" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
-          <ng-template let-column="column" ngx-datatable-header-template>
-            {{ "PAGES.Pawnshop.Feed.FeedTable.Org" | translate }}
-          </ng-template>
-
-          <ng-template let-org_name="value" ngx-datatable-cell-template>
-            <div class="text-center">
-              {{ org_name }}
-            </div>
-          </ng-template>
-        </ngx-datatable-column>
-
         <ngx-datatable-column prop="number" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
           <ng-template let-column="column" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper">
@@ -57,8 +30,28 @@
           </ng-template>
 
           <ng-template let-number="value" ngx-datatable-cell-template>
-            <div class="text-center">
-              {{ number }}
+            {{ number }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="55">
+          <ng-template let-id="column" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper"></span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="status-marker {{ row.status }}" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave"></div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="org_name" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
+          <ng-template let-column="column" ngx-datatable-header-template>
+            {{ "PAGES.Pawnshop.Feed.FeedTable.Org" | translate }}
+          </ng-template>
+
+          <ng-template let-org_name="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center a-link" (click)="selectOrganization(row.org_id, row.org_name)">
+              {{ org_name }}
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -133,26 +126,22 @@
       <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
         <ng-template let-column="column" ngx-datatable-header-template>
           <span class="datatable-header-cell-wrapper">
-            {{ "PAGES.Pawnshop.Feed.FeedTable.Id" | translate }}
+            {{ "PAGES.Pawnshop.Feed.FeedTable.Num" | translate }}
           </span>
         </ng-template>
 
         <ng-template let-row="row" ngx-datatable-cell-template>
           <div class="font-weight-500 my-1">
-            <div class="ml-1">
-              <div class="d-flex align-items-center">
-                <div>{{ row.id }}</div>
-                <div class="status-marker {{ row.status }}"></div>
-              </div>
-            </div>
+            <div>{{ row.number }}</div>
+          </div>
+          <div>
+            <div class="status-marker {{ row.status }} mb-1" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave" placement="right"></div>
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Org" | translate }}:</span>
-            {{ row.org_name }}
-          </div>
-          <div>
-            <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Num" | translate }}:</span>
-            {{ row.number }}
+            <div class="a-link" (click)="selectOrganization(row.org_id, row.org_name)">
+              {{ row.org_name }}
+            </div>
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Weight" | translate }}:</span>

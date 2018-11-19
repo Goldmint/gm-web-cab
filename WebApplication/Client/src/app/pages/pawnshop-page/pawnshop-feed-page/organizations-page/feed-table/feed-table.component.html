@@ -3,6 +3,10 @@
     <div class="container"></div>
   </div>
 
+  <div class="mb-4">
+    <div id="daily-stats-chart-container"></div>
+  </div>
+
   <div *ngIf="isDataLoaded" class="pawnshop-info my-2">
     <!--<div><b>{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.Name" | translate }}</b> {{ pawnshopDetails.name }}</div>-->
     <!--<div><b>{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.OrgId" | translate }}</b> {{ pawnshopDetails.org_id }}</div>-->
@@ -24,21 +28,6 @@
                  [messages]="messages">
 
     <div *ngIf="!isMobile">
-      <ngx-datatable-column prop="id" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="80">
-        <ng-template let-id="column" ngx-datatable-header-template>
-          <span class="datatable-header-cell-wrapper">
-            {{ "PAGES.Pawnshop.Feed.FeedTable.Id" | translate }}
-          </span>
-        </ng-template>
-
-        <ng-template let-id="value" let-row="row" ngx-datatable-cell-template>
-          <div class="d-flex align-items-center">
-            <div>{{ id }}</div>
-            <div class="status-marker {{ row.status }}"></div>
-          </div>
-        </ng-template>
-      </ngx-datatable-column>
-
       <ngx-datatable-column prop="number" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
         <ng-template let-column="column" ngx-datatable-header-template>
           <span class="datatable-header-cell-wrapper">
@@ -47,9 +36,17 @@
         </ng-template>
 
         <ng-template let-number="value" ngx-datatable-cell-template>
-          <div class="text-center">
             {{ number }}
-          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="55">
+        <ng-template let-id="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper"></span>
+        </ng-template>
+
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="status-marker {{ row.status }}" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave"></div>
         </ng-template>
       </ngx-datatable-column>
 
@@ -129,16 +126,10 @@
 
       <ng-template let-row="row" ngx-datatable-cell-template>
         <div class="font-weight-500 my-1">
-          <div class="ml-1">
-            <div class="d-flex align-items-center">
-              <div>{{ row.id }}</div>
-              <div class="status-marker {{ row.status }}"></div>
-            </div>
-          </div>
+          <div>{{ row.number }}</div>
         </div>
         <div>
-          <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Num" | translate }}:</span>
-          {{ row.number }}
+          <div class="status-marker {{ row.status }} mb-1" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave" placement="right"></div>
         </div>
         <div>
           <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Weight" | translate }}:</span>
@@ -181,9 +172,5 @@
       </a>
     </li>
   </ul>
-
-  <div>
-    <div id="daily-stats-chart-container"></div>
-  </div>
 
 </div>

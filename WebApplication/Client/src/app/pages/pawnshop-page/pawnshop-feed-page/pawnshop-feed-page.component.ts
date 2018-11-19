@@ -1,5 +1,6 @@
 import {Component, HostBinding, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
-import {UserService} from "../../../services";
+import {CommonService} from "../../../services/common.service";
+import {Subject} from "rxjs/Subject";
 
 @Component({
   selector: 'app-pawnshop-feed-page',
@@ -14,18 +15,24 @@ export class PawnshopFeedPageComponent implements OnInit, OnDestroy {
   public switchModel: {
     type: 'feed'|'organizations'
   };
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
-    private userService: UserService
+    private commonService: CommonService
   ) { }
 
   ngOnInit() {
     this.switchModel = {
       type: 'feed'
     };
+
+    this.commonService.setTwoOrganizationStep$.takeUntil(this.destroy$).subscribe(id => {
+      id !== null && (this.switchModel.type = 'organizations');
+    })
   }
 
   ngOnDestroy() {
-    this.userService.organizationStepper$.next(null);
+    this.commonService.organizationStepper$.next(null);
+    this.destroy$.next(true);
   }
 }

@@ -4,8 +4,9 @@ import {
   OnInit,
   ViewEncapsulation
 } from '@angular/core';
-import {UserService} from "../../../../services";
 import {Subject} from "rxjs/Subject";
+import {CommonService} from "../../../../services/common.service";
+import {OrgStepperData} from "../../../../models/org-stepper-data";
 
 @Component({
   selector: 'app-organizations-page',
@@ -18,18 +19,18 @@ export class OrganizationsPageComponent implements OnInit {
 
   public currentStep: number = 1;
   public currentId: number = null;
-  public stepperData;
+  public stepperData: OrgStepperData = new OrgStepperData();
   public isDenied: boolean = true;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
-    private userService: UserService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private commonService: CommonService
   ) { }
 
   ngOnInit() {
-    this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: any) => {
+    this.commonService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: OrgStepperData) => {
       if (data !== null) {
         this.stepperData = data;
         this.currentId = data.id;
@@ -45,13 +46,14 @@ export class OrganizationsPageComponent implements OnInit {
 
   nextStep() {
     this.currentStep++;
-    this.stepperData.step = this.currentStep;;
+    this.stepperData.step = this.currentStep;
     this.stepperData.id = this.currentId;
     this.cdRef.markForCheck();
   }
 
   ngOnDestroy() {
-    this.userService.organizationStepper$.next(null);
+    this.commonService.organizationStepper$.next(null);
+    this.commonService.setTwoOrganizationStep$.next(null);
     this.destroy$.next(true);
   }
 }

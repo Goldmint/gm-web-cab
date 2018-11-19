@@ -1,8 +1,10 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {APIService, UserService} from "../../../../../services";
+import {APIService} from "../../../../../services";
 import {Subject} from "rxjs/Subject";
 import {Page} from "../../../../../models/page";
 import {PawnshopList} from "../../../../../interfaces/pawnshop-list";
+import {CommonService} from "../../../../../services/common.service";
+import {OrgStepperData} from "../../../../../models/org-stepper-data";
 
 @Component({
   selector: 'app-pawnshops-table',
@@ -26,19 +28,19 @@ export class PawnshopsTableComponent implements OnInit {
     next: null
   }
   public selected: PawnshopList[] = [];
-  public stepperData;
+  public stepperData: OrgStepperData;
 
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private apiService: APIService,
-    private userService: UserService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private commonService: CommonService
   ) { }
 
   ngOnInit() {
-    this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: {step: number, id: number}) => {
+    this.commonService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: OrgStepperData) => {
       if (data !== null && data.step === 2) {
         this.paginationHistory = [];
         this.stepperData = data;
@@ -93,7 +95,7 @@ export class PawnshopsTableComponent implements OnInit {
     data.step = null;
     data.id = selected[0].id;
     data.pawnshop = selected[0].name;
-    this.userService.organizationStepper$.next(data);
+    this.commonService.organizationStepper$.next(data);
   }
 
   ngOnDestroy() {
