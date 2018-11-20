@@ -133,7 +133,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				if (sumTransaction != null) {
 					try {
 						await EmailComposer
-							.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, Locale.En))
+							.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.TokenMigrationEmission, Locale.En))
 							.ReplaceBodyTag("REQUEST_ID", row.Id.ToString())
 							.ReplaceBodyTag("TOKEN", row.Asset.ToString().ToUpperInvariant())
 							.ReplaceBodyTag("LINK", _appConfig.Services.Sumus.ScannerTxView + sumTransaction.Digest)
