@@ -288,21 +288,28 @@
         "TransferDescr": "Вам необходимо перевести токены по данному адресу:",
         "Labels": {
           "Amount": "Количество",
-          "Address": "Sumus адрес"
+          "Address": "Sumus адрес",
+          "Check": "Я внимательно проверил адреса и сумму"
         },
         "SuccessModal": {
           "Heading": "Транзакция в процессе:",
           "Hash": "Хэш вашей транзакции:",
           "Link": "Просмотр транзакции на EtherScan"
         },
+        "SuccessSumusModal": {
+          "Heading": "Транзакция в процессе:",
+          "Hash": "Digest вашей транзакции:",
+          "Link": "Просмотр транзакции на Scanner"
+        },
         "Errors": {
           "InvalidAmount": "Неверное количество",
           "Maximum": "Максимальное количество - ",
           "Required": "Поле обязательно",
-          "InvalidAddress": "Неверный адрес"
+          "InvalidAddress": "Неверный адрес",
+          "DuplicateRequest": "Запрос на миграцию в очереди. Мы ждем перевода ваших {{ token }} токенов."
         },
         "Buttons": {
-          "go": "Вперед"
+          "Go": "Вперед"
         },
         "Popover": {
           "Copied": "Скопировано"

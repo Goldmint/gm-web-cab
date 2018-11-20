@@ -288,21 +288,28 @@
         "TransferDescr": "You have to transfer your tokens to this address:",
         "Labels": {
           "Amount": "Amount",
-          "Address": "Sumus address"
+          "Address": "Sumus address",
+          "Check": "I carefully checked the addresses and the amount"
         },
         "SuccessModal": {
           "Heading": "Transaction in Process:",
           "Hash": "Your transaction hash is:",
           "Link": "View your transaction on EtherScan"
         },
+        "SuccessSumusModal": {
+          "Heading": "Transaction in Process:",
+          "Hash": "Your transaction digest is:",
+          "Link": "View your transaction on Scanner"
+        },
         "Errors": {
           "InvalidAmount": "Invalid amount",
           "Maximum": "Maximum amount is",
           "Required": "Field is required",
-          "InvalidAddress": "Invalid address"
+          "InvalidAddress": "Invalid address",
+          "DuplicateRequest": "Migration request enqueued. We are waiting for your {{ token }} transfer."
         },
         "Buttons": {
-          "go": "GO"
+          "Go": "GO"
         },
         "Popover": {
           "Copied": "Copied"

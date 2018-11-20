@@ -100,21 +100,47 @@
                 </div>
               </div>
 
-              <div class="col mt-1 mb-4">
-                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !isMetamask || !sumusAddress || !isAddressLoaded || loading"
-                        (click)="onSubmit()">Go</button>
+              <div class="col-12 lead" *ngIf="isMetamask && sumusAddress">
+                <div class="d-flex align-items-center mb-2">
+                  <div *ngIf="direction === 'GOLDeth' || direction === 'MNTPeth'">{{ ethAddress | reduction:5:3 }} (Ethereum)</div>
+                  <div *ngIf="direction === 'GOLDsumus' || direction === 'MNTPsumus'">{{ sumusAddress | reduction:4:4 }} (Sumus)</div>
+
+                  <div class="form-currency ml-3 mr-2">
+                    <svg class="icon" width="25px" height="25px">
+                      <use xlink:href="#next-arrow"></use>
+                    </svg>
+                  </div>
+
+                  <div *ngIf="direction === 'GOLDeth' || direction === 'MNTPeth'">{{ sumusAddress | reduction:4:4 }} (Sumus)</div>
+                  <div *ngIf="direction === 'GOLDsumus' || direction === 'MNTPsumus'">{{ ethAddress | reduction:5:3 }} (Ethereum)</div>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
+                  <label class="custom-control-label" for="agreeCheck">{{ "PAGES.MasterNode.MigrationPage.Labels.Check" | translate }}</label>
+                </div>
+              </div>
+
+              <div class="col-12 mt-3" *ngIf="isSumusSuccess && (direction === 'GOLDsumus' || direction === 'MNTPsumus')">
+                <div>{{ "PAGES.MasterNode.MigrationPage.TransferDescr" | translate }}</div>
+                <input type="text" class="input-copy" value="{{ sumusMigrationAddress }}" #secondAddress readonly>
+                <span class="migration-address-link" (click)="onCopyData(secondAddress)"
+                      popover='{{ "PAGES.MasterNode.MigrationPage.Popover.Copied" | translate }}' [outsideClick]="true"
+                ><b>{{ sumusMigrationAddress }}</b></span>
+              </div>
+
+              <div class="col-12 mt-3 icon--red" *ngIf="isMigrationDuplicateRequest">
+                {{ "PAGES.MasterNode.MigrationPage.Errors.DuplicateRequest" | translate:{token: tokenModel.type} }}
+              </div>
+
+              <div class="col mt-4 mb-4">
+                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !isMetamask || !sumusAddress || !isAddressLoaded || !agreeCheck || loading" (click)="onSubmit()">
+                  {{ "PAGES.MasterNode.MigrationPage.Buttons.Go" | translate }}
+                </button>
                 <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
               </div>
             </div>
           </form>
-        </div>
-
-        <div class="mb-4" *ngIf="isSumusSuccess && (direction === 'GOLDsumus' || direction === 'MNTPsumus')">
-          <div>{{ "PAGES.MasterNode.MigrationPage.TransferDescr" | translate }}</div>
-          <input type="text" class="input-copy" value="{{ sumusMigrationAddress }}" #secondAddress readonly>
-          <span class="migration-address-link" (click)="onCopyData(secondAddress)"
-                popover='{{ "PAGES.MasterNode.MigrationPage.Popover.Copied" | translate }}' [outsideClick]="true"
-          ><b>{{ sumusMigrationAddress }}</b></span>
         </div>
       </ng-template>
     </ng-template>
