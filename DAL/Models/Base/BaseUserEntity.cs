@@ -2,11 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Goldmint.DAL.Models
-{
+namespace Goldmint.DAL.Models {
 
-	public abstract class BaseUserEntity : BaseEntity
-	{
+	public abstract class BaseUserEntity : BaseEntity {
 
 		[Column("user_id"), Required]
 		public long UserId { get; set; }

@@ -162,6 +162,7 @@
 				public string MigrationEmissionPk { get; set; } = "";
 
 				public string SumusNodeProxyUrl { get; set; } = "";
+				public string ScannerTxView { get; set; } = "";
 
 			    public int MigrationRequestNextCheckDelay { get; set; } = 20;
             }
