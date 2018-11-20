@@ -8,6 +8,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Goldmint.CoreLogic.Services.Notification;
+using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Notification.Impl;
 
 namespace Goldmint.QueueService.Workers.TokenMigration {
 
@@ -19,6 +22,8 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		private AppConfig _appConfig;
 		private ApplicationDbContext _dbContext;
 		private IEthereumWriter _ethereumWriter;
+		private INotificationQueue _notificationQueue;
+		private ITemplateProvider _templateProvider;
 
 		private long _statProcessed = 0;
 		private long _statFailed = 0;
@@ -34,6 +39,8 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 			_logger = services.GetLoggerFor(this.GetType());
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+			_notificationQueue = services.GetRequiredService<INotificationQueue>();
+			_templateProvider = services.GetRequiredService<ITemplateProvider>();
 			return Task.CompletedTask;
 		}
 
@@ -50,6 +57,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 						r.TimeNextCheck <= nowTime
 					select r
 				)
+				.Include(_ => _.User)
 				.AsTracking()
 				.OrderBy(_ => _.Id)
 				.Take(_rowsPerRound)
@@ -83,6 +91,22 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 					row.TimeCompleted = DateTime.UtcNow;
 				}
 				await _dbContext.SaveChangesAsync();
+
+				// notify
+				if (ethTransaction != null) {
+					try {
+						await EmailComposer
+							.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, Locale.En))
+							.ReplaceBodyTag("REQUEST_ID", row.Id.ToString())
+							.ReplaceBodyTag("TOKEN", row.Asset.ToString().ToUpperInvariant())
+							.ReplaceBodyTag("LINK", _appConfig.Services.Ethereum.EtherscanTxView + ethTransaction)
+							.ReplaceBodyTag("DETAILS_SOURCE", TextFormatter.MaskBlockchainAddress(row.SumAddress))
+							.ReplaceBodyTag("DETAILS_AMOUNT", row.Amount.Value.ToString("F"))
+							.ReplaceBodyTag("DETAILS_DESTINATION", TextFormatter.MaskBlockchainAddress(row.EthAddress))
+							.Send(row.User.Email, row.User.UserName, _notificationQueue)
+						;
+					} catch { }
+				}
 
 				if (ethTransaction != null) {
 					++_statProcessed;

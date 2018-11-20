@@ -52,31 +52,5 @@ namespace Goldmint.Common.Sumus {
 			catch { }
 			return false;
 		}
-
-		public static string PackHash(byte[] addr, ulong nonce) {
-			if (addr == null || addr.Length != 32) {
-				throw new ArgumentException("Invalid address");
-			}
-
-			var data = addr.Concat(BitConverter.GetBytes(nonce)).ToArray();
-			return Pack(data);
-		}
-
-		public static bool UnpackHash(string hash, out byte[] addr, out ulong nonce) {
-			if (string.IsNullOrWhiteSpace(hash)) {
-				throw new ArgumentException("Invalid hash");
-			}
-
-			addr = null;
-			nonce = 0;
-
-			if (!Unpack(hash, out var data) || data == null || data.Length != 32 + 8) {
-				return false;
-			}
-
-			addr = data.Take(32).ToArray();
-			nonce = BitConverter.ToUInt64(data, 32);
-			return true;
-		}
 	}
 }

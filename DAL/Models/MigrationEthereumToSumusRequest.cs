@@ -3,12 +3,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Goldmint.Common;
 
-namespace Goldmint.DAL.Models
-{
+namespace Goldmint.DAL.Models {
 
 	[Table("gm_es_token_migration")]
-	public class MigrationEthereumToSumusRequest : BaseUserEntity, IConcurrentUpdate
-	{
+	public class MigrationEthereumToSumusRequest : BaseUserEntity, IConcurrentUpdate {
 
 		[Column("asset"), Required]
 		public MigrationRequestAsset Asset { get; set; }

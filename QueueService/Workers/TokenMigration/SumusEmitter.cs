@@ -2,6 +2,9 @@
 using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus.Models;
+using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Notification;
+using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,9 +20,12 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		private readonly int _rowsPerRound;
 
 		private ILogger _logger;
+		private AppConfig _appConfig;
 		private ApplicationDbContext _dbContext;
 		private ISumusReader _sumusReader;
 		private ISumusWriter _sumusWriter;
+		private INotificationQueue _notificationQueue;
+		private ITemplateProvider _templateProvider;
 		private Common.Sumus.Signer _emitterSigner;
 
 		private long _statProcessed = 0;
@@ -32,15 +38,17 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		}
 
 		protected override async Task OnInit(IServiceProvider services) {
-			var appConfig = services.GetRequiredService<AppConfig>();
+			_appConfig = services.GetRequiredService<AppConfig>();
 			_logger = services.GetLoggerFor(this.GetType());
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_sumusReader = services.GetRequiredService<ISumusReader>();
 			_sumusWriter = services.GetRequiredService<ISumusWriter>();
+			_notificationQueue = services.GetRequiredService<INotificationQueue>();
+			_templateProvider = services.GetRequiredService<ITemplateProvider>();
 
 			// emitter
 			{
-				if (!Common.Sumus.Pack58.Unpack(appConfig.Services.Sumus.MigrationEmissionPk, out var pk)) {
+				if (!Common.Sumus.Pack58.Unpack(_appConfig.Services.Sumus.MigrationEmissionPk, out var pk)) {
 					throw new ArgumentException("Sumus emission private key is invalid");
 				}
 				_emitterSigner = new Common.Sumus.Signer(pk, 0);
@@ -65,12 +73,12 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 						r.TimeNextCheck <= nowTime
 					select r
 				)
+				.Include(_ => _.User)
 				.AsTracking()
 				.OrderBy(_ => _.Id)
 				.Take(_rowsPerRound)
 				.ToArrayAsync()
 			;
-
 			if (IsCancelled()) return;
 
 			_logger.Debug(rows.Length > 0 ? $"{rows.Length} request(s) found" : "Nothing found");
@@ -112,7 +120,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 					// row.TimeNextCheck = DateTime.UtcNow.Add(nextCheckDelay);
 					
 					row.Status = MigrationRequestStatus.Completed;
-					row.SumTransaction = sumTransaction.Hash;
+					row.SumTransaction = sumTransaction.Digest;
 					row.TimeCompleted = DateTime.UtcNow;
 				}
 				else {
@@ -120,6 +128,22 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 					row.TimeCompleted = DateTime.UtcNow;
 				}
 				await _dbContext.SaveChangesAsync();
+
+				// notify
+				if (sumTransaction != null) {
+					try {
+						await EmailComposer
+							.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, Locale.En))
+							.ReplaceBodyTag("REQUEST_ID", row.Id.ToString())
+							.ReplaceBodyTag("TOKEN", row.Asset.ToString().ToUpperInvariant())
+							.ReplaceBodyTag("LINK", _appConfig.Services.Sumus.ScannerTxView + sumTransaction.Digest)
+							.ReplaceBodyTag("DETAILS_SOURCE", TextFormatter.MaskBlockchainAddress(row.EthAddress))
+							.ReplaceBodyTag("DETAILS_AMOUNT", row.Amount.Value.ToString("F"))
+							.ReplaceBodyTag("DETAILS_DESTINATION", TextFormatter.MaskBlockchainAddress(row.SumAddress))
+							.Send(row.User.Email, row.User.UserName, _notificationQueue)
+						;
+					} catch { }
+				}
 
 				if (sumTransaction != null) {
 					++_statProcessed;

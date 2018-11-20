@@ -14,6 +14,8 @@
 		public const string ExchangeGoldIssued = "ExchangeGoldIssued";
 		public const string ExchangeEthTransferred = "ExchangeEthTransferred";
 		public const string ExchangeFiatWithdrawal = "ExchangeFiatWithdrawal";
+		public const string TokenMigrationEmission = "TokenMigrationEmission";
+		public const string TokenMigrationRequest = "TokenMigrationRequest";
 
 		public string Subject { get; set; }
 		public string Body { get; set; }

@@ -14,7 +14,6 @@ namespace Goldmint.Common.Sumus {
 		public ulong Nonce;
 		public string Name;
 		public string Data;
-		public string Hash;
 		public string Digest;
 
 		public Transaction() {
@@ -26,7 +25,6 @@ namespace Goldmint.Common.Sumus {
 
 			var txname = "";
 			var txdata = "";
-			var txhash = "";
 			var txdigest = "";
 
 			using (var s = new Serializer()) {
@@ -46,13 +44,11 @@ namespace Goldmint.Common.Sumus {
 				s.Write(signature);
 
 				txdata = s.Hex();
-				txhash = Pack58.PackHash(signer.PublicKeyBytes, nonce);
 				txdigest = Pack58.Pack(digest);
 			}
 
 			return new Transaction() {
 				Data = txdata,
-				Hash = txhash,
 				Name = txname,
 				Nonce = nonce,
 				Digest = txdigest,
