@@ -6,6 +6,8 @@ import {FeedList} from "../../../../../interfaces/feed-list";
 import {PawnshopDetails} from "../../../../../interfaces/pawnshop-details";
 import {TranslateService} from "@ngx-translate/core";
 import 'anychart';
+import {CommonService} from "../../../../../services/common.service";
+import {OrgStepperData} from "../../../../../models/org-stepper-data";
 
 @Component({
   selector: 'app-feed-table',
@@ -37,7 +39,8 @@ export class FeedTableComponent implements OnInit {
     private apiService: APIService,
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private commonService: CommonService
   ) { }
 
   ngOnInit() {
@@ -47,7 +50,15 @@ export class FeedTableComponent implements OnInit {
       this.cdRef.markForCheck();
     });
 
-    this.userService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: {step: number, id: number}) => {
+    this.userService.currentLocale.takeUntil(this.destroy$).subscribe(() => {
+      if (this.isDataLoaded) {
+        this.translate.get('PAGES.Pawnshop.Feed.PawnshopDetails.Charts.Rate').subscribe(phrase => {
+          this.rateChart.chart.title(phrase);
+        });
+      }
+    });
+
+    this.commonService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: OrgStepperData) => {
       if (data !== null && data.step === 3) {
         this.paginationHistory = [];
         this.pawnshopId = data.id;
@@ -101,10 +112,10 @@ export class FeedTableComponent implements OnInit {
       this.rateChart.mapping.addField('value', 1);
 
       this.rateChart.chart = anychart.stock();
-      this.rateChart.chart.plot(0).line(this.rateChart.mapping).name('Rate');
+      this.rateChart.chart.plot(0).line(this.rateChart.mapping).name('Volume (GOLD)');
       this.rateChart.chart.plot(0).legend().itemsFormatter(() => {
         return [
-          {text: "Rate", iconFill:"#63B7F7"}
+          {text: "Volume", iconFill:"#63B7F7"}
         ]
       });
 
