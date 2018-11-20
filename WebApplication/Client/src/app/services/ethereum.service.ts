@@ -115,7 +115,7 @@ export class EthereumService {
 
       if (ethereum) {
         this._web3Metamask = new Web3(ethereum);
-        ethereum.enable().then().catch(() => { });
+        ethereum.enable().then();
       } else {
         this._web3Metamask = new Web3(window['web3'].currentProvider);
       }
@@ -141,7 +141,9 @@ export class EthereumService {
 
     var addr = this._web3Metamask && this._web3Metamask.eth && this._web3Metamask.eth.accounts.length
       ? this._web3Metamask.eth.accounts[0] : null;
+
     if (this._lastAddress != addr) {
+      window['ethereum'] && window['ethereum'].enable().then();
       this._lastAddress = addr;
       this.emitAddress(addr);
     }
