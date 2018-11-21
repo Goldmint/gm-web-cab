@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Goldmint.DAL.Models.MarketPlace;
 using Goldmint.DAL.Models.PromoCode;
 
 namespace Goldmint.DAL {
@@ -36,8 +35,6 @@ namespace Goldmint.DAL {
 	    public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
         public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
 	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
-	    public DbSet<Pawn> Pawn { get; set; }
-	    public DbSet<TemporaryWallet> TemporaryWallet { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 

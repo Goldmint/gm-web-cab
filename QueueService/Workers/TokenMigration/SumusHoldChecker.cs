@@ -12,11 +12,13 @@ using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.Blockchain.Sumus;
 using Goldmint.DAL;
 using Goldmint.DAL.Extensions;
+using System.Collections.Generic;
 
 namespace Goldmint.QueueService.Workers.TokenMigration {
 
 	public class SumusHoldChecker : BaseWorker {
 
+		private readonly int _confirmationsRequired;
 		private readonly int _blocksPerRound;
 
 		private ILogger _logger;
@@ -31,6 +33,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		// ---
 
 		public SumusHoldChecker(int blocksPerRound) {
+			_confirmationsRequired = 5;
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 		}
 
@@ -47,8 +50,8 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 				_logger.Info($"Using last block #{lbDb} (DB)");
 			}
 			else {
-				_lastBlock = await _sumusReader.GetLastBlockNumber();
-				_logger.Info($"Using last block #{_lastBlock} (logs)");
+				_lastBlock = await _sumusReader.GetBlocksCount() - 1 - (ulong)_confirmationsRequired;
+				_logger.Info($"Using last block #{_lastBlock} (network)");
 			}
 		}
 
@@ -56,84 +59,94 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 			_dbContext.DetachEverything();
 
-			var maxBlock = await _sumusReader.GetLastBlockNumber();
+			var maxBlock = await _sumusReader.GetBlocksCount() - 1 - (ulong)_confirmationsRequired;
 			var blockFrom = Math.Min((ulong) _lastBlock, maxBlock);
 			var blockTo = Math.Min((ulong) (_lastBlock + _blocksPerRound), maxBlock);
 
-			// get transactions
-			var transactions = await _sumusReader.GetBlocksSpanTransaction(_appConfig.Services.Sumus.MigrationHolderAddress, blockFrom, blockTo);
-			_lastBlock = blockTo;
+			for (var i = blockFrom; i <= blockTo; i++) {
 
-			_logger.Debug(
-				(transactions.Count > 0
-					? $"{transactions.Count} request(s) found"
-					: "Nothing found"
-				) + $" in blocks [{blockFrom} - {blockTo}]"
-			);
+				List<CoreLogic.Services.Blockchain.Sumus.Models.TransactionInfo> transactions;
 
-			if (IsCancelled()) return;
+				// get transactions
+				try {
+					transactions = await _sumusReader.GetWalletIncomingTransactions(_appConfig.Services.Sumus.MigrationHolderAddress, i);
+					_lastBlock = i;
+				}
+				catch {
+					break;
+				}
 
-			foreach (var v in transactions) {
+				_logger.Debug(
+					(transactions.Count > 0
+						? $"{transactions.Count} request(s) found"
+						: "Nothing found"
+					) + $" in block {i}"
+				);
 
 				if (IsCancelled()) return;
-				_dbContext.DetachEverything();
 
-				_logger.Debug($"Trying to process transfer at {v.Data.Hash}");
+				foreach (var v in transactions) {
 
-				if (v.Data.TokenAmount <= 0) {
-					_logger.Debug($"Invalid amount of transfer at {v.Data.Hash}");
-					continue;
+					if (IsCancelled()) return;
+					_dbContext.DetachEverything();
+
+					_logger.Debug($"Trying to process transfer at {v.Data.Digest}");
+
+					if (v.Data.TokenAmount <= 0) {
+						_logger.Debug($"Invalid amount of transfer at {v.Data.Digest}");
+						continue;
+					}
+
+					MigrationRequestAsset asset;
+
+					// gold
+					if (v.Data.Token == SumusToken.Gold) asset = MigrationRequestAsset.Gold;
+					// mint
+					else if (v.Data.Token == SumusToken.Mnt) asset = MigrationRequestAsset.Mnt;
+					// unknown
+					else {
+						_logger.Debug($"Unsupported token type {v.Data.Token} at {v.Data.Digest}");
+						continue;
+					}
+
+					// find row
+					var row = await (
+							from r in _dbContext.MigrationSumusToEthereumRequest
+							where
+								r.Asset == asset &&
+								r.Status == MigrationRequestStatus.TransferConfirmation &&
+								r.SumAddress == v.Data.From
+							select r
+						)
+						.AsTracking()
+						.FirstOrDefaultAsync()
+					;
+
+					// not found
+					if (row == null) {
+						_logger.Debug($"Transfer at {v.Data.Digest} not found in DB (or previously processed)");
+						continue;
+					}
+
+					// update
+					row.Status = MigrationRequestStatus.Emission;
+					row.Amount = v.Data.TokenAmount;
+					row.Block = v.Data.BlockNumber;
+					row.SumTransaction = v.Data.Digest;
+					row.TimeNextCheck = DateTime.UtcNow.AddSeconds(0);
+
+					// save
+					try {
+						await _dbContext.SaveChangesAsync();
+					}
+					catch (Exception e) when (e.IsMySqlDuplicateException()) {
+						_logger.Debug($"Transfer at {v.Data.Digest} is already processed");
+						continue;
+					}
+
+					_logger.Info($"Transfer at {v.Data.Digest} is processed");
+					++_statProcessed;
 				}
-
-				MigrationRequestAsset asset;
-
-				// gold
-				if (v.Data.Token == SumusToken.Gold) asset = MigrationRequestAsset.Gold;
-				// mint
-				else if (v.Data.Token == SumusToken.Mnt) asset = MigrationRequestAsset.Mnt;
-				// unknown
-				else {
-					_logger.Debug($"Unsupported token type {v.Data.Token} at {v.Data.Hash}");
-					continue;
-				}
-
-				// find row
-				var row = await (
-						from r in _dbContext.MigrationSumusToEthereumRequest
-						where
-							r.Asset == asset &&
-							r.Status == MigrationRequestStatus.TransferConfirmation &&
-							r.SumAddress == v.Data.From
-						select r
-					)
-					.AsTracking()
-					.FirstOrDefaultAsync()
-				;
-
-				// not found
-				if (row == null) {
-					_logger.Debug($"Transfer at {v.Data.Hash} not found in DB (or previously processed)");
-					continue;
-				}
-
-				// update
-				row.Status = MigrationRequestStatus.Emission;
-				row.Amount = v.Data.TokenAmount;
-				row.Block = v.Data.BlockNumber;
-				row.SumTransaction = v.Data.Hash;
-				row.TimeNextCheck = DateTime.UtcNow.AddSeconds(0);
-
-				// save
-				try {
-					await _dbContext.SaveChangesAsync();
-				}
-				catch (Exception e) when (e.IsMySqlDuplicateException()) {
-					_logger.Debug($"Transfer at {v.Data.Hash} is already processed");
-					continue;
-				}
-
-				_logger.Info($"Transfer at {v.Data.Hash} is processed");
-				++_statProcessed;
 			}
 
 			// save last index to settings
@@ -146,3 +159,4 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		}
 	}
 }
+

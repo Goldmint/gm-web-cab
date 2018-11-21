@@ -57,13 +57,11 @@ namespace Goldmint.Common.Sumus {
 
 		// ---
 
-		public static Transaction TransferAsset(Signer signer, ulong nonce, byte[] addr, SumusToken token, BigInteger amount)
-		{
+		public static Transaction TransferAsset(Signer signer, ulong nonce, byte[] addr, SumusToken token, BigInteger amount) {
 			if (signer == null || addr == null || addr.Length != 32) {
 				throw new ArgumentException("Invalid signer, address or amount (token) specified");
 			}
-			return Construct(signer, nonce, (Serializer s) => 
-			{
+			return Construct(signer, nonce, (Serializer s) => {
 				s.Write(token);
 				s.Write(signer.PublicKeyBytes);
 				s.Write(addr);

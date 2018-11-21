@@ -34,13 +34,15 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 				name = tx.Name,
 				data = tx.Data,
 			};
-			var res = await SumusNodeProxy.Post<ProxyAddTransactionResult, ProxyAddTransactionRequest>(url, body, _logger);
-			if (res != null) {
-				return new SentTransaction() {
-					Nonce = nonce,
-					Digest = tx.Digest,
-				};
-			}
+			try {
+				var res = await SumusNodeProxy.Post<ProxyAddTransactionResult, ProxyAddTransactionRequest>(url, body, _logger);
+				if (res != null) {
+					return new SentTransaction() {
+						Nonce = nonce,
+						Digest = tx.Digest,
+					};
+				}
+			} catch {}
 
 			return null;
 		}
@@ -51,6 +53,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl {
 			public string name { get; set; }
 			public string data { get; set; }
 		}
+
 		internal class ProxyAddTransactionResult { }
 	}
 }

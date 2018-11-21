@@ -62,7 +62,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 
 				if (IsCancelled()) return;
 
-				var info = await _sumusReader.GetTransactionInfo(row.SumTransaction, row.TimeEmitted);
+				var info = await _sumusReader.GetTransactionInfo(row.SumTransaction);
 
 				// not found / failed
 				if (info == null || info.Status == SumusTransactionStatus.Failed) {
