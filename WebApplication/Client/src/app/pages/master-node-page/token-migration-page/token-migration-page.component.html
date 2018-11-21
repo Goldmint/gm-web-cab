@@ -68,7 +68,7 @@
         <div class="mt-4">
           <form #migrationForm="ngForm">
             <div class="row">
-              <div class="col-12 overflow-hidden" *ngIf="direction === 'GOLDeth' || direction === 'MNTPeth'">
+              <div class="col-12 overflow-hidden">
                 <div class="from-row form-group">
                   <label for="tokenAmountInput">{{ "PAGES.MasterNode.MigrationPage.Labels.Amount" | translate }}</label>
                   <div class="d-flex align-items-center">
@@ -83,7 +83,7 @@
                            autocomplete="off"
                            (input)="changeValue($event)"
                            [ngClass]="{'is-invalid': (invalidAmount || balanceError) && !loading}"
-                           [disabled]="loading || !isMetamask">
+                           [disabled]="loading || !isMetamask || !sumusAddress">
                     <div class="invalid-feedback invalid-feedback--abs" *ngIf="invalidAmount && !loading">
                       {{ "PAGES.MasterNode.MigrationPage.Errors.InvalidAmount" | translate }}
                     </div>
@@ -134,7 +134,7 @@
               </div>
 
               <div class="col mt-4 mb-4">
-                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !isMetamask || !sumusAddress || !isAddressLoaded || !agreeCheck || loading" (click)="onSubmit()">
+                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !isMetamask || !sumusAddress || !isAddressLoaded || !agreeCheck || !tokenAmount || loading" (click)="onSubmit()">
                   {{ "PAGES.MasterNode.MigrationPage.Buttons.Go" | translate }}
                 </button>
                 <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
