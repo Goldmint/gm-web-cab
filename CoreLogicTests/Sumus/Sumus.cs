@@ -4,7 +4,9 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using Goldmint.Common;
 using Goldmint.Common.Sumus;
+using Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -161,6 +163,21 @@ namespace Goldmint.CoreLogicTests.Sumus {
 			var tx = Transaction.TransferAsset(src, 3, dst.PublicKeyBytes, 0, BigInteger.Parse("1000000000000000000000"));
 
 			Assert.True(tx.Data == "03000000000000000000eea0728dfee30d6a65ff2e5c07ddbc4c304cc9005abe2640822adc1ec944201df42378223753e3f5410b427d4c49df8dee069d798eb5cfb0a4e3bd197b0797b7000000000000000000000010000000010e4b042527eafe9f5c8d90da41d4e062fd044a84e3c1dbcda9342b4921798d9ee56310dda763c137e0ec4e521d2738249120edc7149018eb15240ba373e6090a");
+		}
+
+		[Fact]
+		public void SumusProxy() {
+			var acfg = new AppConfig() {
+				Services = new AppConfig.ServicesSection() {
+					Sumus = new AppConfig.ServicesSection.SumusSection() {
+						SumusNodeProxyUrl = "https://service.goldmint.io/sumus/testnet/v1",
+					},
+				},
+			};
+			var svc = new SumusReader(acfg, LogFactory);
+
+			Assert.True(svc.GetBlocksCount().Result > 0);
+			Assert.True(svc.GetWalletIncomingTransactions("2SJDwEStcz7Bp7oWJd7HSj91FsKbm9jmdNzZWsjiGEfcxMqGqS", 4211).Result.Count > 0);
 		}
 	}
 }

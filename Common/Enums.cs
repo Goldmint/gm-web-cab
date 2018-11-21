@@ -749,6 +749,11 @@ namespace Goldmint.Common {
 		/// Transaction cancelled or failed
 		/// </summary>
 		Failed,
+
+		/// <summary>
+		/// Stale transaction (still pending)
+		/// </summary>
+		Stale,
 	}
 
 	#endregion

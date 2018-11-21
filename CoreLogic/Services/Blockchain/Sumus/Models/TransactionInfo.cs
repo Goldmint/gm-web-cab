@@ -11,8 +11,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Sumus.Models {
 	}
 
 	public sealed class TransactionData {
-		public ulong Id { get; internal set; }
-		public string Hash { get; internal set; }
+
+		public string Digest { get; internal set; }
 		public ulong BlockNumber { get; internal set; }
 		public SumusToken Token { get; internal set; }
 		public decimal TokenAmount { get; internal set; }

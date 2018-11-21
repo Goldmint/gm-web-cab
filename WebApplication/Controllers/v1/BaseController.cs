@@ -32,7 +32,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected IHostingEnvironment HostingEnvironment { get; private set; }
 		protected ILogger Logger { get; private set; }
 		protected DAL.ApplicationDbContext DbContext { get; private set; }
-		protected DAL.CustodyBotDbContext CBotDbContext { get; private set; }
 		protected IMutexHolder MutexHolder { get; private set; }
 		protected SignInManager<DAL.Models.Identity.User> SignInManager { get; private set; }
 		protected UserManager<DAL.Models.Identity.User> UserManager { get; private set; }
@@ -56,7 +55,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			AppConfig = services.GetRequiredService<AppConfig>();
 			HostingEnvironment = services.GetRequiredService<IHostingEnvironment>();
 			DbContext = services.GetRequiredService<DAL.ApplicationDbContext>();
-			CBotDbContext = services.GetRequiredService<DAL.CustodyBotDbContext>();
 			MutexHolder = services.GetRequiredService<IMutexHolder>();
 			SignInManager = services.GetRequiredService<SignInManager<DAL.Models.Identity.User>>();
 			UserManager = services.GetRequiredService<UserManager<DAL.Models.Identity.User>>();

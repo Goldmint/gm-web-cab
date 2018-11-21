@@ -5,8 +5,6 @@
 		public ConnectionStringsSection ConnectionStrings { get; set; } = new ConnectionStringsSection();
 		public class ConnectionStringsSection {
 			public string Default { get; set; } = "";
-			public string Scanner { get; set; } = "";
-		    public string CustodyBot { get; set; } = "";
         }
 
 		// ---
