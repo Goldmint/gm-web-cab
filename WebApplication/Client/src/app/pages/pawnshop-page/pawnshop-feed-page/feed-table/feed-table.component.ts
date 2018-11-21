@@ -1,13 +1,12 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {APIService, UserService} from "../../../../../services";
+import {APIService, UserService} from "../../../../services/index";
 import {Subject} from "rxjs/Subject";
-import {Page} from "../../../../../models/page";
-import {FeedList} from "../../../../../interfaces/feed-list";
-import {PawnshopDetails} from "../../../../../interfaces/pawnshop-details";
+import {Page} from "../../../../models/page";
+import {FeedList} from "../../../../interfaces/feed-list";
+import {PawnshopDetails} from "../../../../interfaces/pawnshop-details";
 import {TranslateService} from "@ngx-translate/core";
 import 'anychart';
-import {CommonService} from "../../../../../services/common.service";
-import {OrgStepperData} from "../../../../../models/org-stepper-data";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'app-feed-table',
@@ -30,6 +29,9 @@ export class FeedTableComponent implements OnInit {
   public pawnshopDetails: PawnshopDetails;
   public rate: number;
   public rateChartData = [];
+  public orgId: number;
+  public orgName: string;
+  public invalidPawnshopId: boolean = false;
 
   private rateChart: any = {};
   private paginationHistory: number[] = [];
@@ -40,8 +42,16 @@ export class FeedTableComponent implements OnInit {
     private userService: UserService,
     private cdRef: ChangeDetectorRef,
     private translate: TranslateService,
-    private commonService: CommonService
-  ) { }
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
+    this.route.params.takeUntil(this.destroy$).subscribe(params => {
+      this.pawnshopId = params.id;
+
+      this.setPage(this.pawnshopId, null, true);
+      this.getPawnshopDetails(this.pawnshopId);
+    });
+  }
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 992);
@@ -57,27 +67,37 @@ export class FeedTableComponent implements OnInit {
         });
       }
     });
-
-    this.commonService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: OrgStepperData) => {
-      if (data !== null && data.step === 3) {
-        this.paginationHistory = [];
-        this.pawnshopId = data.id;
-
-        this.setPage(this.pawnshopId, null, true);
-        this.getPawnshopDetails(this.pawnshopId);
-      }
-    });
   }
 
   getPawnshopDetails(id) {
     this.apiService.getPawnshopDetails(id).subscribe((data: any) => {
-      this.pawnshopDetails = data.res;
-      this.rate = this.pawnshopDetails.daily_stats[0].currently_opened_amount;
-      this.setChartsData(this.pawnshopDetails.daily_stats);
-      this.initDailyStatChart();
+      if (data.res) {
+        this.invalidPawnshopId = false;
+        this.pawnshopDetails = data.res;
+        this.rate = this.pawnshopDetails.daily_stats[0].currently_opened_amount;
+        this.orgId = this.pawnshopDetails.org_id;
+
+        this.getOrganizationName(this.orgId);
+        this.setChartsData(this.pawnshopDetails.daily_stats);
+        this.initDailyStatChart();
+      } else {
+        this.invalidPawnshopId = true;
+      }
 
       this.isDataLoaded = true;
       this.cdRef.markForCheck();
+    });
+  }
+
+  getOrganizationName(orgId: number) {
+    this.apiService.getOrganizationsName().subscribe((orgList: any) => {
+      let list = orgList.res.list;
+      for (let key in list) {
+        if (orgId === +key) {
+          this.orgName = list[key];
+          this.cdRef.markForCheck();
+        }
+      }
     });
   }
 
@@ -123,7 +143,7 @@ export class FeedTableComponent implements OnInit {
         this.rateChart.chart.title(phrase);
       });
       this.rateChart.chart.container('daily-stats-chart-container');
-      this.rateChart.chart.draw();
+      document.getElementById('daily-stats-chart-container') && this.rateChart.chart.draw();
     });
   }
 
@@ -151,6 +171,10 @@ export class FeedTableComponent implements OnInit {
 
         (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
       });
+  }
+
+  back() {
+    this.router.navigate(['/pawnshop-loans/feed/pawnshop', this.orgId]);
   }
 
   prevPage() {

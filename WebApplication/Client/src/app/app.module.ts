@@ -127,11 +127,9 @@ import { PawnshopFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-p
 import { PawnshopBuyPageComponent } from './pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component';
 import { PawnshopSellPageComponent } from './pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component';
 import { AllTicketFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component';
-import { OrganizationsPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/organizations-page.component';
-import { OrganizationsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/organizations-table/organizations-table.component';
-import { PawnshopsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/pawnshops-table/pawnshops-table.component';
-import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/feed-table/feed-table.component';
-import { PawnshopDetailsPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-details-page/pawnshop-details-page.component';
+import { OrganizationsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-table/organizations-table.component';
+import { PawnshopsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component';
+import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component';
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 
@@ -247,11 +245,9 @@ export function getGoldmintToken() {
     PawnshopBuyPageComponent,
     PawnshopSellPageComponent,
     AllTicketFeedPageComponent,
-    OrganizationsPageComponent,
     OrganizationsTableComponent,
     PawnshopsTableComponent,
     FeedTableComponent,
-    PawnshopDetailsPageComponent,
     AccountReductionPipe
   ],
   exports: [],

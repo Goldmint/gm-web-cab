@@ -1,6 +1,7 @@
-import {Component, HostBinding, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import {CommonService} from "../../../services/common.service";
 import {Subject} from "rxjs/Subject";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-pawnshop-feed-page',
@@ -18,7 +19,9 @@ export class PawnshopFeedPageComponent implements OnInit, OnDestroy {
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
-    private commonService: CommonService
+    private commonService: CommonService,
+    private cdRef: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -26,13 +29,21 @@ export class PawnshopFeedPageComponent implements OnInit, OnDestroy {
       type: 'feed'
     };
 
-    this.commonService.setTwoOrganizationStep$.takeUntil(this.destroy$).subscribe(id => {
-      id !== null && (this.switchModel.type = 'organizations');
-    })
+    this.commonService.changeFeedTab.takeUntil(this.destroy$).subscribe(() => {
+      this.switchModel.type = 'organizations';
+      this.cdRef.markForCheck();
+    });
+
+    this.router.navigate(['/pawnshop-loans/feed/all-ticket-feed'])
+  }
+
+  chooseTab() {
+    let isFeed = this.switchModel.type === 'feed';
+    isFeed ? this.router.navigate(['/pawnshop-loans/feed/all-ticket-feed']) :
+             this.router.navigate(['/pawnshop-loans/feed/organizations']);
   }
 
   ngOnDestroy() {
-    this.commonService.organizationStepper$.next(null);
     this.destroy$.next(true);
   }
 }

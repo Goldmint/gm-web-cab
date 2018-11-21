@@ -49,6 +49,10 @@ import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-pag
 import {PawnshopBuyPageComponent} from "./pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component";
 import {PawnshopSellPageComponent} from "./pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component";
 import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
+import {OrganizationsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/organizations-table/organizations-table.component";
+import {PawnshopsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component";
+import {FeedTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component";
+import {AllTicketFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component";
 
 
 const appRoutes: Routes = [
@@ -109,7 +113,14 @@ const appRoutes: Routes = [
   { path: 'pawnshop-loans', component: PawnshopPageComponent, /*canActivate: [AuthGuard],*/
     children: [
       { path: '', redirectTo: 'feed', pathMatch: 'full' },
-      { path: 'feed', component: PawnshopFeedPageComponent },
+      { path: 'feed', component: PawnshopFeedPageComponent,
+        children: [
+          { path: 'all-ticket-feed', component: AllTicketFeedPageComponent },
+          { path: 'organizations', component: OrganizationsTableComponent },
+          { path: 'pawnshop/:id', component: PawnshopsTableComponent },
+          { path: 'organization-feed/:id', component: FeedTableComponent },
+        ]
+      },
       { path: 'buy', component: PawnshopBuyPageComponent },
       { path: 'sell', component: PawnshopSellPageComponent }
     ]

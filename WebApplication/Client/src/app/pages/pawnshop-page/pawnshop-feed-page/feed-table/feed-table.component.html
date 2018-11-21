@@ -1,0 +1,197 @@
+<div class="mt-4 pt-1">
+  <section class="page__section section">
+    <h2 class="section__title">{{ "PAGES.Pawnshop.Feed.Labels.Feed" | translate }}</h2>
+
+    <div class="section__content py-4">
+      <div *ngIf="!invalidPawnshopId">
+        <div class="mb-3">
+          <div> <b>{{ "PAGES.Pawnshop.Feed.Labels.Organization" | translate }}</b> {{ orgName }}</div>
+          <div> <b>{{ "PAGES.Pawnshop.Feed.Labels.Pawnshop" | translate }}</b> {{ pawnshopDetails?.name }}</div>
+          <div><b>{{ "PAGES.Pawnshop.Feed.PawnshopDetails.Labels.Rate" | translate }}</b> {{ rate | noexp }} GOLD</div>
+
+        </div>
+
+        <div class="w-100 text-right">
+          <button type="button" class="btn btn-sm btn-primary" (click)="back()">
+            {{ "PAGES.Pawnshop.Feed.Buttons.Back" | translate }}
+          </button>
+        </div>
+
+        <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+          <div class="container"></div>
+        </div>
+      </div>
+
+      <div class="mb-4" [hidden]="invalidPawnshopId">
+        <div id="daily-stats-chart-container"></div>
+      </div>
+
+      <div *ngIf="!invalidPawnshopId">
+        <ngx-datatable class="table table--no-footer txs-table" #table
+                       [rows]="rows"
+                       [columnMode]="'force'"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="rows.length"
+                       [externalSorting]="true"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages">
+
+          <div *ngIf="!isMobile">
+            <ngx-datatable-column prop="number" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
+              <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">
+            {{ "PAGES.Pawnshop.Feed.FeedTable.Num" | translate }}
+          </span>
+              </ng-template>
+
+              <ng-template let-number="value" ngx-datatable-cell-template>
+                {{ number }}
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="55">
+              <ng-template let-id="column" ngx-datatable-header-template>
+                <span class="datatable-header-cell-wrapper"></span>
+              </ng-template>
+
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="status-marker {{ row.status }}" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave"></div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="weight" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
+              <ng-template ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">
+            {{ "PAGES.Pawnshop.Feed.FeedTable.Weight" | translate }}
+          </span>
+              </ng-template>
+
+              <ng-template let-weight="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div>{{ weight }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="open_digest" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template let-column="column" ngx-datatable-header-template>
+                {{ "PAGES.Pawnshop.Feed.FeedTable.OpenTx" | translate }}
+              </ng-template>
+
+              <ng-template let-open_digest="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + open_digest">{{ open_digest }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="close_digest" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template let-column="column" ngx-datatable-header-template>
+                {{ "PAGES.Pawnshop.Feed.FeedTable.CloseTx" | translate }}
+              </ng-template>
+
+              <ng-template let-close_digest="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + close_digest">{{ close_digest }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="status" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">
+            {{ "PAGES.Pawnshop.Feed.FeedTable.Status" | translate }}
+          </span>
+              </ng-template>
+
+              <ng-template let-status="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div>{{ "PAGES.Pawnshop.Feed.FeedTable.StatusName." + status | translate }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="open_time" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">
+            {{ "PAGES.Pawnshop.Feed.FeedTable.UpdateDate" | translate }}
+          </span>
+              </ng-template>
+
+              <ng-template let-open_time="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div>{{ open_time * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </div>
+
+          <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" ngx-datatable-header-template>
+        <span class="datatable-header-cell-wrapper">
+          {{ "PAGES.Pawnshop.Feed.FeedTable.Id" | translate }}
+        </span>
+            </ng-template>
+
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="font-weight-500 my-1">
+                <div>{{ row.number }}</div>
+              </div>
+              <div>
+                <div class="status-marker {{ row.status }} mb-1" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave" placement="right"></div>
+              </div>
+              <div>
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Weight" | translate }}:</span>
+                {{ row.weight }}
+              </div>
+              <div class="d-flex">
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.OpenTx" | translate }}h:</span>
+                <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/tx/' + row.open_digest">{{ row.open_digest }}</div>
+              </div>
+              <div class="d-flex">
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.CloseTx" | translate }}:</span>
+                <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/tx/' + row.close_digest">{{ row.close_digest }}</div>
+              </div>
+              <div class="d-flex">
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Status" | translate }}:</span>
+                <div class="ml-1">{{ "PAGES.Pawnshop.Feed.FeedTable.StatusName." + row.status | translate }}</div>
+              </div>
+              <div>
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.UpdateDate" | translate }}:</span>
+                {{ row.open_time * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-2" >
+          <li class="page-item" [ngClass]="{'hidden': offset === 0 || loading}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="prevPage()">
+              <svg class="icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': isLastPage || loading}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="nextPage()">
+              <svg class="icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="text-center" *ngIf="invalidPawnshopId">
+        {{ "PAGES.Pawnshop.Feed.PawnshopDetails.Errors.IncorrectPawnshopId" | translate }}
+      </div>
+
+    </div>
+  </section>
+</div>

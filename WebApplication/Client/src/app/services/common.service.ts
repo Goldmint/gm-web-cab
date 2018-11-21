@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class CommonService {
 
-  public organizationStepper$ = new BehaviorSubject(null);
-  public setTwoOrganizationStep$ = new BehaviorSubject(null);
+  public changeFeedTab = new Subject();
 
   constructor() { }
 

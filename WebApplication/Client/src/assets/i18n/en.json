@@ -1472,9 +1472,9 @@
           "Organizations": "Organizations"
         },
         "Labels": {
-          "1": "Organizations",
-          "2": "Pawnshops",
-          "3": "Feed",
+          "Organizations": "Organizations",
+          "Pawnshops": "Pawnshops",
+          "Feed": "Feed",
           "Organization": "Organization:",
           "Pawnshop": "Pawnshop:",
           "AllFeed": "All ticket feed"
@@ -1513,7 +1513,10 @@
             "Info": "Pawnshop info",
             "Name": "Name:",
             "OrgId": "Organization Id:",
-            "Rate": "Rate:"
+            "Rate": "Current volume:"
+          },
+          "Errors": {
+            "IncorrectPawnshopId": "Incorrect pawnshop id"
           },
           "Charts": {
             "Rate": "Gold volume history"

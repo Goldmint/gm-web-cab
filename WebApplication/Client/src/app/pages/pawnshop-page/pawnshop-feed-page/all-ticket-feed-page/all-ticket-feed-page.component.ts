@@ -39,6 +39,7 @@ export class AllTicketFeedPageComponent implements OnInit {
     private apiService: APIService,
     private commonService: CommonService,
     private userService: UserService,
+    private router: Router,
     private cdRef: ChangeDetectorRef
   ) { }
 
@@ -101,8 +102,9 @@ export class AllTicketFeedPageComponent implements OnInit {
     }
   }
 
-  selectOrganization(id: number, name: string) {
-    this.commonService.setTwoOrganizationStep$.next({id, name});
+  selectOrganization(id: number) {
+    this.commonService.changeFeedTab.next(true);
+    this.router.navigate(['/pawnshop-loans/feed/pawnshop/', id]);
   }
 
   prevPage() {

@@ -5,18 +5,15 @@
   <div class="col-auto btn-group p-0 mn-tabs feed-tabs">
     <label class="btn btn-primary btn-sm active wrap"
            name="limitsSwitchModel.type"
-           [(ngModel)]="switchModel.type"
+           [(ngModel)]="switchModel.type" (click)="chooseTab()"
            btnRadio="feed">{{ "PAGES.Pawnshop.Feed.Tabs.AllFeed" | translate }}</label>
     <label class="btn btn-primary btn-sm active wrap"
            name="limitsSwitchModel.type"
-           [(ngModel)]="switchModel.type"
+           [(ngModel)]="switchModel.type" (click)="chooseTab()"
            btnRadio="organizations">{{ "PAGES.Pawnshop.Feed.Tabs.Organizations" | translate }}</label>
   </div>
 
-  <div *ngIf="switchModel.type === 'feed'">
-    <app-all-ticket-feed-page></app-all-ticket-feed-page>
-  </div>
-  <div *ngIf="switchModel.type === 'organizations'">
-    <app-organizations-page></app-organizations-page>
+  <div>
+    <router-outlet></router-outlet>
   </div>
 </div>
