@@ -60,12 +60,16 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   public isAuthenticated: boolean = false;
   public agreeCheck: boolean = false;
   public isMigrationDuplicateRequest: boolean = false;
+  public sumusGoldBalance: number = 0;
+  public sumusMntpBalance: number = 0;
 
   private Web3: Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private sub1: Subscription;
   private timeoutPopUp;
   private liteWallet = window['GoldMint'];
+  private checkLiteWalletInterval;
+  private checSumusBalanceInterval;
 
   constructor(
     private messageBox: MessageBoxService,
@@ -93,7 +97,10 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     }
 
-    interval(500).subscribe(this.checkLiteWallet.bind(this));
+    this.checkLiteWallet();
+    this.checkLiteWalletInterval = setInterval(() => {
+      this.checkLiteWallet();
+    }, 500);
 
     this.isAuthenticated && this.apiService.getProfile().subscribe(data => {
       this.user = data.data;
@@ -152,7 +159,9 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
       }
       if (!this.ethAddress && this.isMetamask) {
         this.isMetamask = false;
-        this.tokenAmount = 0;
+        this.tokenAmount = this.goldBalance = this.mntpBalance = 0;
+        this.goldBalanceBigNumber = null;
+        this.mntpBalanceBigNumber = null;
       }
       this._cdRef.markForCheck();
     });
@@ -247,21 +256,46 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     if (window.hasOwnProperty('GoldMint')) {
       this.liteWallet.getAccount().then(res => {
         if (this.sumusAddress != res[0]) {
+
+          if (this.sumusAddress && !res.length) {
+            this.tokenAmount = this.sumusGoldBalance = this.sumusMntpBalance = 0;
+          }
+
           this.sumusAddress = res.length ? res[0] : null;
+          this.checkSumusBalance();
+          clearInterval(this.checSumusBalanceInterval)
+          this.checSumusBalanceInterval = setInterval(() => {
+            this.checkSumusBalance();
+          }, 7500);
+
           this._cdRef.markForCheck();
         }
       });
     }
   }
 
+  checkSumusBalance() {
+    this.liteWallet.getBalance(this.sumusAddress).then(res => {
+      if (res && (+res.gold !== this.sumusGoldBalance || +res.mint !== this.sumusMntpBalance)) {
+        this.sumusGoldBalance = +res.gold;
+        this.sumusMntpBalance = +res.mint;
+        this.chooseToken();
+      }
+    });
+  }
+
   chooseToken() {
-    this.currentBalance = this.tokenAmount = this.tokenModel.type === 'GOLD' ? this.goldBalance : this.mntpBalance;
-    this.isSumusSuccess = this.isMigrationDuplicateRequest = this.agreeCheck = false;
     this.chooseDirection();
   }
 
   chooseDirection() {
-    this.isMigrationDuplicateRequest = this.agreeCheck = false;
+    this.isSumusSuccess = this.isMigrationDuplicateRequest = this.agreeCheck = false;
+
+    if (this.directionModel.type === 'eth') {
+      this.currentBalance = this.tokenAmount = this.tokenModel.type === 'GOLD' ? this.goldBalance : this.mntpBalance;
+    } else {
+      this.currentBalance = this.tokenAmount = this.tokenModel.type === 'GOLD' ? this.sumusGoldBalance : this.sumusMntpBalance;
+    }
 
     this.direction = this.tokenModel.type + this.directionModel.type;
     if (this.direction === 'GOLDsumus' || this.direction === 'MNTPsumus') {
@@ -302,23 +336,17 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
   }
 
   setTokenBalance(percent) {
-    let balance = this.tokenModel.type === 'GOLD' ? this.goldBalance : this.mntpBalance;
-
-    const value = this.substrValue(+balance * percent);
+    const value = this.substrValue(+this.currentBalance * percent);
     this.tokenAmount = +value;
     this.invalidAmount = !this.tokenAmount ? true : false;
+    this.checkBalance();
     this._cdRef.markForCheck();
   }
 
   sendSumusTransaction() {
-    this.liteWallet.getBalance(this.sumusAddress).then(res => {
-      let balance = res,
-          token = this.tokenModel.type === 'GOLD' ? 'GOLD' : 'MNT',
-          amount = this.tokenModel.type === 'GOLD' ? +balance.gold : +balance.mint;
-
-      this.liteWallet.sendTransaction(this.sumusMigrationAddress, token, amount).then(digest => {
-        digest && this.successSumusMigrationModal(digest);
-      });
+    let token = this.tokenModel.type === 'GOLD' ? 'GOLD' : 'MNT';
+    this.liteWallet.sendTransaction(this.sumusMigrationAddress, token, this.tokenAmount).then(digest => {
+      digest && this.successSumusMigrationModal(digest);
     });
   }
 
@@ -360,7 +388,10 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
           }
         });
       }, (error) => {
-        error.error.errorCode === 106 && (this.isMigrationDuplicateRequest = true);
+        if (error.error.errorCode === 106) {
+          this.isMigrationDuplicateRequest = true;
+          this.isSumusSuccess = true;
+        }
         this.loading = false;
         this._cdRef.markForCheck();
     });
@@ -370,6 +401,8 @@ export class TokenMigrationPageComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.sub1 && this.sub1.unsubscribe();
     clearTimeout(this.timeoutPopUp);
+    clearInterval(this.checkLiteWalletInterval);
+    clearInterval(this.checSumusBalanceInterval);
   }
 
 }
