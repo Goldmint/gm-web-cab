@@ -131,7 +131,6 @@ import { OrganizationsPageComponent } from './pages/pawnshop-page/pawnshop-feed-
 import { OrganizationsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/organizations-table/organizations-table.component';
 import { PawnshopsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/pawnshops-table/pawnshops-table.component';
 import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-page/feed-table/feed-table.component';
-import { PawnshopDetailsPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-details-page/pawnshop-details-page.component';
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 
