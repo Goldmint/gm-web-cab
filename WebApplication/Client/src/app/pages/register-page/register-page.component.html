@@ -99,9 +99,17 @@
                 </div>
               </div>
 
+              <div class="form-group m-0">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="agreeTerms" name="agreeTerms" [(ngModel)]="agreeTerms">
+                  <label class="custom-control-label custom-control-label-reg" for="agreeTerms"
+                         [innerHTML]="'PAGES.Register.IAgreeTerms' | translate:{sale: location + '/#/legal-security/termsOfSale', policy: location + '/#/legal-security/privacy'}"></label>
+                </div>
+              </div>
+
               <div class="form-group row pt-3">
                 <div class="col-auto">
-                  <button class="btn btn-primary" [blur]="submitButtonBlur" [disabled]="(!signupForm.valid || signupForm.untouched) || !signupModel.recaptcha || loading || passwordChanged">{{ "PAGES.Register.Buttons.Register" | translate }}</button>
+                  <button class="btn btn-primary" [blur]="submitButtonBlur" [disabled]="(!signupForm.valid || signupForm.untouched) || !signupModel.recaptcha || loading || passwordChanged || !agreeTerms">{{ "PAGES.Register.Buttons.Register" | translate }}</button>
                   <img *ngIf="loading || passwordChecking" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
                 <div class="col form-text form-text--small pl-4">
@@ -148,7 +156,7 @@
           <div class="message-box__body">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
-              <label class="custom-control-label custom-control-label-reg" for="agreeCheck">{{ "PAGES.Register.IAgreeText" | translate }}</label>
+              <label class="custom-control-label custom-control-label-reg" for="agreeCheck" [innerHTML]="'PAGES.Register.IAgreeText' | translate"></label>
             </div>
           </div>
 

@@ -8,13 +8,13 @@ export class CommonService {
 
   constructor() { }
 
-  public highlightNewItem(currentRows, prevRows) {
+  public highlightNewItem(currentRows: any[], prevRows: any[], className: string, selector: string) {
     let rows = currentRows.slice();
     let newItemsId = [];
 
     for (let i = 0; i < currentRows.length; i++) {
-      if (prevRows.length && currentRows[i].id !== prevRows[0].id) {
-        newItemsId.push(currentRows[i].id);
+      if (prevRows.length && currentRows[i][selector] !== prevRows[0][selector]) {
+        newItemsId.push(currentRows[i][selector]);
       } else {
         break;
       }
@@ -22,7 +22,7 @@ export class CommonService {
 
     newItemsId.forEach(id => {
       setTimeout(() => {
-        const elem = document.querySelector('.table-row-'+ id);
+        const elem = document.querySelector('.' + className + '-' + id);
         elem && elem.classList.add('new-table-item')
         setTimeout(() => {
           elem && elem.classList.remove('new-table-item');

@@ -1,5 +1,5 @@
 <div class="page">
-  <h1 class="page__heading">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
+  <h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
 
   <div>
     <div class="col-auto btn-group p-0 mn-tabs">
@@ -10,11 +10,11 @@
       <label class="btn btn-primary btn-sm active wrap"
              name="limitsSwitchModel.type"
              [(ngModel)]="switchModel.type"
-             btnRadio="launch">{{ "PAGES.MasterNode.Tabs.Launch" | translate }}</label>
+             btnRadio="launch" [disabled]="isProduction">{{ "PAGES.MasterNode.Tabs.Launch" | translate }}</label>
       <label class="btn btn-primary btn-sm wrap"
              name="limitsSwitchModel.type"
              [(ngModel)]="switchModel.type"
-             btnRadio="migration">{{ "PAGES.MasterNode.Tabs.Migration" | translate }}</label>
+             btnRadio="migration" [disabled]="isProduction">{{ "PAGES.MasterNode.Tabs.Migration" | translate }}</label>
     </div>
 
     <div *ngIf="switchModel.type === 'overview'">

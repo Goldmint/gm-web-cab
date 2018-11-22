@@ -46,13 +46,12 @@ import {WalletPageComponent} from "./pages/wallet-page/wallet-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
 import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
 import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component";
-import {PawnshopBuyPageComponent} from "./pages/pawnshop-page/pawnshop-buy-page/pawnshop-buy-page.component";
-import {PawnshopSellPageComponent} from "./pages/pawnshop-page/pawnshop-sell-page/pawnshop-sell-page.component";
 import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
 import {OrganizationsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/organizations-table/organizations-table.component";
 import {PawnshopsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component";
 import {FeedTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component";
 import {AllTicketFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component";
+import {PawnshopInvestComponent} from "./pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component";
 
 
 const appRoutes: Routes = [
@@ -121,8 +120,7 @@ const appRoutes: Routes = [
           { path: 'organization-feed/:id', component: FeedTableComponent },
         ]
       },
-      { path: 'buy', component: PawnshopBuyPageComponent },
-      { path: 'sell', component: PawnshopSellPageComponent }
+      { path: 'invest', component: PawnshopInvestComponent },
     ]
   },
 

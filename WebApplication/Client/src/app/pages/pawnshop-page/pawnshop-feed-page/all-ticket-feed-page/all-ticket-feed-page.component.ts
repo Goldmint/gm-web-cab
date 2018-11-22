@@ -75,7 +75,7 @@ export class AllTicketFeedPageComponent implements OnInit {
           }
         });
 
-        this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows);
+        this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows, 'table-row', 'id');
 
         (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
 

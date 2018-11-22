@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PawnshopBuyPageComponent } from './pawnshop-buy-page.component';
+import { PawnshopInvestComponent } from './pawnshop-invest.component';
 
-describe('PawnshopBuyPageComponent', () => {
-  let component: PawnshopBuyPageComponent;
-  let fixture: ComponentFixture<PawnshopBuyPageComponent>;
+describe('PawnshopInvestComponent', () => {
+  let component: PawnshopInvestComponent;
+  let fixture: ComponentFixture<PawnshopInvestComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PawnshopBuyPageComponent ]
+      declarations: [ PawnshopInvestComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PawnshopBuyPageComponent);
+    fixture = TestBed.createComponent(PawnshopInvestComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

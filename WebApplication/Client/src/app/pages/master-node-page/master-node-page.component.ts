@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-master-node-page',
@@ -10,6 +11,7 @@ export class MasterNodePageComponent implements OnInit {
   public switchModel: {
     type: 'overview'|'launch'|'migration'
   };
+  public isProduction = environment.isProduction;
 
   constructor() { }
 

@@ -34,16 +34,6 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="55">
-          <ng-template let-id="column" ngx-datatable-header-template>
-            <span class="datatable-header-cell-wrapper"></span>
-          </ng-template>
-
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="status-marker {{ row.status }}" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave"></div>
-          </ng-template>
-        </ngx-datatable-column>
-
         <ngx-datatable-column prop="org_name" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
           <ng-template let-column="column" ngx-datatable-header-template>
             {{ "PAGES.Pawnshop.Feed.FeedTable.Org" | translate }}
@@ -94,6 +84,18 @@
           </ng-template>
         </ngx-datatable-column>
 
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="65">
+          <ng-template let-id="column" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper"></span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="d-flex justify-content-end">
+              <div class="status-marker {{ row.status }}" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave"></div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
         <ngx-datatable-column prop="status" [draggable]="false" [resizeable]="false" [sortable]="false">
           <ng-template let-column="column" ngx-datatable-header-template>
           <span class="datatable-header-cell-wrapper">
@@ -135,9 +137,6 @@
             <div>{{ row.number }}</div>
           </div>
           <div>
-            <div class="status-marker {{ row.status }} mb-1" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave" placement="right"></div>
-          </div>
-          <div>
             <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Org" | translate }}:</span>
             <div class="a-link" (click)="selectOrganization(row.org_id, row.org_name)">
               {{ row.org_name }}
@@ -154,6 +153,9 @@
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.CloseTx" | translate }}:</span>
             <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/tx/' + row.close_digest">{{ row.close_digest }}</div>
+          </div>
+          <div>
+            <div class="status-marker {{ row.status }} mb-1" popover="{{ 'PAGES.Pawnshop.Feed.FeedTable.StatusName.'+ row.status | translate }}" triggers="mouseenter:mouseleave" placement="right"></div>
           </div>
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.Status" | translate }}:</span>

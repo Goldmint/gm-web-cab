@@ -11,6 +11,7 @@ export class WalletPageComponent implements OnInit {
   @HostBinding('class') class = 'page';
 
   public getLiteWalletLink = environment.getLiteWalletLink;
+  public isProduction = environment.isProduction;
 
   constructor() { }
 
