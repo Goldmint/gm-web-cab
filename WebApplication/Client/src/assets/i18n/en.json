@@ -34,8 +34,7 @@
       "Pawnshop": {
         "Heading": "Pawnshop Loans",
         "Feed": "Feed",
-        "Buy": "Buy",
-        "Sell": "Sell"
+        "Invest": "Invest in pawnshop loans"
       }
     }
   },
@@ -942,7 +941,8 @@
         "Title": "This email is already taken",
         "Content": "We are sorry, but email you specified is already taken. Please try another one."
       },
-      "IAgreeText": "Hereby I grant the company GoldMint PTE LTD the right to keep and handle my personal data."
+      "IAgreeText": "Hereby I grant the company <b>CyberBridge OU</b> the right to keep and handle my personal data.",
+      "IAgreeTerms": "I accept the <a href='{{ sale }}' target='_blank'>terms of sale<a/> and <a href='{{ policy }}' target='_blank'>privacy policy</a>"
     },
     "2FA": {
       "SecurityBlock": {
@@ -1472,9 +1472,9 @@
           "Organizations": "Organizations"
         },
         "Labels": {
-          "1": "Organizations",
-          "2": "Pawnshops",
-          "3": "Feed",
+          "Organizations": "Organizations",
+          "Pawnshops": "Pawnshops",
+          "Feed": "Feed",
           "Organization": "Organization:",
           "Pawnshop": "Pawnshop:",
           "AllFeed": "All ticket feed"
@@ -1513,18 +1513,20 @@
             "Info": "Pawnshop info",
             "Name": "Name:",
             "OrgId": "Organization Id:",
-            "Rate": "Rate:"
+            "Rate": "Current volume:"
+          },
+          "Errors": {
+            "IncorrectPawnshopId": "Incorrect pawnshop id"
           },
           "Charts": {
             "Rate": "Gold volume history"
           }
         }
       },
-      "Buy": {
-        "Heading": "Buy"
-      },
-      "Sell": {
-        "Heading": "Sell"
+      "Invest": {
+        "MainHeading": "Invest",
+        "Heading": "Invest in pawnshop loans",
+        "Text": "If you are interested to invest in pawnshop loans, please, drop us an email to"
       }
     },
     "ErrorPage": {

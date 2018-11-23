@@ -28,6 +28,8 @@ export class RegisterPageComponent implements OnInit {
   public passwordChanged = false;
   public isAgreementConfirmShown = false;
   public agreeCheck = false;
+  public agreeTerms = false;
+  public location = window.location.origin;
 
   private returnUrl: string;
 

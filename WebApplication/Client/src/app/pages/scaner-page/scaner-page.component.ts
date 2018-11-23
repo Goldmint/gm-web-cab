@@ -19,6 +19,8 @@ import {TranslateService} from "@ngx-translate/core";
 import {Subject} from "rxjs/Subject";
 import * as moment from 'moment'
 import "moment/locale/ru"
+import {CommonService} from "../../services/common.service";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-scaner-page',
@@ -43,10 +45,13 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public anyChartRewardData = [];
   public anyChartTxData = [];
   public transactionsList: TransactionsList[] = [];
+  public prevTransactionsList: any[] = [];
   public blocksList: BlocksList[] = [];
+  public prevBlocksList: BlocksList[] = [];
   public switchModel: {
     type: 'gold'|'mnt'
   };
+  public isProduction = environment.isProduction;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
@@ -61,6 +66,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private messageBox: MessageBoxService,
     private translate: TranslateService,
+    private commonService: CommonService,
     private router: Router
   ) { }
 
@@ -160,8 +166,18 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   }
 
   setBlockAndTransactionsInfo(blockList: BlocksList[], txList: TransactionsList[]) {
-    blockList && (this.blocksList = blockList.slice(0, 5));
-    txList && (this.transactionsList = txList.slice(0, 5));
+    if (blockList) {
+      this.blocksList = blockList.slice(0, 5);
+      this.prevBlocksList = this.commonService.highlightNewItem(this.blocksList, this.prevBlocksList, 'scanner-block-item', 'id');
+    }
+    if (txList) {
+      this.transactionsList = txList.slice(0, 5);
+      let txListForHighlight = [];
+      this.transactionsList.forEach(item => {
+        txListForHighlight.push(item.transaction);
+      });
+      this.prevTransactionsList = this.commonService.highlightNewItem(txListForHighlight, this.prevTransactionsList, 'scanner-tx-item', 'digest');
+    }
   }
 
   checkAddress(address: string, type: string) {

@@ -1,9 +1,10 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {OrganizationList} from "../../../../../interfaces/organization-list";
+import {OrganizationList} from "../../../../interfaces/organization-list";
 import {Subject} from "rxjs/Subject";
-import {APIService} from "../../../../../services";
-import {Page} from "../../../../../models/page";
-import {CommonService} from "../../../../../services/common.service";
+import {APIService} from "../../../../services/index";
+import {Page} from "../../../../models/page";
+import {CommonService} from "../../../../services/common.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-organizations-table',
@@ -34,21 +35,11 @@ export class OrganizationsTableComponent implements OnInit {
   constructor(
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private router: Router
   ) { }
 
   ngOnInit() {
-    this.commonService.setTwoOrganizationStep$.takeUntil(this.destroy$).subscribe((data: any) => {
-      if (data !== null) {
-        let selected = {
-          step: null,
-          id: data.id,
-          org: data.name,
-          pawnshop: null
-        }
-        this.commonService.organizationStepper$.next(selected);
-        }
-    });
     this.setPage(null, true);
   }
 
@@ -64,9 +55,6 @@ export class OrganizationsTableComponent implements OnInit {
       .subscribe((data: any) => {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
-        this.rows.forEach(item => {
-          this.selected[0] && item.id === this.selected[0].id && (this.selected = [item]);
-        });
 
         if (this.rows.length) {
           if (!isNext) {
@@ -93,13 +81,7 @@ export class OrganizationsTableComponent implements OnInit {
   }
 
   onSelect({ selected }: any) {
-    let data = {
-      step: null,
-      id: selected[0].id,
-      org: selected[0].name,
-      pawnshop: null
-    }
-    this.commonService.organizationStepper$.next(data);
+    this.router.navigate(['/pawnshop-loans/feed/pawnshop/', selected[0].id]);
   }
 
   ngOnDestroy() {

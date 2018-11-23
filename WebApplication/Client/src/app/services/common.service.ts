@@ -1,29 +1,28 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class CommonService {
 
-  public organizationStepper$ = new BehaviorSubject(null);
-  public setTwoOrganizationStep$ = new BehaviorSubject(null);
+  public changeFeedTab = new Subject();
 
   constructor() { }
 
-  public highlightNewItem(currentRows, prevRows) {
+  public highlightNewItem(currentRows: any[], prevRows: any[], className: string, selector: string) {
     let rows = currentRows.slice();
     let newItemsId = [];
 
     for (let i = 0; i < currentRows.length; i++) {
-      if (prevRows.length && currentRows[i].id !== prevRows[0].id) {
-        newItemsId.push(currentRows[i].id);
+      if (prevRows.length && currentRows[i][selector] !== prevRows[0][selector]) {
+        newItemsId.push(currentRows[i]);
       } else {
         break;
       }
     }
 
-    newItemsId.forEach(id => {
+    newItemsId.forEach((id, index) => {
       setTimeout(() => {
-        const elem = document.querySelector('.table-row-'+ id);
+        const elem = document.querySelector('.' + className + '-' + index);
         elem && elem.classList.add('new-table-item')
         setTimeout(() => {
           elem && elem.classList.remove('new-table-item');

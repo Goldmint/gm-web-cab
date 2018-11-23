@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  isProduction: false,
   detectExtraRights: false,
   MMNetwork: {
     name: 'Rinkeby',

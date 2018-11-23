@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {APIService} from "../../../../../services";
+import {APIService} from "../../../../services/index";
 import {Subject} from "rxjs/Subject";
-import {Page} from "../../../../../models/page";
-import {PawnshopList} from "../../../../../interfaces/pawnshop-list";
-import {CommonService} from "../../../../../services/common.service";
-import {OrgStepperData} from "../../../../../models/org-stepper-data";
+import {Page} from "../../../../models/page";
+import {PawnshopList} from "../../../../interfaces/pawnshop-list";
+import {CommonService} from "../../../../services/common.service";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'app-pawnshops-table',
@@ -23,12 +23,8 @@ export class PawnshopsTableComponent implements OnInit {
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
   public offset: number = 0;
-  public pagination = {
-    prev: null,
-    next: null
-  }
   public selected: PawnshopList[] = [];
-  public stepperData: OrgStepperData;
+  public orgName: string;
 
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -36,21 +32,18 @@ export class PawnshopsTableComponent implements OnInit {
   constructor(
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
-    private commonService: CommonService
-  ) { }
-
-  ngOnInit() {
-    this.commonService.organizationStepper$.takeUntil(this.destroy$).subscribe((data: OrgStepperData) => {
-      if (data !== null && data.step === 2) {
-        this.paginationHistory = [];
-        this.stepperData = data;
-        this.orgId = data.id;
-        this.setPage(this.orgId, null, true);
-      }
+    private commonService: CommonService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
+    this.route.params.takeUntil(this.destroy$).subscribe(params => {
+      this.setPage(params.id, null, true, true);
     });
   }
 
-  setPage(org: number, from: number = null, isNext: boolean = true) {
+  ngOnInit() { }
+
+  setPage(org: number, from: number = null, isNext: boolean = true, isRouteChange: boolean = false) {
     this.loading = true;
 
     this.apiService.getPawnshopList(org, from >= 0 ? from : null)
@@ -62,9 +55,11 @@ export class PawnshopsTableComponent implements OnInit {
       .subscribe((data: any) => {
         this.isLastPage = false;
         this.rows = data.res.list ? data.res.list : [];
-        this.rows.forEach(item => {
-          this.selected[0] && item.id === this.selected[0].id && (this.selected = [item]);
-        });
+
+        if (isRouteChange) {
+          this.rows.length ? this.getOrganizationName(this.rows[0].org_id) : this.orgName = '-';
+          this.cdRef.markForCheck();
+        }
 
         if (this.rows.length) {
           if (!isNext) {
@@ -80,22 +75,34 @@ export class PawnshopsTableComponent implements OnInit {
       });
   }
 
+  getOrganizationName(orgId: number) {
+    this.apiService.getOrganizationsName().subscribe((orgList: any) => {
+      let list = orgList.res.list;
+      for (let key in list) {
+        if (orgId === +key) {
+          this.orgName = list[key];
+          this.cdRef.markForCheck();
+        }
+      }
+    });
+  }
+
   prevPage() {
     this.offset--;
-    this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 3], false);
+    this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 3], false, false);
   }
 
   nextPage() {
     this.offset++;
-    this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 1], true);
+    this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 1], true, false);
+  }
+
+  back() {
+    this.router.navigate(['/pawnshop-loans/feed/organizations']);
   }
 
   onSelect({ selected }) {
-    let data = this.stepperData;
-    data.step = null;
-    data.id = selected[0].id;
-    data.pawnshop = selected[0].name;
-    this.commonService.organizationStepper$.next(data);
+    this.router.navigate(['/pawnshop-loans/feed/organization-feed/', selected[0].id]);
   }
 
   ngOnDestroy() {

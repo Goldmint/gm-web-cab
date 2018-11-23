@@ -1,5 +1,5 @@
 <!-- host: .page -->
-<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.Scanner.Heading" | translate }}</h1>
 
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.Scanner.Caption" | translate }}</h2>
@@ -126,7 +126,7 @@
           {{ "PAGES.Scanner.Message.NoData" | translate }}
         </div>
         <ng-template #lastBlocks>
-          <div *ngFor="let b of blocksList" class="trs-block mb-2 pb-1">
+          <div *ngFor="let b of blocksList; index as i" class="trs-block scanner-block-item-{{ i }} mb-2 pb-1">
             <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Number" | translate }}</b>
               <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + b.id">{{ b.id }}</div>
             </div>
@@ -166,7 +166,7 @@
           {{ "PAGES.Scanner.Message.NoData" | translate }}
         </div>
         <ng-template #lastTx>
-          <div *ngFor="let t of transactionsList" class="trs-block mb-2 pb-1">
+          <div *ngFor="let t of transactionsList; index as i" class="trs-block scanner-tx-item-{{ i }} mb-2 pb-1">
             <div class="d-flex"><b>Digest: </b>
               <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + t.transaction.digest"> {{ t.transaction.digest }}</div>
             </div>

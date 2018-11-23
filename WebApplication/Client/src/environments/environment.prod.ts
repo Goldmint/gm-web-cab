@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  isProduction: true,
   detectExtraRights: true,
   MMNetwork: {
     name: 'Main',
