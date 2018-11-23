@@ -949,6 +949,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<IOplogProvider>();
 			var googleSheets = services.GetService<Sheets>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
 			// ---
 
@@ -991,6 +992,35 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 					catch (Exception e) {
 						logger.Error(e, "Failed to fix user operation in Google Sheets");
+					}
+				}
+
+				// ETH <> GOLD contract: request failed
+				if (
+					ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
+				    ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth
+				) {
+					if (BigInteger.TryParse(ethOp.EthRequestIndex ?? "-1", out var index) && index >= 0) {
+						try {
+							var reqInfo = await ethereumReader.GetBuySellRequestBaseInfo(index);
+							if (reqInfo.IsFailed) {
+								var uh = await (
+									from r in dbContext.UserFinHistory
+									where r.Id == ethOp.RelUserFinHistoryId
+									select r
+								)
+									.AsTracking()
+									.FirstOrDefaultAsync()
+								;
+								if (uh != null) {
+									uh.Status = UserFinHistoryStatus.Failed;
+									await dbContext.SaveChangesAsync();
+								}
+							}
+						}
+						catch (Exception e) {
+							logger.Error(e, "Failed to update ethereum operation status");
+						}
 					}
 				}
 			}
