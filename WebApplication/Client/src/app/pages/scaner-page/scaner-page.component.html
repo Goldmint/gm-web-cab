@@ -126,7 +126,7 @@
           {{ "PAGES.Scanner.Message.NoData" | translate }}
         </div>
         <ng-template #lastBlocks>
-          <div *ngFor="let b of blocksList" class="trs-block scanner-block-item mb-2 pb-1">
+          <div *ngFor="let b of blocksList; index as i" class="trs-block scanner-block-item-{{ i }} mb-2 pb-1">
             <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Number" | translate }}</b>
               <div class="ml-1 a-link" [routerLink]="'/scanner/transactions-in-block/' + b.id">{{ b.id }}</div>
             </div>
@@ -166,7 +166,7 @@
           {{ "PAGES.Scanner.Message.NoData" | translate }}
         </div>
         <ng-template #lastTx>
-          <div *ngFor="let t of transactionsList" class="trs-block scanner-tx-item mb-2 pb-1">
+          <div *ngFor="let t of transactionsList; index as i" class="trs-block scanner-tx-item-{{ i }} mb-2 pb-1">
             <div class="d-flex"><b>Digest: </b>
               <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + t.transaction.digest"> {{ t.transaction.digest }}</div>
             </div>

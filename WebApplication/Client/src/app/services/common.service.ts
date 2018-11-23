@@ -14,15 +14,15 @@ export class CommonService {
 
     for (let i = 0; i < currentRows.length; i++) {
       if (prevRows.length && currentRows[i][selector] !== prevRows[0][selector]) {
-        newItemsId.push(currentRows[i][selector]);
+        newItemsId.push(currentRows[i]);
       } else {
         break;
       }
     }
 
-    newItemsId.forEach(id => {
+    newItemsId.forEach((id, index) => {
       setTimeout(() => {
-        const elem = document.querySelector('.' + className + '-' + id);
+        const elem = document.querySelector('.' + className + '-' + index);
         elem && elem.classList.add('new-table-item')
         setTimeout(() => {
           elem && elem.classList.remove('new-table-item');

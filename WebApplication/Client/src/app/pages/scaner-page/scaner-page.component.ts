@@ -45,7 +45,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public anyChartRewardData = [];
   public anyChartTxData = [];
   public transactionsList: TransactionsList[] = [];
-  public prevTransactionsList: TransactionsList[] = [];
+  public prevTransactionsList: any[] = [];
   public blocksList: BlocksList[] = [];
   public prevBlocksList: BlocksList[] = [];
   public switchModel: {
@@ -172,7 +172,11 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     }
     if (txList) {
       this.transactionsList = txList.slice(0, 5);
-      this.prevTransactionsList = this.commonService.highlightNewItem(this.transactionsList, this.prevTransactionsList, 'scanner-tx-item', 'digest');
+      let txListForHighlight = [];
+      this.transactionsList.forEach(item => {
+        txListForHighlight.push(item.transaction);
+      });
+      this.prevTransactionsList = this.commonService.highlightNewItem(txListForHighlight, this.prevTransactionsList, 'scanner-tx-item', 'digest');
     }
   }
 
