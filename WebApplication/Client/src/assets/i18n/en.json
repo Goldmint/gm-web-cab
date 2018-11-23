@@ -1568,6 +1568,7 @@
       "InvalidCode": "Invalid code"
     },
     "Trading": "Trading Not Allowed",
+    "SellEthLimit": "Out of ETH",
     "Limit": {
       "Min": "Minimal amount value is",
       "Max": "Maximum amount value is"

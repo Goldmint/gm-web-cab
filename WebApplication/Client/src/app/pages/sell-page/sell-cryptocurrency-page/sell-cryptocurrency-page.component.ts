@@ -76,7 +76,9 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
   public isAuthenticated: boolean = false;
+  public isEthLimitError: boolean = false;
 
+  private allowedMimEthLimit = 0.5;
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -244,12 +246,14 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.getLimitSub = this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
         this.ethLimit = eth;
+        this.isEthLimitError = +this.ethLimit <= this.allowedMimEthLimit;
         if (this.isFirstLoad) {
           this.calculateStartGoldValue(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
           this._cdRef.markForCheck();
         } else {
           this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
         }
+        this._cdRef.markForCheck();
       }
     });
   }
