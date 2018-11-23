@@ -33,7 +33,7 @@ namespace Goldmint.QueueService.Workers.TokenMigration {
 		// ---
 
 		public SumusHoldChecker(int blocksPerRound) {
-			_confirmationsRequired = 5;
+			_confirmationsRequired = 1;
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 		}
 
