@@ -1567,7 +1567,7 @@
     "TFA": {
       "InvalidCode": "Invalid code"
     },
-    "Trading": "Trading Not Allowed",
+    "Trading": "Trading is temporarily disallowed",
     "SellEthLimit": "Out of ETH",
     "Limit": {
       "Min": "Minimal amount value is",
