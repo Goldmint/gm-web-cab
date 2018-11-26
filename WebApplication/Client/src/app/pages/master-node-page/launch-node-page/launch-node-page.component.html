@@ -21,12 +21,14 @@
 
       <div>
         <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.VideoInst" | translate }}</h5>
-        <div></div>
+        <div *ngIf="systemMap[direction].video">
+          <iframe width="100%" height="400" [src]="videoUrl" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
       </div>
 
       <div class="mt-4">
         <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.TextInst" | translate }}</h5>
-        <a href="{{ systemMap[direction]?.text }}" target="_blank" [ngClass]="{'no-link-click': !systemMap[direction]?.text}">I{{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}</a>
+        <a href="{{ systemMap[direction]?.text }}" target="_blank" [ngClass]="{'no-link-click': !systemMap[direction]?.text}">{{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}</a>
       </div>
 
       <div class="mt-4">

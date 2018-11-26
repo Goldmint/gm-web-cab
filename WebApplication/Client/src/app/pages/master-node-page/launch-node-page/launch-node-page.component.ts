@@ -2,6 +2,7 @@ import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core'
 import { DeviceDetectorService } from 'ngx-device-detector';
 import {UserService} from "../../../services/user.service";
 import {Subscription} from "rxjs/Subscription";
+import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-launch-node-page',
@@ -14,20 +15,21 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
 
   public system: string = '';
   public locale: string;
+  public videoUrl: any;
   public osList = [
     {label: 'Windows', value: 'windows'},
-    {label: 'Linux', value: 'linux'},
-    {label: 'MacOS', value: 'mac'}
+    {label: 'Linux', value: 'linux'}
+    // {label: 'MacOS', value: 'mac'}
   ];
   public direction: string;
 
   public systemMap = {
     'windowsru': {
-      video: '',
+      video: '_9BUs5GKwU8',
       text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_win_RUS.pdf'
     },
     'windowsen': {
-      video: '',
+      video: '4tLqYb_iD00',
       text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_win_ENG.pdf'
     },
     'macru': {
@@ -39,12 +41,12 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
       text: ''
     },
     'linuxru' : {
-      video: '',
-      text: ''
+      video: 'elyLVU3Chpo',
+      text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_linux_RUS.pdf'
     },
     'linuxen': {
-      video: '',
-      text: ''
+      video: 'Wi7831BnO8o',
+      text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_linux_ENG.pdf'
     }
   }
 
@@ -52,7 +54,8 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
 
   constructor(
     private deviceService: DeviceDetectorService,
-    private userService: UserService
+    private userService: UserService,
+    public sanitizer: DomSanitizer
   ) { }
 
   ngOnInit() {
@@ -60,13 +63,20 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     this.sub1 = this.userService.currentLocale.subscribe(locale => {
       this.locale = locale;
       this.direction = this.system + this.locale;
+      this.setVideoUrl();
     });
     this.direction = this.system + this.locale;
+    this.setVideoUrl();
   }
 
   chooseSystem(os: string) {
     this.system = os;
     this.direction = this.system + this.locale;
+    this.setVideoUrl();
+  }
+
+  setVideoUrl() {
+    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.systemMap[this.direction].video);
   }
 
   goToMigration() {
