@@ -70,6 +70,7 @@ namespace Goldmint.CoreLogic.Finance {
 					var request = await (query)
 						.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
 						.Include(_ => _.User)
+						.Include(_ => _.PromoCode)
 						.FirstOrDefaultAsync();
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
@@ -116,6 +117,7 @@ namespace Goldmint.CoreLogic.Finance {
 								ethereumToken: EthereumToken.Eth,
 								fiatCurrency: request.ExchangeCurrency,
 								cryptoAmount: amountEth,
+								discount: request.PromoCode?.DiscountValue ?? 0d,
 								knownGoldRateCents: request.GoldRateCents,
 								knownCryptoRateCents: request.InputRateCents
 							);
@@ -513,7 +515,11 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RelUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query)
+						.Include(_ => _.RelUserFinHistory)
+						.Include(_ => _.PromoCode)
+						.FirstOrDefaultAsync()
+					;
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -548,6 +554,7 @@ namespace Goldmint.CoreLogic.Finance {
 								services: services,
 								fiatCurrency: request.ExchangeCurrency,
 								fiatAmountCents: payment.AmountCents,
+								discount: request.PromoCode?.DiscountValue ?? 0d,
 								knownGoldRateCents: request.GoldRateCents
 							);
 

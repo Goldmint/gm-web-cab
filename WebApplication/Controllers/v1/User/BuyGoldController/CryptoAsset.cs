@@ -58,24 +58,27 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// check promocode
 			PromoCode promoCode;
-			var codeStatus = await GetPromoCodeStatus(model.PromoCode);
-
-			if (codeStatus.Valid == false) {
-				if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
-					promoCode = null;
+			{
+				var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+				if (codeStatus.Valid == false) {
+					if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter) {
+						promoCode = null;
+					} else {
+						return APIResponse.BadRequest(codeStatus.ErrorCode);
+					}
+				}
 				else {
-					return APIResponse.BadRequest(codeStatus.ErrorCode);
+					if (await GetUserTier() != UserTier.Tier2) {
+						return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+					}
+					promoCode = await DbContext.PromoCode
+						.AsNoTracking()
+						.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
+					;
 				}
 			}
-			else {
-				if (await GetUserTier() != UserTier.Tier2)
-					return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 
-				promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-					_ => _.Code == model.PromoCode.ToUpper());
-			}
-
-			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
+			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -92,7 +95,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
 				inputRate: estimation.CentsPerAssetRate,
-				goldRate: estimation.CentsPerGoldRate
+				goldRate: estimation.CentsPerGoldRate,
+				promoCode: promoCode?.Code
 			);
 
 			// history
@@ -146,8 +150,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
+			// discount comment
+			var discountComment = promoCode?.DiscountValue != null
+				? $" | {promoCode.DiscountValue.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}% discount"
+				: ""
+			;
+
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }" + discountComment;
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

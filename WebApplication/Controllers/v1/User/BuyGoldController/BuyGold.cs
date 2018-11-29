@@ -81,7 +81,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				;
 			}
 
-			var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
+			var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -141,7 +141,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			if (model.PromoCode != null) {
 				//get promocode and check again then mark it as used
-				await MarkAsUsed(model.PromoCode, user.Id, model.RequestId);
+				await MarkPromoCodeUsed(model.PromoCode, user.Id, model.RequestId);
 			}
 
 			// activity
@@ -270,7 +270,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private async Task MarkAsUsed(string str, long userId, long requestId) {
+		private async Task MarkPromoCodeUsed(string str, long userId, long requestId) {
 			var pc = await (
 					from c in DbContext.PromoCode
 					where
@@ -290,22 +290,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			});
 
 			await DbContext.SaveChangesAsync();
-		}
-
-		[NonAction]
-		private static BigInteger ApplyPromoCode(BigInteger amount, PromoCode pc) {
-			if (pc == null) return amount;
-
-			var discount = new BigInteger(pc.DiscountValue * 100);
-			return amount * discount / 10000 + amount;
-		}
-
-		[NonAction]
-		private static BigInteger ApplyPromoCodeReversed(BigInteger amount, PromoCode pc) {
-			if (pc == null) return amount;
-
-			var discount = new BigInteger(pc.DiscountValue * 100);
-			return amount - amount * discount / 10000;
 		}
 
 		// ---
@@ -332,9 +316,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			EthereumToken? ethereumToken,
 			FiatCurrency fiatCurrency,
 			bool reversed,
-			PromoCode promoCode,
+			double discount,
 			BigInteger depositLimitMin,
-			BigInteger depositLimitMax) {
+			BigInteger depositLimitMax
+		) {
 
 			bool allowed = false;
 
@@ -352,16 +337,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (!reversed) {
 				// fiat
 				if (ethereumToken == null) {
+
 					var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
 						services: HttpContext.RequestServices,
 						fiatCurrency: fiatCurrency,
-						fiatAmountCents: (long)inputAmount
+						fiatAmountCents: (long)inputAmount,
+						discount: discount
 					);
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
 					resultCurrencyAmount = inputAmount;
-					resultGoldAmount = ApplyPromoCode(res.ResultGoldAmount, promoCode);
+					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = resultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
@@ -380,14 +367,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						services: HttpContext.RequestServices,
 						ethereumToken: ethereumToken.Value,
 						fiatCurrency: fiatCurrency,
-						cryptoAmount: inputAmount
+						cryptoAmount: inputAmount,
+						discount: discount
 					);
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
 					centsPerAsset = res.CentsPerAssetRate;
 					resultCurrencyAmount = inputAmount;
-					resultGoldAmount = ApplyPromoCode(res.ResultGoldAmount, promoCode);
+					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = resultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
@@ -408,12 +396,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
 						services: HttpContext.RequestServices,
 						fiatCurrency: fiatCurrency,
-						requiredGoldAmount: inputAmount
+						requiredGoldAmount: inputAmount,
+						discount: discount
 					);
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
-					resultCurrencyAmount = ApplyPromoCodeReversed(res.ResultCentsAmount, promoCode);
+					resultCurrencyAmount = res.ResultCentsAmount;
 					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = (long)resultCurrencyAmount / 100d;
@@ -433,13 +422,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 						services: HttpContext.RequestServices,
 						ethereumToken: ethereumToken.Value,
 						fiatCurrency: fiatCurrency,
-						requiredGoldAmount: inputAmount
+						requiredGoldAmount: inputAmount,
+						discount: discount
 					);
 
 					allowed = res.Allowed;
 					centsPerGold = res.CentsPerGoldRate;
 					centsPerAsset = res.CentsPerAssetRate;
-					resultCurrencyAmount = ApplyPromoCodeReversed(res.ResultAssetAmount, promoCode);
+					resultCurrencyAmount = res.ResultAssetAmount;
 					resultGoldAmount = res.ResultGoldAmount;
 
 					viewAmount = resultCurrencyAmount.ToString();
@@ -454,11 +444,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				}
 			}
 
-			var limitExceeded = false;
-			if (promoCode != null && resultCurrencyAmount != 0)     //discount 100%
-			{
-				limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
-			}
+			var limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
 
 			return new EstimationResult() {
 				TradingAllowed = allowed,

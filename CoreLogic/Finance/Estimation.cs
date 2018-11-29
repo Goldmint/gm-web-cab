@@ -28,11 +28,11 @@ namespace Goldmint.CoreLogic.Finance {
 		}
 
 		public static bool IsFixedRateThresholdExceeded(long fixedRateCents, long currentRateCents, double threshold) {
-			return (double) Math.Abs(fixedRateCents - currentRateCents) / (double) fixedRateCents > threshold;
+			return (double)Math.Abs(fixedRateCents - currentRateCents) / (double)fixedRateCents > threshold;
 		}
 
 		public static BigInteger SellingFeeForCrypto(EthereumToken ethereumToken, BigInteger amount) {
-		
+
 			// 0.1% - round down
 			if (ethereumToken == EthereumToken.Eth) {
 				return amount / new BigInteger(1000);
@@ -62,10 +62,26 @@ namespace Goldmint.CoreLogic.Finance {
 			return (long)(new BigInteger(amount) * 3 / 100);
 		}
 
+		public static BigInteger GetDiscount(double perc, BigInteger value) {
+			if (perc <= 0) {
+				return BigInteger.Zero;
+			}
+			if (perc > 99.999) {
+				perc = 99.999;
+			}
+			var p = new BigInteger(perc * 1000);
+			return value * p / new BigInteger(100000);
+		}
 
 		#region Buy GOLD
 
-		public static Task<BuyGoldFiatResult> BuyGoldFiat(IServiceProvider services, FiatCurrency fiatCurrency, long fiatAmountCents, long? knownGoldRateCents = null) {
+		public static Task<BuyGoldFiatResult> BuyGoldFiat(
+			IServiceProvider services, 
+			FiatCurrency fiatCurrency, 
+			long fiatAmountCents, 
+			long? knownGoldRateCents = null,
+			double discount = 0d
+		) {
 
 			if (fiatAmountCents <= 0) {
 				return Task.FromResult(
@@ -83,15 +99,19 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 				);
 			}
+			
+			// discount
+			var fiatAmountCentsPlusDiscount = new BigInteger(fiatAmountCents) + GetDiscount(discount, new BigInteger(fiatAmountCents));
 
 			// round down
-			var goldAmount = new BigInteger(fiatAmountCents) * BigInteger.Pow(10, TokensPrecision.EthereumGold) / new BigInteger(goldRate.Value);
+			var goldAmount = fiatAmountCentsPlusDiscount * BigInteger.Pow(10, TokensPrecision.EthereumGold) / new BigInteger(goldRate.Value);
 
 			return Task.FromResult(
 				new BuyGoldFiatResult() {
 					Allowed = true,
 					Status = BuyGoldStatus.Success,
 					ExchangeCurrency = fiatCurrency,
+					Discount = discount,
 					CentsPerGoldRate = goldRate.Value,
 					ResultCentsAmount = fiatAmountCents,
 					ResultGoldAmount = goldAmount,
@@ -100,16 +120,16 @@ namespace Goldmint.CoreLogic.Finance {
 		}
 
 		public static Task<BuyGoldCryptoResult> BuyGoldCrypto(
-		    IServiceProvider services, 
-		    EthereumToken ethereumToken, 
-		    FiatCurrency fiatCurrency, 
-		    BigInteger cryptoAmount, 
-		    long? knownGoldRateCents = null, 
-		    long? knownCryptoRateCents = null)
-		{
+			IServiceProvider services,
+			EthereumToken ethereumToken,
+			FiatCurrency fiatCurrency,
+			BigInteger cryptoAmount,
+			long? knownGoldRateCents = null,
+			long? knownCryptoRateCents = null,
+			double discount = 0d
+		) {
 
-			if (cryptoAmount <= 0)
-			{
+			if (cryptoAmount <= 0) {
 				return Task.FromResult(new BuyGoldCryptoResult());
 			}
 
@@ -117,22 +137,17 @@ namespace Goldmint.CoreLogic.Finance {
 			var cryptoRate = (long?)0L;
 			var decimals = 0;
 
-			if (ethereumToken == EthereumToken.Eth)
-			{
+			if (ethereumToken == EthereumToken.Eth) {
 				decimals = TokensPrecision.Ethereum;
 				cryptoRate = safeRates.GetRateForSelling(CurrencyRateType.Eth, fiatCurrency);
 			}
-			else
-			{
+			else {
 				throw new NotImplementedException($"Not implemented for { ethereumToken.ToString() }");
 			}
 
-
 			cryptoRate = knownCryptoRateCents ?? cryptoRate;
-			if (cryptoRate == null || cryptoRate <= 0)
-			{
-				return Task.FromResult(new BuyGoldCryptoResult()
-				{
+			if (cryptoRate == null || cryptoRate <= 0) {
+				return Task.FromResult(new BuyGoldCryptoResult() {
 					Status = BuyGoldStatus.TradingDisallowed,
 				});
 			}
@@ -146,14 +161,18 @@ namespace Goldmint.CoreLogic.Finance {
 
 			var assetPerGold = AssetPerGold(ethereumToken, cryptoRate.Value, goldRate.Value);
 
+			// discount
+			var cryptoAmountPlusDiscount = cryptoAmount + GetDiscount(discount, cryptoAmount);
+			
 			// round down
-			var goldAmount = cryptoAmount * BigInteger.Pow(10, decimals) / assetPerGold;
+			var goldAmount = cryptoAmountPlusDiscount * BigInteger.Pow(10, decimals) / assetPerGold;
 
 			return Task.FromResult(new BuyGoldCryptoResult() {
 				Allowed = true,
 				Status = BuyGoldStatus.Success,
 				Asset = ethereumToken,
 				ExchangeCurrency = fiatCurrency,
+				Discount = discount,
 				CentsPerAssetRate = cryptoRate.Value,
 				CentsPerGoldRate = goldRate.Value,
 				CryptoPerGoldRate = assetPerGold,
@@ -162,7 +181,13 @@ namespace Goldmint.CoreLogic.Finance {
 			});
 		}
 
-		public static Task<BuyGoldFiatResult> BuyGoldFiatRev(IServiceProvider services, FiatCurrency fiatCurrency, BigInteger requiredGoldAmount, long? knownGoldRateCents = null) {
+		public static Task<BuyGoldFiatResult> BuyGoldFiatRev(
+			IServiceProvider services, 
+			FiatCurrency fiatCurrency, 
+			BigInteger requiredGoldAmount, 
+			long? knownGoldRateCents = null,
+			double discount = 0d
+		) {
 
 			if (requiredGoldAmount <= 0) {
 				return Task.FromResult(
@@ -183,7 +208,14 @@ namespace Goldmint.CoreLogic.Finance {
 
 			// round up
 			var exchangeAmount = (requiredGoldAmount * new BigInteger(goldRate.Value) + BigInteger.Pow(10, TokensPrecision.EthereumGold) - 1) / BigInteger.Pow(10, TokensPrecision.EthereumGold);
-			if (exchangeAmount > long.MaxValue) {
+			
+			// discount
+			var exchangeAmountMinusDiscount = exchangeAmount - GetDiscount(discount, exchangeAmount);
+			if (exchangeAmountMinusDiscount < 1) {
+				exchangeAmountMinusDiscount = 1;
+			}
+				
+			if (exchangeAmountMinusDiscount > long.MaxValue) {
 				return Task.FromResult(
 					new BuyGoldFiatResult() {
 						Status = BuyGoldStatus.ValueOverflow,
@@ -196,14 +228,23 @@ namespace Goldmint.CoreLogic.Finance {
 					Allowed = true,
 					Status = BuyGoldStatus.Success,
 					ExchangeCurrency = fiatCurrency,
+					Discount = discount,
 					CentsPerGoldRate = goldRate.Value,
-					ResultCentsAmount = (long)exchangeAmount,
+					ResultCentsAmount = (long)exchangeAmountMinusDiscount,
 					ResultGoldAmount = requiredGoldAmount,
 				}
 			);
 		}
 
-		public static Task<BuyGoldCryptoResult> BuyGoldCryptoRev(IServiceProvider services, EthereumToken ethereumToken, FiatCurrency fiatCurrency, BigInteger requiredGoldAmount, long? knownGoldRateCents = null, long? knownCryptoRateCents = null) {
+		public static Task<BuyGoldCryptoResult> BuyGoldCryptoRev(
+			IServiceProvider services, 
+			EthereumToken ethereumToken, 
+			FiatCurrency fiatCurrency, 
+			BigInteger requiredGoldAmount, 
+			long? knownGoldRateCents = null, 
+			long? knownCryptoRateCents = null,
+			double discount = 0d
+		) {
 
 			if (requiredGoldAmount <= 0) {
 				return Task.FromResult(new BuyGoldCryptoResult());
@@ -238,15 +279,22 @@ namespace Goldmint.CoreLogic.Finance {
 			// round up
 			var cryptoAmount = (requiredGoldAmount * assetPerGold + BigInteger.Pow(10, TokensPrecision.EthereumGold) - 1) / BigInteger.Pow(10, TokensPrecision.EthereumGold);
 
+			// discount
+			var cryptoAmountMinusDiscount = cryptoAmount - GetDiscount(discount, cryptoAmount);
+			if (cryptoAmountMinusDiscount < 1) {
+				cryptoAmountMinusDiscount = 1;
+			}
+
 			return Task.FromResult(new BuyGoldCryptoResult() {
 				Allowed = true,
 				Status = BuyGoldStatus.Success,
 				Asset = ethereumToken,
 				ExchangeCurrency = fiatCurrency,
+				Discount = discount,
 				CentsPerAssetRate = cryptoRate.Value,
 				CentsPerGoldRate = goldRate.Value,
 				CryptoPerGoldRate = assetPerGold,
-				ResultAssetAmount = cryptoAmount,
+				ResultAssetAmount = cryptoAmountMinusDiscount,
 				ResultGoldAmount = requiredGoldAmount,
 			});
 		}
@@ -258,7 +306,7 @@ namespace Goldmint.CoreLogic.Finance {
 			TradingDisallowed,
 			Success,
 		}
-		
+
 		public class BuyGoldFiatResult {
 
 			/// <summary>
@@ -277,6 +325,11 @@ namespace Goldmint.CoreLogic.Finance {
 			public FiatCurrency ExchangeCurrency { get; internal set; }
 
 			/// <summary>
+			/// Discount applied
+			/// </summary>
+			public double Discount { get; internal set; }
+
+			/// <summary>
 			/// Cents per GOLD
 			/// </summary>
 			public long CentsPerGoldRate { get; internal set; }
@@ -292,8 +345,7 @@ namespace Goldmint.CoreLogic.Finance {
 			public BigInteger ResultGoldAmount { get; internal set; }
 		}
 
-		public sealed class BuyGoldCryptoResult
-		{
+		public sealed class BuyGoldCryptoResult {
 
 			/// <summary>
 			/// Overall status
@@ -309,11 +361,16 @@ namespace Goldmint.CoreLogic.Finance {
 			/// Input cryptoasset type
 			/// </summary>
 			public EthereumToken Asset { get; internal set; }
-			
+
 			/// <summary>
 			/// Fiat currency in a middle
 			/// </summary>
 			public FiatCurrency ExchangeCurrency { get; internal set; }
+
+			/// <summary>
+			/// Discount applied
+			/// </summary>
+			public double Discount { get; internal set; }
 
 			/// <summary>
 			/// Cents per GOLD
@@ -324,7 +381,7 @@ namespace Goldmint.CoreLogic.Finance {
 			/// Cents per cryptoasset
 			/// </summary>
 			public long CentsPerAssetRate { get; internal set; }
-			
+
 			/// <summary>
 			/// Cryptoasset amount per GOLD rate
 			/// </summary>
@@ -346,7 +403,12 @@ namespace Goldmint.CoreLogic.Finance {
 
 		#region Sell GOLD
 
-		public static Task<SellGoldFiatResult> SellGoldFiat(IServiceProvider services, FiatCurrency fiatCurrency, BigInteger goldAmount, long? knownGoldRateCents = null) {
+		public static Task<SellGoldFiatResult> SellGoldFiat(
+			IServiceProvider services, 
+			FiatCurrency fiatCurrency, 
+			BigInteger goldAmount, 
+			long? knownGoldRateCents = null
+		) {
 
 			if (goldAmount <= 0) {
 				return Task.FromResult(
@@ -386,7 +448,14 @@ namespace Goldmint.CoreLogic.Finance {
 			);
 		}
 
-		public static Task<SellGoldCryptoResult> SellGoldCrypto(IServiceProvider services, EthereumToken ethereumToken, FiatCurrency fiatCurrency, BigInteger goldAmount, long? knownGoldRateCents = null, long? knownCryptoRateCents = null) {
+		public static Task<SellGoldCryptoResult> SellGoldCrypto(
+			IServiceProvider services, 
+			EthereumToken ethereumToken, 
+			FiatCurrency fiatCurrency, 
+			BigInteger goldAmount, 
+			long? knownGoldRateCents = null, 
+			long? knownCryptoRateCents = null
+		) {
 
 			if (goldAmount <= 0) {
 				return Task.FromResult(new SellGoldCryptoResult());
@@ -417,7 +486,7 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 				);
 			}
-			
+
 			var assetPerGold = AssetPerGold(ethereumToken, cryptoRate.Value, goldRate.Value);
 
 			// round down
@@ -436,7 +505,12 @@ namespace Goldmint.CoreLogic.Finance {
 			});
 		}
 
-		public static Task<SellGoldFiatResult> SellGoldFiatRev(IServiceProvider services, FiatCurrency fiatCurrency, long requiredFiatAmountWithFeeCents, long? knownGoldRateCents = null) {
+		public static Task<SellGoldFiatResult> SellGoldFiatRev(
+			IServiceProvider services, 
+			FiatCurrency fiatCurrency, 
+			long requiredFiatAmountWithFeeCents, 
+			long? knownGoldRateCents = null
+		) {
 
 			if (requiredFiatAmountWithFeeCents <= 0) {
 				return Task.FromResult(new SellGoldFiatResult());
@@ -466,7 +540,14 @@ namespace Goldmint.CoreLogic.Finance {
 			);
 		}
 
-		public static Task<SellGoldCryptoResult> SellGoldCryptoRev(IServiceProvider services, EthereumToken ethereumToken, FiatCurrency fiatCurrency, BigInteger requiredCryptoAmountWithFee, long? knownGoldRateCents = null, long? knownCryptoRateCents = null) {
+		public static Task<SellGoldCryptoResult> SellGoldCryptoRev(
+			IServiceProvider services, 
+			EthereumToken ethereumToken, 
+			FiatCurrency fiatCurrency, 
+			BigInteger requiredCryptoAmountWithFee, 
+			long? knownGoldRateCents = null, 
+			long? knownCryptoRateCents = null
+		) {
 
 			if (requiredCryptoAmountWithFee <= 0) {
 				return Task.FromResult(new SellGoldCryptoResult());
@@ -573,7 +654,7 @@ namespace Goldmint.CoreLogic.Finance {
 			/// Input cryptoasset type
 			/// </summary>
 			public EthereumToken Asset { get; internal set; }
-			
+
 			/// <summary>
 			/// Fiat currency in a middle
 			/// </summary>
@@ -598,7 +679,7 @@ namespace Goldmint.CoreLogic.Finance {
 			/// Result gold amount
 			/// </summary>
 			public BigInteger ResultGoldAmount { get; internal set; }
-			
+
 			/// <summary>
 			/// Resulting cryptoasset amount
 			/// </summary>

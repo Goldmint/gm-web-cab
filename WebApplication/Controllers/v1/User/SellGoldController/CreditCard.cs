@@ -140,7 +140,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

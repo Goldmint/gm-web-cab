@@ -69,6 +69,17 @@ namespace Goldmint.CoreLogicTests.Estimation {
 		}
 
 		[Fact]
+		public void GetDiscountTest() {
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(0, 100) == 0);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(-10, 100) == 0);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(1, 100) == 1);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(99, 100) == 99);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(999, 100) == 99);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(33.333d, 10000000) == 3333300);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(3d, 10000000) == 300000);
+		}
+
+		[Fact]
 		public void BuyGoldSimpleEstimation() {
 
 			var gRate = 140000;
