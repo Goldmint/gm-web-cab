@@ -27,6 +27,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig {
 			public bool AllowTradingEth { get; set; } = true;
 			public bool AllowBuyingCreditCard { get; set; } = true;
 			public bool AllowSellingCreditCard { get; set; } = true;
+			public bool AllowPromoCodes { get; set; } = true;
 			public SupportingEtherSection SupportingEther { get; set; } = new SupportingEtherSection();
 			public SafeRateSection SafeRate { get; set; } = new SafeRateSection();
 			public TimeoutsSection Timeouts { get; set; } = new TimeoutsSection();

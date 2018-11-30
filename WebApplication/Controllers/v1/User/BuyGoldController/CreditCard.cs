@@ -74,8 +74,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
 			// check promocode
-			PromoCode promoCode;
-			{
+			PromoCode promoCode = null;
+			if (rcfg.Gold.AllowPromoCodes) {
 				var codeStatus = await GetPromoCodeStatus(model.PromoCode);
 				if (codeStatus.Valid == false) {
 					if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter) {
@@ -96,6 +96,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				}
 			}
 
+			// estimation
 			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);

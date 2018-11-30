@@ -56,31 +56,35 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var userOrNull = await GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
+			// get user limits
 			var limits = ethereumToken != null
 				? DepositLimits(rcfg, ethereumToken.Value)
 				: await DepositLimits(rcfg, DbContext, userOrNull?.Id, exchangeCurrency);
 
 			// check promocode
-			PromoCode promoCode;
-			var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+			PromoCode promoCode = null;
+			if (rcfg.Gold.AllowPromoCodes) {
+				var codeStatus = await GetPromoCodeStatus(model.PromoCode);
 
-			if (codeStatus.Valid == false) {
-				if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
-					promoCode = null;
+				if (codeStatus.Valid == false) {
+					if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
+						promoCode = null;
+					else {
+						return APIResponse.BadRequest(codeStatus.ErrorCode);
+					}
+				}
 				else {
-					return APIResponse.BadRequest(codeStatus.ErrorCode);
+					//if (await GetUserTier() != UserTier.Tier2) {
+					//	return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+					//}
+					promoCode = await DbContext.PromoCode
+							.AsNoTracking()
+							.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
+						;
 				}
 			}
-			else {
-				//if (await GetUserTier() != UserTier.Tier2) {
-				//	return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-				//}
-				promoCode = await DbContext.PromoCode
-					.AsNoTracking()
-					.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
-				;
-			}
 
+			// estimate
 			var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
@@ -89,15 +93,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
-			if (promoCode == null) return APIResponse.Success(estimation.View);
+			// promocode limit
+			if (promoCode != null) {
 
-			var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
-
-			if (limit < estimation.ResultGoldAmount) {
-				return APIResponse.BadRequest(APIErrorCode.PromoCodeLimitExceeded);
+				var limit = new BigInteger(promoCode.Limit * (decimal) Math.Pow(10, TokensPrecision.EthereumGold));
+				if (limit < estimation.ResultGoldAmount) {
+					return APIResponse.BadRequest(APIErrorCode.PromoCodeLimitExceeded);
+				}
+				estimation.View.Discount = promoCode.DiscountValue;
 			}
-
-			estimation.View.Discount = promoCode.DiscountValue;
 
 			return APIResponse.Success(estimation.View);
 		}
