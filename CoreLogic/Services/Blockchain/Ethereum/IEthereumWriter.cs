@@ -14,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 		/// <summary>
 		/// Buy/sell-for-ETH request processing
 		/// </summary>
-		Task<string> ProcessRequestEth(BigInteger requestIndex, BigInteger ethPerGold);
+		Task<string> ProcessRequestEth(BigInteger requestIndex, BigInteger ethPerGold, BigInteger discountPercentage);
 
 		/// <summary>
 		/// Add and process buy-for-fiat request at the same time

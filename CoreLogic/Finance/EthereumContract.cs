@@ -322,6 +322,13 @@ namespace Goldmint.CoreLogic.Finance {
 					});
 				}
 
+				if (op.Discount < 0 || op.Discount > 100) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Invalid discount percentage",
+					});
+				}
+
 				return Task.FromResult(new CheckResult() {
 					Success = true,
 				});
@@ -334,10 +341,12 @@ namespace Goldmint.CoreLogic.Finance {
 
 				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
 				var rate = BigInteger.Parse(op.Rate);
+				var discount = ((decimal)op.Discount).ToEther();
 
 				var txid = await ethereumWriter.ProcessRequestEth(
 					requestIndex: reqIndex,
-					ethPerGold: rate
+					ethPerGold: rate,
+					discountPercentage: discount
 				);
 
 				return new ExecResult() {

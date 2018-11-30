@@ -102,6 +102,13 @@ namespace Goldmint.CoreLogic.Finance {
 			
 			// discount
 			var fiatAmountCentsPlusDiscount = new BigInteger(fiatAmountCents) + GetDiscount(discount, new BigInteger(fiatAmountCents));
+			if (fiatAmountCentsPlusDiscount > long.MaxValue) {
+				return Task.FromResult(
+					new BuyGoldFiatResult() {
+						Status = BuyGoldStatus.ValueOverflow,
+					}
+				);
+			}
 
 			// round down
 			var goldAmount = fiatAmountCentsPlusDiscount * BigInteger.Pow(10, TokensPrecision.EthereumGold) / new BigInteger(goldRate.Value);
@@ -113,7 +120,7 @@ namespace Goldmint.CoreLogic.Finance {
 					ExchangeCurrency = fiatCurrency,
 					Discount = discount,
 					CentsPerGoldRate = goldRate.Value,
-					ResultCentsAmount = fiatAmountCents,
+					ResultCentsAmount = (long)fiatAmountCentsPlusDiscount,
 					ResultGoldAmount = goldAmount,
 				}
 			);
@@ -176,7 +183,7 @@ namespace Goldmint.CoreLogic.Finance {
 				CentsPerAssetRate = cryptoRate.Value,
 				CentsPerGoldRate = goldRate.Value,
 				CryptoPerGoldRate = assetPerGold,
-				ResultAssetAmount = cryptoAmount,
+				ResultAssetAmount = cryptoAmountPlusDiscount,
 				ResultGoldAmount = goldAmount,
 			});
 		}

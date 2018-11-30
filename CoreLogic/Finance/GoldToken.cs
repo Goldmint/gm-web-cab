@@ -130,6 +130,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								DestinationAddress = request.EthAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
+								Discount = cancelRequest? 0: request.PromoCode?.DiscountValue ?? 0,
 								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
@@ -173,6 +174,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								DestinationAddress = request.EthAddress,
 								Rate = "0",
+								Discount = 0,
 								GoldAmount = "0",
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
@@ -329,6 +331,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 									DestinationAddress = request.EthAddress,
 									Rate = ethPerGoldFixedRate.ToString(),
+									Discount = 0,
 									GoldAmount = amountGold.ToString(),
 									EthRequestIndex = requestIndex.ToString(),
 									OplogId = request.OplogId,
@@ -372,6 +375,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 									DestinationAddress = request.EthAddress,
 									Rate = "0",
+									Discount = 0,
 									GoldAmount = "0",
 									EthRequestIndex = requestIndex.ToString(),
 									OplogId = request.OplogId,
@@ -417,6 +421,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 									DestinationAddress = request.EthAddress,
 									Rate = request.GoldRateCents.ToString(),
+									Discount = 0,
 									GoldAmount = amountGold.ToString(),
 									EthRequestIndex = requestIndex.ToString(),
 									OplogId = request.OplogId,
@@ -566,8 +571,9 @@ namespace Goldmint.CoreLogic.Finance {
 							
 								DestinationAddress = request.EthAddress,
 								Rate = request.GoldRateCents.ToString(),
+								Discount = request.PromoCode?.DiscountValue ?? 0,
 								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
-								CentsAmount = payment.AmountCents,
+								CentsAmount = estimatedGoldAmount.ResultCentsAmount,
 								EthRequestIndex = "0",
 								OplogId = request.OplogId,
 								TimeCreated = timeNow,
@@ -608,6 +614,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 										DestinationAddress = ethOp.DestinationAddress,
 										Rate = "0",
+										Discount = 0,
 										GoldAmount = "0",
 										EthRequestIndex = null,
 										OplogId = ethOp.OplogId,
