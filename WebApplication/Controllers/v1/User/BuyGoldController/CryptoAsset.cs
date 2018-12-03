@@ -97,7 +97,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				fiatCurrency: exchangeCurrency,
 				inputRate: estimation.CentsPerAssetRate,
 				goldRate: estimation.CentsPerGoldRate,
-				promoCode: promoCode?.Code
+				promoCode: promoCode == null? null: $"{promoCode.Code} ({(int)promoCode.DiscountValue})%"
 			);
 
 			// history
@@ -153,7 +153,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// discount comment
 			var discountComment = promoCode?.DiscountValue != null
-				? $" | {promoCode.DiscountValue.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}% discount"
+				? $" | {(int)promoCode.DiscountValue}% discount"
 				: ""
 			;
 

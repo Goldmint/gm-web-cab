@@ -884,15 +884,22 @@ namespace Goldmint.CoreLogic.Finance {
 
 						var rate = "";
 						var srcType = "";
-						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth) {
-							var ethPerGoldRate = Estimation.AssetPerGold(EthereumToken.Eth, request.InputRateCents, request.GoldRateCents);
-							rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, TokensPrecision.Ethereum);
-							srcType = "ETH";
+						var discountSuffix = "";
+
+						switch (ethOp.Type) {
+							case EthereumOperationType.ContractProcessBuyRequestEth: 
+								var ethPerGoldRate = Estimation.AssetPerGold(EthereumToken.Eth, request.InputRateCents, request.GoldRateCents);
+								rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, TokensPrecision.Ethereum);
+								srcType = "ETH";
+								break;
+							case EthereumOperationType.ContractProcessBuyRequestFiat:
+								rate = TextFormatter.FormatAmount(request.GoldRateCents);
+								srcType = request.ExchangeCurrency.ToString().ToUpper();
+								break;
 						}
 
-						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
-							rate = TextFormatter.FormatAmount(request.GoldRateCents);
-							srcType = request.ExchangeCurrency.ToString().ToUpper();
+						if (ethOp.Discount > 0) {
+							discountSuffix = $" ({(int)ethOp.Discount}%)";
 						}
 
 						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeGoldIssued, request.RelUserFinHistory.RelUserActivity.Locale))
@@ -900,7 +907,7 @@ namespace Goldmint.CoreLogic.Finance {
 							.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
 							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + " " + srcType)
 							.ReplaceBodyTag("DETAILS_RATE", rate + " GOLD/" + srcType)
-							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " GOLD")
+							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " GOLD" + discountSuffix)
 							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
 							.Initiator(request.RelUserFinHistory.RelUserActivity)
 							.Send(request.User.Email, request.User.UserName, notificationQueue)
