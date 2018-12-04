@@ -100,15 +100,13 @@
             </ng-template>
 
             <ng-template let-row="row" ngx-datatable-cell-template>
-              <svg class="icon history-icon" width="20" height="20" *ngIf="row.src === 'ETH'">
-                <use xlink:href="#etherium"></use>
-              </svg>
-              <svg class="icon history-icon" width="20" height="15" *ngIf="row.src === 'GOLD'">
-                <use xlink:href="#cur-gold"></use>
-              </svg>
-              <span class="pl-2">
-              {{ row.src }} => {{ row.dst }}
-            </span>
+              <span class="d-flex">
+                <span class="mr-2">{{ row.src }}</span>
+                 <svg class="icon history-icon" width="20" height="20">
+                    <use xlink:href="#next-arrow"></use>
+                 </svg>
+                <span class="ml-2">{{ row.dst }}</span>
+              </span>
             </ng-template>
           </ngx-datatable-column>
 
@@ -120,10 +118,15 @@
             </ng-template>
 
             <ng-template let-row="row" ngx-datatable-cell-template>
-              <span *ngIf="row.srcAmount !== null">
+              <svg class="icon history-icon" width="20" height="20">
+                <use xlink:href="#etherium" *ngIf="row.src === 'ETH'"></use>
+                <use xlink:href="#cur-gold" *ngIf="row.src === 'GOLD'"></use>
+                <use xlink:href="#cur-usd" *ngIf="row.src === 'USD'"></use>
+              </svg>
+              <span class="pl-2" *ngIf="row.srcAmount !== null">
                 {{ row.srcAmount }}
               </span>
-              <span *ngIf="row.srcAmount === null"> - </span>
+              <span class="pl-2" *ngIf="row.srcAmount === null"> - </span>
             </ng-template>
           </ngx-datatable-column>
 
@@ -135,10 +138,15 @@
             </ng-template>
 
             <ng-template let-row="row" ngx-datatable-cell-template>
-              <span *ngIf="row.dstAmount !== null">
+              <svg class="icon history-icon" width="20" height="20">
+                <use xlink:href="#etherium" *ngIf="row.dst === 'ETH'"></use>
+                <use xlink:href="#cur-gold" *ngIf="row.dst === 'GOLD'"></use>
+                <use xlink:href="#cur-usd" *ngIf="row.dst === 'USD'"></use>
+              </svg>
+              <span class="pl-2" *ngIf="row.dstAmount !== null">
                 {{ row.dstAmount }}
               </span>
-              <span *ngIf="row.dstAmount === null"> - </span>
+              <span class="pl-2" *ngIf="row.dstAmount === null"> - </span>
             </ng-template>
           </ngx-datatable-column>
 
@@ -211,14 +219,12 @@
             <div class="d-flex align-items-center">
               <div class="font-weight-500 mr-1">{{ "PAGES.History.Table.Columns.Destination" | translate }}: </div>
               <div class="d-flex align-items-center">
-                <svg class="icon history-icon" width="20" height="20" *ngIf="row.src === 'ETH'">
-                  <use xlink:href="#etherium"></use>
-                </svg>
-                <svg class="icon history-icon" width="20" height="15" *ngIf="row.src === 'GOLD'">
-                  <use xlink:href="#cur-gold"></use>
-                </svg>
-                <span class="pl-2">
-                  {{ row.src }} => {{ row.dst }}
+                <span class="d-flex pl-2">
+                  <span class="mr-2">{{ row.src }}</span>
+                     <svg class="icon history-icon" width="20" height="20">
+                        <use xlink:href="#next-arrow"></use>
+                     </svg>
+                    <span class="ml-2">{{ row.dst }}</span>
                 </span>
               </div>
             </div>
@@ -227,11 +233,17 @@
               <div class="font-weight-500 mr-1">
                 {{ "PAGES.History.Table.Columns.FromAmount" | translate }}:
               </div>
-              <div>
+              <div class="d-flex align-items-center">
+                <svg class="icon history-icon" width="20" height="20">
+                  <use xlink:href="#etherium" *ngIf="row.src === 'ETH'"></use>
+                  <use xlink:href="#cur-gold" *ngIf="row.src === 'GOLD'"></use>
+                  <use xlink:href="#cur-usd" *ngIf="row.src === 'USD'"></use>
+                </svg>
+
                  <span class="pl-2" *ngIf="row.srcAmount !== null">
                   {{ row.srcAmount }}
                 </span>
-                <span *ngIf="row.srcAmount === null"> - </span>
+                <span class="ml-2" *ngIf="row.srcAmount === null"> - </span>
               </div>
             </div>
 
@@ -239,11 +251,17 @@
               <div class="font-weight-500 mr-1">
                 {{ "PAGES.History.Table.Columns.ToAmount" | translate }}:
               </div>
-              <div>
+              <div class="d-flex align-items-center">
+                <svg class="icon history-icon" width="20" height="20">
+                  <use xlink:href="#etherium" *ngIf="row.dst === 'ETH'"></use>
+                  <use xlink:href="#cur-gold" *ngIf="row.dst === 'GOLD'"></use>
+                  <use xlink:href="#cur-usd" *ngIf="row.dst === 'USD'"></use>
+                </svg>
+
                  <span class="pl-2" *ngIf="row.dstAmount !== null">
                   {{ row.dstAmount }}
                 </span>
-                <span *ngIf="row.dstAmount === null"> - </span>
+                <span class="ml-2" *ngIf="row.dstAmount === null"> - </span>
               </div>
             </div>
 
