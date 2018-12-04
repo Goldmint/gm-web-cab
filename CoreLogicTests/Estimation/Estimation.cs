@@ -130,6 +130,58 @@ namespace Goldmint.CoreLogicTests.Estimation {
 		}
 
 		[Fact]
+		public void BuyGoldSimpleEstimationWithDiscount() {
+
+			var gRate = 140000;
+			var eRate = 70000;
+			var discount = 50d;
+
+			_ratesProvider.SetSpread(0d);
+			_ratesProvider.SetGoldRate(gRate);
+			_ratesProvider.SetEthRate(eRate);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestGoldRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.ForceUpdate().Wait();
+
+			// crypto
+			var cres = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum), null, null, discount).Result;
+			Assert.True(cres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(cres.CentsPerGoldRate == gRate);
+			Assert.True(cres.CentsPerAssetRate == eRate);
+			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, TokensPrecision.Ethereum));
+			Assert.True(cres.ResultAssetAmount == 15 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 1));
+			Assert.True(cres.ResultGoldAmount == 75 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 2));
+
+			// fiat
+			var fiatAmount = gRate;
+			var fres = CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, fiatAmount, null, discount).Result;
+			Assert.True(fres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(fres.CentsPerGoldRate == gRate);
+			Assert.True(fres.ResultCentsAmount == fiatAmount + fiatAmount / 2);
+			Assert.True(fres.ResultGoldAmount == 15 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 1));
+			
+			// crypto rev
+			cres = CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum), null, null, discount).Result;
+			Assert.True(cres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(cres.CentsPerGoldRate == gRate);
+			Assert.True(cres.CentsPerAssetRate == eRate);
+			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, TokensPrecision.Ethereum));
+			Assert.True(cres.ResultAssetAmount == BigInteger.Parse("1333333333333333333"));
+			Assert.True(cres.ResultGoldAmount == 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold));
+
+			// fiat rev
+			fres = CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum), null, discount).Result;
+			Assert.True(fres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(fres.CentsPerGoldRate == gRate);
+			Assert.True(fres.ResultCentsAmount == 93333);
+			Assert.True(fres.ResultGoldAmount == 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold));
+		}
+
+		[Fact]
 		public void SellGoldSimpleEstimation() {
 
 			var gRate = 100000;
