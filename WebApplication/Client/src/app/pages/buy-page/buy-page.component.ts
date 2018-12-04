@@ -8,6 +8,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { User } from "../../interfaces/user";
 import {Subject} from "rxjs/Subject";
 import {environment} from "../../../environments/environment";
+import {TradingStatus} from "../../interfaces/trading-status";
 
 @Component({
   selector: 'app-buy-page',
@@ -25,13 +26,12 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public isMetamask = true;
   public user: User;
   public tfaInfo: TFAInfo;
-  public tradingStatus: {creditCardBuyingAllowed: boolean, ethAllowed: boolean};
+  public tradingStatus: TradingStatus;
   public blockedCountriesList = ['US', 'CA', 'CN', 'SG'];
   public isBlockedCountry: boolean = false;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
   public isAuthenticated: boolean = false;
-  public isProduction = environment.isProduction;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 

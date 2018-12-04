@@ -88,7 +88,7 @@
             </div>
           </div>
 
-          <div class="col-12 pb-4">
+          <div class="col-12 pb-4" *ngIf="!isAuthenticated || tradingStatus?.promoCodesAllowed">
             <div class="from-row form-group ">
               <label for="promo-code">{{ "PAGES.Buy.PaymentCard.Labels.PromoCode" | translate }}</label>
               <div class="d-flex align-items-center">
@@ -100,19 +100,19 @@
                 <input type="text" class="form-control" name="promo-code" id="promo-code"
                        mask='AAAAA-AAAAA'
                        #promoCodeInput="ngModel"
-                       ngModel
-                       (input)="inputPromoCode($event.target.value)"
+                       [(ngModel)]="promoCodeModel"
+                       (keyup)="inputPromoCode($event.target.value)"
                        autocomplete="off"
                        [ngClass]="{'is-invalid': isInvalidPromoCode}"
                        [disabled]="loading">
               </div>
-              <div class="invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
+              <div class="position-absolute invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
                 {{ "PAGES.Buy.Errors.IncorrectPromo" | translate }}
               </div>
-              <div class="invalid-feedback" *ngIf="isInvalidPromoCode && promoCodeErrorCode">
+              <div class="position-absolute invalid-feedback" *ngIf="isInvalidPromoCode && promoCodeErrorCode">
                 {{ "PAGES.Buy.Errors.PromoCodeErrors." + promoCodeErrorCode | translate }}
               </div>
-              <div *ngIf="!isInvalidPromoCode">
+              <div class="position-absolute" *ngIf="!isInvalidPromoCode && !loading">
                 {{ "PAGES.Buy.Promo.PromoInfo.Text" | translate }} {{ discount }}%
                 {{ "PAGES.Buy.Promo.PromoInfo.Or" | translate }} {{ goldAmount | goldDiscount:discount }} GOLD
               </div>

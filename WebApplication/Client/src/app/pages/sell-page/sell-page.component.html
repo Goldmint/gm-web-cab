@@ -72,16 +72,6 @@
                   <div *ngIf="!tradingStatus?.creditCardSellingAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
                 </div>
               </div>
-
-              <div class="col col-xl-3 form-group text-center" *ngIf="!isProduction">
-                <label for="btnCapital">{{ "PAGES.Sell.Method.CryptoCapital" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnCapital"
-                        [disabled]="true">
-                  <svg class="icon" width="56px" height="56px">
-                    <use xlink:href="#crypto-capital"></use>
-                  </svg>
-                </button>
-              </div>
             </div>
           </ng-container>
         </ng-template>

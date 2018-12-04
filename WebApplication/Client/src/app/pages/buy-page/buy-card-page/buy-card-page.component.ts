@@ -8,6 +8,7 @@ import {Router} from "@angular/router";
 import {CardsList} from "../../../interfaces";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
+import {TradingStatus} from "../../../interfaces/trading-status";
 
 @Component({
   selector: 'app-buy-card-page',
@@ -48,6 +49,8 @@ export class BuyCardPageComponent implements OnInit {
   public discount: number = 0;
   public isInvalidPromoCode: boolean = false;
   public promoCodeErrorCode: string = null;
+  public promoCodeModel: string;
+  public tradingStatus: TradingStatus;
 
   private promoCodeLength: number = 11;
   private timeoutPopUp;
@@ -99,6 +102,7 @@ export class BuyCardPageComponent implements OnInit {
           card.status === 'verified' && this.cards.list.push(card);
         });
         this.buyLimit = data[1].data.limits.creditCardUsd.deposit;
+        this.tradingStatus = data[1].data.trading;
         this.isDataLoaded = true;
 
         if (this.cards.list && this.cards.list.length) {
@@ -274,6 +278,7 @@ export class BuyCardPageComponent implements OnInit {
     this.interval = Observable.interval(100).subscribe(() => {
       if (this.goldAmountInput) {
         this.initInputValueChanges();
+        this.promoCodeModel = this.promoCode;
 
         this.interval && this.interval.unsubscribe();
         this._cdRef.markForCheck();

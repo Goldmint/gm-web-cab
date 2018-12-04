@@ -30,7 +30,6 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
   public isAuthenticated: boolean = false;
-  public isProduction = environment.isProduction;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 

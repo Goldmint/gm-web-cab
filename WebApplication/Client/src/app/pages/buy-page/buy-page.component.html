@@ -39,16 +39,6 @@
                 <div *ngIf="!user?.verifiedL1 && !loading">{{ "PAGES.Buy.Errors.NoKyc" | translate }}</div>
               </div>
             </div>
-
-            <div class="col col-xl-3 form-group text-center" *ngIf="!isProduction">
-              <label for="btnCapital">{{ "PAGES.Buy.Method.CryptoCapital" | translate }}</label>
-              <button class="btn btn-primary btn-block" id="btnCapital"
-                      [disabled]="true">
-                <svg class="icon" width="56px" height="56px">
-                  <use xlink:href="#crypto-capital"></use>
-                </svg>
-              </button>
-            </div>
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import {Router} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {environment} from "../../../../environments/environment";
 import * as Web3 from "web3";
+import {TradingStatus} from "../../../interfaces/trading-status";
 
 
 @Component({
@@ -70,6 +71,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public isInvalidPromoCode: boolean = false;
   public promoCodeErrorCode: string = null;
   public isAuthenticated: boolean = false;
+  public promoCodeModel: string;
+  public tradingStatus: TradingStatus;
 
   private promoCodeLength: number = 11;
   private timeoutPopUp;
@@ -116,11 +119,13 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
     this._userService.isAuthenticated() && Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._apiService.getProfile()
+      this._apiService.getProfile(),
+      this._apiService.getTradingStatus()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
+        this.tradingStatus = res[2].data.trading;
 
         !this.user.verifiedL0 && this.router.navigate(['/buy']);
         this._cdRef.markForCheck();
@@ -329,6 +334,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
     this.interval = Observable.interval(100).subscribe(() => {
       if (this.goldAmountInput) {
         this.initInputValueChanges();
+        this.promoCodeModel = this.promoCode;
 
         this.interval && this.interval.unsubscribe();
         this._cdRef.markForCheck();
