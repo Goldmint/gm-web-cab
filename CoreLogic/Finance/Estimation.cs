@@ -73,9 +73,9 @@ namespace Goldmint.CoreLogic.Finance {
 			return value * p / new BigInteger(100000);
 		}
 
-		public static BigInteger GetDiscountRev(double perc, BigInteger value) {
+		public static BigInteger GetDiscountRevBody(double perc, BigInteger value) {
 			if (perc <= 0) {
-				return BigInteger.Zero;
+				return value;
 			}
 			if (perc > 99.999) {
 				perc = 99.999;
@@ -228,7 +228,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var exchangeAmount = (requiredGoldAmount * new BigInteger(goldRate.Value) + BigInteger.Pow(10, TokensPrecision.EthereumGold) - 1) / BigInteger.Pow(10, TokensPrecision.EthereumGold);
 			
 			// discount
-			var exchangeAmountMinusDiscount = GetDiscountRev(discount, exchangeAmount);
+			var exchangeAmountMinusDiscount = GetDiscountRevBody(discount, exchangeAmount);
 			if (exchangeAmountMinusDiscount < 1) {
 				exchangeAmountMinusDiscount = 1;
 			}
@@ -298,7 +298,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var cryptoAmount = (requiredGoldAmount * assetPerGold + BigInteger.Pow(10, TokensPrecision.EthereumGold) - 1) / BigInteger.Pow(10, TokensPrecision.EthereumGold);
 
 			// discount
-			var cryptoAmountMinusDiscount = GetDiscountRev(discount, cryptoAmount);
+			var cryptoAmountMinusDiscount = GetDiscountRevBody(discount, cryptoAmount);
 			if (cryptoAmountMinusDiscount < 1) {
 				cryptoAmountMinusDiscount = 1;
 			}

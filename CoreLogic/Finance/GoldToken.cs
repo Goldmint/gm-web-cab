@@ -899,7 +899,7 @@ namespace Goldmint.CoreLogic.Finance {
 						}
 
 						if (ethOp.Discount > 0) {
-							discountSuffix = $" ({(int)ethOp.Discount}%)";
+							discountSuffix = $" ({(int)ethOp.Discount}&percnt;)";
 						}
 
 						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeGoldIssued, request.RelUserFinHistory.RelUserActivity.Locale))
