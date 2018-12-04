@@ -58,8 +58,8 @@ namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 			}
 		}
 
-		public async Task<string> NewGoldBuyingRequestForCryptoasset(long userId, EthereumToken ethereumToken, string destAddress, FiatCurrency fiatCurrency, long inputRate, long goldRate) {
-			return await CreateEntry(userId, $"New GOLD buying #? for { ethereumToken.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(inputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+		public async Task<string> NewGoldBuyingRequestForCryptoasset(long userId, EthereumToken ethereumToken, string destAddress, FiatCurrency fiatCurrency, long inputRate, long goldRate, string promoCode) {
+			return await CreateEntry(userId, $"New GOLD buying #? for { ethereumToken.ToString() } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; asset rate { TextFormatter.FormatAmount(inputRate, fiatCurrency) }, gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }; promo { (string.IsNullOrWhiteSpace(promoCode)? "-": promoCode) }");
 		}
 
 		public async Task<string> NewGoldSellingRequestForCryptoasset(long userId, EthereumToken ethereumToken, string destAddress, FiatCurrency fiatCurrency, long outputRate, long goldRate) { 
@@ -74,56 +74,13 @@ namespace Goldmint.CoreLogic.Services.Oplog.Impl {
 			return await CreateEntry(userId, $"New card #{ cardId } verification started with {TextFormatter.FormatAmount(centsAmount, fiatCurrency)}");
 		}
 
-		public async Task<string> NewGoldBuyingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate, long centsAmount) {
-			return await CreateEntry(userId, $"New GOLD buying #? of { TextFormatter.FormatAmount(centsAmount, fiatCurrency) } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
+		public async Task<string> NewGoldBuyingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate, long centsAmount, string promoCode) {
+			return await CreateEntry(userId, $"New GOLD buying #? of { TextFormatter.FormatAmount(centsAmount, fiatCurrency) } requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }; promo { (string.IsNullOrWhiteSpace(promoCode)? "-": promoCode) }");
 		}
 
 		public async Task<string> NewGoldSellingRequestWithCreditCard(long userId, string destAddress, FiatCurrency fiatCurrency, long goldRate) {
 			return await CreateEntry(userId, $"New GOLD selling #? requested to address { TextFormatter.MaskBlockchainAddress(destAddress) }; gold rate { TextFormatter.FormatAmount(goldRate, fiatCurrency) }");
 		}
-
-		/*
-		
-
-		public async Task<string> NewCardDeposit(DAL.Models.Identity.User user, Card card, FiatCurrency currency, long amount) {
-			return await CreateTicket(user.Id, $"New card deposit #? (card #{card.Id}, {card.CardMask}) started with {TextFormatter.FormatAmount(amount, currency)}");
-		}
-
-		public async Task<string> NewCardWithdraw(DAL.Models.Identity.User user, Card card, FiatCurrency currency, long amount) {
-			return await CreateTicket(user.Id, $"New card witdraw #? (card #{card.Id}, {card.CardMask}) started with {TextFormatter.FormatAmount(amount, currency)}");
-		}
-
-
-		public async Task<string> NewSwiftDeposit(DAL.Models.Identity.User user, FiatCurrency currency, long amount) {
-			return await CreateTicket(user.Id, $"New SWIFT deposit #? requested with {TextFormatter.FormatAmount(amount, currency)}");
-		}
-
-		public async Task<string> NewSwiftWithdraw(DAL.Models.Identity.User user, FiatCurrency currency, long amount) {
-			return await CreateTicket(user.Id, $"New SWIFT withdraw #? requested with {TextFormatter.FormatAmount(amount, currency)}");
-		}
-
-
-		public async Task<string> NewCryptoDeposit(DAL.Models.Identity.User user, CryptoExchangeAsset asset, string address, FiatCurrency currency, long tokenRate) {
-			return await CreateTicket(user.Id, $"New {asset.ToString()}-deposit #? requested from {TextFormatter.MaskBlockchainAddress(address)} at rate {TextFormatter.FormatAmount(tokenRate, currency)} per token");
-		}
-
-		public async Task<string> NewCryptoWithdraw(DAL.Models.Identity.User user, CryptoExchangeRequestOrigin origin, string address, FiatCurrency currency, long amount) {
-			return await CreateTicket(user.Id, $"New {origin.ToString()}-witdraw #? to {TextFormatter.MaskBlockchainAddress(address)} started with {TextFormatter.FormatAmount(amount, currency)}");
-		}
-
-
-		public async Task<string> NewGoldBuying(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, long fiatAmount, long rate, BigInteger mntpBalance, BigInteger estimatedGoldAmount, long feeCents) {
-			return await CreateTicket(user.Id, $"New gold buying #? for {TextFormatter.FormatAmount(fiatAmount, currency)} requested from {( ethAddressOrNull != null? TextFormatter.MaskBlockchainAddress(ethAddressOrNull): "HW" )} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {CoreLogic.Finance.Tokens.GoldToken.FromWei(estimatedGoldAmount)} oz, fee {TextFormatter.FormatAmount(feeCents, currency)}");
-		}
-
-		public async Task<string> NewGoldSelling(DAL.Models.Identity.User user, string ethAddressOrNull, FiatCurrency currency, BigInteger goldAmount, long rate, BigInteger mntpBalance, long estimatedFiatAmount, long feeCents) {
-			return await CreateTicket(user.Id, $"New gold selling #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from {( ethAddressOrNull != null? TextFormatter.MaskBlockchainAddress(ethAddressOrNull): "HW")} at rate {TextFormatter.FormatAmount(rate, currency)}, {CoreLogic.Finance.Tokens.MntpToken.FromWei(mntpBalance)} mints, est. {TextFormatter.FormatAmount(estimatedFiatAmount, currency)}, fee {TextFormatter.FormatAmount(feeCents, currency)}");
-		}
-
-		public async Task<string> NewGoldTransfer(DAL.Models.Identity.User user, string ethAddress, BigInteger goldAmount) {
-			return await CreateTicket(user.Id, $"New gold transfer #? of {CoreLogic.Finance.Tokens.GoldToken.FromWei(goldAmount)} oz requested from HW to {TextFormatter.MaskBlockchainAddress(ethAddress)}");
-		}
-		*/
 
 	}
 }

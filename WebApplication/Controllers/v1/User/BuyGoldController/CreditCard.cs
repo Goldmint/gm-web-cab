@@ -13,8 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
-	public partial class BuyGoldController : BaseController
-	{
+	public partial class BuyGoldController : BaseController {
 
 		/// <summary>
 		/// USD to GOLD
@@ -22,36 +21,32 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("ccard")]
 		[ProducesResponseType(typeof(CreditCardView), 200)]
-		public async Task<APIResponse> CreditCard([FromBody] CreditCardModel model)
-		{
+		public async Task<APIResponse> CreditCard([FromBody] CreditCardModel model) {
 
 			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields))
-			{
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(errFields);
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (!model.Reversed && inputAmount > long.MaxValue))
-			{
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (!model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
 			// try parse fiat currency
 			var exchangeCurrency = FiatCurrency.Usd;
-			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc))
-			{
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
 				exchangeCurrency = fc;
 			}
 
-		    // ---
-		    var rcfg = RuntimeConfigHolder.Clone();
-            var user = await GetUserFromDb();
+			// ---
+
+			var rcfg = RuntimeConfigHolder.Clone();
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
-			if (userTier < UserTier.Tier2)
-			{
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -66,49 +61,47 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				)
 				.AsNoTracking()
 				.FirstOrDefaultAsync();
-			if (card == null)
-			{
+			if (card == null) {
 				return APIResponse.BadRequest(nameof(model.CardId), "Invalid id");
 			}
 
 			// ---
 
-			if (!rcfg.Gold.AllowBuyingCreditCard)
-			{
+			if (!rcfg.Gold.AllowBuyingCreditCard) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
 			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
-            // check promocode
-		    PromoCode promoCode;
-		    var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+			// check promocode
+			PromoCode promoCode = null;
+			if (rcfg.Gold.AllowPromoCodes) {
+				var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+				if (codeStatus.Valid == false) {
+					if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter) {
+						promoCode = null;
+					} else {
+						return APIResponse.BadRequest(codeStatus.ErrorCode);
+					}
+				}
+				else {
+					if (await GetUserTier() != UserTier.Tier2) {
+						return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+					}
 
-		    if (codeStatus.Valid == false)
-		    {
-		        if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
-		            promoCode = null;
-		        else
-		        {
-		            return APIResponse.BadRequest(codeStatus.ErrorCode);
-		        }
-		    }
-		    else
-		    {
-		        if (await GetUserTier() != UserTier.Tier2)
-		            return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+					promoCode = await DbContext.PromoCode
+						.AsNoTracking()
+						.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
+					;
+				}
+			}
 
-		        promoCode = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-		            _ => _.Code == model.PromoCode.ToUpper());
-		    }
-
-            var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, promoCode, limits.Min, limits.Max);
-			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue)
-			{
+			// estimation
+			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
-			if (estimation.IsLimitExceeded)
-			{
+			if (estimation.IsLimitExceeded) {
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
@@ -120,12 +113,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
 				goldRate: estimation.CentsPerGoldRate,
-				centsAmount: (long)estimation.ResultCurrencyAmount
+				centsAmount: (long)estimation.ResultCurrencyAmount,
+				promoCode: promoCode == null? null: $"{promoCode.Code} ({(int)promoCode.DiscountValue})%"
 			);
 
 			// history
-			var finHistory = new DAL.Models.UserFinHistory()
-			{
+			var finHistory = new DAL.Models.UserFinHistory() {
 
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldBuy,
@@ -146,8 +139,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// request
-			var request = new DAL.Models.BuyGoldRequest()
-			{
+			var request = new DAL.Models.BuyGoldRequest() {
 
 				Status = BuyGoldRequestStatus.Unconfirmed,
 				Input = BuyGoldRequestInput.CreditCardDeposit,
@@ -174,13 +166,18 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			DbContext.BuyGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
+			// discount comment
+			var discountComment = promoCode?.DiscountValue != null
+				? $" | {(int)promoCode.DiscountValue}% discount"
+				: ""
+			;
+
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }" + discountComment;
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
-				new CreditCardView()
-				{
+				new CreditCardView() {
 					RequestId = request.Id,
 					Currency = exchangeCurrency.ToString().ToUpper(),
 					GoldRate = estimation.CentsPerGoldRate / 100d,

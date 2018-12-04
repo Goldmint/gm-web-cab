@@ -19,7 +19,7 @@ namespace Goldmint.Common {
 		public static readonly Regex RexSumusAddress = new Regex(@"^[0-9a-zA-Z]{32,128}$");
 		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
 		public static readonly Regex RexEthereumTransactionId = new Regex(@"^0x[0-9abcdefABCDEF]{64}$");
-		public static readonly Regex RexPromoCode = new Regex("^[0-9A-Z]{5}-[0-9A-Z]{5}$");
+		public static readonly Regex RexPromoCode = new Regex("^[0-9A-Za-z]{5}-[0-9A-Za-z]{5}$");
 
 		// ---
 

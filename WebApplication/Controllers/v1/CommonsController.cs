@@ -141,6 +141,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					EthAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingEth,
 					CreditCardBuyingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowBuyingCreditCard,
 					CreditCardSellingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowSellingCreditCard,
+					PromoCodesAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowPromoCodes,
 				},
 				Limits = new StatusViewLimits() {
 					Eth = new StatusViewLimits.Method() {

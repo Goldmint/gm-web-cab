@@ -81,7 +81,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			);
 		}
 
-		public async Task<string> ProcessRequestEth(BigInteger requestIndex, BigInteger ethPerGold) {
+		public async Task<string> ProcessRequestEth(BigInteger requestIndex, BigInteger ethPerGold, BigInteger discountPercentage) {
 
 			if (requestIndex < 0) {
 				throw new ArgumentException("Invalid request index");
@@ -104,7 +104,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 				_gmStorageManager.Address,
 				gas,
 				new HexBigInteger(0),
-				requestIndex, ethPerGold
+				requestIndex, ethPerGold, discountPercentage
 			);
 		}
 
