@@ -29,7 +29,7 @@ export class RegisterPageComponent implements OnInit {
   public isAgreementConfirmShown = false;
   public agreeCheck = false;
   public agreeTerms = false;
-  public location = window.location.origin;
+  public location = window.location.origin + window.location.pathname;
 
   private returnUrl: string;
 
