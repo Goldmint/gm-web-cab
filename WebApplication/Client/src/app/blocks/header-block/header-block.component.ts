@@ -7,6 +7,7 @@ import { UserService, MessageBoxService, EthereumService, GoldrateService } from
 import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
 import {NavigationEnd, Router} from "@angular/router";
+import {APIService} from "../../services/api.service";
 
 @Component({
   selector: 'app-header',
@@ -25,17 +26,19 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     {id: 'metamask', name: 'METAMASK', account: ''}
   ];
   public activeWallet: Object = this.wallets[0];
-
+  public sumusNetwork: string = 'MainNet';
   public metamaskAccount: string = null;
   public goldBalance: string|null = '0';
   public hotGoldBalance: string|null = null;
   public shortAdr: string;
   public isShowMobileMenu: boolean = false;
   public isMobile: boolean = false;
+  public isLoggedInToMM: boolean = true;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
 
   constructor(
+    private _apiService: APIService,
     private _ethService: EthereumService,
     private _goldrateService: GoldrateService,
     private _userService: UserService,
@@ -117,6 +120,17 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       }
     });
 
+    // this.sumusNetwork = localStorage.getItem('gmint_sumus_network') ?
+    //                     localStorage.getItem('gmint_sumus_network') : 'MainNet';
+    // this._apiService.transferCurrentSumusNetwork.next(this.sumusNetwork);
+
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
+      setTimeout(() => {
+        !this.isLoggedIn() && !this.metamaskAccount && (this.isLoggedInToMM = false);
+        this._cdRef.markForCheck();
+      }, 3000);
+    }
+
     this._userService.currentWallet = this.activeWallet;
     this._cdRef.markForCheck();
   }
@@ -162,6 +176,13 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this.isShowMobileMenu = !this.isShowMobileMenu;
     document.body.style.overflow = this.isShowMobileMenu ? 'hidden' : 'visible';
     e.stopPropagation();
+    this._cdRef.markForCheck();
+  }
+
+  changeSumusNetwork(network) {
+    this.sumusNetwork = network;
+    localStorage.setItem('gmint_sumus_network', network);
+    this._apiService.transferCurrentSumusNetwork.next(network);
     this._cdRef.markForCheck();
   }
 

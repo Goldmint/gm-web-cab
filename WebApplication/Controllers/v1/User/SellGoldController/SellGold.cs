@@ -20,7 +20,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Estimate
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		//[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[AnonymousAccess]
 		[HttpPost, Route("estimate")]
 		[ProducesResponseType(typeof(EstimateView), 200)]
 		public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
@@ -31,36 +32,36 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var exchangeCurrency = FiatCurrency.Usd;
-			CryptoCurrency? cryptoCurrency = null;
+			EthereumToken? ethereumToken = null;
 
 			// try parse fiat currency
 			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
 				exchangeCurrency = fc;
 			}
 			// or crypto currency
-			else if (Enum.TryParse(model.Currency, true, out CryptoCurrency cc)) {
-				cryptoCurrency = cc;
+			else if (Enum.TryParse(model.Currency, true, out EthereumToken cc)) {
+				ethereumToken = cc;
 			}
 			else {
 				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
 			}
 
 			// try parse amount
-			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (cryptoCurrency == null && model.Reversed && inputAmount > long.MaxValue)) {
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (ethereumToken == null && model.Reversed && inputAmount > long.MaxValue)) {
 				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
 			}
 
 			// ---
 
-			var user = GetUserFromDb();
+			var userOrNull = await GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
-			var limits = cryptoCurrency != null
-				? WithdrawalLimits(rcfg, cryptoCurrency.Value)
-				: await WithdrawalLimits(rcfg, DbContext, user.Id, exchangeCurrency)
+			var limits = ethereumToken != null
+				? WithdrawalLimits(rcfg, ethereumToken.Value)
+				: await WithdrawalLimits(rcfg, DbContext, userOrNull?.Id, exchangeCurrency)
 			;
 
-			var estimation = await Estimation(rcfg, inputAmount, cryptoCurrency, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
+			var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -154,7 +155,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, CryptoCurrency? cryptoCurrency, FiatCurrency fiatCurrency, string ethAddress, bool reversed, BigInteger withdrawalLimitMin, BigInteger withdrawalLimitMax) {
+		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, EthereumToken? ethereumToken, FiatCurrency fiatCurrency, string ethAddress, bool reversed, BigInteger withdrawalLimitMin, BigInteger withdrawalLimitMax) {
 
 			var allowed = false;
 			
@@ -175,7 +176,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			if (!reversed) {
 
 				// fiat
-				if (cryptoCurrency == null) {
+				if (ethereumToken == null) {
 					var res = await CoreLogic.Finance.Estimation.SellGoldFiat(
 						services: HttpContext.RequestServices,
 						fiatCurrency: fiatCurrency,
@@ -207,7 +208,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				else {
 					var res = await CoreLogic.Finance.Estimation.SellGoldCrypto(
 						services: HttpContext.RequestServices,
-						cryptoCurrency: cryptoCurrency.Value,
+						ethereumToken: ethereumToken.Value,
 						fiatCurrency: fiatCurrency,
 						goldAmount: inputAmount
 					);
@@ -218,13 +219,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					resultGoldAmount = res.ResultGoldAmount;
 					resultCurrencyAmount = res.ResultAssetAmount;
 
-					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, res.ResultAssetAmount);
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(ethereumToken.Value, res.ResultAssetAmount);
 					resultCurrencyAmountMinusFee = res.ResultAssetAmount - fee;
 
 					viewAmount = resultCurrencyAmountMinusFee.ToString();
-					viewAmountCurrency = cryptoCurrency.Value.ToString().ToUpper();
+					viewAmountCurrency = ethereumToken.Value.ToString().ToUpper();
 					viewFee = fee.ToString();
-					viewFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
+					viewFeeCurrency = ethereumToken.Value.ToString().ToUpper();
 
 					limitsData = new EstimateLimitsView() {
 						Currency = fiatCurrency.ToString().ToUpper(),
@@ -238,7 +239,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			else {
 
 				// fiat
-				if (cryptoCurrency == null) {
+				if (ethereumToken == null) {
 
 					var mntBalance = ethAddress != null ? await EthereumObserver.GetAddressMntBalance(ethAddress) : BigInteger.Zero;
 
@@ -270,11 +271,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				// cryptoasset
 				else {
 
-					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(cryptoCurrency.Value, inputAmount);
+					var fee = CoreLogic.Finance.Estimation.SellingFeeForCrypto(ethereumToken.Value, inputAmount);
 
 					var res = await CoreLogic.Finance.Estimation.SellGoldCryptoRev(
 						services: HttpContext.RequestServices,
-						cryptoCurrency: cryptoCurrency.Value,
+						ethereumToken: ethereumToken.Value,
 						fiatCurrency: fiatCurrency,
 						requiredCryptoAmountWithFee: inputAmount + fee
 					);
@@ -289,7 +290,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					viewAmount = res.ResultGoldAmount.ToString();
 					viewAmountCurrency = "GOLD";
 					viewFee = fee.ToString();
-					viewFeeCurrency = cryptoCurrency.Value.ToString().ToUpper();
+					viewFeeCurrency = ethereumToken.Value.ToString().ToUpper();
 
 					limitsData = new EstimateLimitsView() {
 						Currency = fiatCurrency.ToString().ToUpper(),
@@ -330,15 +331,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, CryptoCurrency cryptoCurrency) {
+		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, EthereumToken ethereumToken) {
 
 			var cryptoAccuracy = 8;
 			var decimals = cryptoAccuracy;
 			var min = 0d;
 			var max = 0d;
 
-			if (cryptoCurrency == CryptoCurrency.Eth) {
-				decimals = Tokens.ETH.Decimals;
+			if (ethereumToken == EthereumToken.Eth) {
+				decimals = TokensPrecision.Ethereum;
 				min = rcfg.Gold.PaymentMehtods.EthWithdrawMinEther;
 				max = rcfg.Gold.PaymentMehtods.EthWithdrawMaxEther;
 			}
@@ -351,18 +352,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				};
 			}
 			
-			throw new NotImplementedException($"{cryptoCurrency} currency is not implemented");
+			throw new NotImplementedException($"{ethereumToken} currency is not implemented");
 		}
 
 		[NonAction]
-		public static async Task<WithdrawalLimitsResult> WithdrawalLimits(RuntimeConfig rcfg, ApplicationDbContext dbContext, long userId, FiatCurrency fiatCurrency) {
+		public static async Task<WithdrawalLimitsResult> WithdrawalLimits(RuntimeConfig rcfg, ApplicationDbContext dbContext, long? userId, FiatCurrency fiatCurrency) {
 
 			var min = 0d;
 			var max = 0d;
 			var accMax = 0d;
 			var accUsed = 0d;
 
-			var userLimits = await CoreLogic.User.GetUserLimits(dbContext, userId);
+			var userLimits = userId != null 
+				? await CoreLogic.User.GetUserLimits(dbContext, userId.Value)
+				: (CoreLogic.User.UpdateUserLimitsData) null;
 
 			switch (fiatCurrency) {
 
@@ -373,7 +376,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					// has limit
 					accMax = rcfg.Gold.PaymentMehtods.FiatUserWithdrawLimitUsd;
 					if (accMax > 0) {
-						accUsed = userLimits.FiatUsdWithdrawn / 100d;
+						accUsed = (userLimits?.FiatUsdWithdrawn ?? 0) / 100d;
 						max = Math.Min(
 							max,
 							Math.Max(0, accMax - accUsed)

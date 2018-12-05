@@ -63,7 +63,7 @@
             </div>
           </div>
 
-          <div class="col-12 pb-4">
+          <div class="col-12">
             <div class="from-row form-group ">
               <label for="goldAmount">{{ "PAGES.Buy.PaymentCard.Labels.Estimate" | translate }}</label>
               <div class="d-flex align-items-center">
@@ -88,10 +88,41 @@
             </div>
           </div>
 
+          <div class="col-12 pb-4" *ngIf="!isAuthenticated || tradingStatus?.promoCodesAllowed">
+            <div class="from-row form-group ">
+              <label for="promo-code">{{ "PAGES.Buy.PaymentCard.Labels.PromoCode" | translate }}</label>
+              <div class="d-flex align-items-center">
+                <div class="form-currency">
+                  <svg class="icon" width="30" height="30">
+                    <use xlink:href="#discount"></use>
+                  </svg>
+                </div>
+                <input type="text" class="form-control" name="promo-code" id="promo-code"
+                       mask='AAAAA-AAAAA'
+                       #promoCodeInput="ngModel"
+                       [(ngModel)]="promoCodeModel"
+                       (keyup)="inputPromoCode($event.target.value)"
+                       autocomplete="off"
+                       [ngClass]="{'is-invalid': isInvalidPromoCode}"
+                       [disabled]="loading">
+              </div>
+              <div class="position-absolute invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
+                {{ "PAGES.Buy.Errors.IncorrectPromo" | translate }}
+              </div>
+              <div class="position-absolute invalid-feedback" *ngIf="isInvalidPromoCode && promoCodeErrorCode">
+                {{ "PAGES.Buy.Errors.PromoCodeErrors." + promoCodeErrorCode | translate }}
+              </div>
+              <div class="position-absolute" *ngIf="!isInvalidPromoCode && !loading">
+                {{ "PAGES.Buy.Promo.PromoInfo.Text" | translate }} {{ discount }}%
+                {{ "PAGES.Buy.Promo.PromoInfo.Or" | translate }} {{ goldAmount | goldDiscount:discount }} GOLD
+              </div>
+            </div>
+          </div>
+
           <div class="col-12 mb-5">
             <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
             <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Buy.Errors.UseMM" | translate }}</div>
-            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit || !ethAddress || processing || isBuyLimit">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !usdAmount || isTradingError || isTradingLimit || !ethAddress || processing || isBuyLimit || isInvalidPromoCode">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
             <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
           </div>
         </div>

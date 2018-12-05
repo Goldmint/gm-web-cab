@@ -5,7 +5,6 @@
   background-color: $color-black
   color: $color-white
   width: 100%
-  height: $header-height
   display: flex
   flex-direction: column
   padding-top: 2px
@@ -22,6 +21,7 @@
     @include make-row()
     align-items: center
     flex: 1 1 auto
+    min-height: 81px
 
 
 .rate
@@ -76,20 +76,12 @@
   font-weight: 500
   font-size: rem(14px)
   line-height: rem(19px)
-  // padding: 0 rem(5px)
 
   a:not(.btn)
     color: $color-brand
     transition: $transition-link
     text-decoration: none
-  //   border-bottom: rem(1px) solid transparent
 
-    &:hover
-      color: $color-brand-hover
-      text-decoration: none
-  //     border-bottom-color: $color-brand-hover
-
-  // @todo: make generic header dropdown styles for usermenu and language switcher (language-switcher-block.component.sass)
   .language
     font-size: rem(14px)
 
@@ -114,6 +106,9 @@
 .mobile-menu-icon
   color: $color-brand
 
+.header-mobile
+  height: 125px
+
 #mobile-menu-container
   position: absolute
   justify-content: space-between
@@ -135,6 +130,21 @@
         color: $color-brand
         justify-content: flex-start
         font-size: 1rem
+        white-space: inherit
+        text-align: left
+        min-height: 25px
+        height: auto
+
+  .sub-nav-container
+    height: auto
+    display: block
+    padding: 3px 0 3px 20px
+    background-color: black
+
+    .sub-nav
+      position: relative
+      height: auto
+      margin: 0
 
   .mobile-account-info
     .dropdown-toggle
@@ -158,9 +168,8 @@
             font-size: 0.875rem
             padding: 5px 0
 
-  .nav-item.active
-    a
-      color: $color-brand-active !important
+  .nav-item.active > a
+    color: $color-brand-active !important
 
   .nav-link
     border: none

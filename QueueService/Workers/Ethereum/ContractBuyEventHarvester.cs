@@ -1,5 +1,5 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.CoreLogic.Services.Bus.Telemetry;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;

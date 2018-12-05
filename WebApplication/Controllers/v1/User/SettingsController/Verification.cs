@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -56,19 +57,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				user.UserVerification = new UserVerification() {
 
-					FirstName = model.FirstName.LimitLength(64),
-					MiddleName = model.MiddleName?.LimitLength(64),
-					LastName = model.LastName.LimitLength(64),
+					FirstName = model.FirstName.Limit(64),
+					MiddleName = model.MiddleName?.Limit(64),
+					LastName = model.LastName.Limit(64),
 					DoB = dob,
 
-					PhoneNumber = phoneFormatted.LimitLength(32),
+					PhoneNumber = phoneFormatted.Limit(32),
 					Country = Common.Countries.GetNameByAlpha2(model.Country),
 					CountryCode = model.Country.ToUpper(),
-					State = model.State.LimitLength(256),
-					City = model.City.LimitLength(256),
-					PostalCode = model.PostalCode.LimitLength(16),
-					Street = model.Street.LimitLength(256),
-					Apartment = model.Apartment?.LimitLength(128),
+					State = model.State.Limit(256),
+					City = model.City.Limit(256),
+					PostalCode = model.PostalCode.Limit(16),
+					Street = model.Street.Limit(256),
+					Apartment = model.Apartment?.Limit(128),
 
 					TimeUserChanged = DateTime.UtcNow,
 				};

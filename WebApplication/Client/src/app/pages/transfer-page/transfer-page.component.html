@@ -10,7 +10,7 @@
     </div>
 
     <ng-template #blockLoaded>
-      <ng-container *ngIf="!user.verifiedL1; else blockMethods">
+      <ng-container *ngIf="isAuthenticated && !user?.verifiedL1; else blockMethods">
 
           <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
 

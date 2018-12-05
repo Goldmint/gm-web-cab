@@ -97,7 +97,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldSell,
 				Source = "GOLD",
-				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, Tokens.GOLD.Decimals),
+				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.EthereumGold),
 				Destination = exchangeCurrency.ToString().ToUpper(),
 				DestinationAmount = TextFormatter.FormatAmount((long)estimation.ResultCurrencyAmount),
 				Comment = "", // see below
@@ -140,7 +140,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

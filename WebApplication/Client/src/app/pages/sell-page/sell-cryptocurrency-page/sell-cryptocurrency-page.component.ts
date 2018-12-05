@@ -75,7 +75,10 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public getLimitSub: Subscription;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
+  public isEthLimitError: boolean = false;
 
+  private allowedMimEthLimit = 0.5;
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -91,6 +94,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   ) { }
 
   ngOnInit() {
+    this.isAuthenticated = this._userService.isAuthenticated();
+
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
       this._cdRef.markForCheck();
@@ -110,13 +115,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
 
     this.iniTransactionHashModal();
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingSell');
       }, 3000);
     }
 
-    Observable.combineLatest(
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
     )
@@ -241,12 +246,14 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.getLimitSub = this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
         this.ethLimit = eth;
+        this.isEthLimitError = +this.ethLimit <= this.allowedMimEthLimit;
         if (this.isFirstLoad) {
           this.calculateStartGoldValue(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
           this._cdRef.markForCheck();
         } else {
           this.getGoldLimit(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
         }
+        this._cdRef.markForCheck();
       }
     });
   }
@@ -430,6 +437,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this._messageBox.authModal();
+      return;
+    }
+
     this.transferData = {
       type: 'sell',
       ethAddress: this.ethAddress,

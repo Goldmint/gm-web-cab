@@ -6,49 +6,45 @@ import { catchError, tap, shareReplay } from 'rxjs/operators';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/retry';
-import { BigNumber } from 'bignumber.js'
 
 import {
   User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
-  GoldRate, TFAInfo, KYCStart, KYCStatus, TransparencyRecord, FiatLimits,
-  CardsList,
-  GoldBuyResponse, GoldSellResponse, KYCAgreementResend
-} from '../interfaces';
+  TFAInfo, KYCStart,TransparencyRecord, FiatLimits,
+  CardsList} from '../interfaces';
 import {
   APIResponse, APIPagedResponse, AuthResponse, RegistrationResponse, CardAddResponse,
-  CardConfirmResponse, CardStatusResponse, UserBalanceResponse, SwiftInvoice
+  CardConfirmResponse, CardStatusResponse
 } from '../interfaces/api-response';
 
 import { KYCProfile } from '../models/kyc-profile';
-// import { MessageBoxService as MessageBox } from './message-box.service';
-
 import { environment } from '../../environments/environment';
-import {GoldHwSellResponse} from "../interfaces/api-response/gold-hw-sell";
-import {GoldHwBuyResponse} from "../interfaces/api-response/gold-hw-buy";
-import {GoldHwTransferResponse} from "../interfaces/api-response/gold-hw-transfer";
 import {Subject} from "rxjs/Subject";
 
 
 @Injectable()
 export class APIService {
+
   private _baseUrl = environment.apiUrl;
+  private _walletBaseUrl = environment.walletApiUrl;
+  private _sumusBaseUrl = environment.sumusNetworkUrl;
+  private _marketBaseUrl = environment.marketApiUrl;
+
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
+  public transferCurrentSumusNetwork = new Subject();
 
   constructor(private _http: HttpClient) {
-    console.log('APIService constructor');
+    // this.transferCurrentSumusNetwork.subscribe((network: any) => {
+    //   this._sumusBaseUrl = environment.sumusNetworkUrl[network];
+    // });
   }
 
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {
-    console.log('APIService userLogin', arguments);
-
     return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/auth/authenticate`, { username: username, password: password, captcha: captcha, audience: "app" })
       .pipe(
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService userLogin response', response);
-
         return response;
       })
       );
@@ -91,29 +87,22 @@ export class APIService {
   }
 
   userRegister(email: string, password: string, captcha: string, agreed: boolean): Observable<APIResponse<RegistrationResponse>> {
-    console.log('APIService userRegister', arguments);
-
     return this._http.post<APIResponse<RegistrationResponse>>(`${this._baseUrl}/register/register`, { email: email, password: password, captcha: captcha, agreed: agreed })
       .pipe(
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService userRegister response', response);
-
         return response;
       })
       );
   }
 
   userConfirmEmail(token: string): Observable<APIResponse<any>> {
-    console.log('APIService userConfirmEmail', arguments);
-
     return this._http.post<APIResponse<RegistrationResponse>>(`${this._baseUrl}/register/confirm`, { token: token })
       .pipe(
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService userConfirmEmail response', response);
         return response;
       })
       );
@@ -125,8 +114,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService userRestorePassword response', response);
-
         return response;
       })
       );
@@ -138,8 +125,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService userChangePassword response', response);
-
         return response;
       })
       );
@@ -164,15 +149,6 @@ export class APIService {
       );
   }
 
-  // setLocale(locale: string) {
-  //   return this._http
-  //     .post(`${this._baseUrl}?action=/api/setLocale`, { locale: locale })
-  //     .pipe(
-  //       catchError(this._handleError),
-  //       shareReplay()
-  //     );
-  // }
-
   getGoldRate(): Observable<object> {
     return this._http
       .get('https://service.goldmint.io/info/rate/v1/gold')
@@ -180,15 +156,6 @@ export class APIService {
         catchError(this._handleError),
         shareReplay()
       );
-  }
-
-  getUserBalance(): Observable<APIResponse<UserBalanceResponse>> {
-    return this._http
-      .post(`${this._baseUrl}/user/balance`, {}, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-    );
   }
 
   getZendeskTokenSSO() {
@@ -207,8 +174,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService getLimits response', response);
-
         return response;
       })
       );
@@ -229,8 +194,6 @@ export class APIService {
       .pipe(
       catchError(this._handleError),
       tap(response => {
-        console.log('APIService getHistory response', response);
-
         return response;
       })
       );
@@ -243,8 +206,6 @@ export class APIService {
       .pipe(
       catchError(this._handleError),
       tap(response => {
-        console.log('APIService getActivity response', response);
-
         return response;
       })
       );
@@ -257,8 +218,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService getFiatCards response', response);
-
         return response;
       })
       );
@@ -271,8 +230,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService addFiatCard response', response);
-
         return response;
       })
       );
@@ -293,8 +250,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService getFiatCardStatus response', response);
-
         return response;
       })
       );
@@ -307,8 +262,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService confirmFiatCard response', response);
-
         return response;
       })
       );
@@ -321,98 +274,32 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService verifyFiatCard response', response);
-
         return response;
       })
       );
   }
 
-  cardDeposit(cardId: number, amount: number): Observable<APIResponse<any>> {
+  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string, promoCode: string) {
     return this._http
-      .post(`${this._baseUrl}/user/fiat/card/deposit`, { cardId: cardId, amount: amount }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-      tap(response => {
-        console.log('APIService cardDeposit response', response);
-        return response;
-      })
-      );
-  }
-
-  cardWithdraw(cardId: number, amount: number, code: string): Observable<APIResponse<any>> {
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/card/withdraw`, { cardId, amount, code }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-      tap(response => {
-        console.log('APIService cardWithdraw response', response);
-        return response;
-      })
-      );
-  }
-
-  goldBuyRequest(ethAddress: string, amountFiat: number): Observable<APIResponse<GoldBuyResponse>> {
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/buy`, { ethAddress: ethAddress, amount: amountFiat }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-    );
-  }
-
-  goldSellRequest(ethAddress: string, amountGold: BigNumber): Observable<APIResponse<GoldSellResponse>> {
-    var wei = new BigNumber(amountGold).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/sell`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-    );
-  }
-
-  goldSellHwRequest(amount: BigNumber): Observable<APIResponse<GoldHwSellResponse>> {
-    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/hw/sell`, { amount: wei.toString() }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  goldBuyHwRequest(amount: number): Observable<APIResponse<GoldHwBuyResponse>> {
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/hw/buy`, { amount }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-  // -------
-  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
-    return this._http
-      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency, promoCode }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
       );
   }
 
-  goldBuyConfirm(requestId: number) {
+  goldBuyConfirm(requestId: number, promoCode: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/confirm`, { requestId }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/confirm`, { requestId, promoCode }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
       );
   }
 
-  goldBuyEstimate(currency: string, amount: string, reversed: boolean) {
+  goldBuyEstimate(currency: string, amount: string, reversed: boolean, promoCode: string) {
     return this._http
-      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount, reversed }, this.jwt())
+      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount, reversed, promoCode }, this.jwt())
       .pipe(
         catchError(this._handleError),
         shareReplay()
@@ -446,18 +333,8 @@ export class APIService {
       );
   }
 
-  goldTransferHwRequest(ethAddress: string, amount: BigNumber): Observable<APIResponse<GoldHwTransferResponse>> {
-    var wei = new BigNumber(amount).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/hw/transfer`, { ethAddress, amount: wei.toString() }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
-    const params = {cardId, ethAddress, currency, amount, reversed}
+  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean, promoCode: string) {
+    const params = {cardId, ethAddress, currency, amount, reversed, promoCode}
 
     return this._http
       .post(`${this._baseUrl}/user/gold/buy/ccard`, params, this.jwt())
@@ -477,60 +354,6 @@ export class APIService {
         shareReplay(),
       );
   }
-
-  confirmHwRequest(isBuying: boolean, requestId: number) {
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/hw/confirm`, { isBuying, requestId }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  confirmMMRequest(isBuying: boolean, requestId: number) {
-    return this._http
-      .post(`${this._baseUrl}/user/exchange/gold/confirm`, { isBuying, requestId }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  ethDepositRequest(ethAddress: string, amountCoin: BigNumber) {
-    var wei = new BigNumber(amountCoin).times(new BigNumber(10).pow(18).decimalPlaces(0, BigNumber.ROUND_DOWN));
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/asset/depositEth`, { ethAddress: ethAddress, amount: wei.toString() }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  confirmEthDepositRequest(isDeposit: boolean, requestId: number) {
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/asset/confirm`, { isDeposit, requestId }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  getEthereumRate() {
-    return this._http
-      .get(`${this._baseUrl}/commons/ethRate`)
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
-  }
-
-  getBannedCountries() {
-    return this._http
-      .get(`${this._baseUrl}/commons/bannedCountries`)
-      .pipe(
-        catchError(this._handleError)
-      );
-  };
 
   testPassword(pass) {
     return this._http
@@ -553,8 +376,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService getTFAInfo response', response);
-
         return response;
       })
       );
@@ -567,8 +388,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService verifyTFACode response', response);
-
         return response;
       })
       );
@@ -581,8 +400,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService exchangeTFAToken response', response);
-
         return response;
       })
       );
@@ -595,8 +412,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService getKYCProfile response', response);
-
         if (response.data.dob && response.data.dob.length) {
           const [day, month, year] = response.data.dob.split('.');
 
@@ -615,8 +430,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService startKYCVerification response', response);
-
         return response;
       })
       );
@@ -631,33 +444,9 @@ export class APIService {
       );
   }
 
-  resendKYCAgreement(): Observable<APIResponse<KYCProfile>> {
-    return this._http
-      .get(`${this._baseUrl}/user/settings/verification/resendAgreement`, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-  /*
-  getKYCVerificationStatus(ticketId: number): Observable<APIResponse<KYCStatus>> {
-    return this._http
-      .post(`${this._baseUrl}/user/settings/verification/kycStatus`, { ticketId: ticketId }, this.jwt())
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-      tap(response => {
-        console.log('APIService getKYCVerificationStatus response', response);
-
-        return response;
-      })
-      );
-  }
-  */
   updateKYCProfile(kycProfile: KYCProfile): Observable<APIResponse<KYCProfile>> {
     let profile: any = kycProfile;
 
-    //@todo: maybe replace by moment.js imp-n
     if (kycProfile.dob instanceof Date) {
       let day = String(kycProfile.dob.getDate());
       let month = String(kycProfile.dob.getMonth() + 1);
@@ -675,8 +464,6 @@ export class APIService {
       catchError(this._handleError),
       shareReplay(),
       tap(response => {
-        console.log('APIService updateKYCProfile response', response);
-
         if (response.data.dob && response.data.dob.length) {
           const [day, month, year] = response.data.dob.split('.');
 
@@ -696,78 +483,159 @@ export class APIService {
       );
   }
 
-  getSwiftDepositInvoice(amount: number): Observable<APIResponse<SwiftInvoice>> {
-    let data = {
-      amount: amount,
-    };
-    let headers = this.jwt();
-    console.log(headers);
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/swift/deposit`, data, headers)
-      .pipe(
-      catchError(this._handleError),
-      shareReplay(),
-      tap(res => {
-        return res;
-      })
-      );
+  getMigrationStatus() {
+    return this._http.get(`${this._baseUrl}/user/migration/status`, this.jwt());
   }
 
-  getSwiftWithdrawInvoice(amount: number, templateId: number) {
-    let data = { amount, templateId };
-
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/swift/withdraw`, data, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-        tap(res => {
-          return res;
-        })
-      );
+  goldMigrationSumus(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/gold/ethereum`, {sumusAddress, ethereumAddress}, this.jwt());
   }
 
-  getSwiftWithdrawTemplatesList() {
-    return this._http
-      .get(`${this._baseUrl}/user/fiat/swift/list`, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
+  goldMigrationEth(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/gold/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
   }
 
-  addSwiftWithdrawTemplate(data: object) {
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/swift/add`, data, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
+  mintMigrationSumus(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/mint/ethereum`, {sumusAddress, ethereumAddress}, this.jwt());
   }
 
-  removeSwiftWithdrawTemplate(templateId: number) {
-    return this._http
-      .post(`${this._baseUrl}/user/fiat/swift/remove`, {templateId}, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
+  mintMigrationEth(sumusAddress: string, ethereumAddress: string) {
+    return this._http.post(`${this._baseUrl}/user/migration/mint/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
   }
+
+  // pawnshop
+
+  getOrganizationList(from: number) {
+    let _from = from !== null ? from : '-'
+    return this._http.get(`${this._marketBaseUrl}/org/list/${_from}`);
+  }
+
+  getPawnshopList(org: number, from: number) {
+    let _org = org !== null ? org : '-';
+    let _from = from !== null ? from : '-';
+    return this._http.get(`${this._marketBaseUrl}/pawnshop/list/${_org}/${_from}`);
+  }
+
+  getPawnList(pawnshop: number, from: number) {
+    let _pawnshop = pawnshop !== null ? pawnshop : '-';
+    let _from = from !== null ? from : '-';
+    return this._http.get(`${this._marketBaseUrl}/pawn/list/${_pawnshop}/${_from}`);
+  }
+
+  getPawnshopDetails(id: number) {
+    return this._http.get(`${this._marketBaseUrl}/pawnshop/${id}`);
+  }
+
+  getOrganizationsName() {
+    return this._http.get(`${this._marketBaseUrl}/org/names`);
+  }
+
+  // --------
+
+  // scanner methods
+
+  getScannerStatus() {
+    return this._http.get(`${this._sumusBaseUrl}/status`);
+  }
+
+  getScannerDailyStatistic() {
+    return this._http.get(`${this._sumusBaseUrl}/status/daily`);
+  }
+
+  getWalletBalance(sumusAddress: string) {
+    return this._http.get(`${this._sumusBaseUrl}/wallet/${sumusAddress}`);
+  }
+
+  checkTransactionStatus(digest: string) {
+    return this._http.get(`${this._sumusBaseUrl}/tx/${digest}`);
+  }
+
+  getTransactionsInBlock(blockNumber: number) {
+    return this._http.get(`${this._sumusBaseUrl}/block/${blockNumber}`);
+  }
+
+  getScannerBlockList(from: number) {
+    let _from: number|string = from;
+    if (from == null) _from = "-";
+    return this._http.get(`${this._sumusBaseUrl}/block/list/${_from}`);
+  }
+
+  getScannerTxList(block: number, address: string, from: string) {
+    let _block: number|string = block;
+    if (block == null) _block = "-";
+    if (address == null) address = "-";
+    if (from == null) from = "-";
+    return this._http.get(`${this._sumusBaseUrl}/tx/list/${_block}/${address}/${from}`);
+  }
+
+  // ---//
+
+  // checkTransactionStatus(hash: string) {
+  //   return this._http.post(`${this._walletBaseUrl}/explorer/transaction`, {hash});
+  // }
+
+  getNodesCount() {
+    return this._http.get(`${this._walletBaseUrl}/statistics/nodes/nodes_count`);
+  }
+
+  getMNTCount() {
+    return this._http.get(`${this._walletBaseUrl}/statistics/tokens/mnt`);
+  }
+
+  getMNTRewardDay(count: number) {
+    return this._http.post(`${this._walletBaseUrl}/statistics/tokens/reward`, count);
+  }
+
+  getTxDay() {
+    return this._http.get(`${this._walletBaseUrl}/statistics/transactions/tx_day`);
+  }
+
+  getTransactions(number: number) {
+    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/last_tx`, number);
+  }
+
+  getBlocks(number: number) {
+    return this._http.post(`${this._walletBaseUrl}/statistics/blocks/last_blocks`, number);
+  }
+
+  getTxByAddress(sumusAddress: string, offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_by_address`, { sumusAddress, offset, limit, sort, ascending: order === 'asc' });
+  }
+
+  // getWalletBalance(sumusAddress: string) {
+  //   return this._http.post(`${this._walletBaseUrl}/statistics/tokens/wallet_balance`, { sumusAddress });
+  // }
+
+  getAllBlocks(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+    return this._http.post(`${this._walletBaseUrl}/statistics/blocks/blocks_by_page`, { offset, limit, sort, ascending: order === 'asc' });
+  }
+
+  getAllTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_by_page`, { offset, limit, sort, ascending: order === 'asc' });
+  }
+
+  getActiveNodes(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+    return this._http.post(`${this._walletBaseUrl}/statistics/nodes/active_nodes`, { offset, limit, sort, ascending: order === 'asc' });
+  }
+
+  // getTransactionsInBlock(blockNumber: number, offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+  //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_from_block`, {blockNumber,  offset, limit, sort, ascending: order === 'asc' });
+  // }
+
+  getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });
+  }
+
+  getTotalGoldReward() {
+    return this._http.get(`${this._walletBaseUrl}/statistics/tokens/total_gold_reward`);
+  }
+
+  // ------
 
   private _handleError(err: HttpErrorResponse | any) {
-    // if (err == 'ohO_offline') {
-    //   MessageBox.instance.alert('Seems like your internet connection is lost.<br>Please check it and try again.', 'Connection error');
-    // }
-    // else {
     if (err.error && err.error.errorCode) {
       switch (err.error.errorCode) {
-        // case 50: // Unauthorized
-        //   this._router.navigate(['/signin']);
-        //   alert(err.error.errorDesc);
-        //   break;
-
         default:
-          console.info('API Error', err.error.errorCode, err.error.errorDesc);
           break;
       }
     }
@@ -775,14 +643,7 @@ export class APIService {
       if (!err.message) {
         err.message = 'Unable to retrieve data';
       }
-
-      console.info('HTTP Error', err.message);
     }
-
-    //   if (err.status === 404) {
-    //     MessageBox.instance.alert('GoldMint server does not respond. Please try again in few minutes.', 'Connection error');
-    //   }
-    // }
 
     return ErrorObservable.create(err);
   }

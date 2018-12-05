@@ -3,6 +3,7 @@ using NLog;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 

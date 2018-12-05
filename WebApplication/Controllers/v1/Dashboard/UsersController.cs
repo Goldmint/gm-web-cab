@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 using Goldmint.DAL.Models;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
@@ -309,7 +310,7 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 			// ---
 
 			account.UserVerification.ProvedResidence = model.Proved;
-			account.UserVerification.ProvedResidenceComment = model.Comment?.LimitLength(DAL.Models.FieldMaxLength.Comment);
+			account.UserVerification.ProvedResidenceComment = model.Comment?.Limit(DAL.Models.FieldMaxLength.Comment);
 			await DbContext.SaveChangesAsync();
 
 			// notification

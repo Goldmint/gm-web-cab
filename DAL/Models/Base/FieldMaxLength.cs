@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace Goldmint.DAL.Models {
 
     public static class FieldMaxLength {
@@ -21,5 +18,17 @@ namespace Goldmint.DAL.Models {
 	    public const int The1StPaymentStatus = 64;
 	    public const int CreditCardMask = 64;
 	    public const int CreditCardHolderName = 128;
-	}
+
+        public const int EthereumAddress = 42;
+        public const int SumusAddress = 128;
+        public const int SumusTransactionHash = 128;
+
+        public const int CustodyBotName = 256;
+        public const int CustodyBotSalt = 64;
+        public const int CustodyBotId = 64;
+        public const int CustodyPaymentRoute = 64;
+        public const int CustodyTicket = 32;
+        public const int CustodyFileName = 128;
+        public const int CustodyFileExtension = 8;
+    }
 }

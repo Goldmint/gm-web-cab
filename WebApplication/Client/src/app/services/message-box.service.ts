@@ -1,20 +1,17 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
 import { MessageType } from '../common/message-box/message-box.enum';
 import { MessageBoxComponent } from '../common/message-box/message-box.component';
+import {AuthModalComponent} from "../common/message-box/auth-modal/auth-modal.component";
 
 @Injectable()
 export class MessageBoxService implements OnDestroy {
-  // private static _instance: MessageBoxService;
 
   private _bsModalRef: BsModalRef;
   private _config: ModalOptions;
-  // private _onHidden: Subscription;
-  // private _onShown: Subscription;
 
   static singleMessageId: number;
   static queue: BsModalRef[] = [];
@@ -29,16 +26,7 @@ export class MessageBoxService implements OnDestroy {
     };
   }
 
-  ngOnDestroy () {
-  }
-
-  // public static get instance() {
-  //   if (this._instance === null || this._instance === undefined) {
-  //     this._instance = new MessageBoxService(/* */);
-  //   }
-
-  //   return this._instance;
-  // }
+  ngOnDestroy () { }
 
   private _show(message: string, title: string = 'GoldMint.io', clearQueue: boolean = false,
                messageType: MessageType = MessageType.Alert): any {
@@ -104,6 +92,10 @@ export class MessageBoxService implements OnDestroy {
 
   public prompt(message: string, title?: string, single?: boolean): Subject<null|string> {
     return this._show(message, title, single, MessageType.Prompt);
+  }
+
+  public authModal() {
+    this._modalService.show(AuthModalComponent, this._config);
   }
 
 }

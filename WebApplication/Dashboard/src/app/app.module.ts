@@ -69,9 +69,11 @@ import { UsersListPageComponent } from './pages/users-page/users-list-page/users
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
 import { FeesPageComponent } from './pages/fees-page/fees-page.component';
 import { SwiftPageComponent } from './pages/swift-page/swift-page.component';
+import { PromoCodesPageComponent } from './pages/promo-codes-page/promo-codes-page.component';
 import { TradeRequestsPageComponent } from './pages/trade-requests-page/trade-requests-page.component';
 import {EthereumService} from "./services/ethereum.service";
 import { TelemetryPageComponent } from './pages/telemetry-page/telemetry-page.component';
+import {PromoCodesInfoPageComponent} from "./pages/promo-codes-info-page/promo-codes-info-page.component";
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -135,8 +137,10 @@ export function getGoldmintToken() {
     UsersListPageComponent,
     FeesPageComponent,
     SwiftPageComponent,
+	  PromoCodesPageComponent,
     TradeRequestsPageComponent,
     TelemetryPageComponent,
+    PromoCodesInfoPageComponent
   ],
   exports: [],
   providers: [

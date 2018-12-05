@@ -11,11 +11,31 @@
     "SignUp": "Регистрация",
     "SignOut": "Выход",
     "AccountInfo": "Аккаунт",
+    "NotLoggedInMM": "Для бесперебойной работы авторизуйтесь в своей учетной записи MetaMask",
+    "Network": {
+      "Label": "сеть",
+      "MainNet": "MainNet сеть",
+      "TestNet": "TestNet сеть"
+    },
     "Menu": {
-      "Sell": "Продать",
-      "Buy": "Купить",
-      "Transfer": "Перевод активов",
-      "Finance": "Финансы"
+      "Exchange": {
+        "Heading": "Взаимообмен",
+        "Sell": "Продать GOLD",
+        "Buy": "Купить GOLD",
+        "Transfer": "Перевод GOLD",
+        "Finance": "Финансы"
+      },
+      "GoldmintBlockchain": {
+        "Heading": "Goldmint Blockchain",
+        "Wallet": "Кошелек",
+        "MasterNode": "Мастер нода",
+        "Scanner": "Сканер"
+      },
+      "Pawnshop": {
+        "Heading": "Ломбардные залоги",
+        "Feed": "Активность",
+        "Invest": "Инвестировать в ломбардные залоги"
+      }
     }
   },
   "FOOTER": {
@@ -109,10 +129,18 @@
         "PaymentCard": "Платёжная карта"
       },
       "Paused": "Операции покупки приостановлены",
+      "Promo": {
+        "PromoInfo": {
+          "Text": "Ваша скидка",
+          "Or": "или"
+        },
+        "PromoPermission": "Вы должны пройти расширенную верификацию для использования промо-кодов"
+      },
       "CtyptoCurrency": {
         "Heading": "Криптовалюта",
         "Labels": {
-          "Amount": "Оценочная сумма"
+          "Amount": "Оценочная сумма",
+          "PromoCode": "Ваш промо-код"
         },
         "SuccessModal": {
           "Heading": "Транзакция в процессе:",
@@ -126,7 +154,8 @@
         "Labels": {
           "SelectCard": "Выберите карту",
           "Amount": "Количество",
-          "Estimate": "Оценочная сумма"
+          "Estimate": "Оценочная сумма",
+          "PromoCode": "Ваш промо-код"
         }
       },
       "Labels": {
@@ -150,7 +179,15 @@
         "InvalidGold": "Недопустимое количество GOLD",
         "EnoughMoney": "У вас недостаточно средств",
         "BuyLimit": "Превышен лимит на покупку. Вы можете совершить покупку на сумму {{ allow }} USD из {{ limit }} USD",
-        "NoKyc": "Вам необходимо пройти KYC верификацию"
+        "NoKyc": "Вам необходимо пройти KYC верификацию",
+        "IncorrectPromo": "Неверный промо-код",
+        "PromoCodeErrors": {
+          "501": "Промо-код не введен",
+          "502": "Промо-код не найден",
+          "503": "Промо-код истек",
+          "504": "Промо-код использован",
+          "505": "Превышен лимит промо-кода"
+        }
       }
     },
     "Transfer": {
@@ -222,6 +259,243 @@
             "LimitUsed": "Использовано:"
           }
         }
+      }
+    },
+	"MasterNode": {
+      "Heading": "Мастер Нода",
+      "Tabs": {
+        "Overview": "Обзор",
+        "Launch": "Запустить мастер ноду",
+        "Migration": "Миграция токенов"
+      },
+      "LaunchPage": {
+        "Heading": "Запустить Мастер Ноду",
+        "Description": "Здесь Вы можете найти инструкцию по установке и настройки Вашей мастер-ноды блокчейна для ОС",
+        "Labels": {
+          "ChooseOS": "Выберите ОС",
+          "VideoInst": "Видео инструкция",
+          "TextInst": "Текстовая инструкция",
+          "InstFor": "Инструкция для"
+        },
+        "Buttons": {
+          "Migrate": "Я готов к миграции моих MNTP токенов, чтоб начать майнинг",
+          "MigrateSmall": "Я готов к миграции"
+        }
+      },
+      "MigrationPage": {
+        "Heading": "Миграция Токенов",
+        "TransferDescr": "Вам необходимо перевести токены по данному адресу:",
+        "Labels": {
+          "Amount": "Количество",
+          "Address": "Sumus адрес",
+          "Check": "Я внимательно проверил адреса и сумму"
+        },
+        "SuccessModal": {
+          "Heading": "Транзакция в процессе:",
+          "Hash": "Хэш вашей транзакции:",
+          "Link": "Просмотр транзакции на EtherScan"
+        },
+        "SuccessSumusModal": {
+          "Heading": "Транзакция в процессе:",
+          "Hash": "Digest вашей транзакции:",
+          "Link": "Просмотр транзакции на Scanner"
+        },
+        "Errors": {
+          "InvalidAmount": "Неверное количество",
+          "Maximum": "Максимальное количество - ",
+          "Required": "Поле обязательно",
+          "InvalidAddress": "Неверный адрес",
+          "DuplicateRequest": "Запрос на миграцию в очереди. Мы ждем перевода ваших {{ token }} токенов."
+        },
+        "Buttons": {
+          "Go": "Вперед"
+        },
+        "Popover": {
+          "Copied": "Скопировано"
+        }
+      },
+      "Overview": {
+        "Heading": "Обзор",
+        "Labels": {
+          "Nodes": "Всего запущенных нод:",
+          "MNT": "Всего удержанных MNT:",
+          "Reward": "Всего получено вознаграждения:",
+          "ActiveNodes": "Текущие активные ноды"
+        },
+        "Links": {
+          "LatestReward": "Последние вознаграждения"
+        },
+        "Table": {
+          "Node": "Кошелек ноды",
+          "Date": "Дата запуска",
+          "MNT": "Удержанно MNT",
+          "Reward": "Получено вознаграждения",
+          "Chart": "Мини диаграмма"
+        },
+        "Chart": "График роста вознаграждения"
+      },
+      "LatestReward": {
+        "Heading": "Последние вознаграждения",
+        "Table": {
+          "Date": "Дата",
+          "TxAmount": "Количество Tx",
+          "TransferredToken": "Переданное количество токенов",
+          "RewardAmount": "Сумма вознаграждения"
+        }
+      }
+    },
+    "Scanner": {
+      "Heading": "Сканер",
+      "Caption": "Goldmint blockchain сканер",
+      "LatestStatistic": {
+        "Caption": "Последняя статистика",
+        "Input": {
+          "AddressPlaceholder": "Поиск по Адресу",
+          "DigestPlaceholder": "Поиск по Digest"
+        },
+        "Labels": {
+          "QuantityBlocks": "Количество блоков:",
+          "QuantityTx": "Количество транзакций:",
+          "QuantityNodes": "Количество нод:",
+          "Or": "ИЛИ"
+        },
+        "Charts": {
+          "Reward": "График собранной комиссии по дням",
+          "Tx": "График количества транзакций по дням"
+        },
+        "Blocks": {
+          "Heading": "Блоки",
+          "Labels": {
+            "Number": "Номер:",
+            "Mined": "Замайнил:",
+            "Count": "Количество транзакций:",
+            "TotalAmount": "Общее количество:",
+            "Fee": "Комиссия:",
+            "Date": "Дата:"
+          },
+          "Buttons": {
+            "More": "Показать больше"
+          }
+        },
+        "Transactions": {
+          "Heading": "Транзакции",
+          "Labels": {
+            "From": "Из:",
+            "To": "В:",
+            "Amount": "Количество:",
+            "Status": "Статус:",
+            "Date": "Дата:"
+          },
+          "Buttons": {
+            "More": "Показать больше"
+          }
+        }
+      },
+      "AllBlocks": {
+        "Heading": "Блоки",
+        "Labels": {
+          "Number": "Номер",
+          "Mined": "Замайнил",
+          "Count": "Количество транзакций",
+          "ctFee": "GOLD комиссия",
+          "utFee": "MNT комиссия",
+          "Date": "Дата"
+        }
+      },
+      "AllTransactions": {
+        "Heading": "Транзакции",
+        "Labels": {
+          "From": "Из",
+          "Status": "Статус",
+          "Count": "Количество",
+          "Name": "Название",
+          "Date": "Дата"
+        }
+      },
+      "TransactionsInBlock": {
+        "Heading": "Список транзакций в блоке",
+        "Labels": {
+          "Block": "Блок:",
+          "TimeStamp": "TimeStamp:",
+          "Transactions": "Транзакции:",
+          "TotalUserData": "Всего пользовательских данных:",
+          "Signers": "Подписал:",
+          "Total": "Всего:",
+          "Fee": "Комиссия:",
+          "Orchestrator": "Замайнено мастер-нодой:",
+          "PrevDigest": "Предыдущий digest:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "From": "Из",
+          "To": "В",
+          "Count": "Количество",
+          "Name": "Название",
+          "Date": "Дата"
+        }
+      },
+      "AddressInfo" : {
+        "Heading": "Информация адреса",
+        "Labels": {
+          "Address": "Адрес:",
+          "Balance": "Баланс:",
+          "Transactions": "Транзакции:",
+          "Exists": {
+            "Label": "Существует:",
+            "true": "Да",
+            "false": "Нет"
+          },
+          "Tags": "Теги:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "Block": "Блок",
+          "Date": "Дата",
+          "From": "Из",
+          "To": "В",
+          "Value": "Количество",
+          "Name": "Название"
+        },
+        "InvalidAddress": "Неверный адрес"
+      },
+      "TransactionInfo": {
+        "Heading": "Информация транзакции",
+        "Labels": {
+          "Hash": "Digest:",
+          "TimeStamp": "TimeStamp:",
+          "Destination": "Кошелек получателя:",
+          "Source": "Кошелек отправителя:",
+          "TokenType": "Тип токена:",
+          "BlockNumber": "Номер блока:",
+          "Amount": "Количество:",
+          "Name": "Название:",
+          "DataSize": "Размер данных:",
+          "DataPiece": "Часть данных:",
+          "Status": "Статус транзакции:",
+          "MoreBytes": "и еще {{ bytes }} байт"
+        },
+        "Status": {
+          "pending": "В ожидании",
+          "approved": "Одобрена",
+          "failed": "Неудачно",
+          "stale": "Просрочена",
+          "notfound": "Не найдена"
+        },
+        "NotFound": "Транзакция не найдена",
+        "Pending": "Транзакция в ожидании",
+        "InvalidDigest": "Неверный digest"
+      },
+      "Errors": {
+        "Required": "Поле обязательно",
+        "Pattern": "Поле должно содержать цифры и латинские буквы",
+        "InvalidAddress": "Неверный адрес",
+        "InvalidDigest": "Неверный digest"
+      },
+      "Buttons": {
+        "Go": "Вперед"
+      },
+      "Message": {
+        "NoData": "Нет данных"
       }
     },
     "Deposit": {
@@ -501,6 +775,7 @@
     "History": {
       "Heading": "История",
       "SectionTitle": "Операции",
+      "noAuthenticatedBlock": "Здесь Вы увидите свои транзакции",
       "Table": {
         "Columns": {
           "Date": "Дата",
@@ -666,7 +941,8 @@
         "Title": "Это электронная почта уже используется",
         "Content": "Извините, но указанный вами адрес электронной почты уже занят. Попробуйте другой."
       },
-      "IAgreeText": "Настоящим я даю компании GoldMint PTE LTD  разрешение на обработку и хранение моих персональных данных."
+      "IAgreeText": "Настоящим я даю компании <b>CyberBridge OU</b>  разрешение на обработку и хранение моих персональных данных.",
+      "IAgreeTerms": "Я принимаю <a href='{{ sale }}' target='_blank'>условия продажи<a/> и <a href='{{ policy }}' target='_blank'>политику конфиденциальности</a>"
     },
     "2FA": {
       "SecurityBlock": {
@@ -1182,6 +1458,77 @@
         }
       }
     },
+    "Wallet": {
+      "Heading": "Кошелек",
+      "Items": {
+        "GetWallet": "Получить Lite Wallet"
+      }
+    },
+    "Pawnshop": {
+      "Feed": {
+        "Heading": "Активность",
+        "Tabs": {
+          "AllFeed": "Все билеты активности",
+          "Organizations": "Организации"
+        },
+        "Labels": {
+          "Organizations": "Организации",
+          "Pawnshops": "Ломбарды",
+          "Feed": "Активность",
+          "Organization": "Организация:",
+          "Pawnshop": "Ломбард:",
+          "AllFeed": "Все билеты активности"
+        },
+        "Buttons": {
+          "Back": "Назад",
+          "Next": "Далее"
+        },
+        "OrgTable": {
+          "Id": "Id",
+          "Name": "Название"
+        },
+        "PawnshopTable": {
+          "Id": "Id",
+          "Name": "Название"
+        },
+        "FeedTable": {
+          "Id": "Id",
+          "Org": "Организация",
+          "Num": "Номер",
+          "Weight": "Вес",
+          "OpenTx": "Входящая тр-я",
+          "CloseTx": "Исходящая тр-я",
+          "Status": "Статус",
+          "UpdateDate": "Дата обновления",
+          "StatusName": {
+            "new": "Новый",
+            "sold": "Проданный",
+            "boughtout": "Погашение",
+            "discarded": "Изъят"
+          }
+        },
+        "PawnshopDetails": {
+          "Heading": "Активность",
+          "Labels": {
+            "Info": "Информация о ломбарде",
+            "Name": "Название:",
+            "OrgId": "Id организации:",
+            "Rate": "Текущий объем:"
+          },
+          "Errors": {
+            "IncorrectPawnshopId": "Неправильный идентификатор ломбарда"
+          },
+          "Charts": {
+            "Rate": "История объема золота"
+          }
+        }
+      },
+      "Invest": {
+        "MainHeading": "Инвестировать",
+        "Heading": "Инвестировать в ломбардные залоги",
+        "Text": "Если вы заинтересованы инвестировать в кредиты ломбарда, пожалуйста, напишите нам по электронной почте"
+      }
+    },
     "ErrorPage": {
       "404": {
         "Heading": "Ошибка 404. Страница не найдена",
@@ -1221,6 +1568,7 @@
       "InvalidCode": "Неверный код"
     },
     "Trading": "Торговля запрещена",
+    "SellEthLimit": "Недостаточно ETH",
     "Limit": {
       "Min": "Минимальное количество",
       "Max": "Максимальное количество"
@@ -1233,6 +1581,8 @@
     "1010": "Вы превысили частоту запроса (один запрос в течение 30 минут). Пожалуйста, попробуйте позже",
     "1012": "Ваша предыдущая blockchain операция еще выполняется",
     "default": "Извините, что-то пошло не так (код ошибки {{ errorCode }})",
+    "defaultMsg": "Извините, что-то пошло не так (сообщение: {{ msg }})",
+    "wrong": "Извините, что-то пошло не так",
     "notFound": {
       "title": "Ошибка соединения",
       "message": "Сервер Goldmint не отвечает. Повторите попытку через несколько минут."
@@ -1262,10 +1612,27 @@
       "Heading": "Чтобы продолжить, Вам понадобится Metamask",
       "Text": "MetaMask - это мост, который позволяет вам посещать распределенную сеть будущего в вашем браузере сегодня. Он позволяет запускать Ethereum dApps прямо в вашем браузере без запуска полного узла Ethereum. Пожалуйста, установите расширение MetaMask в браузере Chrome, Firefox или Opera. Узнать о <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
+    "LiteWallet": {
+      "Heading": "Чтобы продолжить, Вам понадобится Lite Wallet",
+      "Text": "Goldmint Lite Wallet предоставлен для безопасного хранения, отправки или получения токенов MINT или GOLD. Это позволит вам иметь несколько кошельков для хранения MINT/GOLD. Получить"
+    },
     "LoginToMM": {
       "HeadingBuy": "КУПИТЬ GOLD",
       "HeadingSell": "ПРОДАТЬ GOLD",
+      "HeadingTransfer": "ПЕРЕВОД GOLD",
+      "HeadingMigration": "МИГРАЦИЯ ТОКЕНОВ",
+      "Text": "Войдите в свой аккаунт или разрешите доступ к Ethereum blockchain"
+    },
+    "LoginToLiteWallet": {
+      "Heading": "МИГРАЦИЯ ТОКЕНОВ",
       "Text": "Войдите в свой аккаунт"
+    },
+    "AuthModal": {
+      "Text": "Чтоб продолжить, Вам необходимо войти в систему или создать новый аккаунт.",
+      "Buttons": {
+        "SignIn": "Войти",
+        "SignUp": "Создать аккаунт"
+      }
     },
     "InvalidNetwork": "Вы должны использовать {{ network }} сеть",
     "logOut": "Вы действительно хотите выйти?",

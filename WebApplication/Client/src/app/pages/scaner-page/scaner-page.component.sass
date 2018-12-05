@@ -1,0 +1,66 @@
+.anychart-credits
+  display: none !important
+
+#reward-chart-container, #tx-chart-container
+  position: relative
+  width: 50%
+  height: 400px
+
+.details-statistic-info
+  line-height: 1.5
+
+.blocks-container, .transaction-container
+  width: 48%
+
+.trs-block
+  border-bottom: 2px solid #e9cb6b
+
+.commission-chart-switch-cont
+  position: absolute
+  z-index: 1
+  right: 27px
+  top: 49px
+
+.commission-chart-switch
+  font-size: 0.75rem
+  padding: 6px
+  min-height: auto
+  min-width: 53px
+  height: 30px
+  margin-bottom: 0
+
+.scanner .invalid-feedback--abs
+  bottom: -20px
+
+.bdr-none
+  border-right: none
+
+.scanner-address-input, .scanner-digest-input
+  width: 46%
+
+  .form-group
+    margin-bottom: 0
+    input
+      margin-bottom: 0
+
+.scanner-or-label
+  width: 8%
+  padding-top: 11px
+  text-align: center
+
+@media only screen and (max-width: 404px)
+  .commission-chart-switch-cont
+    top: 66px
+
+@media only screen and (max-width: 992px)
+  #reward-chart-container, #tx-chart-container
+    width: 100%
+
+  .blocks-container, .transaction-container
+    width: 100%
+
+  .scanner-address-input, .scanner-digest-input, .scanner-or-label
+    width: 100%
+
+  .scanner-or-label
+    padding: 1rem 0

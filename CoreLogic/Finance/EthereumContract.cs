@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
+﻿using Goldmint.Common;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Numerics;
-using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using NLog;
+using System;
+using System.Linq;
+using System.Numerics;
+using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -66,7 +65,7 @@ namespace Goldmint.CoreLogic.Finance {
 					try {
 
 						// set next check time
-						op.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(op.TimeCreated, TimeSpan.FromSeconds(15), confirmationsRequired);
+						op.TimeNextCheck = DateTime.UtcNow.AddSeconds(60);
 
 						// initiate blockchain transaction
 						if (op.Status == EthereumOperationStatus.Prepared) {
@@ -323,6 +322,13 @@ namespace Goldmint.CoreLogic.Finance {
 					});
 				}
 
+				if (op.Discount < 0 || op.Discount > 100) {
+					return Task.FromResult(new CheckResult() {
+						Success = false,
+						TicketErrorDesc = "Invalid discount percentage",
+					});
+				}
+
 				return Task.FromResult(new CheckResult() {
 					Success = true,
 				});
@@ -335,10 +341,12 @@ namespace Goldmint.CoreLogic.Finance {
 
 				var reqIndex = BigInteger.Parse(op.EthRequestIndex);
 				var rate = BigInteger.Parse(op.Rate);
+				var discount = ((decimal)op.Discount).ToEther();
 
 				var txid = await ethereumWriter.ProcessRequestEth(
 					requestIndex: reqIndex,
-					ethPerGold: rate
+					ethPerGold: rate,
+					discountPercentage: discount
 				);
 
 				return new ExecResult() {
@@ -513,7 +521,7 @@ namespace Goldmint.CoreLogic.Finance {
 					try {
 						amount = new BigInteger(
 							decimal.Floor(
-								(decimal)BigInteger.Pow(10, Tokens.ETH.Decimals) * (decimal)rcfg.Gold.SupportingEther.EtherToSend
+								(decimal)BigInteger.Pow(10, TokensPrecision.Ethereum) * (decimal)rcfg.Gold.SupportingEther.EtherToSend
 							)
 						);
 					}

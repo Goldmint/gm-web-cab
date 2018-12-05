@@ -52,10 +52,10 @@ namespace Goldmint.CoreLogicTests.Estimation {
 
 		[Fact]
 		public void AssetPerGold() {
-			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 100000, 100000).ToString() == "1000000000000000000");
-			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 50000, 100000).ToString() == "2000000000000000000");
-			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 300000, 100000).ToString() == "333333333333333333");
-			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, 30000, 100000).ToString() == "3333333333333333333");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, 100000, 100000).ToString() == "1000000000000000000");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, 50000, 100000).ToString() == "2000000000000000000");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, 300000, 100000).ToString() == "333333333333333333");
+			Assert.True(CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, 30000, 100000).ToString() == "3333333333333333333");
 		}
 
 		[Fact]
@@ -66,6 +66,17 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(3200, 3666, 0.1d));
 			Assert.False(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(100000, 120000, 0.2d));
 			Assert.True(CoreLogic.Finance.Estimation.IsFixedRateThresholdExceeded(100000, 80000, 0.15d));
+		}
+
+		[Fact]
+		public void GetDiscountTest() {
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(0, 100) == 0);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(-10, 100) == 0);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(1, 100) == 1);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(99, 100) == 99);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(999, 100) == 99);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(33.333d, 10000000) == 3333300);
+			Assert.True(CoreLogic.Finance.Estimation.GetDiscount(3d, 10000000) == 300000);
 		}
 
 		[Fact]
@@ -82,20 +93,20 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher.ForceUpdate().Wait();
 
 			// crypto
-			var cres = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1 * BigInteger.Pow(10, Tokens.ETH.Decimals)).Result;
+			var cres = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum)).Result;
 			Assert.True(cres.Allowed);
 			Assert.True(cres.CentsPerGoldRate == gRate);
 			Assert.True(cres.CentsPerAssetRate == eRate);
-			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, Tokens.ETH.Decimals));
-			Assert.True(cres.ResultGoldAmount == 5 * BigInteger.Pow(10, Tokens.GOLD.Decimals - 1));
+			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, TokensPrecision.Ethereum));
+			Assert.True(cres.ResultGoldAmount == 5 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 1));
 
 			// crypto
-			cres = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 4 * BigInteger.Pow(10, Tokens.ETH.Decimals)).Result;
+			cres = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 4 * BigInteger.Pow(10, TokensPrecision.Ethereum)).Result;
 			Assert.True(cres.Allowed);
 			Assert.True(cres.CentsPerGoldRate == gRate);
 			Assert.True(cres.CentsPerAssetRate == eRate);
-			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, Tokens.ETH.Decimals));
-			Assert.True(cres.ResultGoldAmount == 2 * BigInteger.Pow(10, Tokens.GOLD.Decimals));
+			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, TokensPrecision.Ethereum));
+			Assert.True(cres.ResultGoldAmount == 2 * BigInteger.Pow(10, TokensPrecision.EthereumGold));
 
 			// fiat
 			var fiatAmount = gRate;
@@ -103,19 +114,71 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(fres.Allowed);
 			Assert.True(fres.CentsPerGoldRate == gRate);
 			Assert.True(fres.ResultCentsAmount == fiatAmount);
-			Assert.True(fres.ResultGoldAmount == 1 * BigInteger.Pow(10, Tokens.GOLD.Decimals));
+			Assert.True(fres.ResultGoldAmount == 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold));
 
 			// invalid args
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+		}
+
+		[Fact]
+		public void BuyGoldSimpleEstimationWithDiscount() {
+
+			var gRate = 140000;
+			var eRate = 70000;
+			var discount = 50d;
+
+			_ratesProvider.SetSpread(0d);
+			_ratesProvider.SetGoldRate(gRate);
+			_ratesProvider.SetEthRate(eRate);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestGoldRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
+			_ratesDispatcher.ForceUpdate().Wait();
+
+			// crypto
+			var cres = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum), null, null, discount).Result;
+			Assert.True(cres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(cres.CentsPerGoldRate == gRate);
+			Assert.True(cres.CentsPerAssetRate == eRate);
+			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, TokensPrecision.Ethereum));
+			Assert.True(cres.ResultAssetAmount == 15 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 1));
+			Assert.True(cres.ResultGoldAmount == 75 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 2));
+
+			// fiat
+			var fiatAmount = gRate;
+			var fres = CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, fiatAmount, null, discount).Result;
+			Assert.True(fres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(fres.CentsPerGoldRate == gRate);
+			Assert.True(fres.ResultCentsAmount == fiatAmount + fiatAmount / 2);
+			Assert.True(fres.ResultGoldAmount == 15 * BigInteger.Pow(10, TokensPrecision.EthereumGold - 1));
+			
+			// crypto rev
+			cres = CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum), null, null, discount).Result;
+			Assert.True(cres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(cres.CentsPerGoldRate == gRate);
+			Assert.True(cres.CentsPerAssetRate == eRate);
+			Assert.True(cres.CryptoPerGoldRate == 2 * BigInteger.Pow(10, TokensPrecision.Ethereum));
+			Assert.True(cres.ResultAssetAmount == BigInteger.Parse("1333333333333333333"));
+			Assert.True(cres.ResultGoldAmount == 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold));
+
+			// fiat rev
+			fres = CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, 1 * BigInteger.Pow(10, TokensPrecision.Ethereum), null, discount).Result;
+			Assert.True(fres.Allowed);
+			Assert.True(Math.Abs(cres.Discount - discount) < 0.001);
+			Assert.True(fres.CentsPerGoldRate == gRate);
+			Assert.True(fres.ResultCentsAmount == 93333);
+			Assert.True(fres.ResultGoldAmount == 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold));
 		}
 
 		[Fact]
@@ -132,23 +195,23 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher.ForceUpdate().Wait();
 
 			// crypto
-			var goldAmount = 1 * BigInteger.Pow(10, Tokens.GOLD.Decimals);
-			var res = CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, goldAmount).Result;
+			var goldAmount = 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold);
+			var res = CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, goldAmount).Result;
 			Assert.True(res.Allowed);
 			Assert.True(res.CentsPerGoldRate == gRate);
 			Assert.True(res.CentsPerAssetRate == eRate);
-			Assert.True(res.CryptoPerGoldRate == 5 * BigInteger.Pow(10, Tokens.ETH.Decimals - 1));
-			Assert.True(res.ResultAssetAmount == 5 * BigInteger.Pow(10, Tokens.ETH.Decimals - 1));
+			Assert.True(res.CryptoPerGoldRate == 5 * BigInteger.Pow(10, TokensPrecision.Ethereum - 1));
+			Assert.True(res.ResultAssetAmount == 5 * BigInteger.Pow(10, TokensPrecision.Ethereum - 1));
 
 			// fiat
-			goldAmount = 1 * BigInteger.Pow(10, Tokens.GOLD.Decimals);
+			goldAmount = 1 * BigInteger.Pow(10, TokensPrecision.EthereumGold);
 			var fres = CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, goldAmount).Result;
 			Assert.True(fres.Allowed);
 			Assert.True(fres.CentsPerGoldRate == gRate);
 			Assert.True(fres.ResultCentsAmount == gRate);
 
 			// fiat overflow
-			goldAmount = (new BigInteger(long.MaxValue) / gRate + 1) * BigInteger.Pow(10, Tokens.GOLD.Decimals);
+			goldAmount = (new BigInteger(long.MaxValue) / gRate + 1) * BigInteger.Pow(10, TokensPrecision.EthereumGold);
 			fres = CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, goldAmount).Result;
 			Assert.False(fres.Allowed);
 			Assert.True(fres.Status == CoreLogic.Finance.Estimation.SellGoldStatus.ValueOverflow);
@@ -159,12 +222,12 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 		}
 
 		// ---
@@ -177,7 +240,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 			_ratesDispatcher.ForceUpdate().Wait();
 
-			var requiredGoldAmount = BigInteger.Pow(10, Tokens.GOLD.Decimals);
+			var requiredGoldAmount = BigInteger.Pow(10, TokensPrecision.EthereumGold);
 
 			var rev = CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, requiredGoldAmount).Result;
 			var def = CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, rev.ResultCentsAmount).Result;
@@ -201,21 +264,21 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 			_ratesDispatcher.ForceUpdate().Wait();
 
-			var requiredGoldAmount = BigInteger.Pow(10, Tokens.GOLD.Decimals);
+			var requiredGoldAmount = BigInteger.Pow(10, TokensPrecision.EthereumGold);
 
-			var rev = CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, requiredGoldAmount).Result;
-			var def = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, rev.ResultAssetAmount).Result;
+			var rev = CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, requiredGoldAmount).Result;
+			var def = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, rev.ResultAssetAmount).Result;
 
 			Assert.True(def.Allowed && rev.Allowed);
 			Assert.True(def.ResultGoldAmount >= requiredGoldAmount);
 
 			// invalid args
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
 		}
 
 		[Fact]
@@ -228,7 +291,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 				_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 				_ratesDispatcher.ForceUpdate().Wait();
 
-				var requiredGoldAmount = (SecureRandom.GetPositiveInt() % 200000000) * BigInteger.Pow(10, Tokens.GOLD.Decimals - 8);
+				var requiredGoldAmount = (SecureRandom.GetPositiveInt() % 200000000) * BigInteger.Pow(10, TokensPrecision.EthereumGold - 8);
 
 				var rev = CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, requiredGoldAmount).Result;
 				var def = CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, rev.ResultCentsAmount).Result;
@@ -249,10 +312,10 @@ namespace Goldmint.CoreLogicTests.Estimation {
 				_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 				_ratesDispatcher.ForceUpdate().Wait();
 
-				var requiredGoldAmount = (SecureRandom.GetPositiveInt() % 200000000) * BigInteger.Pow(10, Tokens.GOLD.Decimals - 8);
+				var requiredGoldAmount = (SecureRandom.GetPositiveInt() % 200000000) * BigInteger.Pow(10, TokensPrecision.EthereumGold - 8);
 
-				var rev = CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, requiredGoldAmount).Result;
-				var def = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, rev.ResultAssetAmount).Result;
+				var rev = CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, requiredGoldAmount).Result;
+				var def = CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, rev.ResultAssetAmount).Result;
 
 				Assert.True(def.Allowed && rev.Allowed);
 				Assert.True(def.ResultGoldAmount >= requiredGoldAmount);
@@ -269,7 +332,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 			_ratesDispatcher.ForceUpdate().Wait();
 
-			var mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 9;
+			var mntAmount = BigInteger.Pow(10, TokensPrecision.EthereumMntp) * 9;
 			var fiatAmount = 111111L;
 			Assert.True(3333 == CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 			var rev = CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount)).Result;
@@ -278,7 +341,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(def.ResultCentsAmount == rev.ResultCentsAmount);
 			Assert.True(def.ResultCentsAmount == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 
-			mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 999;
+			mntAmount = BigInteger.Pow(10, TokensPrecision.EthereumMntp) * 999;
 			fiatAmount = 222222L;
 			Assert.True(5555 == CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 			rev = CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount)).Result;
@@ -287,7 +350,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(def.ResultCentsAmount == rev.ResultCentsAmount);
 			Assert.True(def.ResultCentsAmount == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 
-			mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 9999;
+			mntAmount = BigInteger.Pow(10, TokensPrecision.EthereumMntp) * 9999;
 			fiatAmount = 333333L;
 			Assert.True(4999 == CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 			rev = CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount)).Result;
@@ -296,7 +359,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			Assert.True(def.ResultCentsAmount == rev.ResultCentsAmount);
 			Assert.True(def.ResultCentsAmount == fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 
-			mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * 10000;
+			mntAmount = BigInteger.Pow(10, TokensPrecision.EthereumMntp) * 10000;
 			fiatAmount = 444444L;
 			Assert.True(3333 == CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount));
 			rev = CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, fiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(fiatAmount, mntAmount)).Result;
@@ -320,22 +383,22 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 			_ratesDispatcher.ForceUpdate().Wait();
 
-			var requiredCryptoAmount = BigInteger.Pow(10, Tokens.ETH.Decimals);
-			Assert.True(requiredCryptoAmount / 1000 == CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, requiredCryptoAmount));
+			var requiredCryptoAmount = BigInteger.Pow(10, TokensPrecision.Ethereum);
+			Assert.True(requiredCryptoAmount / 1000 == CoreLogic.Finance.Estimation.SellingFeeForCrypto(EthereumToken.Eth, requiredCryptoAmount));
 
-			var rev = CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, requiredCryptoAmount)).Result;
-			var def = CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, rev.ResultGoldAmount).Result;
+			var rev = CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(EthereumToken.Eth, requiredCryptoAmount)).Result;
+			var def = CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, rev.ResultGoldAmount).Result;
 
 			Assert.True(def.Allowed && rev.Allowed);
-			Assert.True(def.ResultAssetAmount >= requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, requiredCryptoAmount));
+			Assert.True(def.ResultAssetAmount >= requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(EthereumToken.Eth, requiredCryptoAmount));
 
 			// invalid args
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.InvalidArgs);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, 0).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, 1, -1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 		}
 
 		[Fact]
@@ -348,7 +411,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 				_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 				_ratesDispatcher.ForceUpdate().Wait();
 
-				var mntAmount = BigInteger.Pow(10, Tokens.MNT.Decimals) * (1 + SecureRandom.GetPositiveInt() % 20000);
+				var mntAmount = BigInteger.Pow(10, TokensPrecision.EthereumMntp) * (1 + SecureRandom.GetPositiveInt() % 20000);
 				var requiredFiatAmount = (SecureRandom.GetPositiveInt() % 10000) * 100 + (SecureRandom.GetPositiveInt() % 100);
 
 				var rev = CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, requiredFiatAmount + CoreLogic.Finance.Estimation.SellingFeeForFiat(requiredFiatAmount, mntAmount)).Result;
@@ -370,13 +433,13 @@ namespace Goldmint.CoreLogicTests.Estimation {
 				_ratesDispatcher.OnProviderCurrencyRate(_ratesProvider.RequestEthRate(TimeSpan.Zero).Result);
 				_ratesDispatcher.ForceUpdate().Wait();
 
-				var requiredCryptoAmount = (SecureRandom.GetPositiveInt() % 100000000) * BigInteger.Pow(10, Tokens.ETH.Decimals - 8);
+				var requiredCryptoAmount = (SecureRandom.GetPositiveInt() % 100000000) * BigInteger.Pow(10, TokensPrecision.Ethereum - 8);
 
-				var rev = CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, requiredCryptoAmount)).Result;
-				var def = CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, rev.ResultGoldAmount).Result;
+				var rev = CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(EthereumToken.Eth, requiredCryptoAmount)).Result;
+				var def = CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, rev.ResultGoldAmount).Result;
 
 				Assert.True(def.Allowed && rev.Allowed);
-				Assert.True(def.ResultAssetAmount >= requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(CryptoCurrency.Eth, requiredCryptoAmount));
+				Assert.True(def.ResultAssetAmount >= requiredCryptoAmount + CoreLogic.Finance.Estimation.SellingFeeForCrypto(EthereumToken.Eth, requiredCryptoAmount));
 			}
 		}
 
@@ -392,13 +455,13 @@ namespace Goldmint.CoreLogicTests.Estimation {
 
 			// ok
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
 
 			// disallow trading
 			RuntimeConfigLoader.EditConfig(cfg => { cfg.Gold.AllowTradingOverall = false; });
@@ -406,35 +469,35 @@ namespace Goldmint.CoreLogicTests.Estimation {
 
 			// disallowed
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 			
 			// but ok for fiat-ops (with known gold rate)
 			var knownGoldRate = 666L;
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.TradingDisallowed);
 
 			// but ok for all ops (with known gold and crypto rate)
 			var knownCryptoRate = 777L;
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiat(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
 			Assert.True(CoreLogic.Finance.Estimation.BuyGoldFiatRev(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.BuyGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.BuyGoldStatus.Success);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiat(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCrypto(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
 			Assert.True(CoreLogic.Finance.Estimation.SellGoldFiatRev(_services, FiatCurrency.Usd, 1, knownGoldRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
-			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, CryptoCurrency.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
+			Assert.True(CoreLogic.Finance.Estimation.SellGoldCryptoRev(_services, EthereumToken.Eth, FiatCurrency.Usd, 1, knownGoldRate, knownCryptoRate).Result.Status == CoreLogic.Finance.Estimation.SellGoldStatus.Success);
 		}
 	}
 }

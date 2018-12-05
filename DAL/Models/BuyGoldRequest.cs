@@ -35,6 +35,12 @@ namespace Goldmint.DAL.Models {
 		[Column("input_expected"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
 		public string InputExpected { get; set; }
 
+		[Column("promo_code_id")]
+		public long? PromoCodeId { get; set; }
+
+		[ForeignKey(nameof(PromoCodeId))]
+		public virtual PromoCode.PromoCode PromoCode { get; set; }
+
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 

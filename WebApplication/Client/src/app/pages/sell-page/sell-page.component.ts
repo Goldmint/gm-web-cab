@@ -29,6 +29,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public isBlockedCountry: boolean = false;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -42,7 +43,10 @@ export class SellPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(
+    this.isAuthenticated = this._userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile(),
       this._apiService.getTradingStatus(),
@@ -62,7 +66,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
 
         this.isBlockedCountry && (this.loading = false);
 
-        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
             this._messageBox.alert(phrase.Text, phrase.Heading);
           });

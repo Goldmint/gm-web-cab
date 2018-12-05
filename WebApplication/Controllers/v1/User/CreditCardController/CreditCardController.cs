@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common;
+using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Finance;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
@@ -121,10 +122,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				SenderIP = agent.IpObject,
 
 				SenderAddressCountry = user.UserVerification.CountryCode,
-				SenderAddressState = user.UserVerification.State?.LimitLength(20),
-				SenderAddressCity = user.UserVerification.City?.LimitLength(25),
-				SenderAddressStreet = user.UserVerification.Street?.LimitLength(50),
-				SenderAddressZip = user.UserVerification.PostalCode?.LimitLength(15),
+				SenderAddressState = user.UserVerification.State?.Limit(20),
+				SenderAddressCity = user.UserVerification.City?.Limit(25),
+				SenderAddressStreet = user.UserVerification.Street?.Limit(50),
+				SenderAddressZip = user.UserVerification.PostalCode?.Limit(15),
 			};
 
 			// get redirect

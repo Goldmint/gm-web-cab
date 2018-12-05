@@ -28,10 +28,8 @@ export class APIHttpInterceptor implements HttpInterceptor {
     ).subscribe(connected => this._isOnline = connected);
   }
 
-  // @todo: move alerts to the api errors catcher
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this._isOnline) {
-      console.info('Browser is offline!');
       this._translate.get('MessageBox.ConnectionError').subscribe(phrase => {
         this._messageBox.alert(phrase.Message, phrase.Title);
       });
@@ -56,6 +54,12 @@ export class APIHttpInterceptor implements HttpInterceptor {
 				100, 	// InvalidParameter
         103,  // TradingNotAllowed
         104,  // TradingExchangeLimit
+        106,  // MigrationDuplicateRequest
+        501,  // PromoCodeNotEnter
+        502,  // PromoCodeNotFound
+        503,  // PromoCodeExpired
+        504,  // PromoCodeIsUsed
+        505,  // PromoCodeLimitExceeded
 				1000,	// AccountNotFound
         1001, // AccountLocked
 				1011,	// AccountDpaNotSigned
@@ -76,8 +80,14 @@ export class APIHttpInterceptor implements HttpInterceptor {
             } catch(e) {}
             this._router.navigate(['/signin']);
           } else {
-            let errorCode = parseInt(error.error.errorCode, 10);
-            ignoredErrors.indexOf(errorCode) < 0 && (translateKey = errorCode);
+            if (error.error.hasOwnProperty('errorCode')) {
+              let errorCode = parseInt(error.error.errorCode, 10);
+              ignoredErrors.indexOf(errorCode) < 0 && (translateKey = errorCode);
+            } else if (error.error.hasOwnProperty('msg')) {
+              this._translate.get('APIErrors.defaultMsg', {msg: error.error.msg}).subscribe(phrase => {
+                this._messageBox.alert(phrase);
+              });
+            }
           }
 
           translateKey && this._translate.get('APIErrors.' + translateKey, error.error).subscribe(phrase => {

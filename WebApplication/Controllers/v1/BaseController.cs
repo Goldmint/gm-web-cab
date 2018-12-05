@@ -1,17 +1,18 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.OpenStorage;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.The1StPayments;
 using Goldmint.WebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -21,8 +22,7 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.The1StPayments;
-using Goldmint.CoreLogic.Services.Google.Impl;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -95,7 +95,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		public string MakeAppLink(JwtAudience audience, string fragment) {
 
-			var appUri = (string) null;
+			var appUri = (string)null;
 			if (audience == JwtAudience.Cabinet) {
 				appUri = AppConfig.Apps.Cabinet.Url;
 			}
@@ -186,13 +186,21 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		protected Locale GetUserLocale() {
 			if (
-				HttpContext.Request.Headers.TryGetValue("GM-LOCALE", out var localeHeader) && 
-				!string.IsNullOrWhiteSpace(localeHeader.ToString()) && 
+				HttpContext.Request.Headers.TryGetValue("GM-LOCALE", out var localeHeader) &&
+				!string.IsNullOrWhiteSpace(localeHeader.ToString()) &&
 				Enum.TryParse(localeHeader.ToString(), true, out Locale localeEnum)
 			) {
 				return localeEnum;
 			}
 			return Locale.En;
+		}
+
+		[NonAction]
+		protected async Task<UserTier> GetUserTier() {
+			var rcfg = RuntimeConfigHolder.Clone();
+
+			var user = await GetUserFromDb();
+			return CoreLogic.User.GetTier(user, rcfg);
 		}
 	}
 }

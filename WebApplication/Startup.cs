@@ -13,7 +13,6 @@ using System;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using System.IO;
 using System.Text;
-using System.Reflection;
 
 namespace Goldmint.WebApplication {
 

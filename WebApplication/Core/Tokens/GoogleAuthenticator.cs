@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AspNetCore.Totp;
 
 namespace Goldmint.WebApplication.Core.Tokens {
 
@@ -19,15 +20,13 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// </summary>
 		public static bool Validate(string code, string secret) {
 			bool valid = false;
-			int tokeni;
-			if (code != null && int.TryParse(code, out tokeni)) {
-				var totpv = new AspNetCore.Totp.TotpValidator();
+			if (code != null && int.TryParse(code, out var tokeni)) {
+				var totpv = new AspNetCore.Totp.TotpValidator(new AspNetCore.Totp.TotpGenerator());
 				valid = totpv.Validate(
 					secret,
 					tokeni,
 					GenerationPeriodSeconds
 				);
-				
 			}
 			return valid;
 		}

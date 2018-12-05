@@ -8,7 +8,7 @@ using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
+using Goldmint.DAL.Models.PromoCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
@@ -39,9 +39,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				exchangeCurrency = fc;
 			}
 
-		    // ---
-		    var rcfg = RuntimeConfigHolder.Clone();
-            var user = await GetUserFromDb();
+			// ---
+
+			var rcfg = RuntimeConfigHolder.Clone();
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
@@ -59,8 +60,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					select c
 				)
 				.AsNoTracking()
-				.FirstOrDefaultAsync()
-			;
+				.FirstOrDefaultAsync();
 			if (card == null) {
 				return APIResponse.BadRequest(nameof(model.CardId), "Invalid id");
 			}
@@ -73,7 +73,31 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var limits = await DepositLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
-			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, limits.Min, limits.Max);
+			// check promocode
+			PromoCode promoCode = null;
+			if (rcfg.Gold.AllowPromoCodes) {
+				var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+				if (codeStatus.Valid == false) {
+					if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter) {
+						promoCode = null;
+					} else {
+						return APIResponse.BadRequest(codeStatus.ErrorCode);
+					}
+				}
+				else {
+					if (await GetUserTier() != UserTier.Tier2) {
+						return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+					}
+
+					promoCode = await DbContext.PromoCode
+						.AsNoTracking()
+						.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
+					;
+				}
+			}
+
+			// estimation
+			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -89,7 +113,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
 				goldRate: estimation.CentsPerGoldRate,
-				centsAmount: (long)estimation.ResultCurrencyAmount
+				centsAmount: (long)estimation.ResultCurrencyAmount,
+				promoCode: promoCode == null? null: $"{promoCode.Code} ({(int)promoCode.DiscountValue})%"
 			);
 
 			// history
@@ -100,7 +125,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Source = exchangeCurrency.ToString().ToUpper(),
 				SourceAmount = TextFormatter.FormatAmount((long)estimation.ResultCurrencyAmount),
 				Destination = "GOLD",
-				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, Tokens.GOLD.Decimals),
+				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.EthereumGold),
 				Comment = "", // see below
 
 				OplogId = ticket,
@@ -127,6 +152,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				GoldRateCents = estimation.CentsPerGoldRate,
 				InputExpected = estimation.ResultCurrencyAmount.ToString(),
 
+				PromoCodeId = promoCode?.Id,
 				OplogId = ticket,
 				TimeCreated = timeNow,
 				TimeExpires = timeExpires,
@@ -140,8 +166,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			DbContext.BuyGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
+			// discount comment
+			var discountComment = promoCode?.DiscountValue != null
+				? $" | {(int)promoCode.DiscountValue}% discount"
+				: ""
+			;
+
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }" + discountComment;
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

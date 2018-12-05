@@ -3,6 +3,7 @@ using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.Mutex.Impl {
 #if DEBUG

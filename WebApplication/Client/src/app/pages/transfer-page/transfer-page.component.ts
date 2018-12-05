@@ -44,6 +44,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   public selectedWallet = 0;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
 
   public etherscanUrl = environment.etherscanUrl;
   private sub1: Subscription;
@@ -64,7 +65,10 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(
+    this.isAuthenticated = this._userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
     )
@@ -73,7 +77,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this.user = res[1].data;
         this.loading = false;
 
-        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
             this._messageBox.alert(phrase.Text, phrase.Heading);
           });
@@ -82,9 +86,9 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.isMetamask && this._userService.showLoginToMMBox()
+        !this.isMetamask && this._userService.showLoginToMMBox('HeadingTransfer')
       }, 3000);
     }
 
@@ -167,6 +171,11 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this._messageBox.authModal();
+      return;
+    }
+
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
     this.isFirstTransaction = true;

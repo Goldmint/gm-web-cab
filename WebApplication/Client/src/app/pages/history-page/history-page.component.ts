@@ -29,6 +29,8 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   public messages:    any  = {emptyMessage: 'No data'};
   public etherscanUrl = environment.etherscanUrl;
   public isMobile: boolean;
+  public isAuthenticated: boolean = false;
+
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
 
@@ -44,6 +46,9 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.isAuthenticated = this.userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
     this.isMobile = (window.innerWidth <= 767);
 
     this.userService.windowSize$.takeUntil(this.destroy$).subscribe(size => {
@@ -59,7 +64,7 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
       this.locale = currentLocale;
     });
 
-    this.setPage({ offset: 0 });
+    this.isAuthenticated && this.setPage({ offset: 0 });
     this.cdRef.markForCheck();
   }
 

@@ -1,7 +1,7 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.Localization;
-using Goldmint.CoreLogic.Services.Localization.Impl;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Google.Impl;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -70,13 +70,14 @@ namespace Goldmint.CoreLogic.Finance {
 					var request = await (query)
 						.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
 						.Include(_ => _.User)
+						.Include(_ => _.PromoCode)
 						.FirstOrDefaultAsync();
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
 
 					try {
-						await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of { TextFormatter.FormatTokenAmount(amountEth, Common.Tokens.ETH.Decimals) } ETH is {txId}");
+						await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of { TextFormatter.FormatTokenAmount(amountEth, TokensPrecision.Ethereum) } ETH is {txId}");
 					}
 					catch { }
 
@@ -93,7 +94,7 @@ namespace Goldmint.CoreLogic.Finance {
 						// ok
 						if (request.TimeExpires > txInfo.Time.Value) {
 
-							var ethPerGoldFixedRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.InputRateCents, request.GoldRateCents);
+							var ethPerGoldFixedRate = Estimation.AssetPerGold(EthereumToken.Eth, request.InputRateCents, request.GoldRateCents);
 							var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
 							var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
@@ -113,9 +114,10 @@ namespace Goldmint.CoreLogic.Finance {
 							// estimated gold amount
 							var estimatedGoldAmount = await Estimation.BuyGoldCrypto(
 								services: services,
-								cryptoCurrency: CryptoCurrency.Eth,
+								ethereumToken: EthereumToken.Eth,
 								fiatCurrency: request.ExchangeCurrency,
 								cryptoAmount: amountEth,
+								discount: request.PromoCode?.DiscountValue ?? 0d,
 								knownGoldRateCents: request.GoldRateCents,
 								knownCryptoRateCents: request.InputRateCents
 							);
@@ -128,6 +130,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								DestinationAddress = request.EthAddress,
 								Rate = ethPerGoldFixedRate.ToString(),
+								Discount = cancelRequest? 0: request.PromoCode?.DiscountValue ?? 0,
 								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
@@ -147,8 +150,8 @@ namespace Goldmint.CoreLogic.Finance {
 							request.TimeCompleted = timeNow;
 							request.RelUserFinHistory.Status = cancelRequest? UserFinHistoryStatus.Failed: UserFinHistoryStatus.Completed;
 							request.RelUserFinHistory.TimeCompleted = timeNow;
-							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountEth, Tokens.ETH.Decimals);
-							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
+							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountEth, TokensPrecision.Ethereum);
+							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, TokensPrecision.EthereumGold);
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -171,6 +174,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 								DestinationAddress = request.EthAddress,
 								Rate = "0",
+								Discount = 0,
 								GoldAmount = "0",
 								EthRequestIndex = requestIndex.ToString(),
 								OplogId = request.OplogId,
@@ -263,7 +267,7 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 
 					try {
-						await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of { TextFormatter.FormatTokenAmount(amountGold, Common.Tokens.GOLD.Decimals) } GOLD is {txId}");
+						await ticketDesk.Update(request.OplogId, UserOpLogStatus.Pending, $"User's Ethereum transaction of { TextFormatter.FormatTokenAmount(amountGold, TokensPrecision.EthereumGold) } GOLD is {txId}");
 					}
 					catch { }
 
@@ -283,7 +287,7 @@ namespace Goldmint.CoreLogic.Finance {
 							// ok
 							if (request.TimeExpires > txInfo.Time.Value) {
 
-								var ethPerGoldFixedRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
+								var ethPerGoldFixedRate = Estimation.AssetPerGold(EthereumToken.Eth, request.OutputRateCents, request.GoldRateCents);
 								var ethActualRate = safeRates.GetRate(CurrencyRateType.Eth);
 								var goldActualRate = safeRates.GetRate(CurrencyRateType.Gold);
 
@@ -307,14 +311,14 @@ namespace Goldmint.CoreLogic.Finance {
 								// estimated crypto amount
 								var estimatedCryptoAmount = await Estimation.SellGoldCrypto(
 									services: services,
-									cryptoCurrency: CryptoCurrency.Eth,
+									ethereumToken: EthereumToken.Eth,
 									fiatCurrency: request.ExchangeCurrency,
 									goldAmount: amountGold,
 									knownGoldRateCents: request.GoldRateCents,
 									knownCryptoRateCents: request.OutputRateCents
 								);
 								var estimatedCryptoAmountFee = Estimation.SellingFeeForCrypto(
-									CryptoCurrency.Eth, estimatedCryptoAmount.ResultAssetAmount
+									EthereumToken.Eth, estimatedCryptoAmount.ResultAssetAmount
 								);
 
 								// eth operation
@@ -327,6 +331,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 									DestinationAddress = request.EthAddress,
 									Rate = ethPerGoldFixedRate.ToString(),
+									Discount = 0,
 									GoldAmount = amountGold.ToString(),
 									EthRequestIndex = requestIndex.ToString(),
 									OplogId = request.OplogId,
@@ -346,8 +351,8 @@ namespace Goldmint.CoreLogic.Finance {
 								request.TimeCompleted = timeNow;
 								request.RelUserFinHistory.Status = cancelRequest ? UserFinHistoryStatus.Failed : UserFinHistoryStatus.Completed;
 								request.RelUserFinHistory.TimeCompleted = timeNow;
-								request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, Tokens.GOLD.Decimals);
-								request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedCryptoAmount.ResultAssetAmount - estimatedCryptoAmountFee, Tokens.GOLD.Decimals);
+								request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(amountGold, TokensPrecision.EthereumGold);
+								request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedCryptoAmount.ResultAssetAmount - estimatedCryptoAmountFee, TokensPrecision.EthereumGold);
 								await dbContext.SaveChangesAsync();
 
 								try {
@@ -370,6 +375,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 									DestinationAddress = request.EthAddress,
 									Rate = "0",
+									Discount = 0,
 									GoldAmount = "0",
 									EthRequestIndex = requestIndex.ToString(),
 									OplogId = request.OplogId,
@@ -415,6 +421,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 									DestinationAddress = request.EthAddress,
 									Rate = request.GoldRateCents.ToString(),
+									Discount = 0,
 									GoldAmount = amountGold.ToString(),
 									EthRequestIndex = requestIndex.ToString(),
 									OplogId = request.OplogId,
@@ -513,7 +520,11 @@ namespace Goldmint.CoreLogic.Finance {
 				if (ok) {
 
 					// get again
-					var request = await (query).Include(_ => _.RelUserFinHistory).FirstOrDefaultAsync();
+					var request = await (query)
+						.Include(_ => _.RelUserFinHistory)
+						.Include(_ => _.PromoCode)
+						.FirstOrDefaultAsync()
+					;
 					if (request == null) {
 						return BuySellRequestProcessingResult.NotFound;
 					}
@@ -548,6 +559,7 @@ namespace Goldmint.CoreLogic.Finance {
 								services: services,
 								fiatCurrency: request.ExchangeCurrency,
 								fiatAmountCents: payment.AmountCents,
+								discount: request.PromoCode?.DiscountValue ?? 0d,
 								knownGoldRateCents: request.GoldRateCents
 							);
 
@@ -559,8 +571,9 @@ namespace Goldmint.CoreLogic.Finance {
 							
 								DestinationAddress = request.EthAddress,
 								Rate = request.GoldRateCents.ToString(),
+								Discount = request.PromoCode?.DiscountValue ?? 0,
 								GoldAmount = estimatedGoldAmount.ResultGoldAmount.ToString(),
-								CentsAmount = payment.AmountCents,
+								CentsAmount = estimatedGoldAmount.ResultCentsAmount,
 								EthRequestIndex = "0",
 								OplogId = request.OplogId,
 								TimeCreated = timeNow,
@@ -580,7 +593,7 @@ namespace Goldmint.CoreLogic.Finance {
 							request.RelUserFinHistory.Status = UserFinHistoryStatus.Completed;
 							request.RelUserFinHistory.TimeCompleted = timeNow;
 							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatAmount(payment.AmountCents);
-							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, Tokens.GOLD.Decimals);
+							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimatedGoldAmount.ResultGoldAmount, TokensPrecision.EthereumGold);
 							await dbContext.SaveChangesAsync();
 
 							try {
@@ -601,6 +614,7 @@ namespace Goldmint.CoreLogic.Finance {
 
 										DestinationAddress = ethOp.DestinationAddress,
 										Rate = "0",
+										Discount = 0,
 										GoldAmount = "0",
 										EthRequestIndex = null,
 										OplogId = ethOp.OplogId,
@@ -792,7 +806,7 @@ namespace Goldmint.CoreLogic.Finance {
 							request.TimeCompleted = timeNow;
 							request.RelUserFinHistory.Status = UserFinHistoryStatus.Completed;
 							request.RelUserFinHistory.TimeCompleted = timeNow;
-							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(ethRequestInfo.InputAmount, Tokens.GOLD.Decimals);
+							request.RelUserFinHistory.SourceAmount = TextFormatter.FormatTokenAmountFixed(ethRequestInfo.InputAmount, TokensPrecision.EthereumGold);
 							request.RelUserFinHistory.DestinationAmount = TextFormatter.FormatAmount(payment.AmountCents);
 							await dbContext.SaveChangesAsync();
 
@@ -870,15 +884,22 @@ namespace Goldmint.CoreLogic.Finance {
 
 						var rate = "";
 						var srcType = "";
-						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth) {
-							var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.InputRateCents, request.GoldRateCents);
-							rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals);
-							srcType = "ETH";
+						var discountSuffix = "";
+
+						switch (ethOp.Type) {
+							case EthereumOperationType.ContractProcessBuyRequestEth: 
+								var ethPerGoldRate = Estimation.AssetPerGold(EthereumToken.Eth, request.InputRateCents, request.GoldRateCents);
+								rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, TokensPrecision.Ethereum);
+								srcType = "ETH";
+								break;
+							case EthereumOperationType.ContractProcessBuyRequestFiat:
+								rate = TextFormatter.FormatAmount(request.GoldRateCents);
+								srcType = request.ExchangeCurrency.ToString().ToUpper();
+								break;
 						}
 
-						if (ethOp.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
-							rate = TextFormatter.FormatAmount(request.GoldRateCents);
-							srcType = request.ExchangeCurrency.ToString().ToUpper();
+						if (ethOp.Discount > 0) {
+							discountSuffix = $" ({(int)ethOp.Discount}&percnt;)";
 						}
 
 						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeGoldIssued, request.RelUserFinHistory.RelUserActivity.Locale))
@@ -886,7 +907,7 @@ namespace Goldmint.CoreLogic.Finance {
 							.ReplaceBodyTag("ETHERSCAN_LINK", appConfig.Services.Ethereum.EtherscanTxView + ethOp.EthTransactionId)
 							.ReplaceBodyTag("DETAILS_SOURCE", request.RelUserFinHistory.SourceAmount + " " + srcType)
 							.ReplaceBodyTag("DETAILS_RATE", rate + " GOLD/" + srcType)
-							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " GOLD")
+							.ReplaceBodyTag("DETAILS_ESTIMATED", request.RelUserFinHistory.DestinationAmount + " GOLD" + discountSuffix)
 							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(ethOp.DestinationAddress))
 							.Initiator(request.RelUserFinHistory.RelUserActivity)
 							.Send(request.User.Email, request.User.UserName, notificationQueue)
@@ -913,8 +934,8 @@ namespace Goldmint.CoreLogic.Finance {
 					// notification
 					if (request?.RelUserFinHistory?.RelUserActivity != null) {
 
-						var ethPerGoldRate = Estimation.AssetPerGold(CryptoCurrency.Eth, request.OutputRateCents, request.GoldRateCents);
-						var rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, Tokens.ETH.Decimals) + " GOLD/ETH";
+						var ethPerGoldRate = Estimation.AssetPerGold(EthereumToken.Eth, request.OutputRateCents, request.GoldRateCents);
+						var rate = TextFormatter.FormatTokenAmount(ethPerGoldRate, TokensPrecision.Ethereum) + " GOLD/ETH";
 
 						await EmailComposer.FromTemplate(await templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, request.RelUserFinHistory.RelUserActivity.Locale))
 							.ReplaceBodyTag("REQUEST_ID", request.Id.ToString())
@@ -949,6 +970,7 @@ namespace Goldmint.CoreLogic.Finance {
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
 			var ticketDesk = services.GetRequiredService<IOplogProvider>();
 			var googleSheets = services.GetService<Sheets>();
+			var ethereumReader = services.GetRequiredService<IEthereumReader>();
 
 			// ---
 
@@ -971,7 +993,7 @@ namespace Goldmint.CoreLogic.Finance {
 					try {
 						if (googleSheets != null) {
 
-							var goldAmount = (double)(BigInteger.Parse(ethOp.GoldAmount) / BigInteger.Pow(10, Tokens.GOLD.Decimals - 6)) / 1000000d;
+							var goldAmount = (double)(BigInteger.Parse(ethOp.GoldAmount) / BigInteger.Pow(10, TokensPrecision.EthereumGold - 6)) / 1000000d;
 							await googleSheets.UpdateUserGoldInfo(
 								new UserInfoGoldUpdate() {
 									UserId = ethOp.UserId,
@@ -991,6 +1013,35 @@ namespace Goldmint.CoreLogic.Finance {
 					}
 					catch (Exception e) {
 						logger.Error(e, "Failed to fix user operation in Google Sheets");
+					}
+				}
+
+				// ETH <> GOLD contract: request failed
+				if (
+					ethOp.Type == EthereumOperationType.ContractProcessBuyRequestEth ||
+				    ethOp.Type == EthereumOperationType.ContractProcessSellRequestEth
+				) {
+					if (BigInteger.TryParse(ethOp.EthRequestIndex ?? "-1", out var index) && index >= 0) {
+						try {
+							var reqInfo = await ethereumReader.GetBuySellRequestBaseInfo(index);
+							if (reqInfo.IsFailed) {
+								var uh = await (
+									from r in dbContext.UserFinHistory
+									where r.Id == ethOp.RelUserFinHistoryId
+									select r
+								)
+									.AsTracking()
+									.FirstOrDefaultAsync()
+								;
+								if (uh != null) {
+									uh.Status = UserFinHistoryStatus.Failed;
+									await dbContext.SaveChangesAsync();
+								}
+							}
+						}
+						catch (Exception e) {
+							logger.Error(e, "Failed to update ethereum operation status");
+						}
 					}
 				}
 			}
