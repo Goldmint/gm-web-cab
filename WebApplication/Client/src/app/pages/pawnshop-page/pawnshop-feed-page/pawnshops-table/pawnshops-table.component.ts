@@ -37,6 +37,7 @@ export class PawnshopsTableComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
+      this.orgId = params.id;
       this.setPage(params.id, null, true, true);
     });
   }
