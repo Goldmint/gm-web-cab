@@ -109,7 +109,7 @@ const appRoutes: Routes = [
   { path: 'scanner/blocks', component: AllBlocksPageComponent },
   { path: 'scanner/transactions', component: AllTransactionsPageComponent },
   { path: 'scanner/transactions-in-block/:id', component: TransactionsInBlockPageComponent },
-  { path: 'pawnshop-loans', component: PawnshopPageComponent, /*canActivate: [AuthGuard],*/
+  { path: 'pawnshop-loans', component: PawnshopPageComponent,
     children: [
       { path: '', redirectTo: 'feed', pathMatch: 'full' },
       { path: 'feed', component: PawnshopFeedPageComponent,

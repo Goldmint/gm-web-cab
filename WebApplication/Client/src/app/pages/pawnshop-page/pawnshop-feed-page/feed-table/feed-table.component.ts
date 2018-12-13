@@ -47,6 +47,7 @@ export class FeedTableComponent implements OnInit {
   ) {
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
       this.pawnshopId = params.id;
+      this.offset = 0;
 
       this.setPage(this.pawnshopId, null, true);
       this.getPawnshopDetails(this.pawnshopId);
