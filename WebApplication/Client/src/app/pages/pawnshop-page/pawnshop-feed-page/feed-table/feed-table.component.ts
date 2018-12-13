@@ -74,7 +74,7 @@ export class FeedTableComponent implements OnInit {
       if (data.res) {
         this.invalidPawnshopId = false;
         this.pawnshopDetails = data.res;
-        this.rate = this.pawnshopDetails.daily_stats[0].currently_opened_amount;
+        this.rate = this.pawnshopDetails.daily_stats.length ? this.pawnshopDetails.daily_stats[0].currently_opened_amount : 0;
         this.orgId = this.pawnshopDetails.org_id;
 
         this.getOrganizationName(this.orgId);
