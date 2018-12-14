@@ -8,6 +8,7 @@ import { BigNumber } from 'bignumber.js'
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs/Subject";
+import {NavigationEnd, Router} from "@angular/router";
 
 @Injectable()
 export class EthereumService {
@@ -38,6 +39,10 @@ export class EthereumService {
   private _contractMntp: any;
   private _contactsInitted: boolean = false;
   private _totalGoldBalances = {issued: null, burnt: null};
+  private _allowedUrlOccurrencesForInject = [
+    'buy', 'sell', 'transfer', 'transparency', 'master-node'
+  ];
+  private checkWeb3Interval = null;
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -65,14 +70,25 @@ export class EthereumService {
 
   constructor(
     private _userService: UserService,
-    private _http: HttpClient
+    private _http: HttpClient,
+    private router: Router
   ) {
     this._userService.currentUser.subscribe(currentUser => {
       this._userId = currentUser != null && currentUser.id ? currentUser.id : null;
     });
 
-    interval(500).subscribe(this.checkWeb3.bind(this));
-    interval(7500).subscribe(this.checkBalance.bind(this));
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd && !this.checkWeb3Interval) {
+        this._allowedUrlOccurrencesForInject.forEach(url => {
+          if (event.urlAfterRedirects.indexOf(url) >= 0) {
+            (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this._obsHotGoldBalanceSubject.next(null);
+            this.checkWeb3Interval = interval(500).subscribe(this.checkWeb3.bind(this));
+            interval(7500).subscribe(this.checkBalance.bind(this));
+          }
+        });
+        !this.checkWeb3Interval && this._obsHotGoldBalanceSubject.next(new BigNumber(0));
+      }
+    });
   }
 
   getContractABI(address) {
