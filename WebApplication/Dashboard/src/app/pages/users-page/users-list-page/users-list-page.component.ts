@@ -3,6 +3,7 @@ import {Page} from "../../../models/page";
 import {APIService, MessageBoxService, UserService} from "../../../services";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-users-list-page',
@@ -14,6 +15,7 @@ export class UsersListPageComponent implements OnInit {
 
   public locale: string;
   public loading: boolean;
+  public isDataLoaded: boolean = false;
   public page = new Page();
 
   public rows:  Array<any> = [];
@@ -41,7 +43,8 @@ export class UsersListPageComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     public translate: TranslateService,
     private formBuilder: FormBuilder,
-    private _messageBox: MessageBoxService
+    private _messageBox: MessageBoxService,
+    private router: Router
   ) {
 
     this.page.pageNumber = 0;
@@ -61,7 +64,8 @@ export class UsersListPageComponent implements OnInit {
       this.locale = currentLocale;
     });
 
-    this.setPage({ offset: 0 });
+    const offset = this.userService.userListOffset !== null ? this.userService.userListOffset : 0;
+    this.setPage({ offset: offset });
   }
 
   onSort(event) {
@@ -152,6 +156,7 @@ export class UsersListPageComponent implements OnInit {
           this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
 
           this.loading = false;
+          this.isDataLoaded = true;
           this.cdRef.detectChanges();
 
           const tableTitle = document.getElementById('pageSectionTitle');
@@ -159,6 +164,11 @@ export class UsersListPageComponent implements OnInit {
             tableTitle.scrollIntoView();
           }
         });
+  }
+
+  showUserDetails(id: number) {
+    this.userService.userListOffset = this.page.pageNumber;
+    this.router.navigate(['/users/', id]);
   }
 
   userFilter() {

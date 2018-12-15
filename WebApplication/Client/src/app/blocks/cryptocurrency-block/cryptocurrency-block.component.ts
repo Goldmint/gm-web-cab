@@ -67,7 +67,7 @@ export class CryptocurrencyBlockComponent implements OnInit {
     });
 
     if (this.transferData.type === 'buy') {
-      this._apiService.goldBuyAsset(this.transferData.ethAddress, this.Web3.toWei(+this.transferData.amount), this.transferData.reversed, this.transferData.currency)
+      this._apiService.goldBuyAsset(this.transferData.ethAddress, this.Web3.toWei(+this.transferData.amount), this.transferData.reversed, this.transferData.currency, this.transferData.promoCode)
         .subscribe(res => {
           this.expiresTime = res.data.expires;
 
@@ -137,7 +137,7 @@ export class CryptocurrencyBlockComponent implements OnInit {
   buyMethod() {
     this.loading = this.isFirstTransaction = true;
 
-    this._apiService.goldBuyConfirm(this.requestId)
+    this._apiService.goldBuyConfirm(this.requestId, this.transferData.promoCode)
       .finally(() => {
         this.loading = false;
         this._cdRef.markForCheck();
@@ -145,7 +145,7 @@ export class CryptocurrencyBlockComponent implements OnInit {
       this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
         if (price !== null && this.isFirstTransaction) {
           this.showConfirmBlock = true;
-          this._ethService.sendBuyRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price);
+          this._ethService.sendBuyRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price * Math.pow(10, 9));
           this.isFirstTransaction = false;
           this._cdRef.markForCheck();
         }
@@ -164,7 +164,7 @@ export class CryptocurrencyBlockComponent implements OnInit {
       this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
         if (price !== null && this.isFirstTransaction) {
           this.showConfirmBlock = true;
-          this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price);
+          this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price * Math.pow(10, 9));
           this.isFirstTransaction = false;
           this._cdRef.markForCheck();
         }

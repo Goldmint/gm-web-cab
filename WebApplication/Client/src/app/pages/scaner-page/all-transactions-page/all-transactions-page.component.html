@@ -1,0 +1,164 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Scanner.AllTransactions.Heading" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <ngx-datatable class="table table--no-footer txs-table" #table
+                   [rows]="rows"
+                   [columnMode]="'force'"
+                   [headerHeight]="53"
+                   [rowHeight]="'auto'"
+                   [footerHeight]="135"
+                   [reorderable]="false"
+                   [loadingIndicator]="loading"
+                   [count]="rows.length"
+                   [externalSorting]="true"
+                   [externalPaging]="true"
+                   (page)='setPage($event)'
+                   [messages]="messages">
+
+      <div *ngIf="!isMobile">
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                Digest
+              </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.AllTransactions.Labels.From" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="120">
+          <ng-template ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Scanner.AllTransactions.Labels.Status" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + row.status" class="tx-status {{ row.status }}"></span>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [width]="100">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.AllTransactions.Labels.Count" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [width]="100">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.AllTransactions.Labels.Name" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              {{ row.transaction.name }}
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [draggable]="false" [resizeable]="false" [sortable]="false" [width]="100">
+          <ng-template ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.Scanner.AllTransactions.Labels.Date" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div>{{ row.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </div>
+
+      <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">Digest:</span>
+        </ng-template>
+
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="mt-1 mb-1 font-weight-500">
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest }}</div>
+          </div>
+
+          <div class="d-flex mt-1 mb-1">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.From" | translate }}:</span>
+            <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from }}</div>
+          </div>
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.Status" | translate }}:</span>
+            <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + row.status" class="ml-1 tx-status {{ row.status }}"></span>
+          </div>
+          <div class="d-flex">
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.Count" | translate }}:</span>
+            <div class="ml-2">
+              <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
+              <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
+            </div>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.Name" | translate }}:</span>
+            {{ row.transaction.name }}
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.Scanner.AllTransactions.Labels.Date" | translate }}:</span>
+            {{ row.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+
+    <ul class="pagination pagination--small mb-2">
+      <li class="page-item" [ngClass]="{'hidden': offset === 0 || loading}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="prevPage()">
+          <svg class="icon--previous" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+      <li class="page-item" [ngClass]="{'hidden': isLastPage || loading}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="nextPage()">
+          <svg class="icon--next" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>

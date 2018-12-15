@@ -1,5 +1,5 @@
-﻿using Goldmint.CoreLogic.Services.Blockchain;
-using Goldmint.CoreLogic.Services.Blockchain.Impl;
+﻿using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl;
 using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
@@ -21,6 +21,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Threading.Tasks;
+using Goldmint.CoreLogic.Services.Blockchain.Sumus;
+using Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl;
 
 namespace Goldmint.QueueService {
 
@@ -36,7 +38,8 @@ namespace Goldmint.QueueService {
 		private static CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator _coreTelemetryAccumulator;
 		private static CoreLogic.Services.Bus.Telemetry.WorkerTelemetryAccumulator _workerTelemetryAccumulator;
 
-		private static void SetupCommonServices(ServiceCollection services) {
+		private static void SetupCommonServices(ServiceCollection services)
+		{
 			
 			// app config
 			services.AddSingleton(_environment);
@@ -71,6 +74,7 @@ namespace Goldmint.QueueService {
 
 			// blockchain reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
+			services.AddSingleton<ISumusReader, SumusReader>();
 
 			// rates helper
 			services.AddSingleton<SafeRatesFiatAdapter>();
@@ -142,6 +146,7 @@ namespace Goldmint.QueueService {
 
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, EthereumWriter>();
+				services.AddSingleton<ISumusWriter, SumusWriter>();
 
 				// cc payment acquirer
 				services.AddScoped<The1StPayments>(fac => {
@@ -207,25 +212,6 @@ namespace Goldmint.QueueService {
 				
 				services.AddSingleton(_coreTelemetryAccumulator);
 			}
-
-			/*var sh = new Sheets(_appConfig);
-			for (var i = 0; i < 10; ++i) {
-				sh.InsertUser(new UserInfoCreate() {
-					UserId = i+ 1,
-					UserName = "u" + i,
-					Birthday = "" + i + " June 1999",
-					FirstName = "Name " + i,
-					LastName = "Lastname "+ i,
-					Country = "ru",
-				});
-			}
-			for (var i = 0; i < 10; ++i) {
-				sh.UpdateUserGoldInfo(new UserInfoGoldUpdate() {
-					UserId = 0 + 1,
-					GoldSoldDelta = 0.123,
-					GoldBoughtDelta = 0.321,
-				});
-			}*/
 		}
 
 		private static void RunServices() {

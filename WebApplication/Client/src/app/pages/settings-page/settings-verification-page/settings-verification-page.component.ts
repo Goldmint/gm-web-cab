@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 // import { PhoneNumberComponent } from 'ngx-international-phone-number';
 import 'rxjs/add/operator/finally';
@@ -29,6 +35,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   public processing = false;
   public repeat = Array;
   public isAgreeCheck: false;
+  public locale: string;
 
   public phase: Phase;
   public countries: Country[];
@@ -41,9 +48,11 @@ export class SettingsVerificationPageComponent implements OnInit {
   public dateOfBirth: { day: number, month: number, year: number | '' };
   public minBirthYear = 1999;
   public userData: User;
+  public isRussian: boolean = false;
 
   private selectedCountry;
   private interval: Subscription;
+  private sub1: Subscription;
 
   constructor(
     private _apiService: APIService,
@@ -56,6 +65,10 @@ export class SettingsVerificationPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.sub1 = this._userService.currentLocale.subscribe(currentLocale => {
+      this.locale = currentLocale;
+    });
+
     this.phase = Phase.Start;
     this.refreshPage();
   }
@@ -70,11 +83,15 @@ export class SettingsVerificationPageComponent implements OnInit {
     if (this.kycProfile.isAgreementSigned) {
       this.phase = Phase.Finished;
     }
-    else if (this.kycProfile.isResidenceProved) {
+    else if (this.kycProfile.isResidenceRequired && this.kycProfile.isResidenceProved) {
       this.phase = Phase.ToS;
     }
     else if (this.kycProfile.isKycFinished) {
-      this.phase = Phase.ResidencePending;
+      if (this.kycProfile.isResidenceRequired) {
+        this.phase = Phase.ResidencePending;
+      } else {
+        this.phase = Phase.ToS;
+      }
     }
     else if (this.kycProfile.isKycPending) {
       this.phase = Phase.KycPending;
@@ -91,8 +108,9 @@ export class SettingsVerificationPageComponent implements OnInit {
     this.phase = phase;
   }
 
-  onCountrySelect(reset: boolean = true) {
+  onCountrySelect(state, reset: boolean = true) {
     this.states = [];
+    state && (state.value = '');
     const country = <Country>this.countries.find(country => country.countryShortCode === this.kycProfile.country);
 
     if (reset) this.kycProfile.state = null;
@@ -128,22 +146,9 @@ export class SettingsVerificationPageComponent implements OnInit {
   onPhoneNumberChanged(event) {
     event.target.value = event.target.value.replace(/(?!^\+)[^\d]/g, '');
 
-    if (this.kycProfile.phoneNumber.indexOf(this.selectedCountry.phoneCode)) {
-      event.target.value = this.selectedCountry.phoneCode;
+    if (this.kycProfile.phoneNumber.indexOf('+') !== 0) {
+      event.target.value = '+' + event.target.value;
     }
-  }
-
-  submit(kycForm?: NgForm) {
-
-    if (this.phase == Phase.Basic && kycForm) {
-      this.submitBasicInformation(kycForm);
-    }
-
-    if (this.phase == Phase.Kyc) {
-      this.startKYCVerification();
-    }
-
-    console.log("SUBMIT");
   }
 
   submitBasicInformation(kycForm: NgForm) {
@@ -162,7 +167,6 @@ export class SettingsVerificationPageComponent implements OnInit {
       .subscribe(
       (res: APIResponse<KYCProfile>) => {
         this.kycProfile = res.data;
-        // this.startKYCVerification();
         this.onPhaseUpdate();
         window.scrollTo(0, 0);
       },
@@ -255,6 +259,7 @@ export class SettingsVerificationPageComponent implements OnInit {
 
   ngOnDestroy() {
     this.interval && this.interval.unsubscribe();
+    this.sub1 && this.sub1.unsubscribe();
   }
 
 }

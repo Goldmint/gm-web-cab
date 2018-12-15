@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.1</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Goldmint.QueueService</AssemblyName>
     <RootNamespace>Goldmint.QueueService</RootNamespace>
     <StartupObject></StartupObject>
@@ -33,15 +33,19 @@
   <ItemGroup>
     <None Remove=".gitignore" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.34.0.1240" />
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.36.1.1387" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\CoreLogic\CoreLogic.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Workers\TokenMigration\" />
   </ItemGroup>
 
 </Project>

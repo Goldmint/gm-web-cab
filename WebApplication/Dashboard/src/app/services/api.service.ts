@@ -393,7 +393,51 @@ export class APIService {
       catchError(this._handleError)
       );
   }
+  
+  getPromoCodesList(offset: number = 0, limit: number = 5,
+                  sort: string = 'id', ascending: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
+    let params = {offset, limit, sort, ascending: ascending === 'asc'};
 
+   let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/promo/list`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+  
+  generatePromoCode(currency: string, limit: string, discountValue: string, usageType: number, count: number, validForDays: number) {
+	  
+	  let params = {currency, limit, discountValue, usageType, count, validForDays};
+	  
+      let httpOptions = {
+         headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+	  
+     return this._http
+      .post(`${this._baseUrl}/dashboard/promo/generate`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+
+  infoPromoCodes(id: number, offset: number = 0, limit: number = 5, sort: string = 'id', ascending: 'asc' | 'desc' = 'desc') {
+    let params = {id, offset, limit, sort, ascending: ascending === 'asc'};
+
+    let httpOptions = {
+      headers: this.jwt().headers.append('Content-Type', 'application/json')
+    };
+
+    return this._http
+      .post(`${this._baseUrl}/dashboard/promo/info`, params, httpOptions)
+      .pipe(
+        catchError(this._handleError)
+      );
+  }
+  
   private _handleError(err: HttpErrorResponse | any) {
     if (err.error && err.error.errorCode) {
       console.info('API Error', err.error.errorCode, err.error.errorDesc);

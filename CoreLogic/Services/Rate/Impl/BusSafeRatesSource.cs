@@ -5,8 +5,10 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Goldmint.Common.Extensions;
 
-namespace Goldmint.CoreLogic.Services.Rate.Impl {
+namespace Goldmint.CoreLogic.Services.Rate.Impl
+{
 
 	public sealed class BusSafeRatesSource : IDisposable, IAggregatedSafeRatesSource {
 
@@ -33,11 +35,13 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		// ---
 
-		public void OnNewRates(object payload, Bus.Subscriber.DefaultSubscriber self) {
+		public void OnNewRates(object payload, Bus.Subscriber.DefaultSubscriber self)
+		{
 			if (!(payload is Bus.Proto.SafeRates.SafeRatesMessage ratesMessage)) return;
 
 			_mutexRatesUpdate.EnterWriteLock();
-			try {
+			try
+			{
 				_logger.Trace($"Received { ratesMessage.Rates.Length } rates");
 				foreach (var v in ratesMessage.Rates) {
 					var c = SafeCurrencyRate.BusDeserialize(v);
@@ -46,22 +50,27 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 					}
 				}
 			}
-			finally {
+			finally
+			{
 				_mutexRatesUpdate.ExitWriteLock();
 			}
 		}
 
-		public SafeCurrencyRate GetRate(CurrencyRateType cur) {
+		public SafeCurrencyRate GetRate(CurrencyRateType cur)
+		{
 			_mutexRatesUpdate.EnterReadLock();
-			try {
+			try
+			{
 				var rcfg = _runtimeConfigHolder.Clone();
 
-				if (rcfg.Gold.AllowTradingOverall && _rates.TryGetValue(cur, out var ret)) {
+				if (rcfg.Gold.AllowTradingOverall && _rates.TryGetValue(cur, out var ret))
+				{
 					return ret;
 				}
 				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);
 			}
-			finally {
+			finally
+			{
 				_mutexRatesUpdate.ExitReadLock();
 			}
 		}

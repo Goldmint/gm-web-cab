@@ -48,9 +48,11 @@ namespace Goldmint.QueueService {
 		/// <param name="args">
 		/// `ipc-stop` - command to stop launched instance;
 		/// </param>
-		public static void Main(string[] args) {
+		public static void Main(string[] args)
+		{
 
-			if (SetupIpc(args)) {
+			if (SetupIpc(args))
+			{
 				return;
 			}
 
@@ -79,7 +81,7 @@ namespace Goldmint.QueueService {
 					.SetBasePath(cfgDir)
 					.AddJsonFile("appsettings.json", optional: false)
 					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", optional: false)
-					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.Private.json", optional: true)
+					.AddJsonFile($"appsettings.{_environment.EnvironmentName}.PK.json", optional: _environment.IsDevelopment())
 					.Build()
 				;
 

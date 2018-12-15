@@ -190,6 +190,12 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		/// </summary>
 		[Required]
 		public StatusViewTrading Trading { get; set; }
+
+		/// <summary>
+		/// Trading limits
+		/// </summary>
+		[Required]
+		public StatusViewLimits Limits { get; set; }
 	}
 
 	public class StatusViewTrading {
@@ -211,5 +217,70 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		/// </summary>
 		[Required]
 		public bool CreditCardSellingAllowed { get; set; }
+		
+		/// <summary>
+		/// Promo codes are allowed
+		/// </summary>
+		[Required]
+		public bool PromoCodesAllowed { get; set; }
+	}
+
+	public class StatusViewLimits {
+
+		/// <summary>
+		/// Ethereum limits
+		/// </summary>
+		[Required]
+		public Method Eth { get; set; }
+
+		/// <summary>
+		/// Credit card
+		/// </summary>
+		[Required]
+		public Method CreditCardUsd { get; set; }
+
+		// ---
+
+		public class Method {
+
+			/// <summary>
+			/// Deposit (buying gold)
+			/// </summary>
+			[Required]
+			public MinMax Deposit { get; set; }
+
+			/// <summary>
+			/// Withdraw (selling gold)
+			/// </summary>
+			[Required]
+			public MinMax Withdraw { get; set; }
+		}
+
+		public class MinMax {
+
+			/// <summary>
+			/// Minimal amount
+			/// </summary>
+			[Required]
+			public object Min { get; set; }
+
+			/// <summary>
+			/// Maximal amount
+			/// </summary>
+			[Required]
+			public object Max { get; set; }
+
+			/// <summary>
+			/// Account limit amount
+			/// </summary>
+			[Required]
+			public object AccountMax { get; set; }
+
+			/// <summary>
+			/// Account limit usage amount
+			/// </summary>
+			[Required]
+			public object AccountUsed { get; set; }
+		}
 	}
 }

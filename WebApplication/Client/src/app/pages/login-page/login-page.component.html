@@ -64,8 +64,10 @@
                 </div>
               </div>
 
-              <div class="form-group mb-3 pt-3">
-                <re-captcha class="form-captcha" #captchaRef="reCaptcha" (resolved)="captchaResolved($event, loginForm)" [ngClass]="{'is-invalid': errors?.Captcha && loginForm.submitted}"></re-captcha>
+              <div class="form-group mb-3 pt-1" *ngIf="isLockedAccount">
+                <div class="lead icon--red mb-3">{{ "PAGES.Login.Errors.AccountBlocked" | translate }}</div>
+
+                <re-captcha class="form-captcha" #captchaRef="reCaptcha" (resolved)="captchaResolved($event)" [ngClass]="{'is-invalid': errors?.Captcha && loginForm.submitted}"></re-captcha>
 
                 <div class="invalid-feedback" *ngIf="errors?.Captcha">
                   {{ errors?.Captcha }}
@@ -75,8 +77,9 @@
               <div class="form-group row pt-3">
                 <div class="col-auto">
                   <button class="btn btn-primary" [blur]="buttonBlur" [disabled]="
-                  (!autofill && !loginForm.form.valid) || (autofill && loginForm.form.valid) ||
-                  !loginModel.recaptcha || loading">{{ "PAGES.Login.Buttons.LogIn" | translate }}</button>
+                  (!autofill && !loginForm.form.valid) || (autofill && loginForm.form.valid) || (!loginModel.recaptcha && isLockedAccount) || (!autofill && loginForm.form.pristine) || loading">
+                    {{ "PAGES.Login.Buttons.LogIn" | translate }}
+                  </button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
                 <div class="col form-text form-text--small pl-4">

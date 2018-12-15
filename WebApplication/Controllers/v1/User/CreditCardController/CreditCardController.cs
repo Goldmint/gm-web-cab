@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common;
+using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Finance;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Goldmint.WebApplication.Models.API;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
@@ -64,28 +66,24 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// ---
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
-			// extra access
-			if (HostingEnvironment.IsProduction() && (user.AccessRights & (long)AccessRights.ClientExtraAccess) != (long)AccessRights.ClientExtraAccess) {
-				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-			}
-
 			// ---
 
-			var allowAnyCard = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();
+			var oneDollarVerification = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsStaging();
 
 			// verification payment
 			var verificationAmountCents = 100L + (SecureRandom.GetPositiveInt() % 100);
-			if (allowAnyCard) {
+			if (oneDollarVerification) {
 				verificationAmountCents = 100L;
 			}
 
@@ -114,8 +112,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				RedirectUrl = model.Redirect,
 
 				TransactionId = transId,
-				//AmountCents = 100,
-				Currency = transCurrency,
+			    AmountCents = 100,
+                Currency = transCurrency,
 				Purpose = "Card data for deposit payments at goldmint.io",
 
 				SenderName = user.UserVerification.FirstName + " " + user.UserVerification.LastName,
@@ -124,10 +122,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				SenderIP = agent.IpObject,
 
 				SenderAddressCountry = user.UserVerification.CountryCode,
-				SenderAddressState = user.UserVerification.State,
-				SenderAddressCity = user.UserVerification.City,
-				SenderAddressStreet = user.UserVerification.Street,
-				SenderAddressZip = user.UserVerification.PostalCode,
+				SenderAddressState = user.UserVerification.State?.Limit(20),
+				SenderAddressCity = user.UserVerification.City?.Limit(25),
+				SenderAddressStreet = user.UserVerification.Street?.Limit(50),
+				SenderAddressZip = user.UserVerification.PostalCode?.Limit(15),
 			};
 
 			// get redirect
@@ -149,7 +147,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				type: CardPaymentType.CardDataInputSMS,
 				transactionId: transId,
 				gwTransactionId: paymentResult.GWTransactionId,
-				oplogId: ticketId
+				oplogId: ticketId,
+				amountCents: 100
 			);
 			payment.Status = CardPaymentStatus.Pending;
 			DbContext.CreditCardPayment.Add(payment);
@@ -310,11 +309,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			// get code digits
 			model.Code = string.Join("", model.Code.Where(char.IsDigit).Select(_ => _.ToString()).ToArray());
-			
-			// ---
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+            // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
@@ -383,10 +382,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			// ---
-
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {

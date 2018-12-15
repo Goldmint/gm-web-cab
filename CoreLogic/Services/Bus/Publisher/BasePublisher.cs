@@ -7,6 +7,7 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 

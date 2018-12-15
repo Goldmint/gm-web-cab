@@ -35,7 +35,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   public usdAmount: number = 0;
   public currentValue: number;
   public estimatedAmount: BigNumber;
-  public cards: CardsList;
+  public cards: CardsList = {
+    list: []
+  };
   public user: User;
   public selectedCard: number;
   public transferData: object;
@@ -49,6 +51,8 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
   constructor(
     private _userService: UserService,
@@ -76,9 +80,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
 
     this.iniTransactionHashModal();
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingSell');
       }, 3000);
     }
 
@@ -86,7 +90,9 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       this._apiService.getFiatCards(),
       this._apiService.getProfile()
     ).subscribe((res) => {
-      this.cards = res[0].data;
+      res[0].data.list.forEach(card => {
+        card.status === 'verified' && this.cards.list.push(card);
+      });
       this.user = res[1].data;
 
       this.isDataLoaded = true;
@@ -135,6 +141,17 @@ export class SellCardPageComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
+    });
   }
 
   initInputValueChanges() {

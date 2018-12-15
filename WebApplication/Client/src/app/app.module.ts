@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
-import { Router } from '@angular/router';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { /*RECAPTCHA_LANGUAGE,*/ RECAPTCHA_SETTINGS,
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RECAPTCHA_SETTINGS,
   RecaptchaModule
 } from 'ng-recaptcha';
 
@@ -27,7 +26,6 @@ import { APIHttpInterceptor } from './common/api/api-http.interceptor'
  */
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-// import { TranslatePoHttpLoader } from '@biesbjerg/ngx-translate-po-http-loader';
 import {DatePipe, registerLocaleData} from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 registerLocaleData(localeRu);
@@ -46,13 +44,11 @@ import {
   ModalModule,
   ButtonsModule,
   TabsModule,
-  TypeaheadModule
+  TypeaheadModule, PopoverModule
 } from 'ngx-bootstrap';
 
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
-// import { NgxPhoneMaskModule } from 'ngx-phone-mask';
-// import { InternationalPhoneNumberModule } from 'ngx-international-phone-number';
 
 /*
   Blocks
@@ -92,8 +88,6 @@ import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards
 import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
-import { DepositPageComponent } from './pages/deposit-page/deposit-page.component';
-import { WithdrawPageComponent } from './pages/withdraw-page/withdraw-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import { StaticPagesComponent } from './pages/static-pages/static-pages.component';
@@ -104,19 +98,43 @@ import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-se
 import { SettingsFeesPageComponent } from './pages/settings-page/settings-fees-page/settings-fees-page.component';
 import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component';
 import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
+import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
+import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
+import { TokenMigrationPageComponent } from './pages/master-node-page/token-migration-page/token-migration-page.component';
+import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
 import { BuyCardPageComponent } from './pages/buy-page/buy-card-page/buy-card-page.component';
 import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-card-page.component';
 import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
-
+import {GoldDiscount} from "./pipes/gold-discount";
+import {SubstrPipe} from "./pipes/substr.pipe";
+import {NoexpPipe} from "./pipes/noexp.pipe";
+import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
+import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
+import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
+import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
+import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions-page/all-transactions-page.component";
+import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
+import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
+import {MomentModule} from "ngx-moment";
+import {DeviceDetectorModule} from "ngx-device-detector";
+import {NgxMaskModule} from "ngx-mask";
+import { WalletPageComponent } from './pages/wallet-page/wallet-page.component';
+import { AuthModalComponent } from './common/message-box/auth-modal/auth-modal.component';
+import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
+import { PawnshopFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component';
+import { AllTicketFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component';
+import { OrganizationsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-table/organizations-table.component';
+import { PawnshopsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component';
+import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component';
+import {CommonService} from "./services/common.service";
+import {AccountReductionPipe} from "./pipes/account-reduction";
+import { PawnshopInvestComponent } from './pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-// export function createTranslateLoader(http: HttpClient) {
-//   return new TranslatePoHttpLoader(http, 'assets/i18n', '.po');
-// }
 
 export function getGoldmintToken() {
 	return localStorage.getItem('gmint_token');
@@ -133,12 +151,13 @@ export function getGoldmintToken() {
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
     TabsModule.forRoot(),
+    MomentModule,
     NgxDatatableModule,
     TypeaheadModule,
     NgxQRCodeModule,
-    // NgxPhoneMaskModule,
-    // InternationalPhoneNumberModule,
     HttpClientModule,
+    DeviceDetectorModule.forRoot(),
+    PopoverModule.forRoot(),
     JwtModule.forRoot({
       config: {
         tokenGetter: getGoldmintToken,
@@ -151,7 +170,8 @@ export function getGoldmintToken() {
         useFactory: createTranslateLoader,
         deps: [HttpClient]
       }
-    })
+    }),
+    NgxMaskModule.forRoot()
   ],
   declarations: [
     AppComponent,
@@ -162,6 +182,10 @@ export function getGoldmintToken() {
     MessageBoxComponent,
     SpriteComponent,
     BuyPageComponent,
+	  MasterNodePageComponent,
+    LaunchNodePageComponent,
+	  OverviewPageComponent,
+	  TokenMigrationPageComponent,
     HistoryPageComponent,
     HomePageComponent,
     LimitsPageComponent,
@@ -188,12 +212,13 @@ export function getGoldmintToken() {
     BlurDirective,
     EqualValidatorDirective,
     TransparencyPageComponent,
-    DepositPageComponent,
-    WithdrawPageComponent,
     FinancePageComponent,
     NoautocompleteDirective,
     StaticPagesComponent,
     SafePipe,
+	  SubstrPipe,
+    NoexpPipe,
+    GoldDiscount,
     LoginDpaRequiredComponent,
     LoginDpaSignedComponent,
     LegalSecurityPageComponent,
@@ -204,7 +229,24 @@ export function getGoldmintToken() {
     SellCardPageComponent,
     PaymentCardBlockComponent,
     CryptocurrencyBlockComponent,
-    TimerComponent
+    TimerComponent,
+    LatestRewardPageComponent,
+    ScanerPageComponent,
+    TxInfoPageComponent,
+    TransactionsInBlockPageComponent,
+    AllTransactionsPageComponent,
+    AllBlocksPageComponent,
+    AddressInfoPageComponent,
+    WalletPageComponent,
+    AuthModalComponent,
+    PawnshopPageComponent,
+    PawnshopFeedPageComponent,
+    AllTicketFeedPageComponent,
+    OrganizationsTableComponent,
+    PawnshopsTableComponent,
+    FeedTableComponent,
+    AccountReductionPipe,
+    PawnshopInvestComponent
   ],
   exports: [],
   providers: [
@@ -215,6 +257,7 @@ export function getGoldmintToken() {
     UserService,
     EthereumService,
     GoldrateService,
+    CommonService,
     DatePipe,
     {
       provide: RECAPTCHA_SETTINGS,
@@ -229,7 +272,8 @@ export function getGoldmintToken() {
     }
   ],
   entryComponents: [
-    MessageBoxComponent
+    MessageBoxComponent,
+    AuthModalComponent
   ],
   bootstrap: [AppComponent]
 })

@@ -37,15 +37,21 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var agent = GetUserAgentInfo();
 			var userLocale = GetUserLocale();
 
-			// captcha
-			if (!HostingEnvironment.IsDevelopment()) {
-				if (!await Core.Recaptcha.Verify(AppConfig.Services.Recaptcha.SecretKey, model.Captcha, agent.Ip)) {
-					return APIResponse.BadRequest(APIErrorCode.AccountNotFound, notFoundDesc);
-				}
-			}
-
 			var user = await UserManager.FindByNameAsync(model.Username) ?? await UserManager.FindByEmailAsync(model.Username);
 			if (user != null) {
+
+				bool isLockedOut = false;
+
+				// locked out
+				if (user.LockoutEnd != null && user.LockoutEnd.Value.UtcDateTime > DateTime.UtcNow) {
+					//if (!await Core.Recaptcha.Verify(AppConfig.Services.Recaptcha.SecretKey, model.Captcha, agent.Ip)) {
+					//	return APIResponse.BadRequest(APIErrorCode.AccountLocked, "Too many unsuccessful attempts. Account is locked, try to sign in later");
+					//}
+
+					// unlock before this check
+					isLockedOut = true;
+					user.LockoutEnd = null;
+				}
 
 				// get audience
 				JwtAudience audience = JwtAudience.Cabinet;
@@ -59,6 +65,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
 				if (user.UserOptions != null) {
 					await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
+
+					// check if dpa is signed but email is not confirmed
+					if (!user.EmailConfirmed && (user.UserOptions.DpaDocument?.IsSigned ?? false)) {
+						user.EmailConfirmed = true;
+						await DbContext.SaveChangesAsync();
+					}
 				}
 
 				var sres = OnSignInResultCheck(
@@ -94,6 +106,12 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 
 					return sres;
+				}
+
+				// was locked before
+				if (isLockedOut) {
+					await UserManager.SetLockoutEndDateAsync(user, (DateTimeOffset) DateTime.UtcNow.AddMinutes(60));
+					return APIResponse.BadRequest(APIErrorCode.AccountLocked, "Too many unsuccessful attempts. Account is locked, try to sign in later");
 				}
 			}
 				
@@ -250,6 +268,43 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
 		}
+
+#if DEBUG
+
+		/// <summary>
+		/// DPA check
+		/// </summary>
+		[AnonymousAccess]
+		[HttpGet, Route("debugAuth")]
+		[ProducesResponseType(typeof(AuthenticateView), 200)]
+		public async Task<APIResponse> DebugAuth(long id, string audi) {
+
+			var user = await UserManager.FindByIdAsync(id.ToString());
+
+			JwtAudience audience = JwtAudience.Cabinet;
+			if (!string.IsNullOrWhiteSpace(audi)) {
+				if (Enum.TryParse(audi, true, out JwtAudience aud)) {
+					audience = aud;
+				}
+			}
+
+			// denied
+			var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, user);
+			if (accessRightsMask == null) return null;
+
+			return APIResponse.Success(
+				new AuthenticateView() {
+				Token = JWT.CreateAuthToken(
+					appConfig: AppConfig,
+					user: user,
+					audience: audience,
+					area: JwtArea.Authorized,
+					rightsMask: accessRightsMask.Value
+				),
+				TfaRequired = false,
+			});
+		}
+#endif
 
 		// ---
 

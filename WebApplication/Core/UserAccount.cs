@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Core {
 

@@ -44,20 +44,20 @@ export class UserService {
     }
   }
 
+  public getIPInfo() {
+    return this.http.get('https://ipinfo.io');
+  }
+
   public processToken(token: string) {
     this._processLoginResponse({ data: { token: token } });
   }
 
   private _processLoginResponse(response: APIResponse<AuthResponse>) {
-    console.group('_processLoginResponse');
-    console.log('response', response);
 
     if (!response.errorCode && response.data.token) {
       localStorage.setItem('gmint_token', response.data.token);
 
       const jwt = this._jwtHelper.decodeToken(response.data.token);
-
-      console.log('jwt', jwt);
 
       if (jwt.gm_area === 'authorized') {
         if (jwt.gm_role === 'user' && jwt.gm_id) this._user.next({ name: jwt.gm_id });
@@ -83,19 +83,13 @@ export class UserService {
     else {
       this._messageBox.alert(response.errorDesc);
     }
-
-    console.groupEnd();
   }
-
-  // ---
 
   login(username: string, password: string, recaptcha: string) {
     return this._apiService.userLogin(username, password, recaptcha)
       .pipe(
       tap(
         (res: APIResponse<AuthResponse>) => {
-          console.info('User login result', res);
-
           this._processLoginResponse(res);
         },
         err => {
@@ -118,10 +112,7 @@ export class UserService {
       .pipe(
       tap(
         (res: APIResponse<AuthResponse>) => {
-          console.info('TFA code processing result', res);
-
           localStorage.removeItem('gmint_2fa');
-
           this._processLoginResponse(res);
         },
         err => {
@@ -148,8 +139,6 @@ export class UserService {
       .pipe(
       tap(
         (res: APIResponse<RegistrationResponse>) => {
-          console.info('User register result', res);
-
           if (res.errorCode) {
             this._messageBox.alert(res.errorDesc);
           }
@@ -165,13 +154,31 @@ export class UserService {
     this.onWalletSwitch$.next(wallet);
   }
 
-  showLoginToMMBox() {
+  showLoginToMMBox(heading: string) {
     this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
       this._messageBox.alert(`
         <div class="text-center">${phrase.Text}</div>
         <div class="metamask-icon"></div>
         <div class="text-center mt-2 mb-2">MetaMask</div>
-      `, phrase.HeadingSell);
+      `, phrase[heading]);
+    });
+  }
+
+  showLoginToLiteWallet() {
+    this._translate.get('MessageBox.LoginToLiteWallet').subscribe(phrase => {
+      this._messageBox.alert(`
+        <div class="text-center">${phrase.Text}</div>
+        <div class="gold-circle-icon"></div>
+        <div class="text-center mt-2 mb-2">Goldmint Lite Wallet</div>
+      `, phrase.Heading);
+    });
+  }
+
+  invalidNetworkModal(network) {
+    this._translate.get('MessageBox.InvalidNetwork', {network}).subscribe(phrase => {
+      setTimeout(() => {
+        this._messageBox.alert(phrase);
+      }, 0);
     });
   }
 

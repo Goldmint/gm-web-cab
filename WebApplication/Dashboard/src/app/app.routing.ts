@@ -16,8 +16,10 @@ import {AccessRightsPageComponent} from "./pages/users-page/access-rights-page/a
 import {SettingsProfilePageComponent} from "./pages/settings-page/settings-profile-page/settings-profile-page.component";
 import {FeesPageComponent} from "./pages/fees-page/fees-page.component";
 import {SwiftPageComponent} from "./pages/swift-page/swift-page.component";
+import {PromoCodesPageComponent} from './pages/promo-codes-page/promo-codes-page.component';
 import {TradeRequestsPageComponent} from "./pages/trade-requests-page/trade-requests-page.component";
 import {TelemetryPageComponent} from "./pages/telemetry-page/telemetry-page.component";
+import {PromoCodesInfoPageComponent} from "./pages/promo-codes-info-page/promo-codes-info-page.component";
 
 const appRoutes: Routes = [
 
@@ -35,6 +37,8 @@ const appRoutes: Routes = [
   },
   { path: 'trade-requests', component: TradeRequestsPageComponent, canActivate: [AuthGuard] },
   { path: 'telemetry', component: TelemetryPageComponent, canActivate: [AuthGuard] },
+  { path: 'promocodes', component: PromoCodesPageComponent, canActivate: [AuthGuard] },
+  { path: 'promocodes/info/:id', component: PromoCodesInfoPageComponent, canActivate: [AuthGuard] },
   {
     path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard],
     children: [

@@ -4,17 +4,21 @@ using Goldmint.CoreLogic.Services.Rate.Models;
 using NLog;
 using System;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
-	public sealed class GmRatesProvider : IGoldRateProvider, IEthRateProvider {
+	public sealed class GmRatesProvider : IGoldRateProvider, IEthRateProvider
+	{
 
 		private readonly Options _opts;
 		private readonly ILogger _logger;
 
-		public GmRatesProvider(Action<Options> opts, LogFactory logFactory) {
+		public GmRatesProvider(Action<Options> opts, LogFactory logFactory)
+		{
 			_logger = logFactory.GetLoggerFor(this);
-			_opts = new Options() {
+			_opts = new Options()
+			{
 				GoldUrl = "",
 				EthUrl = "",
 			};

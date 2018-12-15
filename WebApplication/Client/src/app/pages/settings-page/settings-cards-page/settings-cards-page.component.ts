@@ -192,13 +192,20 @@ export class SettingsCardsPageComponent implements OnInit {
       });
   }
 
+  inputVerificationCode(e) {
+    let code = e.target.value.replace(/\D+/g, '').match(/^(\d)(\d{0,2})/);
+    e.target.value = code ? (code[1] + (code[2] ? '.' + code[2] : '')) : '';
+    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+    this.verificationCode = e.target.value;
+  }
+
   verifyCard(cardId: number) {
     this.buttonBlur.emit();
 
     if (this.verificationCode !== null && !isNaN(this.verificationCode)) {
       this.processing = true;
 
-      this._apiService.verifyFiatCard(cardId, this.verificationCode)
+      this._apiService.verifyFiatCard(+cardId, this.verificationCode)
         .finally(() => {
           this.processing = false;
           this._cdRef.detectChanges();

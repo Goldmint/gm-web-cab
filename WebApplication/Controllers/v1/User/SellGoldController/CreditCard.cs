@@ -39,18 +39,13 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				exchangeCurrency = fc;
 			}
 
-			// ---
-
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
-				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-			}
-
-			// extra access
-			if (HostingEnvironment.IsProduction() && (user.AccessRights & (long)AccessRights.ClientExtraAccess) != (long)AccessRights.ClientExtraAccess) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -72,12 +67,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// ---
 
-			var rcfg = RuntimeConfigHolder.Clone();
 			if (!rcfg.Gold.AllowSellingCreditCard) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var limits = WithdrawalLimits(rcfg, exchangeCurrency);
+			var limits = await WithdrawalLimits(rcfg, DbContext, user.Id, exchangeCurrency);
 
 			var estimation = await Estimation(rcfg, inputAmount, null, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1 || estimation.ResultCurrencyAmount > long.MaxValue) {
@@ -103,7 +97,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldSell,
 				Source = "GOLD",
-				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, Tokens.GOLD.Decimals),
+				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.EthereumGold),
 				Destination = exchangeCurrency.ToString().ToUpper(),
 				DestinationAmount = TextFormatter.FormatAmount((long)estimation.ResultCurrencyAmount),
 				Comment = "", // see below
@@ -146,7 +140,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/{ exchangeCurrency.ToString().ToUpper() } = { TextFormatter.FormatAmount(estimation.CentsPerGoldRate) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

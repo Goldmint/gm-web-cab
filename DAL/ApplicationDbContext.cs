@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Goldmint.DAL.Models;
+﻿using Goldmint.DAL.Models;
 using Goldmint.DAL.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Goldmint.DAL.Models.PromoCode;
 
 namespace Goldmint.DAL {
 
@@ -31,24 +30,29 @@ namespace Goldmint.DAL {
 		public DbSet<UserVerification> UserVerification { get; set; }
 		public DbSet<UserCreditCard> UserCreditCard { get; set; }
 		public DbSet<CreditCardPayment> CreditCardPayment { get; set; }
+		public DbSet<UserLimits> UserLimits { get; set; }
+		public DbSet<PromoCode> PromoCode { get; set; }
+	    public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
+        public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
+	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
 
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
-		}
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
-		protected override void OnModelCreating(ModelBuilder builder) {
+		protected override void OnModelCreating(ModelBuilder builder)
+		{
 			base.OnModelCreating(builder);
 
-			builder.Entity<Role>().ToTable("gm_role");
-			builder.Entity<RoleClaim>().ToTable("gm_role_claim");
-			builder.Entity<User>().ToTable("gm_user");
-			builder.Entity<UserClaim>().ToTable("gm_user_claim");
-			builder.Entity<UserLogin>().ToTable("gm_user_login");
-			builder.Entity<UserRole>().ToTable("gm_user_role");
-			builder.Entity<UserToken>().ToTable("gm_user_token");
+			builder.Entity<User>(entity => { entity.ToTable(name: "gm_user"); });
+			builder.Entity<Role>(entity => { entity.ToTable(name: "gm_role"); });
+			builder.Entity<UserRole>(entity => { entity.ToTable("gm_user_role"); });
+			builder.Entity<UserClaim>(entity => { entity.ToTable("gm_user_claim"); });
+			builder.Entity<UserLogin>(entity => { entity.ToTable("gm_user_login"); });
+			builder.Entity<UserToken>(entity => { entity.ToTable("gm_user_token"); });
+			builder.Entity<RoleClaim>(entity => { entity.ToTable("gm_role_claim"); });
 
 			// for currency amount
-			foreach (var property in builder.Model.GetEntityTypes().SelectMany(t => t.GetProperties()).Where(p => p.ClrType == typeof(decimal))) {
-				property.Relational().ColumnType = "decimal(26, 2)";
+			foreach (var property in builder.Model.GetEntityTypes().SelectMany(t => t.GetProperties()).Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?))) {
+				property.Relational().ColumnType = "decimal(38, 18)";
 			}
 		}
 

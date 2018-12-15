@@ -4,7 +4,7 @@
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.Buy.CtyptoCurrency.Heading" | translate }}</h2>
 
-  <div class="section__content">
+  <div class="section__content pt-4">
     <form  *ngIf="!showCryptoCurrencyBlock" name="buyGoldForm" id="buyGoldForm" #buyGoldForm="ngForm">
         <div class="w-100">
           <div class="btn-group">
@@ -54,7 +54,7 @@
                   </div>
                 </div>
 
-                <div class="col-12 pb-4">
+                <div class="col-12">
                   <div class="from-row form-group ">
                     <label for="goldAmount">{{ "PAGES.Buy.CtyptoCurrency.Labels.Amount" | translate }} ($ {{ goldAmountToUSD | number:'1.1-2':locale }})</label>
                     <div class="d-flex align-items-center">
@@ -79,10 +79,44 @@
                   </div>
                 </div>
 
+                <div class="col-12 pb-4" *ngIf="!isAuthenticated || tradingStatus?.promoCodesAllowed">
+                  <div class="from-row form-group ">
+                    <label for="promo-code">{{ "PAGES.Buy.CtyptoCurrency.Labels.PromoCode" | translate }}</label>
+                    <div class="d-flex align-items-center">
+                      <div class="form-currency">
+                        <svg class="icon" width="30" height="30">
+                          <use xlink:href="#discount"></use>
+                        </svg>
+                      </div>
+                      <input type="text" class="form-control" name="promo-code" id="promo-code"
+                             mask='AAAAA-AAAAA'
+                             #promoCodeInput="ngModel"
+                             [(ngModel)]="promoCodeModel"
+                             (keyup)="inputPromoCode($event.target.value)"
+                             autocomplete="off"
+                             [ngClass]="{'is-invalid': isInvalidPromoCode}"
+                             [disabled]="loading || (isAuthenticated && !user?.verifiedL1)">
+                    </div>
+                    <div class="position-absolute invalid-feedback" *ngIf="isInvalidPromoCode && !promoCodeErrorCode">
+                      {{ "PAGES.Buy.Errors.IncorrectPromo" | translate }}
+                    </div>
+                    <div class="position-absolute invalid-feedback" *ngIf="isInvalidPromoCode && promoCodeErrorCode">
+                      {{ "PAGES.Buy.Errors.PromoCodeErrors." + promoCodeErrorCode | translate }}
+                    </div>
+                    <div class="position-absolute" *ngIf="!isInvalidPromoCode && user?.verifiedL1 && !loading">
+                      {{ "PAGES.Buy.Promo.PromoInfo.Text" | translate }} {{ discount }}%
+                      {{ "PAGES.Buy.Promo.PromoInfo.Or" | translate }} {{ goldAmount | goldDiscount:discount }} GOLD
+                    </div>
+                    <div  class="position-absolute" *ngIf="isAuthenticated && !user?.verifiedL1">
+                      {{ "PAGES.Buy.Promo.PromoPermission" | translate }}
+                    </div>
+                  </div>
+                </div>
+
                 <div class="col-12 mb-5">
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Buy.Errors.UseMM" | translate }}</div>
-                  <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || processing">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+                  <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || isInvalidNetwork || isInvalidPromoCode || processing">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
               </div>

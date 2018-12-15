@@ -12,7 +12,6 @@ import {environment} from "../../../environments/environment";
 export class SettingsPageComponent implements OnInit {
 
   public user: User;
-  public hasExtraRights: boolean = true;
   public loading: boolean = true;
 
   constructor(
@@ -23,10 +22,6 @@ export class SettingsPageComponent implements OnInit {
   ngOnInit() {
     this._apiService.getProfile().subscribe(data => {
       this.user = data.data;
-
-      if (environment.detectExtraRights) {
-        this.hasExtraRights = this.user.hasExtraRights;
-      }
       this.loading = false;
       this._cdRef.markForCheck();
     });

@@ -36,26 +36,26 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				exchangeCurrency = fc;
 			}
 
-			// ---
+		    // ---
+		    var rcfg = RuntimeConfigHolder.Clone();
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
-			if (userTier < UserTier.Tier1) {
+			if (userTier < UserTier.Tier2) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
 			// ---
 
-			var rcfg = RuntimeConfigHolder.Clone();
 			if (!rcfg.Gold.AllowTradingEth) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var limits = WithdrawalLimits(rcfg, CryptoCurrency.Eth);
+			var limits = WithdrawalLimits(rcfg, EthereumToken.Eth);
 
-			var estimation = await Estimation(rcfg, inputAmount, CryptoCurrency.Eth, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
+			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -68,7 +68,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var ticket = await OplogProvider.NewGoldSellingRequestForCryptoasset(
 				userId: user.Id,
-				cryptoCurrency: CryptoCurrency.Eth,
+				ethereumToken: EthereumToken.Eth,
 				destAddress: model.EthAddress,
 				fiatCurrency: exchangeCurrency,
 				outputRate: estimation.CentsPerAssetRate,
@@ -88,7 +88,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				OplogId = ticket,
 				TimeCreated = timeNow,
-				TimeExpires = timeExpires,
+				TimeExpires = timeExpires.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest), // double time
 				UserId = user.Id,
 			};
 
@@ -123,10 +123,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			DbContext.SellGoldRequest.Add(request);
 			await DbContext.SaveChangesAsync();
 
-			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(CryptoCurrency.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
+			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id}, GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, Tokens.ETH.Decimals) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(

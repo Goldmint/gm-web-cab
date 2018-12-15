@@ -8,6 +8,7 @@ import {Router} from "@angular/router";
 import {CardsList} from "../../../interfaces";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
+import {TradingStatus} from "../../../interfaces/trading-status";
 
 @Component({
   selector: 'app-buy-card-page',
@@ -27,6 +28,8 @@ export class BuyCardPageComponent implements OnInit {
   public showPaymentCardBlock: boolean = false;
   public isTradingError = false;
   public isTradingLimit: object | boolean = false;
+  public isBuyLimit: boolean = false;
+  public buyLimit = {};
 
   public isReversed: boolean = false;
   public isDataLoaded: boolean = false;
@@ -35,10 +38,21 @@ export class BuyCardPageComponent implements OnInit {
   public ethAddress: string = '';
   public currentValue: number;
   public estimatedAmount: BigNumber;
-  public cards: CardsList;
+  public cards: CardsList = {
+    list: []
+  };
   public selectedCard: number;
   public transferData: object;
+  public allowValue: number;
 
+  public promoCode: string = null;
+  public discount: number = 0;
+  public isInvalidPromoCode: boolean = false;
+  public promoCodeErrorCode: string = null;
+  public promoCodeModel: string;
+  public tradingStatus: TradingStatus;
+
+  private promoCodeLength: number = 11;
   private timeoutPopUp;
   private Web3 = new Web3();
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -63,23 +77,32 @@ export class BuyCardPageComponent implements OnInit {
 
     this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe(limit => {
       this.isTradingLimit = limit;
-
       if (this.isReversed) {
         this.usdAmount = this.isTradingLimit['cur'];
       }
 
+      this.isReversed && this.checkBuyLimit(limit['cur']);
       this._cdRef.markForCheck();
     });
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingBuy');
       }, 3000);
     }
 
-    this._apiService.getFiatCards()
-      .subscribe(cards => {
-        this.cards = cards.data;
+    Observable.combineLatest(
+      this._apiService.getFiatCards(),
+      this._apiService.getTradingStatus(),
+      this._apiService.getProfile()
+    ).subscribe(data => {
+        !data[2].data.verifiedL1 && this.router.navigate(['/buy']);
+
+        data[0].data.list.forEach(card => {
+          card.status === 'verified' && this.cards.list.push(card);
+        });
+        this.buyLimit = data[1].data.limits.creditCardUsd.deposit;
+        this.tradingStatus = data[1].data.trading;
         this.isDataLoaded = true;
 
         if (this.cards.list && this.cards.list.length) {
@@ -137,17 +160,25 @@ export class BuyCardPageComponent implements OnInit {
     if (!this.isReversed) {
       if (value > 0 && value.toString().length <= 15) {
 
+        this.checkBuyLimit(value);
+        if (this.isBuyLimit ) {
+          this.loading = false;
+          return;
+        }
+
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
         const usd = (value * 100).toFixed();
 
-        this._apiService.goldBuyEstimate('USD', usd, false)
+        this._apiService.goldBuyEstimate('USD', usd, false, this.promoCode)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
           this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
-
-          this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
+          this.checkDiscount(data.data.discount);
+          this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
+        }, error => {
+          this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.goldAmount = 0;
@@ -160,14 +191,19 @@ export class BuyCardPageComponent implements OnInit {
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate('USD', wei, true)
+        this._apiService.goldBuyEstimate('USD', wei, true, this.promoCode)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
-          this.usdAmount = data.data.amount;
-          this.isTradingError = this.isTradingLimit = this.processing = false;
-          this.invalidBalance = (this.usdAmount <= 1) ? true : false;
+            this.usdAmount = data.data.amount;
+            this.checkDiscount(data.data.discount);
+            this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
+            this.invalidBalance = (this.usdAmount <= 1) ? true : false;
+
+            this.checkBuyLimit(this.usdAmount);
+        }, error => {
+          this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.setError();
@@ -178,6 +214,39 @@ export class BuyCardPageComponent implements OnInit {
   setError() {
     this.invalidBalance = true;
     this.loading = false;
+    this._cdRef.markForCheck();
+  }
+
+  checkBuyLimit(value: number) {
+    this.allowValue = this.buyLimit['accountMax'] - this.buyLimit['accountUsed'];
+    this.isBuyLimit = value > this.allowValue;
+    this.isBuyLimit && (this.isTradingLimit = false);
+  }
+
+  checkDiscount(dicsount: number) {
+    this.discount = dicsount;
+  }
+
+  inputPromoCode(code: string) {
+    this.isInvalidPromoCode = true;
+    this.promoCode = this.promoCodeErrorCode = null;
+    if (code === '') {
+      this.isInvalidPromoCode = false;
+      this.onAmountChanged(this.currentValue);
+    }
+    if (code.length === this.promoCodeLength) {
+      this.promoCode = code;
+      this.isInvalidPromoCode = false;
+      this.onAmountChanged(this.currentValue);
+    }
+    this._cdRef.markForCheck();
+  }
+
+  setPromoCodeError(errorCode) {
+    if (errorCode > 500 && errorCode < 510) {
+      this.isInvalidPromoCode = true;
+      this.promoCodeErrorCode = errorCode;
+    }
     this._cdRef.markForCheck();
   }
 
@@ -209,6 +278,7 @@ export class BuyCardPageComponent implements OnInit {
     this.interval = Observable.interval(100).subscribe(() => {
       if (this.goldAmountInput) {
         this.initInputValueChanges();
+        this.promoCodeModel = this.promoCode;
 
         this.interval && this.interval.unsubscribe();
         this._cdRef.markForCheck();
@@ -230,7 +300,8 @@ export class BuyCardPageComponent implements OnInit {
       ethAddress: this.ethAddress,
       currency: 'USD',
       amount: this.estimatedAmount,
-      reversed: this.isReversed
+      reversed: this.isReversed,
+      promoCode: this.promoCode
     };
 
     this.showPaymentCardBlock = true;

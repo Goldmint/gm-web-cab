@@ -15,7 +15,8 @@
       "Fees": "Fees",
       "Users": "Users",
       "TradeRequests": "Trade Requests",
-      "Telemetry": "Telemetry"
+      "Telemetry": "Telemetry",
+	  "PromoCodes": "PromoCodes"
     }
   },
   "PAGES": {

@@ -2,6 +2,7 @@
 using Goldmint.DAL;
 using NLog;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 

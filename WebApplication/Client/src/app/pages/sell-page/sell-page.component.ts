@@ -24,8 +24,12 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public user: User;
   public tfaInfo: TFAInfo;
   public isMetamask = true;
-  public hasExtraRights: boolean = true;
   public tradingStatus: {creditCardSellingAllowed: boolean, ethAllowed: boolean};
+  public blockedCountriesList = ['US', 'CA', 'CN', 'SG'];
+  public isBlockedCountry: boolean = false;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -39,22 +43,30 @@ export class SellPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(
+    this.isAuthenticated = this._userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile(),
-      this._apiService.getTradingStatus()
+      this._apiService.getTradingStatus(),
+      this._apiService.getKYCProfile()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
         this.tradingStatus = res[2].data.trading;
-        this.loading = false;
 
-        if (environment.detectExtraRights) {
-          this.hasExtraRights = this.user.hasExtraRights;
-        }
+        this.isBlockedCountry = this.blockedCountriesList.indexOf(res[3].data['country']) >= 0;
+        !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
+          this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
+          this.loading = false;
+          this._cdRef.markForCheck();
+        });
 
-        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+        this.isBlockedCountry && (this.loading = false);
+
+        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
             this._messageBox.alert(phrase.Text, phrase.Heading);
           });
@@ -77,6 +89,18 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this.selectedWallet = 1;
       }
       this._cdRef.detectChanges();
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
     });
   }
 

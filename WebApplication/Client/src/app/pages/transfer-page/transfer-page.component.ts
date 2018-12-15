@@ -42,6 +42,9 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   public amountValue: number;
   public ethAddress: string = '';
   public selectedWallet = 0;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
+  public isAuthenticated: boolean = false;
 
   public etherscanUrl = environment.etherscanUrl;
   private sub1: Subscription;
@@ -62,7 +65,10 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    Observable.combineLatest(
+    this.isAuthenticated = this._userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
+    this.isAuthenticated && Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
     )
@@ -71,7 +77,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this.user = res[1].data;
         this.loading = false;
 
-        if (!window.hasOwnProperty('web3') && this.user.verifiedL1) {
+        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
           this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
             this._messageBox.alert(phrase.Text, phrase.Heading);
           });
@@ -80,9 +86,9 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.isMetamask && this._userService.showLoginToMMBox()
+        !this.isMetamask && this._userService.showLoginToMMBox('HeadingTransfer')
       }, 3000);
     }
 
@@ -108,6 +114,18 @@ export class TransferPageComponent implements OnInit, OnDestroy {
         if (this.isFirstLoad) {
           this.isFirstLoad = false;
           this.setGoldBalance();
+        }
+        this._cdRef.markForCheck();
+      }
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
         }
         this._cdRef.markForCheck();
       }
@@ -153,6 +171,11 @@ export class TransferPageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this._messageBox.authModal();
+      return;
+    }
+
     this.sub1 && this.sub1.unsubscribe();
     this.subGetGas && this.subGetGas.unsubscribe();
     this.isFirstTransaction = true;
@@ -169,7 +192,7 @@ export class TransferPageComponent implements OnInit, OnDestroy {
           this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
             if (price !== null && this.isFirstTransaction) {
               this.showConfirmBlock = true;
-              this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, amount, +price);
+              this._ethService.transferGoldToWallet(this.ethAddress, this.walletAddress, amount, +price * Math.pow(10, 9));
               this.isFirstTransaction = false;
               this._cdRef.markForCheck();
             }

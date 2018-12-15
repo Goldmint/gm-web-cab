@@ -3,6 +3,7 @@ using Goldmint.Common.WebRequest;
 using NLog;
 using System;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.Notification.Impl {
 

@@ -104,7 +104,7 @@
         <div class="row pt-3">
           <div class="col-4 form-group">
             <label for="code">{{ "PAGES.Settings.Cards.Labels.VerificationCode" | translate }}</label>
-            <input type="text" id="code" class="form-control" [(ngModel)]="verificationCode" noAutoComplete required>
+            <input type="text" id="code" class="form-control" #varifCode="ngModel" ngModel (input)="inputVerificationCode($event)" pattern="^\d\.\d{2,}$" noAutoComplete required>
           </div>
         </div>
 
@@ -119,7 +119,7 @@
           </div>
           <div class="col-auto">
           <!-- <div class="col-auto ml-auto"> -->
-            <button type="button" class="btn btn-primary btn-wide" [disabled]="processing" (click)="verifyCard(currentCardId)">{{ "BUTTONS.VerifyCard" | translate }}</button>
+            <button type="button" class="btn btn-primary btn-wide" [disabled]="processing || varifCode.invalid" (click)="verifyCard(currentCardId)">{{ "BUTTONS.VerifyCard" | translate }}</button>
           </div>
         </div>
       </ng-container>

@@ -8,11 +8,13 @@ import { BigNumber } from 'bignumber.js'
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs/Subject";
+import {NavigationEnd, Router} from "@angular/router";
 
 @Injectable()
 export class EthereumService {
   private _infuraUrl = environment.infuraUrl;
   private _etherscanGetABIUrl = environment.etherscanGetABIUrl;
+  private _gasPriceLink = environment.gasPriceLink;
   // main contract
   private EthContractAddress = environment.EthContractAddress;
   private EthContractABI: string;
@@ -27,6 +29,7 @@ export class EthereumService {
   private _web3Metamask: Web3 = null;
   private _lastAddress: string | null;
   private _userId: string | null;
+  private _metamaskNetwork: number = null
 
   private _contractInfura: any;
   private _contractMetamask: any;
@@ -36,6 +39,10 @@ export class EthereumService {
   private _contractMntp: any;
   private _contactsInitted: boolean = false;
   private _totalGoldBalances = {issued: null, burnt: null};
+  private _allowedUrlOccurrencesForInject = [
+    'buy', 'sell', 'transfer', 'transparency', 'master-node'
+  ];
+  private checkWeb3Interval = null;
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -53,23 +60,35 @@ export class EthereumService {
   private _obsTotalGoldBalances: Observable<Object> = this._obsTotalGoldBalancesSubject.asObservable();
   private _obsGasPriceSubject = new BehaviorSubject<Object>(null);
   private _obsGasPrice: Observable<Object> = this._obsGasPriceSubject.asObservable();
+  private _obsNetworkSubject = new BehaviorSubject<Number>(null);
+  private _obsNetwork: Observable<Number> = this._obsNetworkSubject.asObservable();
 
   public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
+  public getSuccessMigrationGoldLink$ = new Subject();
+  public getSuccessMigrationMntpLink$ = new Subject();
 
   constructor(
     private _userService: UserService,
-    private _http: HttpClient
+    private _http: HttpClient,
+    private router: Router
   ) {
-    console.log('EthereumService constructor');
-
     this._userService.currentUser.subscribe(currentUser => {
       this._userId = currentUser != null && currentUser.id ? currentUser.id : null;
     });
 
-    interval(500).subscribe(this.checkWeb3.bind(this));
-
-    interval(7500).subscribe(this.checkBalance.bind(this));
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd && !this.checkWeb3Interval) {
+        this._allowedUrlOccurrencesForInject.forEach(url => {
+          if (event.urlAfterRedirects.indexOf(url) >= 0) {
+            (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this._obsHotGoldBalanceSubject.next(null);
+            this.checkWeb3Interval = interval(500).subscribe(this.checkWeb3.bind(this));
+            interval(7500).subscribe(this.checkBalance.bind(this));
+          }
+        });
+        !this.checkWeb3Interval && this._obsHotGoldBalanceSubject.next(new BigNumber(0));
+      }
+    });
   }
 
   getContractABI(address) {
@@ -107,8 +126,15 @@ export class EthereumService {
       });
     }
 
-    if (!this._web3Metamask && window.hasOwnProperty('web3') && this.EthGoldContractABI) {
-      this._web3Metamask = new Web3(window['web3'].currentProvider);
+    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI) {
+      let ethereum = window['ethereum'];
+
+      if (ethereum) {
+        this._web3Metamask = new Web3(ethereum);
+        ethereum.enable().then();
+      } else {
+        this._web3Metamask = new Web3(window['web3'].currentProvider);
+      }
 
       if (this._web3Metamask.eth) {
         this._contractMetamask = this._web3Metamask.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
@@ -124,18 +150,23 @@ export class EthereumService {
       this.checkBalance();
     }
 
+    if (this._web3Metamask && this._web3Metamask.version.network !== this._metamaskNetwork) {
+      this._metamaskNetwork = this._web3Metamask.version.network;
+      this._obsNetworkSubject.next(this._metamaskNetwork);
+    }
+
     var addr = this._web3Metamask && this._web3Metamask.eth && this._web3Metamask.eth.accounts.length
       ? this._web3Metamask.eth.accounts[0] : null;
+
     if (this._lastAddress != addr) {
+      window['ethereum'] && window['ethereum'].enable().then();
       this._lastAddress = addr;
-      console.log("EthereumService: new eth address (MM): " + addr);
       this.emitAddress(addr);
     }
   }
 
   private checkBalance() {
     if (this._lastAddress != null) {
-      // check via eth
       this.updateGoldBalance(this._lastAddress);
       this.updateMntpBalance(this._lastAddress);
     }
@@ -213,16 +244,10 @@ export class EthereumService {
   }
 
   private getGasPrice() {
-    this._web3Metamask && this._web3Metamask.eth.getGasPrice((err, res) => {
-      this._obsGasPriceSubject.next(res);
+    this._http.get(this._gasPriceLink).subscribe(data => {
+      this._obsGasPriceSubject.next(data['fast']);
     });
   }
-
-  // private getGasLimit() {
-  //   this._web3Metamask && this._web3Metamask.eth.estimateGas({from: this._lastAddress, to: this.EthContractAddress, amount: this._web3Metamask.toWei(1, "ether")}, (err, res) => {});
-  // }
-
-  // ---
 
   public isValidAddress(addr: string): boolean {
     return (new Web3()).isAddress(addr);
@@ -260,12 +285,15 @@ export class EthereumService {
     return this._obsTotalGoldBalances;
   }
 
+  public getObservableNetwork(): Observable<Number> {
+    return this._obsNetwork;
+  }
+
   public getObservableGasPrice(): Observable<Object> {
     this.getGasPrice();
     return this._obsGasPrice;
   }
 
-  // ---
   public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {
     if (this._contractMetamask == null) return;
     const reference = new BigNumber(requestId);
@@ -288,6 +316,20 @@ export class EthereumService {
     if (this._contractGold == null) return;
     this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessSellRequestLink$.next(res);
+    });
+  }
+
+  public goldTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
+    if (this._contractGold == null) return;
+    this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      this.getSuccessMigrationGoldLink$.next(res);
+    });
+  }
+
+  public mntpTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
+    if (this._contractMntp == null) return;
+    this._contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      this.getSuccessMigrationMntpLink$.next(res);
     });
   }
 }

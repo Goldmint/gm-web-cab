@@ -1,0 +1,149 @@
+<div class="mt-4 pt-1">
+  <section class="page__section section">
+    <h2 class="section__title">{{ "PAGES.MasterNode.MigrationPage.Heading" | translate }}</h2>
+
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
+      <div class="container"></div>
+    </div>
+
+    <ng-template #blockLoaded>
+      <ng-container *ngIf="isAuthenticated && !user?.verifiedL0; else content">
+       <div class="mt-4">
+         <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
+
+         <div class="row kyc-pros mb-4 pb-2">
+           <div class="col-lg-3">
+             <svg class="kyc-pros__icon" width="33px" height="44px">
+               <use xlink:href="#verify-secure"></use>
+             </svg>
+             <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+             <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+           </div>
+           <div class="col-lg-3">
+             <svg class="kyc-pros__icon" width="28px" height="44px">
+               <use xlink:href="#verify-simple"></use>
+             </svg>
+             <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+             <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+           </div>
+           <div class="col-lg-3">
+             <svg class="kyc-pros__icon" width="36px" height="44px">
+               <use xlink:href="#verify-complaint"></use>
+             </svg>
+             <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+             <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+           </div>
+           <div class="col-lg-3 pl-lg-4 align-self-center">
+             <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+           </div>
+         </div>
+       </div>
+      </ng-container>
+
+      <ng-template #content>
+        <div class="d-flex flex-wrap">
+          <div class="col-12 col-sm-auto btn-group p-0 mt-4">
+            <label class="btn btn-primary btn-sm active"
+                   name="tokenModel.type"
+                   [(ngModel)]="tokenModel.type"
+                   btnRadio="GOLD" (click)="chooseToken()">GOLD</label>
+            <label class="btn btn-primary btn-sm"
+                   name="tokenModel.type"
+                   [(ngModel)]="tokenModel.type"
+                   btnRadio="MNTP" (click)="chooseToken()">MNTP</label>
+          </div>
+
+          <div class="col-12 col-sm-auto btn-group p-0 mt-4 ml-0 ml-sm-3">
+            <label class="btn btn-primary btn-sm active"
+                   name="directionModel.type"
+                   [(ngModel)]="directionModel.type"
+                   btnRadio="eth" (click)="chooseDirection()">ETH -> Sumus</label>
+            <label class="btn btn-primary btn-sm"
+                   name="directionModel.type"
+                   [(ngModel)]="directionModel.type"
+                   btnRadio="sumus" (click)="chooseDirection()">Sumus -> ETH</label>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <form #migrationForm="ngForm">
+            <div class="row">
+              <div class="col-12 overflow-hidden">
+                <div class="from-row form-group">
+                  <label for="tokenAmountInput">{{ "PAGES.MasterNode.MigrationPage.Labels.Amount" | translate }}</label>
+                  <div class="d-flex align-items-center">
+                    <div class="form-currency form-currency--gold">
+                      <svg class="icon">
+                        <use xlink:href="#cur-gold"></use>
+                      </svg>
+                    </div>
+                    <input type="text" class="form-control" name="tokenAmountInput" id="tokenAmountInput"
+                           #tokenAmountInput="ngModel"
+                           [(ngModel)]="tokenAmount"
+                           autocomplete="off"
+                           (input)="changeValue($event)"
+                           [ngClass]="{'is-invalid': (invalidAmount || balanceError) && !loading}"
+                           [disabled]="loading || !isMetamask || !sumusAddress">
+                    <div class="invalid-feedback invalid-feedback--abs" *ngIf="invalidAmount && !loading">
+                      {{ "PAGES.MasterNode.MigrationPage.Errors.InvalidAmount" | translate }}
+                    </div>
+                    <div class="invalid-feedback invalid-feedback--abs" *ngIf="balanceError && !loading">
+                      {{ "PAGES.MasterNode.MigrationPage.Errors.InvalidAmount" | translate }}. <span *ngIf="currentBalance > 0">{{ "PAGES.MasterNode.MigrationPage.Errors.Maximum" | translate }} {{ currentBalance }}</span>
+                    </div>
+                  </div>
+                  <div class="percent-btn-cont">
+                    <button class="percent-btn" (click)="setTokenBalance(0.25)">25%</button>
+                    <button class="percent-btn" (click)="setTokenBalance(0.5)">50%</button>
+                    <button class="percent-btn" (click)="setTokenBalance(0.75)">75%</button>
+                    <button class="percent-btn" (click)="setTokenBalance(1)">100%</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 lead" *ngIf="isMetamask && sumusAddress">
+                <div class="d-flex align-items-center mb-2">
+                  <div *ngIf="direction === 'GOLDeth' || direction === 'MNTPeth'">{{ ethAddress | reduction:5:3 }} (Ethereum)</div>
+                  <div *ngIf="direction === 'GOLDsumus' || direction === 'MNTPsumus'">{{ sumusAddress | reduction:4:4 }} (Sumus)</div>
+
+                  <div class="form-currency ml-3 mr-2">
+                    <svg class="icon" width="25px" height="25px">
+                      <use xlink:href="#next-arrow"></use>
+                    </svg>
+                  </div>
+
+                  <div *ngIf="direction === 'GOLDeth' || direction === 'MNTPeth'">{{ sumusAddress | reduction:4:4 }} (Sumus)</div>
+                  <div *ngIf="direction === 'GOLDsumus' || direction === 'MNTPsumus'">{{ ethAddress | reduction:5:3 }} (Ethereum)</div>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
+                  <label class="custom-control-label" for="agreeCheck">{{ "PAGES.MasterNode.MigrationPage.Labels.Check" | translate }}</label>
+                </div>
+              </div>
+
+              <div class="col-12 mt-3" *ngIf="isSumusSuccess && (direction === 'GOLDsumus' || direction === 'MNTPsumus')">
+                <div>{{ "PAGES.MasterNode.MigrationPage.TransferDescr" | translate }}</div>
+                <input type="text" class="input-copy" value="{{ sumusMigrationAddress }}" #secondAddress readonly>
+                <span class="migration-address-link" (click)="onCopyData(secondAddress)"
+                      popover='{{ "PAGES.MasterNode.MigrationPage.Popover.Copied" | translate }}' [outsideClick]="true"
+                ><b>{{ sumusMigrationAddress }}</b></span>
+              </div>
+
+              <div class="col-12 mt-3 icon--red" *ngIf="isMigrationDuplicateRequest">
+                {{ "PAGES.MasterNode.MigrationPage.Errors.DuplicateRequest" | translate:{token: tokenModel.type} }}
+              </div>
+
+              <div class="col mt-4 mb-4">
+                <button class="btn btn-primary" [disabled]="invalidAmount || balanceError || !isMetamask || !sumusAddress || !isAddressLoaded || !agreeCheck || !tokenAmount || loading" (click)="onSubmit()">
+                  {{ "PAGES.MasterNode.MigrationPage.Buttons.Go" | translate }}
+                </button>
+                <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+              </div>
+            </div>
+          </form>
+        </div>
+      </ng-template>
+    </ng-template>
+
+  </section>
+</div>

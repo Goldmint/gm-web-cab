@@ -8,6 +8,7 @@ using Goldmint.Common.WebRequest;
 using Microsoft.AspNetCore.Http;
 using NLog;
 using System.IO;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 

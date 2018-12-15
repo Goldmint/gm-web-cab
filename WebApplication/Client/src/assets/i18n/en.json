@@ -11,11 +11,31 @@
     "SignUp": "Sign up",
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
+    "NotLoggedInMM": "For smooth-running please authorize in your MetaMask account",
+    "Network": {
+      "Label": "network",
+      "MainNet": "MainNet network",
+      "TestNet": "TestNet network"
+    },
     "Menu": {
-      "Sell": "Sell GOLD",
-      "Buy": "Buy GOLD",
-      "Transfer": "Transfer GOLD",
-      "Finance": "Finance"
+      "Exchange": {
+        "Heading": "Interchange",
+        "Sell": "Sell GOLD",
+        "Buy": "Buy GOLD",
+        "Transfer": "Transfer GOLD",
+        "Finance": "Finance"
+      },
+      "GoldmintBlockchain": {
+        "Heading": "Goldmint Blockchain",
+        "Wallet": "Wallet",
+        "MasterNode": "Master node",
+        "Scanner": "Scanner"
+      },
+      "Pawnshop": {
+        "Heading": "Pawnshop Loans",
+        "Feed": "Feed",
+        "Invest": "Invest in pawnshop loans"
+      }
     }
   },
   "FOOTER": {
@@ -92,6 +112,8 @@
         "InvalidGold": "Invalid GOLD amount",
         "InvalidUsd": "Invalid USD amount",
         "InvalidEth": "Invalid ETH amount",
+        "minLimit": "Amount is less than minimum limit",
+        "maxLimit": "Amount is greater than maximum limit",
         "UseMM": "Use metamask",
         "NotAllow": "Method is not allowed now"
       }
@@ -107,10 +129,18 @@
         "PaymentCard": "Payment card"
       },
       "Paused": "Buy transactions are paused",
+      "Promo": {
+        "PromoInfo": {
+          "Text": "Your discount is",
+          "Or": "or"
+        },
+        "PromoPermission": "You should pass advanced verification for using promo code"
+      },
       "CtyptoCurrency": {
         "Heading": "Cryptocurrency",
         "Labels": {
-          "Amount": "Estimates Amount"
+          "Amount": "Estimates Amount",
+          "PromoCode": "Your promo code"
         },
         "SuccessModal": {
           "Heading": "Transaction in Process:",
@@ -124,7 +154,8 @@
         "Labels": {
           "SelectCard": "Select a card",
           "Amount": "Amount",
-          "Estimate": "Estimates Amount"
+          "Estimate": "Estimates Amount",
+          "PromoCode": "Your promo code"
         }
       },
       "Labels": {
@@ -146,7 +177,17 @@
         "InvalidEth": "Invalid ETH amount",
         "InvalidUsd": "Invalid USD amount",
         "InvalidGold": "Invalid GOLD amount",
-        "EnoughMoney": "You don't have enough money"
+        "EnoughMoney": "You don't have enough money",
+        "BuyLimit": "The purchase limit has been exceeded. You are allowed to make a purchase for {{ allow }} USD of {{ limit }} USD",
+        "NoKyc": "You need to pass the KYC verification",
+        "IncorrectPromo": "Incorrect promo code",
+        "PromoCodeErrors": {
+          "501": "Promo code not enter",
+          "502": "Promo code not found",
+          "503": "Promo code expired",
+          "504": "Promo code is used",
+          "505": "Promo code limit exceeded"
+        }
       }
     },
     "Transfer": {
@@ -185,6 +226,7 @@
       },
       "KYC": {
         "Text": "<span class=\"lead\">We need to confirm your identity</span>",
+        "BlockedCountry": "Actions BUY/SELL of GOLD cryptoasset are not available for your country",
         "Pros": {
           "Secure": {
             "Title": "Secure",
@@ -217,6 +259,243 @@
             "LimitUsed": "Limit used:"
           }
         }
+      }
+    },
+	"MasterNode": {
+      "Heading": "Master Node",
+      "Tabs": {
+        "Overview": "Overview",
+        "Launch": "Launch master node",
+        "Migration": "Token migration"
+      },
+      "LaunchPage": {
+        "Heading": "Launch Master Node",
+        "Description": "Here you can find the installation and configuration instructions for your blockchain Goldmint master-node for OS",
+        "Labels": {
+          "ChooseOS": "Choose OS",
+          "VideoInst": "Video instruction",
+          "TextInst": "Text instruction",
+          "InstFor": "Instruction for"
+        },
+        "Buttons": {
+          "Migrate": "I'm ready for doing the migration of my MNTP tokens to start mining",
+          "MigrateSmall": "I'm ready for doing the migration"
+        }
+      },
+      "MigrationPage": {
+        "Heading": "Token Migration",
+        "TransferDescr": "You have to transfer your tokens to this address:",
+        "Labels": {
+          "Amount": "Amount",
+          "Address": "Sumus address",
+          "Check": "I carefully checked the addresses and the amount"
+        },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
+        },
+        "SuccessSumusModal": {
+          "Heading": "Transaction in Process:",
+          "Hash": "Your transaction digest is:",
+          "Link": "View your transaction on Scanner"
+        },
+        "Errors": {
+          "InvalidAmount": "Invalid amount",
+          "Maximum": "Maximum amount is",
+          "Required": "Field is required",
+          "InvalidAddress": "Invalid address",
+          "DuplicateRequest": "Migration request enqueued. We are waiting for your {{ token }} transfer."
+        },
+        "Buttons": {
+          "Go": "GO"
+        },
+        "Popover": {
+          "Copied": "Copied"
+        }
+      },
+      "Overview": {
+        "Heading": "Overview",
+        "Labels": {
+          "Nodes": "Total running nodes:",
+          "MNT": "Total MNT held:",
+          "Reward": "Total reward earned:",
+          "ActiveNodes": "Current active nodes"
+        },
+        "Links": {
+          "LatestReward": "Latest reward distributions"
+        },
+        "Table": {
+          "Node": "Node wallet",
+          "Date": "Launch date",
+          "MNT": "MNT Held",
+          "Reward": "Total reward earned",
+          "Chart": "Mini chart"
+        },
+        "Chart": "Reward Progress Chart"
+      },
+      "LatestReward": {
+        "Heading": "Latest reward distributions",
+        "Table": {
+          "Date": "Date",
+          "TxAmount": "Tx amount",
+          "TransferredToken": "Transferred token amount",
+          "RewardAmount": "Reward amount"
+        }
+      }
+    },
+    "Scanner": {
+      "Heading": "Scanner",
+      "Caption": "Goldmint blockchain scanner",
+      "LatestStatistic": {
+        "Caption": "Latest statistics",
+        "Input": {
+          "AddressPlaceholder": "Search by Address",
+          "DigestPlaceholder": "Search by Digest"
+        },
+        "Labels": {
+          "QuantityBlocks": "Quantity of block:",
+          "QuantityTx": "Quantity of transactions:",
+          "QuantityNodes": "Quantity of nodes:",
+          "Or": "OR"
+        },
+        "Charts": {
+          "Reward": "Collected commission by days chart",
+          "Tx": "Transactions amount by days chart"
+        },
+        "Blocks": {
+          "Heading": "Blocks",
+          "Labels": {
+            "Number": "Number:",
+            "Mined": "Mined by:",
+            "Count": "Transaction quantity:",
+            "TotalAmount": "Total amount:",
+            "Fee": "Fee:",
+            "Date": "Create date:"
+          },
+          "Buttons": {
+            "More": "View more"
+          }
+        },
+        "Transactions": {
+          "Heading": "Transactions",
+          "Labels": {
+            "From": "From:",
+            "To": "To:",
+            "Amount": "Amount:",
+            "Status": "Status:",
+            "Date": "Create date:"
+          },
+          "Buttons": {
+            "More": "View more"
+          }
+        }
+      },
+      "AllBlocks": {
+        "Heading": "Blocks",
+        "Labels": {
+          "Number": "Number",
+          "Mined": "Mined by",
+          "Count": "Transaction quantity",
+          "ctFee": "GOLD fee",
+          "utFee": "MNT fee",
+          "Date": "Create date"
+        }
+      },
+      "AllTransactions": {
+        "Heading": "Transactions",
+        "Labels": {
+          "From": "From",
+          "Status": "Status",
+          "Count": "Amount",
+          "Name": "Name",
+          "Date": "Create date"
+        }
+      },
+      "TransactionsInBlock": {
+        "Heading": "Transaction list in the block",
+        "Labels": {
+          "Block": "Block:",
+          "TimeStamp": "TimeStamp:",
+          "Transactions": "Transactions:",
+          "TotalUserData": "Total user data:",
+          "Signers": "Signers:",
+          "Total": "Total:",
+          "Fee": "Fee:",
+          "Orchestrator": "Mined by master node:",
+          "PrevDigest": "Previous digest:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "From": "From",
+          "To": "To",
+          "Count": "Amount",
+          "Name": "Name",
+          "Date": "Create date"
+        }
+      },
+      "AddressInfo" : {
+        "Heading": "Address info",
+        "Labels": {
+          "Address": "Address:",
+          "Balance": "Balance:",
+          "Transactions": "Transactions:",
+          "Exists": {
+            "Label": "Exists:",
+            "true": "Yes",
+            "false": "No"
+          },
+          "Tags": "Tags:"
+        },
+        "Table": {
+          "Digest": "Digest",
+          "Block": "Block",
+          "Date": "Date",
+          "From": "From",
+          "To": "To",
+          "Value": "Amount",
+          "Name": "Name"
+        },
+        "InvalidAddress": "Invalid address"
+      },
+      "TransactionInfo": {
+        "Heading": "Transaction info",
+        "Labels": {
+          "Hash": "Digest:",
+          "TimeStamp": "TimeStamp:",
+          "Destination": "Destination wallet:",
+          "Source": "Source wallet:",
+          "TokenType": "Token type:",
+          "BlockNumber": "Block number:",
+          "Amount": "Amount:",
+          "Name": "Name:",
+          "DataSize": "Data size:",
+          "DataPiece": "Data piece:",
+          "Status": "Transaction status:",
+          "MoreBytes": "and {{ bytes }} more bytes"
+        },
+        "Status": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "failed": "Failed",
+          "stale": "Stale",
+          "notfound": "Not found"
+        },
+        "NotFound": "Transaction not found",
+        "Pending": "Transaction is pending",
+        "InvalidDigest": "Invalid digest"
+      },
+      "Errors": {
+        "Required": "Field is required",
+        "Pattern": "Field must contains digits and latin letters",
+        "InvalidAddress": "Invalid address",
+        "InvalidDigest": "Invalid digest"
+      },
+      "Buttons": {
+        "Go": "Go"
+      },
+      "Message": {
+        "NoData": "No data"
       }
     },
     "Deposit": {
@@ -496,6 +775,7 @@
     "History": {
       "Heading": "History",
       "SectionTitle": "Transactions",
+      "noAuthenticatedBlock": "Here you can see your transactions",
       "Table": {
         "Columns": {
           "Date": "Date",
@@ -563,6 +843,7 @@
           "maxlength": "The password is too long",
           "pairNotFound": "User/password pair not found"
         },
+        "AccountBlocked": "Your account is blocked. For unblocking sign in using recaptcha.",
         "TFACode": {
           "pattern": "Only 6-digits numeric code is allowed"
         }
@@ -660,7 +941,8 @@
         "Title": "This email is already taken",
         "Content": "We are sorry, but email you specified is already taken. Please try another one."
       },
-      "IAgreeText": "Hereby I grant the company GoldMint PTE LTD the right to keep and handle my personal data."
+      "IAgreeText": "Hereby I grant the company <b>CyberBridge OU</b> the right to keep and handle my personal data.",
+      "IAgreeTerms": "I accept the <a href='{{ sale }}' target='_blank'>terms of sale<a/> and <a href='{{ policy }}' target='_blank'>privacy policy</a>"
     },
     "2FA": {
       "SecurityBlock": {
@@ -683,8 +965,8 @@
           }
         },
         "Buttons": {
-          "Setup": "Setup 2FA",
-          "Keep": "Keep 2FA disabled"
+          "Setup": "Setup two-factor authentication",
+          "Keep": "Keep two-factor authentication disabled"
         }
       },
       "SecurityIssueBlock": {
@@ -826,7 +1108,8 @@
 		  "Widget": "Not verified",
           "Notification": {
             "Unverified": "Unverified accounts cannot make any fiat operations. You will be redirected to identity verification service.",
-            "Documents": "Please use only documents where your name is written with latin characters and exactly matches with name that you provided below in Basis Verification. Otherwise the verification will be failed."
+            "Documents": "Please use only documents where your name is written with latin characters and exactly matches with name that you provided below in Basis Verification. Otherwise the verification will be failed.",
+            "UsePassportRus": ""
           },
 		  "TextPending": "We are still checking verification status. In case of problem you will be able to make another verification attempt in 30 minutes.",
 		  "Button": "Get verified"
@@ -853,7 +1136,7 @@
         },
         "ProofResidency": {
           "Heading": "Proof of Residency",
-          "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement.",
+          "Text": "In order to verify your residency you need to send a request to our support team and attach one of the following documents dated within the past 60 days: gas bill, electric bill, cable bill, property tax bill, oil bill, home telephone bill, bank statement. This document can be in your domestic language.",
           "Button": "Send a request",
           "Success": {
             "Heading": "Proof of residency verification",
@@ -871,7 +1154,10 @@
           "StatusText": "Basic information filled",
           "NewAccountText": "<b>NEW ACCOUNT.</b> Please submit the information below to apply for a basic account. Please use your full legal name as it exists on your government identification.",
           "Important": "<b>IMPORTANT:</b> Once submitted, all the information cannot be changed. Please ensure the spelling is correct.",
+          "ImportantRus": "Use your international passport or driving license.",
+          "notificationForRussian": "Verification is possible using international passport or driving license only for Russian Federation citizens.",
           "RequiredFields": "Required fields",
+          "CheckWrite": "I carefully filled in the personal data, and I understand that I won't be able to change them in the future.",
           "Labels": {
             "FirstName": "First Name",
             "MiddleName": "Middle Name",
@@ -948,7 +1234,7 @@
             },
             "PostalCode": {
               "required": "This field is required",
-              "pattern": "Only numbers allowed"
+              "pattern": "Only numbers and latin characters allowed"
             },
             "PhoneNumber": {
               "required": "This field is required",
@@ -1149,7 +1435,7 @@
         },
         "Information": {
           "Billing": "Goldmint",
-          "ConsumerPolicy": "https://www.goldmint.io/privacy-policy",
+          "ConsumerPolicy": "https://app.goldmint.io/#/legal-security/privacy",
           "ConsumerInformation": {
             "Facebook": "https://www.facebook.com/goldmint.io/",
             "Telegram": "https://t.me/goldmintio",
@@ -1157,10 +1443,10 @@
           },
           "CyberBridge": "a company registered in Estonia on 05.12.2017, reg.number 14383967, address: Harju maakond, Tallinn-Narva mnt 7-353, 10117, Estonia",
           "DeliveryPolicy": "none, due to digital nature of services",
-          "Description": "https://www.goldmint.io/tokens",
+          "Description": "https://old.goldmint.io/tokens",
           "Domicile": "(at the checkout page) - Estonia",
           "GoldCoin": "https://www.goldmint.io/media/documents/Gold_Coin_Terms_of_sale.pdf",
-          "Legal": "https://www.goldmint.io/legal",
+          "Legal": "https://old.goldmint.io/legal",
           "Reccuring": "no recurring payments are fulfilled by CyberBridge OU",
           "ReturnPolicy": {
             "Text": "CyberBridge OU buys GOLD at exchange right at the moment of the receipt of fiat money from the User and carries all corresponding costs and expenses, therefore such purchase transaction cannot be cancelled. Nevertheless, the User may sell the GoldCoin back to CyberBridge OU at the tariffs as follows",
@@ -1170,6 +1456,77 @@
           "Currency": "USD, EUR",
           "Method": "card payment"
         }
+      }
+    },
+    "Wallet": {
+      "Heading": "Wallet",
+      "Items": {
+        "GetWallet": "Get Lite Wallet"
+      }
+    },
+    "Pawnshop": {
+      "Feed": {
+        "Heading": "Feed",
+        "Tabs": {
+          "AllFeed": "All ticket feed",
+          "Organizations": "Organizations"
+        },
+        "Labels": {
+          "Organizations": "Organizations",
+          "Pawnshops": "Pawnshops",
+          "Feed": "Feed",
+          "Organization": "Organization:",
+          "Pawnshop": "Pawnshop:",
+          "AllFeed": "All ticket feed"
+        },
+        "Buttons": {
+          "Back": "Back",
+          "Next": "Next"
+        },
+        "OrgTable": {
+          "Id": "Id",
+          "Name": "Name"
+        },
+        "PawnshopTable": {
+          "Id": "Id",
+          "Name": "Name"
+        },
+        "FeedTable": {
+          "Id": "Id",
+          "Org": "Organization",
+          "Num": "Num",
+          "Weight": "Weight",
+          "OpenTx": "Inbound TX",
+          "CloseTx": "Outbound TX",
+          "Status": "Status",
+          "UpdateDate": "Update date",
+          "StatusName": {
+            "new": "new",
+            "sold": "sold",
+            "boughtout": "bought out",
+            "discarded": "discarded"
+          }
+        },
+        "PawnshopDetails": {
+          "Heading": "Feed",
+          "Labels": {
+            "Info": "Pawnshop info",
+            "Name": "Name:",
+            "OrgId": "Organization Id:",
+            "Rate": "Current volume:"
+          },
+          "Errors": {
+            "IncorrectPawnshopId": "Incorrect pawnshop id"
+          },
+          "Charts": {
+            "Rate": "Gold volume history"
+          }
+        }
+      },
+      "Invest": {
+        "MainHeading": "Invest",
+        "Heading": "Invest in pawnshop loans",
+        "Text": "If you are interested to invest in pawnshop loans, please, drop us an email to"
       }
     },
     "ErrorPage": {
@@ -1210,7 +1567,8 @@
     "TFA": {
       "InvalidCode": "Invalid code"
     },
-    "Trading": "Trading Not Allowed",
+    "Trading": "Trading is temporarily disallowed",
+    "SellEthLimit": "Out of ETH",
     "Limit": {
       "Min": "Minimal amount value is",
       "Max": "Maximum amount value is"
@@ -1223,6 +1581,8 @@
     "1010": "You have exceeded request frequency (One request for 30 minutes). Please try later",
     "1012": "Your previously blockchain operation is still pending",
     "default": "Sorry, somethings went wrong (error code {{ errorCode }})",
+    "defaultMsg": "Sorry, somethings went wrong (message: {{ msg }})",
+    "wrong": "Sorry, somethings went wrong",
     "notFound": {
       "title": "Connection error",
       "message": "Goldmint server does not respond. Please try again in few minutes."
@@ -1252,11 +1612,29 @@
       "Heading": "To continue you'll need to have Metamask",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
+    "LiteWallet": {
+      "Heading": "To continue you'll need to have Lite Wallet",
+      "Text": "Goldmint Lite Wallet is provided for token holders to safely and securely store, send or receive MINT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MINT/GOLD. Get"
+    },
     "LoginToMM": {
       "HeadingBuy": "BUY GOLD",
       "HeadingSell": "SELL GOLD",
+      "HeadingTransfer": "TRANSFER GOLD",
+      "HeadingMigration": "TOKEN MIGRATION",
+      "Text": "Please login to your account or approve access to the Ethereum blockchain"
+    },
+    "LoginToLiteWallet": {
+      "Heading": "TOKEN MIGRATION",
       "Text": "Please login to your account"
     },
+    "AuthModal": {
+      "Text": "You need to log in or to create new account for continue.",
+      "Buttons": {
+        "SignIn": "Sign In",
+        "SignUp": "Create account"
+      }
+    },
+    "InvalidNetwork": "You must use {{ network }} network",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached"

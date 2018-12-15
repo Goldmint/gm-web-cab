@@ -23,6 +23,9 @@ namespace Goldmint.DAL.Models {
 		[Column("rate"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
 		public string Rate { get; set; }
 
+		[Column("discount")]
+		public double Discount { get; set; }
+
 		[Column("gold_amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
 		public string GoldAmount { get; set; }
 

@@ -5,7 +5,7 @@ import {
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 import { Page } from '../../models/page';
 import { HistoryRecord } from '../../interfaces';
-import {UserService, APIService, EthereumService} from '../../services';
+import {UserService, APIService} from '../../services';
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -29,6 +29,8 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
   public messages:    any  = {emptyMessage: 'No data'};
   public etherscanUrl = environment.etherscanUrl;
   public isMobile: boolean;
+  public isAuthenticated: boolean = false;
+
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: Subscription;
 
@@ -36,14 +38,17 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
-    public translate: TranslateService,
-    private _ethService: EthereumService) {
+    public translate: TranslateService
+  ) {
 
     this.page.pageNumber = 0;
     this.page.size = 10;
   }
 
   ngOnInit() {
+    this.isAuthenticated = this.userService.isAuthenticated();
+    !this.isAuthenticated && (this.loading = false);
+
     this.isMobile = (window.innerWidth <= 767);
 
     this.userService.windowSize$.takeUntil(this.destroy$).subscribe(size => {
@@ -59,7 +64,7 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
       this.locale = currentLocale;
     });
 
-    this.setPage({ offset: 0 });
+    this.isAuthenticated && this.setPage({ offset: 0 });
     this.cdRef.markForCheck();
   }
 

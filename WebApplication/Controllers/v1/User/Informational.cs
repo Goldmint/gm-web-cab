@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -21,8 +22,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[ProducesResponseType(typeof(ProfileView), 200)]
 		public async Task<APIResponse> Profile() {
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 
 			// user challenges
 			var challenges = new List<string>();

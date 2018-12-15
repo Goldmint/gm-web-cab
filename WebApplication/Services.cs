@@ -1,6 +1,7 @@
 ﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain;
-using Goldmint.CoreLogic.Services.Blockchain.Impl;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl;
+using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.KYC.Impl;
 using Goldmint.CoreLogic.Services.Localization;
@@ -11,14 +12,14 @@ using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.OpenStorage.Impl;
+using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.CoreLogic.Services.SignedDoc.Impl;
 using Goldmint.CoreLogic.Services.The1StPayments;
-using Goldmint.CoreLogic.Services.Oplog;
-using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Services.OAuth.Impl;
@@ -33,7 +34,6 @@ using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Google.Impl;
 
 namespace Goldmint.WebApplication {
 
@@ -78,8 +78,8 @@ namespace Goldmint.WebApplication {
 				});
 			});
 
-			// runtime config
-			services.AddSingleton(_runtimeConfigHolder);
+            // runtime config
+            services.AddSingleton(_runtimeConfigHolder);
 			services.AddSingleton<IRuntimeConfigLoader, DbRuntimeConfigLoader>();
 
 			// identity
@@ -95,7 +95,7 @@ namespace Goldmint.WebApplication {
 					opts.Password.RequireLowercase = false;
 					opts.Password.RequiredUniqueChars = 1;
 
-					opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+					opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(60);
 					opts.Lockout.MaxFailedAccessAttempts = 5;
 					opts.Lockout.AllowedForNewUsers = true;
 				})
@@ -247,13 +247,16 @@ namespace Goldmint.WebApplication {
 				new Uri(_appConfig.Bus.CentralPub.Endpoint),
 				LogManager.LogFactory
 			);
+
 			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, (p, s) => {
 				_busSafeRatesSource.OnNewRates(p, s);
 				_apiTelemetryAccumulator.AccessData(_ => _.RatesData = p as CoreLogic.Services.Bus.Proto.SafeRates.SafeRatesMessage);
 			});
+
 			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.AggregatedTelemetry, (p, s) => {
 				_aggregatedTelemetryHolder.OnUpdate(p, s);
 			});
+
 			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => {
 				Task.Factory.StartNew(async () => {
 					await _runtimeConfigHolder.Reload();

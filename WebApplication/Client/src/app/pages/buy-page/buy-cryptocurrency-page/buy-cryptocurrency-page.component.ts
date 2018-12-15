@@ -18,6 +18,7 @@ import {Router} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {environment} from "../../../../environments/environment";
 import * as Web3 from "web3";
+import {TradingStatus} from "../../../interfaces/trading-status";
 
 
 @Component({
@@ -62,7 +63,18 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   public ethBalance: BigNumber | null = null;
   public etherscanUrl = environment.etherscanUrl;
   public interval: Subscription;
+  public MMNetwork = environment.MMNetwork;
+  public isInvalidNetwork: boolean = true;
 
+  public promoCode: string = null;
+  public discount: number = 0;
+  public isInvalidPromoCode: boolean = false;
+  public promoCodeErrorCode: string = null;
+  public isAuthenticated: boolean = false;
+  public promoCodeModel: string;
+  public tradingStatus: TradingStatus;
+
+  private promoCodeLength: number = 11;
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -78,6 +90,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.isAuthenticated = this._userService.isAuthenticated();
+
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
       this._cdRef.markForCheck();
@@ -97,19 +111,23 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
 
     this.iniTransactionHashModal();
 
-    if (window.hasOwnProperty('web3')) {
+    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox();
+        !this.ethAddress && this._userService.showLoginToMMBox('HeadingBuy');
       }, 3000);
     }
 
-    Observable.combineLatest(
+    this._userService.isAuthenticated() && Observable.combineLatest(
       this._apiService.getTFAInfo(),
-      this._apiService.getProfile()
+      this._apiService.getProfile(),
+      this._apiService.getTradingStatus()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
+        this.tradingStatus = res[2].data.trading;
+
+        !this.user.verifiedL0 && this.router.navigate(['/buy']);
         this._cdRef.markForCheck();
       });
 
@@ -139,6 +157,18 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         this.router.navigate(['buy']);
       }
       this._cdRef.markForCheck();
+    });
+
+    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
+      if (network !== null) {
+        if (network != this.MMNetwork.index) {
+          this._userService.invalidNetworkModal(this.MMNetwork.name);
+          this.isInvalidNetwork = true;
+        } else {
+          this.isInvalidNetwork = false;
+        }
+        this._cdRef.markForCheck();
+      }
     });
   }
 
@@ -202,14 +232,17 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate(this.currentCoin, wei, false)
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, false, this.promoCode)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.goldAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
-            this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = false;
+            this.checkDiscount(data.data.discount);
+            this.invalidBalance = this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
+        }, error => {
+            this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.invalidBalance = true;
@@ -223,15 +256,18 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         const wei = this.Web3.toWei(value);
         this.estimatedAmount = new BigNumber(value).decimalPlaces(6, BigNumber.ROUND_DOWN);
 
-        this._apiService.goldBuyEstimate(this.currentCoin, wei, true)
+        this._apiService.goldBuyEstimate(this.currentCoin, wei, true, this.promoCode)
           .finally(() => {
             this.loading = false;
             this._cdRef.markForCheck();
           }).subscribe(data => {
             this.coinAmount = +this.substrValue(data.data.amount / Math.pow(10, 18));
             this.goldAmountToUSD = this.goldAmount * this.goldRate;
+            this.checkDiscount(data.data.discount);
             this.invalidBalance = (this.coinAmount > +this.ethBalance) ? true : false;
-            this.isTradingError = this.isTradingLimit = this.processing = false;
+            this.isTradingError = this.isTradingLimit = this.processing = this.isInvalidPromoCode = false;
+        }, error => {
+            this.setPromoCodeError(error.error.errorCode);
         });
       } else {
         this.invalidBalance = true;
@@ -239,6 +275,33 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
         this._cdRef.markForCheck();
       }
     }
+  }
+
+  checkDiscount(dicsount: number) {
+    this.discount = dicsount;
+  }
+
+  inputPromoCode(code: string) {
+    this.isInvalidPromoCode = true;
+    this.promoCode = this.promoCodeErrorCode = null;
+    if (code === '') {
+      this.isInvalidPromoCode = false;
+      this.onAmountChanged(this.currentValue);
+    }
+    if (code.length === this.promoCodeLength) {
+      this.promoCode = code;
+      this.isInvalidPromoCode = false;
+      this.onAmountChanged(this.currentValue);
+    }
+    this._cdRef.markForCheck();
+  }
+
+  setPromoCodeError(errorCode) {
+    if (errorCode > 500 && errorCode < 510) {
+      this.isInvalidPromoCode = true;
+      this.promoCodeErrorCode = errorCode;
+    }
+    this._cdRef.markForCheck();
   }
 
   changeValue(status: boolean, event) {
@@ -271,6 +334,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
     this.interval = Observable.interval(100).subscribe(() => {
       if (this.goldAmountInput) {
         this.initInputValueChanges();
+        this.promoCodeModel = this.promoCode;
 
         this.interval && this.interval.unsubscribe();
         this._cdRef.markForCheck();
@@ -286,6 +350,11 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
+    if (!this.isAuthenticated) {
+      this._messageBox.authModal();
+      return;
+    }
+
     this.transferData = {
       type: 'buy',
       ethAddress: this.ethAddress,
@@ -293,7 +362,8 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
       currency: this.currentCoin,
       amount: this.estimatedAmount,
       coinAmount: this.coinAmount,
-      reversed: this.isReversed
+      reversed: this.isReversed,
+      promoCode: this.promoCode
     };
 
     this.showCryptoCurrencyBlock = true;

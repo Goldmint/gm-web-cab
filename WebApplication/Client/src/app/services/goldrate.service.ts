@@ -18,7 +18,6 @@ export class GoldrateService {
         this.checkBalance();
       });
 
-    console.log('GoldrateService constructor');
   }
 
   private checkBalance() {

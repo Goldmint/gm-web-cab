@@ -15,7 +15,7 @@ namespace Goldmint.Common {
 			number = "+" + _rexReplaceNonDigits.Replace(number, "");
 
 			var plib = PhoneNumberUtil.GetInstance();
-			var numberObj = plib.Parse(number, RegionCode.ZZ);
+			var numberObj = plib.Parse(number, "ZZ");
 
 			if (!plib.IsValidNumber(numberObj)) throw new ArgumentException("Phone number is invalid");
 

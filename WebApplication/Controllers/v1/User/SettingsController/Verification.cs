@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -41,11 +42,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 
 			// on tier-0
-			if (userTier == UserTier.Tier0) {
+			if (userTier == UserTier.Tier0 || (userTier == UserTier.Tier1 && !CoreLogic.User.HasKycVerification(user.UserVerification))) {
 
 				// format phone number
 				var phoneFormatted = Common.TextFormatter.NormalizePhoneNumber(model.PhoneNumber);
@@ -55,19 +57,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				user.UserVerification = new UserVerification() {
 
-					FirstName = model.FirstName.LimitLength(64),
-					MiddleName = model.MiddleName?.LimitLength(64),
-					LastName = model.LastName.LimitLength(64),
+					FirstName = model.FirstName.Limit(64),
+					MiddleName = model.MiddleName?.Limit(64),
+					LastName = model.LastName.Limit(64),
 					DoB = dob,
 
-					PhoneNumber = phoneFormatted.LimitLength(32),
+					PhoneNumber = phoneFormatted.Limit(32),
 					Country = Common.Countries.GetNameByAlpha2(model.Country),
 					CountryCode = model.Country.ToUpper(),
-					State = model.State.LimitLength(256),
-					City = model.City.LimitLength(256),
-					PostalCode = model.PostalCode.LimitLength(16),
-					Street = model.Street.LimitLength(256),
-					Apartment = model.Apartment?.LimitLength(128),
+					State = model.State.Limit(256),
+					City = model.City.Limit(256),
+					PostalCode = model.PostalCode.Limit(16),
+					Street = model.Street.Limit(256),
+					Apartment = model.Apartment?.Limit(128),
 
 					TimeUserChanged = DateTime.UtcNow,
 				};
@@ -92,8 +94,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 
 			// on tier-1 + KYC is not completed
 			if (userTier != UserTier.Tier1 || CoreLogic.User.HasKycVerification(user.UserVerification)) {
@@ -162,12 +165,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> AgreedWithTos() {
 
-			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user);
+		    var rcfg = RuntimeConfigHolder.Clone();
+
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var userLocale = GetUserLocale();
 
 			// on tier-1 + KYC completed + residence proved + agreement is not signed
-			if (userTier != UserTier.Tier1 || !CoreLogic.User.HasKycVerification(user.UserVerification) || !CoreLogic.User.HasProvedResidence(user.UserVerification) || CoreLogic.User.HasTosSigned(user.UserVerification)) {
+			if (userTier != UserTier.Tier1 || 
+			    !CoreLogic.User.HasKycVerification(user.UserVerification) || 
+			    !CoreLogic.User.HasProvedResidence(user.UserVerification, rcfg.Tier2ResidenceRequried) || 
+			    CoreLogic.User.HasTosSigned(user.UserVerification)) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -196,7 +204,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					(DateTime.UtcNow - user.UserVerification.LastKycTicket.TimeCreated) < AllowedPeriodBetweenKycRequests
 				;
 
-			var residProved = CoreLogic.User.HasProvedResidence(user.UserVerification);
+		    var rcfg = RuntimeConfigHolder.Clone();
+
+            var residProved = CoreLogic.User.HasProvedResidence(user.UserVerification, rcfg.Tier2ResidenceRequried);
 			var residPending = !residProved && kycFinished;
 
 			var agrSigned = CoreLogic.User.HasTosSigned(user.UserVerification);
@@ -210,8 +220,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				IsResidencePending = residPending,
 				IsResidenceProved = residProved,
+			    IsResidenceRequired = rcfg.Tier2ResidenceRequried,
 
-				IsAgreementSigned = agrSigned,
+                IsAgreementSigned = agrSigned,
 
 				FirstName = user.UserVerification?.FirstName ?? "",
 				MiddleName = user.UserVerification?.MiddleName ?? "",

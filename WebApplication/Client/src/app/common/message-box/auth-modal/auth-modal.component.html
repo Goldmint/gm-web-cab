@@ -1,0 +1,21 @@
+<div class="message-box__header">
+  <h4 class="modal-title pull-left">GoldMint.io</h4>
+  <button type="button" class="message-box__close" (click)="hide()">
+    <svg class="icon">
+      <use xlink:href="#close"></use>
+    </svg>
+  </button>
+</div>
+
+<div class="message-box__body">
+  <p>{{ "MessageBox.AuthModal.Text" | translate }}</p>
+</div>
+
+<div class="message-box__footer">
+  <button type="button" class="btn btn-primary btn-sm mx-1" (click)="signIn()">
+    {{ "MessageBox.AuthModal.Buttons.SignIn" | translate }}
+  </button>
+  <button type="button" class="btn btn-primary btn-sm mx-1" (click)="signUp()">
+    {{ "MessageBox.AuthModal.Buttons.SignUp" | translate }}
+  </button>
+</div>

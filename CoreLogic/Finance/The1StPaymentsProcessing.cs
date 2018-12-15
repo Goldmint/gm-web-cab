@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.CoreLogic.Finance {
 
@@ -19,7 +20,7 @@ namespace Goldmint.CoreLogic.Finance {
 		/// <summary>
 		/// New card input data operation to enqueue
 		/// </summary>
-		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId) {
+		public static CreditCardPayment CreateCardDataInputPayment(UserCreditCard card, CardPaymentType type, string transactionId, string gwTransactionId, string oplogId, long amountCents) {
 
 			// new deposit payment
 			return new CreditCardPayment() {
@@ -29,11 +30,11 @@ namespace Goldmint.CoreLogic.Finance {
 				Type = type,
 				UserId = card.UserId,
 				Currency = FiatCurrency.Usd,
-				AmountCents = 0,
+				AmountCents = amountCents,
 				Status = CardPaymentStatus.Unconfirmed,
 				OplogId = oplogId,
 				TimeCreated = DateTime.UtcNow,
-				TimeNextCheck = DateTime.UtcNow.AddSeconds(15 * 60),
+				TimeNextCheck = DateTime.UtcNow.AddMinutes(15),
 			};
 		}
 
@@ -115,11 +116,16 @@ namespace Goldmint.CoreLogic.Finance {
 		/// </summary>
 		private static CreditCardPayment CreateRefundPayment(CreditCardPayment refPayment, string oplogId) {
 
-			if (refPayment.Type != CardPaymentType.Deposit && refPayment.Type != CardPaymentType.Verification) {
-				throw new ArgumentException("Ref payment must be of deposit or verification type");
+			if (!(
+				refPayment.Type == CardPaymentType.CardDataInputSMS ||
+			    refPayment.Type == CardPaymentType.Deposit ||
+			    refPayment.Type == CardPaymentType.Verification
+			)) {
+				throw new ArgumentException("Ref payment has invalid type to refund");
 			}
 			if (refPayment.Status != CardPaymentStatus.Success) throw new ArgumentException("Cant refund unsuccessful payment");
 			if (refPayment.CreditCard == null) throw new ArgumentException("Card not included");
+			if (refPayment.AmountCents <= 0) throw new ArgumentException("Amount is invalid");
 			// if (refPayment.User == null) throw new ArgumentException("User not included");
 
 			// new refund payment
@@ -260,10 +266,10 @@ namespace Goldmint.CoreLogic.Finance {
 								break;
 						}
 
-						// set additinal fields
+						// set additional fields
 						payment.ProviderStatus = result.ProviderStatus;
 						payment.ProviderMessage = result.ProviderMessage;
-						payment.TimeNextCheck = DateTime.UtcNow + QueuesUtils.GetNextCheckDelay(payment.TimeCreated, TimeSpan.FromSeconds(15 * 60), 1);
+						payment.TimeNextCheck = DateTime.UtcNow.AddMinutes(15);
 
 						// get card data if possible
 						if (result.CardHolder != null) {
@@ -293,13 +299,26 @@ namespace Goldmint.CoreLogic.Finance {
 
 						if (payment.Status == CardPaymentStatus.Success) {
 
+							// refund payment if amount is non-zero
+							if (payment.AmountCents > 0) {
+								try {
+									var refund = CreateRefundPayment(payment, payment.OplogId);
+									dbContext.CreditCardPayment.Add(refund);
+									try {
+										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, $"Refund for card store step is enqueued for payment #{payment.Id}");
+									} catch { }
+								}
+								catch (Exception e) {
+									logger?.Error(e, $"[1STP] Failed to enqueue card input refund for payment #{payment.Id}");
+									try {
+										await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Refund for card store step is failed to enqueue  for payment #{payment.Id}");
+									}
+									catch { }
+								}
+							}
+
 							// set next step
-							if (cardHolder != null &&
-								cardMask != null &&
-								User.HasFilledPersonalData(payment.User?.UserVerification) &&
-								cardHolder.Contains(payment.User?.UserVerification.FirstName?.ToUpper()) &&
-								cardHolder.Contains(payment.User?.UserVerification.LastName?.ToUpper())
-							) {
+							if (cardHolder != null && cardMask != null) {
 
 								// check for duplicate
 								if (
@@ -420,6 +439,11 @@ namespace Goldmint.CoreLogic.Finance {
 									}
 								}
 								*/
+							}
+							else {
+								try { 
+									await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Did not get card holder or card mask from gateway");
+								} catch { }
 							}
 						}
 						else if (payment.Status == CardPaymentStatus.Failed) {
@@ -605,7 +629,11 @@ namespace Goldmint.CoreLogic.Finance {
 					// get payment from db
 					var payment = await (
 						from p in dbContext.CreditCardPayment
-						where p.Id == paymentId && p.Type == CardPaymentType.Refund && p.Status == CardPaymentStatus.Pending
+						where 
+							p.Id == paymentId && 
+							p.Type == CardPaymentType.Refund && 
+							p.Status == CardPaymentStatus.Pending &&
+							p.AmountCents > 0
 						select p
 					)
 					.Include(p => p.User)
@@ -619,7 +647,7 @@ namespace Goldmint.CoreLogic.Finance {
 						from p in dbContext.CreditCardPayment
 						where
 						p.Id == payment.RelPaymentId.Value &&
-						(p.Type == CardPaymentType.Deposit || p.Type == CardPaymentType.Verification) &&
+						(p.Type == CardPaymentType.CardDataInputSMS || p.Type == CardPaymentType.Deposit || p.Type == CardPaymentType.Verification) &&
 						p.Status == CardPaymentStatus.Success
 						select p
 					)
@@ -651,7 +679,7 @@ namespace Goldmint.CoreLogic.Finance {
 					// update ticket
 					try {
 						if (resultGwTxId != null) {
-							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Pending, "Refunded successfully");
+							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Completed, "Refunded successfully");
 						}
 						else {
 							await ticketDesk.Update(payment.OplogId, UserOpLogStatus.Failed, $"Card verification refund #{payment.Id} failed and requires manual processing");
