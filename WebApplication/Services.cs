@@ -198,7 +198,7 @@ namespace Goldmint.WebApplication {
 			// kyc
 			if (_environment.IsProduction()) {
 				services.AddScoped<IKycProvider>(fac => {
-					return new ShuftiProKycProvider(opts => {
+					return new ShuftiPro13KycProvider(opts => {
 						opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
 						opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
 					}, LogManager.LogFactory);
