@@ -432,8 +432,7 @@
           "Signers": "Signers:",
           "Total": "Total:",
           "Fee": "Fee:",
-          "Orchestrator": "Mined by master node:",
-          "PrevDigest": "Previous digest:"
+          "Orchestrator": "Mined by master node:"
         },
         "Table": {
           "Digest": "Digest",

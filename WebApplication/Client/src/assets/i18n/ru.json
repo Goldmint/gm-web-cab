@@ -432,8 +432,7 @@
           "Signers": "Подписал:",
           "Total": "Всего:",
           "Fee": "Комиссия:",
-          "Orchestrator": "Замайнено мастер-нодой:",
-          "PrevDigest": "Предыдущий digest:"
+          "Orchestrator": "Замайнено мастер-нодой:"
         },
         "Table": {
           "Digest": "Digest",
