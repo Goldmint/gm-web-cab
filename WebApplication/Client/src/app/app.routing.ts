@@ -52,6 +52,7 @@ import {PawnshopsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/
 import {FeedTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component";
 import {AllTicketFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component";
 import {PawnshopInvestComponent} from "./pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component";
+import {RewardTransactionsPageComponent} from "./pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component";
 
 
 const appRoutes: Routes = [
@@ -70,6 +71,7 @@ const appRoutes: Routes = [
   { path: 'buy', component: BuyPageComponent },
   { path: 'master-node', component: MasterNodePageComponent},
   { path: 'master-node/overview/latest-reward-distributions', component: LatestRewardPageComponent },
+  { path: 'master-node/overview/reward-transactions/:id', component: RewardTransactionsPageComponent },
   { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent },
   { path: 'buy/payment-card', component: BuyCardPageComponent, canActivate: [AuthGuard] },
   { path: 'sell', component: SellPageComponent },

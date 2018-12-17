@@ -338,9 +338,19 @@
         "Heading": "Последние вознаграждения",
         "Table": {
           "Date": "Дата",
+          "Blocks": "Блоки",
           "TxAmount": "Количество Tx",
           "TransferredToken": "Переданное количество токенов",
           "RewardAmount": "Сумма вознаграждения"
+        }
+      },
+      "RewardTransactions": {
+        "Heading": "Вознаграждение транзакций",
+        "Table": {
+          "Digest": "Digest",
+          "To": "В",
+          "Amount": "Количество",
+          "Date": "Дата"
         }
       }
     },

@@ -12,74 +12,84 @@
     <ngx-datatable class="table table--no-footer txs-table" #table
                    [rows]="rows"
                    [columnMode]="'force'"
-                   [sorts]="sorts"
                    [headerHeight]="53"
                    [rowHeight]="'auto'"
                    [footerHeight]="135"
                    [reorderable]="false"
                    [loadingIndicator]="loading"
-                   [count]="page.totalElements"
-                   [offset]="page.pageNumber"
-                   [limit]="page.size"
+                   [count]="rows.length"
                    [externalSorting]="true"
-                   (sort)="onSort($event)"
                    [externalPaging]="true"
                    (page)='setPage($event)'
                    [messages]="messages">
 
-      <div *ngIf="!isMobile">
-        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [sortable]="true" [maxWidth]="200">
+    <div *ngIf="!isMobile">
+        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="200">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-            <span class="datatable-header-cell-wrapper" (click)="sort()">
+            <span class="datatable-header-cell-wrapper">
               {{ "PAGES.MasterNode.LatestReward.Table.Date" | translate }}
             </span>
           </ng-template>
 
-          <ng-template let-timeStamp="value" let-row="row" ngx-datatable-cell-template>
-            <div>{{ row.timeStamp | date: 'MMM d, y, HH:mm:ss' }}</div>
+          <ng-template let-time="value" let-row="row" ngx-datatable-cell-template>
+            <div>{{ row.time * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column prop="txAmount" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ngx-datatable-column prop="transactions" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-number="column" let-sort="sortFn" ngx-datatable-header-template>
+                <span class="datatable-header-cell-wrapper">
+                  {{ "PAGES.MasterNode.LatestReward.Table.Blocks" | translate }}
+                </span>
+          </ng-template>
+
+          <ng-template let-transactions="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center a-link" [routerLink]="'/master-node/overview/reward-transactions/' + row.id">
+              {{ row.block_from }}-{{ row.block_to }}
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="transactions" [draggable]="false" [resizeable]="false" [sortable]="false">
           <ng-template let-number="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper">
                 {{ "PAGES.MasterNode.LatestReward.Table.TxAmount" | translate }}
               </span>
           </ng-template>
 
-          <ng-template let-txAmount="value" let-row="row" ngx-datatable-cell-template>
+          <ng-template let-transactions="value" let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              {{ row.txAmount }}
+              {{ row.transactions }}
             </div>
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column prop="comodityTransfered" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ngx-datatable-column prop="transferred_mnt" [draggable]="false" [resizeable]="false" [sortable]="false">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span class="datatable-header-cell-wrapper">
                 {{ "PAGES.MasterNode.LatestReward.Table.TransferredToken" | translate }}
               </span>
           </ng-template>
 
-          <ng-template let-comodityTransfered="value" let-row="row" ngx-datatable-cell-template>
+          <ng-template let-transferred_mnt="value" let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              {{ row.mntTransferred | substr:2 }} MNT<br>
-              {{ row.goldTransferred | substr:2 }} GOLD
+              {{ row.transferred_mnt | substr:2 }} MNT<br>
+              {{ row.transferred_gold | substr:2 }} GOLD
             </div>
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column prop="commodityReward" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ngx-datatable-column prop="reward_mnt" [draggable]="false" [resizeable]="false" [sortable]="false">
           <ng-template let-sort="sortFn" ngx-datatable-header-template>
             <span class="datatable-header-cell-wrapper">
               {{ "PAGES.MasterNode.LatestReward.Table.RewardAmount" | translate }}
             </span>
           </ng-template>
 
-          <ng-template let-commodityReward="value" let-row="row" ngx-datatable-cell-template>
+          <ng-template let-reward_mnt="value" let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              {{ row.mntReward | substr:2 }} MNT<br>
-              {{ row.goldReward | substr:2 }} GOLD
+              {{ row.reward_mnt | substr:2 }} MNT<br>
+              {{ row.reward_gold | substr:2 }} GOLD
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -92,25 +102,28 @@
 
         <ng-template let-row="row" ngx-datatable-cell-template>
           <div class="mt-1 mb-1 font-weight-500">
-            {{ row.timeStamp | date: 'MMM d, y, HH:mm:ss' }}
+            {{ row.time * 1000 | date: 'MMM d, y, HH:mm:ss' }}
           </div>
-
-          <div class="mt-1 mb-1">
+          <div class="mt-1">
+            <span class="font-weight-500">{{ "PAGES.MasterNode.LatestReward.Table.Blocks" | translate }}:</span>
+            {{ row.block_from }}-{{ row.block_to }}
+          </div>
+          <div>
             <span class="font-weight-500">{{ "PAGES.MasterNode.LatestReward.Table.TxAmount" | translate }}:</span>
-            {{ row.txAmount }}
+            {{ row.transactions }}
           </div>
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.MasterNode.LatestReward.Table.TransferredToken" | translate }}:</span>
             <div class="ml-1">
-              {{ row.mntTransferred | substr:2 }} MNT<br>
-              {{ row.goldTransferred | substr:2 }} GOLD
+              {{ row.transferred_mnt | substr:2 }} MNT<br>
+              {{ row.transferred_gold | substr:2 }} GOLD
             </div>
           </div>
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.MasterNode.LatestReward.Table.RewardAmount" | translate }}:</span>
             <div class="ml-1">
-              {{ row.mntReward | substr:2 }} MNT<br>
-              {{ row.goldReward | substr:2 }} GOLD
+              {{ row.reward_mnt | substr:2 }} MNT<br>
+              {{ row.reward_gold | substr:2 }} GOLD
             </div>
           </div>
         </ng-template>
@@ -118,16 +131,16 @@
 
     </ngx-datatable>
 
-    <ul class="pagination pagination--small mb-2" *ngIf="page.totalElements">
-      <li class="page-item" [ngClass]="{'hidden': page.pageNumber === 0}">
-        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber - 1})">
+    <ul class="pagination pagination--small mb-2">
+      <li class="page-item" [ngClass]="{'hidden': offset === 0 || loading}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="prevPage()">
           <svg class="icon--previous" height="17px" width="7px">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
           </svg>
         </a>
       </li>
-      <li class="page-item" [ngClass]="{'hidden': page.pageNumber === page.totalPages - 1}">
-        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="setPage({offset: page.pageNumber + 1})">
+      <li class="page-item" [ngClass]="{'hidden': isLastPage || loading}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="nextPage()">
           <svg class="icon--next" height="17px" width="7px">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
           </svg>

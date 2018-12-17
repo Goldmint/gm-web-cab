@@ -622,13 +622,13 @@ export class APIService {
   //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_from_block`, {blockNumber,  offset, limit, sort, ascending: order === 'asc' });
   // }
 
-  getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });
-  }
+  // getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+  //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });
+  // }
 
-  getTotalGoldReward() {
-    return this._http.get(`${this._walletBaseUrl}/statistics/tokens/total_gold_reward`);
-  }
+  // getTotalGoldReward() {
+  //   return this._http.get(`${this._walletBaseUrl}/statistics/tokens/total_gold_reward`);
+  // }
 
   // ------
 
@@ -640,6 +640,14 @@ export class APIService {
 
   getCurrentActiveNodesList(from: string) {
     return this._http.get(`${this._sumusBaseUrl}/node/list/${from || '-'}`);
+  }
+
+  getLatestRewardList(from: number) {
+    return this._http.get(`${this._sumusBaseUrl}/reward/list/${from || '-'}`);
+  }
+
+  getRewardTransactions(id: number, from: number) {
+    return this._http.get(`${this._sumusBaseUrl}/reward/${id}/list/${from || '-'}`);
   }
 
   // -----------

@@ -338,9 +338,19 @@
         "Heading": "Latest reward distributions",
         "Table": {
           "Date": "Date",
+          "Blocks": "Blocks",
           "TxAmount": "Tx amount",
           "TransferredToken": "Transferred token amount",
           "RewardAmount": "Reward amount"
+        }
+      },
+      "RewardTransactions": {
+        "Heading": "Reward transactions",
+        "Table": {
+          "Digest": "Digest",
+          "To": "To",
+          "Amount": "Amount",
+          "Date": "Date"
         }
       }
     },

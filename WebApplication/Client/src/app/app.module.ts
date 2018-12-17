@@ -131,6 +131,7 @@ import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/fee
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 import { PawnshopInvestComponent } from './pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component';
+import { RewardTransactionsPageComponent } from './pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -246,7 +247,8 @@ export function getGoldmintToken() {
     PawnshopsTableComponent,
     FeedTableComponent,
     AccountReductionPipe,
-    PawnshopInvestComponent
+    PawnshopInvestComponent,
+    RewardTransactionsPageComponent
   ],
   exports: [],
   providers: [
