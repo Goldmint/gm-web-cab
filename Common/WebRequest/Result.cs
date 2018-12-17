@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -34,6 +35,13 @@ namespace Goldmint.Common.WebRequest {
 
 		public HttpStatusCode? GetHttpStatus() {
 			return _responseRef?.StatusCode;
+		}
+
+		public string[] GetHeader(string name) {
+			if (_responseRef != null && _responseRef.Headers.TryGetValues(name, out var vals)) {
+				return vals.ToArray();
+			}
+			return new string[]{};
 		}
 
 		public async Task<string> ToRawString() {

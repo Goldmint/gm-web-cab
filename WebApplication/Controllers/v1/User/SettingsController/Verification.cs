@@ -136,10 +136,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				FirstName = ticket.FirstName,
 				LastName = ticket.LastName,
 				CountryCode = ticket.CountryCode,
+				LanguageCode = GetUserLocale().ToString().ToUpper(),
 				DoB = ticket.DoB,
 				PhoneNumber = ticket.PhoneNumber,
+				Email = user.Email,
 			};
-
+			
 			var callbackUrl = Url.Link("CallbackShuftiPro", new { /*secret = AppConfig.Services.ShuftiPro.CallbackSecret*/ });
 			var userTempRedirectUrl = Url.Link("CallbackRedirect", new { to = System.Web.HttpUtility.UrlEncode(model.Redirect) });
 			var kycRedirect = await KycExternalProvider.GetRedirect(
