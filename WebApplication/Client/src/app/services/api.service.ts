@@ -632,6 +632,18 @@ export class APIService {
 
   // ------
 
+  // master node
+
+  getCurrentActiveNodesStats() {
+    return this._http.get(`${this._sumusBaseUrl}/node/stats`);
+  }
+
+  getCurrentActiveNodesList(from: string) {
+    return this._http.get(`${this._sumusBaseUrl}/node/list/${from || '-'}`);
+  }
+
+  // -----------
+
   private _handleError(err: HttpErrorResponse | any) {
     if (err.error && err.error.errorCode) {
       switch (err.error.errorCode) {
