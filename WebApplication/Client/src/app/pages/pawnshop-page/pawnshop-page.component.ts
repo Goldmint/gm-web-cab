@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {APIService} from "../../services";
+import {CommonService} from "../../services/common.service";
 
 @Component({
   selector: 'app-pawnshop-page',
@@ -7,9 +9,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PawnshopPageComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private apiService: APIService,
+    private commonService: CommonService
+  ) { }
 
   ngOnInit() {
+    this.apiService.getOrganizationsName().subscribe((data: any) => {
+      this.commonService.getPawnShopOrganization.next(data.res.list);
+    });
   }
 
 }

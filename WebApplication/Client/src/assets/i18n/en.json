@@ -1500,7 +1500,14 @@
           "Id": "Id",
           "Name": "Name"
         },
+        "SourceTable": {
+          "Caption": "Sources",
+          "ID": "ID",
+          "Wallet": "Wallet",
+          "BalanceMNT": "Balance MNT"
+        },
         "FeedTable": {
+          "Caption": "Feed",
           "Id": "Id",
           "Org": "Organization",
           "Num": "Num",
@@ -1526,10 +1533,11 @@
           },
           "Errors": {
             "IncorrectPawnshopId": "Incorrect pawnshop id"
-          },
-          "Charts": {
-            "Rate": "Gold volume history"
           }
+        },
+        "Charts": {
+          "Rate": "Gold volume history",
+          "OrgChart": "Gold volume history"
         }
       },
       "Invest": {
@@ -1647,5 +1655,8 @@
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached"
+  },
+  "MESSAGE": {
+    "NoData": "No data"
   }
 }

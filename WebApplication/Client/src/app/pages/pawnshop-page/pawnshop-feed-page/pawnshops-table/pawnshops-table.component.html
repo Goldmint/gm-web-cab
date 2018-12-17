@@ -17,7 +17,11 @@
         <div class="container"></div>
       </div>
 
-      <ngx-datatable class="table table--no-footer txs-table organizations-table" #table
+      <div class="mb-4">
+        <div id="org-stats-chart-container"></div>
+      </div>
+
+      <ngx-datatable class="table table--no-footer organizations-table" #table
                      [rows]="rows"
                      [columnMode]="'force'"
                      [headerHeight]="53"
@@ -54,7 +58,7 @@
             </ng-template>
 
             <ng-template let-name="value" ngx-datatable-cell-template>
-              <div class="text-center">
+              <div>
                 {{ name }}
               </div>
             </ng-template>

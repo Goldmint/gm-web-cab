@@ -510,6 +510,10 @@ export class APIService {
     return this._http.get(`${this._marketBaseUrl}/org/list/${_from}`);
   }
 
+  getOrganizationDetails(id: number) {
+    return this._http.get(`${this._marketBaseUrl}/org/details/${id}`);
+  }
+
   getPawnshopList(org: number, from: number) {
     let _org = org !== null ? org : '-';
     let _from = from !== null ? from : '-';

@@ -22,11 +22,111 @@
         </div>
       </div>
 
-      <div class="mb-4" [hidden]="invalidPawnshopId">
+      <div class="mb-5" [hidden]="invalidPawnshopId">
         <div id="daily-stats-chart-container"></div>
       </div>
 
+      <div *ngIf="!invalidPawnshopId" class="mb-5">
+        <div class="section__title m-0">{{ "PAGES.Pawnshop.Feed.SourceTable.Caption" | translate }}</div>
+        <ngx-datatable class="table table--no-footer txs-table" #table
+                       [rows]="sourceRows"
+                       [columnMode]="'force'"
+                       [headerHeight]="53"
+                       [rowHeight]="'auto'"
+                       [footerHeight]="135"
+                       [reorderable]="false"
+                       [loadingIndicator]="loading"
+                       [count]="page.size"
+                       [externalSorting]="true"
+                       [externalPaging]="true"
+                       (page)='setPage($event)'
+                       [messages]="messages">
+
+          <div *ngIf="!isMobile">
+            <ngx-datatable-column prop="id" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="100">
+              <ng-template let-column="column" ngx-datatable-header-template>
+                <span class="datatable-header-cell-wrapper">
+                  {{ "PAGES.Pawnshop.Feed.SourceTable.ID" | translate }}
+                </span>
+              </ng-template>
+
+              <ng-template let-id="value" ngx-datatable-cell-template>
+                {{ id }}
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="wallet" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template ngx-datatable-header-template>
+                <span class="datatable-header-cell-wrapper">
+                  {{ "PAGES.Pawnshop.Feed.SourceTable.Wallet" | translate }}
+                </span>
+              </ng-template>
+
+              <ng-template let-wallet="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div class="a-link overflow-ellipsis" [routerLink]="'/scanner/address/' + wallet">{{ wallet }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column prop="mnt_balance" [draggable]="false" [resizeable]="false" [sortable]="false">
+              <ng-template let-column="column" ngx-datatable-header-template>
+                {{ "PAGES.Pawnshop.Feed.SourceTable.BalanceMNT" | translate }}
+              </ng-template>
+
+              <ng-template let-mnt_balance="value" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <div class="text-center">{{ +mnt_balance | noexp:18 }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </div>
+
+          <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+            <ng-template let-column="column" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.Pawnshop.Feed.SourceTable.ID" | translate }}:
+              </span>
+            </ng-template>
+
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="font-weight-500 my-1">
+                <div>{{ row.id }}</div>
+              </div>
+              <div class="d-flex">
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.SourceTable.Wallet" | translate }}:</span>
+                <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/address/' + row.wallet">{{ row.wallet }}</div>
+              </div>
+              <div>
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.SourceTable.BalanceMNT" | translate }}:</span>
+                {{ +row.mnt_balance | noexp:18 }}
+              </div>
+
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+
+        <ul class="pagination pagination--small mb-2">
+          <li class="page-item" [ngClass]="{'hidden': !isDataLoaded || page.pageNumber === 0}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="changeSourcePage(page.pageNumber = page.pageNumber-1)">
+              <svg class="icon--previous" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="page-item" [ngClass]="{'hidden': !isDataLoaded || page.pageNumber >= page.totalPages - 1}">
+            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="changeSourcePage(page.pageNumber = page.pageNumber+1)">
+              <svg class="icon--next" height="17px" width="7px">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+
       <div *ngIf="!invalidPawnshopId">
+        <div class="section__title m-0">{{ "PAGES.Pawnshop.Feed.FeedTable.Caption" | translate }}</div>
         <ngx-datatable class="table table--no-footer txs-table" #table
                        [rows]="rows"
                        [columnMode]="'force'"
@@ -149,7 +249,7 @@
                 {{ row.weight }}
               </div>
               <div class="d-flex">
-                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.OpenTx" | translate }}h:</span>
+                <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.OpenTx" | translate }}:</span>
                 <div class="overflow-ellipsis a-link ml-1" [routerLink]="'/scanner/tx/' + row.open_digest">{{ row.open_digest }}</div>
               </div>
               <div class="d-flex">

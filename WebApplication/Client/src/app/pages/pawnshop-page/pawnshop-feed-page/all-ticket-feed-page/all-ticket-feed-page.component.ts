@@ -56,18 +56,15 @@ export class AllTicketFeedPageComponent implements OnInit {
     this.loading = true;
     clearInterval(this.interval);
 
-    Observable.combineLatest(
-      this.apiService.getOrganizationsName(),
-      this.apiService.getPawnList(org, from >= 0 ? from : null)
-    ).finally(() => {
-        this.loading = false;
-        this.isDataLoaded = true;
-        this.cdRef.markForCheck();
-      })
-      .subscribe((data: any) => {
+    this.commonService.getPawnShopOrganization.takeUntil(this.destroy$).subscribe(orgList => {
+      orgList && this.apiService.getPawnList(org, from >= 0 ? from : null)
+        .finally(() => {
+          this.loading = false;
+          this.isDataLoaded = true;
+          this.cdRef.markForCheck();
+        }).subscribe((data: any) => {
         this.isLastPage = false;
-        let orgList = data[0].res.list;
-        this.rows = data[1].res.list ? data[1].res.list : [];
+        this.rows = data.res.list ? data.res.list : [];
 
         this.rows.forEach(row => {
           for (let key in orgList) {
@@ -77,7 +74,7 @@ export class AllTicketFeedPageComponent implements OnInit {
 
         // this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows, 'table-row', 'id');
 
-        (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
+        !this.rows.length && (this.isLastPage = true);
 
         this.interval = setInterval(() => {
           this.setPage(org, from, null);
@@ -86,6 +83,7 @@ export class AllTicketFeedPageComponent implements OnInit {
         this.pagination(isNext);
         this.cdRef.markForCheck();
       });
+    });
   }
 
   pagination(isNext) {

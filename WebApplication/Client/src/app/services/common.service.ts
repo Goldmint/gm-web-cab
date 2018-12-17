@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs/Subject";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 @Injectable()
 export class CommonService {
 
   public changeFeedTab = new Subject();
+  public getPawnShopOrganization = new BehaviorSubject(null);
 
   constructor() { }
 
