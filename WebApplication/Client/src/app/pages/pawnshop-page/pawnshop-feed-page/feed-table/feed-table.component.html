@@ -36,7 +36,7 @@
                        [footerHeight]="135"
                        [reorderable]="false"
                        [loadingIndicator]="loading"
-                       [count]="page.size"
+                       [count]="sourceRows.length"
                        [externalSorting]="true"
                        [externalPaging]="true"
                        (page)='setPage($event)'
@@ -106,23 +106,6 @@
           </ngx-datatable-column>
 
         </ngx-datatable>
-
-        <ul class="pagination pagination--small mb-2">
-          <li class="page-item" [ngClass]="{'hidden': !isDataLoaded || page.pageNumber === 0}">
-            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="changeSourcePage(page.pageNumber = page.pageNumber-1)">
-              <svg class="icon--previous" height="17px" width="7px">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
-              </svg>
-            </a>
-          </li>
-          <li class="page-item" [ngClass]="{'hidden': !isDataLoaded || page.pageNumber >= page.totalPages - 1}">
-            <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="changeSourcePage(page.pageNumber = page.pageNumber+1)">
-              <svg class="icon--next" height="17px" width="7px">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
-              </svg>
-            </a>
-          </li>
-        </ul>
       </div>
 
       <div *ngIf="!invalidPawnshopId">

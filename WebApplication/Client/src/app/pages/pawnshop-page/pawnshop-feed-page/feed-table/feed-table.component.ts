@@ -22,7 +22,6 @@ export class FeedTableComponent implements OnInit {
   public pawnshopId: number;
   public page = new Page();
   public rows: FeedList[] = [];
-  public originSourceRows: SourceFeed[] = [];
   public sourceRows: SourceFeed[] = [];
   public messages: any  = {emptyMessage: 'No data'};
   public loading: boolean = false;
@@ -53,7 +52,6 @@ export class FeedTableComponent implements OnInit {
     this.route.params.takeUntil(this.destroy$).subscribe(params => {
       this.pawnshopId = params.id;
       this.offset = 0;
-      this.page.pageNumber = 0;
 
       this.setPage(this.pawnshopId, null, true);
       this.getPawnshopDetails(this.pawnshopId);
@@ -61,9 +59,6 @@ export class FeedTableComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.page.pageNumber = 0;
-    this.page.size = 10;
-
     this.isMobile = (window.innerWidth <= 992);
     this.userService.windowSize$.takeUntil(this.destroy$).subscribe(width => {
       this.isMobile = width <= 992;
@@ -86,10 +81,7 @@ export class FeedTableComponent implements OnInit {
         this.pawnshopDetails = data.res;
         this.rate = this.pawnshopDetails.daily_stats.length ? this.pawnshopDetails.daily_stats[0].currently_opened_amount : 0;
         this.orgId = this.pawnshopDetails.org_id;
-        this.originSourceRows = this.pawnshopDetails.sources;
-
-        this.calculateSourceTotalPage(this.originSourceRows);
-        this.changeSourcePage();
+        this.sourceRows = this.pawnshopDetails.sources;
 
         this.getOrganizationName(this.orgId);
         this.setChartsData(this.pawnshopDetails.daily_stats);
@@ -101,20 +93,6 @@ export class FeedTableComponent implements OnInit {
       this.isDataLoaded = true;
       this.cdRef.markForCheck();
     });
-  }
-
-  changeSourcePage() {
-    this.sourceRows = this.getCurrentSourcePage();
-    this.cdRef.markForCheck();
-  }
-
-  getCurrentSourcePage() {
-    return this.originSourceRows.slice(this.page.pageNumber * this.page.size, (this.page.pageNumber + 1) * this.page.size);
-  }
-
-  calculateSourceTotalPage(rows) {
-    this.page.totalElements = rows.length;
-    this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
   }
 
   getOrganizationName(orgId: number) {
@@ -136,7 +114,7 @@ export class FeedTableComponent implements OnInit {
       res.forEach(item => {
         const date = new Date(item.time * 1000);
         let month = (date.getMonth()+1).toString(),
-          day = date.getDate().toString();
+            day = date.getDate().toString();
 
         month.length === 1 && (month = '0' + month);
         day.length === 1 && (day = '0' + day);
