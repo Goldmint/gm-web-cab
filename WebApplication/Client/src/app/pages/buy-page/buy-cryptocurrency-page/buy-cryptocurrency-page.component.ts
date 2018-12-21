@@ -204,7 +204,7 @@ export class BuyCryptocurrencyPageComponent implements OnInit, AfterViewInit {
           this._messageBox.alert(`
             <div class="text-center">
               <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-              <div>${phrases.Steps}</div>
+              <div class="color-red">${phrases.Steps}</div>
               <div>${phrases.Hash}</div>
               <div class="mb-2 buy-hash">${hash}</div>
               <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
