@@ -46,6 +46,9 @@ namespace Goldmint.QueueService {
 					// does require ethereum (reader)
 					new Workers.Ethereum.ContractBuyEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
 					new Workers.Ethereum.ContractSellEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
+					
+					// does require ethereum (writer and reader)
+					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, _appConfig.Services.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
 				});
 
 				if (!_environment.IsProduction()) {
@@ -55,7 +58,6 @@ namespace Goldmint.QueueService {
 						new Workers.TokenMigration.EthereumHoldChecker(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound, _appConfig.Services.Workers.EthTokenMigration.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
 
 						// does require ethereum (writer and reader)
-						new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, _appConfig.Services.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
 						new Workers.TokenMigration.EthereumEmitter(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
 
 						// does require sumus (reader)

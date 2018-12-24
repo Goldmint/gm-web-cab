@@ -49,12 +49,6 @@
           {{ block.orchestrator }}
         </div>
       </div>
-
-      <div class="d-flex"><b class="nowrap">{{ "PAGES.Scanner.TransactionsInBlock.Labels.PrevDigest" | translate }} </b>
-        <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + block.prev_digest">
-          {{ block.prev_digest }}
-        </div>
-      </div>
     </div>
 
     <ngx-datatable class="table table--no-footer txs-table" #table

@@ -510,6 +510,10 @@ export class APIService {
     return this._http.get(`${this._marketBaseUrl}/org/list/${_from}`);
   }
 
+  getOrganizationDetails(id: number) {
+    return this._http.get(`${this._marketBaseUrl}/org/details/${id}`);
+  }
+
   getPawnshopList(org: number, from: number) {
     let _org = org !== null ? org : '-';
     let _from = from !== null ? from : '-';
@@ -622,15 +626,35 @@ export class APIService {
   //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_from_block`, {blockNumber,  offset, limit, sort, ascending: order === 'asc' });
   // }
 
-  getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });
-  }
+  // getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
+  //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });
+  // }
 
-  getTotalGoldReward() {
-    return this._http.get(`${this._walletBaseUrl}/statistics/tokens/total_gold_reward`);
-  }
+  // getTotalGoldReward() {
+  //   return this._http.get(`${this._walletBaseUrl}/statistics/tokens/total_gold_reward`);
+  // }
 
   // ------
+
+  // master node
+
+  getCurrentActiveNodesStats() {
+    return this._http.get(`${this._sumusBaseUrl}/node/stats`);
+  }
+
+  getCurrentActiveNodesList(from: string) {
+    return this._http.get(`${this._sumusBaseUrl}/node/list/${from || '-'}`);
+  }
+
+  getLatestRewardList(from: number) {
+    return this._http.get(`${this._sumusBaseUrl}/reward/list/${from || '-'}`);
+  }
+
+  getRewardTransactions(id: number, from: number) {
+    return this._http.get(`${this._sumusBaseUrl}/reward/${id}/list/${from || '-'}`);
+  }
+
+  // -----------
 
   private _handleError(err: HttpErrorResponse | any) {
     if (err.error && err.error.errorCode) {

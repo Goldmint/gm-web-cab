@@ -338,9 +338,19 @@
         "Heading": "Latest reward distributions",
         "Table": {
           "Date": "Date",
+          "Blocks": "Blocks",
           "TxAmount": "Tx amount",
           "TransferredToken": "Transferred token amount",
           "RewardAmount": "Reward amount"
+        }
+      },
+      "RewardTransactions": {
+        "Heading": "Reward transactions",
+        "Table": {
+          "Digest": "Digest",
+          "To": "To",
+          "Amount": "Amount",
+          "Date": "Date"
         }
       }
     },
@@ -422,8 +432,7 @@
           "Signers": "Signers:",
           "Total": "Total:",
           "Fee": "Fee:",
-          "Orchestrator": "Mined by master node:",
-          "PrevDigest": "Previous digest:"
+          "Orchestrator": "Mined by master node:"
         },
         "Table": {
           "Digest": "Digest",
@@ -1491,7 +1500,14 @@
           "Id": "Id",
           "Name": "Name"
         },
+        "SourceTable": {
+          "Caption": "Sources",
+          "ID": "ID",
+          "Wallet": "Wallet",
+          "BalanceMNT": "Balance MNT"
+        },
         "FeedTable": {
+          "Caption": "Feed",
           "Id": "Id",
           "Org": "Organization",
           "Num": "Num",
@@ -1517,10 +1533,11 @@
           },
           "Errors": {
             "IncorrectPawnshopId": "Incorrect pawnshop id"
-          },
-          "Charts": {
-            "Rate": "Gold volume history"
           }
+        },
+        "Charts": {
+          "Rate": "Gold volume history",
+          "OrgChart": "Gold volume history"
         }
       },
       "Invest": {
@@ -1638,5 +1655,8 @@
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached"
+  },
+  "MESSAGE": {
+    "NoData": "No data"
   }
 }

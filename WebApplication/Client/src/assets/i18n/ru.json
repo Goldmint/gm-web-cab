@@ -338,9 +338,19 @@
         "Heading": "Последние вознаграждения",
         "Table": {
           "Date": "Дата",
+          "Blocks": "Блоки",
           "TxAmount": "Количество Tx",
           "TransferredToken": "Переданное количество токенов",
           "RewardAmount": "Сумма вознаграждения"
+        }
+      },
+      "RewardTransactions": {
+        "Heading": "Вознаграждение транзакций",
+        "Table": {
+          "Digest": "Digest",
+          "To": "В",
+          "Amount": "Количество",
+          "Date": "Дата"
         }
       }
     },
@@ -422,8 +432,7 @@
           "Signers": "Подписал:",
           "Total": "Всего:",
           "Fee": "Комиссия:",
-          "Orchestrator": "Замайнено мастер-нодой:",
-          "PrevDigest": "Предыдущий digest:"
+          "Orchestrator": "Замайнено мастер-нодой:"
         },
         "Table": {
           "Digest": "Digest",
@@ -1491,7 +1500,14 @@
           "Id": "Id",
           "Name": "Название"
         },
+        "SourceTable": {
+          "Caption": "Источники",
+          "ID": "ID",
+          "Wallet": "Кошелек",
+          "BalanceMNT": "Баланс MNT"
+        },
         "FeedTable": {
+          "Caption": "Активность",
           "Id": "Id",
           "Org": "Организация",
           "Num": "Номер",
@@ -1517,10 +1533,11 @@
           },
           "Errors": {
             "IncorrectPawnshopId": "Неправильный идентификатор ломбарда"
-          },
-          "Charts": {
-            "Rate": "История объема золота"
           }
+        },
+        "Charts": {
+          "Rate": "История объема золота",
+          "OrgChart": "История объема золота"
         }
       },
       "Invest": {
@@ -1638,5 +1655,8 @@
     "logOut": "Вы действительно хотите выйти?",
     "SomethingWrong": "Что-то пошло не так.",
     "DepositLimit": "Лимит пополнения привышен"
+  },
+  "MESSAGE": {
+    "NoData": "Нет данных"
   }
 }

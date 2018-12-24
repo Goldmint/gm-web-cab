@@ -1,16 +1,16 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, HostListener, OnInit} from '@angular/core';
 import {APIService, UserService} from "../../../../services";
-import {Subject} from "rxjs/Subject";
 import {Page} from "../../../../models/page";
-import {LatestReward} from "../../../../interfaces/latest-reward";
+import {Subject} from "rxjs/Subject";
+import {ActivatedRoute} from "@angular/router";
+import {RewardTransactions} from "../../../../interfaces/reward-transactions";
 
 @Component({
-  selector: 'app-latest-reward-page',
-  templateUrl: './latest-reward-page.component.html',
-  styleUrls: ['./latest-reward-page.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-reward-transactions-page',
+  templateUrl: './reward-transactions-page.component.html',
+  styleUrls: ['./reward-transactions-page.component.sass']
 })
-export class LatestRewardPageComponent implements OnInit {
+export class RewardTransactionsPageComponent implements OnInit {
 
   @HostBinding('class') class = 'page';
   @HostListener('window:resize', ['$event'])
@@ -21,7 +21,7 @@ export class LatestRewardPageComponent implements OnInit {
   }
 
   public page = new Page();
-  public rows: LatestReward[] = [];
+  public rows: RewardTransactions[] = [];
   public messages: any  = {emptyMessage: 'No data'};
   public isMobile: boolean = false;
   public loading: boolean = false;
@@ -29,24 +29,30 @@ export class LatestRewardPageComponent implements OnInit {
   public isLastPage: boolean = false;
   public offset: number = 0;
 
+  private rewardId: number;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private paginationHistory: number[] = [];
 
   constructor(
     private apiService: APIService,
     private userService: UserService,
-    private cdRef: ChangeDetectorRef
-  ) { }
+    private cdRef: ChangeDetectorRef,
+    private route: ActivatedRoute
+  ) {
+    this.route.params.takeUntil(this.destroy$).subscribe(params => {
+        this.rewardId = params.id;
+        this.setPage(null, true);
+      });
+  }
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 992);
-    this.setPage(null, true);
   }
 
   setPage(from: number, isNext: boolean = true) {
     this.loading = true;
 
-    this.apiService.getLatestRewardList(from ? from : null)
+    this.apiService.getRewardTransactions(this.rewardId, from ? from : null)
       .finally(() => {
         this.loading = false;
         this.isDataLoaded = true;
@@ -59,9 +65,9 @@ export class LatestRewardPageComponent implements OnInit {
         if (this.rows.length) {
           if (!isNext) {
             this.paginationHistory.pop();
-            this.paginationHistory.length === 1 && (this.paginationHistory[0] = this.rows[this.rows.length - 1].id);
+            this.paginationHistory.length === 1 && (this.paginationHistory[0] = this.rows[this.rows.length - 1].tx_nonce);
           }
-          isNext && this.paginationHistory.push(this.rows[this.rows.length - 1].id);
+          isNext && this.paginationHistory.push(this.rows[this.rows.length - 1].tx_nonce);
         } else {
           isNext && this.paginationHistory.push(null);
         }

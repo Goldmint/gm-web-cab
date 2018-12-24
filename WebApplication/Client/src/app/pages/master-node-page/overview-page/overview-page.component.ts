@@ -6,13 +6,14 @@ import {
   OnInit, TemplateRef,
   ViewEncapsulation
 } from '@angular/core';
-import {combineLatest} from "rxjs/observable/combineLatest";
 import {APIService, UserService} from "../../../services";
 import {Subject} from "rxjs/Subject";
 import {Page} from "../../../models/page";
 import {BsModalRef, BsModalService} from "ngx-bootstrap";
 import {TranslateService} from "@ngx-translate/core";
 import 'anychart';
+import {OverviewStats} from "../../../interfaces/overview-stats";
+import {CurrentActiveNodeList} from "../../../interfaces/current-active-node-list";
 
 @Component({
   selector: 'app-overview-page',
@@ -31,20 +32,20 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
     this.cdRef.markForCheck();
   }
 
-  public numberNodes: number;
-  public numberMNT: number;
-  public numberReward: number;
+  public overviewStats: OverviewStats;
   public page = new Page();
-  public rows: Array<any> = [];
-  public sorts: Array<any> = [{prop: 'date', dir: 'desc'}];
+  public rows: CurrentActiveNodeList[] = [];
   public messages: any  = {emptyMessage: 'No data'};
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
+  public isLastPage: boolean = false;
+  public offset: number = 0;
 
   private charts = {};
   private miniCharts = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private paginationHistory: string[] = [];
 
   modalRef: BsModalRef;
 
@@ -58,23 +59,10 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 992);
-    this.page.pageNumber = 0;
-    this.page.size = 10;
+    this.setPage(null, true);
 
-    this.setPage({ offset: 0 });
-
-    const combined = combineLatest(
-      this.apiService.getNodesCount(),
-      this.apiService.getMNTCount(),
-      this.apiService.getMNTRewardDay(1),
-      this.apiService.getTotalGoldReward()
-    );
-
-    combined.subscribe(data => {
-      this.numberNodes = data[0]['data'];
-      this.numberMNT = data[1]['data'];
-      this.numberReward = data[3]['data'];
-
+    this.apiService.getCurrentActiveNodesStats().subscribe((data: OverviewStats) => {
+      this.overviewStats = data;
       this.isDataLoaded = true;
       this.cdRef.markForCheck();
     });
@@ -88,56 +76,51 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSort(event) {
-    this.sorts = event.sorts;
-    this.setPage({ offset: 0 });
-  }
-
-  setPage(pageInfo) {
+  setPage(from: string, isNext: boolean = true) {
     this.loading = true;
-    this.page.pageNumber = pageInfo.offset;
 
-    this.apiService.getActiveNodes(this.page.pageNumber * this.page.size, this.page.size, this.sorts[0].prop, this.sorts[0].dir)
+    this.apiService.getCurrentActiveNodesList(from ? from : null)
       .finally(() => {
         this.loading = false;
         this.cdRef.markForCheck();
       })
-      .subscribe(
-        res => {
-          this.rows = res['data'].items.map((item, i) => {
-            item.chartData = [];
-            item.nodeInfo.launchDate = new Date(item.nodeInfo.launchDate.toString() + 'Z');
-            const nodeRewardDict = item.nodeRewardDict[item.nodeInfo.nodeWallet];
+      .subscribe((data: any) => {
+        this.isLastPage = false;
+        this.rows = data.res.list ? data.res.list : [];
 
-            if (nodeRewardDict.length) {
-              item.rewardData = {
-                ctRewardTotal: nodeRewardDict[nodeRewardDict.length - 1].ctRewardTotal,
-                utRewardTotal: nodeRewardDict[nodeRewardDict.length - 1].utRewardTotal
-              };
+        this.rows = this.rows.map((item, i) => {
+          item.chartData = [];
 
-              nodeRewardDict.forEach(node => {
-                const date = new Date(node.createDate.toString() + 'Z');
-                let month = (date.getMonth()+1).toString();
-                month.length === 1 && (month = '0' + month);
-                const dateString = date.getFullYear() + '-' + month + '-' + date.getDate();
-                item.chartData.push([dateString, node.ctRewardTotal]);
-              });
-            } else {
-              item.rewardData = {
-                ctRewardTotal: '-',
-                utRewardTotal: '-'
-              };
-            }
+          item.history.forEach(node => {
+            const date = new Date(node.time * 1000);
+            let month = (date.getMonth()+1).toString(),
+              day = date.getDate().toString();
 
-            setTimeout(() => {
-              this.createMiniChart(item.chartData, i);
-            }, 0);
-            return item;
+            month.length === 1 && (month = '0' + month);
+            day.length === 1 && (day = '0' + day);
+
+            const dateString = date.getFullYear() + '-' + month + '-' + day;
+            item.chartData.push([dateString, node.gold]);
           });
 
-          this.page.totalElements = res['data'].total;
-          this.page.totalPages = Math.ceil(this.page.totalElements / this.page.size);
+          setTimeout(() => {
+            this.createMiniChart(item.chartData, i);
+          }, 0);
+          return item;
         });
+
+        if (this.rows.length) {
+          if (!isNext) {
+            this.paginationHistory.pop();
+            this.paginationHistory.length === 1 && (this.paginationHistory[0] = this.rows[this.rows.length - 1].address);
+          }
+          isNext && this.paginationHistory.push(this.rows[this.rows.length - 1].address);
+        } else {
+          isNext && this.paginationHistory.push(null);
+        }
+
+        !this.rows.length  && (this.isLastPage = true);
+      });
   }
 
   createMiniChart(data: any[], i: number) {
@@ -211,6 +194,16 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
       }, 0);
       this.cdRef.markForCheck();
     });
+  }
+
+  prevPage() {
+    this.offset--;
+    this.setPage(this.paginationHistory[this.paginationHistory.length - 3], false);
+  }
+
+  nextPage() {
+    this.offset++;
+    this.setPage(this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
   ngOnDestroy() {

@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import {CommonService} from "../../../services/common.service";
 import {Subject} from "rxjs/Subject";
-import {Router} from "@angular/router";
+import {NavigationEnd, Router} from "@angular/router";
 
 @Component({
   selector: 'app-pawnshop-feed-page',
@@ -22,19 +22,27 @@ export class PawnshopFeedPageComponent implements OnInit, OnDestroy {
     private commonService: CommonService,
     private cdRef: ChangeDetectorRef,
     private router: Router
-  ) { }
+  ) {
+    this.router.events.takeUntil(this.destroy$).subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        if (event.urlAfterRedirects === '/pawnshop-loans/feed') {
+          this.switchModel = { type: 'feed' };
+          this.router.navigate(['/pawnshop-loans/feed/all-ticket-feed']);
+          return
+        }
+        this.switchModel = {
+          type: event.url.indexOf('all-ticket-feed') >= 0 ? 'feed' : 'organizations'
+        }
+        this.cdRef.markForCheck();
+      }
+    });
+  }
 
   ngOnInit() {
-    this.switchModel = {
-      type: 'feed'
-    };
-
     this.commonService.changeFeedTab.takeUntil(this.destroy$).subscribe(() => {
       this.switchModel.type = 'organizations';
       this.cdRef.markForCheck();
     });
-
-    this.router.navigate(['/pawnshop-loans/feed/all-ticket-feed'])
   }
 
   chooseTab() {

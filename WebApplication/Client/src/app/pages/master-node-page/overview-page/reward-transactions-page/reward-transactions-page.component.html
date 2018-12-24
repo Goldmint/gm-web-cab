@@ -1,0 +1,127 @@
+<!-- host: .page -->
+<h1 class="page__heading">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.MasterNode.RewardTransactions.Heading" | translate }}</h2>
+
+  <div class="section__content py-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded">
+      <div class="container"></div>
+    </div>
+
+    <ngx-datatable class="table table--no-footer txs-table" #table
+                   [rows]="rows"
+                   [columnMode]="'force'"
+                   [headerHeight]="53"
+                   [rowHeight]="'auto'"
+                   [footerHeight]="135"
+                   [reorderable]="false"
+                   [loadingIndicator]="loading"
+                   [count]="rows.length"
+                   [externalSorting]="true"
+                   [externalPaging]="true"
+                   (page)='setPage($event)'
+                   [messages]="messages">
+
+      <div *ngIf="!isMobile">
+        <ngx-datatable-column prop="tx_digest" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-number="column" let-sort="sortFn" ngx-datatable-header-template>
+                <span class="datatable-header-cell-wrapper">
+                  {{ "PAGES.MasterNode.RewardTransactions.Table.Digest" | translate }}
+                </span>
+          </ng-template>
+
+          <ng-template let-tx_digest="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center a-link overflow-ellipsis" [routerLink]="'/scanner/tx/' + row.tx_digest">
+              {{ row.tx_digest }}
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="node_address" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-number="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.MasterNode.RewardTransactions.Table.To" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-node_address="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              <div class="a-link overflow-ellipsis" [routerLink]="'/scanner/address/' + row.node_address">{{ row.node_address }}</div>
+              {{ row.node_name }}
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="tx_amount" [draggable]="false" [resizeable]="false" [sortable]="false">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper">
+                {{ "PAGES.MasterNode.RewardTransactions.Table.Amount" | translate }}
+              </span>
+          </ng-template>
+
+          <ng-template let-tx_amount="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">
+              {{ row.tx_amount }} {{ row.tx_token }}
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="date" [draggable]="false" [resizeable]="false" [sortable]="false" [maxWidth]="200">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span class="datatable-header-cell-wrapper">
+              {{ "PAGES.MasterNode.LatestReward.Table.Date" | translate }}
+            </span>
+          </ng-template>
+
+          <ng-template let-time="value" let-row="row" ngx-datatable-cell-template>
+            <div class="text-center">{{ row.time * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+          </ng-template>
+        </ngx-datatable-column>
+      </div>
+
+      <ngx-datatable-column *ngIf="isMobile" prop="date" [draggable]="false" [resizeable]="false" [sortable]="false">
+        <ng-template let-column="column" ngx-datatable-header-template>
+          <span class="datatable-header-cell-wrapper">{{ "PAGES.MasterNode.RewardTransactions.Table.Digest" | translate }}:</span>
+        </ng-template>
+
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="mt-1 mb-1 font-weight-500 a-link overflow-ellipsis" [routerLink]="'/scanner/tx/' + row.tx_digest">
+            {{ row.tx_digest }}
+          </div>
+          <div class="mt-1 d-flex">
+            <span class="font-weight-500">{{ "PAGES.MasterNode.RewardTransactions.Table.To" | translate }}:</span>
+            <div class="a-link overflow-ellipsis mx-1" [routerLink]="'/scanner/address/' + row.node_address">{{ row.node_address }}</div>
+            <div class="nowrap">{{ row.node_name }}</div>
+          </div>
+          <div>
+            <span class="font-weight-500">{{ "PAGES.MasterNode.RewardTransactions.Table.Amount" | translate }}:</span>
+            {{ row.tx_amount }} {{ row.tx_token }}
+          </div>
+          <div class="mt-1 mb-1">
+            <span class="font-weight-500">{{ "PAGES.MasterNode.RewardTransactions.Table.Date" | translate }}:</span>
+            {{ row.time * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+
+    <ul class="pagination pagination--small mb-2">
+      <li class="page-item" [ngClass]="{'hidden': offset === 0 || loading}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="prevPage()">
+          <svg class="icon--previous" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+      <li class="page-item" [ngClass]="{'hidden': isLastPage || loading}">
+        <a class="page-link page-link--tiny" href="javascript:void(0)" (click)="nextPage()">
+          <svg class="icon--next" height="17px" width="7px">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#next"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>

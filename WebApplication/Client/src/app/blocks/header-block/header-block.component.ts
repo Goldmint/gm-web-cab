@@ -113,11 +113,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       }
     });
 
-    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
+    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe((bal: any) => {
+      this.hotGoldBalance = bal;
       if (bal != null) {
         this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
-        this._cdRef.markForCheck();
       }
+      this._cdRef.markForCheck();
     });
 
     // this.sumusNetwork = localStorage.getItem('gmint_sumus_network') ?

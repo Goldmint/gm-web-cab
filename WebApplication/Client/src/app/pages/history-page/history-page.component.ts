@@ -5,7 +5,7 @@ import {
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 import { Page } from '../../models/page';
 import { HistoryRecord } from '../../interfaces';
-import {UserService, APIService, EthereumService} from '../../services';
+import {UserService, APIService} from '../../services';
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
@@ -38,8 +38,8 @@ export class HistoryPageComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private apiService: APIService,
     private cdRef: ChangeDetectorRef,
-    public translate: TranslateService,
-    private _ethService: EthereumService) {
+    public translate: TranslateService
+  ) {
 
     this.page.pageNumber = 0;
     this.page.size = 10;
