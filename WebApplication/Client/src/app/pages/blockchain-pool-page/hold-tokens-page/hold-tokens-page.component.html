@@ -1,0 +1,46 @@
+<!-- host: .page -->
+<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.BlockchainPool.Heading" | translate }}</h2>
+
+  <div class="section__content pt-4">
+    <form #holdFrom="ngForm">
+      <div>
+        <div class="col-12">
+          <div class="from-row form-group">
+            <label for="mntpInput">{{ "PAGES.BlockchainPool.HoldTokens.Heading" | translate }}</label>
+            <div class="d-flex align-items-center">
+              <div class="form-currency">
+                <svg class="icon" width="30" height="30">
+                  <use xlink:href="#cur-gold"></use>
+                </svg>
+              </div>
+              <input type="text" class="form-control" name="mntpInput" id="mntpInput"
+                     #mntpInput="ngModel"
+                     [(ngModel)]="tokenAmount"
+                     autocomplete="off"
+                     (input)="changeValue($event)"
+                     [ngClass]="{'is-invalid': false }"
+                     [disabled]="loading">
+            </div>
+            <div class="percent-btn-cont">
+              <button class="percent-btn" (click)="setCoinBalance(0.25)">25%</button>
+              <button class="percent-btn" (click)="setCoinBalance(0.5)">50%</button>
+              <button class="percent-btn" (click)="setCoinBalance(0.75)">75%</button>
+              <button class="percent-btn" (click)="setCoinBalance(1)">100%</button>
+            </div>
+            <div class="invalid-feedback" *ngIf="(invalidBalance || !tokenAmount) && mntpInput.dirty">
+              {{ "PAGES.BlockchainPool.HoldTokens.Errors.EnoughMoney" | translate }}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mb-5">
+          <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !tokenAmount || isInvalidNetwork">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+          <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

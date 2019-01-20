@@ -120,7 +120,6 @@ import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/ad
 import {MomentModule} from "ngx-moment";
 import {DeviceDetectorModule} from "ngx-device-detector";
 import {NgxMaskModule} from "ngx-mask";
-import { WalletPageComponent } from './pages/wallet-page/wallet-page.component';
 import { AuthModalComponent } from './common/message-box/auth-modal/auth-modal.component';
 import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
 import { PawnshopFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component';
@@ -132,6 +131,8 @@ import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 import { PawnshopInvestComponent } from './pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component';
 import { RewardTransactionsPageComponent } from './pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component';
+import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockchain-pool-page.component';
+import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -238,7 +239,6 @@ export function getGoldmintToken() {
     AllTransactionsPageComponent,
     AllBlocksPageComponent,
     AddressInfoPageComponent,
-    WalletPageComponent,
     AuthModalComponent,
     PawnshopPageComponent,
     PawnshopFeedPageComponent,
@@ -248,7 +248,9 @@ export function getGoldmintToken() {
     FeedTableComponent,
     AccountReductionPipe,
     PawnshopInvestComponent,
-    RewardTransactionsPageComponent
+    RewardTransactionsPageComponent,
+    BlockchainPoolPageComponent,
+    HoldTokensPageComponent
   ],
   exports: [],
   providers: [

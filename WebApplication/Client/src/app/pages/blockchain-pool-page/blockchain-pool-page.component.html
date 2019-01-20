@@ -1,0 +1,39 @@
+<!-- host: .page -->
+<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.BlockchainPool.Heading" | translate }}</h2>
+
+  <div class="section__content pt-4">
+    <div class="row mb-4 align-items-baseline">
+
+      <div class="col-12 col-md-6 col-lg-3 form-group text-center">
+        <label class="pool-label-btn" for="hold">{{ "PAGES.BlockchainPool.Labels.Hold" | translate }}</label>
+        <button class="btn btn-primary btn-block" id="hold" routerLink="/blockchain-pool/hold-tokens">
+          <svg class="icon" width="56px" height="56px">
+            <use xlink:href="#inbox"></use>
+          </svg>
+        </button>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3 form-group text-center">
+        <label class="pool-label-btn" for="withdraw">{{ "PAGES.BlockchainPool.Labels.Withdraw" | translate:{mntp: 12, gold: 0.0021} }}</label>
+        <button class="btn btn-primary btn-block" id="withdraw">
+          <svg class="icon" width="56px" height="56px">
+            <use xlink:href="#goldsell-history-black"></use>
+          </svg>
+        </button>
+      </div>
+
+      <div class="col-12 col-lg-3 form-group text-center">
+        <label class="pool-label-btn" for="unhold">{{ "PAGES.BlockchainPool.Labels.Unhold" | translate:{total: 1000, mntp: 12, gold: 0.0021} }}</label>
+        <button class="btn btn-primary btn-block" id="unhold">
+          <svg class="icon" width="56px" height="56px">
+            <use xlink:href="#outbox"></use>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</section>

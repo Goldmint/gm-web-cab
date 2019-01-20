@@ -27,7 +27,7 @@
       },
       "GoldmintBlockchain": {
         "Heading": "Goldmint Blockchain",
-        "Wallet": "Wallet",
+        "Pool": "Blockchain pool",
         "MasterNode": "Master node",
         "Scanner": "Scanner"
       },
@@ -1467,10 +1467,24 @@
         }
       }
     },
-    "Wallet": {
-      "Heading": "Wallet",
-      "Items": {
-        "GetWallet": "Get Lite Wallet"
+    "BlockchainPool": {
+      "Heading": "Blockchain pool",
+      "Labels": {
+        "Hold": "Hold my MNTP tokens on the pool",
+        "Withdraw": "Withdraw my reward {{ mntp }} MNTP and {{ gold }} GOLD",
+        "Unhold": "Unhold my {{ total }} MNTP and withdraw reward {{ mntp }} MNTP and {{ gold }} GOLD"
+      },
+      "HoldTokens": {
+        "Heading": "Hold my MNTP tokens on the pool",
+        "Labels": {
+          "Tokens": "Tokens to hold"
+        },
+        "Errors": {
+          "EnoughMoney": "You don't have enough money"
+        },
+        "Buttons": {
+          "Hold": "Hold"
+        }
       }
     },
     "Pawnshop": {
@@ -1638,6 +1652,7 @@
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
       "HeadingMigration": "TOKEN MIGRATION",
+      "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },
     "LoginToLiteWallet": {
