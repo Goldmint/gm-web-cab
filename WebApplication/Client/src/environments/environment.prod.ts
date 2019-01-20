@@ -10,10 +10,10 @@ export const environment = {
   //   MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
   //   TestNet: 'https://service.goldmint.io/sumus/testnet/v1'
   // },
-  sumusNetworkUrl: 'https://service.goldmint.io/sumus/testnet/v1',
+  sumusNetworkUrl: 'https://service.goldmint.io/sumus/mainnet/v1',
   apiUrl: 'https://app.goldmint.io/api/v1',
-  walletApiUrl: 'https://staging.goldmint.io/wallet/api/v1',
-  marketApiUrl: 'https://staging.goldmint.io/market/v1',
+  walletApiUrl: '',
+  marketApiUrl: 'https://service.goldmint.io/pawnmarket/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://etherscan.io/tx/',
