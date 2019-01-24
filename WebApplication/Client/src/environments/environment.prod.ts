@@ -20,8 +20,8 @@ export const environment = {
   infuraUrl: 'https://service.goldmint.io/proxy/infura/mainnet',
   etherscanGetABIUrl: 'https://api.etherscan.io',
   EthContractAddress: '0xa5dc5b5046003fa379ac6430675b543fcb69f101',
-  EthGoldContractAddress: '0xd67a3c707f901c510724703f150b1f2d94dc5ee6',
-  EthMntpContractAddress: '0x160350f317b573f477473dd74c3bdfcf5e619da0',
-  EthPoolContractAddress: '0xcD4aE63c113a29757C2afBe240B740324A339DC2',
+  EthGoldContractAddress: '0x61d40B844ea5B68c9C504FCcdB05B68c2D7aE965',
+  EthMntpContractAddress: '0x83cee9e086A77e492eE0bB93C2B0437aD6fdECCc',
+  EthPoolContractAddress: '0x907a62e39e860752b4196c780cf84f56c807cf60',
   getLiteWalletLink: 'https://chrome.google.com/webstore/detail/goldmint-lite-wallet/fnabdmcgpkkjjegokfcnfbpneacddpfh'
 };
