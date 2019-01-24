@@ -37,7 +37,7 @@
         </div>
 
         <div class="col-12 mb-5">
-          <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !tokenAmount || isInvalidNetwork">{{ "PAGES.Buy.Buttons.BuyNow" | translate }}</button>
+          <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !tokenAmount || isInvalidNetwork">{{ "PAGES.BlockchainPool.HoldTokens.Buttons.Hold" | translate }}</button>
           <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
         </div>
       </div>

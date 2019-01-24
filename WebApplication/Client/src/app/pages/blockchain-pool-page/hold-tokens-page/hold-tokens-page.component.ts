@@ -5,6 +5,9 @@ import {EthereumService, MessageBoxService, UserService} from "../../../services
 import {Subject} from "rxjs/Subject";
 import {Subscription} from "rxjs/Subscription";
 import {environment} from "../../../../environments/environment";
+import {PoolService} from "../../../services/pool.service";
+import {TranslateService} from "@ngx-translate/core";
+import * as Web3 from "web3";
 
 @Component({
   selector: 'app-hold-tokens-page',
@@ -29,19 +32,24 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   public isAuthenticated: boolean = false;
   public isInvalidNetwork: boolean = true;
 
+  private Web3 = new Web3();
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private sub1: Subscription;
 
   constructor(
-    private commonService: CommonService,
+    private _commonService: CommonService,
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
     private _ethService: EthereumService,
-    private _messageBox: MessageBoxService
+    private _messageBox: MessageBoxService,
+    private _poolService: PoolService,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit() {
     this.isAuthenticated = this._userService.isAuthenticated();
+    this.initSuccessTransactionModal();
 
     if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.loading = true;
@@ -84,8 +92,18 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
 
   }
 
+  initSuccessTransactionModal() {
+    this._poolService.getSuccessHoldRequestLink$.takeUntil(this.destroy$).subscribe(hash => {
+      if (hash) {
+        this._translate.get('MessageBox.SuccessTransactionModal').subscribe(phrases => {
+          this._poolService.successTransactionModal(hash, phrases);
+        });
+      }
+    });
+  }
+
   changeValue(event) {
-    event.target.value = this.commonService.substrValue(event.target.value);
+    event.target.value = this._commonService.substrValue(event.target.value);
     this.tokenAmount = +event.target.value;
     event.target.setSelectionRange(event.target.value.length, event.target.value.length);
     this.checkEnteredAmount();
@@ -93,7 +111,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   }
 
   setCoinBalance(percent) {
-    const value = this.commonService.substrValue(+this.tokenBalance * percent);
+    const value = this._commonService.substrValue(+this.tokenBalance * percent);
     this.tokenAmount = +value;
     this.checkEnteredAmount();
     this._cdRef.markForCheck();
@@ -108,10 +126,21 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
       this._messageBox.authModal();
       return;
     }
+
+    let firstLoad = true;
+    this.sub1 && this.sub1.unsubscribe();
+    this.sub1 = this._ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {
+      if (price && firstLoad) {
+        firstLoad = false;
+        const wei = this.Web3.toWei(this.tokenAmount);
+        this._poolService.holdStake(this.ethAddress, wei, +price * Math.pow(10, 9));
+      }
+    });
   }
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    clearTimeout(this.timeoutPopUp);
   }
 
 }

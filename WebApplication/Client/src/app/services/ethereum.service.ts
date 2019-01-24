@@ -19,11 +19,14 @@ export class EthereumService {
   private EthContractAddress = environment.EthContractAddress;
   private EthContractABI: string;
   // gold token
-  private EthGoldContractAddress: string
+  private EthGoldContractAddress: string = environment.EthGoldContractAddress;
   private EthGoldContractABI: string;
   // mntp token
-  private EthMntpContractAddress: string;
+  private EthMntpContractAddress: string = environment.EthMntpContractAddress;
   private EthMntpContractABI: string;
+  // pool contract
+  public EthPoolContractAddress: string = environment.EthPoolContractAddress;
+  private EthPoolContractABI: string;
 
   private _web3Infura: Web3 = null;
   private _web3Metamask: Web3 = null;
@@ -36,7 +39,8 @@ export class EthereumService {
 
   public _contractGold: any;
   public _contractHotGold: any;
-  private _contractMntp: any;
+  public poolContract: any;
+  public contractMntp: any;
   private _contactsInitted: boolean = false;
   private _totalGoldBalances = {issued: null, burnt: null};
   private _allowedUrlOccurrencesForInject = [
@@ -62,6 +66,8 @@ export class EthereumService {
   private _obsGasPrice: Observable<Object> = this._obsGasPriceSubject.asObservable();
   private _obsNetworkSubject = new BehaviorSubject<Number>(null);
   private _obsNetwork: Observable<Number> = this._obsNetworkSubject.asObservable();
+
+  public isPoolContractLoaded$ = new BehaviorSubject(null);
 
   public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
@@ -106,19 +112,29 @@ export class EthereumService {
         if (this._web3Infura.eth) {
           this._contractInfura = this._web3Infura.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
 
-          this._contractInfura.mntpToken((error, address) => {
-            this.EthMntpContractAddress = address;
+          // this._contractInfura.mntpToken((error, address) => {
+          //   this.EthMntpContractAddress = address;
+          // });
+
+          this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
+            this.EthMntpContractABI = abi['result'];
+          });
+          this.getContractABI(this.EthGoldContractAddress).subscribe(abi => {
+            this.EthGoldContractABI = abi['result'];
+            this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
+          });
+          this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
+            this.EthPoolContractABI = abi['result'];
           });
 
-          this._contractInfura.goldToken((error, address) => {
-            this.EthGoldContractAddress = address;
-
-            this.getContractABI(this.EthGoldContractAddress).subscribe(abi => {
-              this.EthGoldContractABI = this.EthMntpContractABI = abi['result'];
-
-              this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
-            });
-         });
+         //  this._contractInfura.goldToken((error, address) => {
+         //    this.EthGoldContractAddress = address;
+         //
+         //    this.getContractABI(this.EthGoldContractAddress).subscribe(abi => {
+         //      this.EthGoldContractABI = abi['result'];
+         //      this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
+         //    });
+         // });
 
         } else {
           this._web3Infura = null;
@@ -126,7 +142,7 @@ export class EthereumService {
       });
     }
 
-    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI) {
+    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI && this.EthMntpContractABI && this.EthPoolContractABI) {
       let ethereum = window['ethereum'];
 
       if (ethereum) {
@@ -139,7 +155,10 @@ export class EthereumService {
       if (this._web3Metamask.eth) {
         this._contractMetamask = this._web3Metamask.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
         this._contractGold = this._web3Metamask.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
-        this._contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
+        this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
+        this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
+
+        this.isPoolContractLoaded$.next(true);
       } else {
         this._web3Metamask = null;
       }
@@ -184,6 +203,9 @@ export class EthereumService {
   }
 
   private emitAddress(ethAddress: string) {
+    this._web3Metamask && this._web3Metamask['eth'] && this._web3Metamask['eth'].coinbase
+    && (this._web3Metamask['eth'].defaultAccount = this._web3Metamask['eth'].coinbase);
+
     this._obsEthAddressSubject.next(ethAddress);
     this._obsGoldBalanceSubject.next(null);
     this._obsMntpBalanceSubject.next(null);
@@ -204,7 +226,7 @@ export class EthereumService {
     if (addr == null || this._contractGold == null) {
       this._obsMntpBalanceSubject.next(null);
     } else {
-      this._contractMntp.balanceOf(addr, (err, res) => {
+      this.contractMntp.balanceOf(addr, (err, res) => {
         this._obsMntpBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
       });
     }
@@ -327,8 +349,8 @@ export class EthereumService {
   }
 
   public mntpTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
-    if (this._contractMntp == null) return;
-    this._contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+    if (this.contractMntp == null) return;
+    this.contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessMigrationMntpLink$.next(res);
     });
   }

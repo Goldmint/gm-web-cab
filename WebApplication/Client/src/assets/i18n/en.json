@@ -1471,8 +1471,8 @@
       "Heading": "Blockchain pool",
       "Labels": {
         "Hold": "Hold my MNTP tokens on the pool",
-        "Withdraw": "Withdraw my reward {{ mntp }} MNTP and {{ gold }} GOLD",
-        "Unhold": "Unhold my {{ total }} MNTP and withdraw reward {{ mntp }} MNTP and {{ gold }} GOLD"
+        "Withdraw": "Withdraw my reward",
+        "Unhold": "Unhold my stake and withdraw reward"
       },
       "HoldTokens": {
         "Heading": "Hold my MNTP tokens on the pool",
@@ -1638,6 +1638,11 @@
       "WrongID": "Wrong card ID",
       "InvalidCode": "Invalid code",
       "InvalidFormat": "Invalid code format. Only digits are allowed."
+    },
+    "SuccessTransactionModal": {
+      "Heading": "Transaction in Process:",
+      "Hash": "Your transaction hash is:",
+      "Link": "View your transaction on EtherScan"
     },
     "MetaMask": {
       "Heading": "To continue you'll need to have Metamask",

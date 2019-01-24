@@ -133,6 +133,7 @@ import { PawnshopInvestComponent } from './pages/pawnshop-page/pawnshop-invest/p
 import { RewardTransactionsPageComponent } from './pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component';
 import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockchain-pool-page.component';
 import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component';
+import {PoolService} from "./services/pool.service";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -262,6 +263,7 @@ export function getGoldmintToken() {
     EthereumService,
     GoldrateService,
     CommonService,
+    PoolService,
     DatePipe,
     {
       provide: RECAPTCHA_SETTINGS,
