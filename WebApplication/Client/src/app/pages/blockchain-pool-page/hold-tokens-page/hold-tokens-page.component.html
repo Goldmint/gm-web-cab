@@ -21,7 +21,7 @@
                      [(ngModel)]="tokenAmount"
                      autocomplete="off"
                      (input)="changeValue($event)"
-                     [ngClass]="{'is-invalid': false }"
+                     [ngClass]="{'is-invalid': (invalidBalance || !tokenAmount) && mntpInput.dirty }"
                      [disabled]="loading">
             </div>
             <div class="percent-btn-cont">
