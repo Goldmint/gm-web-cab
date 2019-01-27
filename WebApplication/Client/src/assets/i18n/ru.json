@@ -1467,10 +1467,24 @@
         }
       }
     },
-    "Wallet": {
-      "Heading": "Кошелек",
-      "Items": {
-        "GetWallet": "Получить Lite Wallet"
+    "BlockchainPool": {
+      "Heading": "Blockchain pool",
+      "Labels": {
+        "Hold": "Удержать мои MNTP токены в пуле",
+        "Withdraw": "Вывести мое вознаграждение",
+        "Unhold": "Возвратить мою часть и вывести вознаграждение"
+      },
+      "HoldTokens": {
+        "Heading": "Удержать мои MNTP токены в пуле",
+        "Labels": {
+          "Tokens": "Токены для удержания"
+        },
+        "Errors": {
+          "EnoughMoney": "У вас недостаточно средств"
+        },
+        "Buttons": {
+          "Hold": "Удержать"
+        }
       }
     },
     "Pawnshop": {
@@ -1625,6 +1639,11 @@
       "InvalidCode": "Неверный код",
       "InvalidFormat": "Недопустимый формат кода. Разрешены только цифры."
     },
+    "SuccessTransactionModal": {
+      "Heading": "Транзакция в процессе:",
+      "Hash": "Хэш вашей транзакции:",
+      "Link": "Просмотр транзакции на EtherScan"
+    },
     "MetaMask": {
       "Heading": "Чтобы продолжить, Вам понадобится Metamask",
       "Text": "MetaMask - это мост, который позволяет вам посещать распределенную сеть будущего в вашем браузере сегодня. Он позволяет запускать Ethereum dApps прямо в вашем браузере без запуска полного узла Ethereum. Пожалуйста, установите расширение MetaMask в браузере Chrome, Firefox или Opera. Узнать о <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
@@ -1638,6 +1657,7 @@
       "HeadingSell": "ПРОДАТЬ GOLD",
       "HeadingTransfer": "ПЕРЕВОД GOLD",
       "HeadingMigration": "МИГРАЦИЯ ТОКЕНОВ",
+      "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Войдите в свой аккаунт или разрешите доступ к Ethereum blockchain"
     },
     "LoginToLiteWallet": {

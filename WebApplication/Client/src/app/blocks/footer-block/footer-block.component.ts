@@ -9,6 +9,8 @@ import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy } from '@
 })
 export class FooterBlockComponent implements OnInit {
 
+  public year = new Date().getFullYear();
+
   constructor() { }
 
   ngOnInit() {

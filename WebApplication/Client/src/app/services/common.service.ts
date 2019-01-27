@@ -36,4 +36,12 @@ export class CommonService {
     return rows;
   }
 
+  public substrValue(value: number|string) {
+    return value.toString()
+      .replace(',', '.')
+      .replace(/([^\d.])|(^\.)/g, '')
+      .replace(/^(\d{1,6})\d*(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
+      .replace(/^0+(\d)/, '$1');
+  }
+
 }

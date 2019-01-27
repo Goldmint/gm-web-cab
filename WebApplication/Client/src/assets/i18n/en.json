@@ -27,7 +27,7 @@
       },
       "GoldmintBlockchain": {
         "Heading": "Goldmint Blockchain",
-        "Wallet": "Wallet",
+        "Pool": "Blockchain pool",
         "MasterNode": "Master node",
         "Scanner": "Scanner"
       },
@@ -1467,10 +1467,24 @@
         }
       }
     },
-    "Wallet": {
-      "Heading": "Wallet",
-      "Items": {
-        "GetWallet": "Get Lite Wallet"
+    "BlockchainPool": {
+      "Heading": "Blockchain pool",
+      "Labels": {
+        "Hold": "Hold my MNTP tokens on the pool",
+        "Withdraw": "Withdraw my reward",
+        "Unhold": "Unhold my stake and withdraw reward"
+      },
+      "HoldTokens": {
+        "Heading": "Hold my MNTP tokens on the pool",
+        "Labels": {
+          "Tokens": "Tokens to hold"
+        },
+        "Errors": {
+          "EnoughMoney": "You don't have enough money"
+        },
+        "Buttons": {
+          "Hold": "Hold"
+        }
       }
     },
     "Pawnshop": {
@@ -1625,6 +1639,11 @@
       "InvalidCode": "Invalid code",
       "InvalidFormat": "Invalid code format. Only digits are allowed."
     },
+    "SuccessTransactionModal": {
+      "Heading": "Transaction in Process:",
+      "Hash": "Your transaction hash is:",
+      "Link": "View your transaction on EtherScan"
+    },
     "MetaMask": {
       "Heading": "To continue you'll need to have Metamask",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
@@ -1638,6 +1657,7 @@
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
       "HeadingMigration": "TOKEN MIGRATION",
+      "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },
     "LoginToLiteWallet": {

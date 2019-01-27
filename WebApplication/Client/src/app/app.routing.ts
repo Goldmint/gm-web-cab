@@ -42,7 +42,6 @@ import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-bl
 import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions-page/all-transactions-page.component";
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
-import {WalletPageComponent} from "./pages/wallet-page/wallet-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
 import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
 import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component";
@@ -53,6 +52,8 @@ import {FeedTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/feed-
 import {AllTicketFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component";
 import {PawnshopInvestComponent} from "./pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component";
 import {RewardTransactionsPageComponent} from "./pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component";
+import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockchain-pool-page.component";
+import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component";
 
 
 const appRoutes: Routes = [
@@ -103,7 +104,8 @@ const appRoutes: Routes = [
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
-  { path: 'wallet', component: WalletPageComponent },
+  { path: 'blockchain-pool', component: BlockchainPoolPageComponent },
+  { path: 'blockchain-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'transparency', component: TransparencyPageComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },
