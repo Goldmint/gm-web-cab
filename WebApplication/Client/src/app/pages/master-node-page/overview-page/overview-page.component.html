@@ -9,8 +9,8 @@
     <div *ngIf="isDataLoaded">
       <div class="mt-4 line-height">
         <div><b>{{ "PAGES.MasterNode.Overview.Labels.Nodes" | translate }} </b>{{ overviewStats?.nodes }}</div>
-        <div><b>{{ "PAGES.MasterNode.Overview.Labels.MNT" | translate }} </b>{{ overviewStats?.balance_mnt }} MNT</div>
-        <div><b>{{ "PAGES.MasterNode.Overview.Labels.Reward" | translate }}</b> {{ overviewStats?.balance_gold | substr:7 }} GOLD</div>
+        <div><b>{{ "PAGES.MasterNode.Overview.Labels.MNT" | translate }} </b>{{ overviewStats?.balance_mnt | substr:3 }} MNT</div>
+        <div><b>{{ "PAGES.MasterNode.Overview.Labels.Reward" | translate }}</b> {{ overviewStats?.gained_mnt | substr:7 }} MNT</div>
       </div>
     </div>
 
@@ -69,7 +69,7 @@
           </ng-template>
 
           <ng-template let-balance_mnt="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">{{ row.balance_mnt }}</div>
+            <div class="text-center">{{ row.balance_mnt | substr:3 }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -115,7 +115,7 @@
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.MasterNode.Overview.Table.MNT" | translate }}:</span>
-            {{ row.balance_mnt }}
+            {{ row.balance_mnt | substr:3 }}
           </div>
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.MasterNode.Overview.Table.Reward" | translate }}:</span>
