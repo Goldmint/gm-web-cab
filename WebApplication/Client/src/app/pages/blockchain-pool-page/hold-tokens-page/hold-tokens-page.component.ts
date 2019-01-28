@@ -62,7 +62,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableMntpBalance().takeUntil(this.destroy$).subscribe(balance => {
       if (balance !== null && (this.tokenBalance === null || !this.tokenBalance.eq(balance))) {
-        this.tokenBalance = balance;
+        this.tokenBalance = +balance < 1 * Math.pow(10, -6) ? new BigNumber(0) : balance;
         this.setCoinBalance(1);
         this.loading = false;
         this._cdRef.markForCheck();
