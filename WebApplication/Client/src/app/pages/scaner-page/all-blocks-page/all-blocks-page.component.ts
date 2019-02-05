@@ -30,7 +30,7 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
-  public offset: number = 0;
+  public offset: number = -1;
   public pagination = {
     prev: null,
     next: null
@@ -66,29 +66,32 @@ export class AllBlocksPageComponent implements OnInit, OnDestroy {
       })
       .subscribe((data: any) => {
         this.isLastPage = false;
-        this.rows = data.res.list ? data.res.list : [];
-
-        if (this.rows.length) {
-          if (!isNext) {
-            this.paginationHistory.pop();
-            this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
-          }
-          isNext && this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
-        } else {
-          isNext && this.paginationHistory.push(null);
+        if (data.res.list && data.res.list.length) {
+          this.rows = data.res.list;
         }
 
-        (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
+        if (data.res.list && data.res.list.length) {
+          if (!isNext) {
+            this.offset--;
+            this.paginationHistory.pop();
+            this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
+          } else {
+            this.offset++;
+            this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
+          }
+        }
+
+        if (!data.res.list || (data.res.list && !data.res.list.length) || (this.offset === 0 && this.rows.length < 10)) {
+          this.isLastPage = true;
+        }
       });
   }
 
   prevPage() {
-    this.offset--;
     this.setPage(this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
-    this.offset++;
     this.setPage(this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 
