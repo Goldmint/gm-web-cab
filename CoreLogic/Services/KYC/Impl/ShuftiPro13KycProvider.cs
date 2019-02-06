@@ -77,7 +77,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 					.OnResult(async (res) => {
 						var raw = await res.ToRawString();
 
-						var sig = res.GetHeader("sp_signature");
+						var sig = res.GetHeader("SIGNATURE");
 						if (sig.Length != 1) {
 							_logger?.Error("Missing signature");
 							return;
@@ -114,7 +114,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 					raw = await reader.ReadToEndAsync();
 				}
 
-				if (!request.Headers.TryGetValue("sp_signature", out var sigs) || sigs.Count != 1) {
+				if (!request.Headers.TryGetValue("SIGNATURE", out var sigs) || sigs.Count != 1) {
 					throw new Exception("Missing signature");
 				}
 				if (!CheckCallbackSignature(raw, sigs[0])) {
@@ -136,7 +136,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 
 			} catch (Exception e) {
 				ret.OverallStatus = VerificationStatus.Fail;
-				_logger?.Info(e, "Callback failure");
+				_logger?.Error(e, "Callback failure");
 			}
 
 			return ret;

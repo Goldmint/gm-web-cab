@@ -4,7 +4,6 @@ import {APIService, UserService} from "../../../../services";
 import {FeedList} from "../../../../interfaces/feed-list";
 import {Page} from "../../../../models/page";
 import {CommonService} from "../../../../services/common.service";
-import {Observable} from "rxjs/Observable";
 import {Router} from "@angular/router";
 
 @Component({
@@ -24,7 +23,8 @@ export class AllTicketFeedPageComponent implements OnInit {
   public isMobile: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
-  public offset: number = 0;
+  public offset: number = -1;
+  public currentDate = new Date().getTime();
 
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -64,7 +64,9 @@ export class AllTicketFeedPageComponent implements OnInit {
           this.cdRef.markForCheck();
         }).subscribe((data: any) => {
         this.isLastPage = false;
-        this.rows = data.res.list ? data.res.list : [];
+        if (data.res.list && data.res.list.length) {
+          this.rows = data.res.list;
+        }
 
         this.rows.forEach(row => {
           for (let key in orgList) {
@@ -74,30 +76,32 @@ export class AllTicketFeedPageComponent implements OnInit {
 
         // this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows, 'table-row', 'id');
 
-        !this.rows.length && (this.isLastPage = true);
+        if (!data.res.list || (data.res.list && !data.res.list.length)) {
+          this.isLastPage = true;
+        }
 
         this.interval = setInterval(() => {
           this.setPage(org, from, null);
         }, 20000);
 
-        this.pagination(isNext);
+        this.cdRef.markForCheck();
+        if(isNext === null) return;
+
+        if (data.res.list && data.res.list.length) {
+          if (!isNext) {
+            this.offset--;
+            this.prevRows = [];
+            this.paginationHistory.pop();
+            this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
+          } else {
+            this.offset++;
+            this.prevRows = [];
+            this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
+          }
+        }
         this.cdRef.markForCheck();
       });
     });
-  }
-
-  pagination(isNext) {
-    if(isNext === null) return;
-
-    if (this.rows.length) {
-      if (!isNext) {
-        this.paginationHistory.pop();
-        this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
-      }
-      isNext && this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
-    } else {
-      isNext && this.paginationHistory.push(null);
-    }
   }
 
   selectOrganization(id: number) {
@@ -106,14 +110,10 @@ export class AllTicketFeedPageComponent implements OnInit {
   }
 
   prevPage() {
-    this.offset--;
-    this.prevRows = [];
     this.setPage(null, this.paginationHistory[this.paginationHistory.length - 3], false);
   }
 
   nextPage() {
-    this.offset++;
-    this.prevRows = [];
     this.setPage(null, this.paginationHistory[this.paginationHistory.length - 1], true);
   }
 

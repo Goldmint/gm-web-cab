@@ -24,7 +24,7 @@ export class PawnshopsTableComponent implements OnInit {
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isLastPage: boolean = false;
-  public offset: number = 0;
+  public offset: number = -1;
   public selected: PawnshopList[] = [];
   public orgName: string;
   public orgChartData = [];
@@ -73,24 +73,29 @@ export class PawnshopsTableComponent implements OnInit {
       })
       .subscribe((data: any) => {
         this.isLastPage = false;
-        this.rows = data.res.list ? data.res.list : [];
+        if (data.res.list && data.res.list.length) {
+          this.rows = data.res.list;
+        }
 
         if (isRouteChange) {
           this.rows.length ? this.getOrganizationName(this.rows[0].org_id) : this.orgName = '-';
           this.cdRef.markForCheck();
         }
 
-        if (this.rows.length) {
+        if (data.res.list && data.res.list.length) {
           if (!isNext) {
+            this.offset--;
             this.paginationHistory.pop();
             this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
+          } else {
+            this.offset++;
+            this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
           }
-          isNext && this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
-        } else {
-          isNext && this.paginationHistory.push(null);
         }
 
-        (!this.rows.length || (this.offset === 0 && this.rows.length < 10)) && (this.isLastPage = true);
+        if (!data.res.list || (data.res.list && !data.res.list.length)) {
+          this.isLastPage = true;
+        }
       });
   }
 
@@ -108,12 +113,10 @@ export class PawnshopsTableComponent implements OnInit {
   }
 
   prevPage() {
-    this.offset--;
     this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 3], false, false);
   }
 
   nextPage() {
-    this.offset++;
     this.setPage(this.orgId, this.paginationHistory[this.paginationHistory.length - 1], true, false);
   }
 

@@ -117,9 +117,12 @@
           </span>
           </ng-template>
 
-          <ng-template let-open_time="value" ngx-datatable-cell-template>
+          <ng-template let-open_time="value" let-row="row" ngx-datatable-cell-template>
             <div class="text-center">
-              <div>{{ open_time * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+              <div>{{ row.close_time ? (row.close_time * 1000 | date: 'MMM d, y, HH:mm:ss') :
+                      row.open_time ? (row.open_time * 1000 | date: 'MMM d, y, HH:mm:ss') :
+                      (currentDate | date: 'MMM d, y, HH:mm:ss') }}
+              </div>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -163,7 +166,9 @@
           </div>
           <div>
             <span class="font-weight-500">{{ "PAGES.Pawnshop.Feed.FeedTable.UpdateDate" | translate }}:</span>
-            {{ row.open_time * 1000 | date: 'MMM d, y, HH:mm:ss' }}
+            {{ row.close_time ? (row.close_time * 1000 | date: 'MMM d, y, HH:mm:ss') :
+            row.open_time ? (row.open_time * 1000 | date: 'MMM d, y, HH:mm:ss') :
+            (currentDate | date: 'MMM d, y, HH:mm:ss') }}
           </div>
         </ng-template>
       </ngx-datatable-column>
