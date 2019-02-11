@@ -32,6 +32,8 @@ export class BlockchainPoolPageComponent implements OnInit {
   public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake', 'withdrawRewardAndUnholdStakeOld'];
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
+  public etherscanContractUrl = environment.etherscanContractUrl;
+  public poolContractAddress = environment.EthPoolContractAddress;
 
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();

@@ -17,6 +17,7 @@ export const environment = {
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://etherscan.io/tx/',
+  etherscanContractUrl: "https://etherscan.io/address/",
   infuraUrl: 'https://service.goldmint.io/proxy/infura/mainnet',
   etherscanGetABIUrl: 'https://api.etherscan.io',
   EthContractAddress: '0xa5dc5b5046003fa379ac6430675b543fcb69f101',

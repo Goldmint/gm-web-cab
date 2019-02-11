@@ -9,7 +9,7 @@
       <div class="container"></div>
     </div>
 
-    <div class="row mb-4 align-items-baseline">
+    <div class="row align-items-baseline">
 
       <div class="col-12 col-md-6 col-lg-3 form-group text-center">
         <label class="pool-label-btn" for="hold">{{ "PAGES.BlockchainPool.Labels.Hold" | translate }}</label>
@@ -65,5 +65,10 @@
       </div>
 
     </div>
+
+    <div class="mt-1 mb-4">
+      <a class="" [href]="etherscanContractUrl + poolContractAddress" target="_blank">{{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}</a>
+    </div>
+
   </div>
 </section>
