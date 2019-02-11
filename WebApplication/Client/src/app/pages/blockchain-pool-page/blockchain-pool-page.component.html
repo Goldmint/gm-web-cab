@@ -49,6 +49,21 @@
         </button>
       </div>
 
+      <div class="col-12 col-lg-3 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
+        <label class="pool-label-btn" for="unhold-old" [innerHTML]="'PAGES.BlockchainPool.Labels.UnholdOld' | translate"></label>
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="isInvalidNetwork" (click)="onSubmit(submitMethod[2])">
+          <svg class="icon" width="56px" height="56px">
+            <use xlink:href="#outbox"></use>
+          </svg>
+
+          <div>
+            <div class="unhold-tokens"><b>{{ heldTokensOld | substr:3 }}</b> MNTP</div>
+            <div><b>{{ mntpRewardOld.toFixed(3) }}</b> MNTP </div>
+            <div><b>{{ goldRewardOld.toFixed(3) }}</b> GOLD</div>
+          </div>
+        </button>
+      </div>
+
     </div>
   </div>
 </section>

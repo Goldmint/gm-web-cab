@@ -21,10 +21,15 @@ export class BlockchainPoolPageComponent implements OnInit {
   public heldTokens: number = 0;
   public mntpReward: number = 0;
   public goldReward: number = 0;
+
+  public heldTokensOld: number = 0;
+  public mntpRewardOld: number = 0;
+  public goldRewardOld: number = 0;
+
   public ethAddress: string = null;
   public loading: boolean = false;
   public isAuthenticated: boolean = false;
-  public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake'];
+  public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake', 'withdrawRewardAndUnholdStakeOld'];
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
 
@@ -94,6 +99,27 @@ export class BlockchainPoolPageComponent implements OnInit {
     this._poolService.getObsGoldTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null) {
         this.goldReward = +data;
+        this._cdRef.markForCheck();
+      }
+    });
+
+    this._poolService.getObsOldUserStake().takeUntil(this.destroy$).subscribe(data => {
+      if (data !== null) {
+        this.heldTokensOld = +data;
+        this._cdRef.markForCheck();
+      }
+    });
+
+    this._poolService.getObsOldMntpTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
+      if (data !== null) {
+        this.mntpRewardOld = +data;
+        this._cdRef.markForCheck();
+      }
+    });
+
+    this._poolService.getObsOldGoldTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
+      if (data !== null) {
+        this.goldRewardOld = +data;
         this._cdRef.markForCheck();
       }
     });

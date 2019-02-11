@@ -1472,7 +1472,8 @@
       "Labels": {
         "Hold": "Hold my MNTP tokens on the pool",
         "Withdraw": "Withdraw my reward",
-        "Unhold": "Unhold my stake and withdraw reward"
+        "Unhold": "Unhold my stake and withdraw reward",
+        "UnholdOld": "Unhold my stake and withdraw reward from the old pool"
       },
       "HoldTokens": {
         "Heading": "Hold my MNTP tokens on the pool",
