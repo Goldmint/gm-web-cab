@@ -27,6 +27,8 @@ export class EthereumService {
   // pool contract
   public EthPoolContractAddress: string = environment.EthPoolContractAddress;
   private EthPoolContractABI: string;
+  // old pool contract
+  public EthOldPoolContractAddress: string = environment.EthOldPoolContractAddress;
 
   private _web3Infura: Web3 = null;
   private _web3Metamask: Web3 = null;
@@ -40,6 +42,7 @@ export class EthereumService {
   public _contractGold: any;
   public _contractHotGold: any;
   public poolContract: any;
+  public oldPoolContract: any;
   public contractMntp: any;
   private _contactsInitted: boolean = false;
   private _totalGoldBalances = {issued: null, burnt: null};
@@ -157,6 +160,7 @@ export class EthereumService {
         this._contractGold = this._web3Metamask.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
         this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
         this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
+        this.oldPoolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthOldPoolContractAddress);
 
         this.isPoolContractLoaded$.next(true);
       } else {

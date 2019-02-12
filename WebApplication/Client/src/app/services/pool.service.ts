@@ -20,6 +20,16 @@ export class PoolService {
   private _obsGoldTokenUserRewardSubject = new BehaviorSubject<any>(null);
   private _obsGoldTokenUserReward: Observable<any> = this._obsGoldTokenUserRewardSubject.asObservable();
 
+
+  private _obsOldUserStakeSubject = new BehaviorSubject<any>(null);
+  private _obsOldUserStake: Observable<any> = this._obsOldUserStakeSubject.asObservable();
+
+  private _obsOldMntpTokenUserRewardSubject = new BehaviorSubject<any>(null);
+  private _obsOldMntpTokenUserReward: Observable<any> = this._obsOldMntpTokenUserRewardSubject.asObservable();
+
+  private _obsOldGoldTokenUserRewardSubject = new BehaviorSubject<any>(null);
+  private _obsOldGoldTokenUserReward: Observable<any> = this._obsOldGoldTokenUserRewardSubject.asObservable();
+
   public getSuccessHoldRequestLink$ = new Subject();
   public getSuccessWithdrawRequestLink$ = new Subject();
   public getSuccessUnholdRequestLink$ = new Subject();
@@ -43,6 +53,10 @@ export class PoolService {
     this.getUserStake();
     this.getMntpTokenUserReward();
     this.getGoldTokenUserReward();
+
+    this.getOldUserStake();
+    this.getOldMntpTokenUserReward();
+    this.getOldGoldTokenUserReward();
   }
 
   public updatePoolData() {
@@ -79,6 +93,36 @@ export class PoolService {
     }
   }
 
+  private getOldUserStake() {
+    if (!this._ethService.oldPoolContract) {
+      this._obsOldUserStakeSubject.next(null);
+    } else {
+      this._ethService.oldPoolContract.getUserStake((err, res) => {
+        this._obsOldUserStakeSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
+  private getOldMntpTokenUserReward() {
+    if (!this._ethService.oldPoolContract) {
+      this._obsOldMntpTokenUserRewardSubject.next(null);
+    } else {
+      this._ethService.oldPoolContract.getMntpTokenUserReward((err, res) => {
+        this._obsOldMntpTokenUserRewardSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
+  private getOldGoldTokenUserReward() {
+    if (!this._ethService.oldPoolContract) {
+      this._obsOldGoldTokenUserRewardSubject.next(null);
+    } else {
+      this._ethService.oldPoolContract.getGoldTokenUserReward((err, res) => {
+        this._obsOldGoldTokenUserRewardSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
   public getObsUserStake(): Observable<string> {
     return this._obsUserStake;
   }
@@ -91,6 +135,18 @@ export class PoolService {
     return this._obsGoldTokenUserReward;
   }
 
+  public getObsOldUserStake(): Observable<string> {
+    return this._obsOldUserStake;
+  }
+
+  public getObsOldMntpTokenUserReward(): Observable<string> {
+    return this._obsOldMntpTokenUserReward;
+  }
+
+  public getObsOldGoldTokenUserReward(): Observable<string> {
+    return this._obsOldGoldTokenUserReward;
+  }
+
   public successTransactionModal(hash: any, phrases: any) {
     this._messageBox.alert(`
       <div class="text-center">
@@ -101,8 +157,6 @@ export class PoolService {
       </div>
     `).subscribe();
   }
-
-
 
   public holdStake(fromAddr: string, amount: string, gasPrice: number) {
     if (!this._ethService.poolContract || !this._ethService.contractMntp) return
@@ -128,6 +182,14 @@ export class PoolService {
     if (!this._ethService.poolContract) return
 
     this._ethService.poolContract.withdrawRewardAndUnholdStake({ from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      this.getSuccessUnholdRequestLink$.next(res);
+    });
+  }
+
+  public withdrawRewardAndUnholdStakeOld(fromAddr: string, gasPrice: number) {
+    if (!this._ethService.oldPoolContract) return
+
+    this._ethService.oldPoolContract.withdrawRewardAndUnholdStake({ from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessUnholdRequestLink$.next(res);
     });
   }
