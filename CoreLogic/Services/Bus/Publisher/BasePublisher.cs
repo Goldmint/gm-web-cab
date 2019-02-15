@@ -128,7 +128,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 				// body
 				message
 			);
-			Logger.Trace($"TX: { topic.ToString() }");
+			// Logger.Trace($"TX: { topic.ToString() }");
 		}
 
 		// ---
@@ -147,10 +147,10 @@ namespace Goldmint.CoreLogic.Services.Bus.Publisher {
 					// send heartbeat
 					if (_enableHeartbeats && now >= nextHbTime) {
 						PublishMessage(Topic.Hb, hbPayload);
-						nextHbTime = now.AddSeconds(2);
+						nextHbTime = now.AddSeconds(5);
 					}
 
-					PublisherSocket.Poll(TimeSpan.FromMilliseconds(200));
+					PublisherSocket.Poll(TimeSpan.FromMilliseconds(50));
 				}
 			}
 			finally {

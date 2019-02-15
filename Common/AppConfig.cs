@@ -255,7 +255,7 @@
 			public class ChildPubSection {
 
 				public int PubPort { get; set; } = 6666;
-				public double PubTelemetryPeriodSec { get; set; } = 5;
+				public double PubTelemetryPeriodSec { get; set; } = 15;
 			}
 		}
 	}
