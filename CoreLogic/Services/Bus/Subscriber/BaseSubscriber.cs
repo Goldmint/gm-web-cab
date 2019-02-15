@@ -133,7 +133,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 					stamp = DateTimeOffset.FromUnixTimeSeconds(tmpstamp).UtcDateTime;
 					message = tmpmessage;
 
-					Logger.Trace($"RX: {topic} / {stamp} / {message.Length}b ({ConnectUri})");
+					// Logger.Trace($"RX: {topic} / {stamp} / {message.Length}b ({ConnectUri})");
 					return true;
 				}
 
@@ -187,13 +187,13 @@ namespace Goldmint.CoreLogic.Services.Bus.Subscriber {
 						}
 					}
 					else {
-						if (now - _lastHbTime > TimeSpan.FromSeconds(4)) {
-							Logger.Trace($"No messages for last 4s. Reconnection attempt ({ ConnectUri })");
+						if (now - _lastHbTime > TimeSpan.FromSeconds(10)) {
+							Logger.Trace($"No messages for last 10s. Reconnection attempt ({ ConnectUri })");
 							Disconnect();
 						}
 					}
 
-					SubscriberSocket.Poll(TimeSpan.FromMilliseconds(200));
+					SubscriberSocket.Poll(TimeSpan.FromMilliseconds(50));
 				}
 
 				Disconnect();
