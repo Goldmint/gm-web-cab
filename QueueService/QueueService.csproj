@@ -36,16 +36,13 @@
   
   <ItemGroup>
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.36.1.1387" />
+    <PackageReference Include="NATS.Client" Version="0.8.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\CoreLogic\CoreLogic.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Workers\TokenMigration\" />
   </ItemGroup>
 
 </Project>

@@ -29,16 +29,15 @@ namespace Goldmint.QueueService {
 		private static CoreLogic.Services.Bus.Publisher.CentralPublisher _busCentralPublisher;
 		private static CoreLogic.Services.Bus.Subscriber.CentralSubscriber _busCentralSubscriber;
 		private static CoreLogic.Services.Bus.Publisher.ChildPublisher _busChildPublisher;
-		
+
 		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
 		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
 		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
 		private static CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator _coreTelemetryAccumulator;
 		private static CoreLogic.Services.Bus.Telemetry.WorkerTelemetryAccumulator _workerTelemetryAccumulator;
 
-		private static void SetupCommonServices(ServiceCollection services)
-		{
-			
+		private static void SetupCommonServices(ServiceCollection services) {
+
 			// app config
 			services.AddSingleton(_environment);
 			services.AddSingleton(_configuration);
@@ -59,7 +58,7 @@ namespace Goldmint.QueueService {
 			services.AddSingleton<IRuntimeConfigLoader, DbRuntimeConfigLoader>();
 
 			// mutex
-			services.AddScoped<IMutexHolder, DBMutexHolder>(); 
+			services.AddScoped<IMutexHolder, DBMutexHolder>();
 
 			// templates
 			services.AddSingleton<ITemplateProvider, TemplateProvider>();
@@ -80,7 +79,18 @@ namespace Goldmint.QueueService {
 			if (_appConfig.Services.GoogleSheets != null) {
 				services.AddSingleton(new Sheets(_appConfig, LogManager.LogFactory));
 			}
-			
+
+			// nats
+			{
+				services.AddSingleton(new NATS.Client.ConnectionFactory());
+				services.AddScoped((sp) => {
+					var sf = sp.GetService<NATS.Client.ConnectionFactory>();
+					var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
+					opts.Url = _appConfig.Bus.Nats.Endpoint;
+					return sf.CreateConnection(opts);
+				});
+			}
+
 			// ---
 
 			if (Mode.HasFlag(WorkingMode.Worker)) {
@@ -114,9 +124,9 @@ namespace Goldmint.QueueService {
 				// rates dispatcher/local source
 				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(_busCentralPublisher, LogManager.LogFactory);
 				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
-					_busSafeRatesPublisherWrapper, 
+					_busSafeRatesPublisherWrapper,
 					_runtimeConfigHolder,
-					LogManager.LogFactory, 
+					LogManager.LogFactory,
 					opts => {
 						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.PubPeriodSec);
 						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.GoldValidForSec);
@@ -165,7 +175,7 @@ namespace Goldmint.QueueService {
 
 					// subscribe to central pub
 					_busCentralSubscriber = new CoreLogic.Services.Bus.Subscriber.CentralSubscriber(
-						new [] { CoreLogic.Services.Bus.Proto.Topic.FiatRates, CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated },
+						new[] { CoreLogic.Services.Bus.Proto.Topic.FiatRates, CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated },
 						new Uri(_appConfig.Bus.CentralPub.Endpoint),
 						LogManager.LogFactory
 					);
@@ -205,7 +215,7 @@ namespace Goldmint.QueueService {
 					TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubTelemetryPeriodSec),
 					LogManager.LogFactory
 				);
-				
+
 				services.AddSingleton(_coreTelemetryAccumulator);
 			}
 		}

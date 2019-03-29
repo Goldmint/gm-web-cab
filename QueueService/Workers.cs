@@ -37,38 +37,31 @@ namespace Goldmint.QueueService {
 			if (Mode.HasFlag(WorkingMode.Core)) {
 				workers.AddRange(new List<IWorker>() {
 
-					// doesn't require ethereum at all
+					// credit cards
 					new Workers.CreditCard.VerificationProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					new Workers.CreditCard.RefundsProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					
-					// does require ethereum (reader)
-					new Workers.Ethereum.PoolFreezerEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					//new Workers.Ethereum.ContractBuyEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					//new Workers.Ethereum.ContractSellEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					
-					// does require ethereum (writer and reader)
-					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, _appConfig.Services.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
+
+					// harvests events from pool-freezer
+					new Workers.Ethereum.PoolFreezerEventHarvester(
+						_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound,
+						_appConfig.Services.Workers.EthEventsHarvester.EthConfirmations
+					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
+					// posts harvested pool-freezer's events
+					new Workers.TokenMigration.PoolFreezerEventEmitter(
+						_appConfig.Services.Workers.TokenMigrationQueue.ItemsPerRound
+					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.TokenMigrationQueue.PeriodSec)),
+					// listens for emitted pool-freezer's requests
+					new Workers.TokenMigration.PoolFreezerEventConfirmer().BurstMode(),
+
+					// eth operations queue
+					new Workers.Ethereum.EthereumOprationsProcessor(
+						_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, 
+						_appConfig.Services.Workers.EthereumOperations.EthConfirmations
+					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
 				});
-
-				//if (!_environment.IsProduction()) {
-				//	workers.AddRange(new List<IWorker>() {
-
-				//		new Workers.TokenMigration.EthereumEmissionConfirm(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound, _appConfig.Services.Workers.EthTokenMigration.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
-				//		new Workers.TokenMigration.EthereumHoldChecker(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound, _appConfig.Services.Workers.EthTokenMigration.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
-
-				//		// does require ethereum (writer and reader)
-				//		new Workers.TokenMigration.EthereumEmitter(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
-
-				//		// does require sumus (reader)
-				//		new Workers.TokenMigration.SumusEmissionConfirm(_appConfig.Services.Workers.SumusTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.SumusTokenMigration.PeriodSec)),
-				//		new Workers.TokenMigration.SumusHoldChecker(_appConfig.Services.Workers.SumusTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.SumusTokenMigration.PeriodSec)),
-
-				//		// does require sumus (writer)
-				//		new Workers.TokenMigration.SumusEmitter(_appConfig.Services.Workers.SumusTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.SumusTokenMigration.PeriodSec)),
-				//	});
-				//}
 			}
 
 			// init

@@ -213,8 +213,7 @@
 				public WorkerSettings CryptoRateUpdater { get; set; } = new WorkerSettings();
 				public WorkerSettings TelemetryAggregator { get; set; } = new WorkerSettings();
 				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
-				public EthWorkerSettings EthTokenMigration { get; set; } = new EthWorkerSettings();
-				public DbWorkerSettings SumusTokenMigration { get; set; } = new DbWorkerSettings();
+				public DbWorkerSettings TokenMigrationQueue { get; set; } = new DbWorkerSettings();
 
 				public class WorkerSettings {
 					public int PeriodSec { get; set; } = 60;
@@ -234,6 +233,12 @@
 
 		public BusSection Bus { get; set; } = new BusSection();
 		public class BusSection {
+
+			public NatsSection Nats { get; set; } = new NatsSection();
+			public class NatsSection {
+
+				public string Endpoint { get; set; } = "localhost:4222";
+			}
 
 			public CentralPubSection CentralPub { get; set; } = new CentralPubSection();
 			public class CentralPubSection {
