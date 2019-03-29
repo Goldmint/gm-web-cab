@@ -39,6 +39,6 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 		/// <summary>
 		/// Send token amount to the address
 		/// </summary>
-		Task<string> MigrationContractUnholdToken(string address, MigrationRequestAsset asset, BigInteger amount);
+		Task<string> MigrationContractUnholdToken(string address, SumusToken asset, BigInteger amount);
 	}
 }

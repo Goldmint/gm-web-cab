@@ -148,6 +148,12 @@
 				public string MntpContractAbi { get; set; } = "";
 				public string MntpContractAddress { get; set; } = "";
 
+				public string PoolContractAbi { get; set; } = "";
+				public string PoolContractAddress { get; set; } = "";
+
+				public string PoolFreezerContractAbi { get; set; } = "";
+				public string PoolFreezerContractAddress { get; set; } = "";
+
 				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";

@@ -26,6 +26,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 		protected string MntpContractAddress { get; }
 		protected string MntpContractAbi { get; }
 
+		protected string PoolContractAddress { get; }
+		protected string PoolContractAbi { get; }
+		protected string PoolFreezerContractAddress { get; }
+		protected string PoolFreezerContractAbi { get; }
+
 		// ---
 
 		protected EthereumBaseClient(AppConfig appConfig, LogFactory logFactory) {
@@ -42,6 +47,12 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 
 			MntpContractAddress = appConfig.Services.Ethereum.MntpContractAddress;
 			MntpContractAbi = appConfig.Services.Ethereum.MntpContractAbi;
+
+			PoolContractAddress = appConfig.Services.Ethereum.PoolContractAddress;
+			PoolContractAbi = appConfig.Services.Ethereum.PoolContractAbi;
+
+			PoolFreezerContractAddress = appConfig.Services.Ethereum.PoolFreezerContractAddress;
+			PoolFreezerContractAbi = appConfig.Services.Ethereum.PoolFreezerContractAbi;
 
 			EthProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
 			EthLogsProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));

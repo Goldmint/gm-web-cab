@@ -21,8 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Blockchain.Sumus;
-using Goldmint.CoreLogic.Services.Blockchain.Sumus.Impl;
 
 namespace Goldmint.QueueService {
 
@@ -74,7 +72,6 @@ namespace Goldmint.QueueService {
 
 			// blockchain reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
-			services.AddSingleton<ISumusReader, SumusReader>();
 
 			// rates helper
 			services.AddSingleton<SafeRatesFiatAdapter>();
@@ -146,7 +143,6 @@ namespace Goldmint.QueueService {
 
 				// blockchain writer
 				services.AddSingleton<IEthereumWriter, EthereumWriter>();
-				services.AddSingleton<ISumusWriter, SumusWriter>();
 
 				// cc payment acquirer
 				services.AddScoped<The1StPayments>(fac => {

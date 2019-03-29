@@ -33,8 +33,7 @@ namespace Goldmint.DAL {
 		public DbSet<UserLimits> UserLimits { get; set; }
 		public DbSet<PromoCode> PromoCode { get; set; }
 	    public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
-        public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
-	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
+        public DbSet<PoolFreezeRequest> PoolFreezeRequest { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 

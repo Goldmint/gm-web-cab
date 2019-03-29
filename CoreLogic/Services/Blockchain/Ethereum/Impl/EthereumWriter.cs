@@ -215,7 +215,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			);
 		}
 
-		public async Task<string> MigrationContractUnholdToken(string address, MigrationRequestAsset asset, BigInteger amount) {
+		public async Task<string> MigrationContractUnholdToken(string address, SumusToken asset, BigInteger amount) {
 
 			if (amount < 1) {
 				throw new ArgumentException("Amount is equal to 0");
@@ -235,11 +235,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			string funcName = null;
 			Nethereum.Contracts.Function func = null;
 
-			if (asset == MigrationRequestAsset.Gold) {
+			if (asset == SumusToken.Gold) {
 				funcName = "unholdGold";
 				func = contract.GetFunction(funcName);
 			}
-			else if (asset == MigrationRequestAsset.Mnt) {
+			else if (asset == SumusToken.Mnt) {
 				funcName = "unholdMntp";
 				func = contract.GetFunction(funcName);
 			}

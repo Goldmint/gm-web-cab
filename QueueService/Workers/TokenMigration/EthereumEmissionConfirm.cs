@@ -11,84 +11,84 @@ using Goldmint.Common.Extensions;
 
 namespace Goldmint.QueueService.Workers.TokenMigration {
 
-	public class EthereumEmissionConfirm : BaseWorker {
+	//public class EthereumEmissionConfirm : BaseWorker {
 
-		private readonly int _rowsPerRound;
-		private readonly int _confirmationsRequired;
+	//	private readonly int _rowsPerRound;
+	//	private readonly int _confirmationsRequired;
 
-		private ILogger _logger;
-		private ApplicationDbContext _dbContext;
-		private IEthereumReader _ethereumReader;
+	//	private ILogger _logger;
+	//	private ApplicationDbContext _dbContext;
+	//	private IEthereumReader _ethereumReader;
 
-		private long _statProcessed = 0;
-		private long _statFailed = 0;
+	//	private long _statProcessed = 0;
+	//	private long _statFailed = 0;
 
-		// ---
+	//	// ---
 
-		public EthereumEmissionConfirm(int rowsPerRound, int confirmationsRequired) {
-			_rowsPerRound = Math.Max(1, rowsPerRound);
-			_confirmationsRequired = Math.Max(2, confirmationsRequired);
-		}
+	//	public EthereumEmissionConfirm(int rowsPerRound, int confirmationsRequired) {
+	//		_rowsPerRound = Math.Max(1, rowsPerRound);
+	//		_confirmationsRequired = Math.Max(2, confirmationsRequired);
+	//	}
 
-		protected override Task OnInit(IServiceProvider services) {
-			_logger = services.GetLoggerFor(this.GetType());
-			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			_ethereumReader = services.GetRequiredService<IEthereumReader>();
-			return Task.CompletedTask;
-		}
+	//	protected override Task OnInit(IServiceProvider services) {
+	//		_logger = services.GetLoggerFor(this.GetType());
+	//		_dbContext = services.GetRequiredService<ApplicationDbContext>();
+	//		_ethereumReader = services.GetRequiredService<IEthereumReader>();
+	//		return Task.CompletedTask;
+	//	}
 
-		protected override async Task OnUpdate() {
+	//	protected override async Task OnUpdate() {
 
-			_dbContext.DetachEverything();
+	//		_dbContext.DetachEverything();
 
-			var nowTime = DateTime.UtcNow;
+	//		var nowTime = DateTime.UtcNow;
 
-			var rows = await (
-					from r in _dbContext.MigrationSumusToEthereumRequest
-					where
-						r.Status == MigrationRequestStatus.EmissionConfirmation &&
-						r.TimeNextCheck <= nowTime
-					select r
-				)
-				.AsTracking()
-				.OrderBy(_ => _.Id)
-				.Take(_rowsPerRound)
-				.ToArrayAsync()
-			;
+	//		var rows = await (
+	//				from r in _dbContext.MigrationSumusToEthereumRequest
+	//				where
+	//					r.Status == MigrationRequestStatus.EmissionConfirmation &&
+	//					r.TimeNextCheck <= nowTime
+	//				select r
+	//			)
+	//			.AsTracking()
+	//			.OrderBy(_ => _.Id)
+	//			.Take(_rowsPerRound)
+	//			.ToArrayAsync()
+	//		;
 
-			if (IsCancelled()) return;
+	//		if (IsCancelled()) return;
 
-			_logger.Debug(rows.Length > 0 ? $"{rows.Length} request(s) found" : "Nothing found");
+	//		_logger.Debug(rows.Length > 0 ? $"{rows.Length} request(s) found" : "Nothing found");
 
-			foreach (var row in rows) {
+	//		foreach (var row in rows) {
 
-				if (IsCancelled()) return;
+	//			if (IsCancelled()) return;
 
-				var info = await _ethereumReader.CheckTransaction(row.EthTransaction, _confirmationsRequired);
+	//			var info = await _ethereumReader.CheckTransaction(row.EthTransaction, _confirmationsRequired);
 
-				// not found / failed
-				if (info == null || info.Status == EthTransactionStatus.Failed) {
-					row.Status = MigrationRequestStatus.Failed;
-					row.TimeCompleted = DateTime.UtcNow;
+	//			// not found / failed
+	//			if (info == null || info.Status == EthTransactionStatus.Failed) {
+	//				row.Status = MigrationRequestStatus.Failed;
+	//				row.TimeCompleted = DateTime.UtcNow;
 
-					++_statFailed;
-					_logger.Error($"Request {row.Id} - emission failed");
-				}
-				// success
-				else if (info.Status == EthTransactionStatus.Success) {
-					row.Status = MigrationRequestStatus.Completed;
-					row.TimeCompleted = DateTime.UtcNow;
+	//				++_statFailed;
+	//				_logger.Error($"Request {row.Id} - emission failed");
+	//			}
+	//			// success
+	//			else if (info.Status == EthTransactionStatus.Success) {
+	//				row.Status = MigrationRequestStatus.Completed;
+	//				row.TimeCompleted = DateTime.UtcNow;
 
-					++_statProcessed;
-					_logger.Info($"Request {row.Id} - emission confirmed");
-				}
-				// pending
-				else {
-					row.TimeNextCheck = DateTime.UtcNow.AddSeconds(30);
-					_logger.Info($"Request {row.Id} - emission is still pending");
-				}
-				await _dbContext.SaveChangesAsync();
-			}
-		}
-	}
+	//				++_statProcessed;
+	//				_logger.Info($"Request {row.Id} - emission confirmed");
+	//			}
+	//			// pending
+	//			else {
+	//				row.TimeNextCheck = DateTime.UtcNow.AddSeconds(30);
+	//				_logger.Info($"Request {row.Id} - emission is still pending");
+	//			}
+	//			await _dbContext.SaveChangesAsync();
+	//		}
+	//	}
+	//}
 }

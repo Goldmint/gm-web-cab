@@ -32,7 +32,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 
 			var cards = await (
 				from c in DbContext.UserCreditCard
-				where 
+				where
 					c.UserId == user.Id &&
 					c.State != CardState.InputDepositData &&
 					c.State != CardState.Deleted
@@ -66,10 +66,10 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(errFields);
 			}
 
-		    // ---
-		    var rcfg = RuntimeConfigHolder.Clone();
+			// ---
+			var rcfg = RuntimeConfigHolder.Clone();
 
-            var user = await GetUserFromDb();
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
@@ -112,8 +112,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				RedirectUrl = model.Redirect,
 
 				TransactionId = transId,
-			    AmountCents = 100,
-                Currency = transCurrency,
+				AmountCents = 100,
+				Currency = transCurrency,
 				Purpose = "Card data for deposit payments at goldmint.io",
 
 				SenderName = user.UserVerification.FirstName + " " + user.UserVerification.LastName,
@@ -310,9 +310,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			// get code digits
 			model.Code = string.Join("", model.Code.Where(char.IsDigit).Select(_ => _.ToString()).ToArray());
 
-            // ---
-		    var rcfg = RuntimeConfigHolder.Clone();
-            var user = await GetUserFromDb();
+			// ---
+			var rcfg = RuntimeConfigHolder.Clone();
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
@@ -342,7 +342,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				if (card.VerificationAmountCents.ToString().ToUpper() == model.Code.ToUpper()) {
 
 					card.State = CardState.Verified;
-					
+
 					// activity
 					var userActivity = CoreLogic.User.CreateUserActivity(
 						user: user,
@@ -382,9 +382,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 				return APIResponse.BadRequest(errFields);
 			}
 
-		    // ---
-		    var rcfg = RuntimeConfigHolder.Clone();
-            var user = await GetUserFromDb();
+			// ---
+			var rcfg = RuntimeConfigHolder.Clone();
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
@@ -503,7 +503,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 						c.UserId == user.Id &&
 						c.Id == model.CardId &&
 						(
-							c.State == CardState.Verification || 
+							c.State == CardState.Verification ||
 							c.State == CardState.Verified
 						)
 					select c

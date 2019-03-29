@@ -71,5 +71,10 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 		/// Get migration contract transfers
 		/// </summary>
 		Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+
+		/// <summary>
+		/// Get TokenBuyRequest events
+		/// </summary>
+		Task<GatheredPoolFreezerEvents> GatherPoolFreezerEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 	}
 }

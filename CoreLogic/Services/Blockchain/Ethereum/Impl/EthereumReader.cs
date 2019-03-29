@@ -378,6 +378,66 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			};
 		}
 
+		/// <summary>
+		/// Get TokenBuyRequest events
+		/// </summary>
+		public async Task<GatheredPoolFreezerEvents> GatherPoolFreezerEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+			
+			var web3 = new Web3(EthLogsProvider);
+			
+			var contract = web3.Eth.GetContract(
+				PoolFreezerContractAbi,
+				PoolFreezerContractAddress
+			);
+
+			HexBigInteger hexLaxtestBlock;
+			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+			if (syncResp.IsSyncing) {
+				hexLaxtestBlock = syncResp.CurrentBlock;
+			}
+			else {
+				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+			}
+
+			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
+
+			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+
+			var evnt = contract.GetEvent("onFreeze");
+			var filter = await evnt.CreateFilterBlockRangeAsync(
+				new BlockParameter(hexFromBlock),
+				new BlockParameter(hexToBlock)
+			);
+
+			var events = new List<PoolFreezeEvent>();
+			var logs = await evnt.GetAllChanges<PoolFreezeEventMapping>(filter);
+
+			foreach (var v in logs) {
+				if (!v.Log.Removed) {
+					try {
+						var sumusAddr58 = Common.Sumus.Pack58.Pack(v.Event.SumusAddress);
+
+						events.Add(new PoolFreezeEvent() {
+							Address = v.Event.From,
+							Amount = v.Event.Amount,
+							SumusAddress = sumusAddr58,
+							BlockNumber = v.Log.BlockNumber,
+							TransactionId = v.Log.TransactionHash,
+						});
+					} catch (Exception e) {
+						Logger.Error(e, "Failed to pack Sumus address. Event skipped");
+					}
+				}
+			}
+
+			return new GatheredPoolFreezerEvents() {
+				FromBlock = hexFromBlock.Value,
+				ToBlock = hexToBlock.Value,
+				Events = events.ToArray(),
+			};
+		}
+
 		// ---
 
 		[FunctionOutput]
@@ -449,5 +509,17 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			[Parameter("uint", "_rate", 5, false)]
 			public BigInteger Rate { get; set; }
 		}*/
+
+		internal class PoolFreezeEventMapping {
+
+			[Parameter("address", "userAddress", 1, true)]
+			public string From { get; set; }
+
+			[Parameter("uint", "tokenAmount", 2, false)]
+			public BigInteger Amount { get; set; }
+
+			[Parameter("bytes32", "sumusAddress", 3, false)]
+			public byte[] SumusAddress { get; set; }
+		}
 	}
 }

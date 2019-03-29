@@ -61,6 +61,9 @@ namespace Goldmint.CoreLogic.Services.Bus.Proto.Telemetry {
 		[ProtoMember(11)]
 		public CreditCardPaymentProcessor CreditCardWithdrawals { get; set; } = new CreditCardPaymentProcessor();
 
+		[ProtoMember(12)]
+		public EthEventHarvester PoolFreezerEvents { get; set; } = new EthEventHarvester();
+
 		// ---
 
 		[ProtoContract]
