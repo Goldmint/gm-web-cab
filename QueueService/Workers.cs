@@ -37,30 +37,32 @@ namespace Goldmint.QueueService {
 			if (Mode.HasFlag(WorkingMode.Core)) {
 				workers.AddRange(new List<IWorker>() {
 
-					// credit cards
-					new Workers.CreditCard.VerificationProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					// charges credit card
+					new Workers.CreditCard.VerificationProcessor(
+						_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound
+					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					// sends refunds back
 					new Workers.CreditCard.RefundsProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					
-
-					// harvests events from pool-freezer
-					new Workers.Ethereum.PoolFreezerEventHarvester(
+					// harvests "frozen"-events (requests) from pool-freezer contract
+					new Workers.EthPoolFreezer.EthEventHarvester(
 						_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound,
 						_appConfig.Services.Workers.EthEventsHarvester.EthConfirmations
 					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					// posts harvested pool-freezer's events
-					new Workers.TokenMigration.PoolFreezerEventEmitter(
+					// requires "frozen" stake to be emitted in sumus bc
+					new Workers.EthPoolFreezer.EmissionRequestor(
 						_appConfig.Services.Workers.TokenMigrationQueue.ItemsPerRound
 					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.TokenMigrationQueue.PeriodSec)),
-					// listens for emitted pool-freezer's requests
-					new Workers.TokenMigration.PoolFreezerEventConfirmer().BurstMode(),
+					// confirms emission to complete harvested requests
+					new Workers.EthPoolFreezer.EmissionConfirmer().BurstMode(),
 
-					// eth operations queue
-					new Workers.Ethereum.EthereumOprationsProcessor(
-						_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, 
-						_appConfig.Services.Workers.EthereumOperations.EthConfirmations
-					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
+					//// eth operations queue
+					//new Workers.Ethereum.EthereumOprationsProcessor(
+					//	_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, 
+					//	_appConfig.Services.Workers.EthereumOperations.EthConfirmations
+					//).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
 				});
 			}
 

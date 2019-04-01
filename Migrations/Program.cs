@@ -2,7 +2,9 @@
 using System.IO;
 using System.Text;
 using Goldmint.Common;
+using Goldmint.Common.Sumus;
 using Goldmint.DAL;
+using Goldmint.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +13,22 @@ namespace Goldmint.Migrations {
 
 	public static class Program {
 		public static void Main(string[] args) {
+			if (args[0] == "user-sumus-wallet-gen") {
+				var ctx = new ApplicationDbContextFactory().CreateDbContext(new string[]{ });
+				var userz = ctx.Users.ToListAsync().Result;
+				foreach (var u in userz) {
+					var s = new Signer();
+					var w = new UserSumusWallet() {
+						UserId = u.Id,
+						PublicKey = s.PublicKey,
+						PrivateKey = s.PrivateKey,
+						TimeCreated = DateTime.UtcNow,
+						TimeChecked = DateTime.UtcNow,
+					};
+					ctx.UserSumusWallet.Add(w);
+				}
+				ctx.SaveChanges(true);
+			}
 		}
 	}
 

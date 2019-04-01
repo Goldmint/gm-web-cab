@@ -219,12 +219,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.SellGoldModels {
 		public string EthPerGoldRate { get; set; }
 		
 		/// <summary>
-		/// Expires at datetime (unixstamp)
-		/// </summary>
-		[Required]
-		public long Expires { get; set; }
-
-		/// <summary>
 		/// Estimation data
 		/// </summary>
 		[Required]

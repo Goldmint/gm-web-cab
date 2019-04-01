@@ -10,7 +10,7 @@ namespace Goldmint.DAL.Models.Identity {
 	public class User : IdentityUser<long> {
 
 		public User() : base() { }
-		public User(string userName) : base(userName) {}
+		public User(string userName) : base(userName) { }
 
 		// ---
 
@@ -80,5 +80,6 @@ namespace Goldmint.DAL.Models.Identity {
 
 		public virtual UserOptions UserOptions { get; set; }
 		public virtual UserVerification UserVerification { get; set; }
+		public virtual UserSumusWallet UserSumusWallet { get; set; }
 	}
 }

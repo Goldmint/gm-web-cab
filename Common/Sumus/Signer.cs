@@ -12,11 +12,9 @@ namespace Goldmint.Common.Sumus {
 		public readonly byte[] PublicKeyBytes;
 		public readonly string PrivateKey;
 		public readonly string PublicKey;
-		private ReaderWriterLockSlim _nonceLocker = new ReaderWriterLockSlim();
-		private ulong _nonce = 0;
 
 		// New random signer
-		public Signer(ulong nonce = 0) {
+		public Signer() {
 			var seed = new byte[32];
 			using (var rnd = new RNGCryptoServiceProvider()) {
 				rnd.GetBytes(seed);
@@ -25,12 +23,10 @@ namespace Goldmint.Common.Sumus {
 			Ed25519.Ed25519.PublicKeyFromPrehashedPrivateKey(out PublicKeyBytes, PrivateKeyBytes);
 			PrivateKey = Pack58.Pack(PrivateKeyBytes);
 			PublicKey = Pack58.Pack(PublicKeyBytes);
-
-			_nonce = nonce;
 		}
 
 		// New signer from prehashed private key
-		public Signer(byte[] privateKey, ulong nonce = 0) {
+		public Signer(byte[] privateKey) {
 			if ((privateKey?.Length ?? 0) != 64) {
 				throw new ArgumentException("Private key should be 64 bytes length (pre-hashed)");
 			}
@@ -41,24 +37,6 @@ namespace Goldmint.Common.Sumus {
 
 			PrivateKey = Pack58.Pack(PrivateKeyBytes);
 			PublicKey = Pack58.Pack(PublicKeyBytes);
-
-			_nonce = nonce;
-		}
-
-		// ---
-
-		public ulong NextNonce() {
-			_nonceLocker.EnterWriteLock();
-			_nonce++;
-			ulong ret = _nonce;
-			_nonceLocker.ExitWriteLock();
-			return ret;
-		}
-
-		public void SetNonce(ulong nonce) {
-			_nonceLocker.EnterWriteLock();
-			_nonce = nonce;
-			_nonceLocker.ExitWriteLock();
 		}
 
 		public byte[] Sign(byte[] message) {

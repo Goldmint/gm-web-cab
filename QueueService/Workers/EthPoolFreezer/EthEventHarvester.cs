@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
 using Goldmint.DAL.Extensions;
 
-namespace Goldmint.QueueService.Workers.Ethereum {
+namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
-	public sealed class PoolFreezerEventHarvester : BaseWorker {
+	public sealed class EthEventHarvester : BaseWorker {
 
 		private readonly int _blocksPerRound;
 		private readonly int _confirmationsRequired;
@@ -27,7 +27,7 @@ namespace Goldmint.QueueService.Workers.Ethereum {
 
 		private long _statProcessed = 0;
 
-		public PoolFreezerEventHarvester(int blocksPerRound, int confirmationsRequired) {
+		public EthEventHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
 			_lastBlock = BigInteger.Zero;

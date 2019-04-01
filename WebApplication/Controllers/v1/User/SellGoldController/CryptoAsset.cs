@@ -10,136 +10,135 @@ using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
-	//public partial class SellGoldController : BaseController {
+	public partial class SellGoldController : BaseController {
 
-	//	/// <summary>
-	//	/// GOLD to ETH
-	//	/// </summary>
-	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-	//	[HttpPost, Route("asset/eth")]
-	//	[ProducesResponseType(typeof(AssetEthView), 200)]
-	//	public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
+		/// <summary>
+		/// GOLD to ETH
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[HttpPost, Route("asset/eth")]
+		[ProducesResponseType(typeof(AssetEthView), 200)]
+		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
 
-	//		// validate
-	//		if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-	//			return APIResponse.BadRequest(errFields);
-	//		}
+			// validate
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
 
-	//		// try parse amount
-	//		if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1) {
-	//			return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-	//		}
+			// try parse amount
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
 
-	//		// try parse fiat currency
-	//		var exchangeCurrency = FiatCurrency.Usd;
-	//		if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
-	//			exchangeCurrency = fc;
-	//		}
+			// try parse fiat currency
+			var exchangeCurrency = FiatCurrency.Usd;
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
+				exchangeCurrency = fc;
+			}
 
-	//	    // ---
-	//	    var rcfg = RuntimeConfigHolder.Clone();
+			// ---
 
- //           var user = await GetUserFromDb();
-	//		var userTier = CoreLogic.User.GetTier(user, rcfg);
-	//		var agent = GetUserAgentInfo();
+			var rcfg = RuntimeConfigHolder.Clone();
 
-	//		if (userTier < UserTier.Tier2) {
-	//			return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-	//		}
+			var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var agent = GetUserAgentInfo();
 
-	//		// ---
+			if (userTier < UserTier.Tier2) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
 
-	//		if (!rcfg.Gold.AllowTradingEth) {
-	//			return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
-	//		}
+			// ---
 
-	//		var limits = WithdrawalLimits(rcfg, EthereumToken.Eth);
+			if (!rcfg.Gold.AllowTradingEth) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
 
-	//		var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
-	//		if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
-	//			return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
-	//		}
-	//		if (estimation.IsLimitExceeded) {
-	//			return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
-	//		}
+			var limits = WithdrawalLimits(rcfg, EthereumToken.Eth);
 
-	//		var timeNow = DateTime.UtcNow;
-	//		var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest);
+			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
+			if (estimation.IsLimitExceeded) {
+				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
+			}
 
-	//		var ticket = await OplogProvider.NewGoldSellingRequestForCryptoasset(
-	//			userId: user.Id,
-	//			ethereumToken: EthereumToken.Eth,
-	//			destAddress: model.EthAddress,
-	//			fiatCurrency: exchangeCurrency,
-	//			outputRate: estimation.CentsPerAssetRate,
-	//			goldRate: estimation.CentsPerGoldRate
-	//		);
+			var timeNow = DateTime.UtcNow;
 
-	//		// history
-	//		var finHistory = new DAL.Models.UserFinHistory() {
+			var ticket = await OplogProvider.NewGoldSellingRequestForCryptoasset(
+				userId: user.Id,
+				ethereumToken: EthereumToken.Eth,
+				destAddress: model.EthAddress,
+				fiatCurrency: exchangeCurrency,
+				outputRate: estimation.CentsPerAssetRate,
+				goldRate: estimation.CentsPerGoldRate
+			);
 
-	//			Status = UserFinHistoryStatus.Unconfirmed,
-	//			Type = UserFinHistoryType.GoldSell,
-	//			Source = "GOLD",
-	//			SourceAmount = null,
-	//			Destination = "ETH",
-	//			DestinationAmount = null,
-	//			Comment = "", // see below
+			// history
+			var finHistory = new DAL.Models.UserFinHistory() {
 
-	//			OplogId = ticket,
-	//			TimeCreated = timeNow,
-	//			TimeExpires = timeExpires.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest), // double time
-	//			UserId = user.Id,
-	//		};
+				Status = UserFinHistoryStatus.Unconfirmed,
+				Type = UserFinHistoryType.GoldSell,
+				Source = "GOLD",
+				SourceAmount = null,
+				Destination = "ETH",
+				DestinationAmount = null,
+				Comment = "", // see below
 
-	//		// add and save
-	//		DbContext.UserFinHistory.Add(finHistory);
-	//		await DbContext.SaveChangesAsync();
+				OplogId = ticket,
+				TimeCreated = timeNow,
+				TimeExpires = null,
+				UserId = user.Id,
+			};
 
-	//		// request
-	//		var request = new DAL.Models.SellGoldRequest() {
+			// add and save
+			DbContext.UserFinHistory.Add(finHistory);
+			await DbContext.SaveChangesAsync();
 
-	//			Status = SellGoldRequestStatus.Unconfirmed,
-	//			Input = SellGoldRequestInput.ContractGoldBurning,
-	//			Output = SellGoldRequestOutput.EthAddress,
-	//			RelOutputId = null,
-	//			EthAddress = model.EthAddress,
+			// request
+			var request = new DAL.Models.SellGoldRequest() {
 
-	//			ExchangeCurrency = exchangeCurrency,
-	//			OutputRateCents = estimation.CentsPerAssetRate,
-	//			GoldRateCents = estimation.CentsPerGoldRate,
-	//			InputExpected = estimation.ResultGoldAmount.ToString(),
+				Status = SellGoldRequestStatus.Unconfirmed,
+				Input = SellGoldRequestInput.SumusGoldBurning,
+				Output = SellGoldRequestOutput.EthAddress,
+				RelOutputId = null,
+				EthAddress = model.EthAddress,
 
-	//			OplogId = ticket,
-	//			TimeCreated = timeNow,
-	//			TimeExpires = timeExpires,
-	//			TimeNextCheck = timeNow,
+				ExchangeCurrency = exchangeCurrency,
+				OutputRateCents = estimation.CentsPerAssetRate,
+				GoldRateCents = estimation.CentsPerGoldRate,
+				InputExpected = estimation.ResultGoldAmount.ToString(),
 
-	//			UserId = user.Id,
-	//			RelUserFinHistoryId = finHistory.Id,
-	//		};
+				OplogId = ticket,
+				TimeCreated = timeNow,
+				TimeExpires = timeNow.AddDays(1),
+				TimeNextCheck = timeNow,
 
-	//		// add and save
-	//		DbContext.SellGoldRequest.Add(request);
-	//		await DbContext.SaveChangesAsync();
+				UserId = user.Id,
+				RelUserFinHistoryId = finHistory.Id,
+			};
 
-	//		var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
+			// add and save
+			DbContext.SellGoldRequest.Add(request);
+			await DbContext.SaveChangesAsync();
 
-	//		// update comment
-	//		finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
-	//		await DbContext.SaveChangesAsync();
+			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
-	//		return APIResponse.Success(
-	//			new AssetEthView() {
-	//				RequestId = request.Id,
-	//				EthRate = estimation.CentsPerAssetRate / 100d,
-	//				GoldRate = estimation.CentsPerGoldRate / 100d,
-	//				Currency = exchangeCurrency.ToString().ToUpper(),
-	//				EthPerGoldRate = assetPerGold.ToString(),
-	//				Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
-	//				Estimation = estimation.View,
-	//			}
-	//		);
-	//	}
-	//}
+			// update comment
+			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
+			await DbContext.SaveChangesAsync();
+
+			return APIResponse.Success(
+				new AssetEthView() {
+					RequestId = request.Id,
+					EthRate = estimation.CentsPerAssetRate / 100d,
+					GoldRate = estimation.CentsPerGoldRate / 100d,
+					Currency = exchangeCurrency.ToString().ToUpper(),
+					EthPerGoldRate = assetPerGold.ToString(),
+					Estimation = estimation.View,
+				}
+			);
+		}
+	}
 }

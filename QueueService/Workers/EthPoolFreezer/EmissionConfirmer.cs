@@ -10,15 +10,15 @@ using Goldmint.Common.Extensions;
 using System.IO;
 using Goldmint.CoreLogic.Services.Bus.Nats;
 
-namespace Goldmint.QueueService.Workers.TokenMigration {
+namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
-	public class PoolFreezerEventConfirmer : BaseWorker {
+	public class EmissionConfirmer : BaseWorker {
 
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
-		public PoolFreezerEventConfirmer() {
+		public EmissionConfirmer() {
 		}
 
 		protected override Task OnInit(IServiceProvider services) {

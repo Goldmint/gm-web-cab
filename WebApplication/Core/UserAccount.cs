@@ -40,6 +40,7 @@ namespace Goldmint.WebApplication.Core {
 			var tfaSecret = GenerateTfaSecret();
 
 			try {
+				var sumusWallet = new Common.Sumus.Signer();
 
 				var newUser = new User() {
 					UserName = email,
@@ -51,6 +52,12 @@ namespace Goldmint.WebApplication.Core {
 					AccessRights = 0,
 
 					UserOptions = new DAL.Models.UserOptions() {
+					},
+					UserSumusWallet = new DAL.Models.UserSumusWallet {
+						PublicKey = sumusWallet.PublicKey,
+						PrivateKey = sumusWallet.PrivateKey,
+						TimeCreated = DateTime.UtcNow,
+						TimeChecked = DateTime.UtcNow,
 					},
 
 					TimeRegistered = DateTime.UtcNow,

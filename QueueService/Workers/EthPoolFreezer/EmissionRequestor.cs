@@ -10,16 +10,16 @@ using Goldmint.Common.Extensions;
 using System.IO;
 using Goldmint.CoreLogic.Services.Bus.Nats;
 
-namespace Goldmint.QueueService.Workers.TokenMigration {
+namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
-	public class PoolFreezerEventEmitter : BaseWorker {
+	public class EmissionRequestor : BaseWorker {
 
 		private readonly int _rowsPerRound;
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
-		public PoolFreezerEventEmitter(int rowsPerRound) {
+		public EmissionRequestor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 		}
 
