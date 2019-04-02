@@ -198,16 +198,16 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		public string SumusWallet { get; set; }
 		
 		/// <summary>
-		/// Sumus Gold token amount
+		/// Sumus Gold token balance, minor units (10**18)
 		/// </summary>
 		[Required]
-		public double SumusGold { get; set; }
+		public string SumusGold { get; set; }
 
 		/// <summary>
-		/// Sumus Mnt token amount
+		/// Sumus Mnt token balance, minor units (10**18)
 		/// </summary>
 		[Required]
-		public double SumusMnt { get; set; }
+		public string SumusMnt { get; set; }
 	}
 
 	// ---

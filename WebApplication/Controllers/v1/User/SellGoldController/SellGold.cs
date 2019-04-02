@@ -111,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// charge
 			using (var scope = HttpContext.RequestServices.CreateScope()) {
-				if (!await CoreLogic.Finance.SumusWallet.ChangeGoldBalance(scope.ServiceProvider, request.UserId, -request.GoldAmount)) {
+				if (!await CoreLogic.Finance.SumusWallet.ChangeBalance(scope.ServiceProvider, request.UserId, -request.GoldAmount, SumusToken.Gold)) {
 					
 					// activity
 					var userActivity = CoreLogic.User.CreateUserActivity(
@@ -133,6 +133,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 				} else {
+
+					try {
+						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, $"User charged: {request.GoldAmount} GOLD");
+					}
+					catch {
+					}
 
 					// activity
 					var userActivity = CoreLogic.User.CreateUserActivity(

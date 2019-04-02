@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using NLog.Web;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
+using Goldmint.CoreLogic.Finance;
 
 namespace Goldmint.QueueService {
 

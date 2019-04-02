@@ -1,4 +1,8 @@
 ﻿using Goldmint.Common;
+using Goldmint.Common.Extensions;
+using Goldmint.CoreLogic.Finance;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +18,9 @@ namespace Goldmint.QueueService.Workers.Sell {
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
-		private NATS.Client.IConnection _natsConn;
+		private IEthereumReader _ethereumReader;
+		private IEthereumWriter _ethereumWriter;
+		private IOplogProvider _oplog;
 
 		public RequestProcessor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
@@ -23,12 +29,10 @@ namespace Goldmint.QueueService.Workers.Sell {
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			_natsConn = services.GetRequiredService<NATS.Client.IConnection>();
+			_ethereumReader = services.GetRequiredService<IEthereumReader>();
+			_ethereumWriter = services.GetRequiredService<IEthereumWriter>();
+			_oplog = services.GetRequiredService<IOplogProvider>();
 			return Task.CompletedTask;
-		}
-
-		protected override void OnCleanup() {
-			_natsConn.Close();
 		}
 
 		protected override async Task OnUpdate() {
@@ -39,23 +43,28 @@ namespace Goldmint.QueueService.Workers.Sell {
 				where r.Status == SellGoldRequestStatus.Confirmed
 				select r
 			)
+			.Include(_ => _.RelUserFinHistory)
 			.AsTracking()
 			.Take(_rowsPerRound)
 			.ToArrayAsync(CancellationToken)
 			;
+			if (IsCancelled() || rows.Length == 0) return;
 
-			if (IsCancelled()) return;
+			var ethAmount = await _ethereumReader.GetEtherBalance(await _ethereumWriter.GetEthSender());
 
 			foreach (var r in rows) {
 				if (IsCancelled()) return;
 				
-				// TODO: check sender ether balance; stop otherwise
+				if (ethAmount < r.EthAmount.ToEther()) {
+					return;
+				}
 
 				try {
 					using (var tx = await _dbContext.Database.BeginTransactionAsync()) {
 						
 						r.Status = SellGoldRequestStatus.Success;
 						r.TimeCompleted = DateTime.UtcNow;
+						r.RelUserFinHistory.Status = UserFinHistoryStatus.Processing;
 						_dbContext.SaveChanges();
 
 						var sending = new DAL.Models.EthSending() {
@@ -73,13 +82,25 @@ namespace Goldmint.QueueService.Workers.Sell {
 
 						tx.Commit();
 					}
+					ethAmount -= r.EthAmount.ToEther();
 
 				} catch (Exception e) {
 					Logger.Error(e, $"Failed to process #{r.Id}");
 					
-					r.Status = SellGoldRequestStatus.Failed;
-					r.TimeCompleted = DateTime.UtcNow;
-					_dbContext.SaveChanges();
+					try {
+						await _oplog.Update(r.OplogId, UserOpLogStatus.Failed, "Failed to enqueue Ethereum transaction");
+					} catch {}
+
+					try {
+						r.Status = SellGoldRequestStatus.Failed;
+						r.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+						r.TimeCompleted = DateTime.UtcNow;
+						_dbContext.SaveChanges();
+
+						await SumusWallet.ChangeBalance(_services, r.UserId, r.GoldAmount, SumusToken.Gold);
+					} catch (Exception e1) {
+						Logger.Error(e1, $"Failed to update request status #{r.Id}");
+					}
 				}
 			}
 		}

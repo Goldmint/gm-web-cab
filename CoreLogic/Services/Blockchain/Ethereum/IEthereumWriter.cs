@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 
 	public interface IEthereumWriter {
+		
+		Task<string> GetEthSender();
+		Task<string> SendEth(string address, BigInteger amount);
 
 		/// <summary>
 		/// Transfer GOLD from hot wallet to the address
@@ -34,7 +37,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 		/// <summary>
 		/// Transfer Ether from to the address
 		/// </summary>
-		Task<string> TransferEther(string address, BigInteger amount);
+		// Task<string> TransferEther(string address, BigInteger amount);
 
 		/// <summary>
 		/// Send token amount to the address

@@ -9,6 +9,11 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 	public interface IEthereumReader {
 
 		/// <summary>
+		/// Get ether balance
+		/// </summary>
+		Task<BigInteger> GetEtherBalance(string address);
+
+		/// <summary>
 		/// Get latest block number on the logs provider side
 		/// </summary>
 		Task<BigInteger> GetLogsLatestBlockNumber();
@@ -28,49 +33,47 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum {
 		/// </summary>
 		Task<BigInteger> GetAddressMntBalance(string address);
 
-		/// <summary>
-		/// Get GOLD balance
-		/// </summary>
-		Task<BigInteger> GetAddressGoldBalance(string address);
+		///// <summary>
+		///// Get GOLD balance
+		///// </summary>
+		//Task<BigInteger> GetAddressGoldBalance(string address);
 
-		/// <summary>
-		/// Get hot wallet GOLD balance
-		/// </summary>
-		Task<BigInteger> GetHotWalletGoldBalance(string userId);
+		///// <summary>
+		///// Get hot wallet GOLD balance
+		///// </summary>
+		//Task<BigInteger> GetHotWalletGoldBalance(string userId);
 
 		// ---
-		
-		/// <summary>
-		/// Buy/sell ETH requests current count
-		/// </summary>
-		Task<BigInteger> GetBuySellRequestsCount();
 
-		/// <summary>
-		/// GOLD buy/sell request base info
-		/// </summary>
-		Task<BuySellRequestBaseInfo> GetBuySellRequestBaseInfo(BigInteger requestIndex);
+		///// <summary>
+		///// Buy/sell ETH requests current count
+		///// </summary>
+		//Task<BigInteger> GetBuySellRequestsCount();
 
-		/// <summary>
-		/// Get TokenBuyRequest events
-		/// </summary>
-		Task<GatheredTokenBuyEvents> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		///// <summary>
+		///// GOLD buy/sell request base info
+		///// </summary>
+		//Task<BuySellRequestBaseInfo> GetBuySellRequestBaseInfo(BigInteger requestIndex);
 
-		/// <summary>
-		/// Get TokenSellRequest events
-		/// </summary>
-		Task<GatheredTokenSellEvents> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		///// <summary>
+		///// Get TokenBuyRequest events
+		///// </summary>
+		//Task<GatheredTokenBuyEvents> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 
-		/*
-		/// <summary>
-		/// Get RequestProcessed events
-		/// </summary>
-		Task<GatheredRequestProcessedEvents> GatherRequestProcessedEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
-		*/
+		///// <summary>
+		///// Get TokenSellRequest events
+		///// </summary>
+		//Task<GatheredTokenSellEvents> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 
-		/// <summary>
-		/// Get migration contract transfers
-		/// </summary>
-		Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+		///// <summary>
+		///// Get RequestProcessed events
+		///// </summary>
+		//Task<GatheredRequestProcessedEvents> GatherRequestProcessedEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
+
+		///// <summary>
+		///// Get migration contract transfers
+		///// </summary>
+		//Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired);
 
 		/// <summary>
 		/// Get TokenBuyRequest events

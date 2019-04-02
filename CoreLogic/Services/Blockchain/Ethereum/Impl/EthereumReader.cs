@@ -82,305 +82,306 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			};
 		}
 
-		public async Task<BigInteger> GetAddressMntBalance(string address) {
-
+		public async Task<BigInteger> GetEtherBalance(string address) {
 			if (string.IsNullOrWhiteSpace(address)) {
 				throw new ArgumentException("Invalid address format");
 			}
-
 			var web3 = new Web3(EthProvider);
 
+			var b = await web3.Eth.GetBalance.SendRequestAsync(address);
+			return b.Value;
+		}
+
+		// ---
+
+		public async Task<BigInteger> GetAddressMntBalance(string address) {
+			if (string.IsNullOrWhiteSpace(address)) {
+				throw new ArgumentException("Invalid address format");
+			}
+			var web3 = new Web3(EthProvider);
 			var contract = web3.Eth.GetContract(MntpContractAbi, MntpContractAddress);
 			var func = contract.GetFunction("balanceOf");
 			var funcRet = await func.CallAsync<BigInteger>(address);
-
 			return funcRet;
 		}
 
-		public async Task<BigInteger> GetAddressGoldBalance(string address) {
+		//public async Task<BigInteger> GetAddressGoldBalance(string address) {
 
-			if (string.IsNullOrWhiteSpace(address)) {
-				throw new ArgumentException("Invalid address format");
-			}
+		//	if (string.IsNullOrWhiteSpace(address)) {
+		//		throw new ArgumentException("Invalid address format");
+		//	}
 
-			var web3 = new Web3(EthProvider);
+		//	var web3 = new Web3(EthProvider);
 
-			var contract = web3.Eth.GetContract(GoldContractAbi, GoldContractAddress);
-			var func = contract.GetFunction("balanceOf");
-			var funcRet = await func.CallAsync<BigInteger>(address);
+		//	var contract = web3.Eth.GetContract(GoldContractAbi, GoldContractAddress);
+		//	var func = contract.GetFunction("balanceOf");
+		//	var funcRet = await func.CallAsync<BigInteger>(address);
 
-			return funcRet;
-		}
+		//	return funcRet;
+		//}
 
-		public async Task<BigInteger> GetHotWalletGoldBalance(string userId) {
+		//public async Task<BigInteger> GetHotWalletGoldBalance(string userId) {
 
-			if (string.IsNullOrWhiteSpace(userId)) {
-				throw new ArgumentException("Invalid user ID");
-			}
+		//	if (string.IsNullOrWhiteSpace(userId)) {
+		//		throw new ArgumentException("Invalid user ID");
+		//	}
 
-			var web3 = new Web3(EthProvider);
-			var contract = web3.Eth.GetContract(
-				StorageContractAbi,
-				StorageContractAddress
-			);
+		//	var web3 = new Web3(EthProvider);
+		//	var contract = web3.Eth.GetContract(
+		//		StorageContractAbi,
+		//		StorageContractAddress
+		//	);
 
-			var func = contract.GetFunction("getUserHotGoldBalance");
-			var funcRet = await func.CallAsync<BigInteger>(userId);
+		//	var func = contract.GetFunction("getUserHotGoldBalance");
+		//	var funcRet = await func.CallAsync<BigInteger>(userId);
 
-			return funcRet;
-		}
-		
-		// ---
+		//	return funcRet;
+		//}
 
-		public async Task<BigInteger> GetBuySellRequestsCount() {
+		//public async Task<BigInteger> GetBuySellRequestsCount() {
 
-			var web3 = new Web3(EthProvider);
+		//	var web3 = new Web3(EthProvider);
 
-			var contract = web3.Eth.GetContract(
-					StorageContractAbi,
-					StorageContractAddress
-				);
-			var func = contract.GetFunction("getRequestsCount");
-			return await func.CallAsync<BigInteger>();
-		}
+		//	var contract = web3.Eth.GetContract(
+		//			StorageContractAbi,
+		//			StorageContractAddress
+		//		);
+		//	var func = contract.GetFunction("getRequestsCount");
+		//	return await func.CallAsync<BigInteger>();
+		//}
 
-		public async Task<BuySellRequestBaseInfo> GetBuySellRequestBaseInfo(BigInteger requestIndex) {
+		//public async Task<BuySellRequestBaseInfo> GetBuySellRequestBaseInfo(BigInteger requestIndex) {
 
-			var web3 = new Web3(EthProvider);
+		//	var web3 = new Web3(EthProvider);
 
-			var contract = web3.Eth.GetContract(
-				StorageContractAbi,
-				StorageContractAddress
-			);
-			var func = contract.GetFunction("getRequestBaseInfo");
-			var funcRet = await func.CallDeserializingToObjectAsync<BuySellRequestBaseInfoMapping>(requestIndex);
+		//	var contract = web3.Eth.GetContract(
+		//		StorageContractAbi,
+		//		StorageContractAddress
+		//	);
+		//	var func = contract.GetFunction("getRequestBaseInfo");
+		//	var funcRet = await func.CallDeserializingToObjectAsync<BuySellRequestBaseInfoMapping>(requestIndex);
 
-			return new BuySellRequestBaseInfo() {
-				Address = funcRet.Address,
-				InputAmount = funcRet.InputAmount,
-				OutputAmount = funcRet.OutputAmount,
-				IsPending = funcRet.State == 0,
-				IsSucceeded = funcRet.State == 1,
-				IsCancelled = funcRet.State == 2,
-				IsFailed = funcRet.State == 3,
-			};
-		}
+		//	return new BuySellRequestBaseInfo() {
+		//		Address = funcRet.Address,
+		//		InputAmount = funcRet.InputAmount,
+		//		OutputAmount = funcRet.OutputAmount,
+		//		IsPending = funcRet.State == 0,
+		//		IsSucceeded = funcRet.State == 1,
+		//		IsCancelled = funcRet.State == 2,
+		//		IsFailed = funcRet.State == 3,
+		//	};
+		//}
 
-		public async Task<GatheredTokenBuyEvents> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		//public async Task<GatheredTokenBuyEvents> GatherTokenBuyEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
-			var web3 = new Web3(EthLogsProvider);
+		//	var web3 = new Web3(EthLogsProvider);
 
-			var contract = web3.Eth.GetContract(
-				StorageContractAbi,
-				StorageContractAddress
-			);
+		//	var contract = web3.Eth.GetContract(
+		//		StorageContractAbi,
+		//		StorageContractAddress
+		//	);
 
-			HexBigInteger hexLaxtestBlock;
-			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
-			if (syncResp.IsSyncing) {
-				hexLaxtestBlock = syncResp.CurrentBlock;
-			}
-			else {
-				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
-			}
+		//	HexBigInteger hexLaxtestBlock;
+		//	var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+		//	if (syncResp.IsSyncing) {
+		//		hexLaxtestBlock = syncResp.CurrentBlock;
+		//	}
+		//	else {
+		//		hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+		//	}
 
-			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
+		//	var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
-			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
-			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+		//	var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+		//	var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
 
-			var evnt = contract.GetEvent("TokenBuyRequest");
-			var filter = await evnt.CreateFilterBlockRangeAsync(
-				new BlockParameter(hexFromBlock),
-				new BlockParameter(hexToBlock)
-			);
+		//	var evnt = contract.GetEvent("TokenBuyRequest");
+		//	var filter = await evnt.CreateFilterBlockRangeAsync(
+		//		new BlockParameter(hexFromBlock),
+		//		new BlockParameter(hexToBlock)
+		//	);
 
-			var events = new List<TokenBuyRequest>();
-			var logs = await evnt.GetAllChanges<TokenBuyRequestEventMapping>(filter);
+		//	var events = new List<TokenBuyRequest>();
+		//	var logs = await evnt.GetAllChanges<TokenBuyRequestEventMapping>(filter);
 
-			foreach (var v in logs) {
-				if (!v.Log.Removed) {
-					events.Add(new TokenBuyRequest() {
-						Address = v.Event.From,
-						UserId = v.Event.UserId,
-						Reference = v.Event.Reference,
-						Amount = v.Event.Amount,
-						RequestIndex = v.Event.Index,
-						BlockNumber = v.Log.BlockNumber,
-						TransactionId = v.Log.TransactionHash,
-					});
-				}
-			}
+		//	foreach (var v in logs) {
+		//		if (!v.Log.Removed) {
+		//			events.Add(new TokenBuyRequest() {
+		//				Address = v.Event.From,
+		//				UserId = v.Event.UserId,
+		//				Reference = v.Event.Reference,
+		//				Amount = v.Event.Amount,
+		//				RequestIndex = v.Event.Index,
+		//				BlockNumber = v.Log.BlockNumber,
+		//				TransactionId = v.Log.TransactionHash,
+		//			});
+		//		}
+		//	}
 
-			return new GatheredTokenBuyEvents() {
-				FromBlock = hexFromBlock.Value,
-				ToBlock = hexToBlock.Value,
-				Events = events.ToArray(),
-			};
-		}
+		//	return new GatheredTokenBuyEvents() {
+		//		FromBlock = hexFromBlock.Value,
+		//		ToBlock = hexToBlock.Value,
+		//		Events = events.ToArray(),
+		//	};
+		//}
 
-		public async Task<GatheredTokenSellEvents> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		//public async Task<GatheredTokenSellEvents> GatherTokenSellEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
-			var web3 = new Web3(EthLogsProvider);
+		//	var web3 = new Web3(EthLogsProvider);
 
-			var contract = web3.Eth.GetContract(
-				StorageContractAbi,
-				StorageContractAddress
-			);
+		//	var contract = web3.Eth.GetContract(
+		//		StorageContractAbi,
+		//		StorageContractAddress
+		//	);
 
-			HexBigInteger hexLaxtestBlock;
-			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
-			if (syncResp.IsSyncing) {
-				hexLaxtestBlock = syncResp.CurrentBlock;
-			}
-			else {
-				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
-			}
+		//	HexBigInteger hexLaxtestBlock;
+		//	var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+		//	if (syncResp.IsSyncing) {
+		//		hexLaxtestBlock = syncResp.CurrentBlock;
+		//	}
+		//	else {
+		//		hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+		//	}
 
-			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
+		//	var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
-			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
-			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+		//	var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+		//	var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
 
-			var evnt = contract.GetEvent("TokenSellRequest");
-			var filter = await evnt.CreateFilterBlockRangeAsync(
-				new BlockParameter(hexFromBlock),
-				new BlockParameter(hexToBlock)
-			);
+		//	var evnt = contract.GetEvent("TokenSellRequest");
+		//	var filter = await evnt.CreateFilterBlockRangeAsync(
+		//		new BlockParameter(hexFromBlock),
+		//		new BlockParameter(hexToBlock)
+		//	);
 
-			var events = new List<TokenSellRequest>();
-			var logs = await evnt.GetAllChanges<TokenSellRequestEventMapping>(filter);
+		//	var events = new List<TokenSellRequest>();
+		//	var logs = await evnt.GetAllChanges<TokenSellRequestEventMapping>(filter);
 
-			foreach (var v in logs) {
-				if (!v.Log.Removed) {
-					events.Add(new TokenSellRequest() {
-						Address = v.Event.From,
-						UserId = v.Event.UserId,
-						Reference = v.Event.Reference,
-						Amount = v.Event.Amount,
-						RequestIndex = v.Event.Index,
-						BlockNumber = v.Log.BlockNumber,
-						TransactionId = v.Log.TransactionHash,
-					});
-				}
-			}
+		//	foreach (var v in logs) {
+		//		if (!v.Log.Removed) {
+		//			events.Add(new TokenSellRequest() {
+		//				Address = v.Event.From,
+		//				UserId = v.Event.UserId,
+		//				Reference = v.Event.Reference,
+		//				Amount = v.Event.Amount,
+		//				RequestIndex = v.Event.Index,
+		//				BlockNumber = v.Log.BlockNumber,
+		//				TransactionId = v.Log.TransactionHash,
+		//			});
+		//		}
+		//	}
 
-			return new GatheredTokenSellEvents() {
-				FromBlock = hexFromBlock.Value,
-				ToBlock = hexToBlock.Value,
-				Events = events.ToArray(),
-			};
-		}
+		//	return new GatheredTokenSellEvents() {
+		//		FromBlock = hexFromBlock.Value,
+		//		ToBlock = hexToBlock.Value,
+		//		Events = events.ToArray(),
+		//	};
+		//}
 
-		/*
-		public async Task<GatheredRequestProcessedEvents> GatherRequestProcessedEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		//public async Task<GatheredRequestProcessedEvents> GatherRequestProcessedEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
-			var web3 = new Web3(EthLogsProvider);
+		//	var web3 = new Web3(EthLogsProvider);
 
-			var contract = web3.Eth.GetContract(
-				FiatContractAbi,
-				FiatContractAddress
-			);
+		//	var contract = web3.Eth.GetContract(
+		//		FiatContractAbi,
+		//		FiatContractAddress
+		//	);
 
-			HexBigInteger hexLaxtestBlock;
-			var syncResp = await web3.Eth.Syncing.SendRequestAsync();
-			if (syncResp.IsSyncing) {
-				hexLaxtestBlock = syncResp.CurrentBlock;
-			}
-			else {
-				hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
-			}
-			var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
+		//	HexBigInteger hexLaxtestBlock;
+		//	var syncResp = await web3.Eth.Syncing.SendRequestAsync();
+		//	if (syncResp.IsSyncing) {
+		//		hexLaxtestBlock = syncResp.CurrentBlock;
+		//	}
+		//	else {
+		//		hexLaxtestBlock = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+		//	}
+		//	var latestConfirmedBlock = hexLaxtestBlock.Value -= confirmationsRequired;
 
-			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
-			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+		//	var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+		//	var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
 
-			var evnt = contract.GetEvent("TokenSellRequest");
-			var filter = await evnt.CreateFilterBlockRangeAsync(
-				new BlockParameter(hexFromBlock),
-				new BlockParameter(hexToBlock)
-			);
+		//	var evnt = contract.GetEvent("TokenSellRequest");
+		//	var filter = await evnt.CreateFilterBlockRangeAsync(
+		//		new BlockParameter(hexFromBlock),
+		//		new BlockParameter(hexToBlock)
+		//	);
 
-			var events = new List<RequestProcessed>();
-			var logs = await evnt.GetAllChanges<RequestProcessedEventMapping>(filter);
+		//	var events = new List<RequestProcessed>();
+		//	var logs = await evnt.GetAllChanges<RequestProcessedEventMapping>(filter);
 
-			foreach (var v in logs) {
-				if (!v.Log.Removed) {
-					events.Add(new RequestProcessed() {
-						RequestIndex = v.Event.Index,
-						IsBuyRequest = v.Event.IsBuyRequest,
-						IsFiat = v.Event.IsFiat,
-						Amount = v.Event.Amount,
-						Rate = v.Event.Rate,
-						BlockNumber = v.Log.BlockNumber,
-						TransactionId = v.Log.TransactionHash,
-					});
-				}
-			}
+		//	foreach (var v in logs) {
+		//		if (!v.Log.Removed) {
+		//			events.Add(new RequestProcessed() {
+		//				RequestIndex = v.Event.Index,
+		//				IsBuyRequest = v.Event.IsBuyRequest,
+		//				IsFiat = v.Event.IsFiat,
+		//				Amount = v.Event.Amount,
+		//				Rate = v.Event.Rate,
+		//				BlockNumber = v.Log.BlockNumber,
+		//				TransactionId = v.Log.TransactionHash,
+		//			});
+		//		}
+		//	}
 
-			return new GatheredRequestProcessedEvents() {
-				FromBlock = hexFromBlock.Value,
-				ToBlock = hexToBlock.Value,
-				Events = events.ToArray(),
-			};
-		}
-		*/
+		//	return new GatheredRequestProcessedEvents() {
+		//		FromBlock = hexFromBlock.Value,
+		//		ToBlock = hexToBlock.Value,
+		//		Events = events.ToArray(),
+		//	};
+		//}
 
-		public async Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
+		//public async Task<GatheredLog<MigrationContractTransferEvent>> GatherMigrationContractTransfers(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 
-			var web3 = new Web3(EthLogsProvider);
-			var events = new List<MigrationContractTransferEvent>();
+		//	var web3 = new Web3(EthLogsProvider);
+		//	var events = new List<MigrationContractTransferEvent>();
 
-			var latestBlock = await GetLogsLatestBlockNumber();
-			var latestConfirmedBlock = latestBlock - confirmationsRequired;
-			var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
-			var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
+		//	var latestBlock = await GetLogsLatestBlockNumber();
+		//	var latestConfirmedBlock = latestBlock - confirmationsRequired;
+		//	var hexFromBlock = new HexBigInteger(BigInteger.Min(from, latestConfirmedBlock));
+		//	var hexToBlock = new HexBigInteger(BigInteger.Min(to, latestConfirmedBlock));
 
-			foreach (var contractData in new[] {
-				new {Abi = GoldContractAbi, Address = GoldContractAddress},
-				new {Abi = MntpContractAbi, Address = MntpContractAddress}
-			}) {
-				var contract = web3.Eth.GetContract(
-					contractData.Abi,
-					contractData.Address
-				);
-				var evnt = contract.GetEvent("Transfer");
-				var filter = await evnt.CreateFilterAsync(
-					null,
-					new object[] { MigrationContractAddress },
-					new BlockParameter(hexFromBlock),
-					new BlockParameter(hexToBlock)
-				);
+		//	foreach (var contractData in new[] {
+		//		new {Abi = GoldContractAbi, Address = GoldContractAddress},
+		//		new {Abi = MntpContractAbi, Address = MntpContractAddress}
+		//	}) {
+		//		var contract = web3.Eth.GetContract(
+		//			contractData.Abi,
+		//			contractData.Address
+		//		);
+		//		var evnt = contract.GetEvent("Transfer");
+		//		var filter = await evnt.CreateFilterAsync(
+		//			null,
+		//			new object[] { MigrationContractAddress },
+		//			new BlockParameter(hexFromBlock),
+		//			new BlockParameter(hexToBlock)
+		//		);
 
-				// get and filter
-				var logs = await evnt.GetAllChanges<Erc20TransferEventMapping>(filter);
-				logs = logs
-						.Where(_ => !_.Log.Removed)
-						.GroupBy(_ => _.Event.From)
-						.Select(grp => grp.OrderByDescending(_ => _.Event.Value).FirstOrDefault())
-						.ToList()
-					;
+		//		// get and filter
+		//		var logs = await evnt.GetAllChanges<Erc20TransferEventMapping>(filter);
+		//		logs = logs
+		//				.Where(_ => !_.Log.Removed)
+		//				.GroupBy(_ => _.Event.From)
+		//				.Select(grp => grp.OrderByDescending(_ => _.Event.Value).FirstOrDefault())
+		//				.ToList()
+		//			;
 
-				foreach (var v in logs) {
-					events.Add(new MigrationContractTransferEvent(
-						contractData.Address,
-						v.Log.BlockNumber,
-						v.Log.TransactionHash,
-						v.Event
-					));
-				}
-			}
+		//		foreach (var v in logs) {
+		//			events.Add(new MigrationContractTransferEvent(
+		//				contractData.Address,
+		//				v.Log.BlockNumber,
+		//				v.Log.TransactionHash,
+		//				v.Event
+		//			));
+		//		}
+		//	}
 
-			return new GatheredLog<MigrationContractTransferEvent>() {
-				FromBlock = hexFromBlock.Value,
-				ToBlock = hexToBlock.Value,
-				Events = events.ToArray(),
-			};
-		}
+		//	return new GatheredLog<MigrationContractTransferEvent>() {
+		//		FromBlock = hexFromBlock.Value,
+		//		ToBlock = hexToBlock.Value,
+		//		Events = events.ToArray(),
+		//	};
+		//}
 
-		/// <summary>
-		/// Get TokenBuyRequest events
-		/// </summary>
 		public async Task<GatheredPoolFreezerEvents> GatherPoolFreezerEvents(BigInteger from, BigInteger to, BigInteger confirmationsRequired) {
 			
 			var web3 = new Web3(EthLogsProvider);

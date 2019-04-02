@@ -52,13 +52,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		[HttpGet, Route("account")]
 		[ProducesResponseType(typeof(ProfileView), 200)]
 		public async Task<APIResponse> Account() {
-			var mult = (decimal)Math.Pow(10, 6);
             var user = await GetUserFromDb();
+
+			var gold = user.UserSumusWallet.BalanceGold.ToSumus(); 
+			var mnt = user.UserSumusWallet.BalanceMnt.ToSumus(); 
 
 			return APIResponse.Success(
 				new AccountView() {
-					SumusGold = (double)(decimal.Truncate(user.UserSumusWallet.BalanceGold * mult) / mult),
-					SumusMnt = (double)(decimal.Truncate(user.UserSumusWallet.BalanceMnt * mult) / mult),
+					SumusGold = gold.ToString(),
+					SumusMnt = mnt.ToString(),
 					SumusWallet = user.UserSumusWallet.PublicKey,
 				}
 			);
