@@ -27,7 +27,7 @@ namespace Goldmint.DAL.Models {
 		public long GoldRateCents { get; set; }
 
 		[Column("eth_rate"), Required]
-		public long OutputRateCents { get; set; }
+		public long EthRateCents { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

@@ -12,13 +12,13 @@ namespace Goldmint.DAL {
 
 	public class ApplicationDbContext : IdentityDbContext<User, Role, long, UserClaim, UserRole, UserLogin, RoleClaim, UserToken> {
 
+		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<BannedCountry> BannedCountry { get; set; }
 		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
-		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<Notification> Notification { get; set; }
 		public DbSet<Settings> Settings { get; set; }
 		public DbSet<SignedDocument> SignedDocument { get; set; }
-		public DbSet<EthereumOperation> EthereumOperation { get; set; }
+		public DbSet<EthSending> EthSending { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<TransparencyStat> TransparencyStat { get; set; }
 		public DbSet<UserActivity> UserActivity { get; set; }

@@ -157,19 +157,9 @@
 				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
+
+				public int ConfirmationsRequired {get; set;} = 12;
 			}
-
-			public SumusSection Sumus { get; set; } = new SumusSection();
-			public class SumusSection {
-
-				public string MigrationHolderAddress { get; set; } = "";
-				public string MigrationEmissionPk { get; set; } = "";
-
-				public string SumusNodeProxyUrl { get; set; } = "";
-				public string ScannerTxView { get; set; } = "";
-
-			    public int MigrationRequestNextCheckDelay { get; set; } = 20;
-            }
 
 			public IpfsSection Ipfs { get; set; } = new IpfsSection();
 			public class IpfsSection {
@@ -201,31 +191,6 @@
 				public int RequestTimeoutSec { get; set; } = 30;
 				public string GoldRateUrl { get; set; } = "";
 				public string EthRateUrl { get; set; } = "";
-			}
-
-			public WorkersSection Workers { get; set; } = new WorkersSection();
-			public class WorkersSection {
-
-				public DbWorkerSettings Notifications { get; set; } = new DbWorkerSettings();
-				public EthWorkerSettings EthEventsHarvester { get; set; } = new EthWorkerSettings();
-				public EthWorkerSettings EthereumOperations { get; set; } = new EthWorkerSettings();
-				public WorkerSettings GoldRateUpdater { get; set; } = new WorkerSettings();
-				public WorkerSettings CryptoRateUpdater { get; set; } = new WorkerSettings();
-				public WorkerSettings TelemetryAggregator { get; set; } = new WorkerSettings();
-				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
-				public DbWorkerSettings TokenMigrationQueue { get; set; } = new DbWorkerSettings();
-
-				public class WorkerSettings {
-					public int PeriodSec { get; set; } = 60;
-				}
-
-				public class DbWorkerSettings : WorkerSettings {
-					public int ItemsPerRound { get; set; } = 50;
-				}
-
-				public class EthWorkerSettings : DbWorkerSettings {
-					public int EthConfirmations { get; set; } = 30;
-				}
 			}
 		}
 

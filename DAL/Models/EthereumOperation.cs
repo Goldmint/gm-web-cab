@@ -5,38 +5,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Goldmint.DAL.Models {
 
-	[Table("gm_eth_operation")]
-	public class EthereumOperation: BaseUserFinHistoryEntity, IConcurrentUpdate {
-
-		[Column("type"), Required]
-		public EthereumOperationType Type { get; set; }
+	[Table("gm_eth_sending")]
+	public class EthSending : BaseUserFinHistoryEntity, IConcurrentUpdate {
 
 		[Column("status"), Required]
 		public EthereumOperationStatus Status { get; set; }
 
-		[Column("rel_request_id")]
-		public long? RelatedExchangeRequestId { get; set; }
-
 		[Column("address"), MaxLength(FieldMaxLength.BlockchainAddress), Required]
-		public string DestinationAddress { get; set; }
+		public string Address { get; set; }
 
-		[Column("rate"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
-		public string Rate { get; set; }
+		[Column("amount"), Required]
+		public decimal Amount { get; set; }
 
-		[Column("discount")]
-		public double Discount { get; set; }
-
-		[Column("gold_amount"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount), Required]
-		public string GoldAmount { get; set; }
-
-		[Column("cents_amount")]
-		public long? CentsAmount { get; set; }
-
-		[Column("eth_request_index"), MaxLength(FieldMaxLength.BlockchainCurrencyAmount)]
-		public string EthRequestIndex { get; set; }
-
-		[Column("eth_txid"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
-		public string EthTransactionId { get; set; }
+		[Column("tx"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
+		public string Transaction { get; set; }
 
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }

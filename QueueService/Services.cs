@@ -87,6 +87,7 @@ namespace Goldmint.QueueService {
 					var sf = sp.GetService<NATS.Client.ConnectionFactory>();
 					var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
 					opts.Url = _appConfig.Bus.Nats.Endpoint;
+					opts.AllowReconnect = true;
 					return sf.CreateConnection(opts);
 				});
 			}

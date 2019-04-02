@@ -26,10 +26,10 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// doesn't require ethereum at all
-					new NotificationSender(_appConfig.Services.Workers.Notifications.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.Notifications.PeriodSec)),
-					new Workers.Rates.GoldRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.GoldRateUpdater.PeriodSec)),
-					new Workers.Rates.CryptoRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CryptoRateUpdater.PeriodSec)),
-					new Workers.Bus.TelemetryAggregator().Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.TelemetryAggregator.PeriodSec)),
+					new NotificationSender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(10)),
+					new Workers.Rates.GoldRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
+					new Workers.Rates.CryptoRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
+					new Workers.Bus.TelemetryAggregator().Period(TimeSpan.FromSeconds(30)),
 				});
 			}
 
@@ -38,25 +38,25 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() {
 
 					// charges credit card
-					new Workers.CreditCard.VerificationProcessor(
-						_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound
-					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					new Workers.CreditCard.VerificationProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
 					// sends refunds back
-					new Workers.CreditCard.RefundsProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					new Workers.CreditCard.RefundsProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
 					//new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					
+
 					// harvests "frozen"-events (requests) from pool-freezer contract
-					new Workers.EthPoolFreezer.EthEventHarvester(
-						_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound,
-						_appConfig.Services.Workers.EthEventsHarvester.EthConfirmations
-					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
+					new Workers.EthPoolFreezer.EthEventHarvester(blocksPerRound: 10, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(60)),
+					
 					// requires "frozen" stake to be emitted in sumus bc
-					new Workers.EthPoolFreezer.EmissionRequestor(
-						_appConfig.Services.Workers.TokenMigrationQueue.ItemsPerRound
-					).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.TokenMigrationQueue.PeriodSec)),
+					new Workers.EthPoolFreezer.EmissionRequestor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
+					
 					// confirms emission to complete harvested requests
 					new Workers.EthPoolFreezer.EmissionConfirmer().BurstMode(),
+
+
+					// processes gold selling requests
+					new Workers.Sell.RequestProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
 
 					//// eth operations queue
 					//new Workers.Ethereum.EthereumOprationsProcessor(

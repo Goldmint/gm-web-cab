@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -97,30 +98,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// request
-			var request = new DAL.Models.SellGoldRequest() {
-
+			var request = new DAL.Models.SellGoldEth() {
 				Status = SellGoldRequestStatus.Unconfirmed,
-				Input = SellGoldRequestInput.SumusGoldBurning,
-				Output = SellGoldRequestOutput.EthAddress,
-				RelOutputId = null,
-				EthAddress = model.EthAddress,
-
+				GoldAmount = estimation.ResultGoldAmount.FromSumus(),
+				Destination = model.EthAddress,
+				EthAmount = estimation.ResultCurrencyAmount.FromSumus(),
 				ExchangeCurrency = exchangeCurrency,
-				OutputRateCents = estimation.CentsPerAssetRate,
 				GoldRateCents = estimation.CentsPerGoldRate,
-				InputExpected = estimation.ResultGoldAmount.ToString(),
-
-				OplogId = ticket,
+				EthRateCents = estimation.CentsPerAssetRate,
 				TimeCreated = timeNow,
-				TimeExpires = timeNow.AddDays(1),
-				TimeNextCheck = timeNow,
-
 				UserId = user.Id,
 				RelUserFinHistoryId = finHistory.Id,
+				OplogId = ticket,
 			};
 
 			// add and save
-			DbContext.SellGoldRequest.Add(request);
+			DbContext.SellGoldEth.Add(request);
 			await DbContext.SaveChangesAsync();
 
 			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);

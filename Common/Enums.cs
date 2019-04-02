@@ -145,24 +145,9 @@ namespace Goldmint.Common {
 		Success,
 
 		/// <summary>
-		/// Expired
-		/// </summary>
-		Expired,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Cancelled,
-
-		/// <summary>
 		/// Final failure
 		/// </summary>
 		Failed,
-
-		/// <summary>
-		/// Checking operation on blockchain
-		/// </summary>
-		EthConfirmation,
 	}
 
 	#endregion
@@ -176,60 +161,12 @@ namespace Goldmint.Common {
 		Gold = 3
 	}
 
-	public enum EthereumOperationType {
-
-		/// <summary>
-		/// Transfer GOLD from HW to client address
-		/// </summary>
-		TransferGoldFromHw = 1,
-
-		/// <summary>
-		/// Call contract for request processing (ETH)
-		/// </summary>
-		ContractProcessBuyRequestEth,
-
-		/// <summary>
-		/// Call contract for request cancellation
-		/// </summary>
-		ContractCancelBuyRequest,
-
-		/// <summary>
-		/// Call contract for request processing (ETH)
-		/// </summary>
-		ContractProcessSellRequestEth,
-
-		/// <summary>
-		/// Call contract for request cancellation
-		/// </summary>
-		ContractCancelSellRequest,
-
-		/// <summary>
-		/// Call contract for request processing (fiat)
-		/// </summary>
-		ContractProcessBuyRequestFiat,
-
-		/// <summary>
-		/// Call contract for request processing (fiat)
-		/// </summary>
-		ContractProcessSellRequestFiat,
-
-		/// <summary>
-		/// Transfer ether to the specified address
-		/// </summary>
-		SendBuyingSupportEther,
-	}
-
 	public enum EthereumOperationStatus {
 
 		/// <summary>
 		/// Enqueued
 		/// </summary>
 		Initial = 1,
-
-		/// <summary>
-		/// Prepared for processing
-		/// </summary>
-		Prepared,
 
 		/// <summary>
 		/// Sending request to blockchain
@@ -679,6 +616,11 @@ namespace Goldmint.Common {
 		/// Payment check (payment-wide)
 		/// </summary>
 		CardPaymentCheck,
+
+		/// <summary>
+		/// Wallet balance change (wallet-wide)
+		/// </summary>
+		SumusWalletBalance,
 	}
 
 	public enum NotificationType {

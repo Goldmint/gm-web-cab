@@ -16,107 +16,107 @@ using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
-	[Route("api/v1/dashboard/goldExchange")]
-	public class GoldExchangeController : BaseController {
+	//[Route("api/v1/dashboard/goldExchange")]
+	//public class GoldExchangeController : BaseController {
 
-		/// <summary>
-		/// List of requests
-		/// </summary>
-		[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
-		[HttpPost, Route("list")]
-		[ProducesResponseType(typeof(ListView), 200)]
-		public async Task<APIResponse> ListBuying([FromBody] ListModel model) {
+	//	/// <summary>
+	//	/// List of requests
+	//	/// </summary>
+	//	[RequireJWTAudience(JwtAudience.Dashboard), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.DashboardReadAccess)]
+	//	[HttpPost, Route("list")]
+	//	[ProducesResponseType(typeof(ListView), 200)]
+	//	public async Task<APIResponse> ListBuying([FromBody] ListModel model) {
 
-			var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<EthereumOperation, object>>>() {
-				{ "date", _ => _.TimeCompleted },
-			};
+	//		var sortExpression = new Dictionary<string, System.Linq.Expressions.Expression<Func<EthereumOperation, object>>>() {
+	//			{ "date", _ => _.TimeCompleted },
+	//		};
 
-			// validate
-			if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
-			}
+	//		// validate
+	//		if (BasePagerModel.IsInvalid(model, sortExpression.Keys, out var errFields)) {
+	//			return APIResponse.BadRequest(errFields);
+	//		}
 
-			BigInteger? totalGoldIssued = null, totalGoldBurnt = null;
-			var query = DbContext.EthereumOperation.AsQueryable();
+	//		BigInteger? totalGoldIssued = null, totalGoldBurnt = null;
+	//		var query = DbContext.EthereumOperation.AsQueryable();
 			
-			// processed
-			query = query
-				.Where(_ =>
-					_.Status == EthereumOperationStatus.Success &&
-					(
-						_.Type == EthereumOperationType.ContractProcessBuyRequestEth || 
-						_.Type == EthereumOperationType.ContractProcessSellRequestEth ||
-						_.Type == EthereumOperationType.ContractProcessBuyRequestFiat ||
-						_.Type == EthereumOperationType.ContractProcessSellRequestFiat
+	//		// processed
+	//		query = query
+	//			.Where(_ =>
+	//				_.Status == EthereumOperationStatus.Success &&
+	//				(
+	//					_.Type == EthereumOperationType.ContractProcessBuyRequestEth || 
+	//					_.Type == EthereumOperationType.ContractProcessSellRequestEth ||
+	//					_.Type == EthereumOperationType.ContractProcessBuyRequestFiat ||
+	//					_.Type == EthereumOperationType.ContractProcessSellRequestFiat
 
-					)
-				)
-			;
-			if (model.FilterRequestId != null) {
-				query = query.Where(_ => _.RelatedExchangeRequestId == model.FilterRequestId);
-			}
-			if (model.PeriodStart != null) {
-				query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted >= DateTimeOffset.FromUnixTimeSeconds(model.PeriodStart.Value).UtcDateTime);
-			}
-			if (model.PeriodEnd != null) {
-				query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted <= DateTimeOffset.FromUnixTimeSeconds(model.PeriodEnd.Value).UtcDateTime);
-			}
+	//				)
+	//			)
+	//		;
+	//		if (model.FilterRequestId != null) {
+	//			query = query.Where(_ => _.RelatedExchangeRequestId == model.FilterRequestId);
+	//		}
+	//		if (model.PeriodStart != null) {
+	//			query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted >= DateTimeOffset.FromUnixTimeSeconds(model.PeriodStart.Value).UtcDateTime);
+	//		}
+	//		if (model.PeriodEnd != null) {
+	//			query = query.Where(_ => _.TimeCompleted != null && _.TimeCompleted <= DateTimeOffset.FromUnixTimeSeconds(model.PeriodEnd.Value).UtcDateTime);
+	//		}
 
-			// total gold amount
-			if (model.PeriodStart != null || model.PeriodEnd != null) {
-				var tgrows = await query.Select(_ => new {Type = _.Type, Amount = _.GoldAmount}).ToListAsync();
+	//		// total gold amount
+	//		if (model.PeriodStart != null || model.PeriodEnd != null) {
+	//			var tgrows = await query.Select(_ => new {Type = _.Type, Amount = _.GoldAmount}).ToListAsync();
 
-				totalGoldIssued = new BigInteger(0);
-				totalGoldBurnt = new BigInteger(0);
+	//			totalGoldIssued = new BigInteger(0);
+	//			totalGoldBurnt = new BigInteger(0);
 				
-				foreach (var v in tgrows) {
-					if (BigInteger.TryParse(v.Amount, out var amount)) {
-						if (v.Type == EthereumOperationType.ContractProcessBuyRequestEth || v.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
-							totalGoldIssued += amount;
-						}
-						if (v.Type == EthereumOperationType.ContractProcessSellRequestEth || v.Type == EthereumOperationType.ContractProcessSellRequestFiat) {
-							totalGoldBurnt += amount;
-						}
-					}
-				}
-			}
+	//			foreach (var v in tgrows) {
+	//				if (BigInteger.TryParse(v.Amount, out var amount)) {
+	//					if (v.Type == EthereumOperationType.ContractProcessBuyRequestEth || v.Type == EthereumOperationType.ContractProcessBuyRequestFiat) {
+	//						totalGoldIssued += amount;
+	//					}
+	//					if (v.Type == EthereumOperationType.ContractProcessSellRequestEth || v.Type == EthereumOperationType.ContractProcessSellRequestFiat) {
+	//						totalGoldBurnt += amount;
+	//					}
+	//				}
+	//			}
+	//		}
 
-			query = query
-				.Include(_ => _.User)
-				.AsNoTracking()
-			;
+	//		query = query
+	//			.Include(_ => _.User)
+	//			.AsNoTracking()
+	//		;
 
-			// ---
+	//		// ---
 
-			var page = await query.PagerAsync(model.Offset, model.Limit,
-				sortExpression.GetValueOrDefault(model.Sort), model.Ascending
-			);
+	//		var page = await query.PagerAsync(model.Offset, model.Limit,
+	//			sortExpression.GetValueOrDefault(model.Sort), model.Ascending
+	//		);
 
-			var list =
-				from i in page.Selected
-				select new ListViewItem() {
-					RequestId = i.RelatedExchangeRequestId ?? 0,
-					IsBuying = i.Type == EthereumOperationType.ContractProcessBuyRequestEth,
-					Amount = i.GoldAmount,
-					EthTxId = i.EthTransactionId,
-					User = new ListViewItem.UserData() {
-						Username = i.User.UserName,
-					},
-					DateCompleted = i.TimeCompleted != null? ((DateTimeOffset)i.TimeCompleted.Value).ToUnixTimeSeconds(): 0L,
-				}
-			;
+	//		var list =
+	//			from i in page.Selected
+	//			select new ListViewItem() {
+	//				RequestId = i.RelatedExchangeRequestId ?? 0,
+	//				IsBuying = i.Type == EthereumOperationType.ContractProcessBuyRequestEth,
+	//				Amount = i.GoldAmount,
+	//				EthTxId = i.EthTransactionId,
+	//				User = new ListViewItem.UserData() {
+	//					Username = i.User.UserName,
+	//				},
+	//				DateCompleted = i.TimeCompleted != null? ((DateTimeOffset)i.TimeCompleted.Value).ToUnixTimeSeconds(): 0L,
+	//			}
+	//		;
 
-			return APIResponse.Success(
-				new ListView() {
-					TotalIssued = totalGoldIssued?.ToString(),
-					TotalBurnt = totalGoldBurnt?.ToString(),
-					Items = list.ToArray(),
-					Limit = model.Limit,
-					Offset = model.Offset,
-					Total = page.TotalCount,
-				}
-			);
+	//		return APIResponse.Success(
+	//			new ListView() {
+	//				TotalIssued = totalGoldIssued?.ToString(),
+	//				TotalBurnt = totalGoldBurnt?.ToString(),
+	//				Items = list.ToArray(),
+	//				Limit = model.Limit,
+	//				Offset = model.Offset,
+	//				Total = page.TotalCount,
+	//			}
+	//		);
 
-		}
-	}
+	//	}
+	//}
 }

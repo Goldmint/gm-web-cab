@@ -3,14 +3,16 @@ using System;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190401214022_sumus-gold-selling")]
+    partial class sumusgoldselling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -471,28 +473,6 @@ namespace Goldmint.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("gm_kyc_shuftipro_ticket");
-                });
-
-            modelBuilder.Entity("Goldmint.DAL.Models.Mutex", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasMaxLength(64);
-
-                    b.Property<DateTime>("Expires")
-                        .IsConcurrencyToken()
-                        .HasColumnName("expires");
-
-                    b.Property<string>("Locker")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnName("locker")
-                        .HasMaxLength(32);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("gm_mutex");
                 });
 
             modelBuilder.Entity("Goldmint.DAL.Models.Notification", b =>
