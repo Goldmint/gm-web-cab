@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Bus.Telemetry;
 
 namespace Goldmint.QueueService.Workers.Ethereum {
 	

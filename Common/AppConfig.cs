@@ -161,12 +161,6 @@
 				public int ConfirmationsRequired {get; set;} = 12;
 			}
 
-			public IpfsSection Ipfs { get; set; } = new IpfsSection();
-			public class IpfsSection {
-
-				public string Url { get; set; } = "";
-			}
-
 			public SignRequestSection SignRequest { get; set; } = new SignRequestSection();
 			public class SignRequestSection {
 
@@ -205,34 +199,34 @@
 				public string Endpoint { get; set; } = "localhost:4222";
 			}
 
-			public CentralPubSection CentralPub { get; set; } = new CentralPubSection();
-			public class CentralPubSection {
+			//public CentralPubSection CentralPub { get; set; } = new CentralPubSection();
+			//public class CentralPubSection {
 
-				public string Endpoint { get; set; } = "";
-				public int PubPort { get; set; } = 6666;
-				public RatesSection Rates { get; set; } = new RatesSection();
-				public ChildPubEndpointSection[] ChildPubEndpoints { get; set; } = { };
+			//	public string Endpoint { get; set; } = "";
+			//	public int PubPort { get; set; } = 6666;
+			//	public RatesSection Rates { get; set; } = new RatesSection();
+			//	public ChildPubEndpointSection[] ChildPubEndpoints { get; set; } = { };
 
-				public class RatesSection {
+			//	public class RatesSection {
 
-					public double PubPeriodSec { get; set; } = 1;
-					public int GoldValidForSec { get; set; } = 1800;
-					public int CryptoValidForSec { get; set; } = 180;
-				}
+			//		public double PubPeriodSec { get; set; } = 1;
+			//		public int GoldValidForSec { get; set; } = 1800;
+			//		public int CryptoValidForSec { get; set; } = 180;
+			//	}
 
-				public class ChildPubEndpointSection {
+			//	public class ChildPubEndpointSection {
 
-					public string Name { get; set; } = "";
-					public string Endpoint { get; set; } = "";
-				}
-			}
+			//		public string Name { get; set; } = "";
+			//		public string Endpoint { get; set; } = "";
+			//	}
+			//}
 
-			public ChildPubSection ChildPub { get; set; } = new ChildPubSection();
-			public class ChildPubSection {
+			//public ChildPubSection ChildPub { get; set; } = new ChildPubSection();
+			//public class ChildPubSection {
 
-				public int PubPort { get; set; } = 6666;
-				public double PubTelemetryPeriodSec { get; set; } = 15;
-			}
+			//	public int PubPort { get; set; } = 6666;
+			//	public double PubTelemetryPeriodSec { get; set; } = 15;
+			//}
 		}
 	}
 }

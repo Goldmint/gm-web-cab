@@ -5,7 +5,6 @@ using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Notification;
-using Goldmint.CoreLogic.Services.OpenStorage;
 using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
@@ -40,7 +39,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected ITemplateProvider TemplateProvider { get; private set; }
 		protected IOplogProvider OplogProvider { get; private set; }
 		protected IEthereumReader EthereumObserver { get; private set; }
-		protected IOpenStorageProvider OpenStorageProvider { get; private set; }
 		protected IDocSigningProvider DocSigningProvider { get; private set; }
 		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
 		protected RuntimeConfigHolder RuntimeConfigHolder { get; private set; }
@@ -63,7 +61,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			TemplateProvider = services.GetRequiredService<ITemplateProvider>();
 			OplogProvider = services.GetRequiredService<IOplogProvider>();
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
-			OpenStorageProvider = services.GetRequiredService<IOpenStorageProvider>();
 			DocSigningProvider = services.GetRequiredService<IDocSigningProvider>();
 			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
 			RuntimeConfigHolder = services.GetRequiredService<RuntimeConfigHolder>();

@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.Rate {
 
-	public interface IAggregatedSafeRatesPublisher {
+	//public interface IAggregatedSafeRatesPublisher {
 
-		Task PublishRates(SafeCurrencyRate[] currencies);
-	}
+	//	Task PublishRates(SafeCurrencyRate[] currencies);
+	//}
 }

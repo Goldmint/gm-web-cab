@@ -1,5 +1,4 @@
 ﻿using Goldmint.CoreLogic.Finance;
-using Goldmint.CoreLogic.Services.Bus.Telemetry;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

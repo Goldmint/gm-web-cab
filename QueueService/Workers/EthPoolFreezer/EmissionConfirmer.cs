@@ -33,15 +33,15 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 		}
 
 		protected override async Task OnUpdate() {
-			using (var sub = _natsConn.SubscribeSync("sumus.emitter.emited")) {
+			using (var sub = _natsConn.SubscribeSync(Sumus.Sender.Sent.Subject)) {
 				while (!IsCancelled()) {
 					try {
 						var msg = sub.NextMessage(1000);
 						try {
 							_logger.Trace($"Got message");
 
-							var request = Serializer.Deserialize<SumusEmitterEmitedRequest>(msg.Data);
-							var response = new SumusEmitterEmitedResponse() {
+							var request = Serializer.Deserialize<Sumus.Sender.Sent.Request>(msg.Data);
+							var response = new Sumus.Sender.Sent.Reply() {
 								Success = true,
 							};
 

@@ -20,15 +20,13 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 		}
 	}
 
-	public class SafeCurrencyRate : CurrencyRate
-	{
+	public class SafeCurrencyRate : CurrencyRate {
 
 		private readonly bool _canBuy;
 		private readonly bool _canSell;
 		private readonly TimeSpan _ttl;
 
-		public SafeCurrencyRate(bool canBuy, bool canSell, TimeSpan ttl, CurrencyRateType cur, DateTime stamp, long usd) : base(cur, stamp, usd)
-		{
+		public SafeCurrencyRate(bool canBuy, bool canSell, TimeSpan ttl, CurrencyRateType cur, DateTime stamp, long usd) : base(cur, stamp, usd) {
 			_canBuy = canBuy;
 			_canSell = canSell;
 			_ttl = ttl;
@@ -44,8 +42,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 
 		// ---
 
-		public static Bus.Proto.SafeRates.Rate BusSerialize(SafeCurrencyRate rate) {
-			return new Bus.Proto.SafeRates.Rate() {
+		public static Bus.Nats.Rates.Updated.Rate BusSerialize(SafeCurrencyRate rate) {
+			return new Bus.Nats.Rates.Updated.Rate() {
 				Currency = rate.Currency,
 				Stamp = ((DateTimeOffset)rate.Stamp).ToUnixTimeSeconds(),
 				Ttl = (long)rate._ttl.TotalSeconds,
@@ -55,7 +53,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 			};
 		}
 
-		public static SafeCurrencyRate BusDeserialize(Bus.Proto.SafeRates.Rate rate) {
+		public static SafeCurrencyRate BusDeserialize(Bus.Nats.Rates.Updated.Rate rate) {
 			return new SafeCurrencyRate(
 				canBuy: rate.CanBuy,
 				canSell: rate.CanSell,

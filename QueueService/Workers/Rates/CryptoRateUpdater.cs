@@ -21,16 +21,13 @@ namespace Goldmint.QueueService.Workers.Rates {
 			_services = services;
 			_ethRateProvider = _services.GetRequiredService<IEthRateProvider>();
 			_aggregatedRatesDispatcher = _services.GetRequiredService<IAggregatedRatesDispatcher>();
-
 			return Task.CompletedTask;
 		}
 
 		protected override async Task OnUpdate() {
 			try {
-	
 				var rate = await _ethRateProvider.RequestEthRate(_requestTimeout);
 				Logger.Trace($"Current eth rate {rate}");
-
 				_aggregatedRatesDispatcher.OnProviderCurrencyRate(rate);
 			} catch (Exception e) {
 				Logger.Error(e);

@@ -20,21 +20,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
-using System.Threading.Tasks;
 
 namespace Goldmint.QueueService {
 
 	public partial class Program {
 
-		private static CoreLogic.Services.Bus.Publisher.CentralPublisher _busCentralPublisher;
-		private static CoreLogic.Services.Bus.Subscriber.CentralSubscriber _busCentralSubscriber;
-		private static CoreLogic.Services.Bus.Publisher.ChildPublisher _busChildPublisher;
-
 		private static SafeRatesDispatcher _safeAggregatedRatesDispatcher;
-		private static BusSafeRatesPublisher _busSafeRatesPublisherWrapper;
-		private static BusSafeRatesSource _busSafeRatesSubscriberWrapper;
-		private static CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator _coreTelemetryAccumulator;
-		private static CoreLogic.Services.Bus.Telemetry.WorkerTelemetryAccumulator _workerTelemetryAccumulator;
+		private static BusSafeRatesSource _safeRatesSource;
+		private static RuntimeConfigUpdater _configUpdater;
 
 		private static void SetupCommonServices(ServiceCollection services) {
 
@@ -80,17 +73,20 @@ namespace Goldmint.QueueService {
 				services.AddSingleton(new Sheets(_appConfig, LogManager.LogFactory));
 			}
 
-			// nats
-			{
-				services.AddSingleton(new NATS.Client.ConnectionFactory());
-				services.AddScoped((sp) => {
-					var sf = sp.GetService<NATS.Client.ConnectionFactory>();
-					var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
-					opts.Url = _appConfig.Bus.Nats.Endpoint;
-					opts.AllowReconnect = true;
-					return sf.CreateConnection(opts);
-				});
+			// nats factory
+			var natsFactory = new NATS.Client.ConnectionFactory();
+
+			// nats connection getter
+			NATS.Client.IConnection natsConnGetter() {
+				var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
+				opts.Url = _appConfig.Bus.Nats.Endpoint;
+				opts.AllowReconnect = true;
+				return natsFactory.CreateConnection(opts);
 			}
+			services.AddScoped(_ => natsConnGetter());
+
+			// runtime config updater
+			_configUpdater = new RuntimeConfigUpdater(natsConnGetter(), natsConnGetter(), _runtimeConfigHolder, LogManager.LogFactory);
 
 			// ---
 
@@ -104,7 +100,7 @@ namespace Goldmint.QueueService {
 					services.AddSingleton<IEmailSender, NullEmailSender>();
 				}
 
-				// rate providers
+				// currency rates providers
 				var gmRateProvider = new GmRatesProvider(opts => {
 					opts.GoldUrl = _appConfig.Services.GMRatesProvider.GoldRateUrl;
 					opts.EthUrl = _appConfig.Services.GMRatesProvider.EthRateUrl;
@@ -112,42 +108,19 @@ namespace Goldmint.QueueService {
 				services.AddSingleton<IGoldRateProvider>(gmRateProvider);
 				services.AddSingleton<IEthRateProvider>(gmRateProvider);
 
-				// custom central pub port
-				var busChildPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_CNT_PORT");
-				if (!string.IsNullOrWhiteSpace(busChildPubCustomPort)) {
-					_appConfig.Bus.CentralPub.PubPort = int.Parse(busChildPubCustomPort);
-				}
-
-				// launch central pub
-				_busCentralPublisher = new CoreLogic.Services.Bus.Publisher.CentralPublisher(_appConfig.Bus.CentralPub.PubPort, LogManager.LogFactory);
-				services.AddSingleton(_busCentralPublisher);
-
-				// rates dispatcher/local source
-				_busSafeRatesPublisherWrapper = new BusSafeRatesPublisher(_busCentralPublisher, LogManager.LogFactory);
+				// rates dispatcher/publisher
 				_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
-					_busSafeRatesPublisherWrapper,
+					natsConnGetter(),
 					_runtimeConfigHolder,
 					LogManager.LogFactory,
 					opts => {
-						opts.PublishPeriod = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.PubPeriodSec);
-						opts.GoldTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.GoldValidForSec);
-						opts.EthTtl = TimeSpan.FromSeconds(_appConfig.Bus.CentralPub.Rates.CryptoValidForSec);
+						opts.PublishPeriod = TimeSpan.FromSeconds(3);
+						opts.GoldTtl = TimeSpan.FromSeconds(60);
+						opts.EthTtl = TimeSpan.FromSeconds(60);
 					}
 				);
-				_busSafeRatesPublisherWrapper.SetCallback(ratesMsg => {
-					_workerTelemetryAccumulator.AccessData(_ => _.RatesData = ratesMsg);
-				});
 				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
 				services.AddSingleton<IAggregatedSafeRatesSource>(_safeAggregatedRatesDispatcher);
-				services.AddSingleton<IAggregatedSafeRatesPublisher>(_busSafeRatesPublisherWrapper);
-
-				// telemetry accum-only
-				_workerTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.WorkerTelemetryAccumulator(
-					null,
-					TimeSpan.FromSeconds(1),
-					LogManager.LogFactory
-				);
-				services.AddSingleton(_workerTelemetryAccumulator);
 			}
 
 			if (Mode.HasFlag(WorkingMode.Core)) {
@@ -172,70 +145,19 @@ namespace Goldmint.QueueService {
 					}, LogManager.LogFactory);
 				});
 
-				if (!Mode.HasFlag(WorkingMode.Worker)) {
-
-					// subscribe to central pub
-					_busCentralSubscriber = new CoreLogic.Services.Bus.Subscriber.CentralSubscriber(
-						new[] { CoreLogic.Services.Bus.Proto.Topic.FiatRates, CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated },
-						new Uri(_appConfig.Bus.CentralPub.Endpoint),
-						LogManager.LogFactory
-					);
-					services.AddSingleton(_busCentralSubscriber);
-
-					// rates from central pub
-					_busSafeRatesSubscriberWrapper = new BusSafeRatesSource(_runtimeConfigHolder, LogManager.LogFactory);
-					services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSubscriberWrapper);
-					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, (p, s) => {
-						_busSafeRatesSubscriberWrapper.OnNewRates(p, s);
-						_coreTelemetryAccumulator.AccessData(_ => _.RatesData = p as CoreLogic.Services.Bus.Proto.SafeRates.SafeRatesMessage);
-					});
-
-					// config update event
-					_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => {
-						Task.Factory.StartNew(async () => {
-							await _runtimeConfigHolder.Reload();
-							var rcfg = _runtimeConfigHolder.Clone();
-							_coreTelemetryAccumulator.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
-						});
-					});
-				}
-
-				// custom child-pub port
-				var busChildPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_CHD_PORT");
-				if (!string.IsNullOrWhiteSpace(busChildPubCustomPort)) {
-					_appConfig.Bus.ChildPub.PubPort = int.Parse(busChildPubCustomPort);
-				}
-
-				// launch child pub
-				_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(_appConfig.Bus.ChildPub.PubPort, LogManager.LogFactory);
-				services.AddSingleton(_busChildPublisher);
-
-				// telemetry accum/pub
-				_coreTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.CoreTelemetryAccumulator(
-					_busChildPublisher,
-					TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubTelemetryPeriodSec),
-					LogManager.LogFactory
-				);
-
-				services.AddSingleton(_coreTelemetryAccumulator);
+				// rates source
+				_safeRatesSource = new BusSafeRatesSource(natsConnGetter(), _runtimeConfigHolder, LogManager.LogFactory);
+				services.AddSingleton<IAggregatedSafeRatesSource>(_safeRatesSource);
 			}
 		}
 
 		private static void RunServices() {
 			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Run services");
-
 			_runtimeConfigHolder.Reload().Wait();
-			var rcfg = _runtimeConfigHolder.Clone();
-			_workerTelemetryAccumulator?.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
-			_coreTelemetryAccumulator?.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
-
-			_busChildPublisher?.Run();
-			_busCentralPublisher?.Run();
-			_busCentralSubscriber?.Run();
 			_safeAggregatedRatesDispatcher?.Run();
-			// dont run worker's accumulator: _workerTelemetryAccumulator?.Run();
-			_coreTelemetryAccumulator?.Run();
+			_safeRatesSource?.Run();
+			_configUpdater?.Run();
 		}
 
 		private static void StopServices() {
@@ -244,19 +166,11 @@ namespace Goldmint.QueueService {
 
 			try {
 				_safeAggregatedRatesDispatcher?.Stop(true);
-				_busCentralPublisher?.StopAsync();
-				_busCentralSubscriber?.StopAsync();
-				_busChildPublisher?.StopAsync();
-
-				_workerTelemetryAccumulator?.Dispose();
-				_coreTelemetryAccumulator?.Dispose();
-				_busSafeRatesSubscriberWrapper?.Dispose();
 				_safeAggregatedRatesDispatcher?.Dispose();
-				_busCentralPublisher?.Dispose();
-				_busCentralSubscriber?.Dispose();
-				_busChildPublisher?.Dispose();
-
-				NetMQ.NetMQConfig.Cleanup(true);
+				_safeRatesSource?.Stop();
+				_safeRatesSource?.Dispose();
+				_configUpdater?.Stop();
+				_configUpdater?.Dispose();
 			}
 			catch (Exception e) {
 				logger.Error(e);

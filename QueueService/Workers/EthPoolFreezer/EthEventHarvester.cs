@@ -1,6 +1,5 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
-using Goldmint.CoreLogic.Services.Bus.Telemetry;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +19,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
 		private IEthereumReader _ethereumReader;
-		private CoreTelemetryAccumulator _coreTelemetryAccum;
 
 		private BigInteger _lastBlock;
 		private BigInteger _lastSavedBlock;
@@ -41,7 +39,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethereumReader = services.GetRequiredService<IEthereumReader>();
-			_coreTelemetryAccum = services.GetRequiredService<CoreTelemetryAccumulator>();
 			var runtimeConfig = services.GetRequiredService<RuntimeConfigHolder>().Clone();
 
 			// get last block from config
@@ -115,19 +112,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 					Logger.Info($"Last block #{_lastBlock} saved to DB");
 				}
 			}
-		}
-
-		protected override void OnPostUpdate() {
-
-			// tele
-			_coreTelemetryAccum.AccessData(tel => {
-				tel.PoolFreezerEvents.Load = StatAverageLoad;
-				tel.PoolFreezerEvents.Exceptions = StatExceptionsCounter;
-				tel.PoolFreezerEvents.LastBlock = _lastBlock.ToString();
-				tel.PoolFreezerEvents.StepBlocks = _blocksPerRound;
-				tel.PoolFreezerEvents.ProcessedSinceStartup = _statProcessed;
-				tel.PoolFreezerEvents.ConfirmationsRequired = _confirmationsRequired;
-			});
 		}
 	}
 }

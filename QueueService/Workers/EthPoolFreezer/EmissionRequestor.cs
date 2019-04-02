@@ -60,18 +60,18 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 				var success = false;
 				try {
-					var request = new SumusEmitterEmitRequest() {
+					var request = new Sumus.Sender.Send.Request() {
 						RequestID = row.Id.ToString(),
 						Amount = row.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture),
 						Token = "MNT",
 						Wallet = row.SumAddress,
 					};
 
-					var msg = await _natsConn.RequestAsync("sumus.emitter.emit", Serializer.Serialize(request), 5000);
-					var response = Serializer.Deserialize<SumusEmitterEmitResponse>(msg.Data);
+					var msg = await _natsConn.RequestAsync(Sumus.Sender.Send.Subject, Serializer.Serialize(request), 5000);
+					var rep = Serializer.Deserialize<Sumus.Sender.Send.Reply>(msg.Data);
 					
-					if (!response.Success) {
-						throw new Exception(response.Error);
+					if (!rep.Success) {
+						throw new Exception(rep.Error);
 					}
 					_logger.Info($"Emission operation #{row.Id} posted");
 					success = true;

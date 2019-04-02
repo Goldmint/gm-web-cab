@@ -29,7 +29,6 @@ namespace Goldmint.QueueService {
 					new NotificationSender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(10)),
 					new Workers.Rates.GoldRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
 					new Workers.Rates.CryptoRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
-					new Workers.Bus.TelemetryAggregator().Period(TimeSpan.FromSeconds(30)),
 				});
 			}
 

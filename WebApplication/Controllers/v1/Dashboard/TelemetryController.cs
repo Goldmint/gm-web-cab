@@ -6,11 +6,9 @@ using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.Dashboard.TelemetryModels;
-using Goldmint.WebApplication.Services.Bus;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
-using Goldmint.CoreLogic.Services.Bus.Proto;
 
 namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
@@ -27,10 +25,10 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 			var aggregated = "{}";
 
-			var ath = HttpContext.RequestServices.GetService<AggregatedTelemetryHolder>();
-			if (ath != null) {
-				aggregated = ath.GetJson();
-			}
+			//var ath = HttpContext.RequestServices.GetService<AggregatedTelemetryHolder>();
+			//if (ath != null) {
+			//	aggregated = ath.GetJson();
+			//}
 
 			return APIResponse.Success(
 				new TelemetryView() {
@@ -89,14 +87,9 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 
 				Logger.Warn($"User { user.UserName } has modified runtime config");
 
-				// send to central pub
-				var busPub = HttpContext.RequestServices.GetService<CoreLogic.Services.Bus.Publisher.ChildPublisher>();
-				busPub?.PublishMessage(
-					Topic.ConfigUpdated,
-					new CoreLogic.Services.Bus.Proto.Config.ConfigUpdatedMessage() {
-						Username = user.UserName,
-					}
-				);
+				// publish
+				var pub = HttpContext.RequestServices.GetService<IRuntimeConfigUpdater>();
+				await pub.PublishUpdated();
 
 				return APIResponse.Success();
 			}
