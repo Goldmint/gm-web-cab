@@ -12,13 +12,13 @@ using Goldmint.CoreLogic.Services.Bus.Nats;
 
 namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
-	public class EmissionConfirmer : BaseWorker {
+	public class SendTokenConfirmer : BaseWorker {
 
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
-		public EmissionConfirmer() {
+		public SendTokenConfirmer() {
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -38,16 +38,13 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 					try {
 						var msg = sub.NextMessage(1000);
 						try {
-							_logger.Trace($"Got message");
-
-							var request = Serializer.Deserialize<Sumus.Sender.Sent.Request>(msg.Data);
-							var response = new Sumus.Sender.Sent.Reply() {
-								Success = true,
-							};
-
 							_dbContext.DetachEverything();
-							var id = long.Parse(request.RequestID);
 
+							// read msg
+							var req = Serializer.Deserialize<Sumus.Sender.Sent.Request>(msg.Data);
+
+							// find request
+							var id = long.Parse(req.RequestID);
 							var row = await (
 								from r in _dbContext.PoolFreezeRequest
 								where
@@ -56,20 +53,21 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 							)
 							.AsTracking()
 							.LastAsync();
-
 							if (row == null) {
 								throw new Exception($"Row #{id} not found");
 							}
 
+							// completed
 							if (row.Status == EmissionRequestStatus.Requested) {
-								row.SumTransaction = request.Transaction;
+								row.SumTransaction = req.Transaction;
 								row.Status = EmissionRequestStatus.Completed;
 								row.TimeCompleted = DateTime.UtcNow;
 								await _dbContext.SaveChangesAsync();
-								_logger.Trace($"Row #{id} status completed");
 							}
 
-							_natsConn.Publish(msg.Reply, Serializer.Serialize(response));
+							// reply
+							var rep = new Sumus.Sender.Sent.Reply() { Success = true };
+							_natsConn.Publish(msg.Reply, Serializer.Serialize(rep));
 						}
 						catch (Exception e) {
 							_logger.Error(e, $"Failed to process message");

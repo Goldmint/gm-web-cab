@@ -21,6 +21,9 @@ namespace Goldmint.DAL.Models {
 		[Column("balance_mnt")]
 		public decimal BalanceMnt { get; set; }
 
+		[Column("tracking")]
+		public bool Tracking { get; set; }
+
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
 

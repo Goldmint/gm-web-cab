@@ -42,12 +42,12 @@ namespace Goldmint.QueueService {
 					//new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 
-					// harvests "frozen"-events (requests) from pool-freezer contract
-					new Workers.EthPoolFreezer.FreezeEventHarvester(blocksPerRound: 10, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(60)),
+					// harvests "frozen" events (requests) from pool-freezer contract
+					new Workers.EthPoolFreezer.EventHarvester(blocksPerRound: 10, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(60)),
 					// requires "frozen" stake to be emitted in sumus bc
-					new Workers.EthPoolFreezer.EmissionRequestor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
+					new Workers.EthPoolFreezer.SendTokenRequestor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
 					// confirms emission to complete harvested requests
-					new Workers.EthPoolFreezer.EmissionConfirmer().BurstMode(),
+					new Workers.EthPoolFreezer.SendTokenConfirmer().BurstMode(),
 
 					// processes gold selling requests
 					new Workers.Sell.RequestProcessor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
@@ -56,6 +56,11 @@ namespace Goldmint.QueueService {
 					new Workers.EthSender.Sender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
 					// confirms eth-sendings
 					new Workers.EthSender.Confirmer(rowsPerRound: 50, ethConfirmations: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(30)),
+
+					// receives requests to refill sumus wallet account
+					new Workers.SumusWallet.RefillListener().BurstMode(),
+					// adds new sumus wallets to the observer
+					new Workers.SumusWallet.TrackRequestor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(30)),
 				});
 			}
 

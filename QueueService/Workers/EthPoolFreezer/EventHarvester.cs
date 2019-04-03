@@ -11,7 +11,7 @@ using Goldmint.DAL.Extensions;
 
 namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
-	public sealed class FreezeEventHarvester : BaseWorker {
+	public sealed class EventHarvester : BaseWorker {
 
 		private readonly int _blocksPerRound;
 		private readonly int _confirmationsRequired;
@@ -25,7 +25,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 		private long _statProcessed = 0;
 
-		public FreezeEventHarvester(int blocksPerRound, int confirmationsRequired) {
+		public EventHarvester(int blocksPerRound, int confirmationsRequired) {
 			_blocksPerRound = Math.Max(1, blocksPerRound);
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
 			_lastBlock = BigInteger.Zero;

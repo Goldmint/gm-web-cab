@@ -12,14 +12,14 @@ using Goldmint.CoreLogic.Services.Bus.Nats;
 
 namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
-	public class EmissionRequestor : BaseWorker {
+	public class SendTokenRequestor : BaseWorker {
 
 		private readonly int _rowsPerRound;
 		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
-		public EmissionRequestor(int rowsPerRound) {
+		public SendTokenRequestor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 		}
 
