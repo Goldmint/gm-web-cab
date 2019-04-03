@@ -53,9 +53,7 @@ namespace Goldmint.QueueService.Workers.Sell {
 			var ethAmount = await _ethereumReader.GetEtherBalance(await _ethereumWriter.GetEthSender());
 
 			foreach (var r in rows) {
-				if (IsCancelled()) return;
-				
-				if (ethAmount < r.EthAmount.ToEther()) {
+				if (IsCancelled() || ethAmount < r.EthAmount.ToEther()) {
 					return;
 				}
 
@@ -81,6 +79,10 @@ namespace Goldmint.QueueService.Workers.Sell {
 						_dbContext.SaveChanges();
 
 						tx.Commit();
+						
+						try {
+							await _oplog.Update(r.OplogId, UserOpLogStatus.Pending, $"Ether-sending transaction #{sending.Id} enqueued");
+						} catch {}
 					}
 					ethAmount -= r.EthAmount.ToEther();
 

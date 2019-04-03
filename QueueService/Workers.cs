@@ -41,26 +41,21 @@ namespace Goldmint.QueueService {
 					new Workers.CreditCard.RefundsProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
 					//new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
 					//new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
-					
 
 					// harvests "frozen"-events (requests) from pool-freezer contract
-					new Workers.EthPoolFreezer.EthEventHarvester(blocksPerRound: 10, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(60)),
-					
+					new Workers.EthPoolFreezer.FreezeEventHarvester(blocksPerRound: 10, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(60)),
 					// requires "frozen" stake to be emitted in sumus bc
 					new Workers.EthPoolFreezer.EmissionRequestor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
-					
 					// confirms emission to complete harvested requests
 					new Workers.EthPoolFreezer.EmissionConfirmer().BurstMode(),
 
-
 					// processes gold selling requests
-					new Workers.Sell.RequestProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
+					new Workers.Sell.RequestProcessor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
 
-					//// eth operations queue
-					//new Workers.Ethereum.EthereumOprationsProcessor(
-					//	_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, 
-					//	_appConfig.Services.Workers.EthereumOperations.EthConfirmations
-					//).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
+					// sends eth
+					new Workers.EthSender.Sender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
+					// confirms eth-sendings
+					new Workers.EthSender.Confirmer(rowsPerRound: 50, ethConfirmations: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(30)),
 				});
 			}
 
