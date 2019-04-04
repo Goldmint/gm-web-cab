@@ -14,6 +14,9 @@ export class PoolService {
   private _obsUserStakeSubject = new BehaviorSubject<any>(null);
   private _obsUserStake: Observable<any> = this._obsUserStakeSubject.asObservable();
 
+  private _obsUserFrozenStakeSubject = new BehaviorSubject<any>(null);
+  private _obsUserFrozenStake: Observable<any> = this._obsUserFrozenStakeSubject.asObservable();
+
   private _obsMntpTokenUserRewardSubject = new BehaviorSubject<any>(null);
   private _obsMntpTokenUserReward: Observable<any> = this._obsMntpTokenUserRewardSubject.asObservable();
 
@@ -33,6 +36,7 @@ export class PoolService {
   public getSuccessHoldRequestLink$ = new Subject();
   public getSuccessWithdrawRequestLink$ = new Subject();
   public getSuccessUnholdRequestLink$ = new Subject();
+  public getSuccessMNTTokenLink$ = new Subject();
 
   public destroy$ = new Subject();
 
@@ -51,6 +55,7 @@ export class PoolService {
 
   public getPoolData() {
     this.getUserStake();
+    this.getUserFrozenStake();
     this.getMntpTokenUserReward();
     this.getGoldTokenUserReward();
 
@@ -69,6 +74,16 @@ export class PoolService {
     } else {
       this._ethService.poolContract.getUserStake((err, res) => {
         this._obsUserStakeSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
+      });
+    }
+  }
+
+  private getUserFrozenStake() {
+    if (!this._ethService.poolContract) {
+      this._obsUserFrozenStakeSubject.next(null);
+    } else {
+      this._ethService.poolContract.getUserFrozenStake((err, res) => {
+        this._obsUserFrozenStakeSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
       });
     }
   }
@@ -125,6 +140,10 @@ export class PoolService {
 
   public getObsUserStake(): Observable<string> {
     return this._obsUserStake;
+  }
+
+  public getObsUserFrozenStake(): Observable<string> {
+    return this._obsUserFrozenStake;
   }
 
   public getObsMntpTokenUserReward(): Observable<string> {
@@ -191,6 +210,14 @@ export class PoolService {
 
     this._ethService.oldPoolContract.withdrawRewardAndUnholdStake({ from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       this.getSuccessUnholdRequestLink$.next(res);
+    });
+  }
+
+  public freezeStake(sumusAddress, fromAddr: string, gasPrice: number) {
+    if (!this._ethService.poolContract) return
+
+    this._ethService.poolContract.freezeStake(sumusAddress, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      this.getSuccessMNTTokenLink$.next(res);
     });
   }
 

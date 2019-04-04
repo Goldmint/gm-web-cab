@@ -11,10 +11,6 @@
              name="limitsSwitchModel.type"
              [(ngModel)]="switchModel.type"
              btnRadio="launch" [disabled]="isProduction">{{ "PAGES.MasterNode.Tabs.Launch" | translate }}</label>
-      <label class="btn btn-primary btn-sm wrap"
-             name="limitsSwitchModel.type"
-             [(ngModel)]="switchModel.type"
-             btnRadio="migration" [disabled]="isProduction">{{ "PAGES.MasterNode.Tabs.Migration" | translate }}</label>
     </div>
 
     <div *ngIf="switchModel.type === 'overview'">
@@ -22,9 +18,6 @@
     </div>
     <div *ngIf="switchModel.type === 'launch'">
       <app-launch-node-page (migration)="goToMigration($event)"></app-launch-node-page>
-    </div>
-    <div *ngIf="switchModel.type === 'migration'">
-      <app-token-migration-page></app-token-migration-page>
     </div>
   </div>
 </div>

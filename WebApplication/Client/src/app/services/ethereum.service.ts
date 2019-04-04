@@ -74,8 +74,8 @@ export class EthereumService {
 
   public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
-  public getSuccessMigrationGoldLink$ = new Subject();
-  public getSuccessMigrationMntpLink$ = new Subject();
+  // public getSuccessMigrationGoldLink$ = new Subject();
+  // public getSuccessMigrationMntpLink$ = new Subject();
 
   constructor(
     private _userService: UserService,
@@ -345,17 +345,17 @@ export class EthereumService {
     });
   }
 
-  public goldTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
-    if (this._contractGold == null) return;
-    this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
-      this.getSuccessMigrationGoldLink$.next(res);
-    });
-  }
-
-  public mntpTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
-    if (this.contractMntp == null) return;
-    this.contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
-      this.getSuccessMigrationMntpLink$.next(res);
-    });
-  }
+  // public goldTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
+  //   if (this._contractGold == null) return;
+  //   this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+  //     this.getSuccessMigrationGoldLink$.next(res);
+  //   });
+  // }
+  //
+  // public mntpTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
+  //   if (this.contractMntp == null) return;
+  //   this.contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+  //     this.getSuccessMigrationMntpLink$.next(res);
+  //   });
+  // }
 }

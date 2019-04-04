@@ -6,6 +6,7 @@ export const environment = {
     name: 'Rinkeby',
     index: 4
   },
+  walletNetwork: 'test',
   // sumusNetworkUrl: {
   //   MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
   //   TestNet: 'https://service.goldmint.io/sumus/testnet/v1'

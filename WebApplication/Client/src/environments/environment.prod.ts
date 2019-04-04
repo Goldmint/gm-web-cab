@@ -6,6 +6,7 @@ export const environment = {
     name: 'Main',
     index: 1
   },
+  walletNetwork: 'main',
   // sumusNetworkUrl: {
   //   MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
   //   TestNet: 'https://service.goldmint.io/sumus/testnet/v1'

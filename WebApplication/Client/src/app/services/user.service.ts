@@ -182,6 +182,14 @@ export class UserService {
     });
   }
 
+  showInvalidNetworkModal(translateKey, network) {
+    this._translate.get('MessageBox.' + translateKey, {network}).subscribe(phrase => {
+      setTimeout(() => {
+        this._messageBox.alert(phrase);
+      }, 0);
+    });
+  }
+
   /*
   public updateUser(newUser: User) {
     this._user.next(Object.assign(this._user.getValue(), newUser));

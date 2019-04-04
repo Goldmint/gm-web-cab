@@ -100,7 +100,6 @@ import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurre
 import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
 import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
 import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
-import { TokenMigrationPageComponent } from './pages/master-node-page/token-migration-page/token-migration-page.component';
 import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
 import { BuyCardPageComponent } from './pages/buy-page/buy-card-page/buy-card-page.component';
 import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-card-page.component';
@@ -188,7 +187,6 @@ export function getGoldmintToken() {
 	  MasterNodePageComponent,
     LaunchNodePageComponent,
 	  OverviewPageComponent,
-	  TokenMigrationPageComponent,
     HistoryPageComponent,
     HomePageComponent,
     LimitsPageComponent,

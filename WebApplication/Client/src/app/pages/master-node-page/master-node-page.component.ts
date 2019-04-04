@@ -9,7 +9,7 @@ import {environment} from "../../../environments/environment";
 export class MasterNodePageComponent implements OnInit {
 
   public switchModel: {
-    type: 'overview'|'launch'|'migration'
+    type: 'overview'|'launch'
   };
   public isProduction = environment.isProduction;
 

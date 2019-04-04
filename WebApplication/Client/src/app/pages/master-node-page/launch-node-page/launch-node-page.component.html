@@ -1,43 +1,153 @@
 <div class="mt-4 pt-1">
   <section class="page__section section">
-    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Heading" | translate }}</h2>
+    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.GetMNT" | translate }}</h2>
 
-    <div class="my-4">
-      <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }} {{ system }}.</div>
+    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
+      <div class="container"></div>
+    </div>
 
-      <div class="my-4">
-        <div class="form-group">
-          <label for="systemList">{{ "PAGES.MasterNode.LaunchPage.Labels.ChooseOS" | translate }}</label>
-          <div class="d-flex align-items-center">
-            <select class="form-control custom-select" name="systemList" id="systemList"
-                    #systemList="ngModel"
-                    [(ngModel)]="system"
-                    (change)="chooseSystem(system)">
-              <option *ngFor="let s of osList" [value]="s.value">{{ s.label }}</option>
-            </select>
+    <ng-template #blockLoaded>
+      <ng-container *ngIf="isAuthenticated && user?.verifiedL0 === false; else content">
+        <div class="mt-4">
+          <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
+
+          <div class="row kyc-pros mb-4 pb-2">
+            <div class="col-lg-3">
+              <svg class="kyc-pros__icon" width="33px" height="44px">
+                <use xlink:href="#verify-secure"></use>
+              </svg>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+            </div>
+            <div class="col-lg-3">
+              <svg class="kyc-pros__icon" width="28px" height="44px">
+                <use xlink:href="#verify-simple"></use>
+              </svg>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+            </div>
+            <div class="col-lg-3">
+              <svg class="kyc-pros__icon" width="36px" height="44px">
+                <use xlink:href="#verify-complaint"></use>
+              </svg>
+              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+            </div>
+            <div class="col-lg-3 pl-lg-4 align-self-center">
+              <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-container>
 
-      <div>
-        <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.VideoInst" | translate }}</h5>
-        <div *ngIf="systemMap[direction].video">
-          <iframe width="100%" height="400" [src]="videoUrl" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <ng-template #content>
+
+        <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}
+          <a [href]="etherscanContractUrl + poolContract" target="_blank">
+            {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
+          </a>
         </div>
-      </div>
 
-      <div class="mt-4">
-        <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.TextInst" | translate }}</h5>
-        <a href="{{ systemMap[direction]?.text }}" target="_blank" [ngClass]="{'no-link-click': !systemMap[direction]?.text}">{{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}</a>
-      </div>
+        <div class="mt-4">
+          <form #migrationForm="ngForm">
+            <div class="row">
+              <div class="col-12 overflow-hidden">
+                <div class="from-row form-group">
+                  <label for="tokenAmountInput">{{ "PAGES.MasterNode.LaunchPage.Labels.AvailableMNTP" | translate }}</label>
+                  <div class="d-flex align-items-center">
+                    <div class="form-currency form-currency--gold">
+                      <svg class="icon">
+                        <use xlink:href="#cur-gold"></use>
+                      </svg>
+                    </div>
+                    <input type="text" class="form-control token-amount-input" name="tokenAmountInput" id="tokenAmountInput"
+                           #tokenAmountInput="ngModel"
+                           [(ngModel)]="tokenAmount"
+                           autocomplete="off"
+                           readonly>
+                  </div>
+                </div>
+              </div>
 
-      <div class="mt-4">
-        <button class="btn btn-sm btn-primary" (click)="goToMigration()">
-          <div class="d-none d-sm-block">{{ "PAGES.MasterNode.LaunchPage.Buttons.Migrate" | translate }}</div>
-          <div class="d-block d-sm-none">{{ "PAGES.MasterNode.LaunchPage.Buttons.MigrateSmall" | translate }}</div>
-        </button>
-      </div>
-    </div>
+              <div class="col-12">
+                <div class="color-red mb-3" *ngIf="errors.haveToHold">
+                  {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
+                </div>
+                <div class="color-red mb-3" *ngIf="errors.stakeSent">
+                  {{ "PAGES.MasterNode.LaunchPage.Info.StakeSent" | translate }}
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="mb-3" *ngIf="isSent">
+                  {{ "PAGES.MasterNode.LaunchPage.Info.TransactionSent" | translate }}
+                 </div>
+              </div>
+
+              <div class="col-12 lead" *ngIf="isMetamask && sumusAddress">
+                <div class="d-flex align-items-center mb-2">
+                  <div>{{ ethAddress | reduction:5:3 }} (Ethereum)</div>
+
+                  <div class="form-currency ml-3 mr-2">
+                    <svg class="icon" width="25px" height="25px">
+                      <use xlink:href="#next-arrow"></use>
+                    </svg>
+                  </div>
+
+                  <div>{{ sumusAddress | reduction:4:4 }} (Mint)</div>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
+                  <label class="custom-control-label" for="agreeCheck">{{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}</label>
+                </div>
+              </div>
+
+              <div class="col mt-4 mb-4">
+                <button class="btn btn-primary" [disabled]="!isMetamask || !sumusAddress || !agreeCheck || !tokenAmount || isInvalidMMNetwork || isInvalidWalletNetwork || loading || isSent" (click)="onSubmit()">
+                  {{ "PAGES.MasterNode.LaunchPage.Buttons.Go" | translate }}
+                </button>
+                <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <hr>
+        <div class="my-4">
+          <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }} {{ system }}.</div>
+
+          <div class="my-4">
+            <div class="form-group">
+              <label for="systemList">{{ "PAGES.MasterNode.LaunchPage.Labels.ChooseOS" | translate }}</label>
+              <div class="d-flex align-items-center">
+                <select class="form-control custom-select" name="systemList" id="systemList"
+                        #systemList="ngModel"
+                        [(ngModel)]="system"
+                        (change)="chooseSystem(system)">
+                  <option *ngFor="let s of osList" [value]="s.value">{{ s.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.VideoInst" | translate }}</h5>
+            <div *ngIf="systemMap[direction].video">
+              <iframe width="100%" height="400" [src]="videoUrl" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.TextInst" | translate }}</h5>
+            <a href="{{ systemMap[direction]?.text }}" target="_blank" [ngClass]="{'no-link-click': !systemMap[direction]?.text}">{{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}</a>
+          </div>
+
+        </div>
+
+      </ng-template>
+
+    </ng-template>
 
   </section>
 </div>

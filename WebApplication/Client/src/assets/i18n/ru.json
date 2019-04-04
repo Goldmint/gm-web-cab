@@ -275,43 +275,20 @@
           "ChooseOS": "Выберите ОС",
           "VideoInst": "Видео инструкция",
           "TextInst": "Текстовая инструкция",
-          "InstFor": "Инструкция для"
-        },
-        "Buttons": {
-          "Migrate": "Я готов к миграции моих MNTP токенов, чтоб начать майнинг",
-          "MigrateSmall": "Я готов к миграции"
-        }
-      },
-      "MigrationPage": {
-        "Heading": "Миграция Токенов",
-        "TransferDescr": "Вам необходимо перевести токены по данному адресу:",
-        "Labels": {
-          "Amount": "Количество",
-          "Address": "Sumus адрес",
+          "InstFor": "Инструкция для",
+          "GetMNT": "Получить MNT токены",
+          "InOrderInfo": "Чтобы получить токены MNT в блокчейне Mint, пожалуйста, удержите свои MNTP на",
+          "PoolContract": "Pool контракте",
+          "AvailableMNTP": "Доступно MNTP",
           "Check": "Я внимательно проверил адреса и сумму"
         },
-        "SuccessModal": {
-          "Heading": "Транзакция в процессе:",
-          "Hash": "Хэш вашей транзакции:",
-          "Link": "Просмотр транзакции на EtherScan"
-        },
-        "SuccessSumusModal": {
-          "Heading": "Транзакция в процессе:",
-          "Hash": "Digest вашей транзакции:",
-          "Link": "Просмотр транзакции на Scanner"
-        },
-        "Errors": {
-          "InvalidAmount": "Неверное количество",
-          "Maximum": "Максимальное количество - ",
-          "Required": "Поле обязательно",
-          "InvalidAddress": "Неверный адрес",
-          "DuplicateRequest": "Запрос на миграцию в очереди. Мы ждем перевода ваших {{ token }} токенов."
+        "Info": {
+          "HaveToHold": "Вы должны удержать как минимум 10 000 MNTP на",
+          "StakeSent": "Ваша часть отправлена",
+          "TransactionSent": "Транзакция была отправлена. Пожалуйста, подождите уведомления по электронной почте"
         },
         "Buttons": {
           "Go": "Вперед"
-        },
-        "Popover": {
-          "Copied": "Скопировано"
         }
       },
       "Overview": {
@@ -1674,6 +1651,8 @@
       }
     },
     "InvalidNetwork": "Вы должны использовать {{ network }} сеть",
+    "InvalidNetworkMM": "Вы должны использовать {{ network }} сеть для MetaMask",
+    "InvalidNetworkWallet": "Вы должны использовать {{ network }} сеть для Lite Wallet",
     "logOut": "Вы действительно хотите выйти?",
     "SomethingWrong": "Что-то пошло не так.",
     "DepositLimit": "Лимит пополнения привышен"

@@ -275,43 +275,20 @@
           "ChooseOS": "Choose OS",
           "VideoInst": "Video instruction",
           "TextInst": "Text instruction",
-          "InstFor": "Instruction for"
-        },
-        "Buttons": {
-          "Migrate": "I'm ready for doing the migration of my MNTP tokens to start mining",
-          "MigrateSmall": "I'm ready for doing the migration"
-        }
-      },
-      "MigrationPage": {
-        "Heading": "Token Migration",
-        "TransferDescr": "You have to transfer your tokens to this address:",
-        "Labels": {
-          "Amount": "Amount",
-          "Address": "Sumus address",
+          "InstFor": "Instruction for",
+          "GetMNT": "Get MNT Tokens",
+          "InOrderInfo": "In order to get MNT tokens in Mint blockchain, please hold your MNTP on the",
+          "PoolContract": "Pool contract",
+          "AvailableMNTP": "Available MNTP",
           "Check": "I carefully checked the addresses and the amount"
         },
-        "SuccessModal": {
-          "Heading": "Transaction in Process:",
-          "Hash": "Your transaction hash is:",
-          "Link": "View your transaction on EtherScan"
-        },
-        "SuccessSumusModal": {
-          "Heading": "Transaction in Process:",
-          "Hash": "Your transaction digest is:",
-          "Link": "View your transaction on Scanner"
-        },
-        "Errors": {
-          "InvalidAmount": "Invalid amount",
-          "Maximum": "Maximum amount is",
-          "Required": "Field is required",
-          "InvalidAddress": "Invalid address",
-          "DuplicateRequest": "Migration request enqueued. We are waiting for your {{ token }} transfer."
+        "Info": {
+          "HaveToHold": "You have to hold at least 10 000 MNTP on the",
+          "StakeSent": "Your stake has been sent",
+          "TransactionSent": "Transaction has been sent. Please wait for email notification"
         },
         "Buttons": {
           "Go": "GO"
-        },
-        "Popover": {
-          "Copied": "Copied"
         }
       },
       "Overview": {
@@ -1674,6 +1651,8 @@
       }
     },
     "InvalidNetwork": "You must use {{ network }} network",
+    "InvalidNetworkMM": "You must use {{ network }} network for MetaMask",
+    "InvalidNetworkWallet": "You must use {{ network }} network for Lite Wallet",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached"
