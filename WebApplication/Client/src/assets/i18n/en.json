@@ -49,7 +49,7 @@
   },
   "PAGES": {
     "Home": {
-      "Heading": "Do You want to buy or sell GOLD cryptoassets?",
+      "Heading": "Do You want to sell GOLD cryptoassets?",
       "Or": "or",
       "Buttons": {
         "Sell": "Sell",
@@ -267,6 +267,9 @@
         "Overview": "Overview",
         "Launch": "Launch master node",
         "Migration": "Token migration"
+      },
+      "Labels": {
+        "GetMintWallet": "Get Mint Wallet"
       },
       "LaunchPage": {
         "Heading": "Launch Master Node",
@@ -1445,7 +1448,7 @@
       }
     },
     "BlockchainPool": {
-      "Heading": "Blockchain pool",
+      "Heading": "Ethereum pool",
       "Labels": {
         "Hold": "Hold my MNTP tokens on the pool",
         "Withdraw": "Withdraw my reward",

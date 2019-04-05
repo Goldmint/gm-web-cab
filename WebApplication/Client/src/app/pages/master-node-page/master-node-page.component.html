@@ -1,5 +1,20 @@
 <div class="page">
-  <h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
+  <div class="row align-items-center justify-content-between">
+    <div class="col-md-8">
+      <h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
+    </div>
+
+    <div class="col-md-4 text-md-right">
+      <a [href]="getLiteWalletLink" target="_blank" class="get-wallet-link">
+        <div class="form-currency m-0 form-currency--gold">
+          <svg class="icon">
+            <use xlink:href="#cur-gold"></use>
+          </svg>
+        </div>
+        <span class="ml-1">{{ "PAGES.MasterNode.Labels.GetMintWallet" | translate }}</span>
+      </a>
+    </div>
+  </div>
 
   <div>
     <div class="col-auto btn-group p-0 mn-tabs">

@@ -49,7 +49,7 @@
   },
   "PAGES": {
     "Home": {
-      "Heading": "Вы хотите купить или продать GOLD криптоактивы?",
+      "Heading": "Вы хотите продать GOLD криптоактивы?",
       "Or": "или",
       "Buttons": {
         "Sell": "Продать",
@@ -267,6 +267,9 @@
         "Overview": "Обзор",
         "Launch": "Запустить мастер ноду",
         "Migration": "Миграция токенов"
+      },
+      "Labels": {
+        "GetMintWallet": "Получить Mint Wallet"
       },
       "LaunchPage": {
         "Heading": "Запустить Мастер Ноду",
@@ -1445,7 +1448,7 @@
       }
     },
     "BlockchainPool": {
-      "Heading": "Blockchain pool",
+      "Heading": "Ethereum pool",
       "Labels": {
         "Hold": "Удержать мои MNTP токены в пуле",
         "Withdraw": "Вывести мое вознаграждение",

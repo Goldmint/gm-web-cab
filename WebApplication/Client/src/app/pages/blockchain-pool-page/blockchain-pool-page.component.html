@@ -11,7 +11,7 @@
 
     <div class="row align-items-baseline">
 
-      <div class="col-12 col-md-6 col-lg-3 form-group text-center">
+      <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="hold">{{ "PAGES.BlockchainPool.Labels.Hold" | translate }}</label>
         <button class="btn btn-primary btn-block poll-action-btn justify-content-center" id="hold" routerLink="/blockchain-pool/hold-tokens">
           <svg class="icon" width="56px" height="56px">
@@ -20,7 +20,7 @@
         </button>
       </div>
 
-      <div class="col-12 col-md-6 col-lg-3 form-group text-center">
+      <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="withdraw" [innerHTML]="'PAGES.BlockchainPool.Labels.Withdraw' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(!mntpReward && !goldReward) || isInvalidNetwork" (click)="onSubmit(submitMethod[0])">
           <svg class="icon" width="56px" height="56px">
@@ -29,12 +29,12 @@
 
           <div>
             <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            <div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>
+            <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
 
-      <div class="col-12 col-lg-3 form-group text-center">
+      <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork" (click)="onSubmit(submitMethod[1])">
           <svg class="icon" width="56px" height="56px">
@@ -44,12 +44,14 @@
           <div>
             <div class="unhold-tokens"><b>{{ heldTokens | substr:3 }}</b> MNTP</div>
             <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            <div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>
+            <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
 
-      <div class="col-12 col-lg-3 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
+      <div class="col-12 col-lg-4"></div>
+
+      <div class="col-12 col-lg-4 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
         <label class="pool-label-btn" for="unhold-old" [innerHTML]="'PAGES.BlockchainPool.Labels.UnholdOld' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="isInvalidNetwork" (click)="onSubmit(submitMethod[2])">
           <svg class="icon" width="56px" height="56px">
@@ -59,10 +61,12 @@
           <div>
             <div class="unhold-tokens"><b>{{ heldTokensOld | substr:3 }}</b> MNTP</div>
             <div><b>{{ mntpRewardOld.toFixed(3) }}</b> MNTP </div>
-            <div><b>{{ goldRewardOld.toFixed(3) }}</b> GOLD</div>
+            <!--<div><b>{{ goldRewardOld.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
+
+      <div class="col-12 col-lg-4"></div>
 
     </div>
 

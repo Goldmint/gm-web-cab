@@ -35,7 +35,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public isLoggedInToMM: boolean = true;
   private destroy$: Subject<boolean> = new Subject<boolean>();
-
+  private updateGoldBalanceInterval;
 
   constructor(
     private _apiService: APIService,
@@ -77,6 +77,14 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       }
     });
 
+    this._userService.currentUser.takeUntil(this.destroy$).subscribe(user => {
+      clearInterval(this.updateGoldBalanceInterval);
+      if (user.hasOwnProperty('id')) {
+        this.getUserAccountInfo();
+        this.updateGoldBalanceInterval = setInterval(() => this.getUserAccountInfo(), 7500);
+      }
+    });
+
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
       data && (this.gold_usd_rate = data.gold) && (this.gold_eth_rate = data.eth);
       this._cdRef.markForCheck();
@@ -94,7 +102,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       if (this.metamaskAccount && !ethAddr) {
-        this.goldBalance = '0';
+        // this.goldBalance = '0';
       }
       this.metamaskAccount = ethAddr;
       this.activeWallet = this.wallets[0];
@@ -106,20 +114,20 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
-    this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
-      if (bal != null) {
-        this.goldBalance = bal.toString().replace(/^(\d+\.\d{2,)\d+$/, '$1');
-        this._cdRef.markForCheck();
-      }
-    });
+    // this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
+    //   if (bal != null) {
+    //     this.goldBalance = bal.toString().replace(/^(\d+\.\d{2,)\d+$/, '$1');
+    //     this._cdRef.markForCheck();
+    //   }
+    // });
 
-    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe((bal: any) => {
-      this.hotGoldBalance = bal;
-      if (bal != null) {
-        this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
-      }
-      this._cdRef.markForCheck();
-    });
+    // this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe((bal: any) => {
+    //   this.hotGoldBalance = bal;
+    //   if (bal != null) {
+    //     this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
+    //   }
+    //   this._cdRef.markForCheck();
+    // });
 
     // this.sumusNetwork = localStorage.getItem('gmint_sumus_network') ?
     //                     localStorage.getItem('gmint_sumus_network') : 'MainNet';
@@ -134,6 +142,13 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._userService.currentWallet = this.activeWallet;
     this._cdRef.markForCheck();
+  }
+
+  getUserAccountInfo() {
+    this._apiService.getUserAccount().subscribe((data: any) => {
+      this.goldBalance = data.data.sumusGold.replace(/^(\d+\.\d{2,)\d+$/, '$1');
+      this._cdRef.markForCheck();
+    });
   }
 
   /*onWalletSwitch(wallet) {
@@ -189,6 +204,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
+    clearInterval(this.updateGoldBalanceInterval);
   }
 
 }

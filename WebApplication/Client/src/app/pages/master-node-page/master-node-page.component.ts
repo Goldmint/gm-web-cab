@@ -12,6 +12,7 @@ export class MasterNodePageComponent implements OnInit {
     type: 'overview'|'launch'
   };
   public isProduction = environment.isProduction;
+  public getLiteWalletLink = environment.getLiteWalletLink;
 
   constructor() { }
 

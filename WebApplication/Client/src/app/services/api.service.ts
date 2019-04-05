@@ -656,6 +656,12 @@ export class APIService {
 
   // -----------
 
+  getUserAccount() {
+    return this._http.get(this._baseUrl + '/user/account', this.jwt());
+  }
+
+  // ----------
+
   private _handleError(err: HttpErrorResponse | any) {
     if (err.error && err.error.errorCode) {
       switch (err.error.errorCode) {
