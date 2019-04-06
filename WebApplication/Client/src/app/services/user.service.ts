@@ -15,6 +15,7 @@ import { AppDefaultLanguage } from '../app.languages';
 import { ReplaySubject } from "rxjs/ReplaySubject";
 import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class UserService {
@@ -27,6 +28,7 @@ export class UserService {
 
   public onWalletSwitch$ = new Subject();
   public currentWallet;
+  public getLiteWalletLink = environment.getLiteWalletLink;
 
   public windowSize$ = new Subject();
 
@@ -164,12 +166,20 @@ export class UserService {
     });
   }
 
-  showLoginToLiteWallet() {
+  showLoginToLiteWalletModal() {
     this._translate.get('MessageBox.LoginToLiteWallet').subscribe(phrase => {
       this._messageBox.alert(`
         <div class="text-center">${phrase.Text}</div>
         <div class="gold-circle-icon"></div>
         <div class="text-center mt-2 mb-2">Goldmint Lite Wallet</div>
+      `, phrase.Heading);
+    });
+  }
+
+  showGetLiteWalletModal() {
+    this._translate.get('MessageBox.LiteWallet').subscribe(phrase => {
+      this._messageBox.alert(`
+            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Goldmint Lite Wallet</a></div>
       `, phrase.Heading);
     });
   }

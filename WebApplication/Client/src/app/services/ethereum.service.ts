@@ -9,6 +9,7 @@ import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs/Subject";
 import {NavigationEnd, Router} from "@angular/router";
+import {APIService} from "./api.service";
 
 @Injectable()
 export class EthereumService {
@@ -69,6 +70,10 @@ export class EthereumService {
   private _obsGasPrice: Observable<Object> = this._obsGasPriceSubject.asObservable();
   private _obsNetworkSubject = new BehaviorSubject<Number>(null);
   private _obsNetwork: Observable<Number> = this._obsNetworkSubject.asObservable();
+  private _obsSumusAccountSubject = new BehaviorSubject<any>(null);
+  private _obsSumusAccount: Observable<any> = this._obsSumusAccountSubject.asObservable();
+
+  private updateGoldBalanceInterval;
 
   public isPoolContractLoaded$ = new BehaviorSubject(null);
 
@@ -79,11 +84,20 @@ export class EthereumService {
 
   constructor(
     private _userService: UserService,
+    private _apiService: APIService,
     private _http: HttpClient,
     private router: Router
   ) {
     this._userService.currentUser.subscribe(currentUser => {
-      this._userId = currentUser != null && currentUser.id ? currentUser.id : null;
+      if (currentUser != null) {
+        this._userId = currentUser.id ? currentUser.id : null;
+
+        clearInterval(this.updateGoldBalanceInterval);
+        if (currentUser.hasOwnProperty('id')) {
+          this.getSumusAccountInfo();
+          this.updateGoldBalanceInterval = setInterval(() => this.getSumusAccountInfo(), 7500);
+        }
+      }
     });
 
     this.router.events.subscribe((event) => {
@@ -275,6 +289,12 @@ export class EthereumService {
     });
   }
 
+  getSumusAccountInfo() {
+    this._apiService.getUserAccount().subscribe((data: any) => {
+      this._obsSumusAccountSubject.next(data.data);
+    });
+  }
+
   public isValidAddress(addr: string): boolean {
     return (new Web3()).isAddress(addr);
   }
@@ -318,6 +338,10 @@ export class EthereumService {
   public getObservableGasPrice(): Observable<Object> {
     this.getGasPrice();
     return this._obsGasPrice;
+  }
+
+  public getObservableSumusAccount(): Observable<any> {
+    return this._obsSumusAccount;
   }
 
   public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {

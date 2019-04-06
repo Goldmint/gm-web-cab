@@ -14,6 +14,8 @@
                    (click)="chooseCurrentCoin(coinList[1])">Eth</label>
           </div>
 
+          <div *ngIf="sumusAddress" class="line-height mt-3">{{ "PAGES.Sell.CtyptoCurrency.Info.InOrderToSell" | translate }} <b class="pointer" (click)="openLiteWallet()">{{ sumusAddress }}</b></div>
+
           <div class="pt-4">
             <form #sellForm="ngForm">
               <div>
@@ -89,6 +91,7 @@
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isEthLimitError">{{ "ERRORS.SellEthLimit" | translate }}</div>
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Sell.Errors.UseMM" | translate }}</div>
+
                   <button type="button" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || isInvalidNetwork || isEthLimitError">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>

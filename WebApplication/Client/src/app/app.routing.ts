@@ -68,7 +68,7 @@ const appRoutes: Routes = [
   { path: 'master-node/overview/latest-reward-distributions', component: LatestRewardPageComponent },
   { path: 'master-node/overview/reward-transactions/:id', component: RewardTransactionsPageComponent },
   { path: 'sell', component: SellPageComponent },
-  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent },
+  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {

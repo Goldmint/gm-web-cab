@@ -20,6 +20,7 @@ import {environment} from "../../../../environments/environment";
 import {Subscription} from "rxjs/Subscription";
 import * as Web3 from "web3";
 import {LimitErrors} from "../../../models/limitErrors";
+import {CommonService} from "../../../services/common.service";
 
 @Component({
   selector: 'app-sell-cryptocurrency-page',
@@ -46,15 +47,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public user: User;
   public tfaInfo: TFAInfo;
 
-  public goldBalance: BigNumber = null;
+  public goldBalance: string | number = null;
   public goldRate: number = 0;
   public ethRate: number = 0;
-  public hotGoldBalance: BigNumber = null;
-  public mntpBalance: BigNumber = null;
   public ethAddress: string = '';
   public ethLimit: BigNumber = null;
   public goldLimit: number | null = null;
-  public selectedWallet = 0;
   public limitError: LimitErrors = new LimitErrors();
   public coinList = ['BTC', 'ETH'];
   public currentCoin = this.coinList[1];
@@ -77,10 +75,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public isInvalidNetwork: boolean = true;
   public isAuthenticated: boolean = false;
   public isEthLimitError: boolean = false;
+  public sumusAddress: string = '';
 
   private allowedMimEthLimit = 0.5;
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private liteWallet = window['GoldMint'];
 
   constructor(
     private _userService: UserService,
@@ -90,12 +90,11 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef,
     private _translate: TranslateService,
-    private router: Router
+    private router: Router,
+    private commonService: CommonService
   ) { }
 
   ngOnInit() {
-    this.isAuthenticated = this._userService.isAuthenticated();
-
     this._apiService.transferTradingError$.takeUntil(this.destroy$).subscribe(status => {
       this.isTradingError = !!status;
       this._cdRef.markForCheck();
@@ -121,7 +120,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       }, 3000);
     }
 
-    this.isAuthenticated && Observable.combineLatest(
+    Observable.combineLatest(
       this._apiService.getTFAInfo(),
       this._apiService.getProfile()
     )
@@ -134,25 +133,13 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
         this._cdRef.markForCheck();
       });
 
-    Observable.combineLatest(
-      this._ethService.getObservableGoldBalance(),
-      this._ethService.getObservableMntpBalance()
-    )
-      .takeUntil(this.destroy$).subscribe((data) => {
-       if(
-         (data[0] !== null && data[1] !== null) && (
-           (this.goldBalance === null || !this.goldBalance.eq(data[0]))
-           ||
-           (this.mntpBalance === null || !this.mntpBalance.eq(data[1]))
-         )
-       ) {
-          this.goldBalance = data[0];
-          this.mntpBalance = data[1];
-          this.getLimitSub && this.getLimitSub.unsubscribe();
-
-          this.getEthLimit();
-          this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-        }
+    this._ethService.getObservableSumusAccount().takeUntil(this.destroy$).subscribe(data => {
+      if (data) {
+        this.goldBalance = this.commonService.substrValue(data.sumusGold);
+        this.sumusAddress = data.sumusWallet;
+        this.getLimitSub && this.getLimitSub.unsubscribe();
+        this.getEthLimit();
+      }
     });
 
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
@@ -164,24 +151,12 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       this._cdRef.markForCheck();
     });
 
-    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe(data => {
-      if (data !== null && (this.hotGoldBalance === null || !this.hotGoldBalance.eq(data))) {
-        this.hotGoldBalance = data;
-      }
-    })
-
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
-      if (!this.ethAddress && this.goldBalance !== null && this.hotGoldBalance !== null) {
-        this.selectedWallet = 0;
+      if (!this.ethAddress && this.goldBalance !== null) {
         this.router.navigate(['sell']);
       }
       this._cdRef.markForCheck();
-    });
-
-    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
-      this.selectedWallet = wallet['id'] === 'hot' ? 0 : 1;
-      this.setGoldBalance(1);
     });
 
     this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
@@ -195,6 +170,17 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
         this._cdRef.markForCheck();
       }
     });
+  }
+
+  openLiteWallet() {
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet.getAccount().then(res => {
+        !res.length && this._userService.showLoginToLiteWalletModal();
+        res.length && this.liteWallet.openSendTokenPage(this.sumusAddress, 'GOLD').then(() => {});
+      });
+    } else {
+      this._userService.showGetLiteWalletModal();
+    }
   }
 
   initInputValueChanges() {
@@ -246,7 +232,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.getLimitSub = this._ethService.getObservableEthLimitBalance().takeUntil(this.destroy$).subscribe(eth => {
       if (eth !== null && (this.ethLimit === null || !this.ethLimit.eq(eth))) {
         this.ethLimit = eth;
-        this.isEthLimitError = +this.ethLimit <= this.allowedMimEthLimit;
+        // this.isEthLimitError = +this.ethLimit <= this.allowedMimEthLimit;
         if (this.isFirstLoad) {
           this.calculateStartGoldValue(+this.ethLimit.decimalPlaces(6, BigNumber.ROUND_DOWN));
           this._cdRef.markForCheck();
@@ -347,11 +333,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       .subscribe(data => {
         this.isReversed = false;
         this.goldLimit = +this.substrValue(data.data.amount / Math.pow(10, 18));
-        if (this.selectedWallet === 0) {
-          this.currentBalance = +this.hotGoldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
-        } else {
-          this.currentBalance = +this.goldBalance.decimalPlaces(6, BigNumber.ROUND_DOWN);
-        }
+        this.currentBalance = +this.goldBalance;
         this.goldAmount = this.currentValue = +this.substrValue((this.goldLimit < this.currentBalance) ? this.goldLimit : this.currentBalance);
         this.isFirstLoad = this.loading = this.isTradingError = this.isTradingLimit = false;
         this._cdRef.markForCheck();
@@ -437,11 +419,6 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   }
 
   onSubmit() {
-    if (!this.isAuthenticated) {
-      this._messageBox.authModal();
-      return;
-    }
-
     this.transferData = {
       type: 'sell',
       ethAddress: this.ethAddress,

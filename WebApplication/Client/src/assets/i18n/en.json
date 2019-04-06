@@ -76,6 +76,9 @@
           "Amount": "Amount",
           "Estimate": "Estimates Amount"
         },
+        "Info": {
+          "InOrderToSell": "In order to sell Gold token please send your tokens in Mint blockchain to the address"
+        },
         "SuccessModal": {
           "Heading": "Transaction in Process:",
           "Steps": "Please wait at least 100 confirmation steps (about 30 minutes).",
@@ -1467,7 +1470,8 @@
     "BackToCard": "Back to Cards list",
     "GoToCard": "Go to Cards list",
     "Deposit": "Deposit",
-    "Withdraw": "Withdraw"
+    "Withdraw": "Withdraw",
+    "Confirm": "Confirm"
   },
   "ERRORS": {
     "Registration": {

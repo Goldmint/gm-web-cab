@@ -210,17 +210,13 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
         this.sumusAddress = res.length ? res[0] : null;
 
         !this.sumusAddress && setTimeout(() => {
-          this.userService.showLoginToLiteWallet();
+          this.userService.showLoginToLiteWalletModal();
         }, 200);
         this._cdRef.markForCheck();
       });
     } else {
       setTimeout(() => {
-        this.translate.get('MessageBox.LiteWallet').subscribe(phrase => {
-          this.messageBox.alert(`
-            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Goldmint Lite Wallet</a></div>
-      `, phrase.Heading);
-        });
+        this.userService.showGetLiteWalletModal();
       }, 200);
     }
   }

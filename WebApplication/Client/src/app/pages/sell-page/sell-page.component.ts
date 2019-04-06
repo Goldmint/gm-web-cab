@@ -20,7 +20,6 @@ export class SellPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   public loading = true;
-  public selectedWallet = 0;
   public user: User;
   public tfaInfo: TFAInfo;
   public isMetamask = true;
@@ -75,20 +74,9 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.isMetamask = !ethAddr ? false : true;
       this._cdRef.markForCheck();
-    });
-
-    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
-      if (wallet['id'] === 'hot') {
-        this.selectedWallet = 0;
-      } else {
-        this.selectedWallet = 1;
-      }
-      this._cdRef.detectChanges();
     });
 
     this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {

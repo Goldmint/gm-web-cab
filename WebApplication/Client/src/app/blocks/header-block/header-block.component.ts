@@ -77,11 +77,10 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       }
     });
 
-    this._userService.currentUser.takeUntil(this.destroy$).subscribe(user => {
-      clearInterval(this.updateGoldBalanceInterval);
-      if (user.hasOwnProperty('id')) {
-        this.getUserAccountInfo();
-        this.updateGoldBalanceInterval = setInterval(() => this.getUserAccountInfo(), 7500);
+    this._ethService.getObservableSumusAccount().takeUntil(this.destroy$).subscribe(data => {
+      if (data) {
+        this.goldBalance = data.sumusGold.replace(/^(\d+\.\d{2,)\d+$/, '$1');
+        this._cdRef.markForCheck();
       }
     });
 
@@ -142,13 +141,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._userService.currentWallet = this.activeWallet;
     this._cdRef.markForCheck();
-  }
-
-  getUserAccountInfo() {
-    this._apiService.getUserAccount().subscribe((data: any) => {
-      this.goldBalance = data.data.sumusGold.replace(/^(\d+\.\d{2,)\d+$/, '$1');
-      this._cdRef.markForCheck();
-    });
   }
 
   /*onWalletSwitch(wallet) {
