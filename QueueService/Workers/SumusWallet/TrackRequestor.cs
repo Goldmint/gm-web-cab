@@ -45,13 +45,13 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 			;
 			if (IsCancelled() || rows.Length == 0) return;
 
-			var req = new Sumus.Wallet.Observe.Request() {
+			var req = new Sumus.Refiller.AddRemove.Request() {
 				Wallets = rows.Select(_ => _.PublicKey).ToArray(),
 				Observe = true,
 			};
 
-			var msg = await _natsConn.RequestAsync(Sumus.Wallet.Observe.Subject, Serializer.Serialize(req), 5000);
-			var rep = Serializer.Deserialize<Sumus.Wallet.Observe.Reply>(msg.Data);
+			var msg = await _natsConn.RequestAsync(Sumus.Refiller.AddRemove.Subject, Serializer.Serialize(req), 5000);
+			var rep = Serializer.Deserialize<Sumus.Refiller.AddRemove.Reply>(msg.Data);
 			if (rep.Success) {
 				foreach (var r in rows) {
 					r.Tracking = true;
