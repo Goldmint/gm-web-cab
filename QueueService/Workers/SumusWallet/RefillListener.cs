@@ -35,7 +35,7 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 		}
 
 		protected override async Task OnUpdate() {
-			using (var sub = _natsConn.SubscribeSync(Sumus.Wallet.Refilled.Subject)) {
+			using (var sub = _natsConn.SubscribeSync(Sumus.Refiller.Refilled.Subject)) {
 				while (!IsCancelled()) {
 					try {
 						var msg = sub.NextMessage(1000);
@@ -43,7 +43,7 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 							_dbContext.DetachEverything();
 
 							// read msg
-							var req = Serializer.Deserialize<Sumus.Wallet.Refilled.Request>(msg.Data);
+							var req = Serializer.Deserialize<Sumus.Refiller.Refilled.Request>(msg.Data);
 
 							// find wallet
 							var row = await (
@@ -77,14 +77,14 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 							}
 
 							// reply
-							var rep = new Sumus.Wallet.Refilled.Reply() { Success = true };
+							var rep = new Sumus.Refiller.Refilled.Reply() { Success = true };
 							_natsConn.Publish(msg.Reply, Serializer.Serialize(rep));
 						}
 						catch (Exception e) {
 							_logger.Error(e, $"Failed to process message");
 
 							// reply
-							var rep = new Sumus.Wallet.Refilled.Reply() { Success = false, Error = e.ToString() };
+							var rep = new Sumus.Refiller.Refilled.Reply() { Success = false, Error = e.ToString() };
 							_natsConn.Publish(msg.Reply, Serializer.Serialize(rep));
 						}
 					} catch{ }

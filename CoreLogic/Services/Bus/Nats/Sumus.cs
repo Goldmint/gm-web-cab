@@ -75,13 +75,13 @@ namespace Goldmint.CoreLogic.Services.Bus.Nats {
 			}
 		}
 
-		// Wallet is a service that observes wallet events
-		public static class Wallet {
+		// Refiller is a service that observes wallet events
+		public static class Refiller {
 
-			// Observe is a command that adds specified wallet to the observer to track events
-			public static class Observe {
+			// AddRemove is a command that adds/removes specified wallet to track events
+			public static class AddRemove {
 
-				public const string Subject = "sumus.wallet.observe";
+				public const string Subject = "sumus.refiller.wallet.add";
 
 				[ProtoContract]
 				public sealed class Request {
@@ -107,7 +107,7 @@ namespace Goldmint.CoreLogic.Services.Bus.Nats {
 			// Refilled is an event that describes wallet incoming transaction (refilling)
 			public static class Refilled {
 
-				public const string Subject = "sumus.wallet.refilled";
+				public const string Subject = "sumus.refiller.wallet.refilled";
 				
 				[ProtoContract]
 				public sealed class Request {

@@ -115,8 +115,8 @@ namespace Goldmint.QueueService {
 					LogManager.LogFactory,
 					opts => {
 						opts.PublishPeriod = TimeSpan.FromSeconds(3);
-						opts.GoldTtl = TimeSpan.FromSeconds(60);
-						opts.EthTtl = TimeSpan.FromSeconds(60);
+						opts.GoldTtl = TimeSpan.FromMinutes(60);
+						opts.EthTtl = TimeSpan.FromMinutes(5);
 					}
 				);
 				services.AddSingleton<IAggregatedRatesDispatcher>(_safeAggregatedRatesDispatcher);
