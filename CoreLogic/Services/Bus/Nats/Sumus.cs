@@ -55,12 +55,12 @@ namespace Goldmint.CoreLogic.Services.Bus.Nats {
 					// Success
 					[ProtoMember(2)]
 					public bool Success { get; set; }
-					// Transaction digest in Base58 valid in case of success
-					[ProtoMember(3)]
-					public string Transaction { get; set; }
 					// Error description
-					[ProtoMember(4)]
+					[ProtoMember(3)]
 					public string Error { get; set; }
+					// Transaction digest in Base58 valid in case of success
+					[ProtoMember(4)]
+					public string Transaction { get; set; }
 				}
 
 				[ProtoContract]
