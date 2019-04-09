@@ -99,7 +99,7 @@ namespace Goldmint.QueueService.Workers.Sell {
 						r.TimeCompleted = DateTime.UtcNow;
 						_dbContext.SaveChanges();
 
-						await CoreLogic.Finance.SumusWallet.ChangeBalance(_services, r.UserId, r.GoldAmount, SumusToken.Gold);
+						await CoreLogic.Finance.SumusWallet.Refill(_services, r.UserId, r.GoldAmount, SumusToken.Gold);
 					} catch (Exception e1) {
 						Logger.Error(e1, $"Failed to update request status #{r.Id}");
 					}

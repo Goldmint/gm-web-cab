@@ -63,6 +63,8 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 								row.Status = EmissionRequestStatus.Completed;
 								row.TimeCompleted = DateTime.UtcNow;
 								await _dbContext.SaveChangesAsync();
+								
+								_logger.Info($"Emission request #{row.Id} completed");
 							}
 
 							// reply
