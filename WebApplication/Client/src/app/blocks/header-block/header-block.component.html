@@ -23,34 +23,34 @@
 
       <div class="d-flex">
         <div class="col-sm-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
-          <div class="col-auto pr-1">
-            <div class="auth-info">
-              <div class="language" (mouseenter)="walletMenu.show()" (click)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
-                <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
-                  <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">
-                    {{ 'HEADER.Wallet' | translate }}: {{ activeWallet?.name }} {{ activeWallet.id === 'metamask' ? shortAdr : '' }}</a>
+          <!--<div class="col-auto pr-1">-->
+            <!--<div class="auth-info">-->
+              <!--<div class="language" (mouseenter)="walletMenu.show()" (click)="walletMenu.show()" (mouseleave)="walletMenu.hide()">-->
+                <!--<div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">-->
+                  <!--<a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">-->
+                    <!--{{ 'HEADER.Wallet' | translate }}: {{ activeWallet?.name }} {{ activeWallet.id === 'metamask' ? shortAdr : '' }}</a>-->
 
-                  <ul *dropdownMenu class="dropdown-menu" role="menu">
-                    <li role="menuitem" *ngFor="let item of wallets">
-                      <a class="dropdown-item" href="javascript:void(0)">{{ item.name + item.account }}</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+                  <!--<ul *dropdownMenu class="dropdown-menu" role="menu">-->
+                    <!--<li role="menuitem" *ngFor="let item of wallets">-->
+                      <!--<a class="dropdown-item" href="javascript:void(0)">{{ item.name + item.account }}</a>-->
+                    <!--</li>-->
+                  <!--</ul>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
 
           <div class="col-auto">
-            <img *ngIf="false" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
+            <img *ngIf="!isBalanceLoaded" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
 
-            <div class="balance">
+            <div class="balance" *ngIf="isBalanceLoaded">
               <svg class="icon" width="18px" height="18px">
                 <use xlink:href="#cur-gold"></use>
               </svg>
               <span class="balance__value">
-              {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-5':locale}}
+              {{ goldBalance | number:'1.2-3':locale }}
               {{'OZ'}}
-              <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_usd_rate | number:'1.2-2':locale }})</span>
+              <span>($ {{ goldBalance * gold_usd_rate | number:'1.2-2':locale }})</span>
             </span>
             </div>
           </div>
