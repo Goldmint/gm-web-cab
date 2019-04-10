@@ -53,7 +53,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 			if (IsCancelled()) return;
 			if (rows.Length == 0) return;
 
-			_logger.Info($"Requesting #{rows.Length} emission operations");
+			_logger.Info($"Requesting {rows.Length} emission operations");
 
 			foreach (var row in rows) {
 				if (IsCancelled()) return;

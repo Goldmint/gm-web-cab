@@ -111,7 +111,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// charge
 			using (var scope = HttpContext.RequestServices.CreateScope()) {
-				if (!await CoreLogic.Finance.SumusWallet.ChangeBalance(scope.ServiceProvider, request.UserId, -request.GoldAmount, SumusToken.Gold)) {
+				if (!await CoreLogic.Finance.SumusWallet.Charge(scope.ServiceProvider, request.UserId, request.GoldAmount, SumusToken.Gold)) {
 					
 					// activity
 					var userActivity = CoreLogic.User.CreateUserActivity(

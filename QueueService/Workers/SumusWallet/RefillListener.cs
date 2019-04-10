@@ -72,7 +72,7 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 							}
 
 							// refill
-							if (!await CoreLogic.Finance.SumusWallet.ChangeBalance(_services, row.UserId, amount, token)) {
+							if (!await CoreLogic.Finance.SumusWallet.Refill(_services, row.UserId, amount, token)) {
 								throw new Exception($"Failed to process refilling");
 							}
 
