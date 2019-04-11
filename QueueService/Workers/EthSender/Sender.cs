@@ -8,6 +8,9 @@ using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.Oplog;
+using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Notification;
 
 namespace Goldmint.QueueService.Workers.EthSender {
 
@@ -20,6 +23,9 @@ namespace Goldmint.QueueService.Workers.EthSender {
 		private IEthereumReader _ethReader;
 		private IEthereumWriter _ethWriter;
 		private IOplogProvider _oplog;
+		private AppConfig _appConfig;
+		private ITemplateProvider _templateProvider;
+		private INotificationQueue _notificationQueue;
 
 		public Sender(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
@@ -31,6 +37,9 @@ namespace Goldmint.QueueService.Workers.EthSender {
 			_ethReader = services.GetRequiredService<IEthereumReader>();
 			_ethWriter = services.GetRequiredService<IEthereumWriter>();
 			_oplog = services.GetRequiredService<IOplogProvider>();
+			_appConfig = services.GetRequiredService<AppConfig>();
+			_templateProvider = services.GetRequiredService<ITemplateProvider>();
+			_notificationQueue = services.GetRequiredService<INotificationQueue>();
 			return Task.CompletedTask;
 		}
 
@@ -42,7 +51,8 @@ namespace Goldmint.QueueService.Workers.EthSender {
 				where r.Status == EthereumOperationStatus.Initial
 				select r
 			)
-			.Include(_ => _.RelUserFinHistory)
+			.Include(_ => _.User)
+			.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
 			.AsTracking()
 			.Take(_rowsPerRound)
 			.ToArrayAsync(CancellationToken)
@@ -73,6 +83,19 @@ namespace Goldmint.QueueService.Workers.EthSender {
 					} catch {}
 
 					ethAmount -= r.Amount.ToEther();
+
+					try {
+						// notification
+						await EmailComposer.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, r.RelUserFinHistory.RelUserActivity.Locale))
+							.ReplaceBodyTag("REQUEST_ID", r.Id.ToString())
+							.ReplaceBodyTag("ETHERSCAN_LINK", _appConfig.Services.Ethereum.EtherscanTxView + tx)
+							.ReplaceBodyTag("DETAILS_SOURCE", r.RelUserFinHistory.SourceAmount + " GOLD")
+							.ReplaceBodyTag("DETAILS_ESTIMATED", r.RelUserFinHistory.DestinationAmount + " ETH")
+							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(r.Address))
+							.Initiator(r.RelUserFinHistory.RelUserActivity)
+							.Send(r.User.Email, r.User.UserName, _notificationQueue)
+						;
+					} catch{ }
 				} catch (Exception e) {
 					Logger.Error(e, $"Failed to process #{r.Id}");
 				}
