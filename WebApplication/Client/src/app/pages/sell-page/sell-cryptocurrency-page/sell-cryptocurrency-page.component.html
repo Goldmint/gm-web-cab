@@ -92,6 +92,10 @@
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isEthLimitError">{{ "ERRORS.SellEthLimit" | translate }}</div>
                   <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Sell.Errors.UseMM" | translate }}</div>
 
+                  <div class="mb-4" *ngIf="ethAddress">
+                    {{ "PAGES.Sell.CtyptoCurrency.Info.Destination" | translate }} <b>{{ ethAddress | reduction:6:4 }}</b>
+                  </div>
+
                   <button type="button" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || isInvalidNetwork || isEthLimitError">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>

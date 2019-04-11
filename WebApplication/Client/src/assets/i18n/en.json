@@ -77,7 +77,8 @@
           "Estimate": "Estimates Amount"
         },
         "Info": {
-          "InOrderToSell": "In order to sell Gold token please send your tokens in Mint blockchain to the address"
+          "InOrderToSell": "In order to sell Gold token please first make a deposit by sending your tokens in Mint blockchain to the address",
+          "Destination": "Destination:"
         },
         "SuccessModal": {
           "Heading": "Transaction in Process:",
@@ -183,15 +184,16 @@
           "VideoInst": "Video instruction",
           "TextInst": "Text instruction",
           "InstFor": "Instruction for",
+          "NoInstr": "There are no instructions for this OS",
           "GetMNT": "Get MNT Tokens",
           "InOrderInfo": "In order to get MNT tokens in Mint blockchain, please hold your MNTP on the",
           "PoolContract": "Pool contract",
           "AvailableMNTP": "Available MNTP",
-          "Check": "I carefully checked the addresses and the amount"
+          "Check": "I carefully checked the addresses and the amount and accept all the information as (directly or in a form of a links) follows below:"
         },
         "Info": {
           "HaveToHold": "You have to hold at least 10 000 MNTP on the",
-          "StakeSent": "Your stake has been sent",
+          "StakeSent": "Your MNTP stake has been frozen on Ethereum pool and issued in the Mint blockchain",
           "TransactionSent": "Transaction has been sent. Please wait for email notification"
         },
         "Buttons": {
@@ -1306,6 +1308,10 @@
         "Amount": "You pay:",
         "Estimates": "You receive:",
         "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:",
+        "Agree": {
+          "Text": "I confirm my familiarization and agreement with the",
+          "Link": "terms of sale"
+        },
         "TimerLabel": "Remaining time to confirm the payment:"
       },
       "Button": "Proceed to payment",
@@ -1359,7 +1365,11 @@
         "Unhold": "Unhold my stake and withdraw reward",
         "UnholdOld": "Unhold my stake and withdraw reward from the old pool",
         "ViewContract": "View on Etherscan",
-        "HaveFrozenStake": "You have frozen your stake"
+        "HaveFrozenStake": "You have frozen your stake *",
+        "ToUnfreeze": {
+          "Text": "* To unfreeze your stake please send a request to",
+          "Support": "Goldmint support"
+        }
       },
       "HoldTokens": {
         "Heading": "Hold my MNTP tokens on the pool",

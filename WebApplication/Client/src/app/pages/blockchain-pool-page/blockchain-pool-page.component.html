@@ -1,7 +1,7 @@
 <!-- host: .page -->
 <h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>
 
-<section class="page__section section">
+<section class="page__section section mb-4">
   <h2 class="section__title">{{ "PAGES.BlockchainPool.Heading" | translate }}</h2>
 
   <div class="section__content pt-4">
@@ -79,3 +79,7 @@
 
   </div>
 </section>
+
+<div class="color-red" *ngIf="userFrozenStake > 0">
+  {{ "PAGES.BlockchainPool.Labels.ToUnfreeze.Text" | translate }} <a href="mailto:support@goldmint.io" target="_blank">{{ "PAGES.BlockchainPool.Labels.ToUnfreeze.Support" | translate }}</a>
+</div>

@@ -48,9 +48,9 @@
                 <use xlink:href="#cur-gold"></use>
               </svg>
               <span class="balance__value">
-              {{ goldBalance | number:'1.2-3':locale }}
+              {{ goldBalance }}
               {{'OZ'}}
-              <span>($ {{ goldBalance * gold_usd_rate | number:'1.2-2':locale }})</span>
+              <span>($ {{ goldBalance * gold_usd_rate | substr:2 }})</span>
             </span>
             </div>
           </div>

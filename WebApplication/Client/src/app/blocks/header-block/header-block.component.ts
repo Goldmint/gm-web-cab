@@ -8,6 +8,7 @@ import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {APIService} from "../../services/api.service";
+import {BigNumber} from "bignumber.js";
 
 @Component({
   selector: 'app-header',
@@ -18,8 +19,8 @@ import {APIService} from "../../services/api.service";
 })
 export class HeaderBlockComponent implements OnInit, OnDestroy {
 
-  public gold_usd_rate: number;
-  public gold_eth_rate: number;
+  public gold_usd_rate: number = 0;
+  public gold_eth_rate: number = 0;
   public user: User;
   public locale: string;
   public wallets = [
@@ -80,9 +81,9 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableSumusAccount().takeUntil(this.destroy$).subscribe(data => {
       if (data) {
-        this.goldBalance = +data.sumusGold;
-        if (this.goldBalance > 0) {
-          this.goldBalance = this.goldBalance / Math.pow(10, 18);
+        if (+data.sumusGold > 0) {
+          const balance = +data.sumusGold / Math.pow(10, 18);
+          this.goldBalance = +new BigNumber(balance).decimalPlaces(3, BigNumber.ROUND_DOWN);
         }
         this.isBalanceLoaded = true;
         this._cdRef.markForCheck();

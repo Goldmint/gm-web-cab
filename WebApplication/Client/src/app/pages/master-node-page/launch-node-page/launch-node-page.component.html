@@ -46,9 +46,22 @@
           <a [href]="etherscanContractUrl + poolContract" target="_blank">
             {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
           </a>
+
+          <div *ngIf="!isSent">
+            <div class="color-red mt-3" *ngIf="errors.haveToHold">
+              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
+            </div>
+            <div class="color-red mt-3" *ngIf="errors.stakeSent">
+              {{ "PAGES.MasterNode.LaunchPage.Info.StakeSent" | translate }}
+            </div>
+          </div>
+
+          <div class="mt-3" *ngIf="isSent">
+            {{ "PAGES.MasterNode.LaunchPage.Info.TransactionSent" | translate }}
+          </div>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-4" *ngIf="!isSent">
           <form #migrationForm="ngForm">
             <div class="row">
               <div class="col-12 overflow-hidden">
@@ -69,24 +82,9 @@
                 </div>
               </div>
 
-              <div class="col-12">
-                <div class="color-red mb-3" *ngIf="errors.haveToHold">
-                  {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
-                </div>
-                <div class="color-red mb-3" *ngIf="errors.stakeSent">
-                  {{ "PAGES.MasterNode.LaunchPage.Info.StakeSent" | translate }}
-                </div>
-              </div>
-
-              <div class="col-12">
-                <div class="mb-3" *ngIf="isSent">
-                  {{ "PAGES.MasterNode.LaunchPage.Info.TransactionSent" | translate }}
-                 </div>
-              </div>
-
               <div class="col-12 lead" *ngIf="isMetamask && sumusAddress">
                 <div class="d-flex align-items-center mb-2">
-                  <div>{{ ethAddress | reduction:5:3 }} (Ethereum)</div>
+                  <div>{{ ethAddress | reduction:6:4 }} (Ethereum)</div>
 
                   <div class="form-currency ml-3 mr-2">
                     <svg class="icon" width="25px" height="25px">
@@ -100,6 +98,7 @@
                 <div class="custom-control custom-checkbox">
                   <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
                   <label class="custom-control-label" for="agreeCheck">{{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}</label>
+                  <a href="https://app.goldmint.io/#/legal-security/termsOfSale" target="_blank">link</a>
                 </div>
               </div>
 
@@ -140,7 +139,13 @@
 
           <div class="mt-4">
             <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.TextInst" | translate }}</h5>
-            <a href="{{ systemMap[direction]?.text }}" target="_blank" [ngClass]="{'no-link-click': !systemMap[direction]?.text}">{{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}</a>
+
+            <a *ngIf="systemMap[direction]?.text" href="{{ systemMap[direction]?.text }}" target="_blank">
+              {{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}
+            </a>
+
+            <div *ngIf="!systemMap[direction]?.text">{{ "PAGES.MasterNode.LaunchPage.Labels.NoInstr" | translate }}</div>
+
           </div>
 
         </div>
