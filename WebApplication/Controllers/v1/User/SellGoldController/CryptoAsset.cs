@@ -82,9 +82,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldSell,
 				Source = "GOLD",
-				SourceAmount = null,
+				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.Sumus),
 				Destination = "ETH",
-				DestinationAmount = null,
+				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultCurrencyAmount, TokensPrecision.Ethereum),
 				Comment = "", // see below
 
 				OplogId = ticket,
@@ -119,7 +119,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmountFixed(assetPerGold, TokensPrecision.Ethereum) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
