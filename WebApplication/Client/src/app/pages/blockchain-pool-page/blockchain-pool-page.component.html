@@ -36,7 +36,7 @@
 
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork" (click)="onSubmit(submitMethod[1])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork || userFrozenStake > 0" (click)="onSubmit(submitMethod[1])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#outbox"></use>
           </svg>
@@ -47,6 +47,9 @@
             <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
+        <div class="color-red mt-2" *ngIf="userFrozenStake > 0">
+          {{ "PAGES.BlockchainPool.Labels.HaveFrozenStake" | translate }}
+        </div>
       </div>
 
       <div class="col-12 col-lg-4"></div>

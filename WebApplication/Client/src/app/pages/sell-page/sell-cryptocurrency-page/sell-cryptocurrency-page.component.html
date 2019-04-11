@@ -34,8 +34,8 @@
                              ngModel
                              autocomplete="off"
                              (input)="changeValue(false, $event)"
-                             [ngClass]="{'is-invalid': ((invalidBalance || !goldAmount) && !isReversed && !isFirstLoad)
-                                                       || ((limitError.min || limitError.max) && !isFirstLoad)}"
+                             [ngClass]="{'is-invalid': ((invalidBalance || !goldAmount) && !isReversed)
+                                                       || (limitError.min || limitError.max)}"
                              [disabled]="isReversed && loading"
                       >
                     </div>
@@ -45,13 +45,13 @@
                       <button class="percent-btn" (click)="setGoldBalance(0.75)">75%</button>
                       <button class="percent-btn" (click)="setGoldBalance(1)">100%</button>
                     </div>
-                    <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && !isReversed && !isFirstLoad">
+                    <div class="invalid-feedback" *ngIf="(invalidBalance || !goldAmount) && !isReversed">
                       {{ "PAGES.Sell.Errors.InvalidGold" | translate }}
                     </div>
-                    <div class="invalid-feedback" *ngIf="limitError.min && !isFirstLoad">
+                    <div class="invalid-feedback" *ngIf="limitError.min">
                       {{ "PAGES.Sell.Errors.minLimit" | translate }}
                     </div>
-                    <div class="invalid-feedback" *ngIf="limitError.max && !isFirstLoad">
+                    <div class="invalid-feedback" *ngIf="limitError.max">
                       {{ "PAGES.Sell.Errors.maxLimit" | translate }}
                     </div>
                   </div>
@@ -73,14 +73,14 @@
                              ngModel
                              autocomplete="off"
                              (input)="changeValue(true, $event)"
-                             [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && isReversed && !isFirstLoad || (isTradingLimit && !isFirstLoad) }"
+                             [ngClass]="{'is-invalid': (invalidBalance || !coinAmount) && isReversed || isTradingLimit }"
                              [disabled]="!isReversed && loading"
                       >
                     </div>
-                    <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && isReversed && !isFirstLoad">
+                    <div class="invalid-feedback" *ngIf="(invalidBalance || !coinAmount) && isReversed">
                       {{ "PAGES.Sell.Errors.InvalidEth" | translate }}
                     </div>
-                    <div class="invalid-feedback" *ngIf="isTradingLimit && !isFirstLoad">
+                    <div class="invalid-feedback" *ngIf="isTradingLimit">
                       {{ "ERRORS.Limit.Min" | translate }} {{ isTradingLimit?.min }} eth<br>
                       {{ "ERRORS.Limit.Max" | translate }} {{ isTradingLimit?.max }} eth
                     </div>

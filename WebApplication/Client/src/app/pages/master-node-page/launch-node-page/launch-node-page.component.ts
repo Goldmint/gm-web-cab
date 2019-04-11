@@ -11,6 +11,7 @@ import {APIService, EthereumService, MessageBoxService} from "../../../services"
 import {TranslateService} from "@ngx-translate/core";
 import {PoolService} from "../../../services/pool.service";
 import * as Web3 from "web3";
+import * as bs58 from 'bs58';
 
 @Component({
   selector: 'app-launch-node-page',
@@ -142,12 +143,14 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
         this.userStake = +data[0];
         this.userFrozenStake = +data[1];
 
-        if (this.userStake >= 10000 || this.userFrozenStake >= 10000) {
-          this.errors.haveToHold = true;
-        } else if (this.userStake - this.userFrozenStake == 0) {
-          this.errors.stakeSent = true;
+        if ((this.userFrozenStake == 0 && this.userStake >= 10000) || this.userFrozenStake > 0) {
+          if (this.userStake - this.userFrozenStake == 0) {
+            this.errors.stakeSent = true;
+          } else {
+            this.tokenAmount = this.userStake - this.userFrozenStake;
+          }
         } else {
-          this.tokenAmount = this.userStake - this.userFrozenStake;
+          this.errors.haveToHold = true;
         }
         this._cdRef.markForCheck();
       }
@@ -226,6 +229,8 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
       if (hash) {
         this.successModal(hash);
         this.isSent = true;
+        this.tokenAmount = 0;
+        this._cdRef.markForCheck();
       }
     });
   }
@@ -268,6 +273,14 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     }
   }
 
+  toHexString(byteArray) {
+    var s = '0x';
+    byteArray.forEach(function(byte) {
+      s += ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    });
+    return s;
+  }
+
   onSubmit() {
     if (!this.isAuthenticated) {
       this.messageBox.authModal();
@@ -279,7 +292,11 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     this.sub1 = this.ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {
       if (price && firstLoad) {
         firstLoad = false;
-        this.poolService.freezeStake(this.Web3.fromAscii(this.sumusAddress), this.ethAddress, +price * Math.pow(10, 9));
+        let bytes = bs58.decode(this.sumusAddress),
+            byteArray = bytes.slice(0, -4),
+            bytes32 = this.toHexString(byteArray);
+
+        this.poolService.freezeStake(bytes32, this.ethAddress, +price * Math.pow(10, 9));
       }
     });
 

@@ -28,12 +28,13 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public activeWallet: Object = this.wallets[0];
   public sumusNetwork: string = 'MainNet';
   public metamaskAccount: string = null;
-  public goldBalance: string|null = '0';
+  public goldBalance: number = 0;
   public hotGoldBalance: string|null = null;
   public shortAdr: string;
   public isShowMobileMenu: boolean = false;
   public isMobile: boolean = false;
   public isLoggedInToMM: boolean = true;
+  public isBalanceLoaded: boolean = false;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private updateGoldBalanceInterval;
 
@@ -79,7 +80,11 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._ethService.getObservableSumusAccount().takeUntil(this.destroy$).subscribe(data => {
       if (data) {
-        this.goldBalance = data.sumusGold.replace(/^(\d+\.\d{2,)\d+$/, '$1');
+        this.goldBalance = +data.sumusGold;
+        if (this.goldBalance > 0) {
+          this.goldBalance = this.goldBalance / Math.pow(10, 18);
+        }
+        this.isBalanceLoaded = true;
         this._cdRef.markForCheck();
       }
     });
