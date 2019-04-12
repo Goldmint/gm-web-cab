@@ -77,7 +77,7 @@
           "Estimate": "Estimates Amount"
         },
         "Info": {
-          "InOrderToSell": "In order to sell Gold token please first make a deposit by sending your tokens in Mint blockchain to the address",
+          "InOrderToSell": "In order to sell GOLD token please first make a deposit by sending your tokens in Mint blockchain to the address",
           "Destination": "Destination:"
         },
         "SuccessModal": {
@@ -189,7 +189,7 @@
           "InOrderInfo": "In order to get MNT tokens in Mint blockchain, please hold your MNTP on the",
           "PoolContract": "Pool contract",
           "AvailableMNTP": "Available MNTP",
-          "Check": "I carefully checked the addresses and the amount and accept all the information as (directly or in a form of a links) follows below:"
+          "Check": "I carefully checked the amount, addresses and agree with beta-test conditions:"
         },
         "Info": {
           "HaveToHold": "You have to hold at least 10 000 MNTP on the",
@@ -1543,12 +1543,12 @@
       "Link": "View your transaction on EtherScan"
     },
     "MetaMask": {
-      "Heading": "To continue you'll need to have Metamask",
+      "Heading": "MetaMask required",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
     "LiteWallet": {
-      "Heading": "To continue you'll need to have Lite Wallet",
-      "Text": "Goldmint Lite Wallet is provided for token holders to safely and securely store, send or receive MINT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MINT/GOLD. Get"
+      "Heading": "Mint Wallet requred",
+      "Text": "Mint Wallet is provided for token holders to safely and securely store, send or receive MNT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MNT/GOLD. Get"
     },
     "LoginToMM": {
       "HeadingBuy": "BUY GOLD",
