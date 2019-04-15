@@ -140,6 +140,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
           this.onAmountChanged(this.goldBalance);
 
           this.sumusAddress = data.sumusWallet;
+          this._cdRef.markForCheck();
         }
       }
     });
@@ -359,6 +360,17 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.limitError.min = this.coinAmount < +this.isTradingLimit['min'];
     this.limitError.max = this.coinAmount > +this.isTradingLimit['max'];
     this._cdRef.markForCheck();
+  }
+
+  openDepositModal() {
+    this._translate.get('MessageBox.MakeDeposit').subscribe(phrase => {
+      setTimeout(() => {
+        this._messageBox.alert(`
+          <div>${phrase}</div>
+          <b>${this.sumusAddress}</b>
+        `);
+      }, 0);
+    });
   }
 
   onSubmit() {

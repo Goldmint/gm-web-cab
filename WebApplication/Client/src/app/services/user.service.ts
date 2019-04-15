@@ -171,7 +171,7 @@ export class UserService {
       this._messageBox.alert(`
         <div class="text-center">${phrase.Text}</div>
         <div class="gold-circle-icon"></div>
-        <div class="text-center mt-2 mb-2">Goldmint Lite Wallet</div>
+        <div class="text-center mt-2 mb-2">Mint Wallet</div>
       `, phrase.Heading);
     });
   }
@@ -179,7 +179,7 @@ export class UserService {
   showGetLiteWalletModal() {
     this._translate.get('MessageBox.LiteWallet').subscribe(phrase => {
       this._messageBox.alert(`
-            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Goldmint Lite Wallet</a></div>
+            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Mint Wallet</a></div>
       `, phrase.Heading);
     });
   }

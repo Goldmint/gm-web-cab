@@ -1,4 +1,13 @@
 <div class="mt-4 pt-1">
+  <section class="page__section section general-info-section">
+    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Heading" | translate }}</h2>
+
+    <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Text" | translate }}</div>
+  </section>
+</div>
+
+
+<div class="mt-4 pt-1">
   <section class="page__section section">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.GetMNT" | translate }}</h2>
 
@@ -43,7 +52,7 @@
       <ng-template #content>
 
         <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}
-          <a [href]="etherscanContractUrl + poolContract" target="_blank">
+          <a routerLink="/blockchain-pool">
             {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
           </a>
 
@@ -61,7 +70,7 @@
           </div>
         </div>
 
-        <div class="mt-4" *ngIf="!isSent">
+        <div class="mt-4" *ngIf="!isSent && !errors.haveToHold && isStakeDataLoaded && isMetamask && sumusAddress">
           <form #migrationForm="ngForm">
             <div class="row">
               <div class="col-12 overflow-hidden">
@@ -82,7 +91,7 @@
                 </div>
               </div>
 
-              <div class="col-12 lead" *ngIf="isMetamask && sumusAddress">
+              <div class="col-12 lead">
                 <div class="d-flex align-items-center mb-2">
                   <div>{{ ethAddress | reduction:6:4 }} (Ethereum)</div>
 

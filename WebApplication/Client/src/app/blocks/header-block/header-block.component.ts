@@ -36,6 +36,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public isLoggedInToMM: boolean = true;
   public isBalanceLoaded: boolean = false;
+  public sumusAddress: string = '';
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private updateGoldBalanceInterval;
 
@@ -85,6 +86,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
           const balance = +data.sumusGold / Math.pow(10, 18);
           this.goldBalance = +new BigNumber(balance).decimalPlaces(3, BigNumber.ROUND_DOWN);
         }
+        this.sumusAddress = data.sumusWallet;
         this.isBalanceLoaded = true;
         this._cdRef.markForCheck();
       }
@@ -198,6 +200,17 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     localStorage.setItem('gmint_sumus_network', network);
     this._apiService.transferCurrentSumusNetwork.next(network);
     this._cdRef.markForCheck();
+  }
+
+  openDepositModal() {
+    this._translate.get('MessageBox.MakeDeposit').subscribe(phrase => {
+      setTimeout(() => {
+        this._messageBox.alert(`
+          <div>${phrase}</div>
+          <b>${this.sumusAddress}</b>
+        `);
+      }, 0);
+    });
   }
 
   ngOnDestroy() {

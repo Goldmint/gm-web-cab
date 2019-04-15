@@ -20,11 +20,11 @@ import * as bs58 from 'bs58';
 })
 export class LaunchNodePageComponent implements OnInit, OnDestroy {
 
-  public getLiteWalletLink = environment.getLiteWalletLink;
   public sumusAddress: string = null;
   public ethAddress: string | null;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
+  public isStakeDataLoaded: boolean = false;
   public isMetamask: boolean = false;
   public tokenAmount: number = 0;
   public etherscanUrl = environment.etherscanUrl;
@@ -34,8 +34,6 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   public allowedMMNetwork = environment.MMNetwork;
   public allowedWalletNetwork = environment.walletNetwork;
   public currentWalletNetwork;
-  public etherscanContractUrl = environment.etherscanContractUrl;
-  public poolContract = environment.EthPoolContractAddress;
   public isInvalidMMNetwork: boolean = true;
   public isInvalidWalletNetwork: boolean = true;
   public userStake: number;
@@ -152,6 +150,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
         } else {
           this.errors.haveToHold = true;
         }
+        this.isStakeDataLoaded = true;
         this._cdRef.markForCheck();
       }
     });
@@ -195,7 +194,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.timeoutPopUp = setTimeout(() => {
         this.loading = false;
-        !this.isMetamask && this.userService.showLoginToMMBox('HeadingMigration');
+        !this.isMetamask && this.userService.showLoginToMMBox('masterNode');
         this._cdRef.markForCheck();
       }, 3000);
     } else {

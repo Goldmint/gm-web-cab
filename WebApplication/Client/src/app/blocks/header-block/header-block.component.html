@@ -43,7 +43,7 @@
           <div class="col-auto">
             <img *ngIf="!isBalanceLoaded" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
 
-            <div class="balance" *ngIf="isBalanceLoaded">
+            <div class="balance" *ngIf="isBalanceLoaded" [ngClass]="{'pointer': sumusAddress}" (click)="sumusAddress && openDepositModal()">
               <svg class="icon" width="18px" height="18px">
                 <use xlink:href="#cur-gold"></use>
               </svg>
