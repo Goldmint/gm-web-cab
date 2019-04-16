@@ -28,7 +28,7 @@ export class UserService {
 
   public onWalletSwitch$ = new Subject();
   public currentWallet;
-  public getLiteWalletLink = environment.getLiteWalletLink;
+  public getLiteWalletLink;
 
   public windowSize$ = new Subject();
 
@@ -44,6 +44,9 @@ export class UserService {
     if (token) {
       this.processToken(token);
     }
+
+    let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
+    this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
   }
 
   public getIPInfo() {

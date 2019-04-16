@@ -12,11 +12,14 @@ export class MasterNodePageComponent implements OnInit {
     type: 'overview'|'launch'
   };
   public isProduction = environment.isProduction;
-  public getLiteWalletLink = environment.getLiteWalletLink;
+  public getLiteWalletLink;
 
   constructor() { }
 
   ngOnInit() {
+    let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
+    this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
+
     this.switchModel = {
       type: 'overview'
     };
