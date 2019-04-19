@@ -84,7 +84,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       if (data) {
         if (+data.sumusGold > 0) {
           const balance = +data.sumusGold / Math.pow(10, 18);
-          this.goldBalance = +new BigNumber(balance).decimalPlaces(3, BigNumber.ROUND_DOWN);
+          this.goldBalance = Math.floor(balance * 1000) / 1000;
         }
         this.sumusAddress = data.sumusWallet;
         this.isBalanceLoaded = true;

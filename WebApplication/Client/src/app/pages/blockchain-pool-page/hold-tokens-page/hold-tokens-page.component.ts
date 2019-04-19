@@ -8,6 +8,7 @@ import {environment} from "../../../../environments/environment";
 import {PoolService} from "../../../services/pool.service";
 import {TranslateService} from "@ngx-translate/core";
 import * as Web3 from "web3";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-hold-tokens-page',
@@ -44,7 +45,8 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
     private _ethService: EthereumService,
     private _messageBox: MessageBoxService,
     private _poolService: PoolService,
-    private _translate: TranslateService
+    private _translate: TranslateService,
+    private _router: Router
   ) { }
 
   ngOnInit() {
@@ -97,6 +99,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
       if (hash) {
         this._translate.get('MessageBox.SuccessTransactionModal').subscribe(phrases => {
           this._poolService.successTransactionModal(hash, phrases);
+          this._router.navigate(['/blockchain-pool']);
         });
       }
     });

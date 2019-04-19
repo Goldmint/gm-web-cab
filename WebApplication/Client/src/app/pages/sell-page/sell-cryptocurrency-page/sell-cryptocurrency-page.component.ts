@@ -77,6 +77,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = window['GoldMint'];
+  private isFirstLoad: boolean = true;
 
   constructor(
     private _userService: UserService,
@@ -132,12 +133,18 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this._ethService.getObservableSumusAccount().takeUntil(this.destroy$).subscribe(data => {
       if (data) {
         let sumusGold = +data.sumusGold > 0 ? (+data.sumusGold / Math.pow(10, 18)) : 0;
-
         if (sumusGold !== this.currentBalance) {
           this.currentBalance = sumusGold;
-          this.goldBalance = +new BigNumber(sumusGold).decimalPlaces(6, BigNumber.ROUND_DOWN);
+          this.goldBalance = Math.floor(sumusGold * 1000000) / 1000000;
+          this.isReversed = false;
           this.goldAmount = this.goldBalance;
-          this.onAmountChanged(this.goldBalance);
+
+          if (this.isFirstLoad) {
+            this.onAmountChanged(this.goldBalance);
+            this.isFirstLoad = false;
+          } else {
+            this.currentValue = this.goldBalance;
+          }
 
           this.sumusAddress = data.sumusWallet;
           this._cdRef.markForCheck();

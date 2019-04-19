@@ -178,23 +178,19 @@
       },
       "LaunchPage": {
         "Heading": "Launch Master Node",
-        "Description": "Here you can find the installation and configuration instructions for your blockchain Goldmint master-node for OS",
+        "Description": "Here you can find the installation and configuration instructions for your blockchain Mint master-node",
         "Labels": {
-          "ChooseOS": "Choose OS",
-          "VideoInst": "Video instruction",
-          "TextInst": "Text instruction",
-          "InstFor": "Instruction for",
-          "NoInstr": "There are no instructions for this OS",
           "GetMNT": "Get MNT Tokens",
           "InOrderInfo": "In order to get MNT tokens in Mint blockchain, please hold your MNTP on the",
           "PoolContract": "BLOCKCHAIN POOL",
           "AvailableMNTP": "Available MNTP",
-          "Check": "I carefully checked the amount, addresses and agree with beta-test conditions:"
+          "Check": "I carefully checked the amount, addresses and agree with beta-test conditions:",
+          "Manual": "Manual"
         },
         "Info": {
           "HaveToHold": "You have to hold at least 10 000 MNTP on the",
           "StakeSent": "Your MNTP stake has been frozen on Ethereum pool and issued in the Mint blockchain",
-          "TransactionSent": "Transaction has been sent. Please wait for email notification"
+          "TransactionSent": "Transaction has been sent. MNT transfer might take up to 60 minutes. Please be patient."
         },
         "GeneralInfo": {
           "Heading": "General information",
@@ -1576,7 +1572,7 @@
     },
     "InvalidNetwork": "You must use {{ network }} network",
     "InvalidNetworkMM": "You must use {{ network }} network for MetaMask",
-    "InvalidNetworkWallet": "You must use {{ network }} network for Lite Wallet",
+    "InvalidNetworkWallet": "You must use {{ network }} network for Mint Wallet",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached"
