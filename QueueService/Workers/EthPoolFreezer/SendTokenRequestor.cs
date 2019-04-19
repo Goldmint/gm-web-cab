@@ -60,9 +60,14 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 				var success = false;
 				try {
+					var amount = row.Amount;
+					if (amount >= 10000m) {
+						amount += 1m;
+					}
+
 					var request = new Sumus.Sender.Send.Request() {
 						RequestID = row.Id.ToString(),
-						Amount = row.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture),
+						Amount = amount.ToString(System.Globalization.CultureInfo.InvariantCulture),
 						Token = "MNT",
 						Wallet = row.SumAddress,
 					};
