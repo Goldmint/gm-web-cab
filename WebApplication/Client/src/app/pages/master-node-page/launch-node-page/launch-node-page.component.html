@@ -50,12 +50,15 @@
 
       <ng-template #content>
 
-        <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}
-          <a routerLink="/blockchain-pool">
-            {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
-          </a>
-
+        <div class="mt-4">
           <div *ngIf="!isSent">
+            <div>
+              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}</span>
+              <a routerLink="/blockchain-pool">
+                {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
+              </a>
+            </div>
+
             <div class="color-red mt-3" *ngIf="errors.haveToHold">
               {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
             </div>

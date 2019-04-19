@@ -16,7 +16,7 @@
 
           <div *ngIf="sumusAddress" class="line-height mt-3">
             <span (click)="sumusAddress && openDepositModal(sumusAddress)" [ngClass]="{'pointer': sumusAddress}">{{ "PAGES.Sell.CtyptoCurrency.Info.InOrderToSell" | translate }}</span>
-            <b class="pointer" (click)="openLiteWallet()">{{ sumusAddress }}</b>
+            <a class="a-link" (click)="openLiteWallet()"><b>{{ sumusAddress }}</b></a>
           </div>
 
           <div class="pt-4">
