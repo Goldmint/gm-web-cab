@@ -1,6 +1,6 @@
 import {
   Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef,
-  OnDestroy
+  OnDestroy, ViewChild
 } from '@angular/core';
 import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
@@ -9,6 +9,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {APIService} from "../../services/api.service";
 import {BigNumber} from "bignumber.js";
+import {BsModalService} from "ngx-bootstrap";
 
 @Component({
   selector: 'app-header',
@@ -18,6 +19,8 @@ import {BigNumber} from "bignumber.js";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderBlockComponent implements OnInit, OnDestroy {
+
+  @ViewChild('depositModal') depositModal;
 
   public gold_usd_rate: number = 0;
   public gold_eth_rate: number = 0;
@@ -37,8 +40,11 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public isLoggedInToMM: boolean = true;
   public isBalanceLoaded: boolean = false;
   public sumusAddress: string = '';
+  public modalRef;
+
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private updateGoldBalanceInterval;
+  private liteWallet = window['GoldMint'];
 
   constructor(
     private _apiService: APIService,
@@ -48,7 +54,8 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     private _cdRef: ChangeDetectorRef,
     private _messageBox: MessageBoxService,
     private _translate: TranslateService,
-    private router: Router
+    private router: Router,
+    private _modalService: BsModalService
   ) {
   }
 
@@ -84,7 +91,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       if (data) {
         if (+data.sumusGold > 0) {
           const balance = +data.sumusGold / Math.pow(10, 18);
-          this.goldBalance = +new BigNumber(balance).decimalPlaces(3, BigNumber.ROUND_DOWN);
+          this.goldBalance = Math.floor(balance * 1000) / 1000;
         }
         this.sumusAddress = data.sumusWallet;
         this.isBalanceLoaded = true;
@@ -203,14 +210,18 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   }
 
   openDepositModal() {
-    this._translate.get('MessageBox.MakeDeposit').subscribe(phrase => {
-      setTimeout(() => {
-        this._messageBox.alert(`
-          <div>${phrase}</div>
-          <b>${this.sumusAddress}</b>
-        `);
-      }, 0);
-    });
+    this.modalRef = this._modalService.show(this.depositModal, {class: 'message-box'});
+  }
+
+  openLiteWallet() {
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet.getAccount().then(res => {
+        !res.length && this._userService.showLoginToLiteWalletModal();
+        res.length && this.liteWallet.openSendTokenPage(this.sumusAddress, 'GOLD').then(() => {});
+      });
+    } else {
+      this._userService.showGetLiteWalletModal();
+    }
   }
 
   ngOnDestroy() {

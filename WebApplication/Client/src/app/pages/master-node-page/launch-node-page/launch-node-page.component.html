@@ -1,14 +1,13 @@
 <div class="mt-4 pt-1">
-  <section class="page__section section general-info-section">
+  <section class="page__section section info-section">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Heading" | translate }}</h2>
 
     <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Text" | translate }}</div>
   </section>
 </div>
 
-
 <div class="mt-4 pt-1">
-  <section class="page__section section">
+  <section class="page__section section info-section">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.GetMNT" | translate }}</h2>
 
     <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
@@ -51,12 +50,15 @@
 
       <ng-template #content>
 
-        <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}
-          <a routerLink="/blockchain-pool">
-            {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
-          </a>
-
+        <div class="mt-4">
           <div *ngIf="!isSent">
+            <div>
+              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}</span>
+              <a routerLink="/blockchain-pool">
+                {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
+              </a>
+            </div>
+
             <div class="color-red mt-3" *ngIf="errors.haveToHold">
               {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
             </div>
@@ -111,7 +113,7 @@
                 </div>
               </div>
 
-              <div class="col mt-4 mb-4">
+              <div class="col mt-4">
                 <button class="btn btn-primary" [disabled]="!isMetamask || !sumusAddress || !agreeCheck || !tokenAmount || isInvalidMMNetwork || isInvalidWalletNetwork || loading || isSent" (click)="onSubmit()">
                   {{ "PAGES.MasterNode.LaunchPage.Buttons.Go" | translate }}
                 </button>
@@ -121,47 +123,32 @@
           </form>
         </div>
 
-        <hr>
-        <div class="my-4">
-          <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }} {{ system }}.</div>
-
-          <div class="my-4">
-            <div class="form-group">
-              <label for="systemList">{{ "PAGES.MasterNode.LaunchPage.Labels.ChooseOS" | translate }}</label>
-              <div class="d-flex align-items-center">
-                <select class="form-control custom-select" name="systemList" id="systemList"
-                        #systemList="ngModel"
-                        [(ngModel)]="system"
-                        (change)="chooseSystem(system)">
-                  <option *ngFor="let s of osList" [value]="s.value">{{ s.label }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!--<div>-->
-            <!--<h5>{{ "PAGES.MasterNode.LaunchPage.Labels.VideoInst" | translate }}</h5>-->
-            <!--<div *ngIf="systemMap[direction].video">-->
-              <!--<iframe width="100%" height="400" [src]="videoUrl" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
-            <!--</div>-->
-          <!--</div>-->
-
-          <div class="mt-4">
-            <h5>{{ "PAGES.MasterNode.LaunchPage.Labels.TextInst" | translate }}</h5>
-
-            <a *ngIf="systemMap[direction]?.text" href="{{ systemMap[direction]?.text }}" target="_blank">
-              {{ "PAGES.MasterNode.LaunchPage.Labels.InstFor" | translate }} {{ system }}
-            </a>
-
-            <div *ngIf="!systemMap[direction]?.text">{{ "PAGES.MasterNode.LaunchPage.Labels.NoInstr" | translate }}</div>
-
-          </div>
-
-        </div>
-
       </ng-template>
 
     </ng-template>
+
+  </section>
+</div>
+
+<div class="mt-4 pt-1">
+  <section class="page__section section general-info-section">
+    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.Manual" | translate }}</h2>
+
+    <div class="my-4">
+      <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }}</div>
+
+      <div class="d-flex align-items-center mt-3">
+        <div>
+          <svg class="icon" width="35px" height="35px">
+            <use xlink:href="#github-logo"></use>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <a class="d-block mb-1" href="https://github.com/Goldmint/sumus-docs" target="_blank">Github.com</a>
+          <a class="d-block" href="https://github.com/Goldmint/sumus-docs/wiki" target="_blank">Wiki</a>
+        </div>
+      </div>
+    </div>
 
   </section>
 </div>

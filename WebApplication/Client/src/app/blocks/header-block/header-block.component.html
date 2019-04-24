@@ -177,3 +177,23 @@
   </div>
 
 </header>
+
+<ng-template #depositModal>
+  <div class="message-box__header">
+    <h4 class="modal-title pull-left">GoldMint.io</h4>
+    <button type="button" class="message-box__close" (click)="modalRef.hide()">
+      <svg class="icon">
+        <use xlink:href="#close"></use>
+      </svg>
+    </button>
+  </div>
+
+  <div class="message-box__body">
+    <div>{{ 'MessageBox.MakeDeposit' | translate }}</div>
+    <a class="a-link sumus-deposit-address" (click)="openLiteWallet()"><b>{{ sumusAddress }}</b></a>
+  </div>
+
+  <div class="message-box__footer">
+    <button type="button" class="btn btn-primary btn-sm mx-1" (click)="modalRef.hide()">OK</button>
+  </div>
+</ng-template>

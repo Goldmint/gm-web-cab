@@ -112,7 +112,6 @@ import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions
 import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {MomentModule} from "ngx-moment";
-import {DeviceDetectorModule} from "ngx-device-detector";
 import {NgxMaskModule} from "ngx-mask";
 import { AuthModalComponent } from './common/message-box/auth-modal/auth-modal.component';
 import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
@@ -153,7 +152,6 @@ export function getGoldmintToken() {
     TypeaheadModule,
     NgxQRCodeModule,
     HttpClientModule,
-    DeviceDetectorModule.forRoot(),
     PopoverModule.forRoot(),
     JwtModule.forRoot({
       config: {

@@ -21,7 +21,7 @@ export class MasterNodePageComponent implements OnInit {
     this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
 
     this.switchModel = {
-      type: 'overview'
+      type: 'launch'
     };
   }
 

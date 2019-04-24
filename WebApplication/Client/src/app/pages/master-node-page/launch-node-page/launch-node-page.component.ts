@@ -1,8 +1,6 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import { DeviceDetectorService } from 'ngx-device-detector';
 import {UserService} from "../../../services/user.service";
 import {Subscription} from "rxjs/Subscription";
-import {DomSanitizer} from "@angular/platform-browser";
 import {environment} from "../../../../environments/environment";
 import {User} from "../../../interfaces";
 import {Subject} from "rxjs";
@@ -50,48 +48,11 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   private sub1: Subscription;
   private Web3 = new Web3();
 
-  public system: string = '';
   public locale: string;
-  public videoUrl: any;
-  public osList = [
-    {label: 'Windows', value: 'windows'},
-    {label: 'Linux', value: 'linux'}
-    // {label: 'MacOS', value: 'mac'}
-  ];
-  public direction: string;
   public isSent: boolean = false;
 
-  public systemMap = {
-    'windowsru': {
-      video: '_9BUs5GKwU8',
-      text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_win_RUS.pdf'
-    },
-    'windowsen': {
-      video: '4tLqYb_iD00',
-      text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_win_ENG.pdf'
-    },
-    'macru': {
-      video: '',
-      text: ''
-    },
-    'macen': {
-      video: '',
-      text: ''
-    },
-    'linuxru' : {
-      video: 'elyLVU3Chpo',
-      text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_linux_RUS.pdf'
-    },
-    'linuxen': {
-      video: 'Wi7831BnO8o',
-      text: 'https://github.com/Goldmint/sumus-docs/blob/master/instruction_for_linux_ENG.pdf'
-    }
-  }
-
   constructor(
-    private deviceService: DeviceDetectorService,
     private userService: UserService,
-    public sanitizer: DomSanitizer,
     private messageBox: MessageBoxService,
     private apiService: APIService,
     private ethService: EthereumService,
@@ -155,24 +116,9 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.system = this.deviceService.getDeviceInfo().os;
     this.userService.currentLocale.takeUntil(this.destroy$).subscribe(locale => {
       this.locale = locale;
-      this.direction = this.system + this.locale;
-      this.setVideoUrl();
     });
-    this.direction = this.system + this.locale;
-    this.setVideoUrl();
-  }
-
-  chooseSystem(os: string) {
-    this.system = os;
-    this.direction = this.system + this.locale;
-    this.setVideoUrl();
-  }
-
-  setVideoUrl() {
-    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.systemMap[this.direction].video);
   }
 
   getEthAddress() {
