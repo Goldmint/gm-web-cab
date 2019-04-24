@@ -45,7 +45,7 @@
 
           <ng-template let-orchestrator="value" ngx-datatable-cell-template>
             <div class="">
-              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + orchestrator">{{ orchestrator  | reduction:4:4 }}</div>
+              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + orchestrator">{{ orchestrator  | reduction:6:4 }}</div>
             </div>
           </ng-template>
         </ngx-datatable-column>

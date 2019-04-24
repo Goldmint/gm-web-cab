@@ -32,7 +32,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest | reduction:4:4 }}</div>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest | reduction:6:4 }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -44,7 +44,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from | reduction:4:4 }}</div>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from | reduction:6:4 }}</div>
           </ng-template>
         </ngx-datatable-column>
 

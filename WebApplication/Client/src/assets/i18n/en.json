@@ -1431,10 +1431,10 @@
           "Status": "Status",
           "UpdateDate": "Update date",
           "StatusName": {
-            "new": "new",
-            "sold": "sold",
-            "boughtout": "bought out",
-            "discarded": "discarded"
+            "new": "New",
+            "sold": "Sold",
+            "boughtout": "Bought out",
+            "discarded": "Discarded"
           }
         },
         "PawnshopDetails": {

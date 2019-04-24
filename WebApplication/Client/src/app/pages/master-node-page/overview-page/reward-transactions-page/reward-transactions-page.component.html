@@ -33,7 +33,7 @@
 
           <ng-template let-tx_digest="value" let-row="row" ngx-datatable-cell-template>
             <div class="a-link overflow-ellipsis" [routerLink]="'/scanner/tx/' + row.tx_digest">
-              {{ row.tx_digest | reduction:4:4 }}
+              {{ row.tx_digest | reduction:6:4 }}
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -47,7 +47,7 @@
 
           <ng-template let-node_address="value" let-row="row" ngx-datatable-cell-template>
             <div class="">
-              {{ row.node_name }} <span class="a-link overflow-ellipsis" [routerLink]="'/scanner/address/' + row.node_address">{{ row.node_address | reduction:4:4 }}</span>
+              {{ row.node_name }} <span class="a-link overflow-ellipsis" [routerLink]="'/scanner/address/' + row.node_address">{{ row.node_address | reduction:6:4 }}</span>
             </div>
           </ng-template>
         </ngx-datatable-column>
