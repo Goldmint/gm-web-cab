@@ -18,28 +18,26 @@
               <div class="form-group">
                 <div class="d-flex">
                   <input type="text" class="form-control bdr-none" id="searchByAddress" name="searchByAddress"
-                         #searchAddressField="ngModel"
-                         [(ngModel)]="searchAddress"
-                         (input)="checkAddress($event.target.value, 'address')"
-                         [ngClass]="{'is-invalid': (searchAddressField.invalid || !isValidSumusAddress) && searchAddressField.dirty}"
-                         autocomplete="off"
-                         [disabled]="loading"
-                         placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.AddressPlaceholder' | translate }}"
-                         pattern="[^а-яА-ЯёЁ]*"
-                         required>
-                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.required && searchAddressField.dirty">
+                    #searchAddressField="ngModel" [(ngModel)]="searchAddress"
+                    (input)="checkAddress($event.target.value, 'address')"
+                    [ngClass]="{'is-invalid': (searchAddressField.invalid || !isValidSumusAddress) && searchAddressField.dirty}"
+                    autocomplete="off" [disabled]="loading"
+                    placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.AddressPlaceholder' | translate }}"
+                    pattern="[^а-яА-ЯёЁ]*" required>
+                  <div class="invalid-feedback invalid-feedback--abs"
+                    *ngIf="searchAddressField.errors?.required && searchAddressField.dirty">
                     {{ "PAGES.Scanner.Errors.Required" | translate }}
                   </div>
                   <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchAddressField.errors?.pattern">
                     {{ "PAGES.Scanner.Errors.Pattern" | translate }}
                   </div>
                   <div class="invalid-feedback invalid-feedback--abs"
-                       *ngIf="!isValidSumusAddress && searchAddressForm.valid && searchAddressField.dirty">
+                    *ngIf="!isValidSumusAddress && searchAddressForm.valid && searchAddressField.dirty">
                     {{ "PAGES.Scanner.Errors.InvalidAddress" | translate }}
                   </div>
                   <div>
                     <button type="button" class="btn btn-sm btn-primary" (click)="searchByAddress()"
-                            [disabled]="searchAddressForm.invalid || !isValidSumusAddress || loading">
+                      [disabled]="searchAddressForm.invalid || !isValidSumusAddress || loading">
                       {{ "PAGES.Scanner.Buttons.Go" | translate }}
                     </button>
                   </div>
@@ -59,28 +57,26 @@
               <div class="form-group">
                 <div class="d-flex">
                   <input type="text" class="form-control bdr-none" id="searchByDigest" name="searchByDigest"
-                         #searchDigestField="ngModel"
-                         [(ngModel)]="searchDigest"
-                         (input)="checkAddress($event.target.value, 'digest')"
-                         [ngClass]="{'is-invalid': (searchDigestField.invalid || !isValidDigest) && searchDigestField.dirty}"
-                         autocomplete="off"
-                         [disabled]="loading"
-                         placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.DigestPlaceholder' | translate }}"
-                         pattern="[^а-яА-ЯёЁ]*"
-                         required>
-                  <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchDigestField.errors?.required && searchDigestField.dirty">
+                    #searchDigestField="ngModel" [(ngModel)]="searchDigest"
+                    (input)="checkAddress($event.target.value, 'digest')"
+                    [ngClass]="{'is-invalid': (searchDigestField.invalid || !isValidDigest) && searchDigestField.dirty}"
+                    autocomplete="off" [disabled]="loading"
+                    placeholder="{{ 'PAGES.Scanner.LatestStatistic.Input.DigestPlaceholder' | translate }}"
+                    pattern="[^а-яА-ЯёЁ]*" required>
+                  <div class="invalid-feedback invalid-feedback--abs"
+                    *ngIf="searchDigestField.errors?.required && searchDigestField.dirty">
                     {{ "PAGES.Scanner.Errors.Required" | translate }}
                   </div>
                   <div class="invalid-feedback invalid-feedback--abs" *ngIf="searchDigestField.errors?.pattern">
                     {{ "PAGES.Scanner.Errors.Pattern" | translate }}
                   </div>
                   <div class="invalid-feedback invalid-feedback--abs"
-                       *ngIf="!isValidDigest && searchDigestField.valid && searchDigestField.dirty">
+                    *ngIf="!isValidDigest && searchDigestField.valid && searchDigestField.dirty">
                     {{ "PAGES.Scanner.Errors.InvalidDigest" | translate }}
                   </div>
                   <div>
                     <button type="button" class="btn btn-sm btn-primary" (click)="searchByDigest()"
-                            [disabled]="searchDigestField.invalid || !isValidDigest || loading">
+                      [disabled]="searchDigestField.invalid || !isValidDigest || loading">
                       {{ "PAGES.Scanner.Buttons.Go" | translate }}
                     </button>
                   </div>
@@ -94,25 +90,25 @@
 
       <div class="mt-5 scaner-info-container line-height">
         <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Caption" | translate }}</h5>
-        <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityBlocks" | translate }} </b>{{ numberBlocks }}</div>
-        <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityTx" | translate }} </b>{{ numberTx }}</div>
-        <div><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityNodes" | translate }}</b> {{ +numberNodes + 1 }}</div>
+        <div>
+          <b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityNodes" | translate }}</b>: {{ numberNodes }}
+        </div>
+        <div>
+          <b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityBlocks" | translate }}</b>: {{ numberBlocks }}
+        </div>
+        <div>
+          <b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityTx" | translate }}</b>: {{ numberTx }}
+        </div>
       </div>
     </div>
 
     <div class="d-flex flex-wrap mt-4">
       <div id="reward-chart-container">
         <div class="col-auto btn-group p-0 mn-tabs commission-chart-switch-cont" *ngIf="isDataLoaded">
-          <label class="btn btn-primary btn-sm active wrap commission-chart-switch"
-                 name="limitsSwitchModel.type"
-                 [(ngModel)]="switchModel.type"
-                 btnRadio="gold"
-                 (click)="toggleCommissionChart(true)">GOLD</label>
-          <label class="btn btn-primary btn-sm active wrap commission-chart-switch"
-                 name="limitsSwitchModel.type"
-                 [(ngModel)]="switchModel.type"
-                 btnRadio="mnt"
-                 (click)="toggleCommissionChart(false)">MNT</label>
+          <label class="btn btn-primary btn-sm active wrap commission-chart-switch" name="limitsSwitchModel.type"
+            [(ngModel)]="switchModel.type" btnRadio="gold" (click)="toggleCommissionChart(true)">GOLD</label>
+          <label class="btn btn-primary btn-sm active wrap commission-chart-switch" name="limitsSwitchModel.type"
+            [(ngModel)]="switchModel.type" btnRadio="mnt" (click)="toggleCommissionChart(false)">MNT</label>
         </div>
       </div>
       <div id="tx-chart-container"></div>
@@ -132,7 +128,8 @@
             </div>
             <div class="d-flex">
               <b class="nowrap">{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Mined" | translate }} </b>
-              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + b.orchestrator">{{ b.orchestrator }}</div>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + b.orchestrator">
+                {{ b.orchestrator }}</div>
             </div>
             <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Count" | translate }}</b> {{ b.transactions }}</div>
             <div class="d-flex">
@@ -149,13 +146,14 @@
                 <span>{{ +b.fee_mnt | noexp }} MNT</span>
               </div>
             </div>
-            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b> {{ b.timestamp * 1000 | amTimeAgo }}</div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Blocks.Labels.Date" | translate }}</b>
+              {{ b.timestamp * 1000 | amTimeAgo }}</div>
           </div>
         </ng-template>
 
         <div class="mt-4 text-right">
           <button type="button" class="btn btn-sm btn-primary" routerLink="/scanner/blocks"
-                  [disabled]="!blocksList.length">{{ "PAGES.Scanner.LatestStatistic.Blocks.Buttons.More" | translate }}</button>
+            [disabled]="!blocksList.length">{{ "PAGES.Scanner.LatestStatistic.Blocks.Buttons.More" | translate }}</button>
         </div>
       </div>
 
@@ -168,13 +166,16 @@
         <ng-template #lastTx>
           <div *ngFor="let t of transactionsList; index as i" class="trs-block scanner-tx-item-{{ i }} mb-2 pb-1">
             <div class="d-flex"><b>Digest: </b>
-              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + t.transaction.digest"> {{ t.transaction.digest }}</div>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/tx/' + t.transaction.digest">
+                {{ t.transaction.digest }}</div>
             </div>
             <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.From" | translate }}</b>
-              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + t.transaction.from"> {{ t.transaction.from }}</div>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + t.transaction.from">
+                {{ t.transaction.from }}</div>
             </div>
             <div class="d-flex"><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.To" | translate }}</b>
-              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + t.transaction.to"> {{ t.transaction.to }}</div>
+              <div class="overflow-ellipsis ml-1 a-link" [routerLink]="'/scanner/address/' + t.transaction.to">
+                {{ t.transaction.to }}</div>
             </div>
             <div class="d-flex">
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Amount" | translate }}</b>
@@ -185,15 +186,17 @@
             </div>
             <div>
               <b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Status" | translate }}</b>
-              <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + t.status" class="tx-status {{ t.status }}"></span>
+              <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + t.status"
+                class="tx-status {{ t.status }}"></span>
             </div>
-            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Date" | translate }}</b> {{ t.transaction.timestamp * 1000 | amTimeAgo }}</div>
+            <div><b>{{ "PAGES.Scanner.LatestStatistic.Transactions.Labels.Date" | translate }}</b>
+              {{ t.transaction.timestamp * 1000 | amTimeAgo }}</div>
           </div>
         </ng-template>
 
         <div class="mt-4 text-right">
           <button type="button" class="btn btn-sm btn-primary" routerLink="/scanner/transactions"
-                  [disabled]="!transactionsList.length">{{ "PAGES.Scanner.LatestStatistic.Transactions.Buttons.More" | translate }}</button>
+            [disabled]="!transactionsList.length">{{ "PAGES.Scanner.LatestStatistic.Transactions.Buttons.More" | translate }}</button>
         </div>
       </div>
     </div>

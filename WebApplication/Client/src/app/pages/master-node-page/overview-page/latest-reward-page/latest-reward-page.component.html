@@ -44,7 +44,7 @@
           </ng-template>
 
           <ng-template let-transactions="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center a-link" [routerLink]="'/master-node/overview/reward-transactions/' + row.id">
+            <div class="a-link" [routerLink]="'/master-node/overview/reward-transactions/' + row.id">
               {{ row.block_from }}-{{ row.block_to }}
             </div>
           </ng-template>
@@ -58,7 +58,7 @@
           </ng-template>
 
           <ng-template let-transactions="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               {{ row.transactions }}
             </div>
           </ng-template>
@@ -72,7 +72,7 @@
           </ng-template>
 
           <ng-template let-transferred_mnt="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               {{ row.transferred_mnt | substr:2 }} MNT<br>
               {{ row.transferred_gold | substr:2 }} GOLD
             </div>
@@ -87,7 +87,7 @@
           </ng-template>
 
           <ng-template let-reward_mnt="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               {{ row.reward_mnt | substr:2 }} MNT<br>
               {{ row.reward_gold | substr:2 }} GOLD
             </div>

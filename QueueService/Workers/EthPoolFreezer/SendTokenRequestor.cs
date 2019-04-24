@@ -62,7 +62,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 				try {
 					var amount = row.Amount;
 					if (amount >= 10000m) {
-						amount += 1m;
+						amount += 0.1m;
 					}
 
 					var request = new Sumus.Sender.Send.Request() {

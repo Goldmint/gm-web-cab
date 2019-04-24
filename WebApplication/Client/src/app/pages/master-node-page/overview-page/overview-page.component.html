@@ -10,7 +10,7 @@
       <div class="mt-4 line-height">
         <div><b>{{ "PAGES.MasterNode.Overview.Labels.Nodes" | translate }} </b>{{ overviewStats?.nodes }}</div>
         <div><b>{{ "PAGES.MasterNode.Overview.Labels.MNT" | translate }} </b>{{ overviewStats?.balance_mnt | substr:3 }} MNT</div>
-        <div><b>{{ "PAGES.MasterNode.Overview.Labels.Reward" | translate }}</b> {{ overviewStats?.gained_mnt | substr:7 }} MNT</div>
+        <div><b>{{ "PAGES.MasterNode.Overview.Labels.Reward" | translate }}</b> {{ overviewStats?.gained_gold | substr:3 }} GOLD, {{ overviewStats?.gained_mnt | substr:3 }} MNT</div>
       </div>
     </div>
 
@@ -44,8 +44,7 @@
           </ng-template>
 
           <ng-template let-address="value" let-row="row" ngx-datatable-cell-template>
-            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.address">{{ row.address }}</div>
-            <div>{{ row.name }}</div>
+            {{ row.name }} <span class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.address">{{ row.address | reduction:4:4 }}</span>
           </ng-template>
         </ngx-datatable-column>
 
@@ -57,7 +56,7 @@
           </ng-template>
 
           <ng-template let-created_at="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">{{ row.created_at * 1000 | date }}</div>
+            <div class="">{{ row.created_at * 1000 | date }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -69,7 +68,7 @@
           </ng-template>
 
           <ng-template let-balance_mnt="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">{{ row.balance_mnt | substr:3 }}</div>
+            <div class="">{{ row.balance_mnt | substr:3 }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -79,7 +78,7 @@
           </ng-template>
 
           <ng-template let-gained_gold="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ row.gained_gold | substr:7 }} GOLD</div>
               <div>{{ row.gained_mnt | substr:7 }} MNT</div>
             </div>

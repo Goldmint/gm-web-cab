@@ -32,23 +32,22 @@
           </ng-template>
 
           <ng-template let-tx_digest="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center a-link overflow-ellipsis" [routerLink]="'/scanner/tx/' + row.tx_digest">
-              {{ row.tx_digest }}
+            <div class="a-link overflow-ellipsis" [routerLink]="'/scanner/tx/' + row.tx_digest">
+              {{ row.tx_digest | reduction:4:4 }}
             </div>
           </ng-template>
         </ngx-datatable-column>
 
         <ngx-datatable-column prop="node_address" [draggable]="false" [resizeable]="false" [sortable]="false">
-          <ng-template let-number="column" let-sort="sortFn" ngx-datatable-header-template>
-              <span class="datatable-header-cell-wrapper">
+          <ng-template class="text-left" let-number="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span class="datatable-header-cell-wrapper ">
                 {{ "PAGES.MasterNode.RewardTransactions.Table.To" | translate }}
               </span>
           </ng-template>
 
           <ng-template let-node_address="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
-              <div class="a-link overflow-ellipsis" [routerLink]="'/scanner/address/' + row.node_address">{{ row.node_address }}</div>
-              {{ row.node_name }}
+            <div class="">
+              {{ row.node_name }} <span class="a-link overflow-ellipsis" [routerLink]="'/scanner/address/' + row.node_address">{{ row.node_address | reduction:4:4 }}</span>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -61,7 +60,7 @@
           </ng-template>
 
           <ng-template let-tx_amount="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               {{ row.tx_amount }} {{ row.tx_token }}
             </div>
           </ng-template>
@@ -75,7 +74,7 @@
           </ng-template>
 
           <ng-template let-time="value" let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">{{ row.time * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
+            <div class="">{{ row.time * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
           </ng-template>
         </ngx-datatable-column>
       </div>

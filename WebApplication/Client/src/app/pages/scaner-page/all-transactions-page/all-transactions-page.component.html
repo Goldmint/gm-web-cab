@@ -32,7 +32,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest }}</div>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/tx/' + row.transaction.digest">{{ row.transaction.digest | reduction:4:4 }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -44,7 +44,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from }}</div>
+            <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + row.transaction.from">{{ row.transaction.from | reduction:4:4 }}</div>
           </ng-template>
         </ngx-datatable-column>
 
@@ -56,7 +56,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <span [translate]="'PAGES.Scanner.TransactionInfo.Status.' + row.status" class="tx-status {{ row.status }}"></span>
             </div>
           </ng-template>
@@ -70,7 +70,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ +row.transaction.amount_gold | noexp }} GOLD</div>
               <div>{{ +row.transaction.amount_mnt | noexp }} MNT</div>
             </div>
@@ -85,7 +85,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               {{ row.transaction.name }}
             </div>
           </ng-template>
@@ -99,7 +99,7 @@
           </ng-template>
 
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ row.transaction.timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
             </div>
           </ng-template>

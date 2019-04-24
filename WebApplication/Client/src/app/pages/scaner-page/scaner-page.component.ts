@@ -72,7 +72,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.switchModel = {
-      type: 'mnt'
+      type: 'gold'
     };
     this.userService.currentLocale.takeUntil(this.destroy$).subscribe((locale) => {
       locale && moment.locale(locale);
@@ -234,7 +234,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
         return []
       });
 
-      this.charts.reward.chart.plot(0).enabled(false);
+      this.charts.reward.chart.plot(1).enabled(false);
 
       this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
         this.charts.reward.chart.title(phrase);

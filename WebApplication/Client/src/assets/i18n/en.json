@@ -225,9 +225,9 @@
         "Table": {
           "Date": "Date",
           "Blocks": "Blocks",
-          "TxAmount": "Tx amount",
-          "TransferredToken": "Transferred token amount",
-          "RewardAmount": "Reward amount"
+          "TxAmount": "Transactions",
+          "TransferredToken": "Volume",
+          "RewardAmount": "Reward"
         }
       },
       "RewardTransactions": {
@@ -250,9 +250,12 @@
           "DigestPlaceholder": "Search by Digest"
         },
         "Labels": {
-          "QuantityBlocks": "Quantity of block:",
-          "QuantityTx": "Quantity of transactions:",
-          "QuantityNodes": "Quantity of nodes:",
+          "QuantityBlocks": "Blocks",
+          "QuantityTx": "Transactions",
+          "QuantityNodes": "Nodes",
+          "Issued": "Issued",
+          "Burned": "Burned",
+          "Balance": "Balance",
           "Or": "OR"
         },
         "Charts": {
