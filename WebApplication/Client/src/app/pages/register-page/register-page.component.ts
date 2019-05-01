@@ -47,7 +47,7 @@ export class RegisterPageComponent implements OnInit {
 
   ngOnInit() {
     if (this.userService.isAuthenticated()) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/master-node']);
     } else {
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     }

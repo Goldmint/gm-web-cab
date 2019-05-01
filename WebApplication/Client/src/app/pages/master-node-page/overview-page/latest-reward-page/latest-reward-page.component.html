@@ -1,5 +1,5 @@
 <!-- host: .page -->
-<h1 class="page__heading">{{ "PAGES.MasterNode.Heading" | translate }}</h1>
+<!--<h1 class="page__heading">{{ "PAGES.MasterNode.Heading" | translate }}</h1>-->
 
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.MasterNode.LatestReward.Heading" | translate }}</h2>
@@ -44,7 +44,7 @@
           </ng-template>
 
           <ng-template let-transactions="value" let-row="row" ngx-datatable-cell-template>
-            <div class="a-link" [routerLink]="'/master-node/overview/reward-transactions/' + row.id">
+            <div class="a-link" [routerLink]="'/nodes/reward-transactions/' + row.id">
               {{ row.block_from }}-{{ row.block_to }}
             </div>
           </ng-template>

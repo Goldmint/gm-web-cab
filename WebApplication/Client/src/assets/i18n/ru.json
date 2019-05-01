@@ -11,51 +11,33 @@
     "SignUp": "Регистрация",
     "SignOut": "Выход",
     "AccountInfo": "Аккаунт",
-    "NotLoggedInMM": "Для бесперебойной работы авторизуйтесь в своей учетной записи MetaMask",
     "Network": {
       "Label": "сеть",
       "MainNet": "MainNet сеть",
       "TestNet": "TestNet сеть"
     },
     "Menu": {
-      "Exchange": {
-        "Heading": "Взаимообмен",
-        "Sell": "Продать GOLD",
-        "Buy": "Купить GOLD",
-        "Transfer": "Перевод GOLD",
-        "Finance": "Финансы"
-      },
-      "GoldmintBlockchain": {
-        "Heading": "Goldmint Blockchain",
-        "Wallet": "Кошелек",
-        "MasterNode": "Мастер нода",
-        "Scanner": "Сканер"
-      },
-      "Pawnshop": {
-        "Heading": "Ломбардные залоги",
-        "Feed": "Активность",
-        "Invest": "Инвестировать в ломбардные залоги"
-      }
+      "Work": "Как это работает",
+      "Exchange": "Обмен",
+      "Wallet": "Кошелек",
+      "Sell": "Продать GOLD",
+      "Finance": "Финансы",
+      "Pool": "Ethereum пул",
+      "MasterNode": "Мастер нода",
+      "Scanner": "Сканер",
+      "Pawnshops": "Ломбарды",
+      "Nodes": "Ноды"
     }
   },
   "FOOTER": {
     "Menu": {
       "About": "О нас",
-      "Transparency": "Прозрачность",
       "LegalSecurity": "Легальность и безопасность",
-      "HelpCenter": "Помощь"
+      "Help": "Помощь"
     },
     "Copyright": "Goldmint PTE. Ltd © {{year}}"
   },
   "PAGES": {
-    "Home": {
-      "Heading": "Вы хотите продать GOLD криптоактивы?",
-      "Or": "или",
-      "Buttons": {
-        "Sell": "Продать",
-        "Buy": "Купить"
-      }
-    },
     "Sell": {
       "Heading": "Продать GOLD криптоактивы",
       "Labels": {
@@ -118,7 +100,10 @@
         "InvalidEth": "Недопустимое количество ETH",
         "minLimit": "Сумма меньше минимального лимита",
         "maxLimit": "Сумма больше максимального лимита",
-        "UseMM": "Используйте metamask",
+        "GetMM": "Установить metamask",
+        "EnableMM": "Включить metamask",
+        "GetMW": "Установить mint wallet",
+        "EnableMW": "Включить mint wallet",
         "NotAllow": "В данный момент метод не разрешен"
       }
     },
@@ -1264,42 +1249,7 @@
         }
       }
     },
-    "Transparency": {
-      "Heading": "Прозрачность",
-      "Issued": "Выпущено:",
-      "Burnt": "Потрачено:",
-      "Circulation": "Отциркулировано:",
-      "Link": "Ссылка",
-      "Table": {
-        "Heading": "Документы",
-        "TableCell": {
-          "Date": "Дата",
-          "Amount": "Количество",
-          "Document": "Документ",
-          "Comment": "Комментарий"
-        }
-      },
-      "TableInfo": {
-        "Headings": {
-          "Assets": "Активы",
-          "Liabilities": "Пасивы",
-          "Exchange": "Дениги у брокера/биржи",
-          "Storage": "Физическое золото в хранилище",
-          "DataProvided": "Данные предоставлены",
-          "Report": "Последний отчет аудитора",
-          "MoneyInBanks": "Деньги в банке",
-          "Distribution": "Криптоактивов GOLD в обороте"
-        },
-        "TableCell": {
-          "Borrowings": "Займы",
-          "Capital": "Капитал",
-          "Profits": "Нераспределенная прибыль"
-        }
-      }
-    },
     "LegalSecurity": {
-      "Heading": "Легальность и безопасность",
-      "Label": "1. Документы",
       "Links": {
         "Terms": "Условия продажи",
         "Privacy": "Конфиденциальность",
@@ -1361,7 +1311,7 @@
       }
     },
     "BlockchainPool": {
-      "Heading": "Blockchain pool",
+      "Heading": "Ethereum pool",
       "Labels": {
         "Hold": "Удержать мои MNTP токены в пуле",
         "Withdraw": "Вывести мое вознаграждение",
@@ -1558,8 +1508,8 @@
       "HeadingBuy": "КУПИТЬ GOLD",
       "HeadingSell": "ПРОДАТЬ GOLD",
       "HeadingTransfer": "ПЕРЕВОД GOLD",
-      "masterNode": "ПОЛУЧИТЬ ТОКЕНЫ",
-      "HeadingPool": "BLOCKCHAIN POOL",
+      "MasterNode": "ПОЛУЧИТЬ ТОКЕНЫ",
+      "HeadingPool": "ETHEREUM POOL",
       "Text": "Войдите в свой аккаунт или разрешите доступ к Ethereum blockchain"
     },
     "LoginToLiteWallet": {
@@ -1578,7 +1528,8 @@
     "InvalidNetworkWallet": "Вы должны использовать {{ network }} сеть для Mint Wallet",
     "logOut": "Вы действительно хотите выйти?",
     "SomethingWrong": "Что-то пошло не так.",
-    "DepositLimit": "Лимит пополнения привышен"
+    "DepositLimit": "Лимит пополнения привышен",
+    "CookiesMessage": "Этот сайт использует cookie для хранения данных. Продолжая использовать сайт, Вы даете свое согласие на работу с этими файлами."
   },
   "MESSAGE": {
     "NoData": "Нет данных"

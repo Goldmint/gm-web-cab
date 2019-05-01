@@ -52,6 +52,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     type: 'gold'|'mnt'
   };
   public isProduction = environment.isProduction;
+  public locale: string = null;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
@@ -75,9 +76,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       type: 'gold'
     };
     this.userService.currentLocale.takeUntil(this.destroy$).subscribe((locale) => {
-      locale && moment.locale(locale);
-
-      if (this.isDataLoaded) {
+      if (this.locale !== null && this.locale !== locale) {
         this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
           this.charts.reward.chart.title(phrase);
         });
@@ -86,11 +85,12 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
         });
         this.updateData();
       }
-      this.cdRef.markForCheck();
-    });
 
-    this.apiService.transferCurrentSumusNetwork.subscribe(() => {
-      this.updateData();
+      if (locale) {
+        this.locale = locale;
+        moment.locale(locale);
+      }
+      this.cdRef.markForCheck();
     });
 
     const combined = combineLatest(

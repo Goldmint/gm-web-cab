@@ -32,6 +32,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   public invalidBalance: boolean = false;
   public isAuthenticated: boolean = false;
   public isInvalidNetwork: boolean = true;
+  public noMetamask: boolean = false;
 
   private Web3 = new Web3();
   private timeoutPopUp;
@@ -53,13 +54,9 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
     this.isAuthenticated = this._userService.isAuthenticated();
     this.initSuccessTransactionModal();
 
-    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
-      this.loading = true;
-      this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox('HeadingPool');
-        this.loading = false;
-        this._cdRef.markForCheck();
-      }, 4000);
+    if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
+      this.noMetamask = true;
+      this._cdRef.markForCheck();
     }
 
     this._ethService.getObservableMntpBalance().takeUntil(this.destroy$).subscribe(balance => {
@@ -99,10 +96,18 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
       if (hash) {
         this._translate.get('MessageBox.SuccessTransactionModal').subscribe(phrases => {
           this._poolService.successTransactionModal(hash, phrases);
-          this._router.navigate(['/blockchain-pool']);
+          this._router.navigate(['/ethereum-pool']);
         });
       }
     });
+  }
+
+  getMetamaskModal() {
+    this._userService.showGetMetamaskModal();
+  }
+
+  enableMetamaskModal() {
+    this._userService.showLoginToMMBox('HeadingPool');
   }
 
   changeValue(event) {

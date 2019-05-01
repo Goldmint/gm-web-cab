@@ -1,0 +1,62 @@
+<nav class="navbar mt-3">
+  <ul class="nav nav-pills nav-justified">
+
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" href="https://www.goldmint.io/" target="_blank">{{ "HEADER.Menu.Work" | translate }}</a>
+    </li>
+
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" routerLink="/sell">{{ "HEADER.Menu.Exchange" | translate }}</a>
+
+      <div class="sub-nav-container">
+        <ul class="nav nav-pills nav-justified sub-nav">
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/sell">{{ "HEADER.Menu.Sell" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/finance">{{ "HEADER.Menu.Finance" | translate }}</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.MasterNode" | translate }}</a>
+
+      <div class="sub-nav-container">
+        <ul class="nav nav-pills nav-justified sub-nav">
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.MasterNode" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/ethereum-pool">{{ "HEADER.Menu.Pool" | translate }}</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.Scanner" | translate }}</a>
+
+      <div class="sub-nav-container">
+        <ul class="nav nav-pills nav-justified sub-nav">
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.Scanner" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link"
+               routerLink="/nodes">{{ "HEADER.Menu.Nodes" | translate }}</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/pawnshop-loans/feed">{{ "HEADER.Menu.Pawnshops" | translate }}</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" [href]="getLiteWalletLink" target="_blank">{{ "HEADER.Menu.Wallet" | translate }}</a>
+    </li>
+
+  </ul>
+</nav>

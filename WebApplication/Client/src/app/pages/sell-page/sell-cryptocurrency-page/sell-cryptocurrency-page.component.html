@@ -1,6 +1,5 @@
 <!-- host: .page -->
-<h1 class="page__heading">{{ "PAGES.Sell.CtyptoCurrency.Heading" | translate }}</h1>
-
+<!--<h1 class="page__heading">{{ "PAGES.Sell.CtyptoCurrency.Heading" | translate }}</h1>-->
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.Sell.CtyptoCurrency.Heading" | translate }}</h2>
 
@@ -91,9 +90,14 @@
                 </div>
 
                 <div class="col mb-5">
-                  <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
-                  <div class="font-weight-500 mb-2 lead icon--red" *ngIf="isEthLimitError">{{ "ERRORS.SellEthLimit" | translate }}</div>
-                  <div class="font-weight-500 mb-2 lead icon--red" *ngIf="!ethAddress">{{ "PAGES.Sell.Errors.UseMM" | translate }}</div>
+                  <div class="font-weight-500 mb-3 lead icon--red" *ngIf="isTradingError">{{ "ERRORS.Trading" | translate }}</div>
+                  <div class="font-weight-500 mb-3 lead icon--red" *ngIf="isEthLimitError">{{ "ERRORS.SellEthLimit" | translate }}</div>
+                  <div class="font-weight-500 mb-3 lead icon--red pointer" *ngIf="noMetamask">
+                    <span (click)="getMetamaskModal()">{{ "PAGES.Sell.Errors.GetMM" | translate }}</span>
+                  </div>
+                  <div class="font-weight-500 mb-3 lead icon--red pointer" *ngIf="!noMetamask && !ethAddress">
+                    <span (click)="enableMetamaskModal()">{{ "PAGES.Sell.Errors.EnableMM" | translate }}</span>
+                  </div>
 
                   <div class="mb-4" *ngIf="ethAddress">
                     {{ "PAGES.Sell.CtyptoCurrency.Info.Destination" | translate }} <b>{{ ethAddress | reduction:6:4 }}</b>

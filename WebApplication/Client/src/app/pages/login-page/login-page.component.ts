@@ -72,7 +72,7 @@ export class LoginPageComponent implements OnInit {
     });
 
     if (this._userService.isAuthenticated()) {
-      this._router.navigate(['/home']);
+      this._router.navigate(['/master-node']);
     }
     else {
       this._returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/';

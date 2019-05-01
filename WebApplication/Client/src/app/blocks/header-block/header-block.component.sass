@@ -33,43 +33,6 @@
     color: $color-gold
     cursor: pointer
 
-
-.balance
-  font-weight: 400
-  font-size: rem(14px)
-
-  &__label
-    display: inline-block
-    line-height: rem(20px)
-    margin-right: 14px
-
-  &__metamask
-    display: inline-block
-    max-width: rem(40px)
-    line-height: rem(20px)
-    vertical-align: bottom
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
-
-  &__item
-    display: inline-block
-    line-height: rem(20px)
-    text-transform: uppercase
-    &:not(:last-child)
-      margin-right: 20px
-
-  &__value
-    color: $color-gold
-    display: inline-block
-    line-height: rem(20px)
-
-  &__exchange
-    color: $color-gray-1
-    display: inline-block
-    line-height: rem(20px)
-
-
 .auth-info
   display: flex
   align-items: center
@@ -93,9 +56,6 @@
       .dropdown-menu
         font-size: rem(14px)
 
-.fiat
-  cursor: pointer
-
 .mobile-menu-button
   cursor: pointer
   color: $color-brand
@@ -105,9 +65,56 @@
 
 .mobile-menu-icon
   color: $color-brand
+  cursor: pointer
 
 .header-mobile
   height: 125px
+
+.header-menu
+  font-weight: 500
+
+  ul
+    margin: 0
+    padding: 0
+    list-style-type: none
+    display: flex
+    align-items: center
+    justify-content: space-between
+
+    li
+      &:hover
+        a
+          color: $color-brand
+
+
+      &:not(:first-child):before
+        content: '|'
+        position: relative
+        left: -2px
+        top: -1px
+        color: #fff
+        font-size: 12px
+        font-weight: 400
+
+      &:last-child:after
+        content: '|'
+        position: relative
+        left: -2px
+        top: -1px
+        color: #fff
+        font-size: 12px
+        font-weight: 400
+
+      a
+        color: #fff
+        padding: 0 12px
+        font-size: rem(14px)
+        transition: color .3s ease-in-out
+
+        &.active, &:hover
+          color: $color-brand
+          text-decoration: none
+
 
 #mobile-menu-container
   position: absolute
@@ -121,30 +128,36 @@
   background: black
   z-index: 100
 
-  .nav
-    display: block
-    .nav-item
-      border: none
-      .nav-link
-        background-color: black
-        color: $color-brand
-        justify-content: flex-start
-        font-size: 1rem
-        white-space: inherit
-        text-align: left
-        min-height: 25px
-        height: auto
+  .navbar
+    padding: 0
 
-  .sub-nav-container
-    height: auto
-    display: block
-    padding: 3px 0 3px 20px
-    background-color: black
+    .nav
+      display: block
+      .nav-item
+        border: none
+        .nav-link
+          background-color: black
+          color: $color-brand
+          justify-content: flex-start
+          font-size: 1rem
+          white-space: inherit
+          text-align: left
+          min-height: 25px
+          height: auto
+          font-size: 0.875rem
+          text-transform: uppercase
+          font-weight: 700
 
-    .sub-nav
-      position: relative
+    .sub-nav-container
       height: auto
-      margin: 0
+      display: block
+      padding: 3px 0 3px 20px
+      background-color: black
+
+      .sub-nav
+        position: relative
+        height: auto
+        margin: 0
 
   .mobile-account-info
     .dropdown-toggle
@@ -161,12 +174,15 @@
         background: black
         padding-bottom: 1.5rem
 
-        .nav-item
-          margin: 0
+        .nav
+          display: block
 
-          .nav-link
-            font-size: 0.875rem
-            padding: 5px 0
+          .nav-item
+            margin: 0
+
+            .nav-link
+              font-size: 0.875rem
+              padding: 5px 7px
 
   .nav-item.active > a
     color: $color-brand-active !important

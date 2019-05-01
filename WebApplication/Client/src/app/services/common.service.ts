@@ -7,6 +7,7 @@ export class CommonService {
 
   public changeFeedTab = new Subject();
   public getPawnShopOrganization = new BehaviorSubject(null);
+  public getActiveMenuItem = new BehaviorSubject(null);
 
   constructor() { }
 

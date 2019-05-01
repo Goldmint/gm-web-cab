@@ -1,4 +1,6 @@
-<div class="mt-4 pt-1">
+<!-- host: .page -->
+
+<div>
   <section class="page__section section info-section">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Heading" | translate }}</h2>
 
@@ -54,13 +56,13 @@
           <div *ngIf="!isSent">
             <div>
               <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}</span>
-              <a routerLink="/blockchain-pool">
+              <a routerLink="/ethereum-pool">
                 {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
               </a>
             </div>
 
             <div class="color-red mt-3" *ngIf="errors.haveToHold">
-              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
+              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/ethereum-pool">BLOCKCHAIN POOL</a>
             </div>
             <div class="color-red mt-3" *ngIf="errors.stakeSent">
               {{ "PAGES.MasterNode.LaunchPage.Info.StakeSent" | translate }}
@@ -72,7 +74,7 @@
           </div>
         </div>
 
-        <div class="mt-4" *ngIf="!isSent && !errors.haveToHold && isStakeDataLoaded && isMetamask && sumusAddress">
+        <div class="mt-4" *ngIf="!isSent && !errors.haveToHold">
           <form #migrationForm="ngForm">
             <div class="row">
               <div class="col-12 overflow-hidden">
@@ -93,7 +95,7 @@
                 </div>
               </div>
 
-              <div class="col-12 lead">
+              <div class="col-12 lead" *ngIf="isStakeDataLoaded && ethAddress && sumusAddress">
                 <div class="d-flex align-items-center mb-2">
                   <div>{{ ethAddress | reduction:6:4 }} (Ethereum)</div>
 
@@ -110,6 +112,21 @@
                   <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
                   <label class="custom-control-label" for="agreeCheck">{{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}</label>
                   <a href="https://app.goldmint.io/#/legal-security/termsOfSale" target="_blank">link</a>
+                </div>
+              </div>
+
+              <div class="col-12 line-height">
+                <div class="font-weight-500 lead icon--red pointer" *ngIf="noMetamask">
+                  <span (click)="getMetamaskModal()">{{ "PAGES.Sell.Errors.GetMM" | translate }}</span>
+                </div>
+                <div class="font-weight-500 lead icon--red pointer" *ngIf="!noMetamask && !ethAddress">
+                  <span (click)="enableMetamaskModal()">{{ "PAGES.Sell.Errors.EnableMM" | translate }}</span>
+                </div>
+                <div class="font-weight-500 lead icon--red pointer" *ngIf="noMintWallet">
+                  <span (click)="getMintWalletModal()">{{ "PAGES.Sell.Errors.GetMW" | translate }}</span>
+                </div>
+                <div class="font-weight-500 lead icon--red pointer" *ngIf="!noMintWallet && !sumusAddress">
+                  <span (click)="enableMintWalletModal()">{{ "PAGES.Sell.Errors.EnableMW" | translate }}</span>
                 </div>
               </div>
 

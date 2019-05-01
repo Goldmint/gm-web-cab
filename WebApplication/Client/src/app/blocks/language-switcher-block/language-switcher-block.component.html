@@ -1,8 +1,8 @@
-<div class="language" [title]="languages[translate.currentLang].name" (mouseenter)="dropdown.show()" (click)="dropdown.show()" (mouseleave)="dropdown.hide()">
-  <img [src]="'assets/img/flags/' + languages[translate.currentLang].icon" width="16" height="12" class="language__icon" [alt]="languages[translate.currentLang].name" (click)="dropdown.show()">
-
+<div class="language language-dropdown" [title]="languages[translate.currentLang].name" (mouseenter)="dropdown.show()" (click)="dropdown.show()" (mouseleave)="dropdown.hide()">
   <div dropdown position="bottom right" class="language__select" #dropdown="bs-dropdown">
-    <a dropdownToggle class="text-uppercase">{{translate.currentLang}}</a>
+    <a dropdownToggle class="text-uppercase">
+      <img [src]="'assets/img/flags/' + languages[translate.currentLang].icon" width="16" height="12" class="language__icon" [alt]="languages[translate.currentLang].name">
+    </a>
 
     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu" title="">
       <li role="menuitem" *ngFor="let lang of translate.getLangs()">

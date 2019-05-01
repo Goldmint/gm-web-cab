@@ -9,8 +9,7 @@ import { AppLanguages, AppDefaultLanguage } from '../../app.languages';
   selector: 'language-switcher',
   templateUrl: './language-switcher-block.component.html',
   styleUrls: ['./language-switcher-block.component.sass'],
-  encapsulation: ViewEncapsulation.None,
-  // changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
 export class LanguageSwitcherBlockComponent implements OnInit {
 

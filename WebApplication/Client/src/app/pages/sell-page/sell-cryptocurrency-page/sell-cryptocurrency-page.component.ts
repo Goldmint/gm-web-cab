@@ -20,7 +20,6 @@ import {environment} from "../../../../environments/environment";
 import {Subscription} from "rxjs/Subscription";
 import * as Web3 from "web3";
 import {LimitErrors} from "../../../models/limitErrors";
-import {CommonService} from "../../../services/common.service";
 
 @Component({
   selector: 'app-sell-cryptocurrency-page',
@@ -73,8 +72,8 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   public isAuthenticated: boolean = false;
   public isEthLimitError: boolean = false;
   public sumusAddress: string = '';
+  public noMetamask: boolean = false;
 
-  private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = window['GoldMint'];
   private isFirstLoad: boolean = true;
@@ -87,8 +86,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     private _goldrateService: GoldrateService,
     private _cdRef: ChangeDetectorRef,
     private _translate: TranslateService,
-    private router: Router,
-    private commonService: CommonService
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -105,16 +103,14 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
       if (!this.isReversed) {
         this.coinAmount = +this.substrValue(limit['cur'] / Math.pow(10, 18));
       }
-
       this._cdRef.markForCheck();
     });
 
     this.iniTransactionHashModal();
 
-    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
-      this.timeoutPopUp = setTimeout(() => {
-        !this.ethAddress && this._userService.showLoginToMMBox('HeadingSell');
-      }, 3000);
+    if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
+      this.noMetamask = true;
+      this._cdRef.markForCheck();
     }
 
     Observable.combineLatest(
@@ -164,7 +160,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null) {
-        this.router.navigate(['sell']);
+        // this.router.navigate(['sell']);
       }
       this._cdRef.markForCheck();
     });
@@ -180,6 +176,14 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
         this._cdRef.markForCheck();
       }
     });
+  }
+
+  getMetamaskModal() {
+    this._userService.showGetMetamaskModal();
+  }
+
+  enableMetamaskModal() {
+    this._userService.showLoginToMMBox('HeadingSell');
   }
 
   openLiteWallet() {
@@ -403,7 +407,6 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     this.destroy$.next(true);
     this.subGetGas && this.subGetGas.unsubscribe();
     this.sub1 && this.sub1.unsubscribe();
-    clearTimeout(this.timeoutPopUp);
   }
 
 }

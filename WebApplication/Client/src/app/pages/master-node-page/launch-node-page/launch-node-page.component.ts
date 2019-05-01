@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {UserService} from "../../../services/user.service";
 import {Subscription} from "rxjs/Subscription";
 import {environment} from "../../../../environments/environment";
@@ -17,6 +17,7 @@ import * as bs58 from 'bs58';
   styleUrls: ['./launch-node-page.component.sass']
 })
 export class LaunchNodePageComponent implements OnInit, OnDestroy {
+  @HostBinding('class') class = 'page';
 
   public sumusAddress: string = null;
   public ethAddress: string | null;
@@ -40,9 +41,10 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     haveToHold: false,
     stakeSent: false
   };
+  public noMetamask: boolean = false;
+  public noMintWallet: boolean = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
-  private timeoutPopUp;
   private liteWallet = window['GoldMint'];
   private checkLiteWalletInterval;
   private sub1: Subscription;
@@ -71,6 +73,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     this.isDataLoaded = true;
     this._cdRef.markForCheck();
 
+    this.checkLiteWallet();
     this.checkLiteWalletInterval = setInterval(() => {
       this.checkLiteWallet();
     }, 500);
@@ -137,36 +140,33 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   }
 
   detectMetaMask() {
-    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
-      this.timeoutPopUp = setTimeout(() => {
-        this.loading = false;
-        !this.isMetamask && this.userService.showLoginToMMBox('masterNode');
-        this._cdRef.markForCheck();
-      }, 3000);
-    } else {
-      setTimeout(() => {
-        this.translate.get('MessageBox.MetaMask').subscribe(phrase => {
-          this.messageBox.alert(phrase.Text, phrase.Heading);
-        });
-      }, 200);
+    if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
+      this.noMetamask = true;
+      this._cdRef.markForCheck();
     }
   }
 
   detectLiteWallet() {
-    if (window.hasOwnProperty('GoldMint')) {
-      this.liteWallet.getAccount().then(res => {
-        this.sumusAddress = res.length ? res[0] : null;
-
-        !this.sumusAddress && setTimeout(() => {
-          this.userService.showLoginToLiteWalletModal();
-        }, 200);
-        this._cdRef.markForCheck();
-      });
-    } else {
-      setTimeout(() => {
-        this.userService.showGetLiteWalletModal();
-      }, 200);
+    if (!window.hasOwnProperty('GoldMint')) {
+      this.noMintWallet = true;
+      this._cdRef.markForCheck();
     }
+  }
+
+  getMetamaskModal() {
+    this.userService.showGetMetamaskModal();
+  }
+
+  enableMetamaskModal() {
+    this.userService.showLoginToMMBox('MasterNode');
+  }
+
+  getMintWalletModal() {
+    this.userService.showGetLiteWalletModal();
+  }
+
+  enableMintWalletModal() {
+    this.userService.showLoginToLiteWalletModal();
   }
 
   initModal() {
@@ -199,7 +199,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
       this.liteWallet.getCurrentNetwork().then(res => {
         if (this.currentWalletNetwork != res) {
           this.currentWalletNetwork = res;
-          if (res !== this.allowedWalletNetwork) {
+          if (res !== null && res !== this.allowedWalletNetwork) {
             this.userService.showInvalidNetworkModal('InvalidNetworkWallet', this.allowedWalletNetwork);
             this.isInvalidWalletNetwork = true;
           } else {
@@ -250,7 +250,6 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    clearTimeout(this.timeoutPopUp);
     clearInterval(this.checkLiteWalletInterval);
     this.sub1 && this.sub1.unsubscribe();
   }

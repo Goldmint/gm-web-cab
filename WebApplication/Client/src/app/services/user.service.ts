@@ -25,11 +25,7 @@ export class UserService {
 
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
-
-  public onWalletSwitch$ = new Subject();
-  public currentWallet;
   public getLiteWalletLink;
-
   public windowSize$ = new Subject();
 
   constructor(
@@ -155,10 +151,6 @@ export class UserService {
       );
   }
 
-  onWalletSwitch(wallet) {
-    this.onWalletSwitch$.next(wallet);
-  }
-
   showLoginToMMBox(heading: string) {
     this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
       this._messageBox.alert(`
@@ -166,6 +158,12 @@ export class UserService {
         <div class="metamask-icon"></div>
         <div class="text-center mt-2 mb-2">MetaMask</div>
       `, phrase[heading]);
+    });
+  }
+
+  showGetMetamaskModal() {
+    this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
+      this._messageBox.alert(phrase.Text, phrase.Heading);
     });
   }
 

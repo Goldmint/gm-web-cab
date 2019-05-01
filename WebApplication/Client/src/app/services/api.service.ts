@@ -30,13 +30,8 @@ export class APIService {
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
-  public transferCurrentSumusNetwork = new Subject();
 
-  constructor(private _http: HttpClient) {
-    // this.transferCurrentSumusNetwork.subscribe((network: any) => {
-    //   this._sumusBaseUrl = environment.sumusNetworkUrl[network];
-    // });
-  }
+  constructor(private _http: HttpClient) { }
 
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {
     return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/auth/authenticate`, { username: username, password: password, captcha: captcha, audience: "app" })

@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PawnshopInvestComponent } from './pawnshop-invest.component';
+import { MobileNavbarBlockComponent } from './mobile-navbar-block.component';
 
-describe('PawnshopInvestComponent', () => {
-  let component: PawnshopInvestComponent;
-  let fixture: ComponentFixture<PawnshopInvestComponent>;
+describe('MobileNavbarBlockComponent', () => {
+  let component: MobileNavbarBlockComponent;
+  let fixture: ComponentFixture<MobileNavbarBlockComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PawnshopInvestComponent ]
+      declarations: [ MobileNavbarBlockComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PawnshopInvestComponent);
+    fixture = TestBed.createComponent(MobileNavbarBlockComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

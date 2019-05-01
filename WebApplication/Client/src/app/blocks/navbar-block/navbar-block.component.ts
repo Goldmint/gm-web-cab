@@ -1,4 +1,6 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {CommonService} from "../../services/common.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-navbar',
@@ -6,10 +8,27 @@ import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
   styleUrls: ['./navbar-block.component.sass'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NavbarBlockComponent implements OnInit {
+export class NavbarBlockComponent implements OnInit, OnDestroy {
 
-  constructor() { }
+  public activeMenuItem: string;
 
-  ngOnInit() { }
+  private sub1: Subscription;
 
+  constructor(
+    private commonService: CommonService,
+    private cdRef: ChangeDetectorRef,
+  ) { }
+
+  ngOnInit() {
+    this.sub1 = this.commonService.getActiveMenuItem.subscribe(res => {
+      if (res !== null) {
+        this.activeMenuItem = res;
+        this.cdRef.markForCheck();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub1 && this.sub1.unsubscribe();
+  }
 }

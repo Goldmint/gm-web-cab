@@ -11,51 +11,33 @@
     "SignUp": "Sign up",
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
-    "NotLoggedInMM": "For smooth-running please authorize in your MetaMask account",
     "Network": {
       "Label": "network",
       "MainNet": "MainNet network",
       "TestNet": "TestNet network"
     },
     "Menu": {
-      "Exchange": {
-        "Heading": "Interchange",
-        "Sell": "Sell GOLD",
-        "Buy": "Buy GOLD",
-        "Transfer": "Transfer GOLD",
-        "Finance": "Finance"
-      },
-      "GoldmintBlockchain": {
-        "Heading": "Goldmint Blockchain",
-        "Pool": "Blockchain pool",
-        "MasterNode": "Master node",
-        "Scanner": "Scanner"
-      },
-      "Pawnshop": {
-        "Heading": "Pawnshop Loans",
-        "Feed": "Feed",
-        "Invest": "Invest in pawnshop loans"
-      }
+      "Work": "How does it work",
+      "Exchange": "Exchange",
+      "Wallet": "Wallet",
+      "Sell": "Sell GOLD",
+      "Finance": "Finance",
+      "Pool": "Ethereum pool",
+      "MasterNode": "Master node",
+      "Scanner": "Scanner",
+      "Pawnshops": "Pawnshops",
+      "Nodes": "Nodes"
     }
   },
   "FOOTER": {
     "Menu": {
       "About": "About",
-      "Transparency": "Transparency",
       "LegalSecurity": "Legal & Security",
-      "HelpCenter": "Help Center"
+      "Help": "Help"
     },
     "Copyright": "Goldmint PTE. Ltd © {{year}}"
   },
   "PAGES": {
-    "Home": {
-      "Heading": "Do You want to sell GOLD cryptoassets?",
-      "Or": "or",
-      "Buttons": {
-        "Sell": "Sell",
-        "Buy": "Buy"
-      }
-    },
     "Sell": {
       "Heading": "Sell GOLD cryptoassets",
       "Labels": {
@@ -118,7 +100,10 @@
         "InvalidEth": "Invalid ETH amount",
         "minLimit": "Amount is less than minimum limit",
         "maxLimit": "Amount is greater than maximum limit",
-        "UseMM": "Use metamask",
+        "GetMM": "Get metamask",
+        "EnableMM": "Enable metamask",
+        "GetMW": "Get mint wallet",
+        "EnableMW": "Enable mint wallet",
         "NotAllow": "Method is not allowed now"
       }
     },
@@ -1264,42 +1249,7 @@
         }
       }
     },
-    "Transparency": {
-      "Heading": "Transparency",
-      "Issued": "Total issued:",
-      "Burnt": "Total burnt:",
-      "Circulation": "Total in circulation:",
-      "Link": "Link",
-      "Table": {
-        "Heading": "Documents",
-        "TableCell": {
-          "Date": "Date",
-          "Amount": "Amount",
-          "Document": "Document",
-          "Comment": "Comment"
-        }
-      },
-      "TableInfo": {
-        "Headings": {
-          "Assets": "Assets",
-          "Liabilities": "Liabilities",
-          "Exchange": "Money at broker/exchange",
-          "Storage": "Physical GOLD in the storage",
-          "DataProvided": "Data provided",
-          "Report": "The latest auditor's report",
-          "MoneyInBanks": "Money in banks",
-          "Distribution": "GOLD Cryptoassets in distribution"
-        },
-        "TableCell": {
-          "Borrowings": "Borrowings",
-          "Capital": "Capital",
-          "Profits": "Undistributed profits"
-        }
-      }
-    },
     "LegalSecurity": {
-      "Heading": "Legal & Security",
-      "Label": "1. Documents",
       "Links": {
         "Terms": "Terms of sale",
         "Privacy": "Privacy policy",
@@ -1361,7 +1311,7 @@
       }
     },
     "BlockchainPool": {
-      "Heading": "Blockchain pool",
+      "Heading": "Ethereum pool",
       "Labels": {
         "Hold": "Hold my MNTP tokens on the pool",
         "Withdraw": "Withdraw my reward",
@@ -1558,8 +1508,8 @@
       "HeadingBuy": "BUY GOLD",
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
-      "masterNode": "GET TOKENS",
-      "HeadingPool": "BLOCKCHAIN POOL",
+      "MasterNode": "GET TOKENS",
+      "HeadingPool": "ETHEREUM POOL",
       "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },
     "LoginToLiteWallet": {
@@ -1578,7 +1528,8 @@
     "InvalidNetworkWallet": "You must use {{ network }} network for Mint Wallet",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
-    "DepositLimit": "Deposit limit reached"
+    "DepositLimit": "Deposit limit reached",
+    "CookiesMessage": "This site uses cookies to store data. By remaining on this site, you consent to the placement of these cookies."
   },
   "MESSAGE": {
     "NoData": "No data"

@@ -48,7 +48,7 @@ export class EthereumService {
   private _contactsInitted: boolean = false;
   private _totalGoldBalances = {issued: null, burnt: null};
   private _allowedUrlOccurrencesForInject = [
-    'buy', 'sell', 'transfer', 'transparency', 'master-node', 'blockchain-pool'
+    'sell', 'master-node', 'ethereum-pool'
   ];
   private checkWeb3Interval = null;
 
