@@ -96,7 +96,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
       if (hash) {
         this._translate.get('MessageBox.SuccessTransactionModal').subscribe(phrases => {
           this._poolService.successTransactionModal(hash, phrases);
-          this._router.navigate(['/ethereum-pool']);
+          this._router.navigate(['/blockchain-pool']);
         });
       }
     });

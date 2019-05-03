@@ -17,25 +17,42 @@
       "TestNet": "TestNet network"
     },
     "Menu": {
-      "Work": "How does it work",
+      "Work": "How it work",
       "Exchange": "Exchange",
       "Wallet": "Wallet",
       "Sell": "Sell GOLD",
       "Finance": "Finance",
-      "Pool": "Ethereum pool",
+      "Pool": "Blockchain pool",
       "MasterNode": "Master node",
+      "LaunchMasterNode": "Launch master node",
       "Scanner": "Scanner",
-      "Pawnshops": "Pawnshops",
-      "Nodes": "Nodes"
+      "Transactions": "Transactions",
+      "Pawnshops": "Pawnshop loans",
+      "Nodes": "Nodes overview",
+      "BuyMntp": "Buy MNTP"
     }
   },
   "FOOTER": {
-    "Menu": {
-      "About": "About",
-      "LegalSecurity": "Legal & Security",
-      "Help": "Help"
+    "Headings": {
+      "LegalDocuments": "LEGAL DOCUMENTS",
+      "GMLegal": "GOLDMINT LEGAL",
+      "Support": "SUPPORT",
+      "Contacts": "CONTACTS",
+      "LegalAddress": "LEGAL ADDRESS",
+      "DevOffice": "DEVELOPMENT OFFICE"
     },
-    "Copyright": "Goldmint PTE. Ltd © {{year}}"
+    "Documents": {
+      "1th": "Consumer Data Privacy Policy",
+      "2th": "KYC & AML Policy",
+      "3th": "Gold Coin Terms of Sale"
+    },
+    "Contacts": {
+      "ForPress": "For press:",
+      "ForParticipants": "For participants:",
+      "ForSupport": "For support:"
+    },
+    "LegalAddress": "1100 Lower Delta Road, #02-05 EPL building, 169206, Singapore",
+    "DevOffice": "115280, Russian Federation, Moscow, Leninskaya Sloboda, 26, building 6, office 2516"
   },
   "PAGES": {
     "Sell": {
@@ -166,7 +183,11 @@
         "Description": "Here you can find the installation and configuration instructions for your blockchain Mint master-node",
         "Labels": {
           "GetMNT": "Get MNT Tokens",
-          "InOrderInfo": "In order to get MNT tokens in Mint blockchain, please hold your MNTP on the",
+          "InOrderInfo": {
+            "1th": "In order to get MNT tokens in Mint blockchain, please",
+            "2th": "buy",
+            "3th": "and hold your MNTP on the"
+          },
           "PoolContract": "BLOCKCHAIN POOL",
           "AvailableMNTP": "Available MNTP",
           "Check": "I carefully checked the amount, addresses and agree with beta-test conditions:",
@@ -174,7 +195,7 @@
         },
         "Info": {
           "HaveToHold": "You have to hold at least 10 000 MNTP on the",
-          "StakeSent": "Your MNTP stake has been frozen on Ethereum pool and issued in the Mint blockchain",
+          "StakeSent": "Your MNTP stake has been frozen on Blockchain pool and issued in the Mint blockchain",
           "TransactionSent": "Transaction has been sent. MNT transfer might take up to 60 minutes. Please be patient."
         },
         "GeneralInfo": {
@@ -224,6 +245,14 @@
           "Date": "Date"
         }
       }
+    },
+    "BuyMNTP": {
+      "Heading": "Buy MNTP",
+      "Labels": {
+        "Buy": "Buy"
+      },
+      "Description": "MINT is an open blockchain network based on the Proof-of-Stake algorithm. Technically, the data is transferred to the blockchain from the pawn shops accounting system or Custody Bot send it automatically. After the pawnshop operator evaluates the customer's product and enters it into the pawnshop's database, the relevant information is automatically recorded in the blockchain. In order to use network, pawnshops pay a commission for transactions, part of these commissions are received by the holders of MNTP tokens for storing data and participating in transaction verification. To get the commission, token holders must launch the master node of the MINT blockchain – at least 10,000 MINT tokens are needed.",
+      "BuyText": "MNTP tokens are traded on several exchanges:"
     },
     "Scanner": {
       "Heading": "Scanner",
@@ -1311,7 +1340,7 @@
       }
     },
     "BlockchainPool": {
-      "Heading": "Ethereum pool",
+      "Heading": "Blockchain pool",
       "Labels": {
         "Hold": "Hold my MNTP tokens on the pool",
         "Withdraw": "Withdraw my reward",
@@ -1509,7 +1538,7 @@
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
       "MasterNode": "GET TOKENS",
-      "HeadingPool": "ETHEREUM POOL",
+      "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },
     "LoginToLiteWallet": {

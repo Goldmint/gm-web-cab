@@ -31,7 +31,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public getLiteWalletLink;
   public menuRoutes = {
     exchange: ['/sell', '/finance/history'],
-    masterNode: ['/master-node', '/ethereum-pool'],
+    masterNode: ['/master-node', '/blockchain-pool', '/buy-mntp'],
     scanner: ['/scanner', '/nodes', '/pawnshop-loans']
   };
   public activeMenuItem: string;

@@ -12,22 +12,25 @@
 
     <ng-container *ngIf="activeMenuItem == 'masterNode'">
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.MasterNode" | translate }}</a>
+        <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.LaunchMasterNode" | translate }}</a>
       </li>
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/ethereum-pool">{{ "HEADER.Menu.Pool" | translate }}</a>
+        <a class="nav-link" routerLink="/blockchain-pool">{{ "HEADER.Menu.Pool" | translate }}</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/buy-mntp">{{ "HEADER.Menu.BuyMntp" | translate }}</a>
       </li>
     </ng-container>
 
     <ng-container *ngIf="activeMenuItem == 'scanner'">
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.Scanner" | translate }}</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/nodes">{{ "HEADER.Menu.Nodes" | translate }}</a>
+        <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.Transactions" | translate }}</a>
       </li>
       <li class="nav-item" routerLinkActive="active">
         <a class="nav-link" routerLink="/pawnshop-loans/feed">{{ "HEADER.Menu.Pawnshops" | translate }}</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/nodes">{{ "HEADER.Menu.Nodes" | translate }}</a>
       </li>
     </ng-container>
   </ul>

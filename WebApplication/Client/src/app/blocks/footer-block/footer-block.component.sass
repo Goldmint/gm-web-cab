@@ -1,39 +1,155 @@
-@import '../../../assets/styles/functions'
-@import '../../../assets/styles/variables'
-
-.footer
-  position: absolute
-  bottom: 0
+footer
+  display: block
   width: 100%
-  min-height: $footer-height
-  line-height: $footer-height
-  background-color: $color-black
+  margin: 0 auto
+  z-index: 1
+  position: relative
+  line-height: 23px
+  margin-top: 50px
 
-  .nav-item
-    margin: 0 10px
+  a
+    transition: all .3s ease-in-out
 
-    &:first-child
-      margin-left: 0
+  a:hover
+    transition: all .3s ease-in-out
+    text-decoration: none
+    color: #e9cb6b
 
-      .nav-link
-        padding-left: 0
+.footer_top_holder
+  display: block
+  background-color: #1e1e1e
 
-  .nav-link
-    padding: 2px 1px
-    color: $color-brand
-    font-weight: 700
-    font-size: rem(14px)
-    line-height: rem(16px)
-    letter-spacing: .1em
-    text-transform: uppercase
-    transition: $transition-link
-    border-bottom: rem(0.5px) solid transparent
-    &:hover
-      border-bottom-color: $color-brand-hover
-      color: $color-brand-hover
-      text-decoration: none
+.footer_top
+  padding: 82px 0 76px
 
-.copyright
-  color: $color-white
-  font-size: rem(14px)
-  line-height: rem(16px)
+.two_columns_50_50
+  width: 100%
+
+.clearfix:after, .clearfix:before
+  content: " "
+  display: table
+
+footer.footer_border_columns .qode_column
+  border-left: 1px solid #444
+  box-sizing: border-box
+
+footer.footer_border_columns .qode_column:first-child
+  border: none
+
+.two_columns_50_50>.column1, .two_columns_50_50>.column2
+  width: 50%
+  float: left
+
+footer.footer_border_columns .qode_column:first-child>.column_inner
+  padding-left: 0
+
+footer.footer_border_columns .qode_column>.column_inner
+  padding: 0 30px
+
+.footer_top .widget
+  margin: 0 0 26px
+
+.footer_top .widget h4
+  font-size: 20px
+
+.footer_top .widget h4
+  color: #fff
+  margin: 0 0 15px
+
+.footer_top ul
+  list-style: none
+  padding: 0
+
+.footer_top .widget.widget_nav_menu li
+  margin: 0
+  line-height: 22px
+
+.footer_top .widget_nav_menu li.menu-item a
+  margin-bottom: 10px
+  display: inline-block
+
+.footer_top .widget:last-child
+  margin: 0
+
+.two_columns_50_50>.column2
+  width: 50%
+  float: left
+
+footer.footer_border_columns .qode_column:last-child>.column_inner
+  padding-right: 0
+
+.footer_bottom_holder
+  background-color: #111
+  display: block
+
+.footer_bottom
+  height: 60px
+  display: table-cell
+  line-height: 22px
+  width: 1%
+  vertical-align: middle
+  text-align: center
+  color: #e9cb6b
+
+  a
+    text-decoration: none
+    color: #e9cb6b
+
+.footer_top .textwidget, .footer_top .widget_recent_entries>ul>li>span, .footer_top a, .footer_top li, .footer_top p
+  color: #a2a2a2
+  word-wrap: break-word
+
+.textwidget
+  p
+    margin: 0
+  a
+    display: inline-block
+    text-decoration: none
+
+.q_social_icon_holder.with_link.circle_social .fa-stack
+  color: #000
+  background-color: #fff
+  border: 1px solid #fff
+
+.q_social_icon_holder.with_link.circle_social span, .q_social_icon_holder.with_link.circle_social i
+  transition: all .3s ease-in-out
+
+.q_social_icon_holder.with_link.circle_social a:hover span
+  background-color: #000 !important
+  border-color: #000 !important
+  transition: all .3s ease-in-out
+
+.q_social_icon_holder.with_link.circle_social a:hover i
+  color: #e9cb6b
+  transition: all .3s ease-in-out
+
+.q_social_icon_holder
+  position: relative
+  display: inline-block
+  margin: 0 14px 14px 0 !important
+  vertical-align: middle
+
+.q_social_icon_holder .fa-stack.tiny
+  width: 35px
+  height: 35px
+  line-height: 35px
+
+.q_social_icon_holder .fa-stack.circle_social
+  border-radius: 3em
+  display: flex
+  align-items: center
+  justify-content: center
+
+.q_social_icon_holder .fa-stack.tiny i, .q_social_icon_holder .fa-stack.tiny span, .q_social_icon_holder i.tiny, .q_social_icon_holder span.tiny
+  font-size: 16px
+
+@media only screen and (max-width: 600px)
+  footer .qode_column, footer.footer_border_columns .qode_column
+    border: none
+    min-height: 0!important
+
+  .two_columns_50_50 > .column1, .two_columns_50_50 > .column2
+    width: 100%
+
+  .column_inner
+    padding: 0 !important

@@ -48,6 +48,7 @@ import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockcha
 import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component";
 import {OverviewPageComponent} from "./pages/master-node-page/overview-page/overview-page.component";
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
+import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 
 
 const appRoutes: Routes = [
@@ -93,8 +94,9 @@ const appRoutes: Routes = [
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
-  { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
-  { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
+  { path: 'blockchain-pool', component: BlockchainPoolPageComponent },
+  { path: 'blockchain-pool/hold-tokens', component: HoldTokensPageComponent },
+  { path: 'buy-mntp', component: BuyMntpPageComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },
   { path: 'scanner/address/:id', component: AddressInfoPageComponent },

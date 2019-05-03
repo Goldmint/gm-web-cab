@@ -125,6 +125,7 @@ import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockc
 import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component';
 import {PoolService} from "./services/pool.service";
 import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-navbar-block.component';
+import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -233,7 +234,8 @@ export function getGoldmintToken() {
     RewardTransactionsPageComponent,
     BlockchainPoolPageComponent,
     HoldTokensPageComponent,
-    MobileNavbarBlockComponent
+    MobileNavbarBlockComponent,
+    BuyMntpPageComponent
   ],
   exports: [],
   providers: [

@@ -1,5 +1,7 @@
 <!-- host: .page -->
 
+<div class="master-node-steps"></div>
+
 <div>
   <section class="page__section section info-section">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Heading" | translate }}</h2>
@@ -55,14 +57,16 @@
         <div class="mt-4">
           <div *ngIf="!isSent">
             <div>
-              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo" | translate }}</span>
-              <a routerLink="/ethereum-pool">
+              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo.1th" | translate }}</span>
+              <a routerLink="/buy-mntp">{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo.2th" | translate }}</a>
+              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo.3th" | translate }}</span>
+              <a routerLink="/blockchain-pool">
                 {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
               </a>
             </div>
 
             <div class="color-red mt-3" *ngIf="errors.haveToHold">
-              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/ethereum-pool">BLOCKCHAIN POOL</a>
+              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
             </div>
             <div class="color-red mt-3" *ngIf="errors.stakeSent">
               {{ "PAGES.MasterNode.LaunchPage.Info.StakeSent" | translate }}
