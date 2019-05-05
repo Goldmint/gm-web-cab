@@ -17,7 +17,7 @@
       "TestNet": "TestNet network"
     },
     "Menu": {
-      "Work": "How it work",
+      "Work": "How it works",
       "Exchange": "Exchange",
       "Wallet": "Wallet",
       "Sell": "Sell GOLD",
@@ -117,10 +117,10 @@
         "InvalidEth": "Invalid ETH amount",
         "minLimit": "Amount is less than minimum limit",
         "maxLimit": "Amount is greater than maximum limit",
-        "GetMM": "Get metamask",
-        "EnableMM": "Enable metamask",
-        "GetMW": "Get mint wallet",
-        "EnableMW": "Enable mint wallet",
+        "GetMM": "Get MetaMask",
+        "EnableMM": "Enable MetaMask",
+        "GetMW": "Get Mint Wallet",
+        "EnableMW": "Enable Mint Wallet",
         "NotAllow": "Method is not allowed now"
       }
     },

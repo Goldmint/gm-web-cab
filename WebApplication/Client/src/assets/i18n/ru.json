@@ -117,10 +117,10 @@
         "InvalidEth": "Недопустимое количество ETH",
         "minLimit": "Сумма меньше минимального лимита",
         "maxLimit": "Сумма больше максимального лимита",
-        "GetMM": "Установить metamask",
-        "EnableMM": "Включить metamask",
-        "GetMW": "Установить mint wallet",
-        "EnableMW": "Включить mint wallet",
+        "GetMM": "Установить MetaMask",
+        "EnableMM": "Включить MetaMask",
+        "GetMW": "Установить Mint Wallet",
+        "EnableMW": "Включить Mint Wallet",
         "NotAllow": "В данный момент метод не разрешен"
       }
     },
@@ -180,7 +180,7 @@
       },
       "LaunchPage": {
         "Heading": "Запустить Мастер Ноду",
-        "Description": "Здесь Вы можете найти инструкцию по установке и настройки Вашей мастер-ноды блокчейна Mint",
+        "Description": "Здесь Вы можете найти инструкцию по установке и настройке Вашей мастер-ноды блокчейна Mint",
         "Labels": {
           "GetMNT": "Получить MNT токены",
           "InOrderInfo": {
