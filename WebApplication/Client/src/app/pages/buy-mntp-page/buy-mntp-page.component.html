@@ -1,26 +1,36 @@
 <!-- host: .page -->
 
-<div class="buy-mntp-image"></div>
-
 <div>
   <section class="page__section section info-section">
-    <h2 class="section__title">{{ "PAGES.BuyMNTP.Heading" | translate }}</h2>
-
     <div class="my-4">
-      <div>{{ "PAGES.BuyMNTP.Description" | translate }}</div>
+      <div>
+        <div>
+          <div class="text-heading">{{ "PAGES.BuyMNTP.AdditionalBenefits.Heading" | translate }}</div>
+          <ul class="pl-4 mt-1">
+            <li>{{ "PAGES.BuyMNTP.AdditionalBenefits.Items.1th" | translate }}</li>
+            <li>{{ "PAGES.BuyMNTP.AdditionalBenefits.Items.2th" | translate }}</li>
+            <li>{{ "PAGES.BuyMNTP.AdditionalBenefits.Items.3th" | translate }}</li>
+          </ul>
+        </div>
 
-      <div class="mt-3">
-        <div class="text-heading">{{ "PAGES.BuyMNTP.Labels.Buy" | translate }}</div>
+        <div class="text-heading mt-4 mb-2">{{ "PAGES.BuyMNTP.Labels.Buy" | translate }}</div>
 
-        <div class="mt-2">{{ "PAGES.BuyMNTP.BuyText" | translate }}</div>
+        <div [innerHTML]="'PAGES.BuyMNTP.BuyText' | translate"></div>
 
         <div class="exchanges-items mt-3">
           <ul>
             <li class="bancor-exchange"><a href="https://www.bancor.network/token/MNTP" target="_blank">Bancor</a></li>
             <li class="yobit-exchange"><a href="https://yobit.io/ru/trade/MNTP/BTC#7D" target="_blank">Yobit</a></li>
             <li class="simex-exchange"><a href="https://simex.global/en/exchange/mntp/btc" target="_blank">Simex</a></li>
+
+            <li class="idex-exchange"><a href="https://idex.market/eth/mntp" target="_blank">Idex</a></li>
+            <li class="livecoin-exchange"><a href="https://www.livecoin.net/en" target="_blank">Livecoin</a></li>
+            <li class="forkdelta-exchange"><a href="https://forkdelta.app/#!/trade/MNTP-ETH" target="_blank">Forkdelta</a></li>
           </ul>
         </div>
+
+        <div class="mt-2" [innerHTML]="'PAGES.BuyMNTP.MNTPRepresented' | translate"></div>
+
       </div>
     </div>
   </section>

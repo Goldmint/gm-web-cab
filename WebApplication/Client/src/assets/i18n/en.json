@@ -21,6 +21,7 @@
       "Exchange": "Exchange",
       "Wallet": "Wallet",
       "Sell": "Sell GOLD",
+      "Buy": "Buy GOLD",
       "Finance": "Finance",
       "Pool": "Blockchain pool",
       "MasterNode": "Master node",
@@ -55,6 +56,78 @@
     "DevOffice": "115280, Russian Federation, Moscow, Leninskaya Sloboda, 26, building 6, office 2516"
   },
   "PAGES": {
+    "Buy": {
+      "Heading": "Buy GOLD cryptoassets",
+      "SectionTitle": "Instant Buy",
+      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
+      "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
+      "Method": {
+        "CtyptoCurrency": "Cryptocurrency",
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Payment card"
+      },
+      "Paused": "Buy transactions are paused",
+      "Promo": {
+        "PromoInfo": {
+          "Text": "Your discount is",
+          "Or": "or"
+        },
+        "PromoPermission": "You should pass advanced verification for using promo code"
+      },
+      "CtyptoCurrency": {
+        "Heading": "Cryptocurrency",
+        "Labels": {
+          "Amount": "Estimates Amount",
+          "PromoCode": "Your promo code"
+        },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Steps": "Please wait at least 12 confirmation steps",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
+        }
+      },
+      "PaymentCard": {
+        "Heading": "Payment Card",
+        "Labels": {
+          "SelectCard": "Select a card",
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount",
+          "PromoCode": "Your promo code"
+        }
+      },
+      "Labels": {
+        "Spend": "Spend",
+        "Estimate": "Estimates Amount *"
+      },
+      "Buttons": {
+        "BuyNow": "Buy now",
+        "Deposit": "Deposit"
+      },
+      "Message": {
+        "Progress": "Your request is in progress now!"
+      },
+      "Errors": {
+        "Exceeded": "You have exceeded request frequency (One request for 30 minutes). Please try later",
+        "Pending": "Your previously blockchain operation is still pending",
+        "UseMM": "Use metamask",
+        "NotAllow": "Method is not allowed now",
+        "InvalidEth": "Invalid ETH amount",
+        "InvalidUsd": "Invalid USD amount",
+        "InvalidGold": "Invalid GOLD amount",
+        "EnoughMoney": "You don't have enough money",
+        "BuyLimit": "The purchase limit has been exceeded. You are allowed to make a purchase for {{ allow }} USD of {{ limit }} USD",
+        "NoKyc": "You need to pass the KYC verification",
+        "IncorrectPromo": "Incorrect promo code",
+        "PromoCodeErrors": {
+          "501": "Promo code not enter",
+          "502": "Promo code not found",
+          "503": "Promo code expired",
+          "504": "Promo code is used",
+          "505": "Promo code limit exceeded"
+        }
+      }
+    },
     "Sell": {
       "Heading": "Sell GOLD cryptoassets",
       "Labels": {
@@ -251,8 +324,17 @@
       "Labels": {
         "Buy": "Buy"
       },
-      "Description": "MINT is an open blockchain network based on the Proof-of-Stake algorithm. Technically, the data is transferred to the blockchain from the pawn shops accounting system or Custody Bot send it automatically. After the pawnshop operator evaluates the customer's product and enters it into the pawnshop's database, the relevant information is automatically recorded in the blockchain. In order to use network, pawnshops pay a commission for transactions, part of these commissions are received by the holders of MNTP tokens for storing data and participating in transaction verification. To get the commission, token holders must launch the master node of the MINT blockchain – at least 10,000 MINT tokens are needed.",
-      "BuyText": "MNTP tokens are traded on several exchanges:"
+      "Description": "BUY MNTP новый текст: `MINT is an open blockchain network based on the Proof-of-Stake algorithm. Technically, the data is transferred to the blockchain from the pawn shops accounting system or Custody Bot send it automatically. After the pawnshop Operator/Custody Bot evaluates the customer's product and enters it into the pawnshop's database, the relevant information is recorded in the blockchain. In order to use network, pawnshops pay a commission for transactions, part of these commissions are received by the holders of MNTP tokens for storing data and participating in transaction verification. The reward is paid in an internal system in GOLD coins. To get the reward, token holders must launch the Master Node of the MINT blockchain – at least 10,000 MNTP tokens are needed.",
+      "AdditionalBenefits": {
+        "Heading": "Additional benefits for MNTP holders:",
+        "Items": {
+          "1th": "Low commission for GOLD coin transaction (when you send GOLD tokens on a MINT blockchain)",
+          "2th": "Zero commission for GOLD/ETH exchange (when you sell or buy GOLD for Ethereum) ",
+          "3th": "Free Custody Bot franchisee (special conditions for partners in the pawnshop chain development)"
+        }
+      },
+      "BuyText": "Token MNTP listed on <a href='https://coinmarketcap.com/currencies/goldmint/' target='_blank'>Coinmarketcap</a> and traded on several exchanges:",
+      "MNTPRepresented": "Also MNTP represented on <a href='https://www.etherama.io/#/trade/0xf4a3679eb0a3d9e8af9824a29bd32dd98d1e7127' target='_blank'>Etherama</a> smart contract platform, on which are frozen 2M tokens."
     },
     "Scanner": {
       "Heading": "Scanner",

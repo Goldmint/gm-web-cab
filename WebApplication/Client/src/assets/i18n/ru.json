@@ -21,6 +21,7 @@
       "Exchange": "Обмен",
       "Wallet": "Кошелек",
       "Sell": "Продать GOLD",
+      "Buy": "Купить GOLD",
       "Finance": "Финансы",
       "Pool": "Blockchain пул",
       "MasterNode": "Мастер нода",
@@ -55,6 +56,78 @@
     "DevOffice": "115280, РФ, Москва, Ленинская Слобода, 26, строение 6, офис 2516"
   },
   "PAGES": {
+    "Buy": {
+      "Heading": "Купить GOLD криптоактивы",
+      "SectionTitle": "Мгновенная покупка",
+      "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
+      "DepositDesc": "Для покупок создайте депозит в валюте fiat в своем аккаунте",
+      "Method": {
+        "CtyptoCurrency": "Криптовалюта",
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Платёжная карта"
+      },
+      "Paused": "Операции покупки приостановлены",
+      "Promo": {
+        "PromoInfo": {
+          "Text": "Ваша скидка",
+          "Or": "или"
+        },
+        "PromoPermission": "Вы должны пройти расширенную верификацию для использования промо-кодов"
+      },
+      "CtyptoCurrency": {
+        "Heading": "Криптовалюта",
+        "Labels": {
+          "Amount": "Оценочная сумма",
+          "PromoCode": "Ваш промо-код"
+        },
+        "SuccessModal": {
+          "Heading": "Транзакция в процессе:",
+          "Steps": "Подождите как минимум 12 шагов подтверждения.",
+          "Hash": "Хэш вашей транзакции:",
+          "Link": "Просмотр транзакции на EtherScan"
+        }
+      },
+      "PaymentCard": {
+        "Heading": "Платёжная карта",
+        "Labels": {
+          "SelectCard": "Выберите карту",
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма",
+          "PromoCode": "Ваш промо-код"
+        }
+      },
+      "Labels": {
+        "Spend": "Потратить",
+        "Estimate": "Оценочное количество *"
+      },
+      "Buttons": {
+        "BuyNow": "Купить",
+        "Deposit": "Депозит"
+      },
+      "Message": {
+        "Progress": "Ваш запрос сейчас выполняется!"
+      },
+      "Errors": {
+        "Exceeded": "Вы превысили частоту запросов (один запрос в течение 30 минут). Пожалуйста, попробуйте позже",
+        "Pending": "Ваша предыдущая blockchain операция еще находится на рассмотрении",
+        "UseMM": "Используйте metamask",
+        "NotAllow": "В данный момент метод не разрешен",
+        "InvalidEth": "Недопустимое количество ETH",
+        "InvalidUsd": "Недопустимое количество USD",
+        "InvalidGold": "Недопустимое количество GOLD",
+        "EnoughMoney": "У вас недостаточно средств",
+        "BuyLimit": "Превышен лимит на покупку. Вы можете совершить покупку на сумму {{ allow }} USD из {{ limit }} USD",
+        "NoKyc": "Вам необходимо пройти KYC верификацию",
+        "IncorrectPromo": "Неверный промо-код",
+        "PromoCodeErrors": {
+          "501": "Промо-код не введен",
+          "502": "Промо-код не найден",
+          "503": "Промо-код истек",
+          "504": "Промо-код использован",
+          "505": "Превышен лимит промо-кода"
+        }
+      }
+    },
     "Sell": {
       "Heading": "Продать GOLD криптоактивы",
       "Labels": {
@@ -247,12 +320,21 @@
       }
     },
     "BuyMNTP": {
-      "Heading": "Покупка MNTP",
+      "Heading": "Buy MNTP",
       "Labels": {
-        "Buy": "Покупка"
+        "Buy": "Buy"
       },
-      "Description": "MINT - это открытая сеть блокчейнов, основанная на алгоритме Proof-of-Stake.  С технической точки зрения, данные передаются в блокчейн из системы учета ломбардов, либо с помощью депозитарного бота, который осуществляет отправку автоматически. После того, как оператор ломбарда оценивает продукт клиента и вносит его в базу данных ломбарда, соответствующая информация автоматически записывается в блокчейн. Для использования сети ломбарды платят комиссию за транзакции, часть комиссионных выплат получают владельцы токенов MNTP за хранение данных и участие в верификации транзакций. Чтобы получить комиссию, владельцы токенов должны запустить мастер-узел блокчейна MINT, для чего необходимо как минимум 10 000 токенов MINT.",
-      "BuyText": "Токены MNTP продаются на нескольких биржах:"
+      "Description": "BUY MNTP новый текст: `MINT is an open blockchain network based on the Proof-of-Stake algorithm. Technically, the data is transferred to the blockchain from the pawn shops accounting system or Custody Bot send it automatically. After the pawnshop Operator/Custody Bot evaluates the customer's product and enters it into the pawnshop's database, the relevant information is recorded in the blockchain. In order to use network, pawnshops pay a commission for transactions, part of these commissions are received by the holders of MNTP tokens for storing data and participating in transaction verification. The reward is paid in an internal system in GOLD coins. To get the reward, token holders must launch the Master Node of the MINT blockchain – at least 10,000 MNTP tokens are needed.",
+      "AdditionalBenefits": {
+        "Heading": "Additional benefits for MNTP holders:",
+        "Items": {
+          "1th": "Low commission for GOLD coin transaction (when you send GOLD tokens on a MINT blockchain)",
+          "2th": "Zero commission for GOLD/ETH exchange (when you sell or buy GOLD for Ethereum) ",
+          "3th": "Free Custody Bot franchisee (special conditions for partners in the pawnshop chain development)"
+        }
+      },
+      "BuyText": "Token MNTP listed on <a href='https://coinmarketcap.com/currencies/goldmint/' target='_blank'>Coinmarketcap</a> and traded on several exchanges:",
+      "MNTPRepresented": "Also MNTP represented on <a href='https://www.etherama.io/#/trade/0xf4a3679eb0a3d9e8af9824a29bd32dd98d1e7127' target='_blank'>Etherama</a> smart contract platform, on which are frozen 2M tokens."
     },
     "Scanner": {
       "Heading": "Сканер",

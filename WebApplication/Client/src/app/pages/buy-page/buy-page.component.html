@@ -1,0 +1,37 @@
+<!-- host: .page -->
+<!--<h1 class="page__heading">{{ "PAGES.Buy.Heading" | translate }}</h1>-->
+
+<section class="page__section section">
+  <h2 class="section__title">{{ "PAGES.Buy.SectionTitle" | translate }}</h2>
+
+  <div class="section__content pt-4">
+    <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
+      <div class="container"></div>
+    </div>
+
+    <ng-template #blockLoaded>
+      <div *ngIf="!isBlockedCountry">
+        <div class="row mb-4 align-items-baseline">
+
+          <div class="col-md-6 col-xl-4 form-group text-center">
+            <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
+            <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
+                    [disabled]="true">
+              <svg class="icon" width="56px" height="56px">
+                <use xlink:href="#payment-crypto"></use>
+              </svg>
+            </button>
+            <div  class="text-left pt-1 blocked-notification text-center">
+              <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isBlockedCountry" class="mt-4 text-center">
+        <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></p>
+      </div>
+
+    </ng-template>
+  </div>
+</section>

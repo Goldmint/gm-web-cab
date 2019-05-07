@@ -49,6 +49,7 @@ import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-
 import {OverviewPageComponent} from "./pages/master-node-page/overview-page/overview-page.component";
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
+import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 
 
 const appRoutes: Routes = [
@@ -69,6 +70,7 @@ const appRoutes: Routes = [
   { path: 'nodes/reward-transactions/:id', component: RewardTransactionsPageComponent },
   { path: 'sell', component: SellPageComponent },
   { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'buy', component: BuyPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {

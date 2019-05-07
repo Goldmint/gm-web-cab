@@ -30,7 +30,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public getLiteWalletLink;
   public menuRoutes = {
-    exchange: ['/sell', '/finance/history'],
+    exchange: ['/sell', '/buy', '/finance/history'],
     masterNode: ['/master-node', '/blockchain-pool', '/buy-mntp'],
     scanner: ['/scanner', '/nodes', '/pawnshop-loans']
   };
