@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Component, HostListener,
+  Component, HostBinding, HostListener,
   OnDestroy,
   OnInit, TemplateRef,
   ViewEncapsulation
@@ -23,7 +23,7 @@ import {CurrentActiveNodeList} from "../../../interfaces/current-active-node-lis
   encapsulation: ViewEncapsulation.None
 })
 export class OverviewPageComponent implements OnInit, OnDestroy {
-
+  @HostBinding('class') class = 'page';
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     let isMobile = event.target.innerWidth <= 992;

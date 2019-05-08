@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, isDevMode } from '@angular/core';
+import {Component, ChangeDetectionStrategy, ViewEncapsulation, isDevMode, ChangeDetectorRef} from '@angular/core';
 import {APIService, UserService} from "./services";
 
 @Component({
@@ -10,9 +10,12 @@ import {APIService, UserService} from "./services";
 })
 export class AppComponent {
 
+  public showCookiesMessage: boolean = false;
+
   constructor(
     private _userService: UserService,
-    private _apiService: APIService
+    private _apiService: APIService,
+    private _cdRef: ChangeDetectorRef
   ) {
     let queryParams: any = {};
     let regexp = /[?&]([\w-]+)=([^?&]*)/g;
@@ -40,13 +43,18 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    if (isDevMode()) {
-      console.info('👋 Development!');
-    } else {
-      console.info('💪 Production!');
+    if (!localStorage.getItem('cookies_info')) {
+      this.showCookiesMessage = true;
+      this._cdRef.markForCheck();
     }
 
     this._userService.launchTokenRefresher();
+  }
+
+  acceptCookies() {
+    localStorage.setItem('cookies_info', 'true');
+    this.showCookiesMessage = false;
+    this._cdRef.markForCheck();
   }
 
 }

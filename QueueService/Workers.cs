@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 
 namespace Goldmint.QueueService {
 
@@ -26,10 +25,9 @@ namespace Goldmint.QueueService {
 				workers.AddRange(new List<IWorker>() { 
 
 					// doesn't require ethereum at all
-					new NotificationSender(_appConfig.Services.Workers.Notifications.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.Notifications.PeriodSec)),
-					new Workers.Rates.GoldRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.GoldRateUpdater.PeriodSec)),
-					new Workers.Rates.CryptoRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CryptoRateUpdater.PeriodSec)),
-					new Workers.Bus.TelemetryAggregator().Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.TelemetryAggregator.PeriodSec)),
+					new NotificationSender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(10)),
+					new Workers.Rates.GoldRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
+					new Workers.Rates.CryptoRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
 				});
 			}
 
@@ -37,37 +35,33 @@ namespace Goldmint.QueueService {
 			if (Mode.HasFlag(WorkingMode.Core)) {
 				workers.AddRange(new List<IWorker>() {
 
-					// doesn't require ethereum at all
-					new Workers.CreditCard.VerificationProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
-					new Workers.CreditCard.RefundsProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
-					new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
-					new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
-					
-					// does require ethereum (reader)
-					new Workers.Ethereum.ContractBuyEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					new Workers.Ethereum.ContractSellEventHarvester(_appConfig.Services.Workers.EthEventsHarvester.ItemsPerRound, _appConfig.Services.Workers.EthEventsHarvester.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthEventsHarvester.PeriodSec)),
-					
-					// does require ethereum (writer and reader)
-					new Workers.Ethereum.EthereumOprationsProcessor(_appConfig.Services.Workers.EthereumOperations.ItemsPerRound, _appConfig.Services.Workers.EthereumOperations.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthereumOperations.PeriodSec)),
+					// charges credit card
+					new Workers.CreditCard.VerificationProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
+					// sends refunds back
+					new Workers.CreditCard.RefundsProcessor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
+					//new Workers.CreditCard.DepositProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+					//new Workers.CreditCard.WithdrawProcessor(_appConfig.Services.Workers.CcPaymentProcessor.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.CcPaymentProcessor.PeriodSec)),
+
+					// harvests "frozen" events (requests) from pool-freezer contract
+					new Workers.EthPoolFreezer.EventHarvester(blocksPerRound: 10, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(60)),
+					// requires "frozen" stake to be emitted in sumus bc
+					new Workers.EthPoolFreezer.SendTokenRequestor(rowsPerRound: 30).Period(TimeSpan.FromSeconds(30)),
+					// confirms emission to complete harvested requests
+					new Workers.EthPoolFreezer.SendTokenConfirmer().BurstMode(),
+
+					// processes gold selling requests
+					new Workers.Sell.RequestProcessor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
+
+					// sends eth
+					new Workers.EthSender.Sender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
+					// confirms eth-sendings
+					new Workers.EthSender.Confirmer(rowsPerRound: 50, ethConfirmations: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(30)),
+
+					// receives requests to refill sumus wallet account
+					new Workers.SumusWallet.RefillListener().BurstMode(),
+					// adds new sumus wallets to the observer
+					new Workers.SumusWallet.TrackRequestor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(30)),
 				});
-
-				//if (!_environment.IsProduction()) {
-				//	workers.AddRange(new List<IWorker>() {
-
-				//		new Workers.TokenMigration.EthereumEmissionConfirm(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound, _appConfig.Services.Workers.EthTokenMigration.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
-				//		new Workers.TokenMigration.EthereumHoldChecker(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound, _appConfig.Services.Workers.EthTokenMigration.EthConfirmations).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
-
-				//		// does require ethereum (writer and reader)
-				//		new Workers.TokenMigration.EthereumEmitter(_appConfig.Services.Workers.EthTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.EthTokenMigration.PeriodSec)),
-
-				//		// does require sumus (reader)
-				//		new Workers.TokenMigration.SumusEmissionConfirm(_appConfig.Services.Workers.SumusTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.SumusTokenMigration.PeriodSec)),
-				//		new Workers.TokenMigration.SumusHoldChecker(_appConfig.Services.Workers.SumusTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.SumusTokenMigration.PeriodSec)),
-
-				//		// does require sumus (writer)
-				//		new Workers.TokenMigration.SumusEmitter(_appConfig.Services.Workers.SumusTokenMigration.ItemsPerRound).Period(TimeSpan.FromSeconds(_appConfig.Services.Workers.SumusTokenMigration.PeriodSec)),
-				//	});
-				//}
 			}
 
 			// init

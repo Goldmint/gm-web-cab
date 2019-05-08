@@ -63,14 +63,11 @@ import { SpriteComponent }      from './common/sprite/sprite.component';
 /*
   Pages
  */
-import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { HistoryPageComponent } from './pages/history-page/history-page.component';
-import { HomePageComponent } from './pages/home-page/home-page.component';
 import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { SellPageComponent } from './pages/sell-page/sell-page.component';
 import { SupportPageComponent } from './pages/support-page/support-page.component';
-import { TransferPageComponent } from './pages/transfer-page/transfer-page.component';
 import { PagerBlockComponent } from './blocks/pager-block/pager-block.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
@@ -87,7 +84,6 @@ import { SettingsTFAPageComponent } from './pages/settings-page/settings-tfa-pag
 import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards-page/settings-cards-page.component';
 import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
-import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import { StaticPagesComponent } from './pages/static-pages/static-pages.component';
@@ -96,14 +92,10 @@ import { LoginDpaRequiredComponent } from './pages/login-page/login-dpa-required
 import { LoginDpaSignedComponent } from './pages/login-page/login-dpa-signed/login-dpa-signed.component';
 import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-security-page.component';
 import { SettingsFeesPageComponent } from './pages/settings-page/settings-fees-page/settings-fees-page.component';
-import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component';
 import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
 import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
 import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
-import { TokenMigrationPageComponent } from './pages/master-node-page/token-migration-page/token-migration-page.component';
 import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
-import { BuyCardPageComponent } from './pages/buy-page/buy-card-page/buy-card-page.component';
-import { SellCardPageComponent } from './pages/sell-page/sell-card-page/sell-card-page.component';
 import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
@@ -118,7 +110,6 @@ import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions
 import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {MomentModule} from "ngx-moment";
-import {DeviceDetectorModule} from "ngx-device-detector";
 import {NgxMaskModule} from "ngx-mask";
 import { AuthModalComponent } from './common/message-box/auth-modal/auth-modal.component';
 import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
@@ -129,11 +120,13 @@ import { PawnshopsTableComponent } from './pages/pawnshop-page/pawnshop-feed-pag
 import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component';
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
-import { PawnshopInvestComponent } from './pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component';
 import { RewardTransactionsPageComponent } from './pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component';
 import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockchain-pool-page.component';
 import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component';
 import {PoolService} from "./services/pool.service";
+import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-navbar-block.component';
+import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
+import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -159,7 +152,6 @@ export function getGoldmintToken() {
     TypeaheadModule,
     NgxQRCodeModule,
     HttpClientModule,
-    DeviceDetectorModule.forRoot(),
     PopoverModule.forRoot(),
     JwtModule.forRoot({
       config: {
@@ -184,18 +176,14 @@ export function getGoldmintToken() {
     FooterBlockComponent,
     MessageBoxComponent,
     SpriteComponent,
-    BuyPageComponent,
 	  MasterNodePageComponent,
     LaunchNodePageComponent,
 	  OverviewPageComponent,
-	  TokenMigrationPageComponent,
     HistoryPageComponent,
-    HomePageComponent,
     LimitsPageComponent,
     NotFoundPageComponent,
     SellPageComponent,
     SupportPageComponent,
-    TransferPageComponent,
     PagerBlockComponent,
     LoginPageComponent,
     LoginOntokenPageComponent,
@@ -214,7 +202,6 @@ export function getGoldmintToken() {
     SettingsActivityPageComponent,
     BlurDirective,
     EqualValidatorDirective,
-    TransparencyPageComponent,
     FinancePageComponent,
     NoautocompleteDirective,
     StaticPagesComponent,
@@ -226,10 +213,7 @@ export function getGoldmintToken() {
     LoginDpaSignedComponent,
     LegalSecurityPageComponent,
     SettingsFeesPageComponent,
-    BuyCryptocurrencyPageComponent,
     SellCryptocurrencyPageComponent,
-    BuyCardPageComponent,
-    SellCardPageComponent,
     PaymentCardBlockComponent,
     CryptocurrencyBlockComponent,
     TimerComponent,
@@ -248,10 +232,12 @@ export function getGoldmintToken() {
     PawnshopsTableComponent,
     FeedTableComponent,
     AccountReductionPipe,
-    PawnshopInvestComponent,
     RewardTransactionsPageComponent,
     BlockchainPoolPageComponent,
-    HoldTokensPageComponent
+    HoldTokensPageComponent,
+    MobileNavbarBlockComponent,
+    BuyMntpPageComponent,
+    BuyPageComponent
   ],
   exports: [],
   providers: [

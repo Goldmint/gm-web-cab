@@ -7,3 +7,10 @@
 <app-footer></app-footer>
 
 <app-sprite></app-sprite>
+
+<div class="cookies-message" *ngIf="showCookiesMessage">
+  <div>{{ "MessageBox.CookiesMessage" | translate }}</div>
+  <div class="mt-3">
+    <button type="button" class="btn btn-sm btn-primary" (click)="acceptCookies()">OK</button>
+  </div>
+</div>

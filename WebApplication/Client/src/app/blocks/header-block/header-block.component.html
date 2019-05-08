@@ -22,71 +22,42 @@
       </div>
 
       <div class="d-flex">
-        <div class="col-sm-auto row align-items-center" *ngIf="isLoggedIn(); else loginBlock">
-          <div class="col-auto pr-1">
-            <div class="auth-info">
-              <div class="language" (mouseenter)="walletMenu.show()" (click)="walletMenu.show()" (mouseleave)="walletMenu.hide()">
-                <div dropdown position="bottom right" class="language__select" #walletMenu="bs-dropdown">
-                  <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': walletMenu.isOpen}">
-                    {{ 'HEADER.Wallet' | translate }}: {{ activeWallet?.name }} {{ activeWallet.id === 'metamask' ? shortAdr : '' }}</a>
+        <div class="col-sm-auto row align-items-center">
 
-                  <ul *dropdownMenu class="dropdown-menu" role="menu">
-                    <li role="menuitem" *ngFor="let item of wallets">
-                      <a class="dropdown-item" href="javascript:void(0)">{{ item.name + item.account }}</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+          <div *ngIf="!isMobile" class="col-auto">
+            <div class="header-menu">
+              <ul>
+                <li>
+                  <a href="https://www.goldmint.io/" target="_blank">{{ "HEADER.Menu.Work" | translate }}</a>
+                </li>
+
+                <li>
+                  <a routerLink="/sell" [ngClass]="{'active': activeMenuItem == 'exchange'}">{{ "HEADER.Menu.Exchange" | translate }}</a>
+                </li>
+
+                <li>
+                  <a routerLink="/master-node" [ngClass]="{'active': activeMenuItem == 'masterNode'}">{{ "HEADER.Menu.MasterNode" | translate }}</a>
+                </li>
+
+                <li>
+                  <a routerLink="/scanner" [ngClass]="{'active': activeMenuItem == 'scanner'}">{{ "HEADER.Menu.Scanner" | translate }}</a>
+                </li>
+
+                <li>
+                  <a [href]="getLiteWalletLink" target="_blank">{{ "HEADER.Menu.Wallet" | translate }}</a>
+                </li>
+              </ul>
+
             </div>
           </div>
 
-          <div class="col-auto">
-            <img *ngIf="hotGoldBalance === null" alt="Loading..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-black.gif">
-
-            <div class="balance" *ngIf="hotGoldBalance !== null">
-              <svg class="icon" width="18px" height="18px">
-                <use xlink:href="#cur-gold"></use>
-              </svg>
-              <span class="balance__value">
-              {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) | number:'1.2-5':locale}}
-              {{'OZ'}}
-              <span>($ {{ (activeWallet.id === 'hot' ? hotGoldBalance : goldBalance) * gold_usd_rate | number:'1.2-2':locale }})</span>
-            </span>
-            </div>
-          </div>
-
-          <!--<div *ngIf="!isMobile">|</div>-->
-
-          <!--<div class="col-auto" *ngIf="!isMobile">-->
-            <!--<div class="auth-info">-->
-              <!--<div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">-->
-                <!--<div dropdown position="bottom right" class="language__select" #network="bs-dropdown">-->
-                  <!--<a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">-->
-                    <!--{{ sumusNetwork }} {{ 'HEADER.Network.Label' | translate }}-->
-                  <!--</a>-->
-
-                  <!--<ul *dropdownMenu class="dropdown-menu" role="menu">-->
-                    <!--<li role="menuitem" (click)="changeSumusNetwork('MainNet')">-->
-                      <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.MainNet' | translate }}</a>-->
-                    <!--</li>-->
-                    <!--<li role="menuitem" (click)="changeSumusNetwork('TestNet')">-->
-                      <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.TestNet' | translate }}</a>-->
-                    <!--</li>-->
-                  <!--</ul>-->
-                <!--</div>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
-
-          <div *ngIf="!isMobile">|</div>
-
-          <div class="col-auto" *ngIf="!isMobile">
+          <div class="col-auto pl-0" *ngIf="!isMobile && isLoggedIn()">
             <div class="auth-info">
               <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
                 <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
                   <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
 
-                  <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
                     <li role="menuitem">
                       <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
                     </li>
@@ -98,19 +69,13 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <ng-template #loginBlock>
-          <div class="col-auto auth-info" *ngIf="!isLoggedInToMM && !metamaskAccount && !isMobile">
-            {{ 'HEADER.NotLoggedInMM' | translate }}
-          </div>
-
-          <div class="col-auto auth-info">
+          <div class="col-auto auth-info" *ngIf="!isLoggedIn() && !isMobile">
             <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
           </div>
-        </ng-template>
+        </div>
 
-        <div class="col-auto language-switcher">
+        <div class="col-auto language-switcher d-none">
           <language-switcher></language-switcher>
         </div>
       </div>
@@ -129,50 +94,40 @@
 
   <div id="mobile-menu-container" *ngIf="isShowMobileMenu">
     <div>
-      <!--<div class="col-auto mt-4 mb-3 mobile-account-info">-->
-        <!--<div class="auth-info">-->
-          <!--<div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">-->
-            <!--<div dropdown position="bottom right" class="language__select" #network="bs-dropdown">-->
-              <!--<a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">-->
-                <!--{{ sumusNetwork }} {{ 'HEADER.Network.Label' | translate }}-->
-              <!--</a>-->
 
-              <!--<ul *dropdownMenu class="dropdown-menu" role="menu">-->
-                <!--<li role="menuitem" (click)="changeSumusNetwork('MainNet')">-->
-                  <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.MainNet' | translate }}</a>-->
-                <!--</li>-->
-                <!--<li role="menuitem" (click)="changeSumusNetwork('TestNet')">-->
-                  <!--<a class="dropdown-item" href="javascript:void(0)">{{ 'HEADER.Network.TestNet' | translate }}</a>-->
-                <!--</li>-->
-              <!--</ul>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
+      <div class="mt-4 mb-3 d-flex align-items-center justify-content-between">
+        <div class="col-auto mobile-account-info">
 
-      <div class="col-auto mt-4 mb-3 mobile-account-info" *ngIf="isLoggedIn()">
-        <div class="auth-info">
-          <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
-            <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
-              <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
+          <div class="auth-info pl-2" *ngIf="isLoggedIn()">
+            <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
+              <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
+                <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
 
-              <ul *dropdownMenu class="dropdown-menu" role="menu">
-                <li role="menuitem">
-                  <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
-                </li>
-                <li role="menuitem">
-                  <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">{{ 'HEADER.SignOut' | translate }}</a>
-                </li>
-              </ul>
+                <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <li role="menuitem">
+                    <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
+                  </li>
+                  <li role="menuitem">
+                    <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">{{ 'HEADER.SignOut' | translate }}</a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
+
+          <div class="auth-info pl-2" *ngIf="!isLoggedIn()">
+            <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
+          </div>
+
         </div>
+
+        <div class="col-auto pr-3 d-none">
+          <language-switcher></language-switcher>
+        </div>
+
       </div>
 
-      <app-navbar></app-navbar>
-    </div>
-    <div class="mt-4">
-      <app-footer></app-footer>
+      <app-mobile-navbar-block></app-mobile-navbar-block>
     </div>
   </div>
 

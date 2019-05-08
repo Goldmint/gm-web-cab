@@ -11,118 +11,56 @@
     "SignUp": "Sign up",
     "SignOut": "Sign out",
     "AccountInfo": "Account Info",
-    "NotLoggedInMM": "For smooth-running please authorize in your MetaMask account",
     "Network": {
       "Label": "network",
       "MainNet": "MainNet network",
       "TestNet": "TestNet network"
     },
     "Menu": {
-      "Exchange": {
-        "Heading": "Interchange",
-        "Sell": "Sell GOLD",
-        "Buy": "Buy GOLD",
-        "Transfer": "Transfer GOLD",
-        "Finance": "Finance"
-      },
-      "GoldmintBlockchain": {
-        "Heading": "Goldmint Blockchain",
-        "Pool": "Blockchain pool",
-        "MasterNode": "Master node",
-        "Scanner": "Scanner"
-      },
-      "Pawnshop": {
-        "Heading": "Pawnshop Loans",
-        "Feed": "Feed",
-        "Invest": "Invest in pawnshop loans"
-      }
+      "Work": "How it works",
+      "Exchange": "Exchange",
+      "Wallet": "Wallet",
+      "Sell": "Sell GOLD",
+      "Buy": "Buy GOLD",
+      "Finance": "Finance",
+      "Pool": "Blockchain pool",
+      "MasterNode": "Master node",
+      "LaunchMasterNode": "Launch master node",
+      "Scanner": "Scanner",
+      "Transactions": "Transactions",
+      "Pawnshops": "Pawnshop loans",
+      "Nodes": "Nodes overview",
+      "BuyMntp": "Buy MNTP"
     }
   },
   "FOOTER": {
-    "Menu": {
-      "About": "About",
-      "Transparency": "Transparency",
-      "LegalSecurity": "Legal & Security",
-      "HelpCenter": "Help Center"
+    "Headings": {
+      "LegalDocuments": "LEGAL DOCUMENTS",
+      "GMLegal": "GOLDMINT LEGAL",
+      "Support": "SUPPORT",
+      "Contacts": "CONTACTS",
+      "LegalAddress": "LEGAL ADDRESS",
+      "DevOffice": "DEVELOPMENT OFFICE"
     },
-    "Copyright": "Goldmint PTE. Ltd © {{year}}"
+    "Documents": {
+      "1th": "Consumer Data Privacy Policy",
+      "2th": "KYC & AML Policy",
+      "3th": "Gold Coin Terms of Sale"
+    },
+    "Contacts": {
+      "ForPress": "For press:",
+      "ForParticipants": "For participants:",
+      "ForSupport": "For support:"
+    },
+    "LegalAddress": "1100 Lower Delta Road, #02-05 EPL building, 169206, Singapore",
+    "DevOffice": "115280, Russian Federation, Moscow, Leninskaya Sloboda, 26, building 6, office 2516"
   },
   "PAGES": {
-    "Home": {
-      "Heading": "Do You want to buy or sell GOLD cryptoassets?",
-      "Or": "or",
-      "Buttons": {
-        "Sell": "Sell",
-        "Buy": "Buy"
-      }
-    },
-    "Sell": {
-      "Heading": "Sell GOLD cryptoassets",
-      "Labels": {
-        "Amount": "Amount",
-        "Estimate": "Estimates Amount *",
-        "Buy": "Buy now",
-        "Get": "and get"
-      },
-      "Method": {
-        "CtyptoCurrency": "Cryptocurrency",
-        "CryptoCapital": "CryptoCapital",
-        "PaymentCard": "Payment card"
-      },
-      "Paused": "Sell transactions are paused",
-      "CtyptoCurrency": {
-        "Heading": "Cryptocurrency",
-        "Labels": {
-          "Amount": "Amount",
-          "Estimate": "Estimates Amount"
-        },
-        "SuccessModal": {
-          "Heading": "Transaction in Process:",
-          "Steps": "Please wait at least 100 confirmation steps (about 30 minutes).",
-          "Hash": "Your transaction hash is:",
-          "Link": "View your transaction on EtherScan"
-        },
-        "LimitModal": {
-          "Text": {
-            "First": "We are sorry we can't perform your transaction completely at the moment due to insufficient of funds on the contract. You can sell only",
-            "Second": "for now."
-          },
-          "Buttons": {
-            "Sell": "Sell",
-            "TryLater": "I'll try later"
-          }
-        }
-      },
-      "PaymentCard": {
-        "Heading": "Payment Card",
-        "Labels": {
-          "SelectCard": "Select a card",
-          "Amount": "Amount",
-          "Estimate": "Estimates Amount"
-        }
-      },
-      "SectionTitle": "Instant Sell",
-      "Discount": "Fee",
-      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
-      "Buttons": {
-        "SellNow": "Sell now",
-        "BuyMore": "Buy more"
-      },
-      "Errors": {
-        "InvalidGold": "Invalid GOLD amount",
-        "InvalidUsd": "Invalid USD amount",
-        "InvalidEth": "Invalid ETH amount",
-        "minLimit": "Amount is less than minimum limit",
-        "maxLimit": "Amount is greater than maximum limit",
-        "UseMM": "Use metamask",
-        "NotAllow": "Method is not allowed now"
-      }
-    },
     "Buy": {
       "Heading": "Buy GOLD cryptoassets",
       "SectionTitle": "Instant Buy",
       "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
-	  "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
+      "DepositDesc": "Make a deposit in a fiat currency to your account for purchases",
       "Method": {
         "CtyptoCurrency": "Cryptocurrency",
         "CryptoCapital": "CryptoCapital",
@@ -190,31 +128,73 @@
         }
       }
     },
-    "Transfer": {
-      "Heading": "Transfer GOLD cryptoassets",
+    "Sell": {
+      "Heading": "Sell GOLD cryptoassets",
       "Labels": {
-        "TransferToWallet": "Transfer to wallet",
         "Amount": "Amount",
-        "ChooseMethod": "Choose transfer method",
-        "MyWallet": "My Etherium wallet",
-        "Or": "or",
-        "NoMM": "Use metamask"
+        "Estimate": "Estimates Amount *",
+        "Buy": "Buy now",
+        "Get": "and get"
       },
-      "Steps": {
-        "One": "Go to",
-        "Two": "Enter the address of the smart contract",
-        "Three": "Click confirm transaction"
+      "Method": {
+        "CtyptoCurrency": "Cryptocurrency",
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Payment card"
       },
-      "Placeholders": {
-        "EtheriumWallet": "Ethereum wallet"
+      "Paused": "Sell transactions are paused",
+      "CtyptoCurrency": {
+        "Heading": "Cryptocurrency",
+        "Labels": {
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
+        },
+        "Info": {
+          "InOrderToSell": "In order to sell GOLD token please first make a deposit by sending your tokens in Mint blockchain to the address",
+          "Destination": "Destination:"
+        },
+        "SuccessModal": {
+          "Heading": "Transaction in Process:",
+          "Steps": "Please wait at least 100 confirmation steps (about 30 minutes).",
+          "Hash": "Your transaction hash is:",
+          "Link": "View your transaction on EtherScan"
+        },
+        "LimitModal": {
+          "Text": {
+            "First": "We are sorry we can't perform your transaction completely at the moment due to insufficient of funds on the contract. You can sell only",
+            "Second": "for now."
+          },
+          "Buttons": {
+            "Sell": "Sell",
+            "TryLater": "I'll try later"
+          }
+        }
       },
+      "PaymentCard": {
+        "Heading": "Payment Card",
+        "Labels": {
+          "SelectCard": "Select a card",
+          "Amount": "Amount",
+          "Estimate": "Estimates Amount"
+        }
+      },
+      "SectionTitle": "Instant Sell",
+      "Discount": "Fee",
+      "Note": "*The estimated USD amount is calculated from the highest price offered to a lower price until all BTC is sold",
       "Buttons": {
-        "Send": "Send"
+        "SellNow": "Sell now",
+        "BuyMore": "Buy more"
       },
       "Errors": {
-        "InvalidAddress": "Invalid address",
-        "InvalidAmount": "Invalid amount value",
-        "AddressMatches": "Address matches to active Metamask wallet address"
+        "InvalidGold": "Invalid GOLD amount",
+        "InvalidUsd": "Invalid USD amount",
+        "InvalidEth": "Invalid ETH amount",
+        "minLimit": "Amount is less than minimum limit",
+        "maxLimit": "Amount is greater than maximum limit",
+        "GetMM": "Get MetaMask",
+        "EnableMM": "Enable MetaMask",
+        "GetMW": "Get Mint Wallet",
+        "EnableMW": "Enable Mint Wallet",
+        "NotAllow": "Method is not allowed now"
       }
     },
     "Finance": {
@@ -268,50 +248,35 @@
         "Launch": "Launch master node",
         "Migration": "Token migration"
       },
+      "Labels": {
+        "GetMintWallet": "Get Mint Wallet"
+      },
       "LaunchPage": {
         "Heading": "Launch Master Node",
-        "Description": "Here you can find the installation and configuration instructions for your blockchain Goldmint master-node for OS",
+        "Description": "Here you can find the installation and configuration instructions for your blockchain Mint master-node",
         "Labels": {
-          "ChooseOS": "Choose OS",
-          "VideoInst": "Video instruction",
-          "TextInst": "Text instruction",
-          "InstFor": "Instruction for"
+          "GetMNT": "Get MNT Tokens",
+          "InOrderInfo": {
+            "1th": "In order to get MNT tokens in Mint blockchain, please",
+            "2th": "buy",
+            "3th": "and hold your MNTP on the"
+          },
+          "PoolContract": "BLOCKCHAIN POOL",
+          "AvailableMNTP": "Available MNTP",
+          "Check": "I carefully checked the amount, addresses and agree with beta-test conditions:",
+          "Manual": "Manual"
         },
-        "Buttons": {
-          "Migrate": "I'm ready for doing the migration of my MNTP tokens to start mining",
-          "MigrateSmall": "I'm ready for doing the migration"
-        }
-      },
-      "MigrationPage": {
-        "Heading": "Token Migration",
-        "TransferDescr": "You have to transfer your tokens to this address:",
-        "Labels": {
-          "Amount": "Amount",
-          "Address": "Sumus address",
-          "Check": "I carefully checked the addresses and the amount"
+        "Info": {
+          "HaveToHold": "You have to hold at least 10 000 MNTP on the",
+          "StakeSent": "Your MNTP stake has been frozen on Blockchain pool and issued in the Mint blockchain",
+          "TransactionSent": "Transaction has been sent. MNT transfer might take up to 60 minutes. Please be patient."
         },
-        "SuccessModal": {
-          "Heading": "Transaction in Process:",
-          "Hash": "Your transaction hash is:",
-          "Link": "View your transaction on EtherScan"
-        },
-        "SuccessSumusModal": {
-          "Heading": "Transaction in Process:",
-          "Hash": "Your transaction digest is:",
-          "Link": "View your transaction on Scanner"
-        },
-        "Errors": {
-          "InvalidAmount": "Invalid amount",
-          "Maximum": "Maximum amount is",
-          "Required": "Field is required",
-          "InvalidAddress": "Invalid address",
-          "DuplicateRequest": "Migration request enqueued. We are waiting for your {{ token }} transfer."
+        "GeneralInfo": {
+          "Heading": "General information",
+          "Text": "You should have at least 10 000. 1 MNTP tokens for the masternode launch. By launching your own node in MINT blockchain you'll be able to receive a fee from GOLD transactions. Few steps that will be required for masternode launch: <br/><br/>1. Join the pool with your MNTP tokens. <br/>2. Install Goldmint Wallet extension for your browser. <br/>3. Freeze your MNTP stake in the pool and receive MNT tokens to your  Goldmint Wallet. <br/>4. Deploy a cloud server. <br/>5. Setup a mastednode. <br/>6. Send MNT from Goldmint Wallet to master node Wallet. <br/><br/>Detailed instructions you can find below."
         },
         "Buttons": {
           "Go": "GO"
-        },
-        "Popover": {
-          "Copied": "Copied"
         }
       },
       "Overview": {
@@ -339,9 +304,9 @@
         "Table": {
           "Date": "Date",
           "Blocks": "Blocks",
-          "TxAmount": "Tx amount",
-          "TransferredToken": "Transferred token amount",
-          "RewardAmount": "Reward amount"
+          "TxAmount": "Transactions",
+          "TransferredToken": "Volume",
+          "RewardAmount": "Reward"
         }
       },
       "RewardTransactions": {
@@ -354,6 +319,23 @@
         }
       }
     },
+    "BuyMNTP": {
+      "Heading": "MNTP",
+      "Labels": {
+        "Buy": "Buy"
+      },
+      "Description": "BUY MNTP новый текст: `MINT is an open blockchain network based on the Proof-of-Stake algorithm. Technically, the data is transferred to the blockchain from the pawn shops accounting system or Custody Bot send it automatically. After the pawnshop Operator/Custody Bot evaluates the customer's product and enters it into the pawnshop's database, the relevant information is recorded in the blockchain. In order to use network, pawnshops pay a commission for transactions, part of these commissions are received by the holders of MNTP tokens for storing data and participating in transaction verification. The reward is paid in an internal system in GOLD coins. To get the reward, token holders must launch the Master Node of the MINT blockchain – at least 10,000 MNTP tokens are needed.",
+      "AdditionalBenefits": {
+        "Heading": "Additional benefits for MNTP holders:",
+        "Items": {
+          "1th": "Low commission for GOLD coin transaction (when you send GOLD tokens on a MINT blockchain)",
+          "2th": "Zero commission for GOLD/ETH exchange (when you sell or buy GOLD for Ethereum)",
+          "3th": "Also, MNTP tokens are used to pay for recording any data in the MINT blockchain"
+        }
+      },
+      "BuyText": "Token MNTP listed on <a href='https://coinmarketcap.com/currencies/goldmint/' target='_blank'>Coinmarketcap</a> and traded on several exchanges:",
+      "MNTPRepresented": "Also MNTP represented on <a href='https://www.etherama.io/#/trade/0xf4a3679eb0a3d9e8af9824a29bd32dd98d1e7127' target='_blank'>Etherama</a> smart contract platform, on which are frozen 2M tokens."
+    },
     "Scanner": {
       "Heading": "Scanner",
       "Caption": "Goldmint blockchain scanner",
@@ -364,9 +346,12 @@
           "DigestPlaceholder": "Search by Digest"
         },
         "Labels": {
-          "QuantityBlocks": "Quantity of block:",
-          "QuantityTx": "Quantity of transactions:",
-          "QuantityNodes": "Quantity of nodes:",
+          "QuantityBlocks": "Blocks",
+          "QuantityTx": "Transactions",
+          "QuantityNodes": "Nodes",
+          "Issued": "Issued",
+          "Burned": "Burned",
+          "Balance": "Balance",
           "Or": "OR"
         },
         "Charts": {
@@ -1375,42 +1360,7 @@
         }
       }
     },
-    "Transparency": {
-      "Heading": "Transparency",
-      "Issued": "Total issued:",
-      "Burnt": "Total burnt:",
-      "Circulation": "Total in circulation:",
-      "Link": "Link",
-      "Table": {
-        "Heading": "Documents",
-        "TableCell": {
-          "Date": "Date",
-          "Amount": "Amount",
-          "Document": "Document",
-          "Comment": "Comment"
-        }
-      },
-      "TableInfo": {
-        "Headings": {
-          "Assets": "Assets",
-          "Liabilities": "Liabilities",
-          "Exchange": "Money at broker/exchange",
-          "Storage": "Physical GOLD in the storage",
-          "DataProvided": "Data provided",
-          "Report": "The latest auditor's report",
-          "MoneyInBanks": "Money in banks",
-          "Distribution": "GOLD Cryptoassets in distribution"
-        },
-        "TableCell": {
-          "Borrowings": "Borrowings",
-          "Capital": "Capital",
-          "Profits": "Undistributed profits"
-        }
-      }
-    },
     "LegalSecurity": {
-      "Heading": "Legal & Security",
-      "Label": "1. Documents",
       "Links": {
         "Terms": "Terms of sale",
         "Privacy": "Privacy policy",
@@ -1422,6 +1372,10 @@
         "Amount": "You pay:",
         "Estimates": "You receive:",
         "Checkbox": "Hereby I, the Cardholder, acknowledge and accept all the information as (directly or in a form of a links) follows below:",
+        "Agree": {
+          "Text": "I confirm my familiarization and agreement with the",
+          "Link": "terms of sale"
+        },
         "TimerLabel": "Remaining time to confirm the payment:"
       },
       "Button": "Proceed to payment",
@@ -1474,7 +1428,12 @@
         "Withdraw": "Withdraw my reward",
         "Unhold": "Unhold my stake and withdraw reward",
         "UnholdOld": "Unhold my stake and withdraw reward from the old pool",
-        "ViewContract": "View on Etherscan"
+        "ViewContract": "View on Etherscan",
+        "HaveFrozenStake": "You have frozen your stake *",
+        "ToUnfreeze": {
+          "Text": "* To unfreeze your stake please send a request to",
+          "Support": "Goldmint support"
+        }
       },
       "HoldTokens": {
         "Heading": "Hold my MNTP tokens on the pool",
@@ -1533,10 +1492,10 @@
           "Status": "Status",
           "UpdateDate": "Update date",
           "StatusName": {
-            "new": "new",
-            "sold": "sold",
-            "boughtout": "bought out",
-            "discarded": "discarded"
+            "new": "New",
+            "sold": "Sold",
+            "boughtout": "Bought out",
+            "discarded": "Discarded"
           }
         },
         "PawnshopDetails": {
@@ -1586,7 +1545,8 @@
     "BackToCard": "Back to Cards list",
     "GoToCard": "Go to Cards list",
     "Deposit": "Deposit",
-    "Withdraw": "Withdraw"
+    "Withdraw": "Withdraw",
+    "Confirm": "Confirm"
   },
   "ERRORS": {
     "Registration": {
@@ -1634,6 +1594,7 @@
       "Title": "Connection error",
       "Message": "Seems like your internet connection is lost.<br>Please check it and try again."
     },
+    "MakeDeposit": "To make a deposit please send your GOLD tokens in Mint blockchain to your deposit address:",
     "Cards": {
       "Remove": "Remove the card?",
       "Removed": "Your card has been removed",
@@ -1647,23 +1608,23 @@
       "Link": "View your transaction on EtherScan"
     },
     "MetaMask": {
-      "Heading": "To continue you'll need to have Metamask",
+      "Heading": "MetaMask required",
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
     "LiteWallet": {
-      "Heading": "To continue you'll need to have Lite Wallet",
-      "Text": "Goldmint Lite Wallet is provided for token holders to safely and securely store, send or receive MINT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MINT/GOLD. Get"
+      "Heading": "Mint Wallet",
+      "Text": "Mint Wallet is provided for token holders to safely and securely store, send or receive MNT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MNT/GOLD. Get"
     },
     "LoginToMM": {
       "HeadingBuy": "BUY GOLD",
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
-      "HeadingMigration": "TOKEN MIGRATION",
+      "MasterNode": "GET TOKENS",
       "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },
     "LoginToLiteWallet": {
-      "Heading": "TOKEN MIGRATION",
+      "Heading": "GET TOKENS",
       "Text": "Please login to your account"
     },
     "AuthModal": {
@@ -1674,9 +1635,12 @@
       }
     },
     "InvalidNetwork": "You must use {{ network }} network",
+    "InvalidNetworkMM": "You must use {{ network }} network for MetaMask",
+    "InvalidNetworkWallet": "You must use {{ network }} network for Mint Wallet",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
-    "DepositLimit": "Deposit limit reached"
+    "DepositLimit": "Deposit limit reached",
+    "CookiesMessage": "This site uses cookies to store data. By remaining on this site, you consent to the placement of these cookies."
   },
   "MESSAGE": {
     "NoData": "No data"

@@ -12,15 +12,13 @@ namespace Goldmint.DAL {
 
 	public class ApplicationDbContext : IdentityDbContext<User, Role, long, UserClaim, UserRole, UserLogin, RoleClaim, UserToken> {
 
-		public DbSet<BannedCountry> BannedCountry { get; set; }
-		public DbSet<BuyGoldRequest> BuyGoldRequest { get; set; }
-		public DbSet<SellGoldRequest> SellGoldRequest { get; set; }
-		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
 		public DbSet<Models.Mutex> Mutex { get; set; }
+		public DbSet<BannedCountry> BannedCountry { get; set; }
+		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
 		public DbSet<Notification> Notification { get; set; }
 		public DbSet<Settings> Settings { get; set; }
 		public DbSet<SignedDocument> SignedDocument { get; set; }
-		public DbSet<EthereumOperation> EthereumOperation { get; set; }
+		public DbSet<EthSending> EthSending { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<TransparencyStat> TransparencyStat { get; set; }
 		public DbSet<UserActivity> UserActivity { get; set; }
@@ -32,14 +30,14 @@ namespace Goldmint.DAL {
 		public DbSet<CreditCardPayment> CreditCardPayment { get; set; }
 		public DbSet<UserLimits> UserLimits { get; set; }
 		public DbSet<PromoCode> PromoCode { get; set; }
-	    public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
-        public DbSet<MigrationEthereumToSumusRequest> MigrationEthereumToSumusRequest { get; set; }
-	    public DbSet<MigrationSumusToEthereumRequest> MigrationSumusToEthereumRequest { get; set; }
+		public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
+		public DbSet<PoolFreezeRequest> PoolFreezeRequest { get; set; }
+		public DbSet<UserSumusWallet> UserSumusWallet { get; set; }
+		public DbSet<SellGoldEth> SellGoldEth { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-		protected override void OnModelCreating(ModelBuilder builder)
-		{
+		protected override void OnModelCreating(ModelBuilder builder) {
 			base.OnModelCreating(builder);
 
 			builder.Entity<User>(entity => { entity.ToTable(name: "gm_user"); });
@@ -72,7 +70,7 @@ namespace Goldmint.DAL {
 				this.Entry(v.Entity).State = EntityState.Detached;
 			}
 		}
-		
+
 		public override int SaveChanges() {
 			UpdateConcurrencyStamps();
 			return base.SaveChanges();

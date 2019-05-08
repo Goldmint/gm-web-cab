@@ -3,9 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from './guards/index';
 
-import { HomePageComponent } from './pages/home-page/home-page.component';
 import { SellPageComponent } from './pages/sell-page/sell-page.component';
-import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { HistoryPageComponent } from './pages/history-page/history-page.component';
 import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
@@ -26,16 +24,11 @@ import { SettingsVerificationPageComponent } from './pages/settings-page/setting
 import { SettingsTFAPageComponent } from './pages/settings-page/settings-tfa-page/settings-tfa-page.component';
 import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
 import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
-import { TransparencyPageComponent } from './pages/transparency-page/transparency-page.component';
 import { StaticPagesComponent } from "./pages/static-pages/static-pages.component";
 import { LegalSecurityPageComponent } from "./pages/legal-security-page/legal-security-page.component";
 import {SettingsFeesPageComponent} from "./pages/settings-page/settings-fees-page/settings-fees-page.component";
-import {BuyCryptocurrencyPageComponent} from "./pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component";
 import {SellCryptocurrencyPageComponent} from "./pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component";
 import {SettingsCardsPageComponent} from "./pages/settings-page/settings-cards-page/settings-cards-page.component";
-import {BuyCardPageComponent} from "./pages/buy-page/buy-card-page/buy-card-page.component";
-import {SellCardPageComponent} from "./pages/sell-page/sell-card-page/sell-card-page.component";
-import {TransferPageComponent} from "./pages/transfer-page/transfer-page.component";
 import {MasterNodePageComponent} from "./pages/master-node-page/master-node-page.component";
 import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
 import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
@@ -50,10 +43,13 @@ import {OrganizationsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-p
 import {PawnshopsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component";
 import {FeedTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component";
 import {AllTicketFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component";
-import {PawnshopInvestComponent} from "./pages/pawnshop-page/pawnshop-invest/pawnshop-invest.component";
 import {RewardTransactionsPageComponent} from "./pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component";
 import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockchain-pool-page.component";
 import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component";
+import {OverviewPageComponent} from "./pages/master-node-page/overview-page/overview-page.component";
+import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
+import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
+import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 
 
 const appRoutes: Routes = [
@@ -68,17 +64,13 @@ const appRoutes: Routes = [
   { path: 'signup/confirmed/:token', component: RegisterEmailConfirmedPageComponent },
   { path: 'signup/emailTaken', component: RegisterEmailTakenPageComponent },
   { path: 'signup/2fa', component: RegisterTfaPageComponent },
-  { path: 'home', component: HomePageComponent },
-  { path: 'buy', component: BuyPageComponent },
-  { path: 'master-node', component: MasterNodePageComponent},
-  { path: 'master-node/overview/latest-reward-distributions', component: LatestRewardPageComponent },
-  { path: 'master-node/overview/reward-transactions/:id', component: RewardTransactionsPageComponent },
-  { path: 'buy/cryptocarrency', component: BuyCryptocurrencyPageComponent },
-  { path: 'buy/payment-card', component: BuyCardPageComponent, canActivate: [AuthGuard] },
+  { path: 'master-node', component: LaunchNodePageComponent},
+  { path: 'nodes', component: OverviewPageComponent },
+  { path: 'nodes/latest-reward-distributions', component: LatestRewardPageComponent },
+  { path: 'nodes/reward-transactions/:id', component: RewardTransactionsPageComponent },
   { path: 'sell', component: SellPageComponent },
-  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent },
-  { path: 'sell/payment-card', component: SellCardPageComponent, canActivate: [AuthGuard] },
-  { path: 'transfer', component: TransferPageComponent },
+  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'buy', component: BuyPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {
@@ -100,13 +92,13 @@ const appRoutes: Routes = [
       { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
-      { path: 'limits', component: LimitsPageComponent }
+      // { path: 'limits', component: LimitsPageComponent }
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
   { path: 'blockchain-pool', component: BlockchainPoolPageComponent },
   { path: 'blockchain-pool/hold-tokens', component: HoldTokensPageComponent },
-  { path: 'transparency', component: TransparencyPageComponent },
+  { path: 'buy-mntp', component: BuyMntpPageComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },
   { path: 'scanner/address/:id', component: AddressInfoPageComponent },
@@ -123,12 +115,11 @@ const appRoutes: Routes = [
           { path: 'pawnshop/:id', component: PawnshopsTableComponent },
           { path: 'organization-feed/:id', component: FeedTableComponent },
         ]
-      },
-      { path: 'invest', component: PawnshopInvestComponent },
+      }
     ]
   },
 
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'master-node', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }
 ];
 

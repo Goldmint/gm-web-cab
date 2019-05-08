@@ -269,7 +269,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
 		}
 
-#if DEBUG
+/*
 
 		/// <summary>
 		/// DPA check
@@ -304,7 +304,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				TfaRequired = false,
 			});
 		}
-#endif
+*/
 
 		// ---
 

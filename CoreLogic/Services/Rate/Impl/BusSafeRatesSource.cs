@@ -6,23 +6,29 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Goldmint.Common.Extensions;
+using System.Threading.Tasks;
 
-namespace Goldmint.CoreLogic.Services.Rate.Impl
-{
+namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public sealed class BusSafeRatesSource : IDisposable, IAggregatedSafeRatesSource {
 
+		private readonly NATS.Client.IConnection _natsConn;
+		private readonly NATS.Client.IAsyncSubscription _natsSub;
 		private readonly ILogger _logger;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
 		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public BusSafeRatesSource(RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory) {
+		public BusSafeRatesSource(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory) {
+			_natsConn = natsConn;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 			_mutexRatesUpdate = new ReaderWriterLockSlim();
 			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
+			
+			_natsSub = _natsConn.SubscribeAsync(Bus.Nats.Rates.Updated.Subject);
+			_natsSub.MessageHandler += OnNewRates;
 		}
 
 		public void Dispose() {
@@ -30,19 +36,25 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl
 		}
 
 		private void DisposeManaged() {
+			_natsConn.Close();
 			_mutexRatesUpdate?.Dispose();
 		}
 
 		// ---
 
-		public void OnNewRates(object payload, Bus.Subscriber.DefaultSubscriber self)
-		{
-			if (!(payload is Bus.Proto.SafeRates.SafeRatesMessage ratesMessage)) return;
+		public void Run() {
+			_natsSub.Start();
+		}
 
+		public void Stop() {
+			_natsSub.Unsubscribe();
+		}
+
+		private void OnNewRates(object sender, NATS.Client.MsgHandlerEventArgs args) {
+			var ratesMessage = Bus.Nats.Serializer.Deserialize<Bus.Nats.Rates.Updated.Message>(args.Message.Data);
+			
 			_mutexRatesUpdate.EnterWriteLock();
-			try
-			{
-				_logger.Trace($"Received { ratesMessage.Rates.Length } rates");
+			try {
 				foreach (var v in ratesMessage.Rates) {
 					var c = SafeCurrencyRate.BusDeserialize(v);
 					if (!_rates.TryGetValue(c.Currency, out var existing) || c.Stamp > existing.Stamp) {
@@ -50,27 +62,22 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl
 					}
 				}
 			}
-			finally
-			{
+			finally {
 				_mutexRatesUpdate.ExitWriteLock();
 			}
 		}
 
-		public SafeCurrencyRate GetRate(CurrencyRateType cur)
-		{
+		public SafeCurrencyRate GetRate(CurrencyRateType cur) {
 			_mutexRatesUpdate.EnterReadLock();
-			try
-			{
+			try {
 				var rcfg = _runtimeConfigHolder.Clone();
 
-				if (rcfg.Gold.AllowTradingOverall && _rates.TryGetValue(cur, out var ret))
-				{
+				if (rcfg.Gold.AllowTradingOverall && _rates.TryGetValue(cur, out var ret)) {
 					return ret;
 				}
 				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);
 			}
-			finally
-			{
+			finally {
 				_mutexRatesUpdate.ExitReadLock();
 			}
 		}

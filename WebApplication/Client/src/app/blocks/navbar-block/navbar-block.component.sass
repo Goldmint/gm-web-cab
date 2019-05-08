@@ -23,12 +23,10 @@
       transition: none
 
     &.active
-      .sub-nav-container
-        display: block
+      border-bottom-color: $color-white
 
   .nav-link
     white-space: nowrap
-    height: 100%
     min-height: rem(38px)
     display: flex
     align-items: center
@@ -38,11 +36,13 @@
     background-color: $color-brand
     color: $color-black
     font-weight: 700
-    font-size: rem(16px)
     line-height: rem(18px)
     letter-spacing: .1em
-    padding: 0px 10px 0 10px
     max-height: 42px
+    padding: 0 0.625rem
+    height: 25px
+    min-height: 0
+    font-size: rem(14px)
 
     &:not(:hover),
     &:not(:active)
@@ -56,23 +56,4 @@
       color: $color-white
       background-color: $color-brand-hover
 
-.sub-nav-container
-  height: 40px
-  display: none
-
-.sub-nav
-  margin-top: 11px
-  height: 29px
-  position: absolute
-  left: 0
-
-  .nav-item
-    &.active
-      border-bottom-color: $color-white
-
-  .nav-link
-    padding: 0 0.625rem
-    height: 25px
-    min-height: 0
-    font-size: rem(14px)
 

@@ -1,5 +1,5 @@
 <!-- host: .page -->
-<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>
+<!--<h1 class="page__heading">{{ "PAGES.Scanner.Heading" | translate }}</h1>-->
 
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.Scanner.AllBlocks.Heading" | translate }}</h2>
@@ -44,8 +44,8 @@
           </ng-template>
 
           <ng-template let-orchestrator="value" ngx-datatable-cell-template>
-            <div class="text-center">
-              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + orchestrator">{{ orchestrator }}</div>
+            <div class="">
+              <div class="overflow-ellipsis a-link" [routerLink]="'/scanner/address/' + orchestrator">{{ orchestrator  | reduction:6:4 }}</div>
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -58,7 +58,7 @@
           </ng-template>
 
           <ng-template let-transactions="value" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ transactions }}</div>
             </div>
           </ng-template>
@@ -70,7 +70,7 @@
           </ng-template>
 
           <ng-template let-fee_gold="value" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ +fee_gold | noexp }}</div>
             </div>
           </ng-template>
@@ -82,7 +82,7 @@
           </ng-template>
 
           <ng-template let-fee_mnt="value" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ +fee_mnt | noexp }}</div>
             </div>
           </ng-template>
@@ -96,7 +96,7 @@
           </ng-template>
 
           <ng-template let-timestamp="value" ngx-datatable-cell-template>
-            <div class="text-center">
+            <div class="">
               <div>{{ timestamp * 1000 | date: 'MMM d, y, HH:mm:ss' }}</div>
             </div>
           </ng-template>

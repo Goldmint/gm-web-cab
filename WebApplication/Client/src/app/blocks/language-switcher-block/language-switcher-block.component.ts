@@ -9,8 +9,7 @@ import { AppLanguages, AppDefaultLanguage } from '../../app.languages';
   selector: 'language-switcher',
   templateUrl: './language-switcher-block.component.html',
   styleUrls: ['./language-switcher-block.component.sass'],
-  encapsulation: ViewEncapsulation.None,
-  // changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
 export class LanguageSwitcherBlockComponent implements OnInit {
 
@@ -32,10 +31,11 @@ export class LanguageSwitcherBlockComponent implements OnInit {
 
     const codes = Object.keys(this.languages);
 
-    let userLanguage = localStorage.getItem('gmint_language')
-      ? localStorage.getItem('gmint_language')
-      : translate.getBrowserLang()
-    ;
+    // let userLanguage = localStorage.getItem('gmint_language')
+    //   ? localStorage.getItem('gmint_language')
+    //   : translate.getBrowserLang()
+    // ;
+    let userLanguage = 'en';
 
     userLanguage = userLanguage.match('^(' + codes.join('|') + ')$')
       ? userLanguage

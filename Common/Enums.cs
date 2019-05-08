@@ -125,86 +125,7 @@ namespace Goldmint.Common {
 
 	#endregion
 
-	#region Buy GOLD (Ethereum)
-
-	public enum BuyGoldRequestInput {
-
-		/// <summary>
-		/// User sends ETH to Ethereum contact
-		/// </summary>
-		ContractEthPayment = 1,
-
-		/// <summary>
-		/// User spends fiat from credit card
-		/// </summary>
-		CreditCardDeposit,
-	}
-
-	public enum BuyGoldRequestOutput {
-
-		/// <summary>
-		/// Issue gold to the Ethereum address
-		/// </summary>
-		EthereumAddress = 1,
-	}
-
-	public enum BuyGoldRequestStatus {
-
-		/// <summary>
-		/// Just created
-		/// </summary>
-		Unconfirmed = 1,
-
-		/// <summary>
-		/// Confirmed by user
-		/// </summary>
-		Confirmed,
-
-		/// <summary>
-		/// Final success
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Final expired
-		/// </summary>
-		Expired,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Cancelled,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Failed,
-	}
-
-	#endregion
-
-	#region Sell GOLD (Ethereum)
-
-	public enum SellGoldRequestInput {
-
-		/// <summary>
-		/// User burns GOLD at Ethereum contract
-		/// </summary>
-		ContractGoldBurning = 1,
-	}
-
-	public enum SellGoldRequestOutput {
-
-		/// <summary>
-		/// Send ETH to the address
-		/// </summary>
-		EthAddress = 1,
-
-		/// <summary>
-		/// Send fiat to the card
-		/// </summary>
-		CreditCard,
-	}
+	#region Sell GOLD
 
 	public enum SellGoldRequestStatus {
 
@@ -224,24 +145,9 @@ namespace Goldmint.Common {
 		Success,
 
 		/// <summary>
-		/// Expired
-		/// </summary>
-		Expired,
-
-		/// <summary>
-		/// Final failure
-		/// </summary>
-		Cancelled,
-
-		/// <summary>
 		/// Final failure
 		/// </summary>
 		Failed,
-
-		/// <summary>
-		/// Checking operation on blockchain
-		/// </summary>
-		EthConfirmation,
 	}
 
 	#endregion
@@ -255,60 +161,12 @@ namespace Goldmint.Common {
 		Gold = 3
 	}
 
-	public enum EthereumOperationType {
-
-		/// <summary>
-		/// Transfer GOLD from HW to client address
-		/// </summary>
-		TransferGoldFromHw = 1,
-
-		/// <summary>
-		/// Call contract for request processing (ETH)
-		/// </summary>
-		ContractProcessBuyRequestEth,
-
-		/// <summary>
-		/// Call contract for request cancellation
-		/// </summary>
-		ContractCancelBuyRequest,
-
-		/// <summary>
-		/// Call contract for request processing (ETH)
-		/// </summary>
-		ContractProcessSellRequestEth,
-
-		/// <summary>
-		/// Call contract for request cancellation
-		/// </summary>
-		ContractCancelSellRequest,
-
-		/// <summary>
-		/// Call contract for request processing (fiat)
-		/// </summary>
-		ContractProcessBuyRequestFiat,
-
-		/// <summary>
-		/// Call contract for request processing (fiat)
-		/// </summary>
-		ContractProcessSellRequestFiat,
-
-		/// <summary>
-		/// Transfer ether to the specified address
-		/// </summary>
-		SendBuyingSupportEther,
-	}
-
 	public enum EthereumOperationStatus {
 
 		/// <summary>
 		/// Enqueued
 		/// </summary>
 		Initial = 1,
-
-		/// <summary>
-		/// Prepared for processing
-		/// </summary>
-		Prepared,
 
 		/// <summary>
 		/// Sending request to blockchain
@@ -364,6 +222,29 @@ namespace Goldmint.Common {
 		/// GOLD token
 		/// </summary>
 		Gold = 2,
+	}
+
+	public enum EmissionRequestStatus : int {
+
+		/// <summary>
+		/// Enqueued
+		/// </summary>
+		Initial = 1,
+
+		/// <summary>
+		/// Request passed to emission service
+		/// </summary>
+		Requested,
+
+		/// <summary>
+		/// Done
+		/// </summary>
+		Completed,
+
+		/// <summary>
+		/// Failure
+		/// </summary>
+		Failed,
 	}
 
 	#endregion
@@ -615,148 +496,70 @@ namespace Goldmint.Common {
 
     #endregion
 
-    #region CustodyBot
+	//#region Token migration (Ethereum <-> Sumus)
 
-    public enum ClientRole {
+	//public enum MigrationRequestStatus : int {
 
-		RoleUnknown = 0,
-		RoleAdmin = 1,
-		RoleSupport = 2,
-		RoleViewer = 3,
-		RoleOrgOwner = 10,
-		RoleOrgManager = 11,
-		RoleOrgMerchant = 12,
-		RoleOrgBot = 13,
-	}
+	//	/// <summary>
+	//	/// Enqueued
+	//	/// </summary>
+	//	Initial = 1,
 
-	public enum UploadType {
+	//	/// <summary>
+	//	/// Awaiting for transferring confirmation
+	//	/// </summary>
+	//	TransferConfirmation,
 
-		UploadUnknown = 0,
-		UploadCustodyPhoto = 1,
-	}
+	//	/// <summary>
+	//	/// Emission step
+	//	/// </summary>
+	//	Emission,
 
-	public enum CustodyStatus {
+	//	/// <summary>
+	//	/// Emission step started
+	//	/// </summary>
+	//	EmissionStarted,
 
-		CustodyStatusUnknown = 0,
-		CustodyStatusUnconfirmed = 1,
-		CustodyStatusLocked = 2,
-		CustodyStatusBurning = 3,
-		CustodyStatusUnlocked = 4,
-	}
+	//	/// <summary>
+	//	/// Awaiting for emission confirmation
+	//	/// </summary>
+	//	EmissionConfirmation,
 
-	public enum EmissionStatus {
+	//	/// <summary>
+	//	/// Done
+	//	/// </summary>
+	//	Completed,
 
-		EmissionStatusUnknown = 0,
-		EmissionStatusInitial = 1,
-		EmissionStatusTxPosting = 2,
-		EmissionStatusTxConfirming = 3,
-		EmissionStatusTxFailed = 4,
-		EmissionStatusSuccess = 5,
-	}
+	//	/// <summary>
+	//	/// Failure
+	//	/// </summary>
+	//	Failed,
+	//}
 
-	public enum BurningStatus {
+	//public enum SumusTransactionStatus {
 
-		BurningStatusUnknown = 0,
-		BurningStatusInitial = 1,
-		BurningStatusApproving = 2,
-		BurningStatusCancelled = 3,
-		BurningStatusApproved = 4,
-		BurningStatusTxPosting = 5,
-		BurningStatusTxConfirming = 6,
-		BurningStatusTxFailed = 7,
-		BurningStatusSuccess = 8,
-	}
+	//	/// <summary>
+	//	/// Unconfirmed status, still outside of any block
+	//	/// </summary>
+	//	Pending = 1,
 
-	public enum FiatPaymentStatus {
+	//	/// <summary>
+	//	/// Transaction confirmed
+	//	/// </summary>
+	//	Success,
 
-		FiatPaymentStatusUnknown = 0,
-		FiatPaymentStatusInitial = 1,
-		FiatPaymentStatusPay = 2,
-		FiatPaymentStatusChecking = 3,
-		FiatPaymentStatusFailed = 4,
-		FiatPaymentStatusSuccess = 5,
-	}
+	//	/// <summary>
+	//	/// Transaction cancelled or failed
+	//	/// </summary>
+	//	Failed,
 
-	#endregion
+	//	/// <summary>
+	//	/// Stale transaction (still pending)
+	//	/// </summary>
+	//	Stale,
+	//}
 
-	#region Token migration (Ethereum <-> Sumus)
-
-	// TODO: use SumusToken
-	public enum MigrationRequestAsset : int {
-
-		/// <summary>
-		/// GOLD token
-		/// </summary>
-		Gold = 1,
-
-		/// <summary>
-		/// MNT token
-		/// </summary>
-		Mnt = 2,
-	}
-
-	public enum MigrationRequestStatus : int {
-
-		/// <summary>
-		/// Enqueued
-		/// </summary>
-		Initial = 1,
-
-		/// <summary>
-		/// Awaiting for transferring confirmation
-		/// </summary>
-		TransferConfirmation,
-
-		/// <summary>
-		/// Emission step
-		/// </summary>
-		Emission,
-
-		/// <summary>
-		/// Emission step started
-		/// </summary>
-		EmissionStarted,
-
-		/// <summary>
-		/// Awaiting for emission confirmation
-		/// </summary>
-		EmissionConfirmation,
-
-		/// <summary>
-		/// Done
-		/// </summary>
-		Completed,
-
-		/// <summary>
-		/// Failure
-		/// </summary>
-		Failed,
-	}
-
-	public enum SumusTransactionStatus {
-
-		/// <summary>
-		/// Unconfirmed status, still outside of any block
-		/// </summary>
-		Pending = 1,
-
-		/// <summary>
-		/// Transaction confirmed
-		/// </summary>
-		Success,
-
-		/// <summary>
-		/// Transaction cancelled or failed
-		/// </summary>
-		Failed,
-
-		/// <summary>
-		/// Stale transaction (still pending)
-		/// </summary>
-		Stale,
-	}
-
-	#endregion
+	//#endregion
 
 	public enum FiatCurrency {
 
@@ -779,6 +582,7 @@ namespace Goldmint.Common {
 		GoldEthSellHarvLastBlock,
 		MigrationEthHarvLastBlock,
 		MigrationSumHarvLastBlock,
+		PoolFreezerHarvLastBlock,
 	}
 
 	public enum MutexEntity {
@@ -812,6 +616,11 @@ namespace Goldmint.Common {
 		/// Payment check (payment-wide)
 		/// </summary>
 		CardPaymentCheck,
+
+		/// <summary>
+		/// Wallet balance change (wallet-wide)
+		/// </summary>
+		SumusWalletBalance,
 	}
 
 	public enum NotificationType {

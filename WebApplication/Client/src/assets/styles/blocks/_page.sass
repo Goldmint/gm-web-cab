@@ -61,7 +61,7 @@
   width: 100%
   max-width: 359px
   height: 162px
-  background-image: url(../../assets/img/logotype.svg)
+  //background-image: url(../../assets/img/logotype.svg)
   -webkit-background-size: 100%
   background-size: 100%
   background-repeat: no-repeat
@@ -114,10 +114,10 @@
 
 .a-link
   cursor: pointer
-  color: #0093e5
+  color: #0093e5 !important
 
 .a-link:hover
-  text-decoration: underline
+  text-decoration: underline !important
 
 .pointer
   cursor: pointer
@@ -158,6 +158,9 @@
 .success-tx-hash
   word-break: break-word
   font-size: 1rem
+
+.dropdown-toggle::after
+  vertical-align: 2px
 
 @media only screen and (max-width: 1199px)
   .lead

@@ -14,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 	public sealed class SafeRatesDispatcher : IDisposable, IAggregatedSafeRatesSource, IAggregatedRatesDispatcher {
 
-		private readonly IAggregatedSafeRatesPublisher _publisher;
+		private readonly NATS.Client.IConnection _natsConn;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 		private readonly ILogger _logger;
 		private readonly Options _opts;
@@ -27,9 +27,9 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public SafeRatesDispatcher(IAggregatedSafeRatesPublisher publisher, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory, Action<Options> opts) {
+		public SafeRatesDispatcher(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory, Action<Options> opts) {
 
-			_publisher = publisher;
+			_natsConn = natsConn;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 
@@ -130,7 +130,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			_logger.Trace("Worker cancelled");
 		}
 
-		private async Task Update() {
+		private Task Update() {
 
 			var freshUnsafeRates = new Dictionary<CurrencyRateType, CurrencyRate>();
 
@@ -166,10 +166,16 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				}
 			}
 
-			// publish in any case
-			if (_publisher != null && _rates.Count > 0) {
-				await _publisher.PublishRates(_rates.Values.ToArray());
+			// publish
+			if (_natsConn != null && _rates.Count > 0) {
+				var msg = new Bus.Nats.Rates.Updated.Message() {
+					Rates = _rates.Values.Select(SafeCurrencyRate.BusSerialize).ToArray(),
+				};
+				var bytes = Bus.Nats.Serializer.Serialize(msg);
+				_natsConn.Publish(Bus.Nats.Rates.Updated.Subject, bytes);
 			}
+
+			return Task.CompletedTask;
 		}
 
 		/*private void InterpolateFreshRate(CurrencyRate unsafeRate) {

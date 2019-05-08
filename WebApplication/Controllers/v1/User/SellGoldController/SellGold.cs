@@ -11,6 +11,7 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Goldmint.DAL;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -20,8 +21,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Estimate
 		/// </summary>
-		//[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[AnonymousAccess]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
 		[HttpPost, Route("estimate")]
 		[ProducesResponseType(typeof(EstimateView), 200)]
 		public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
@@ -92,12 +92,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			// ---
 
 			var request = await (
-					from r in DbContext.SellGoldRequest
+					from r in DbContext.SellGoldEth
 					where
 						r.Status == SellGoldRequestStatus.Unconfirmed &&
 						r.Id == model.RequestId &&
-						r.UserId == user.Id &&
-						r.TimeExpires > DateTime.UtcNow
+						r.UserId == user.Id
 					select r
 				)
 				.Include(_ => _.RelUserFinHistory)
@@ -110,35 +109,66 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
 			}
 
-			// activity
-			var userActivity = CoreLogic.User.CreateUserActivity(
-				user: user,
-				type: Common.UserActivityType.Exchange,
-				comment: $"Gold selling request #{request.Id} confirmed",
-				ip: agent.Ip,
-				agent: agent.Agent,
-				locale: userLocale
-			);
-			DbContext.UserActivity.Add(userActivity);
-			await DbContext.SaveChangesAsync();
+			// charge
+			using (var scope = HttpContext.RequestServices.CreateScope()) {
+				if (!await CoreLogic.Finance.SumusWallet.Charge(scope.ServiceProvider, request.UserId, request.GoldAmount, SumusToken.Gold)) {
+					
+					// activity
+					var userActivity = CoreLogic.User.CreateUserActivity(
+						user: user,
+						type: Common.UserActivityType.Exchange,
+						comment: $"Gold selling request #{request.Id} failed",
+						ip: agent.Ip,
+						agent: agent.Agent,
+						locale: userLocale
+					);
+					DbContext.UserActivity.Add(userActivity);
+					await DbContext.SaveChangesAsync();
 
-			// mark request for processing
-			request.RelUserFinHistory.Status = UserFinHistoryStatus.Manual;
-			request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
-			request.Status = SellGoldRequestStatus.Confirmed;
-			await DbContext.SaveChangesAsync();
+					// mark request for processing
+					request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
+					request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
+					request.Status = SellGoldRequestStatus.Failed;
+					await DbContext.SaveChangesAsync();
 
-			try {
-				await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
+					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+				} else {
+
+					try {
+						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, $"User charged: {request.GoldAmount} GOLD");
+					}
+					catch {
+					}
+
+					// activity
+					var userActivity = CoreLogic.User.CreateUserActivity(
+						user: user,
+						type: Common.UserActivityType.Exchange,
+						comment: $"Gold selling request #{request.Id} confirmed",
+						ip: agent.Ip,
+						agent: agent.Agent,
+						locale: userLocale
+					);
+					DbContext.UserActivity.Add(userActivity);
+					await DbContext.SaveChangesAsync();
+
+					// mark request for processing
+					request.RelUserFinHistory.Status = UserFinHistoryStatus.Manual;
+					request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
+					request.Status = SellGoldRequestStatus.Confirmed;
+					await DbContext.SaveChangesAsync();
+
+					try {
+						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
+					}
+					catch {
+					}
+
+					return APIResponse.Success(
+						new ConfirmView() { }
+					);
+				}
 			}
-			catch {
-			}
-
-			// TODO: email?
-
-			return APIResponse.Success(
-				new ConfirmView() { }
-			);
 		}
 
 		// ---
@@ -158,7 +188,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, EthereumToken? ethereumToken, FiatCurrency fiatCurrency, string ethAddress, bool reversed, BigInteger withdrawalLimitMin, BigInteger withdrawalLimitMax) {
 
 			var allowed = false;
-			
+
 			var centsPerAsset = 0L;
 			var centsPerGold = 0L;
 			var resultGoldAmount = BigInteger.Zero;
@@ -351,7 +381,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Max = new BigInteger((long)Math.Floor(max * Math.Pow(10, cryptoAccuracy))) * pow,
 				};
 			}
-			
+
 			throw new NotImplementedException($"{ethereumToken} currency is not implemented");
 		}
 
@@ -363,9 +393,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var accMax = 0d;
 			var accUsed = 0d;
 
-			var userLimits = userId != null 
+			var userLimits = userId != null
 				? await CoreLogic.User.GetUserLimits(dbContext, userId.Value)
-				: (CoreLogic.User.UpdateUserLimitsData) null;
+				: (CoreLogic.User.UpdateUserLimitsData)null;
 
 			switch (fiatCurrency) {
 

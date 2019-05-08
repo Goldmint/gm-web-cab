@@ -25,19 +25,13 @@ import {Subject} from "rxjs/Subject";
 export class APIService {
 
   private _baseUrl = environment.apiUrl;
-  private _walletBaseUrl = environment.walletApiUrl;
   private _sumusBaseUrl = environment.sumusNetworkUrl;
   private _marketBaseUrl = environment.marketApiUrl;
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
-  public transferCurrentSumusNetwork = new Subject();
 
-  constructor(private _http: HttpClient) {
-    // this.transferCurrentSumusNetwork.subscribe((network: any) => {
-    //   this._sumusBaseUrl = environment.sumusNetworkUrl[network];
-    // });
-  }
+  constructor(private _http: HttpClient) { }
 
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {
     return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/auth/authenticate`, { username: username, password: password, captcha: captcha, audience: "app" })
@@ -297,15 +291,6 @@ export class APIService {
       );
   }
 
-  goldBuyEstimate(currency: string, amount: string, reversed: boolean, promoCode: string) {
-    return this._http
-      .post(`${this._baseUrl}/user/gold/buy/estimate`, { currency, amount, reversed, promoCode }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
-  }
-
   goldSellAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
     return this._http
       .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
@@ -483,26 +468,6 @@ export class APIService {
       );
   }
 
-  getMigrationStatus() {
-    return this._http.get(`${this._baseUrl}/user/migration/status`, this.jwt());
-  }
-
-  goldMigrationSumus(sumusAddress: string, ethereumAddress: string) {
-    return this._http.post(`${this._baseUrl}/user/migration/gold/ethereum`, {sumusAddress, ethereumAddress}, this.jwt());
-  }
-
-  goldMigrationEth(sumusAddress: string, ethereumAddress: string) {
-    return this._http.post(`${this._baseUrl}/user/migration/gold/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
-  }
-
-  mintMigrationSumus(sumusAddress: string, ethereumAddress: string) {
-    return this._http.post(`${this._baseUrl}/user/migration/mint/ethereum`, {sumusAddress, ethereumAddress}, this.jwt());
-  }
-
-  mintMigrationEth(sumusAddress: string, ethereumAddress: string) {
-    return this._http.post(`${this._baseUrl}/user/migration/mint/sumus`, {ethereumAddress, sumusAddress}, this.jwt());
-  }
-
   // pawnshop
 
   getOrganizationList(from: number) {
@@ -533,8 +498,6 @@ export class APIService {
   getOrganizationsName() {
     return this._http.get(`${this._marketBaseUrl}/org/names`);
   }
-
-  // --------
 
   // scanner methods
 
@@ -572,70 +535,6 @@ export class APIService {
     return this._http.get(`${this._sumusBaseUrl}/tx/list/${_block}/${address}/${from}`);
   }
 
-  // ---//
-
-  // checkTransactionStatus(hash: string) {
-  //   return this._http.post(`${this._walletBaseUrl}/explorer/transaction`, {hash});
-  // }
-
-  getNodesCount() {
-    return this._http.get(`${this._walletBaseUrl}/statistics/nodes/nodes_count`);
-  }
-
-  getMNTCount() {
-    return this._http.get(`${this._walletBaseUrl}/statistics/tokens/mnt`);
-  }
-
-  getMNTRewardDay(count: number) {
-    return this._http.post(`${this._walletBaseUrl}/statistics/tokens/reward`, count);
-  }
-
-  getTxDay() {
-    return this._http.get(`${this._walletBaseUrl}/statistics/transactions/tx_day`);
-  }
-
-  getTransactions(number: number) {
-    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/last_tx`, number);
-  }
-
-  getBlocks(number: number) {
-    return this._http.post(`${this._walletBaseUrl}/statistics/blocks/last_blocks`, number);
-  }
-
-  getTxByAddress(sumusAddress: string, offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_by_address`, { sumusAddress, offset, limit, sort, ascending: order === 'asc' });
-  }
-
-  // getWalletBalance(sumusAddress: string) {
-  //   return this._http.post(`${this._walletBaseUrl}/statistics/tokens/wallet_balance`, { sumusAddress });
-  // }
-
-  getAllBlocks(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/blocks/blocks_by_page`, { offset, limit, sort, ascending: order === 'asc' });
-  }
-
-  getAllTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_by_page`, { offset, limit, sort, ascending: order === 'asc' });
-  }
-
-  getActiveNodes(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-    return this._http.post(`${this._walletBaseUrl}/statistics/nodes/active_nodes`, { offset, limit, sort, ascending: order === 'asc' });
-  }
-
-  // getTransactionsInBlock(blockNumber: number, offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-  //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/tx_from_block`, {blockNumber,  offset, limit, sort, ascending: order === 'asc' });
-  // }
-
-  // getRewardTransactions(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc') {
-  //   return this._http.post(`${this._walletBaseUrl}/statistics/transactions/reward`, { offset, limit, sort, ascending: order === 'asc' });
-  // }
-
-  // getTotalGoldReward() {
-  //   return this._http.get(`${this._walletBaseUrl}/statistics/tokens/total_gold_reward`);
-  // }
-
-  // ------
-
   // master node
 
   getCurrentActiveNodesStats() {
@@ -655,6 +554,12 @@ export class APIService {
   }
 
   // -----------
+
+  getUserAccount() {
+    return this._http.get(this._baseUrl + '/user/account', this.jwt());
+  }
+
+  // ----------
 
   private _handleError(err: HttpErrorResponse | any) {
     if (err.error && err.error.errorCode) {

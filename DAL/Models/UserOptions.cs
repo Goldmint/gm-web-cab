@@ -18,15 +18,6 @@ namespace Goldmint.DAL.Models {
 		[ForeignKey(nameof(DpaDocumentId))]
 		public virtual SignedDocument DpaDocument { get; set; }
 
-		[Column("hw_buying_stamp")]
-		public DateTime? HotWalletBuyingLastTime { get; set; }
-
-		[Column("hw_selling_stamp")]
-		public DateTime? HotWalletSellingLastTime { get; set; }
-
-		[Column("hw_transfer_stamp")]
-		public DateTime? HotWalletTransferLastTime { get; set; }
-
 		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }
 

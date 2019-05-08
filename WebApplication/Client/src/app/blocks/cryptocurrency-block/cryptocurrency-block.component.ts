@@ -8,9 +8,9 @@ import {
   Output
 } from '@angular/core';
 import {APIService, EthereumService, MessageBoxService, UserService} from "../../services";
-import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 import * as Web3 from "web3";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-cryptocurrency-block',
@@ -24,12 +24,9 @@ export class CryptocurrencyBlockComponent implements OnInit {
   public isMobile: boolean = false;
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
-  public isFirstTransaction: boolean = true;
-  public showConfirmBlock: boolean = false;
   public isTradingError = false;
   public expiresTime: number;
 
-  public subGetGas: Subscription;
   private requestId: number;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private Web3 = new Web3();
@@ -44,7 +41,8 @@ export class CryptocurrencyBlockComponent implements OnInit {
     private _ethService: EthereumService,
     private _messageBox: MessageBoxService,
     private _cdRef: ChangeDetectorRef,
-    private userService: UserService
+    private userService: UserService,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -65,27 +63,6 @@ export class CryptocurrencyBlockComponent implements OnInit {
       this.hideCryptoCurrencyForm();
       this._cdRef.markForCheck();
     });
-
-    if (this.transferData.type === 'buy') {
-      this._apiService.goldBuyAsset(this.transferData.ethAddress, this.Web3.toWei(+this.transferData.amount), this.transferData.reversed, this.transferData.currency, this.transferData.promoCode)
-        .subscribe(res => {
-          this.expiresTime = res.data.expires;
-
-          if (this.transferData.reversed) {
-            this.amount = res.data.estimation.amount;
-            this.transferData.amountView = this.substrValue(this.amount / Math.pow(10, 18)) + ' Eth';
-            this.transferData.estimatedView = +this.transferData.amount + ' GOLD';
-          } else {
-            this.amount = this.Web3.toWei(this.transferData.coinAmount);
-            this.transferData.amountView = +this.transferData.amount + ' Eth';
-            this.transferData.estimatedView = this.substrValue(res.data.estimation.amount / Math.pow(10, 18)) + ' GOLD';
-          }
-
-          this.requestId = res.data.requestId;
-          this.isDataLoaded = true;
-          this._cdRef.markForCheck();
-        });
-    }
 
     if (this.transferData.type === 'sell') {
       this._apiService.goldSellAsset(this.transferData.ethAddress, this.Web3.toWei(+this.transferData.amount), this.transferData.reversed, this.transferData.currency)
@@ -130,55 +107,27 @@ export class CryptocurrencyBlockComponent implements OnInit {
     this.tradingError.emit(true);
   }
 
-  hideConfirmBlock() {
-    this.hideCryptoCurrencyForm();
-  }
-
-  buyMethod() {
-    this.loading = this.isFirstTransaction = true;
-
-    this._apiService.goldBuyConfirm(this.requestId, this.transferData.promoCode)
-      .finally(() => {
-        this.loading = false;
-        this._cdRef.markForCheck();
-      }).subscribe(() => {
-      this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-        if (price !== null && this.isFirstTransaction) {
-          this.showConfirmBlock = true;
-          this._ethService.sendBuyRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price * Math.pow(10, 9));
-          this.isFirstTransaction = false;
-          this._cdRef.markForCheck();
-        }
-      });
-    });
-  }
-
   sellMethod() {
-    this.loading = this.isFirstTransaction = true;
+    this.loading = true;
 
     this._apiService.goldSellConfirm(this.requestId)
       .finally(() => {
         this.loading = false;
         this._cdRef.markForCheck();
       }).subscribe(() => {
-      this.subGetGas = this._ethService.getObservableGasPrice().subscribe((price) => {
-        if (price !== null && this.isFirstTransaction) {
-          this.showConfirmBlock = true;
-          this._ethService.sendSellRequest(this.transferData.ethAddress, this.transferData.userId, this.requestId, this.amount, +price * Math.pow(10, 9));
-          this.isFirstTransaction = false;
-          this._cdRef.markForCheck();
-        }
-      });
+        this._translate.get('MessageBox.RequestProgress').subscribe(phrase => {
+          this._messageBox.alert(phrase);
+        });
+        this.hideCryptoCurrencyForm();
     });
   }
 
   onSubmit() {
-    this.transferData.type === 'buy' ? this.buyMethod() : this.sellMethod();
+    this.transferData.type === 'sell' ? this.sellMethod() : null;
   }
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.subGetGas && this.subGetGas.unsubscribe();
   }
 
 }

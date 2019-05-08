@@ -10,7 +10,6 @@
 		// ---
 
 		public AppsSection Apps { get; set; } = new AppsSection();
-
 		public class AppsSection {
 
 			public string RelativeApiPath { get; set; } = "/";
@@ -134,41 +133,32 @@
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
 			public class EthereumSection {
 
-				public string StorageContractAbi { get; set; } = "";
-				public string StorageContractAddress { get; set; } = "";
-				public string StorageManagerPk { get; set; } = "";
+				//public string StorageContractAbi { get; set; } = "";
+				//public string StorageContractAddress { get; set; } = "";
+				//public string StorageManagerPk { get; set; } = "";
 
-				public string MigrationContractAbi { get; set; } = "";
-				public string MigrationContractAddress { get; set; } = "";
-				public string MigrationManagerPk { get; set; } = "";
-				
-				public string GoldContractAbi { get; set; } = "";
-				public string GoldContractAddress { get; set; } = "";
+				//public string MigrationContractAbi { get; set; } = "";
+				//public string MigrationContractAddress { get; set; } = "";
+				//public string MigrationManagerPk { get; set; } = "";
+
+				//public string GoldContractAbi { get; set; } = "";
+				//public string GoldContractAddress { get; set; } = "";
 
 				public string MntpContractAbi { get; set; } = "";
 				public string MntpContractAddress { get; set; } = "";
 
+				public string PoolContractAbi { get; set; } = "";
+				public string PoolContractAddress { get; set; } = "";
+
+				public string PoolFreezerContractAbi { get; set; } = "";
+				public string PoolFreezerContractAddress { get; set; } = "";
+
 				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
 				public string LogsProvider { get; set; } = "";
-			}
 
-			public SumusSection Sumus { get; set; } = new SumusSection();
-			public class SumusSection {
-
-				public string MigrationHolderAddress { get; set; } = "";
-				public string MigrationEmissionPk { get; set; } = "";
-
-				public string SumusNodeProxyUrl { get; set; } = "";
-				public string ScannerTxView { get; set; } = "";
-
-			    public int MigrationRequestNextCheckDelay { get; set; } = 20;
-            }
-
-			public IpfsSection Ipfs { get; set; } = new IpfsSection();
-			public class IpfsSection {
-
-				public string Url { get; set; } = "";
+				public int ConfirmationsRequired {get; set;} = 12;
+				public string EthSenderPk { get; set; } = "";
 			}
 
 			public SignRequestSection SignRequest { get; set; } = new SignRequestSection();
@@ -196,32 +186,6 @@
 				public string GoldRateUrl { get; set; } = "";
 				public string EthRateUrl { get; set; } = "";
 			}
-
-			public WorkersSection Workers { get; set; } = new WorkersSection();
-			public class WorkersSection {
-
-				public DbWorkerSettings Notifications { get; set; } = new DbWorkerSettings();
-				public EthWorkerSettings EthEventsHarvester { get; set; } = new EthWorkerSettings();
-				public EthWorkerSettings EthereumOperations { get; set; } = new EthWorkerSettings();
-				public WorkerSettings GoldRateUpdater { get; set; } = new WorkerSettings();
-				public WorkerSettings CryptoRateUpdater { get; set; } = new WorkerSettings();
-				public WorkerSettings TelemetryAggregator { get; set; } = new WorkerSettings();
-				public DbWorkerSettings CcPaymentProcessor { get; set; } = new DbWorkerSettings();
-				public EthWorkerSettings EthTokenMigration { get; set; } = new EthWorkerSettings();
-				public DbWorkerSettings SumusTokenMigration { get; set; } = new DbWorkerSettings();
-
-				public class WorkerSettings {
-					public int PeriodSec { get; set; } = 60;
-				}
-
-				public class DbWorkerSettings : WorkerSettings {
-					public int ItemsPerRound { get; set; } = 50;
-				}
-
-				public class EthWorkerSettings : DbWorkerSettings {
-					public int EthConfirmations { get; set; } = 30;
-				}
-			}
 		}
 
 		// ---
@@ -229,33 +193,10 @@
 		public BusSection Bus { get; set; } = new BusSection();
 		public class BusSection {
 
-			public CentralPubSection CentralPub { get; set; } = new CentralPubSection();
-			public class CentralPubSection {
+			public NatsSection Nats { get; set; } = new NatsSection();
+			public class NatsSection {
 
-				public string Endpoint { get; set; } = "";
-				public int PubPort { get; set; } = 6666;
-				public RatesSection Rates { get; set; } = new RatesSection();
-				public ChildPubEndpointSection[] ChildPubEndpoints { get; set; } = { };
-
-				public class RatesSection {
-
-					public double PubPeriodSec { get; set; } = 1;
-					public int GoldValidForSec { get; set; } = 1800;
-					public int CryptoValidForSec { get; set; } = 180;
-				}
-
-				public class ChildPubEndpointSection {
-
-					public string Name { get; set; } = "";
-					public string Endpoint { get; set; } = "";
-				}
-			}
-
-			public ChildPubSection ChildPub { get; set; } = new ChildPubSection();
-			public class ChildPubSection {
-
-				public int PubPort { get; set; } = 6666;
-				public double PubTelemetryPeriodSec { get; set; } = 15;
+				public string Endpoint { get; set; } = "localhost:4222";
 			}
 		}
 	}

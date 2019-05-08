@@ -16,32 +16,43 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 		protected Nethereum.JsonRpc.Client.IClient EthProvider { get; }
 		protected Nethereum.JsonRpc.Client.IClient EthLogsProvider { get; }
 
-		protected string StorageContractAddress { get; }
-		protected string StorageContractAbi { get; }
-		protected string MigrationContractAddress { get; }
-		protected string MigrationContractAbi { get; }
+		//protected string StorageContractAddress { get; }
+		//protected string StorageContractAbi { get; }
+		//protected string MigrationContractAddress { get; }
+		//protected string MigrationContractAbi { get; }
 
-		protected string GoldContractAddress { get;}
-		protected string GoldContractAbi { get; }
+		//protected string GoldContractAddress { get;}
+		//protected string GoldContractAbi { get; }
 		protected string MntpContractAddress { get; }
 		protected string MntpContractAbi { get; }
+
+		protected string PoolContractAddress { get; }
+		protected string PoolContractAbi { get; }
+		protected string PoolFreezerContractAddress { get; }
+		protected string PoolFreezerContractAbi { get; }
 
 		// ---
 
 		protected EthereumBaseClient(AppConfig appConfig, LogFactory logFactory) {
 			Logger = logFactory.GetLoggerFor(this);
 
-			StorageContractAddress = appConfig.Services.Ethereum.StorageContractAddress;
-			StorageContractAbi = appConfig.Services.Ethereum.StorageContractAbi;
+			//StorageContractAddress = appConfig.Services.Ethereum.StorageContractAddress;
+			//StorageContractAbi = appConfig.Services.Ethereum.StorageContractAbi;
 
-			MigrationContractAddress = appConfig.Services.Ethereum.MigrationContractAddress;
-			MigrationContractAbi = appConfig.Services.Ethereum.MigrationContractAbi;
+			//MigrationContractAddress = appConfig.Services.Ethereum.MigrationContractAddress;
+			//MigrationContractAbi = appConfig.Services.Ethereum.MigrationContractAbi;
 
-			GoldContractAddress = appConfig.Services.Ethereum.GoldContractAddress;
-			GoldContractAbi = appConfig.Services.Ethereum.GoldContractAbi;
+			//GoldContractAddress = appConfig.Services.Ethereum.GoldContractAddress;
+			//GoldContractAbi = appConfig.Services.Ethereum.GoldContractAbi;
 
 			MntpContractAddress = appConfig.Services.Ethereum.MntpContractAddress;
 			MntpContractAbi = appConfig.Services.Ethereum.MntpContractAbi;
+
+			PoolContractAddress = appConfig.Services.Ethereum.PoolContractAddress;
+			PoolContractAbi = appConfig.Services.Ethereum.PoolContractAbi;
+
+			PoolFreezerContractAddress = appConfig.Services.Ethereum.PoolFreezerContractAddress;
+			PoolFreezerContractAbi = appConfig.Services.Ethereum.PoolFreezerContractAbi;
 
 			EthProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
 			EthLogsProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));

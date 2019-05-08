@@ -46,6 +46,27 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
+		/// Account info
+		/// </summary>
+		[RequireJWTArea(JwtArea.Authorized)]
+		[HttpGet, Route("account")]
+		[ProducesResponseType(typeof(ProfileView), 200)]
+		public async Task<APIResponse> Account() {
+            var user = await GetUserFromDb();
+
+			var gold = user.UserSumusWallet.BalanceGold.ToSumus(); 
+			var mnt = user.UserSumusWallet.BalanceMnt.ToSumus(); 
+
+			return APIResponse.Success(
+				new AccountView() {
+					SumusGold = gold.ToString(),
+					SumusMnt = mnt.ToString(),
+					SumusWallet = user.UserSumusWallet.PublicKey,
+				}
+			);
+		}
+
+		/// <summary>
 		/// User activity
 		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]

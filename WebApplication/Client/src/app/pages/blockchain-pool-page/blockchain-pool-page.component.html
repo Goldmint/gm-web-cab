@@ -1,7 +1,7 @@
 <!-- host: .page -->
-<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>
+<!--<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>-->
 
-<section class="page__section section">
+<section class="page__section section mb-4">
   <h2 class="section__title">{{ "PAGES.BlockchainPool.Heading" | translate }}</h2>
 
   <div class="section__content pt-4">
@@ -11,7 +11,7 @@
 
     <div class="row align-items-baseline">
 
-      <div class="col-12 col-md-6 col-lg-3 form-group text-center">
+      <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="hold">{{ "PAGES.BlockchainPool.Labels.Hold" | translate }}</label>
         <button class="btn btn-primary btn-block poll-action-btn justify-content-center" id="hold" routerLink="/blockchain-pool/hold-tokens">
           <svg class="icon" width="56px" height="56px">
@@ -20,7 +20,7 @@
         </button>
       </div>
 
-      <div class="col-12 col-md-6 col-lg-3 form-group text-center">
+      <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="withdraw" [innerHTML]="'PAGES.BlockchainPool.Labels.Withdraw' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(!mntpReward && !goldReward) || isInvalidNetwork" (click)="onSubmit(submitMethod[0])">
           <svg class="icon" width="56px" height="56px">
@@ -29,14 +29,14 @@
 
           <div>
             <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            <div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>
+            <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
 
-      <div class="col-12 col-lg-3 form-group text-center">
+      <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork" (click)="onSubmit(submitMethod[1])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork || userFrozenStake > 0" (click)="onSubmit(submitMethod[1])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#outbox"></use>
           </svg>
@@ -44,12 +44,17 @@
           <div>
             <div class="unhold-tokens"><b>{{ heldTokens | substr:3 }}</b> MNTP</div>
             <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            <div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>
+            <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
+        <div class="color-red mt-2" *ngIf="userFrozenStake > 0">
+          {{ "PAGES.BlockchainPool.Labels.HaveFrozenStake" | translate }}
+        </div>
       </div>
 
-      <div class="col-12 col-lg-3 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
+      <div class="col-12 col-lg-4"></div>
+
+      <div class="col-12 col-lg-4 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
         <label class="pool-label-btn" for="unhold-old" [innerHTML]="'PAGES.BlockchainPool.Labels.UnholdOld' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="isInvalidNetwork" (click)="onSubmit(submitMethod[2])">
           <svg class="icon" width="56px" height="56px">
@@ -59,10 +64,12 @@
           <div>
             <div class="unhold-tokens"><b>{{ heldTokensOld | substr:3 }}</b> MNTP</div>
             <div><b>{{ mntpRewardOld.toFixed(3) }}</b> MNTP </div>
-            <div><b>{{ goldRewardOld.toFixed(3) }}</b> GOLD</div>
+            <!--<div><b>{{ goldRewardOld.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
+
+      <div class="col-12 col-lg-4"></div>
 
     </div>
 
@@ -72,3 +79,7 @@
 
   </div>
 </section>
+
+<div class="color-red" *ngIf="userFrozenStake > 0">
+  {{ "PAGES.BlockchainPool.Labels.ToUnfreeze.Text" | translate }} <a href="mailto:support@goldmint.io" target="_blank">{{ "PAGES.BlockchainPool.Labels.ToUnfreeze.Support" | translate }}</a>
+</div>

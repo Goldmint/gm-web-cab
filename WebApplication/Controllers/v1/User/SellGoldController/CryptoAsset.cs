@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
@@ -36,10 +37,11 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				exchangeCurrency = fc;
 			}
 
-		    // ---
-		    var rcfg = RuntimeConfigHolder.Clone();
+			// ---
 
-            var user = await GetUserFromDb();
+			var rcfg = RuntimeConfigHolder.Clone();
+
+			var user = await GetUserFromDb();
 			var userTier = CoreLogic.User.GetTier(user, rcfg);
 			var agent = GetUserAgentInfo();
 
@@ -64,7 +66,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var timeNow = DateTime.UtcNow;
-			var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest);
 
 			var ticket = await OplogProvider.NewGoldSellingRequestForCryptoasset(
 				userId: user.Id,
@@ -81,14 +82,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldSell,
 				Source = "GOLD",
-				SourceAmount = null,
+				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.Sumus),
 				Destination = "ETH",
-				DestinationAmount = null,
+				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultCurrencyAmount, TokensPrecision.Ethereum),
 				Comment = "", // see below
 
 				OplogId = ticket,
 				TimeCreated = timeNow,
-				TimeExpires = timeExpires.AddSeconds(rcfg.Gold.Timeouts.ContractSellRequest), // double time
+				TimeExpires = null,
 				UserId = user.Id,
 			};
 
@@ -97,36 +98,28 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await DbContext.SaveChangesAsync();
 
 			// request
-			var request = new DAL.Models.SellGoldRequest() {
-
+			var request = new DAL.Models.SellGoldEth() {
 				Status = SellGoldRequestStatus.Unconfirmed,
-				Input = SellGoldRequestInput.ContractGoldBurning,
-				Output = SellGoldRequestOutput.EthAddress,
-				RelOutputId = null,
-				EthAddress = model.EthAddress,
-
+				GoldAmount = estimation.ResultGoldAmount.FromSumus(),
+				Destination = model.EthAddress,
+				EthAmount = estimation.ResultCurrencyAmount.FromSumus(),
 				ExchangeCurrency = exchangeCurrency,
-				OutputRateCents = estimation.CentsPerAssetRate,
 				GoldRateCents = estimation.CentsPerGoldRate,
-				InputExpected = estimation.ResultGoldAmount.ToString(),
-
-				OplogId = ticket,
+				EthRateCents = estimation.CentsPerAssetRate,
 				TimeCreated = timeNow,
-				TimeExpires = timeExpires,
-				TimeNextCheck = timeNow,
-
 				UserId = user.Id,
 				RelUserFinHistoryId = finHistory.Id,
+				OplogId = ticket,
 			};
 
 			// add and save
-			DbContext.SellGoldRequest.Add(request);
+			DbContext.SellGoldEth.Add(request);
 			await DbContext.SaveChangesAsync();
 
 			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
 			// update comment
-			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmount(assetPerGold, TokensPrecision.Ethereum) }";
+			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmountFixed(assetPerGold, TokensPrecision.Ethereum) }";
 			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
@@ -136,7 +129,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					GoldRate = estimation.CentsPerGoldRate / 100d,
 					Currency = exchangeCurrency.ToString().ToUpper(),
 					EthPerGoldRate = assetPerGold.ToString(),
-					Expires = ((DateTimeOffset)request.TimeExpires).ToUnixTimeSeconds(),
 					Estimation = estimation.View,
 				}
 			);

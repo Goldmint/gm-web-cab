@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using NLog.Web;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
+using Goldmint.CoreLogic.Finance;
 
 namespace Goldmint.QueueService {
 
@@ -26,8 +27,6 @@ namespace Goldmint.QueueService {
 			Core = 2,
 		}
 
-		private const string IpcPipeName = "gm.queueservice.ipc";
-
 		public static WorkingMode Mode { get; private set; }
 
 		private static IConfiguration _configuration;
@@ -37,24 +36,20 @@ namespace Goldmint.QueueService {
 
 		private static CancellationTokenSource _shutdownToken;
 		private static ManualResetEventSlim _shutdownCompletedEvent;
-		private static NamedPipeServerStream _ipcServer;
-		private static object _ipcServerMonitor;
 
 		// ---
 
-		/// <summary>
-		/// Entry point
-		/// </summary>
-		/// <param name="args">
-		/// `ipc-stop` - command to stop launched instance;
-		/// </param>
-		public static void Main(string[] args)
-		{
+		public static void Main(string[] args) {
 
-			if (SetupIpc(args))
-			{
-				return;
-			}
+			AppDomain.CurrentDomain.ProcessExit += onStop;
+			Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
+				if (e.SpecialKey == ConsoleSpecialKey.ControlC) {
+					e.Cancel = true;
+					new Thread(delegate () {
+						Environment.Exit(2);
+					}).Start();
+				}
+			};
 
 			// resolve working mode
 			var workingModeRaw = Environment.GetEnvironmentVariable("ASPNETCORE_MODE") ?? "";
@@ -107,7 +102,7 @@ namespace Goldmint.QueueService {
 
 			// runtime config
 			_runtimeConfigHolder = new RuntimeConfigHolder(LogManager.LogFactory);
-			
+
 			// custom db connection
 			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
 			if (!string.IsNullOrWhiteSpace(dbCustomConnection)) {
@@ -132,67 +127,18 @@ namespace Goldmint.QueueService {
 			// setup workers and wait
 			Task.WaitAll(SetupWorkers(services).ToArray());
 
-			OnStopped();
+			// cleanup
+			StopServices();
+			LogManager.Shutdown();
 
 			_shutdownCompletedEvent.Set();
 			logger.Info("Stopped");
 		}
 
-		private static void OnStopped() {
-			StopServices();
-			LogManager.Shutdown();
+		private static void onStop(object sender, EventArgs e) {
+			Console.WriteLine("Stop requested");
+			_shutdownToken.Cancel();
+			_shutdownCompletedEvent.Wait();
 		}
-
-		// ---
-
-		/// <summary>
-		/// IPC server/client 
-		/// </summary>
-		private static bool SetupIpc(string[] args) {
-
-			bool isClient = args.Contains("ipc-stop");
-			bool isServerOptional = args.Contains("ipc-optional");
-
-			// process that listens for commands
-			if (!isClient) {
-
-				try {
-					_ipcServerMonitor = new object();
-					_ipcServer = new NamedPipeServerStream(IpcPipeName);
-
-					_ipcServer.BeginWaitForConnection(
-						(result) => {
-							_ipcServer.EndWaitForConnection(result);
-
-							lock (_ipcServerMonitor) {
-								_shutdownToken.Cancel();
-								_shutdownCompletedEvent.Wait();
-								_ipcServer.Close();
-							}
-						},
-						_ipcServer
-					);
-				}
-				catch (Exception e) {
-					if (!isServerOptional) {
-						throw e;
-					}
-				}
-
-				return false;
-			}
-
-			// process that sends command
-			try {
-				using (var pipe = new NamedPipeClientStream(IpcPipeName)) {
-					pipe.Connect(60000);
-					pipe.ReadByte();
-				}
-			}
-			catch { }
-
-			return true;
-		}
-		
 	}
 }

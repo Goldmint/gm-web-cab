@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Goldmint.CoreLogic.Finance;
-using Goldmint.CoreLogic.Services.Bus.Telemetry;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +16,6 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
-		private CoreTelemetryAccumulator _coreTelemetryAccum;
 
 		private long _statProcessed = 0;
 		private long _statFailed = 0;
@@ -29,8 +27,6 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			_coreTelemetryAccum = services.GetRequiredService<CoreTelemetryAccumulator>();
-
 			return Task.CompletedTask;
 		}
 
@@ -69,17 +65,6 @@ namespace Goldmint.QueueService.Workers.CreditCard {
 					++_statFailed;
 				}
 			}
-		}
-
-		protected override void OnPostUpdate() {
-
-			// tele
-			_coreTelemetryAccum.AccessData(tel => {
-				tel.CreditCardRefunds.ProcessedSinceStartup = _statProcessed;
-				tel.CreditCardRefunds.FailedSinceStartup = _statFailed;
-				tel.CreditCardRefunds.Load = StatAverageLoad;
-				tel.CreditCardRefunds.Exceptions = StatExceptionsCounter;
-			});
 		}
 	}
 }

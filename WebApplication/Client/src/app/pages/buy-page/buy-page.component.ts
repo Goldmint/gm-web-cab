@@ -1,14 +1,18 @@
 import {
-  Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, HostBinding, isDevMode
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  HostBinding,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation
 } from '@angular/core';
-import {UserService, APIService, MessageBoxService, EthereumService} from '../../services';
-import { TFAInfo } from '../../interfaces'
-import { Observable } from "rxjs/Observable";
-import { TranslateService } from "@ngx-translate/core";
-import { User } from "../../interfaces/user";
-import {Subject} from "rxjs/Subject";
-import {environment} from "../../../environments/environment";
+import {TFAInfo, User} from "../../interfaces";
 import {TradingStatus} from "../../interfaces/trading-status";
+import {environment} from "../../../environments/environment";
+import {Observable, Subject} from "rxjs";
+import {APIService, EthereumService, MessageBoxService, UserService} from "../../services";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-buy-page',
@@ -19,10 +23,10 @@ import {TradingStatus} from "../../interfaces/trading-status";
   host: { class: 'page' }
 })
 export class BuyPageComponent implements OnInit, OnDestroy {
+
   @HostBinding('class') class = 'page';
 
   public loading = true;
-  public selectedWallet = 0;
   public isMetamask = true;
   public user: User;
   public tfaInfo: TFAInfo;
@@ -67,26 +71,8 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         });
 
         this.isBlockedCountry && (this.loading = false);
-
-        if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum') && this.user.verifiedL1) {
-          this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
-            this._messageBox.alert(phrase.Text, phrase.Heading);
-          });
-        }
-
         this._cdRef.markForCheck();
       });
-
-    this.selectedWallet = this._userService.currentWallet.id === 'hot' ? 0 : 1;
-
-    this._userService.onWalletSwitch$.takeUntil(this.destroy$).subscribe((wallet) => {
-      if (wallet['id'] === 'hot') {
-        this.selectedWallet = 0;
-      } else {
-        this.selectedWallet = 1;
-      }
-      this._cdRef.markForCheck();
-    });
 
     this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
       if (network !== null) {

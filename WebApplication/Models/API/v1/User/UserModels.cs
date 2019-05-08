@@ -189,6 +189,29 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 
 	// ---
 
+	public class AccountView {
+
+		/// <summary>
+		/// Personal Sumus wallet address
+		/// </summary>
+		[Required]
+		public string SumusWallet { get; set; }
+		
+		/// <summary>
+		/// Sumus Gold token balance, minor units (10**18)
+		/// </summary>
+		[Required]
+		public string SumusGold { get; set; }
+
+		/// <summary>
+		/// Sumus Mnt token balance, minor units (10**18)
+		/// </summary>
+		[Required]
+		public string SumusMnt { get; set; }
+	}
+
+	// ---
+
 	public class ActivityModel : BasePagerModel {
 
 		protected override FluentValidation.Results.ValidationResult ValidateFields() {

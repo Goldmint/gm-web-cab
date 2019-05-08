@@ -1,6 +1,6 @@
 import {
   Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef,
-  OnDestroy
+  OnDestroy, ViewChild
 } from '@angular/core';
 import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
@@ -8,6 +8,10 @@ import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {APIService} from "../../services/api.service";
+import {BigNumber} from "bignumber.js";
+import {BsModalService} from "ngx-bootstrap";
+import {environment} from "../../../environments/environment";
+import {CommonService} from "../../services/common.service";
 
 @Component({
   selector: 'app-header',
@@ -18,24 +22,21 @@ import {APIService} from "../../services/api.service";
 })
 export class HeaderBlockComponent implements OnInit, OnDestroy {
 
-  public gold_usd_rate: number;
-  public gold_eth_rate: number;
+  public gold_usd_rate: number = 0;
+  public gold_eth_rate: number = 0;
   public user: User;
   public locale: string;
-  public wallets = [
-    {id: 'metamask', name: 'METAMASK', account: ''}
-  ];
-  public activeWallet: Object = this.wallets[0];
-  public sumusNetwork: string = 'MainNet';
-  public metamaskAccount: string = null;
-  public goldBalance: string|null = '0';
-  public hotGoldBalance: string|null = null;
-  public shortAdr: string;
   public isShowMobileMenu: boolean = false;
   public isMobile: boolean = false;
-  public isLoggedInToMM: boolean = true;
-  private destroy$: Subject<boolean> = new Subject<boolean>();
+  public getLiteWalletLink;
+  public menuRoutes = {
+    exchange: ['/sell', '/buy', '/finance/history'],
+    masterNode: ['/master-node', '/blockchain-pool', '/buy-mntp'],
+    scanner: ['/scanner', '/nodes', '/pawnshop-loans']
+  };
+  public activeMenuItem: string;
 
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private _apiService: APIService,
@@ -45,11 +46,15 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     private _cdRef: ChangeDetectorRef,
     private _messageBox: MessageBoxService,
     private _translate: TranslateService,
-    private router: Router
+    private router: Router,
+    private commonService: CommonService
   ) {
   }
 
   ngOnInit() {
+    let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
+    this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
+
     if (window.innerWidth > 992) {
       this.isMobile = this.isShowMobileMenu = false;
     } else {
@@ -71,6 +76,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
+        this.checkActiveMenuItem(event.urlAfterRedirects);
         this.isShowMobileMenu = false;
         document.body.style.overflow = 'visible';
         this._cdRef.markForCheck();
@@ -84,6 +90,10 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
     this._userService.currentUser.takeUntil(this.destroy$).subscribe(currentUser => {
       this.user = currentUser;
+      if (this.user.name) {
+        let index = this.user.name.indexOf(' ');
+        index > 0 && (this.user.name = this.user.name.slice(0, index));
+      }
       this._cdRef.markForCheck();
     });
 
@@ -92,67 +102,18 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
-    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
-      if (this.metamaskAccount && !ethAddr) {
-        this.goldBalance = '0';
-      }
-      this.metamaskAccount = ethAddr;
-      this.activeWallet = this.wallets[0];
-      // !this.metamaskAccount && this.activeWallet['id'] === 'metamask' && (this.activeWallet = this.wallets[0]);
-      this.showShortAccount();
-      this.wallets.forEach(item => {
-        item.account = item.id === 'metamask' ? this.shortAdr : '';
-      });
-      this._cdRef.markForCheck();
-    });
-
-    this._ethService.getObservableGoldBalance().takeUntil(this.destroy$).subscribe(bal => {
-      if (bal != null) {
-        this.goldBalance = bal.toString().replace(/^(\d+\.\d{2,)\d+$/, '$1');
-        this._cdRef.markForCheck();
-      }
-    });
-
-    this._ethService.getObservableHotGoldBalance().takeUntil(this.destroy$).subscribe((bal: any) => {
-      this.hotGoldBalance = bal;
-      if (bal != null) {
-        this.hotGoldBalance = bal.toString().replace(/^(\d+\.\d\d)\d+$/, '$1');
-      }
-      this._cdRef.markForCheck();
-    });
-
-    // this.sumusNetwork = localStorage.getItem('gmint_sumus_network') ?
-    //                     localStorage.getItem('gmint_sumus_network') : 'MainNet';
-    // this._apiService.transferCurrentSumusNetwork.next(this.sumusNetwork);
-
-    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
-      setTimeout(() => {
-        !this.isLoggedIn() && !this.metamaskAccount && (this.isLoggedInToMM = false);
-        this._cdRef.markForCheck();
-      }, 3000);
-    }
-
-    this._userService.currentWallet = this.activeWallet;
     this._cdRef.markForCheck();
   }
 
-  /*onWalletSwitch(wallet) {
-    if (wallet.id === 'metamask' && !this.metamaskAccount) {
-      this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
-        this._messageBox.alert(phrase.Text, phrase.Heading);
+  checkActiveMenuItem(route: string) {
+    this.activeMenuItem = '';
+    for (let key in this.menuRoutes) {
+      this.menuRoutes[key].forEach(url => {
+        route.indexOf(url) >= 0 && (this.activeMenuItem = key);
       });
-      return;
     }
-
-    this._userService.currentWallet = this.activeWallet = wallet;
-    this._userService.onWalletSwitch(wallet);
-
-    this.showShortAccount();
-    this._cdRef.markForCheck()();
-  }*/
-
-  public showShortAccount() {
-    this.shortAdr = this.metamaskAccount ? ' (' + this.metamaskAccount.slice(0, 5) + ')...' : '';
+    this.commonService.getActiveMenuItem.next(this.activeMenuItem);
+    this._cdRef.markForCheck();
   }
 
   public logout(e) {
@@ -177,13 +138,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     this.isShowMobileMenu = !this.isShowMobileMenu;
     document.body.style.overflow = this.isShowMobileMenu ? 'hidden' : 'visible';
     e.stopPropagation();
-    this._cdRef.markForCheck();
-  }
-
-  changeSumusNetwork(network) {
-    this.sumusNetwork = network;
-    localStorage.setItem('gmint_sumus_network', network);
-    this._apiService.transferCurrentSumusNetwork.next(network);
     this._cdRef.markForCheck();
   }
 

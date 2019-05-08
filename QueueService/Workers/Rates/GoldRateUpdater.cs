@@ -21,16 +21,13 @@ namespace Goldmint.QueueService.Workers.Rates {
 			_services = services;
 			_goldRateProvider = _services.GetRequiredService<IGoldRateProvider>();
 			_aggregatedRatesDispatcher = _services.GetRequiredService<IAggregatedRatesDispatcher>();
-
 			return Task.CompletedTask;
 		}
 
 		protected override async Task OnUpdate() {
 			try {
-	
 				var rate = await _goldRateProvider.RequestGoldRate(_requestTimeout);
 				Logger.Trace($"Current gold rate {rate}");
-
 				_aggregatedRatesDispatcher.OnProviderCurrencyRate(rate);
 			} catch (Exception e) {
 				Logger.Error(e);

@@ -11,113 +11,51 @@
     "SignUp": "Регистрация",
     "SignOut": "Выход",
     "AccountInfo": "Аккаунт",
-    "NotLoggedInMM": "Для бесперебойной работы авторизуйтесь в своей учетной записи MetaMask",
     "Network": {
       "Label": "сеть",
       "MainNet": "MainNet сеть",
       "TestNet": "TestNet сеть"
     },
     "Menu": {
-      "Exchange": {
-        "Heading": "Взаимообмен",
-        "Sell": "Продать GOLD",
-        "Buy": "Купить GOLD",
-        "Transfer": "Перевод GOLD",
-        "Finance": "Финансы"
-      },
-      "GoldmintBlockchain": {
-        "Heading": "Goldmint Blockchain",
-        "Wallet": "Кошелек",
-        "MasterNode": "Мастер нода",
-        "Scanner": "Сканер"
-      },
-      "Pawnshop": {
-        "Heading": "Ломбардные залоги",
-        "Feed": "Активность",
-        "Invest": "Инвестировать в ломбардные залоги"
-      }
+      "Work": "Как это работает",
+      "Exchange": "Обмен",
+      "Wallet": "Кошелек",
+      "Sell": "Продать GOLD",
+      "Buy": "Купить GOLD",
+      "Finance": "Финансы",
+      "Pool": "Blockchain пул",
+      "MasterNode": "Мастер нода",
+      "LaunchMasterNode": "Запуск мастер ноды",
+      "Scanner": "Сканер",
+      "Transactions": "транзакции",
+      "Pawnshops": "Ломбардные залоги",
+      "Nodes": "Обзор нод",
+      "BuyMntp": "Покупка MNTP"
     }
   },
   "FOOTER": {
-    "Menu": {
-      "About": "О нас",
-      "Transparency": "Прозрачность",
-      "LegalSecurity": "Легальность и безопасность",
-      "HelpCenter": "Помощь"
+    "Headings": {
+      "LegalDocuments": "ПРАВОВЫЕ ДОКУМЕНТЫ",
+      "GMLegal": "GOLDMINT ДОКУМЕНТЫ",
+      "Support": "ПОДДЕРЖКА",
+      "Contacts": "КОНТАКТЫ",
+      "LegalAddress": "ЮРИДИЧЕСКИЙ АДРЕС",
+      "DevOffice": "ОФИС ПО РАЗРАБОТКЕ"
     },
-    "Copyright": "Goldmint PTE. Ltd © {{year}}"
+    "Documents": {
+      "1th": "Политика конфиденциальности данных",
+      "2th": "Политика «Знай Своего клиента»",
+      "3th": "Условия продажи GOLD"
+    },
+    "Contacts": {
+      "ForPress": "Для СМИ:",
+      "ForParticipants": "Для инвесторов:",
+      "ForSupport": "Тех. поддержка:"
+    },
+    "LegalAddress": "1100 Lower Delta Road, #02-05 EPL building, 169206, Сингапур",
+    "DevOffice": "115280, РФ, Москва, Ленинская Слобода, 26, строение 6, офис 2516"
   },
   "PAGES": {
-    "Home": {
-      "Heading": "Вы хотите купить или продать GOLD криптоактивы?",
-      "Or": "или",
-      "Buttons": {
-        "Sell": "Продать",
-        "Buy": "Купить"
-      }
-    },
-    "Sell": {
-      "Heading": "Продать GOLD криптоактивы",
-      "Labels": {
-        "Amount": "Количество",
-        "Estimate": "Оценочное количество *",
-        "Buy": "Купить сейчас",
-        "Get": "и получить"
-      },
-      "Method": {
-        "CtyptoCurrency": "Криптовалюта",
-        "CryptoCapital": "CryptoCapital",
-        "PaymentCard": "Платёжная карта"
-      },
-      "Paused": "Операции продажи приостановлены",
-      "CtyptoCurrency": {
-        "Heading": "Криптовалюта",
-        "Labels": {
-          "Amount": "Количество",
-          "Estimate": "Оценочная сумма"
-        },
-        "SuccessModal": {
-          "Heading": "Транзакция в процессе:",
-          "Steps": "Подождите как минимум 100 шагов подтверждения (около 30 минут).",
-          "Hash": "Хэш вашей транзакции:",
-          "Link": "Просмотр транзакции на EtherScan"
-        },
-        "LimitModal": {
-          "Text": {
-            "First": "К сожалению, мы не можем выполнить транзакцию на данный момент из-за недостатка средств по контракту. Вы можете продавать только",
-            "Second": "сейчас."
-          },
-          "Buttons": {
-            "Sell": "Продать",
-            "TryLater": "Я попробую позже"
-          }
-        }
-      },
-      "PaymentCard": {
-        "Heading": "Платёжная карта",
-        "Labels": {
-          "SelectCard": "Выберите карту",
-          "Amount": "Количество",
-          "Estimate": "Оценочная сумма"
-        }
-      },
-      "SectionTitle": "Мгновенная продажа",
-      "Discount": "Комиссия",
-      "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
-      "Buttons": {
-        "SellNow": "Продать",
-        "BuyMore": "Купить"
-      },
-      "Errors": {
-        "InvalidGold": "Недопустимое количество GOLD",
-        "InvalidUsd": "Недопустимое количество USD",
-        "InvalidEth": "Недопустимое количество ETH",
-        "minLimit": "Сумма меньше минимального лимита",
-        "maxLimit": "Сумма больше максимального лимита",
-        "UseMM": "Используйте metamask",
-        "NotAllow": "В данный момент метод не разрешен"
-      }
-    },
     "Buy": {
       "Heading": "Купить GOLD криптоактивы",
       "SectionTitle": "Мгновенная покупка",
@@ -190,31 +128,73 @@
         }
       }
     },
-    "Transfer": {
-      "Heading": "Перевод GOLD криптоактивов",
+    "Sell": {
+      "Heading": "Продать GOLD криптоактивы",
       "Labels": {
-        "TransferToWallet": "Кошелек",
         "Amount": "Количество",
-        "ChooseMethod": "Выберите метод перевода",
-        "MyWallet": "Мой Etherium кошелек",
-        "Or": "или",
-        "NoMM": "Используйте metamask"
+        "Estimate": "Оценочное количество *",
+        "Buy": "Купить сейчас",
+        "Get": "и получить"
       },
-      "Steps": {
-        "One": "Перейдите на",
-        "Two": "Введите адрес смарт-контракта",
-        "Three": "Нажмите подтвердить транзакцию"
+      "Method": {
+        "CtyptoCurrency": "Криптовалюта",
+        "CryptoCapital": "CryptoCapital",
+        "PaymentCard": "Платёжная карта"
       },
-      "Placeholders": {
-        "EtheriumWallet": "Ethereum кошелек"
+      "Paused": "Операции продажи приостановлены",
+      "CtyptoCurrency": {
+        "Heading": "Криптовалюта",
+        "Labels": {
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
+        },
+        "Info": {
+          "InOrderToSell": "Чтобы продать токены GOLD, сначала внесите депозит, отправив свои токены в блокчейне Mint по адресу",
+          "Destination": "Адрес:"
+        },
+        "SuccessModal": {
+          "Heading": "Транзакция в процессе:",
+          "Steps": "Подождите как минимум 100 шагов подтверждения (около 30 минут).",
+          "Hash": "Хэш вашей транзакции:",
+          "Link": "Просмотр транзакции на EtherScan"
+        },
+        "LimitModal": {
+          "Text": {
+            "First": "К сожалению, мы не можем выполнить транзакцию на данный момент из-за недостатка средств по контракту. Вы можете продавать только",
+            "Second": "сейчас."
+          },
+          "Buttons": {
+            "Sell": "Продать",
+            "TryLater": "Я попробую позже"
+          }
+        }
       },
+      "PaymentCard": {
+        "Heading": "Платёжная карта",
+        "Labels": {
+          "SelectCard": "Выберите карту",
+          "Amount": "Количество",
+          "Estimate": "Оценочная сумма"
+        }
+      },
+      "SectionTitle": "Мгновенная продажа",
+      "Discount": "Комиссия",
+      "Note": "*Расчетная сумма в долларах США вычисляется от наивысшей предлагаемой цены до самой низкой цены, до тех пор пока все BTC не будут проданы",
       "Buttons": {
-        "Send": "Отправить"
+        "SellNow": "Продать",
+        "BuyMore": "Купить"
       },
       "Errors": {
-        "InvalidAddress": "Неправильный адрес",
-        "InvalidAmount": "Неправильное количество",
-        "AddressMatches": "Введынный адрес совпадает с активным адресом кошелька Metamask"
+        "InvalidGold": "Недопустимое количество GOLD",
+        "InvalidUsd": "Недопустимое количество USD",
+        "InvalidEth": "Недопустимое количество ETH",
+        "minLimit": "Сумма меньше минимального лимита",
+        "maxLimit": "Сумма больше максимального лимита",
+        "GetMM": "Установить MetaMask",
+        "EnableMM": "Включить MetaMask",
+        "GetMW": "Установить Mint Wallet",
+        "EnableMW": "Включить Mint Wallet",
+        "NotAllow": "В данный момент метод не разрешен"
       }
     },
     "Finance": {
@@ -268,50 +248,35 @@
         "Launch": "Запустить мастер ноду",
         "Migration": "Миграция токенов"
       },
+      "Labels": {
+        "GetMintWallet": "Получить Mint Wallet"
+      },
       "LaunchPage": {
         "Heading": "Запустить Мастер Ноду",
-        "Description": "Здесь Вы можете найти инструкцию по установке и настройки Вашей мастер-ноды блокчейна для ОС",
+        "Description": "Здесь Вы можете найти инструкцию по установке и настройке Вашей мастер-ноды блокчейна Mint",
         "Labels": {
-          "ChooseOS": "Выберите ОС",
-          "VideoInst": "Видео инструкция",
-          "TextInst": "Текстовая инструкция",
-          "InstFor": "Инструкция для"
+          "GetMNT": "Получить MNT токены",
+          "InOrderInfo": {
+            "1th": "Чтобы получить токены MNT в блокчейне Mint, пожалуйста,",
+            "2th": "купите",
+            "3th": "и удержите свои MNTP в"
+          },
+          "PoolContract": "BLOCKCHAIN POOL",
+          "AvailableMNTP": "Доступно MNTP",
+          "Check": "Я внимательно проверил адреса, сумму и согласен с условиями бета-тестирования:",
+          "Manual": "Инструкция"
         },
-        "Buttons": {
-          "Migrate": "Я готов к миграции моих MNTP токенов, чтоб начать майнинг",
-          "MigrateSmall": "Я готов к миграции"
-        }
-      },
-      "MigrationPage": {
-        "Heading": "Миграция Токенов",
-        "TransferDescr": "Вам необходимо перевести токены по данному адресу:",
-        "Labels": {
-          "Amount": "Количество",
-          "Address": "Sumus адрес",
-          "Check": "Я внимательно проверил адреса и сумму"
+        "Info": {
+          "HaveToHold": "Вы должны удержать как минимум 10 000 MNTP в",
+          "StakeSent": "Ваши MNTP токены заморожены в Ethereum пуле и выпущены в блокчейне Mint",
+          "TransactionSent": "Транзакция была отправлена. Пожалуйста, дождитесь отправки MNT. Это может занять до 60 минут."
         },
-        "SuccessModal": {
-          "Heading": "Транзакция в процессе:",
-          "Hash": "Хэш вашей транзакции:",
-          "Link": "Просмотр транзакции на EtherScan"
-        },
-        "SuccessSumusModal": {
-          "Heading": "Транзакция в процессе:",
-          "Hash": "Digest вашей транзакции:",
-          "Link": "Просмотр транзакции на Scanner"
-        },
-        "Errors": {
-          "InvalidAmount": "Неверное количество",
-          "Maximum": "Максимальное количество - ",
-          "Required": "Поле обязательно",
-          "InvalidAddress": "Неверный адрес",
-          "DuplicateRequest": "Запрос на миграцию в очереди. Мы ждем перевода ваших {{ token }} токенов."
+        "GeneralInfo": {
+          "Heading": "Общая информация",
+          "Text": "You should have at least 10 000. 1 MNTP tokens for the masternode launch. By launching your own node in MINT blockchain you'll be able to receive a fee from GOLD transactions. Few steps that will be required for masternode launch: <br/><br/>1. Join the pool with your MNTP tokens. <br/>2. Install Goldmint Wallet extension for your browser. <br/>3. Freeze your MNTP stake in the pool and receive MNT tokens to your  Goldmint Wallet. <br/>4. Deploy a cloud server. <br/>5. Setup a mastednode. <br/>6. Send MNT from Goldmint Wallet to master node Wallet. <br/><br/>Detailed instructions you can find below."
         },
         "Buttons": {
           "Go": "Вперед"
-        },
-        "Popover": {
-          "Copied": "Скопировано"
         }
       },
       "Overview": {
@@ -338,10 +303,10 @@
         "Heading": "Последние вознаграждения",
         "Table": {
           "Date": "Дата",
-          "Blocks": "Блоки",
-          "TxAmount": "Количество Tx",
-          "TransferredToken": "Переданное количество токенов",
-          "RewardAmount": "Сумма вознаграждения"
+          "Blocks": "Блоков",
+          "TxAmount": "Транзакций",
+          "TransferredToken": "Объем",
+          "RewardAmount": "Вознаграждение"
         }
       },
       "RewardTransactions": {
@@ -354,6 +319,23 @@
         }
       }
     },
+    "BuyMNTP": {
+      "Heading": "MNTP",
+      "Labels": {
+        "Buy": "Buy"
+      },
+      "Description": "BUY MNTP новый текст: `MINT is an open blockchain network based on the Proof-of-Stake algorithm. Technically, the data is transferred to the blockchain from the pawn shops accounting system or Custody Bot send it automatically. After the pawnshop Operator/Custody Bot evaluates the customer's product and enters it into the pawnshop's database, the relevant information is recorded in the blockchain. In order to use network, pawnshops pay a commission for transactions, part of these commissions are received by the holders of MNTP tokens for storing data and participating in transaction verification. The reward is paid in an internal system in GOLD coins. To get the reward, token holders must launch the Master Node of the MINT blockchain – at least 10,000 MNTP tokens are needed.",
+      "AdditionalBenefits": {
+        "Heading": "Additional benefits for MNTP holders:",
+        "Items": {
+          "1th": "Low commission for GOLD coin transaction (when you send GOLD tokens on a MINT blockchain)",
+          "2th": "Zero commission for GOLD/ETH exchange (when you sell or buy GOLD for Ethereum)",
+          "3th": "Also, MNTP tokens are used to pay for recording any data in the MINT blockchain"
+        }
+      },
+      "BuyText": "Token MNTP listed on <a href='https://coinmarketcap.com/currencies/goldmint/' target='_blank'>Coinmarketcap</a> and traded on several exchanges:",
+      "MNTPRepresented": "Also MNTP represented on <a href='https://www.etherama.io/#/trade/0xf4a3679eb0a3d9e8af9824a29bd32dd98d1e7127' target='_blank'>Etherama</a> smart contract platform, on which are frozen 2M tokens."
+    },
     "Scanner": {
       "Heading": "Сканер",
       "Caption": "Goldmint blockchain сканер",
@@ -364,9 +346,12 @@
           "DigestPlaceholder": "Поиск по Digest"
         },
         "Labels": {
-          "QuantityBlocks": "Количество блоков:",
-          "QuantityTx": "Количество транзакций:",
-          "QuantityNodes": "Количество нод:",
+          "QuantityBlocks": "Блоков",
+          "QuantityTx": "Транзакций",
+          "QuantityNodes": "Нод",
+          "Issued": "Выпущено",
+          "Burned": "Уничтожено",
+          "Balance": "Баланс",
           "Or": "ИЛИ"
         },
         "Charts": {
@@ -1375,42 +1360,7 @@
         }
       }
     },
-    "Transparency": {
-      "Heading": "Прозрачность",
-      "Issued": "Выпущено:",
-      "Burnt": "Потрачено:",
-      "Circulation": "Отциркулировано:",
-      "Link": "Ссылка",
-      "Table": {
-        "Heading": "Документы",
-        "TableCell": {
-          "Date": "Дата",
-          "Amount": "Количество",
-          "Document": "Документ",
-          "Comment": "Комментарий"
-        }
-      },
-      "TableInfo": {
-        "Headings": {
-          "Assets": "Активы",
-          "Liabilities": "Пасивы",
-          "Exchange": "Дениги у брокера/биржи",
-          "Storage": "Физическое золото в хранилище",
-          "DataProvided": "Данные предоставлены",
-          "Report": "Последний отчет аудитора",
-          "MoneyInBanks": "Деньги в банке",
-          "Distribution": "Криптоактивов GOLD в обороте"
-        },
-        "TableCell": {
-          "Borrowings": "Займы",
-          "Capital": "Капитал",
-          "Profits": "Нераспределенная прибыль"
-        }
-      }
-    },
     "LegalSecurity": {
-      "Heading": "Легальность и безопасность",
-      "Label": "1. Документы",
       "Links": {
         "Terms": "Условия продажи",
         "Privacy": "Конфиденциальность",
@@ -1422,6 +1372,10 @@
         "Amount": "Вы заплатите:",
         "Estimates": "Вы получите:",
         "Checkbox": "Настоящим я подтверждаю своё ознакомление и согласие с информацией, приведенной ниже (непосредственно или в виде ссылок):",
+        "Agree": {
+          "Text": "Подтверждаю свое ознакомление и согласие с",
+          "Link": "условиями продажи"
+        },
         "TimerLabel": "Оставшееся время для подтверждения платежа:"
       },
       "Button": "Перейти к оплате",
@@ -1474,7 +1428,12 @@
         "Withdraw": "Вывести мое вознаграждение",
         "Unhold": "Возвратить мою часть и вывести вознаграждение",
         "UnholdOld": "Возвратить мою часть и вывести вознаграждение из старого пула",
-        "ViewContract": "Посмотреть на Etherscan"
+        "ViewContract": "Посмотреть на Etherscan",
+        "HaveFrozenStake": "Вы заморозили свою ставку *",
+        "ToUnfreeze": {
+          "Text": "* Чтобы разморозить свою ставку, отправьте запрос в",
+          "Support": "службу поддержки Goldmint"
+        }
       },
       "HoldTokens": {
         "Heading": "Удержать мои MNTP токены в пуле",
@@ -1586,7 +1545,8 @@
     "BackToCard": "Вернуться к списку карт",
     "GoToCard": "Перейти к списку карт",
     "Deposit": "Пополнить",
-    "Withdraw": "Вывести"
+    "Withdraw": "Вывести",
+    "Confirm": "Подтвердить"
   },
   "ERRORS": {
     "Registration": {
@@ -1634,6 +1594,7 @@
       "Title": "Ошибка подключения",
       "Message": "Похоже, что ваше интернет-соединение не установлено.<br>Пожалуйста, проверьте его и повторите попытку."
     },
+    "MakeDeposit": "Чтобы сделать депозит, отправьте Ваши токены GOLD на Ваш депозитный адрес в блокчейне Mint:",
     "Cards": {
       "Remove": "Удалить карту?",
       "Removed": "Ваша карта удалена",
@@ -1647,23 +1608,23 @@
       "Link": "Просмотр транзакции на EtherScan"
     },
     "MetaMask": {
-      "Heading": "Чтобы продолжить, Вам понадобится Metamask",
+      "Heading": "Требуется MetaMask",
       "Text": "MetaMask - это мост, который позволяет вам посещать распределенную сеть будущего в вашем браузере сегодня. Он позволяет запускать Ethereum dApps прямо в вашем браузере без запуска полного узла Ethereum. Пожалуйста, установите расширение MetaMask в браузере Chrome, Firefox или Opera. Узнать о <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
     "LiteWallet": {
-      "Heading": "Чтобы продолжить, Вам понадобится Lite Wallet",
-      "Text": "Goldmint Lite Wallet предоставлен для безопасного хранения, отправки или получения токенов MINT или GOLD. Это позволит вам иметь несколько кошельков для хранения MINT/GOLD. Получить"
+      "Heading": "Mint Wallet",
+      "Text": "Mint Wallet предоставлен для безопасного хранения, отправки или получения токенов MNT или GOLD. Это позволит вам иметь несколько кошельков для хранения MNT/GOLD. Получить"
     },
     "LoginToMM": {
       "HeadingBuy": "КУПИТЬ GOLD",
       "HeadingSell": "ПРОДАТЬ GOLD",
       "HeadingTransfer": "ПЕРЕВОД GOLD",
-      "HeadingMigration": "МИГРАЦИЯ ТОКЕНОВ",
+      "MasterNode": "ПОЛУЧИТЬ ТОКЕНЫ",
       "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Войдите в свой аккаунт или разрешите доступ к Ethereum blockchain"
     },
     "LoginToLiteWallet": {
-      "Heading": "МИГРАЦИЯ ТОКЕНОВ",
+      "Heading": "ПОЛУЧИТЬ ТОКЕНЫ",
       "Text": "Войдите в свой аккаунт"
     },
     "AuthModal": {
@@ -1674,9 +1635,12 @@
       }
     },
     "InvalidNetwork": "Вы должны использовать {{ network }} сеть",
+    "InvalidNetworkMM": "Вы должны использовать {{ network }} сеть для MetaMask",
+    "InvalidNetworkWallet": "Вы должны использовать {{ network }} сеть для Mint Wallet",
     "logOut": "Вы действительно хотите выйти?",
     "SomethingWrong": "Что-то пошло не так.",
-    "DepositLimit": "Лимит пополнения привышен"
+    "DepositLimit": "Лимит пополнения привышен",
+    "CookiesMessage": "Этот сайт использует cookie для хранения данных. Продолжая использовать сайт, Вы даете свое согласие на работу с этими файлами."
   },
   "MESSAGE": {
     "NoData": "Нет данных"

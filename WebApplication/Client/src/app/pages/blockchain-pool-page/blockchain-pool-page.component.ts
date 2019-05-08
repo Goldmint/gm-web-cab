@@ -21,6 +21,7 @@ export class BlockchainPoolPageComponent implements OnInit {
   public heldTokens: number = 0;
   public mntpReward: number = 0;
   public goldReward: number = 0;
+  public userFrozenStake: number = null;
 
   public heldTokensOld: number = 0;
   public mntpRewardOld: number = 0;
@@ -122,6 +123,13 @@ export class BlockchainPoolPageComponent implements OnInit {
     this._poolService.getObsOldGoldTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null) {
         this.goldRewardOld = +data;
+        this._cdRef.markForCheck();
+      }
+    });
+
+    this._poolService.getObsUserFrozenStake().takeUntil(this.destroy$).subscribe(data => {
+      if (data !== null) {
+        this.userFrozenStake = +data;
         this._cdRef.markForCheck();
       }
     });

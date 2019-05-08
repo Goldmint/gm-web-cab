@@ -15,6 +15,7 @@ import { AppDefaultLanguage } from '../app.languages';
 import { ReplaySubject } from "rxjs/ReplaySubject";
 import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class UserService {
@@ -24,10 +25,7 @@ export class UserService {
 
   public currentUser: Observable<User> = this._user.asObservable();
   public currentLocale: Observable<string> = this._locale.asObservable();
-
-  public onWalletSwitch$ = new Subject();
-  public currentWallet;
-
+  public getLiteWalletLink;
   public windowSize$ = new Subject();
 
   constructor(
@@ -42,6 +40,9 @@ export class UserService {
     if (token) {
       this.processToken(token);
     }
+
+    let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
+    this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
   }
 
   public getIPInfo() {
@@ -150,10 +151,6 @@ export class UserService {
       );
   }
 
-  onWalletSwitch(wallet) {
-    this.onWalletSwitch$.next(wallet);
-  }
-
   showLoginToMMBox(heading: string) {
     this._translate.get('MessageBox.LoginToMM').subscribe(phrase => {
       this._messageBox.alert(`
@@ -164,18 +161,40 @@ export class UserService {
     });
   }
 
-  showLoginToLiteWallet() {
+  showGetMetamaskModal() {
+    this._translate.get('MessageBox.MetaMask').subscribe(phrase => {
+      this._messageBox.alert(phrase.Text, phrase.Heading);
+    });
+  }
+
+  showLoginToLiteWalletModal() {
     this._translate.get('MessageBox.LoginToLiteWallet').subscribe(phrase => {
       this._messageBox.alert(`
         <div class="text-center">${phrase.Text}</div>
         <div class="gold-circle-icon"></div>
-        <div class="text-center mt-2 mb-2">Goldmint Lite Wallet</div>
+        <div class="text-center mt-2 mb-2">Mint Wallet</div>
+      `, phrase.Heading);
+    });
+  }
+
+  showGetLiteWalletModal() {
+    this._translate.get('MessageBox.LiteWallet').subscribe(phrase => {
+      this._messageBox.alert(`
+            <div>${phrase.Text} <a href="${this.getLiteWalletLink}" target="_blank">Mint Wallet</a></div>
       `, phrase.Heading);
     });
   }
 
   invalidNetworkModal(network) {
     this._translate.get('MessageBox.InvalidNetwork', {network}).subscribe(phrase => {
+      setTimeout(() => {
+        this._messageBox.alert(phrase);
+      }, 0);
+    });
+  }
+
+  showInvalidNetworkModal(translateKey, network) {
+    this._translate.get('MessageBox.' + translateKey, {network}).subscribe(phrase => {
       setTimeout(() => {
         this._messageBox.alert(phrase);
       }, 0);

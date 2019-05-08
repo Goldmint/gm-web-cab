@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreLogic", "CoreLogic\Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Migrations", "Migrations\Migrations.csproj", "{57937CE6-B3ED-4044-87CD-B3E4B7B14704}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreLogicTests", "CoreLogicTests\CoreLogicTests.csproj", "{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "CoreLogicTests\Tests.csproj", "{5A7F3135-BE37-4ECB-9DAC-2AE954E8FA84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

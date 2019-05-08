@@ -1,5 +1,5 @@
 <!-- host: .page -->
-<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>
+<!--<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>-->
 
 <section class="page__section section">
   <h2 class="section__title">{{ "PAGES.BlockchainPool.Heading" | translate }}</h2>
@@ -33,6 +33,15 @@
             <div class="invalid-feedback" *ngIf="(invalidBalance || !tokenAmount) && mntpInput.dirty">
               {{ "PAGES.BlockchainPool.HoldTokens.Errors.EnoughMoney" | translate }}
             </div>
+          </div>
+        </div>
+
+        <div class="col-12 mb-3">
+          <div class="font-weight-500 mb-2 lead icon--red pointer" *ngIf="noMetamask">
+            <span (click)="getMetamaskModal()">{{ "PAGES.Sell.Errors.GetMM" | translate }}</span>
+          </div>
+          <div class="font-weight-500 mb-2 lead icon--red pointer" *ngIf="!noMetamask && !ethAddress">
+            <span (click)="enableMetamaskModal()">{{ "PAGES.Sell.Errors.EnableMM" | translate }}</span>
           </div>
         </div>
 

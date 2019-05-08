@@ -10,11 +10,10 @@ using Goldmint.CoreLogic.Services.Mutex;
 using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
-using Goldmint.CoreLogic.Services.OpenStorage;
-using Goldmint.CoreLogic.Services.OpenStorage.Impl;
 using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.CoreLogic.Services.Rate;
+using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.CoreLogic.Services.SignedDoc;
@@ -33,17 +32,13 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Goldmint.WebApplication {
 
 	public partial class Startup {
 
-		private CoreLogic.Services.Bus.Subscriber.CentralSubscriber _busCentralSubscriber;
-		private CoreLogic.Services.Bus.Publisher.ChildPublisher _busChildPublisher;
-		private CoreLogic.Services.Rate.Impl.BusSafeRatesSource _busSafeRatesSource;
-		private CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator _apiTelemetryAccumulator;
-		private Services.Bus.AggregatedTelemetryHolder _aggregatedTelemetryHolder;
+		private BusSafeRatesSource _busSafeRatesSource;
+		private RuntimeConfigUpdater _configUpdater;
 
 		public IServiceProvider ConfigureServices(IServiceCollection services) {
 
@@ -228,47 +223,26 @@ namespace Goldmint.WebApplication {
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
+			// nats factory
+			var natsFactory = new NATS.Client.ConnectionFactory();
+
+			// nats connection getter
+			NATS.Client.IConnection natsConnGetter() {
+				var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
+				opts.Url = _appConfig.Bus.Nats.Endpoint;
+				opts.AllowReconnect = true;
+				return natsFactory.CreateConnection(opts);
+			}
+			services.AddScoped(_ => natsConnGetter());
+
 			// rates
-			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(_runtimeConfigHolder, LogManager.LogFactory);
+			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(natsConnGetter(), _runtimeConfigHolder, LogManager.LogFactory);
 			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
 			services.AddSingleton<CoreLogic.Services.Rate.Impl.SafeRatesFiatAdapter>();
 
-			// aggregated telemetry from centra pub
-			_aggregatedTelemetryHolder = new Services.Bus.AggregatedTelemetryHolder(_appConfig);
-			services.AddSingleton(_aggregatedTelemetryHolder);
-
-			// subscribe to central pub
-			_busCentralSubscriber = new CoreLogic.Services.Bus.Subscriber.CentralSubscriber(
-				new [] {
-					CoreLogic.Services.Bus.Proto.Topic.FiatRates,
-					CoreLogic.Services.Bus.Proto.Topic.AggregatedTelemetry,
-					CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated,
-				},
-				new Uri(_appConfig.Bus.CentralPub.Endpoint),
-				LogManager.LogFactory
-			);
-
-			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.FiatRates, (p, s) => {
-				_busSafeRatesSource.OnNewRates(p, s);
-				_apiTelemetryAccumulator.AccessData(_ => _.RatesData = p as CoreLogic.Services.Bus.Proto.SafeRates.SafeRatesMessage);
-			});
-
-			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.AggregatedTelemetry, (p, s) => {
-				_aggregatedTelemetryHolder.OnUpdate(p, s);
-			});
-
-			_busCentralSubscriber.SetTopicCallback(CoreLogic.Services.Bus.Proto.Topic.ConfigUpdated, (p, s) => {
-				Task.Factory.StartNew(async () => {
-					await _runtimeConfigHolder.Reload();
-					var rcfg = _runtimeConfigHolder.Clone();
-					_apiTelemetryAccumulator.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
-				});
-			});
-
-			// open storage
-			services.AddSingleton<IOpenStorageProvider>(fac => 
-				new IPFS(_appConfig.Services.Ipfs.Url, LogManager.LogFactory)
-			);
+			// runtime config updater
+			_configUpdater = new RuntimeConfigUpdater(natsConnGetter(), natsConnGetter(), _runtimeConfigHolder, LogManager.LogFactory);
+			services.AddSingleton<IRuntimeConfigUpdater>(_configUpdater);
 
 			// docs signing
 			services.AddSingleton<IDocSigningProvider>(fac => {
@@ -289,24 +263,6 @@ namespace Goldmint.WebApplication {
 				return srv;
 			});
 
-			// custom child-pub port
-			var busChildPubCustomPort = Environment.GetEnvironmentVariable("ASPNETCORE_BUS_CHD_PORT");
-			if (!string.IsNullOrWhiteSpace(busChildPubCustomPort)) {
-				_appConfig.Bus.ChildPub.PubPort = int.Parse(busChildPubCustomPort);
-			}
-
-			// launch child pub
-			_busChildPublisher = new CoreLogic.Services.Bus.Publisher.ChildPublisher(_appConfig.Bus.ChildPub.PubPort, LogManager.LogFactory);
-			services.AddSingleton(_busChildPublisher);
-
-			// telemetry accum/pub
-			_apiTelemetryAccumulator = new CoreLogic.Services.Bus.Telemetry.ApiTelemetryAccumulator(
-				_busChildPublisher,
-				TimeSpan.FromSeconds(_appConfig.Bus.ChildPub.PubTelemetryPeriodSec),
-				LogManager.LogFactory
-			);
-			services.AddSingleton(_apiTelemetryAccumulator);
-
 			// google sheets
 			if (_appConfig.Services.GoogleSheets != null) {
 				services.AddSingleton(new Sheets(_appConfig, LogManager.LogFactory));
@@ -318,14 +274,9 @@ namespace Goldmint.WebApplication {
 		public void RunServices() {
 			var logger = LogManager.LogFactory.GetCurrentClassLogger();
 			logger.Info("Run services");
-
 			_runtimeConfigHolder.Reload().Wait();
-			var rcfg = _runtimeConfigHolder.Clone();
-			_apiTelemetryAccumulator?.AccessData(_ => _.RuntimeConfigStamp = rcfg.Stamp);
-
-			_busCentralSubscriber?.Run();
-			_busChildPublisher?.Run();
-			_apiTelemetryAccumulator?.Run();
+			_busSafeRatesSource?.Run();
+			_configUpdater?.Run();
 		}
 
 		public void StopServices() {
@@ -333,20 +284,11 @@ namespace Goldmint.WebApplication {
 			logger.Info("Stop services");
 
 			try {
-				_apiTelemetryAccumulator?.StopAsync();
-				_busChildPublisher?.StopAsync();
-				_busCentralSubscriber?.StopAsync();
-
-				_apiTelemetryAccumulator?.Dispose();
-				_busChildPublisher?.Dispose();
-				_busCentralSubscriber?.Dispose();
-
+				_busSafeRatesSource?.Stop();
 				_busSafeRatesSource?.Dispose();
-				_aggregatedTelemetryHolder?.Dispose();
-
-				NetMQ.NetMQConfig.Cleanup(true);
-			}
-			catch (Exception e) {
+				_configUpdater?.Stop();
+				_configUpdater?.Dispose();
+			} catch (Exception e) {
 				logger.Error(e);
 			}
 
