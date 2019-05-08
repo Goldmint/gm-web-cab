@@ -11,7 +11,7 @@ export const environment = {
   //   MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
   //   TestNet: 'https://service.goldmint.io/sumus/testnet/v1'
   // },
-  sumusNetworkUrl: 'https://service.goldmint.io/sumus/testnet/v1',
+  sumusNetworkUrl: 'https://service.goldmint.io/sumus/mainnet/v1',
   apiUrl: 'https://app.goldmint.io/api/v1',
   marketApiUrl: 'https://staging.goldmint.io/market/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
