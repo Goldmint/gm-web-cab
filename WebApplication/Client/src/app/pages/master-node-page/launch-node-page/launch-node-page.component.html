@@ -1,15 +1,38 @@
 <!-- host: .page -->
 
-<div>
-  <section class="page__section section info-section">
+<div class="pb-4">
+  <section class="page__section section info-section mb-0">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Heading" | translate }}</h2>
 
-    <div class="mt-4">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Text" | translate }}</div>
+    <div class="mt-4" [innerHTML]="'PAGES.MasterNode.LaunchPage.GeneralInfo.Text' | translate "></div>
   </section>
 </div>
 
-<div class="mt-4 pt-1">
+<div>
   <section class="page__section section info-section">
+    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.Manual" | translate }}</h2>
+
+    <div class="my-4">
+      <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }}</div>
+
+      <div class="d-flex align-items-center mt-3">
+        <div>
+          <svg class="icon" width="35px" height="35px">
+            <use xlink:href="#github-logo"></use>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <a class="d-block mb-1" href="https://github.com/Goldmint/sumus-docs" target="_blank">Github.com</a>
+          <a class="d-block" href="https://github.com/Goldmint/sumus-docs/wiki" target="_blank">Wiki</a>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<div>
+  <section class="page__section section pb-4">
     <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.GetMNT" | translate }}</h2>
 
     <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
@@ -145,29 +168,6 @@
       </ng-template>
 
     </ng-template>
-
-  </section>
-</div>
-
-<div class="mt-4 pt-1">
-  <section class="page__section section general-info-section">
-    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.Manual" | translate }}</h2>
-
-    <div class="my-4">
-      <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }}</div>
-
-      <div class="d-flex align-items-center mt-3">
-        <div>
-          <svg class="icon" width="35px" height="35px">
-            <use xlink:href="#github-logo"></use>
-          </svg>
-        </div>
-        <div class="ml-3">
-          <a class="d-block mb-1" href="https://github.com/Goldmint/sumus-docs" target="_blank">Github.com</a>
-          <a class="d-block" href="https://github.com/Goldmint/sumus-docs/wiki" target="_blank">Wiki</a>
-        </div>
-      </div>
-    </div>
 
   </section>
 </div>
