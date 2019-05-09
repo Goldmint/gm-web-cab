@@ -13,7 +13,7 @@ export const environment = {
   // },
   sumusNetworkUrl: 'https://service.goldmint.io/sumus/mainnet/v1',
   apiUrl: 'https://app.goldmint.io/api/v1',
-  marketApiUrl: 'https://staging.goldmint.io/market/v1',
+  marketApiUrl: 'https://service.goldmint.io/pawnmarket/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
   etherscanUrl: 'https://etherscan.io/tx/',
