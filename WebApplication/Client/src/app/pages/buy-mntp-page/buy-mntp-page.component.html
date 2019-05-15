@@ -19,16 +19,22 @@
 
         <div [innerHTML]="'PAGES.BuyMNTP.BuyText' | translate"></div>
 
-        <div class="exchanges-items mt-3">
-          <ul>
-            <li class="bancor-exchange"><a href="https://www.bancor.network/token/MNTP" target="_blank">Bancor</a></li>
-            <li class="yobit-exchange"><a href="https://yobit.io/ru/trade/MNTP/BTC#7D" target="_blank">Yobit</a></li>
-            <li class="simex-exchange"><a href="https://simex.global/en/exchange/mntp/btc" target="_blank">Simex</a></li>
+        <div class="row">
+          <div class="col-md-5 exchanges-items mt-3">
+            <ul>
+              <li class="bancor-exchange"><a href="https://www.bancor.network/token/MNTP" target="_blank">Bancor</a></li>
+              <li class="yobit-exchange"><a href="https://yobit.io/ru/trade/MNTP/BTC#7D" target="_blank">Yobit</a></li>
+              <li class="simex-exchange"><a href="https://simex.global/en/exchange/mntp/btc" target="_blank">Simex</a></li>
 
-            <li class="idex-exchange"><a href="https://idex.market/eth/mntp" target="_blank">Idex</a></li>
-            <li class="livecoin-exchange"><a href="https://www.livecoin.net/en" target="_blank">Livecoin</a></li>
-            <li class="forkdelta-exchange"><a href="https://forkdelta.app/#!/trade/MNTP-ETH" target="_blank">Forkdelta</a></li>
-          </ul>
+              <li class="idex-exchange"><a href="https://idex.market/eth/mntp" target="_blank">Idex</a></li>
+              <li class="livecoin-exchange"><a href="https://www.livecoin.net/en" target="_blank">Livecoin</a></li>
+              <li class="forkdelta-exchange"><a href="https://forkdelta.app/#!/trade/MNTP-ETH" target="_blank">Forkdelta</a></li>
+            </ul>
+          </div>
+          <div class="col-md-2"></div>
+          <div class="col-md-5 mb-3 mb-md-0 align-self-center">
+            <div class="coinmarketcap-currency-widget" data-currencyid="2513" data-base="USD" data-secondary="BTC" data-ticker="true" data-rank="true" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false"></div>
+          </div>
         </div>
 
         <div class="mt-2" [innerHTML]="'PAGES.BuyMNTP.MNTPRepresented' | translate"></div>
