@@ -96,8 +96,8 @@ const appRoutes: Routes = [
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
-  { path: 'blockchain-pool', component: BlockchainPoolPageComponent },
-  { path: 'blockchain-pool/hold-tokens', component: HoldTokensPageComponent },
+  { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
+  { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },

@@ -2,18 +2,44 @@
 
 <div class="pb-4">
   <section class="page__section section info-section mb-0">
-    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.GeneralInfo.Heading" | translate }}</h2>
+    <h2 class="section__title">Few steps to launch the master node:</h2>
 
-    <div class="mt-4" [innerHTML]="'PAGES.MasterNode.LaunchPage.GeneralInfo.Text' | translate "></div>
+    <div class="mt-4">
+      <div>1. Buy more than 10,000.1 MNTP tokens on any exchange from the <a routerLink="/buy-mntp">list</a>.</div>
+      <div>2. Hold purchased tokens in the <a routerLink="/ethereum-pool">Ethereum Pool</a> smart contract.</div>
+      <div>3. Create a <a [href]="liteWalletLink" target="_blank">Lite Wallet</a> in the MINT blockchain, setting the extension for the Chrome browser.</div>
+      <div>4. Swap 10,000.1 MNTP (ERC20) to MNT (MINT) tokens and receive them to your Lite Wallet.</div>
+      <div>5. Deploy or <a href="https://www.vultr.com/" target="_blank">rent</a> a dedicated server with CentOS and run a master node on it.</div>
+      <div>6. Register your Lite wallet and your own master node in the MINT blockchain.</div>
+      <div>7. Receive rewards in crypto assets GOLD</div>
+    </div>
   </section>
 </div>
 
 <div>
   <section class="page__section section info-section">
-    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.Manual" | translate }}</h2>
+    <h2 class="section__title">Three commands for the master node launch:</h2>
 
     <div class="my-4">
-      <div>{{ "PAGES.MasterNode.LaunchPage.Description" | translate }}</div>
+      <div>
+        <b>1. Obtain the latest build:</b><br>
+        cd /tmp<br>
+        yum install -y git<br>
+        git clone https://github.com/Goldmint/sumus.git<br>
+        chmod +x /tmp/sumus/build_node<br>
+        /tmp/sumus/./build_node<br>
+        /opt/sumus/./shell.gm
+      </div>
+      <div class="mt-1">
+        <b>2. Create a wallet:</b><br>
+        create local wallet from keys wallet_name public key public_key  private key private_key
+      </div>
+      <div class="mt-1">
+        <b>3. Register your node:</b><br>
+        register node transaction address cloud_server_ip  local wallet wallet_name
+      </div>
+
+      <div class="mt-4"><b>Detailed instructions you can find below:</b></div>
 
       <div class="d-flex align-items-center mt-3">
         <div>
@@ -33,7 +59,7 @@
 
 <div>
   <section class="page__section section pb-4">
-    <h2 class="section__title">{{ "PAGES.MasterNode.LaunchPage.Labels.GetMNT" | translate }}</h2>
+    <h2 class="section__title">Swap MNTP (Ethereum ERC 20) to MNT (MINT blockchain) tokens</h2>
 
     <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
       <div class="container"></div>
@@ -78,16 +104,11 @@
         <div class="mt-4">
           <div *ngIf="!isSent">
             <div>
-              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo.1th" | translate }}</span>
-              <a routerLink="/buy-mntp">{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo.2th" | translate }}</a>
-              <span>{{ "PAGES.MasterNode.LaunchPage.Labels.InOrderInfo.3th" | translate }}</span>
-              <a routerLink="/blockchain-pool">
-                {{ "PAGES.MasterNode.LaunchPage.Labels.PoolContract" | translate }}
-              </a>
+              In order to swap tokens, please <a routerLink="/buy-mntp">buy</a> and hold your MNTP on the <a routerLink="/ethereum-pool">Ethereum Pool</a>
             </div>
 
             <div class="color-red mt-3" *ngIf="errors.haveToHold">
-              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/blockchain-pool">BLOCKCHAIN POOL</a>
+              {{ "PAGES.MasterNode.LaunchPage.Info.HaveToHold" | translate }} <a routerLink="/ethereum-pool">Ethereum Pool</a>
             </div>
             <div class="color-red mt-3" *ngIf="errors.stakeSent">
               {{ "PAGES.MasterNode.LaunchPage.Info.StakeSent" | translate }}

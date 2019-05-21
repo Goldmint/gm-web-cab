@@ -36,9 +36,9 @@
 .auth-info
   display: flex
   align-items: center
-  font-weight: 500
-  font-size: rem(14px)
-  line-height: rem(19px)
+  font-weight: 700
+  font-family: 'Open Sans'
+  font-size: rem(12px)
 
   a:not(.btn)
     color: $color-brand
@@ -87,31 +87,14 @@
         a
           color: $color-brand
 
-
-      &:not(:first-child):before
-        content: '|'
-        position: relative
-        left: -2px
-        top: -1px
-        color: #fff
-        font-size: 12px
-        font-weight: 400
-
-      &:last-child:after
-        content: '|'
-        position: relative
-        left: -2px
-        top: -1px
-        color: #fff
-        font-size: 12px
-        font-weight: 400
-
       a
         color: #fff
         padding: 0 12px
-        font-size: rem(14px)
+        font-size: rem(12px)
         transition: color .3s ease-in-out
         text-transform: uppercase
+        font-family: 'Open Sans'
+        font-weight: 700
 
         &.active, &:hover
           color: $color-brand
@@ -146,7 +129,8 @@
           text-align: left
           min-height: 25px
           height: auto
-          font-size: 0.875rem
+          font-size: 12px
+          font-family: 'Open Sans'
           text-transform: uppercase
           font-weight: 700
 

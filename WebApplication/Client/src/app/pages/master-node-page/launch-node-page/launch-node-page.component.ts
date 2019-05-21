@@ -43,6 +43,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   };
   public noMetamask: boolean = false;
   public noMintWallet: boolean = false;
+  public liteWalletLink;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = window['GoldMint'];
@@ -64,6 +65,9 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
+    this.liteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
+
     this.isAuthenticated = this.userService.isAuthenticated();
     this.initModal();
     this.getEthAddress();

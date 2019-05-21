@@ -2,7 +2,7 @@
 <!--<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>-->
 
 <section class="page__section section mb-4">
-  <h2 class="section__title">{{ "PAGES.BlockchainPool.Heading" | translate }}</h2>
+  <h2 class="section__title">Ethereum pool for mining MNTP (ERC 20) tokens only</h2>
 
   <div class="section__content pt-4">
     <div class="progress-linear progress-linear--tiny" *ngIf="loading">
@@ -13,7 +13,7 @@
 
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="hold">{{ "PAGES.BlockchainPool.Labels.Hold" | translate }}</label>
-        <button class="btn btn-primary btn-block poll-action-btn justify-content-center" id="hold" routerLink="/blockchain-pool/hold-tokens">
+        <button class="btn btn-primary btn-block poll-action-btn justify-content-center" id="hold" routerLink="/ethereum-pool/hold-tokens">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#inbox"></use>
           </svg>
@@ -32,9 +32,6 @@
             <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
-        <div class="mt-2">
-          After you hold 10 000.1 MNTP you will be able to swap it to MNT in <a routerLink="/master-node">launch master node</a> section.
-        </div>
       </div>
 
       <div class="col-12 col-lg-4 form-group text-center">
@@ -73,11 +70,15 @@
       </div>
 
       <div class="col-12 col-lg-4"></div>
-
     </div>
 
-    <div class="mt-1 mb-4">
-      <a class="" [href]="etherscanContractUrl + poolContractAddress" target="_blank">{{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}</a>
+    <div>
+      For mining crypto asset GOLD you need to launch your own master node in MINT blockchain.<br>
+      After you hold 10 000.1 MNTP in Ethereum pool you will be able to swap it to MNT token in <a routerLink="/master-node">launch master node</a> section.
+    </div>
+
+    <div class="mt-3 mb-4">
+      <a [href]="etherscanContractUrl + poolContractAddress" target="_blank">{{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}</a>
     </div>
 
   </div>
