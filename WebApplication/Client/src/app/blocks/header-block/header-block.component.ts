@@ -31,7 +31,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public getLiteWalletLink;
   public menuRoutes = {
     exchange: ['/sell', '/buy', '/finance/history'],
-    masterNode: ['/master-node', '/blockchain-pool', '/buy-mntp'],
+    masterNode: ['/master-node', '/ethereum-pool', '/buy-mntp'],
     scanner: ['/scanner', '/nodes', '/pawnshop-loans']
   };
   public activeMenuItem: string;
@@ -79,6 +79,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         this.checkActiveMenuItem(event.urlAfterRedirects);
         this.isShowMobileMenu = false;
         document.body.style.overflow = 'visible';
+        window.scrollTo(0, 0);
         this._cdRef.markForCheck();
       }
     });
