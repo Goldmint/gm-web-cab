@@ -73,8 +73,8 @@
 
           <ng-template let-transferred_mnt="value" let-row="row" ngx-datatable-cell-template>
             <div class="">
-              {{ row.transferred_mnt | substr:2 }} MNT<br>
-              {{ row.transferred_gold | substr:2 }} GOLD
+              {{ row.transferred_mnt | substr:3 }} MNT<br>
+              {{ row.transferred_gold | substr:3 }} GOLD
             </div>
           </ng-template>
         </ngx-datatable-column>
@@ -88,8 +88,8 @@
 
           <ng-template let-reward_mnt="value" let-row="row" ngx-datatable-cell-template>
             <div class="">
-              {{ row.reward_mnt | substr:2 }} MNT<br>
-              {{ row.reward_gold | substr:2 }} GOLD
+              {{ row.reward_mnt | substr:6 }} MNT<br>
+              {{ row.reward_gold | substr:6 }} GOLD
             </div>
           </ng-template>
         </ngx-datatable-column>
