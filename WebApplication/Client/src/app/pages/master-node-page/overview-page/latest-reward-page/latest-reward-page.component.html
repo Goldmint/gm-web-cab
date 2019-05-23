@@ -115,15 +115,15 @@
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.MasterNode.LatestReward.Table.TransferredToken" | translate }}:</span>
             <div class="ml-1">
-              {{ row.transferred_mnt | substr:2 }} MNT<br>
-              {{ row.transferred_gold | substr:2 }} GOLD
+              {{ row.transferred_mnt | substr:3 }} MNT<br>
+              {{ row.transferred_gold | substr:3 }} GOLD
             </div>
           </div>
           <div class="d-flex">
             <span class="font-weight-500">{{ "PAGES.MasterNode.LatestReward.Table.RewardAmount" | translate }}:</span>
             <div class="ml-1">
-              {{ row.reward_mnt | substr:2 }} MNT<br>
-              {{ row.reward_gold | substr:2 }} GOLD
+              {{ row.reward_mnt | substr:6 }} MNT<br>
+              {{ row.reward_gold | substr:6 }} GOLD
             </div>
           </div>
         </ng-template>
