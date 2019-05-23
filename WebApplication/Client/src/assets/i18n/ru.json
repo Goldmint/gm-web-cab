@@ -1364,7 +1364,8 @@
       "Links": {
         "Terms": "Условия продажи",
         "Privacy": "Конфиденциальность",
-        "KYCPolicy": "KYC политика"
+        "KYCPolicy": "KYC политика",
+        "TermsOfTesting": "Условия тестирования"
       }
     },
     "PaymentCardBlock": {

@@ -1362,9 +1362,10 @@
     },
     "LegalSecurity": {
       "Links": {
-        "Terms": "Terms of sale",
-        "Privacy": "Privacy policy",
-        "KYCPolicy": "KYC Policy"
+        "Terms": "Terms of Sale",
+        "Privacy": "Privacy Policy",
+        "KYCPolicy": "KYC Policy",
+		"TermsOfTesting": "Terms of Testing"
       }
     },
     "PaymentCardBlock": {
