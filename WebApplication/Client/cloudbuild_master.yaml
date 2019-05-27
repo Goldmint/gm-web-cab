@@ -3,7 +3,7 @@ steps:
   args: ['install']
   dir: 'WebApplication/Client'
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'build', '--env=prod', '--prod', '--aot', '--build-optimizer=false', '--no-sourcemap']
+  args: ['run', 'build', '--', '--env=prod', '--prod', '--aot', '--build-optimizer=false', '--no-sourcemap']
   dir: 'WebApplication/Client'
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-client-master', '.']
