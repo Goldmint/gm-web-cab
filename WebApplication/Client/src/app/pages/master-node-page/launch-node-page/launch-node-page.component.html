@@ -18,7 +18,7 @@
 
 <div>
   <section class="page__section section info-section">
-    <h2 class="section__title">Three commands for the master node launch:</h2>
+    <h2 class="section__title">Four commands for the master node launch:</h2>
 
     <div class="my-4">
       <div>
@@ -31,12 +31,16 @@
         /opt/sumus/./shell.gm
       </div>
       <div class="mt-1">
-        <b>2. Register your wallet:</b><br>
-        create local wallet from keys wallet_name public key public_key  private key private_key
+        <b>2. Create a node wallet:</b><br>
+        create node wallet <b>mywallet</b>
+      </div>
+	  <div class="mt-1">
+        <b>3. Copy node wallet keys:</b><br>
+        get node wallet keys <b>mywallet</b>
       </div>
       <div class="mt-1">
-        <b>3. Register your node:</b><br>
-        register node transaction address cloud_server_ip  local wallet wallet_name
+        <b>4. Register your node:</b><br>
+        register node transaction address <b>YOUR_SERVER_IP</b> node wallet <b>mywallet</b>
       </div>
 
       <div class="mt-4"><b>Detailed instructions you can find below:</b></div>
