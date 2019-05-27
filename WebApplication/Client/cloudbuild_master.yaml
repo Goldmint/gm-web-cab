@@ -1,0 +1,11 @@
+steps:
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+  dir: 'WebApplication/Client'
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['run', 'build', '--env=prod', '--aot', '--build-optimizer=false', '--no-sourcemap']
+  dir: 'WebApplication/Client'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-client-master', '.']
+  dir: 'WebApplication/Client'
+images: ['eu.gcr.io/$PROJECT_ID/cabinet-client-master']

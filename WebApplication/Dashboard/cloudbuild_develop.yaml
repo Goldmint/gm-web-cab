@@ -1,0 +1,11 @@
+steps:
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+  dir: 'WebApplication/Dashboard'
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['run', 'build', '--env=stage', '--build-optimizer=false', '--no-sourcemap']
+  dir: 'WebApplication/Dashboard'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-dashboard-develop', '.']
+  dir: 'WebApplication/Dashboard'
+images: ['eu.gcr.io/$PROJECT_ID/cabinet-dashboard-develop']
