@@ -5,7 +5,7 @@ steps:
   args: ['publish', '-c', 'Release', '-o', './dist']
   dir: 'WebApplication'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-api:_BRANCH', '.']
+  args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-api:$BRANCH_NAME', '.']
   dir: 'WebApplication'
 # core
 - name: 'microsoft/dotnet:2.1-sdk'
@@ -13,6 +13,6 @@ steps:
   args: ['publish', '-c', 'Release', '-o', './dist']
   dir: 'QueueService'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-core:_BRANCH', '.']
+  args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-core:$BRANCH_NAME', '.']
   dir: 'QueueService'
 images: ['eu.gcr.io/$PROJECT_ID/cabinet-api', 'eu.gcr.io/$PROJECT_ID/cabinet-core']
