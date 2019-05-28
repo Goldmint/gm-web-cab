@@ -1,6 +1,6 @@
 steps:
 # api
-- name: 'microsoft/dotnet:2.0-sdk'
+- name: 'microsoft/dotnet:2.1-sdk'
   entrypoint: dotnet
   args: ['publish', '-c', 'Release', '-o', './dist']
   dir: 'WebApplication'
@@ -8,7 +8,7 @@ steps:
   args: ['build', '--tag=eu.gcr.io/$PROJECT_ID/cabinet-api:_BRANCH', '.']
   dir: 'WebApplication'
 # core
-- name: 'microsoft/dotnet:2.0-sdk'
+- name: 'microsoft/dotnet:2.1-sdk'
   entrypoint: dotnet
   args: ['publish', '-c', 'Release', '-o', './dist']
   dir: 'QueueService'
