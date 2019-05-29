@@ -1,5 +1,6 @@
 import {Component, ChangeDetectionStrategy, ViewEncapsulation, isDevMode, ChangeDetectorRef} from '@angular/core';
 import {APIService, UserService} from "./services";
+import {Version} from "../version";
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,7 @@ import {APIService, UserService} from "./services";
 })
 export class AppComponent {
 
+  public appVersion: string = "";
   public showCookiesMessage: boolean = false;
 
   constructor(
@@ -40,6 +42,8 @@ export class AppComponent {
         }
       }
     });
+	console.log(Version);
+	this.appVersion = Version.commit + " / " + Version.branch;
   }
 
   ngOnInit() {

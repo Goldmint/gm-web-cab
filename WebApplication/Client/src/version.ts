@@ -1,0 +1,1 @@
+export class Version { public static commit:string = "commit"; public static branch:string = "branch"; }
