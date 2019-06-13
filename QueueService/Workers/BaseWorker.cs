@@ -17,10 +17,10 @@ namespace Goldmint.QueueService.Workers {
 
 		protected CancellationToken CancellationToken { get; private set; }
 		protected ILogger Logger { get; private set; }
-		protected long LoopNumber { get; private set; }
+		//protected long LoopNumber { get; private set; }
 
-		protected long StatExceptionsCounter { get; private set; }
-		protected int StatAverageLoad { get; private set; }
+		//protected long StatExceptionsCounter { get; private set; }
+		//protected int StatAverageLoad { get; private set; }
 
 		protected BaseWorker() {
 			_period = TimeSpan.FromSeconds(10);
@@ -38,10 +38,10 @@ namespace Goldmint.QueueService.Workers {
 			if (_launched) throw new InvalidOperationException();
 			_launched = true;
 
-			var timingAvgPeriodSec = 60d;
-			var timingAvgMult = Math.Max(1, Math.Floor(timingAvgPeriodSec / (_period.TotalSeconds <= 0? timingAvgPeriodSec: _period.TotalSeconds)));
-			var timingAvgAccum = 0d;
-			var timingAvgAccumCounter = 0;
+			// var timingAvgPeriodSec = 60d;
+			// var timingAvgMult = Math.Max(1, Math.Floor(timingAvgPeriodSec / (_period.TotalSeconds <= 0? timingAvgPeriodSec: _period.TotalSeconds)));
+			// var timingAvgAccum = 0d;
+			// var timingAvgAccumCounter = 0;
 
 			CancellationToken = ct;
 			if (_initialDelay > TimeSpan.Zero) {
@@ -50,24 +50,24 @@ namespace Goldmint.QueueService.Workers {
 
 			Logger?.Trace("Loop started");
 
-			var lastLoopStart = DateTime.UtcNow;
+			// var lastLoopStart = DateTime.UtcNow;
 			while (!IsCancelled()) {
 				try {
-					lastLoopStart = DateTime.UtcNow;
+					//lastLoopStart = DateTime.UtcNow;
 					await OnUpdate();
 				}
 				catch (Exception e) {
 					Logger?.Error(e, "loop failure");
-					++StatExceptionsCounter;
+					//++StatExceptionsCounter;
 					OnException(e);
 				}
 
 				// load
-				var updateDuration = DateTime.UtcNow - lastLoopStart;
-				var timingLoad = updateDuration.TotalSeconds / (_period.TotalSeconds <= 0 ? updateDuration.TotalSeconds : _period.TotalSeconds);
-				timingAvgAccum = (timingAvgAccum * timingAvgAccumCounter + timingLoad) / (timingAvgAccumCounter + 1);
-				StatAverageLoad = (int)Math.Round(timingAvgAccum * 100);
-				if (timingAvgAccumCounter < timingAvgMult) ++timingAvgAccumCounter;
+				// var updateDuration = DateTime.UtcNow - lastLoopStart;
+				// var timingLoad = updateDuration.TotalSeconds / (_period.TotalSeconds <= 0 ? updateDuration.TotalSeconds : _period.TotalSeconds);
+				// timingAvgAccum = (timingAvgAccum * timingAvgAccumCounter + timingLoad) / (timingAvgAccumCounter + 1);
+				// StatAverageLoad = (int)Math.Round(timingAvgAccum * 100);
+				// if (timingAvgAccumCounter < timingAvgMult) ++timingAvgAccumCounter;
 
 				try {
 					OnPostUpdate();
@@ -75,25 +75,29 @@ namespace Goldmint.QueueService.Workers {
 				catch (Exception e) {
 					Logger?.Error(e, "loop failure (post)");
 				}
-
-				// time to sleep
-				var cycleDuration = DateTime.UtcNow - lastLoopStart;
-				var sleep = TimeSpan.Zero;
-				if (cycleDuration < _period) {
-					sleep = _period - cycleDuration;
-				}
-				if (sleep > TimeSpan.Zero) {
-					try {
-						await Task.Delay(sleep, CancellationToken);
-					}
-					catch { }
-				}
-
-				++LoopNumber;
-
+				
 				if (_burstMode) {
 					break;
 				}
+
+				// time to sleep
+				//var cycleDuration = DateTime.UtcNow - lastLoopStart;
+				//var sleep = TimeSpan.Zero;
+				//if (cycleDuration < _period) {
+				//	sleep = _period - cycleDuration;
+				//}
+				//if (sleep > TimeSpan.Zero) {
+				//	try {
+				//		await Task.Delay(sleep, CancellationToken);
+				//	}
+				//	catch { }
+				//}
+				// ++LoopNumber;
+
+				try {
+					await Task.Delay(_period, CancellationToken);
+				}
+				catch { }
 			}
 
 			Logger?.Trace("Loop stopped. Cleanup");
