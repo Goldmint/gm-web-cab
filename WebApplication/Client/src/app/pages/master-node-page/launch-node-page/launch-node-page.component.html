@@ -23,12 +23,12 @@
     <div class="my-4">
       <div>
         <b>1. Obtain the latest build:</b><br>
-        cd /tmp<br>
-        yum install -y git<br>
-        git clone https://github.com/Goldmint/sumus.git<br>
-        chmod +x /tmp/sumus/build_node<br>
-        /tmp/sumus/./build_node<br>
-        /opt/sumus/./shell.gm
+        yum install -y wget<br>
+		cd /tmp<br>
+        wget -O setup_cmint_node.sh https://storage.googleapis.com/goldmint-static/apps/cmint/setup_node.sh<br>
+        chmod +x /tmp/setup_cmint_node.sh<br>
+        /tmp/./setup_cmint_node.sh<br>
+        /opt/cmint/shell
       </div>
       <div class="mt-1">
         <b>2. Create a node wallet:</b><br>
