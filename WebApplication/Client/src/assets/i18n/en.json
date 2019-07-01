@@ -292,9 +292,9 @@
         },
         "Table": {
           "Node": "Node wallet",
-          "Date": "Launch date",
-          "MNT": "MNT Held",
-          "Reward": "Total reward earned",
+          "Date": "Date",
+          "MNT": "MNT",
+          "Reward": "Total reward",
           "Chart": "Mini chart"
         },
         "Chart": "Reward Progress Chart"

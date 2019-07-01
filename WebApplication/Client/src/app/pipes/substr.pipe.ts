@@ -2,12 +2,19 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({name: 'substr'})
 export class SubstrPipe implements PipeTransform {
-  transform(value: number, digits: number) {
+  transform(value: number, digits: number, useFormatting: boolean) {
     const position = value.toString().indexOf('.');
+    let result;
     if (position >= 0) {
-      return value.toString().substr(0, position + digits + 1);
+      result = value.toString().substr(0, position + digits + 1);
     } else {
-      return value;
+      result = value.toString();
     }
+
+    if (useFormatting !== undefined) {
+      result = result.replace(/\d(?=(\d{3})+\.)/g, '$& ');
+    }
+
+    return result;
   }
 }

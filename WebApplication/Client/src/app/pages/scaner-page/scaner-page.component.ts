@@ -53,6 +53,10 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   };
   public isProduction = environment.isProduction;
   public locale: string = null;
+  public balance = {
+    gold: 0,
+    mnt: 0
+  };
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
@@ -163,6 +167,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.numberBlocks = data.res.blockchain_state.block_count;
     this.numberNodes = data.res.blockchain_state.node_count;
     this.numberTx = data.res.blockchain_state.transaction_count;
+    this.balance.gold = data.res.blockchain_state.balance.gold;
+    this.balance.mnt = data.res.blockchain_state.balance.mnt;
   }
 
   setBlockAndTransactionsInfo(blockList: BlocksList[], txList: TransactionsList[]) {
