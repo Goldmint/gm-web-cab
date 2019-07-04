@@ -1,6 +1,6 @@
 import {
   Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef,
-  OnDestroy, ViewChild
+  OnDestroy
 } from '@angular/core';
 import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
@@ -8,8 +8,6 @@ import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {APIService} from "../../services/api.service";
-import {BigNumber} from "bignumber.js";
-import {BsModalService} from "ngx-bootstrap";
 import {environment} from "../../../environments/environment";
 import {CommonService} from "../../services/common.service";
 
@@ -35,6 +33,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     scanner: ['/scanner', '/nodes', '/pawnshop-loans']
   };
   public activeMenuItem: string;
+  public networkList;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -54,6 +53,8 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   ngOnInit() {
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
     this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
+
+    this.networkList = this._apiService.networkList;
 
     if (window.innerWidth > 992) {
       this.isMobile = this.isShowMobileMenu = false;
@@ -80,6 +81,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         this.isShowMobileMenu = false;
         document.body.style.overflow = 'visible';
         window.scrollTo(0, 0);
+
+        const network = localStorage.getItem('network')
+        this.router.navigate([], {
+          queryParams: { network: network == this.networkList.testnet ? network : null },
+          queryParamsHandling: 'merge',
+        });
         this._cdRef.markForCheck();
       }
     });

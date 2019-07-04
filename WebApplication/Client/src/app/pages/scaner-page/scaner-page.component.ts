@@ -119,6 +119,11 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.interval = setInterval(() => {
       this.updateData();
     }, 60000);
+
+    this.apiService.transferCurrentNetwork.takeUntil(this.destroy$).subscribe(() => {
+      this.loading = true;
+      this.updateData();
+    });
   }
 
   updateData() {
@@ -135,6 +140,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       this.setBlockAndTransactionsInfo(data[2].res.list, data[3].res.list);
       this.updateChartsData();
 
+      this.loading = false;
       this.cdRef.markForCheck();
     });
   }

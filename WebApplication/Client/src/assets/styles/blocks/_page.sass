@@ -162,6 +162,14 @@
 .dropdown-toggle::after
   vertical-align: 2px
 
+// bancor widget
+.bancor-wc div > div > div > div > div > div:last-child > div:first-child
+  min-width: 40px
+
+div.bancor-wc .hidden-lg-down, div[id^='bancor-wc'] .hidden-lg-down
+  display: none !important
+//
+
 @media only screen and (max-width: 1199px)
   .lead
     font-size: 1rem
@@ -169,6 +177,10 @@
   .section__title > span
     font-size: 1rem
     line-height: 1rem !important
+
+  // bancor widget
+  .bancor-wc div > div > div > div > div > div:last-child > div:nth-child(2) > span:last-child
+    display: none
 
 @media only screen and (max-width: 767px)
   .page__sidebar

@@ -19,6 +19,7 @@ import {
 import { KYCProfile } from '../models/kyc-profile';
 import { environment } from '../../environments/environment';
 import {Subject} from "rxjs/Subject";
+import {Router} from "@angular/router";
 
 
 @Injectable()
@@ -27,11 +28,31 @@ export class APIService {
   private _baseUrl = environment.apiUrl;
   private _sumusBaseUrl = environment.sumusNetworkUrl;
   private _marketBaseUrl = environment.marketApiUrl;
+  public networkList = {
+    mainnet: 'mainnet',
+    testnet: 'testnet'
+  };
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
+  public transferCurrentNetwork = new Subject();
 
-  constructor(private _http: HttpClient) { }
+  constructor(
+    private _http: HttpClient,
+    private router: Router
+  ) {
+    const network = localStorage.getItem('network');
+    this._sumusBaseUrl = environment.sumusNetworkUrl[network ? network : this.networkList.mainnet];
+
+    this.transferCurrentNetwork.subscribe((network: any) => {
+      this._sumusBaseUrl = environment.sumusNetworkUrl[network];
+
+      this.router.navigate([], {
+        queryParams: { network: network == this.networkList.testnet ? network : null },
+        queryParamsHandling: 'merge',
+      });
+    })
+  }
 
   userLogin(username: string, password: string, captcha: string): Observable<APIResponse<AuthResponse>> {
     return this._http.post<APIResponse<AuthResponse>>(`${this._baseUrl}/auth/authenticate`, { username: username, password: password, captcha: captcha, audience: "app" })

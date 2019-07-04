@@ -5,39 +5,56 @@
     <h2 class="section__title">{{ "PAGES.BuyMNTP.Heading" | translate }}</h2>
 
     <div class="my-4">
-      <div>
-        <div>
-          <div class="text-heading">The MNTP token is required for the following actions:</div>
-          <ul class="pl-4 mt-1">
-            <li>Information recording to the MINT blockchain is paid for in MNT(P) tokens. Accordingly, all pawn shops using a Custody Bot need MNT(P) tokens to record information about pledges in the blockchain.</li>
-            <li>Having a certain amount of MNT(P) allows a discount when sending GOLD. The more MNT(P) there are on the sender's wallet, the lower the commission will be. The fee for sending GOLD is paid in GOLD.</li>
-            <li>If you have more than 10,000 MNT(P)  tokens, you are allowed to run the MINT blockchain node on your own server, connect it to the MINT blockchain and receive remuneration from each transaction in GOLD and MNT(P).</li>
-            <li>There is no commission for buyers/sellers of crypto assets GOLD on the GoldMint website who have more than 1000 MNT(P) tokens.</li>
-          </ul>
+      <div class="row">
+        <div class="col-md-7">
+          <div>
+            <div id="chart-container"></div>
+          </div>
+
+          <div class="mt-3">
+            <div class="text-heading mb-2">{{ "PAGES.BuyMNTP.Labels.Buy" | translate }}</div>
+            <div [innerHTML]="'PAGES.BuyMNTP.BuyText' | translate"></div>
+
+            <div class="row my-3">
+              <div class="col-sm-4">
+                <li class="exchange-item bancor-exchange"><a href="https://www.bancor.network/token/MNTP" target="_blank">Bancor</a></li>
+                <li class="exchange-item yobit-exchange"><a href="https://yobit.io/ru/trade/MNTP/BTC#7D" target="_blank">Yobit</a></li>
+              </div>
+              <div class="col-sm-4">
+                <li class="exchange-item simex-exchange"><a href="https://simex.global/en/exchange/mntp/btc" target="_blank">Simex</a></li>
+                <li class="exchange-item idex-exchange"><a href="https://idex.market/eth/mntp" target="_blank">Idex</a></li>
+              </div>
+              <div class="col-sm-4">
+                <li class="exchange-item livecoin-exchange"><a href="https://www.livecoin.net/en/trading/MNTP_BTC" target="_blank">Livecoin</a></li>
+                <li class="exchange-item forkdelta-exchange"><a href="https://forkdelta.app/#!/trade/MNTP-ETH" target="_blank">Forkdelta</a></li>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="text-heading mt-4 mb-2">{{ "PAGES.BuyMNTP.Labels.Buy" | translate }}</div>
-
-        <div [innerHTML]="'PAGES.BuyMNTP.BuyText' | translate"></div>
-
-        <div class="row">
-          <div class="col-md-5 exchanges-items mt-3">
-            <ul>
-              <li class="bancor-exchange"><a href="https://www.bancor.network/token/MNTP" target="_blank">Bancor</a></li>
-              <li class="yobit-exchange"><a href="https://yobit.io/ru/trade/MNTP/BTC#7D" target="_blank">Yobit</a></li>
-              <li class="simex-exchange"><a href="https://simex.global/en/exchange/mntp/btc" target="_blank">Simex</a></li>
-
-              <li class="idex-exchange"><a href="https://idex.market/eth/mntp" target="_blank">Idex</a></li>
-              <li class="livecoin-exchange"><a href="https://www.livecoin.net/en/trading/MNTP_BTC" target="_blank">Livecoin</a></li>
-              <li class="forkdelta-exchange"><a href="https://forkdelta.app/#!/trade/MNTP-ETH" target="_blank">Forkdelta</a></li>
-            </ul>
-          </div>
-          <div class="col-md-2"></div>
-          <div class="col-md-5 mb-3 mb-md-0 align-self-center">
+        <div class="col-md-5">
+          <div>
             <div class="coinmarketcap-currency-widget" data-currencyid="2513" data-base="USD" data-secondary="BTC" data-ticker="true" data-rank="true" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false"></div>
           </div>
+
+          <div class="mt-3">
+            <div class="bancor-widget-loader" *ngIf="!bancorWidgetLoaded">
+              <img alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+            </div>
+            <div class="bancor-wc" id="bancor-wc-id-1"></div>
+          </div>
         </div>
 
+      </div>
+
+      <div class="mt-4">
+        <div class="text-heading">The MNTP token is required for the following actions:</div>
+        <ul class="pl-4 mt-1">
+          <li>Information recording to the MINT blockchain is paid for in MNT(P) tokens. Accordingly, all pawn shops using a Custody Bot need MNT(P) tokens to record information about pledges in the blockchain.</li>
+          <li>Having a certain amount of MNT(P) allows a discount when sending GOLD. The more MNT(P) there are on the sender's wallet, the lower the commission will be. The fee for sending GOLD is paid in GOLD.</li>
+          <li>If you have more than 10,000 MNT(P)  tokens, you are allowed to run the MINT blockchain node on your own server, connect it to the MINT blockchain and receive remuneration from each transaction in GOLD and MNT(P).</li>
+          <li>There is no commission for buyers/sellers of crypto assets GOLD on the GoldMint website who have more than 1000 MNT(P) tokens.</li>
+        </ul>
       </div>
     </div>
   </section>

@@ -1,0 +1,18 @@
+<div class="auth-info position-relative">
+  <div class="language" (mouseenter)="network.show()" (click)="network.show()" (mouseleave)="network.hide()">
+    <div dropdown position="bottom right" class="language__select" #network="bs-dropdown">
+      <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': network.isOpen}">{{ currentNetwork }}</a>
+
+      <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+        <li role="menuitem">
+          <a class="dropdown-item" href="javascript:void(0)"
+             (click)="changeNetwork(networkList.mainnet)">Mainnet</a>
+        </li>
+        <li role="menuitem">
+          <a class="dropdown-item" href="javascript:void(0)"
+             (click)="changeNetwork(networkList.testnet)">Testnet</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

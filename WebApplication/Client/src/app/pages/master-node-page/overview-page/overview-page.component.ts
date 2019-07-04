@@ -60,12 +60,7 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.isMobile = (window.innerWidth <= 992);
     this.setPage(null, true);
-
-    this.apiService.getCurrentActiveNodesStats().subscribe((data: OverviewStats) => {
-      this.overviewStats = data;
-      this.isDataLoaded = true;
-      this.cdRef.markForCheck();
-    });
+    this.getCurrentActiveNodesStats();
 
     this.userService.currentLocale.takeUntil(this.destroy$).subscribe(() => {
       if (this.isDataLoaded) {
@@ -73,6 +68,20 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
           this.charts['chart'] && this.charts['chart'].title(phrase);
         });
       }
+    });
+
+    this.apiService.transferCurrentNetwork.takeUntil(this.destroy$).subscribe(() => {
+      this.offset = -1;
+      this.setPage(null, true);
+      this.getCurrentActiveNodesStats();
+    });
+  }
+
+  getCurrentActiveNodesStats() {
+    this.apiService.getCurrentActiveNodesStats().subscribe((data: OverviewStats) => {
+      this.overviewStats = data;
+      this.isDataLoaded = true;
+      this.cdRef.markForCheck();
     });
   }
 

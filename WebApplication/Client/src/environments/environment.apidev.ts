@@ -7,11 +7,10 @@ export const environment = {
     index: 4
   },
   walletNetwork: 'test',
-  // sumusNetworkUrl: {
-  //   MainNet: 'https://service.goldmint.io/sumus/mainnet/v1',
-  //   TestNet: 'https://service.goldmint.io/sumus/testnet/v1'
-  // },
-  sumusNetworkUrl: 'https://service.goldmint.io/sumus/testnet/v1',
+  sumusNetworkUrl: {
+    mainnet: 'https://service.goldmint.io/sumus/mainnet/v1',
+    testnet: 'https://service.goldmint.io/sumus/testnet/v1'
+  },
   apiUrl: 'http://localhost:8000/api/v1',
   marketApiUrl: 'https://staging.goldmint.io/market/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
