@@ -534,8 +534,9 @@ export class APIService {
     return this._http.get(`${this._sumusBaseUrl}/wallet/${sumusAddress}`);
   }
 
-  checkTransactionStatus(digest: string) {
-    return this._http.get(`${this._sumusBaseUrl}/tx/${digest}`);
+  checkTransactionStatus(digest: string, network: string) {
+    let _sumusBaseUrl = environment.sumusNetworkUrl[network] || this._sumusBaseUrl;
+    return this._http.get(`${_sumusBaseUrl}/tx/${digest}`);
   }
 
   getTransactionsInBlock(blockNumber: number) {

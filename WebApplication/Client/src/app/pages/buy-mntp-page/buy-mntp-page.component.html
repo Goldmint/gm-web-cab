@@ -8,13 +8,7 @@
       <div class="row">
         <div class="col-md-7">
           <div>
-            <div id="chart-container"></div>
-          </div>
-
-          <div class="mt-3">
-            <div class="text-heading mb-2">{{ "PAGES.BuyMNTP.Labels.Buy" | translate }}</div>
             <div [innerHTML]="'PAGES.BuyMNTP.BuyText' | translate"></div>
-
             <div class="row my-3">
               <div class="col-sm-4">
                 <li class="exchange-item bancor-exchange"><a href="https://www.bancor.network/token/MNTP" target="_blank">Bancor</a></li>
@@ -30,24 +24,28 @@
               </div>
             </div>
           </div>
+
+          <div id="chart-container"></div>
         </div>
 
         <div class="col-md-5">
-          <div>
-            <div class="coinmarketcap-currency-widget" data-currencyid="2513" data-base="USD" data-secondary="BTC" data-ticker="true" data-rank="true" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false"></div>
-          </div>
-
-          <div class="mt-3">
-            <div class="bancor-widget-loader" *ngIf="!bancorWidgetLoaded">
+          <div class="my-2 my-md-0 bancor-widget row">
+            <div class="col-12 p-0 bancor-widget-loader" *ngIf="!bancorWidgetLoaded">
               <img alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
             </div>
-            <div class="bancor-wc" id="bancor-wc-id-1"></div>
+           <div class="col-12 p-0">
+             <div class="bancor-wc" id="bancor-wc-id-1"></div>
+           </div>
+          </div>
+
+          <div class="coinmarketcap-widget">
+            <div class="coinmarketcap-currency-widget" data-currencyid="2513" data-base="USD" data-secondary="BTC" data-ticker="true" data-rank="true" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false"></div>
           </div>
         </div>
 
       </div>
 
-      <div class="mt-4">
+      <div class="mt-5 mt-md-4">
         <div class="text-heading">The MNTP token is required for the following actions:</div>
         <ul class="pl-4 mt-1">
           <li>Information recording to the MINT blockchain is paid for in MNT(P) tokens. Accordingly, all pawn shops using a Custody Bot need MNT(P) tokens to record information about pledges in the blockchain.</li>

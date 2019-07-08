@@ -48,7 +48,10 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public prevTransactionsList: any[] = [];
   public blocksList: BlocksList[] = [];
   public prevBlocksList: BlocksList[] = [];
-  public switchModel: {
+  public feeSwitchModel: {
+    type: 'gold'|'mnt'
+  };
+  public txSwitchModel: {
     type: 'gold'|'mnt'
   };
   public isProduction = environment.isProduction;
@@ -76,20 +79,10 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.switchModel = {
-      type: 'gold'
-    };
-    this.userService.currentLocale.takeUntil(this.destroy$).subscribe((locale) => {
-      if (this.locale !== null && this.locale !== locale) {
-        this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
-          this.charts.reward.chart.title(phrase);
-        });
-        this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Tx').subscribe(phrase => {
-          this.charts.tx.chart.title(phrase);
-        });
-        this.updateData();
-      }
+    this.feeSwitchModel = { type: 'gold' };
+    this.txSwitchModel = { type: 'gold' };
 
+    this.userService.currentLocale.takeUntil(this.destroy$).subscribe((locale) => {
       if (locale) {
         this.locale = locale;
         moment.locale(locale);
@@ -164,7 +157,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
         const dateString = date.getFullYear() + '-' + month + '-' + day;
         this.anyChartRewardData.push([dateString, +item.fee_gold, +item.fee_mnt]);
-        this.anyChartTxData.push([dateString, item.transactions]);
+        this.anyChartTxData.push([dateString, +item.volume_gold, +item.volume_mnt]);
       });
     }
   }
@@ -223,6 +216,11 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.charts.reward.chart.plot(1).enabled(!isGold);
   }
 
+  toggleTxChart(isGold: boolean) {
+    this.charts.tx.chart.plot(0).enabled(isGold);
+    this.charts.tx.chart.plot(1).enabled(!isGold);
+  }
+
   initRewardChart() {
     anychart.onDocumentReady( () => {
       this.charts.reward.table = anychart.data.table();
@@ -239,18 +237,17 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       this.charts.reward.chart.plot(0).line(this.charts.reward.mapping_gold).name('GOLD');
       this.charts.reward.chart.plot(1).line(this.charts.reward.mapping_mnt).name('MNT');
 
-      this.charts.reward.chart.plot(0).legend().itemsFormatter(() => {
-        return []
-      });
-      this.charts.reward.chart.plot(1).legend().itemsFormatter(() => {
-        return []
-      });
+      this.charts.reward.chart.plot(0).legend().title().useHtml(true);
+      this.charts.reward.chart.plot(0).legend().titleFormat('');
+      this.charts.reward.chart.plot(0).legend().itemsFormatter(() => []);
+
+      this.charts.reward.chart.plot(1).legend().title().useHtml(true);
+      this.charts.reward.chart.plot(1).legend().titleFormat('');
+      this.charts.reward.chart.plot(1).legend().itemsFormatter(() => []);
 
       this.charts.reward.chart.plot(1).enabled(false);
 
-      this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Reward').subscribe(phrase => {
-        this.charts.reward.chart.title(phrase);
-      });
+      this.charts.reward.chart.title('Collected Fee');
       this.charts.reward.chart.container('reward-chart-container');
       this.charts.reward.chart.draw();
     });
@@ -261,20 +258,28 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       this.charts.tx.table = anychart.data.table();
       this.charts.tx.table.addData(this.anyChartTxData);
 
-      this.charts.tx.mapping = this.charts.tx.table.mapAs();
-      this.charts.tx.mapping.addField('value', 1);
+      this.charts.tx.mapping_gold = this.charts.tx.table.mapAs();
+      this.charts.tx.mapping_gold.addField('value', 1);
+
+      this.charts.tx.mapping_mnt = this.charts.tx.table.mapAs();
+      this.charts.tx.mapping_mnt.addField('value', 2);
 
       this.charts.tx.chart = anychart.stock();
-      this.charts.tx.chart.plot(0).line(this.charts.tx.mapping).name('Transactions');
-      this.charts.tx.chart.plot(0).legend().itemsFormatter(() => {
-        return [
-          {text: "Transactions", iconFill:"#63B7F7"}
-        ]
-      });
 
-      this.translate.get('PAGES.Scanner.LatestStatistic.Charts.Tx').subscribe(phrase => {
-        this.charts.tx.chart.title(phrase);
-      });
+      this.charts.tx.chart.plot(0).line(this.charts.tx.mapping_gold).name('GOLD');
+      this.charts.tx.chart.plot(1).line(this.charts.tx.mapping_mnt).name('MNT');
+
+      this.charts.tx.chart.plot(0).legend().title().useHtml(true);
+      this.charts.tx.chart.plot(0).legend().titleFormat('');
+      this.charts.tx.chart.plot(0).legend().itemsFormatter(() => []);
+
+      this.charts.tx.chart.plot(1).legend().title().useHtml(true);
+      this.charts.tx.chart.plot(1).legend().titleFormat('');
+      this.charts.tx.chart.plot(1).legend().itemsFormatter(() => []);
+
+      this.charts.tx.chart.plot(1).enabled(false);
+
+      this.charts.tx.chart.title('Transactions Volume');
       this.charts.tx.chart.container('tx-chart-container');
       this.charts.tx.chart.draw();
     });

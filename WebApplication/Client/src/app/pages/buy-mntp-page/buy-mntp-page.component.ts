@@ -1,4 +1,5 @@
 import {AfterViewInit, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {APIService} from "../../services";
 
 @Component({
   selector: 'app-buy-mntp-page',
@@ -18,7 +19,10 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
   public bancorWidgetLoaded: boolean = false;
 
+  private chartData = [];
+
   constructor(
+    private apiService: APIService,
     private cdRef: ChangeDetectorRef
   ) { }
 
@@ -49,44 +53,65 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.bancorWidgetLoaded = true;
       this.cdRef.markForCheck();
     };
+
+    this.apiService.getScannerDailyStatistic().subscribe((data: any) => {
+      if (data && data.res) {
+        data.res.forEach(item => {
+          const date = new Date(item.timestamp * 1000);
+          let month = (date.getMonth()+1).toString(),
+            day = date.getDate().toString();
+
+          month.length === 1 && (month = '0' + month);
+          day.length === 1 && (day = '0' + day);
+
+          const dateString = date.getFullYear() + '-' + month + '-' + day;
+          const usd = (+item.fee_gold * item.coin_price.gold_usd + +item.fee_mnt * item.coin_price.mntp_usd) * 0.75 / +item.total_stake * 10000;
+          const btc = (+item.fee_gold * item.coin_price.gold_btc + +item.fee_mnt * item.coin_price.mntp_btc) * 0.75 / +item.total_stake * 10000;
+
+          this.chartData.push([
+            dateString,
+            isNaN(usd) ? 0 : Math.ceil((usd) * 100) / 100,
+            isNaN(btc) ? 0 : Math.ceil((btc) * 100000000) / 100000000,
+            +item.total_stake
+          ]);
+        });
+        this.initChart();
+      }
+    });
   }
 
   ngAfterViewInit() {
-    this.initChart();
+
   }
 
   initChart() {
     anychart.onDocumentReady( () => {
       this.charts.table = anychart.data.table();
-      let data = [
-        ["2019-07-01", 0.02, 0.03, 0.04, 0.02],
-        ["2019-07-02", 0.03, 0.04, 0.02, 0.06],
-        ["2019-07-03", 0.02, 0.03, 0.04, 0.05],
-        ["2019-07-04", 0.05, 0.01, 0.03, 0.025]
-      ];
+      this.charts.table.addData(this.chartData);
 
-      this.charts.table.addData(data);
+      this.charts.usd = this.charts.table.mapAs();
+      this.charts.usd.addField('value', 1);
 
-      this.charts.exchange_gold = this.charts.table.mapAs();
-      this.charts.exchange_gold.addField('value', 1);
+      this.charts.btc = this.charts.table.mapAs();
+      this.charts.btc.addField('value', 2);
 
-      this.charts.exchange_mnt = this.charts.table.mapAs();
-      this.charts.exchange_mnt.addField('value', 2);
-
-      this.charts.roi_gold = this.charts.table.mapAs();
-      this.charts.roi_gold.addField('value', 3);
-
-      this.charts.roi_mnt = this.charts.table.mapAs();
-      this.charts.roi_mnt.addField('value', 4);
+      this.charts.stake = this.charts.table.mapAs();
+      this.charts.stake.addField('value', 3);
 
       this.charts.chart = anychart.stock();
 
-      this.charts.chart.plot(0).line(this.charts.exchange_gold).name('GOLD exchange');
-      this.charts.chart.plot(0).line(this.charts.exchange_mnt).name('MNT exchange');
-      this.charts.chart.plot(0).line(this.charts.roi_gold).name('ROI GOLD');
-      this.charts.chart.plot(0).line(this.charts.roi_mnt).name('ROI MNT');
+      this.charts.chart.plot(0).legend().title().useHtml(true);
+      this.charts.chart.plot(0).legend().titleFormat('');
 
-      this.charts.chart.title('ROI');
+      this.charts.chart.plot(0).line(this.charts.usd).name('USD');
+      this.charts.chart.plot(0).line(this.charts.btc).name('BTC');
+      this.charts.chart.plot(0).line(this.charts.stake).name('Stake').enabled(false);
+
+      const logScale = anychart.scales.log();
+      this.charts.chart.plot(0).yScale(logScale);
+
+      this.charts.chart.left(10);
+      this.charts.chart.title('Reward per 10 000 MNT');
       this.charts.chart.container('chart-container');
       this.charts.chart.draw();
     });

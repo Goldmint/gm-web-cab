@@ -101,6 +101,7 @@ const appRoutes: Routes = [
   { path: 'buy-mntp', component: BuyMntpPageComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },
+  { path: 'scanner/tx/:id/:network', component: TxInfoPageComponent },
   { path: 'scanner/address/:id', component: AddressInfoPageComponent },
   { path: 'scanner/blocks', component: AllBlocksPageComponent },
   { path: 'scanner/transactions', component: AllTransactionsPageComponent },

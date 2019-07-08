@@ -22,6 +22,7 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   public isPending: boolean = false;
   public isTextDataPiece: boolean = true;
   public digest: string;
+  public network: string = null;
   public dataPiece = {
     text: null,
     hex: null,
@@ -57,12 +58,13 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
     this.sub1 = this.route.params.subscribe(params => {
       this.loading = true;
       this.digest = params.id;
+      this.network = params.network;
       this.getTransactionInfo();
     });
   }
 
   getTransactionInfo() {
-    this.apiService.checkTransactionStatus(this.digest).subscribe((data: any) => {
+    this.apiService.checkTransactionStatus(this.digest, this.network).subscribe((data: any) => {
       this.tx = data.res;
 
       if (this.tx.transaction && this.tx.transaction.data_piece) {
