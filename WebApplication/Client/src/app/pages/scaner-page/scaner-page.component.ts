@@ -51,9 +51,6 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public feeSwitchModel: {
     type: 'gold'|'mnt'
   };
-  public txSwitchModel: {
-    type: 'gold'|'mnt'
-  };
   public isProduction = environment.isProduction;
   public locale: string = null;
   public balance = {
@@ -80,7 +77,6 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.feeSwitchModel = { type: 'gold' };
-    this.txSwitchModel = { type: 'gold' };
 
     this.userService.currentLocale.takeUntil(this.destroy$).subscribe((locale) => {
       if (locale) {
@@ -110,16 +106,16 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     });
 
     this.interval = setInterval(() => {
-      this.updateData();
+      this.updateData(false);
     }, 60000);
 
     this.apiService.transferCurrentNetwork.takeUntil(this.destroy$).subscribe(() => {
       this.loading = true;
-      this.updateData();
+      this.updateData(true);
     });
   }
 
-  updateData() {
+  updateData(clearOldValues: boolean = false) {
     const combined = combineLatest(
       this.apiService.getScannerStatus(),
       this.apiService.getScannerDailyStatistic(),
@@ -128,6 +124,11 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     );
 
     combined.subscribe((data: any) => {
+      if (clearOldValues) {
+        this.anyChartRewardData = [];
+        this.anyChartTxData = [];
+      }
+
       this.setStatisticData(data[0]);
       this.setChartsData(data[1].res);
       this.setBlockAndTransactionsInfo(data[2].res.list, data[3].res.list);
@@ -157,7 +158,7 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
         const dateString = date.getFullYear() + '-' + month + '-' + day;
         this.anyChartRewardData.push([dateString, +item.fee_gold, +item.fee_mnt]);
-        this.anyChartTxData.push([dateString, +item.volume_gold, +item.volume_mnt]);
+        this.anyChartTxData.push([dateString, item.transactions, +item.volume_gold, +item.volume_mnt]);
       });
     }
   }
@@ -258,26 +259,26 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       this.charts.tx.table = anychart.data.table();
       this.charts.tx.table.addData(this.anyChartTxData);
 
-      this.charts.tx.mapping_gold = this.charts.tx.table.mapAs();
-      this.charts.tx.mapping_gold.addField('value', 1);
+      this.charts.tx.transactions = this.charts.tx.table.mapAs();
+      this.charts.tx.transactions.addField('value', 1);
 
-      this.charts.tx.mapping_mnt = this.charts.tx.table.mapAs();
-      this.charts.tx.mapping_mnt.addField('value', 2);
+      this.charts.tx.gold = this.charts.tx.table.mapAs();
+      this.charts.tx.gold.addField('value', 2);
+
+      this.charts.tx.mnt = this.charts.tx.table.mapAs();
+      this.charts.tx.mnt.addField('value', 3);
 
       this.charts.tx.chart = anychart.stock();
 
-      this.charts.tx.chart.plot(0).line(this.charts.tx.mapping_gold).name('GOLD');
-      this.charts.tx.chart.plot(1).line(this.charts.tx.mapping_mnt).name('MNT');
-
       this.charts.tx.chart.plot(0).legend().title().useHtml(true);
       this.charts.tx.chart.plot(0).legend().titleFormat('');
-      this.charts.tx.chart.plot(0).legend().itemsFormatter(() => []);
 
-      this.charts.tx.chart.plot(1).legend().title().useHtml(true);
-      this.charts.tx.chart.plot(1).legend().titleFormat('');
-      this.charts.tx.chart.plot(1).legend().itemsFormatter(() => []);
+      this.charts.tx.chart.plot(0).line(this.charts.tx.transactions).name('Transactions');
+      this.charts.tx.chart.plot(0).line(this.charts.tx.gold).name('GOLD');
+      this.charts.tx.chart.plot(0).line(this.charts.tx.mnt).name('MNT');
 
-      this.charts.tx.chart.plot(1).enabled(false);
+      const logScale = anychart.scales.log();
+      this.charts.tx.chart.plot(0).yScale(logScale);
 
       this.charts.tx.chart.title('Transactions Volume');
       this.charts.tx.chart.container('tx-chart-container');
