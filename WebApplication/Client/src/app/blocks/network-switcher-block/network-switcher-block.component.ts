@@ -21,12 +21,12 @@ export class NetworkSwitcherBlockComponent implements OnInit {
     this.currentNetwork = network ? network : this.networkList.mainnet;
   }
 
-  changeNetwork(networ: string) {
-    if (this.currentNetwork == networ) return;
+  changeNetwork(network: string) {
+    if (this.currentNetwork == network) return;
 
-    this.currentNetwork = networ;
-    localStorage.setItem('network', networ);
-    this.apiService.transferCurrentNetwork.next(networ);
+    this.currentNetwork = network;
+    localStorage.setItem('network', network);
+    this.apiService.transferCurrentNetwork.next(network);
   }
 
 }

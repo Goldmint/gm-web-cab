@@ -54,7 +54,7 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.cdRef.markForCheck();
     };
 
-    this.apiService.getScannerDailyStatistic().subscribe((data: any) => {
+    this.apiService.getScannerDailyStatistic(true).subscribe((data: any) => {
       if (data && data.res) {
         data.res.forEach(item => {
           const date = new Date(item.timestamp * 1000);
@@ -110,8 +110,12 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
       const logScale = anychart.scales.log();
       this.charts.chart.plot(0).yScale(logScale);
 
-      this.charts.chart.left(10);
+      this.charts.chart.plot(0).yAxis().orientation('right');
+      this.charts.chart.right(70);
+
       this.charts.chart.title('Reward per 10 000 MNT');
+      this.charts.chart.title().align('left');
+
       this.charts.chart.container('chart-container');
       this.charts.chart.draw();
     });

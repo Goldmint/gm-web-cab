@@ -1,4 +1,11 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation
+} from '@angular/core';
 import {Subject} from "rxjs/Subject";
 import {APIService, UserService} from "../../../../services";
 import {FeedList} from "../../../../interfaces/feed-list";
@@ -13,7 +20,7 @@ import {Router} from "@angular/router";
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllTicketFeedPageComponent implements OnInit {
+export class AllTicketFeedPageComponent implements OnInit, OnDestroy {
 
   public page = new Page();
   public rows: FeedList[] = [];
@@ -29,6 +36,7 @@ export class AllTicketFeedPageComponent implements OnInit {
   private paginationHistory: number[] = [];
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval;
+  private isFirstLoad: boolean = true;
 
   rowClass = (row) => {
     let itemClass = 'table-row-' + row.id;
@@ -55,52 +63,56 @@ export class AllTicketFeedPageComponent implements OnInit {
   setPage(org: number, from: number = null, isNext: boolean = true) {
     this.loading = true;
     clearInterval(this.interval);
+    this.isFirstLoad = true;
 
     this.commonService.getPawnShopOrganization.takeUntil(this.destroy$).subscribe(orgList => {
-      orgList && this.apiService.getPawnList(org, from >= 0 ? from : null)
-        .finally(() => {
-          this.loading = false;
-          this.isDataLoaded = true;
-          this.cdRef.markForCheck();
-        }).subscribe((data: any) => {
-        this.isLastPage = false;
-        if (data.res.list && data.res.list.length) {
-          this.rows = data.res.list;
-        }
+      if (orgList) {
+        this.isFirstLoad && this.apiService.getPawnList(org, from >= 0 ? from : null)
+          .finally(() => {
+            this.loading = false;
+            this.isDataLoaded = true;
+            this.cdRef.markForCheck();
+          }).subscribe((data: any) => {
+            this.isLastPage = false;
+            if (data.res.list && data.res.list.length) {
+              this.rows = data.res.list;
+            }
 
-        this.rows.forEach(row => {
-          for (let key in orgList) {
-            row.org_id === +key && (row.org_name = orgList[key]);
-          }
-        });
+            this.rows.forEach(row => {
+              for (let key in orgList) {
+                row.org_id === +key && (row.org_name = orgList[key]);
+              }
+            });
 
-        // this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows, 'table-row', 'id');
+            // this.prevRows = this.commonService.highlightNewItem(this.rows, this.prevRows, 'table-row', 'id');
 
-        if (!data.res.list || (data.res.list && !data.res.list.length)) {
-          this.isLastPage = true;
-        }
+            if (!data.res.list || (data.res.list && !data.res.list.length)) {
+              this.isLastPage = true;
+            }
 
-        this.interval = setInterval(() => {
-          this.setPage(org, from, null);
-        }, 20000);
+            this.interval = setInterval(() => {
+              this.setPage(org, from, null);
+            }, 20000);
 
-        this.cdRef.markForCheck();
-        if(isNext === null) return;
+            this.cdRef.markForCheck();
+            if(isNext === null) return;
 
-        if (data.res.list && data.res.list.length) {
-          if (!isNext) {
-            this.offset--;
-            this.prevRows = [];
-            this.paginationHistory.pop();
-            this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
-          } else {
-            this.offset++;
-            this.prevRows = [];
-            this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
-          }
-        }
-        this.cdRef.markForCheck();
-      });
+            if (data.res.list && data.res.list.length) {
+              if (!isNext) {
+                this.offset--;
+                this.prevRows = [];
+                this.paginationHistory.pop();
+                this.paginationHistory.length === 1 && (this.paginationHistory[0] = +this.rows[this.rows.length - 1].id);
+              } else {
+                this.offset++;
+                this.prevRows = [];
+                this.paginationHistory.push(+this.rows[this.rows.length - 1].id);
+              }
+            }
+            this.cdRef.markForCheck();
+          });
+        this.isFirstLoad = false;
+      }
     });
   }
 

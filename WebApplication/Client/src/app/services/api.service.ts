@@ -19,7 +19,7 @@ import {
 import { KYCProfile } from '../models/kyc-profile';
 import { environment } from '../../environments/environment';
 import {Subject} from "rxjs/Subject";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 
 
 @Injectable()
@@ -39,10 +39,17 @@ export class APIService {
 
   constructor(
     private _http: HttpClient,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
-    const network = localStorage.getItem('network');
-    this._sumusBaseUrl = environment.sumusNetworkUrl[network ? network : this.networkList.mainnet];
+    this._sumusBaseUrl = environment.sumusNetworkUrl[this.networkList.mainnet];
+
+    this.route.queryParams.subscribe(params => {
+        if (params.network == this.networkList.mainnet || params.network == this.networkList.testnet) {
+          this._sumusBaseUrl = environment.sumusNetworkUrl[params.network];
+          localStorage.setItem('network', params.network);
+        }
+    });
 
     this.transferCurrentNetwork.subscribe((network: any) => {
       this._sumusBaseUrl = environment.sumusNetworkUrl[network];
@@ -526,8 +533,9 @@ export class APIService {
     return this._http.get(`${this._sumusBaseUrl}/status`);
   }
 
-  getScannerDailyStatistic() {
-    return this._http.get(`${this._sumusBaseUrl}/status/daily`);
+  getScannerDailyStatistic(useMainNet: boolean = false) {
+    const sumusBaseUrl = useMainNet ? environment.sumusNetworkUrl[this.networkList.mainnet] : this._sumusBaseUrl;
+    return this._http.get(`${sumusBaseUrl}/status/daily`);
   }
 
   getWalletBalance(sumusAddress: string) {

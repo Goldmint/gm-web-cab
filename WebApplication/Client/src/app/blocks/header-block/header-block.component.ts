@@ -6,7 +6,7 @@ import { User } from '../../interfaces';
 import { UserService, MessageBoxService, EthereumService, GoldrateService } from '../../services';
 import {Subject} from "rxjs/Subject";
 import {TranslateService} from "@ngx-translate/core";
-import {NavigationEnd, Router} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {APIService} from "../../services/api.service";
 import {environment} from "../../../environments/environment";
 import {CommonService} from "../../services/common.service";
@@ -46,6 +46,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _translate: TranslateService,
     private router: Router,
+    private route: ActivatedRoute,
     private commonService: CommonService
   ) {
   }
@@ -82,7 +83,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         document.body.style.overflow = 'visible';
         window.scrollTo(0, 0);
 
-        const network = localStorage.getItem('network')
+        const network = this.route.snapshot.queryParams.network || localStorage.getItem('network');
         this.router.navigate([], {
           queryParams: { network: network == this.networkList.testnet ? network : null },
           queryParamsHandling: 'merge',
