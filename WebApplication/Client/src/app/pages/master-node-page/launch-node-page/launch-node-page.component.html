@@ -22,13 +22,13 @@
 
     <div class="my-4">
       <div>
-        <b>1. Obtain the latest build:</b><br>
-        yum install -y wget<br>
-		cd /tmp<br>
-        wget -O setup_cmint_node.sh https://storage.googleapis.com/goldmint-static/apps/cmint/setup_node.sh<br>
-        chmod +x /tmp/setup_cmint_node.sh<br>
-        /tmp/./setup_cmint_node.sh<br>
-        /opt/cmint/shell
+        <b>1. Obtain the latest build (CentOS):</b><br>
+		yum install -y https://rpm.goldmint.io/packages/goldmint-1.0-latest.noarch.rpm <br>
+		yum install -y cmint <br>
+		firewall-cmd --permanent --add-port=50555/tcp <br>
+		firewall-cmd --reload <br>
+		systemctl start cmint <br>
+		/opt/cmint/shell
       </div>
       <div class="mt-1">
         <b>2. Create a node wallet:</b><br>

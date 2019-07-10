@@ -113,7 +113,7 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.charts.chart.plot(0).yAxis().orientation('right');
       this.charts.chart.right(70);
 
-      this.charts.chart.title('Reward per 10 000 MNT');
+      this.charts.chart.title('Reward per 10 000 MNT (GOLD + MNT)');
       this.charts.chart.title().align('left');
 
       this.charts.chart.container('chart-container');
