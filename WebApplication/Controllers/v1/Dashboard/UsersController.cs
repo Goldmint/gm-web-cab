@@ -45,7 +45,11 @@ namespace Goldmint.WebApplication.Controllers.v1.Dashboard {
 				.AsQueryable();
 
 			if (!string.IsNullOrWhiteSpace(model.Filter)) {
-				query = query.Where(_ => _.UserName.Contains(model.Filter) || (_.UserVerification != null && (_.UserVerification.FirstName + " " + _.UserVerification.LastName).Contains(model.Filter)));
+				query = query.Where(_ => 
+					_.NormalizedEmail.Contains(model.Filter.ToUpper()) ||
+					_.UserName.Contains(model.Filter) || 
+					(_.UserVerification != null && (_.UserVerification.FirstName + " " + _.UserVerification.LastName).Contains(model.Filter))
+				);
 			}
 			if (model.FilterProvedResidence != null) {
 				if (model.FilterProvedResidence.Value) {

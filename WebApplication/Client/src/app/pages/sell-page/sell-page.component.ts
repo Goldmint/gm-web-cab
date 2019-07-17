@@ -24,7 +24,7 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public tfaInfo: TFAInfo;
   public isMetamask = true;
   public tradingStatus: {creditCardSellingAllowed: boolean, ethAllowed: boolean};
-  public blockedCountriesList = ['US', 'CA', 'CN', 'SG'];
+  public blockedCountriesList = ['CN', 'SG']; // ['US', 'CA', 'CN', 'SG'];
   public isBlockedCountry: boolean = false;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = false;

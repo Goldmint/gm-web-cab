@@ -31,7 +31,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public user: User;
   public tfaInfo: TFAInfo;
   public tradingStatus: TradingStatus;
-  public blockedCountriesList = ['US', 'CA', 'CN', 'SG'];
+  public blockedCountriesList = ['CN', 'SG']; // ['US', 'CA', 'CN', 'SG'];
   public isBlockedCountry: boolean = false;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
