@@ -589,6 +589,10 @@ export class APIService {
     return this._http.get(this._baseUrl + '/user/account', this.jwt());
   }
 
+  getBannedCountries() {
+    return this._http.get<any>(this._baseUrl + '/commons/bannedCountries', this.jwt());
+  }
+
   // ----------
 
   private _handleError(err: HttpErrorResponse | any) {

@@ -31,7 +31,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public user: User;
   public tfaInfo: TFAInfo;
   public tradingStatus: TradingStatus;
-  public blockedCountriesList = ['CN', 'SG']; // ['US', 'CA', 'CN', 'SG'];
+  public blockedCountriesList = [];
   public isBlockedCountry: boolean = false;
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
@@ -56,13 +56,15 @@ export class BuyPageComponent implements OnInit, OnDestroy {
       this._apiService.getTFAInfo(),
       this._apiService.getProfile(),
       this._apiService.getTradingStatus(),
-      this._apiService.getKYCProfile()
+      this._apiService.getKYCProfile(),
+      this._apiService.getBannedCountries()
     )
       .subscribe((res) => {
         this.tfaInfo = res[0].data;
         this.user = res[1].data;
         this.tradingStatus = res[2].data.trading;
 
+        this.blockedCountriesList = res[4] ? res[4].data : [];
         this.isBlockedCountry = this.blockedCountriesList.indexOf(res[3].data['country']) >= 0;
         !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
           this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
