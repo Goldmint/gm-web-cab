@@ -141,7 +141,12 @@
             <div>Blocks: {{ row?.system_info?.blocks }}</div>
             <div>Tx pool: {{ row?.system_info?.tx_pool }}</div>
             <div>Version: {{ row?.system_info?.version }}</div>
-            <div>Health: {{ row?.availability ? (row?.availability + '%') : '' }}</div>
+            <div>Health:
+              <span class="font-weight-500" [ngClass]="{'color-red': !row || !row.availability || row.availability < 90,
+                                'color-green': row && row.availability && row.availability >= 90}">
+                {{ row?.availability ? (row?.availability + '%') : '0%' }}
+              </span>
+            </div>
           </div>
         </ng-template>
       </ngx-datatable-column>
@@ -224,7 +229,12 @@
             <div>Blocks: {{ row?.system_info?.blocks }}</div>
             <div>Tx pool: {{ row?.system_info?.tx_pool }}</div>
             <div>Version: {{ row?.system_info?.version }}</div>
-            <div>Health: {{ row?.availability ? (row?.availability + '%') : '' }}</div>
+            <div>Health:
+              <span class="font-weight-500" [ngClass]="{'color-red': !row || !row.availability || row.availability < 90,
+                                'color-green': row && row.availability && row.availability >= 90}">
+                {{ row?.availability ? (row?.availability + '%') : '0%' }}
+              </span>
+            </div>
           </div>
         </div>
 
