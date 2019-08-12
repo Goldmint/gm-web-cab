@@ -12,4 +12,4 @@ steps:
 artifacts:
   objects:
     location: '${_BUCKET_NAME}'
-    paths: ['./dist/**/*']
+    paths: ['WebApplication/Client/dist/**/*']
