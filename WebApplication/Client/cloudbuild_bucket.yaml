@@ -10,4 +10,4 @@ steps:
   args: ['run', 'build', '--', '--prod', '--env=${_NGENV}', '--aot', '--build-optimizer=false', '--no-sourcemap']
   dir: 'WebApplication/Client'
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['-m', 'cp', '-r', 'WebApplication/Client/dist/**/*', '${_BUCKET_NAME}']
+  args: ['-m', 'cp', '-r', 'WebApplication/Client/dist/*', '${_BUCKET_NAME}']
