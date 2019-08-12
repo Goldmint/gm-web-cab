@@ -1,0 +1,15 @@
+steps:
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+  dir: 'WebApplication/Client'
+- name: 'gcr.io/cloud-builders/npm'
+  entrypoint: node
+  args: ['version.js', '$SHORT_SHA', '$BRANCH_NAME']
+  dir: 'WebApplication/Client'
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['run', 'build', '--', '--prod', '--env=${_NGENV}', '--aot', '--build-optimizer=false', '--no-sourcemap']
+  dir: 'WebApplication/Client'
+artifacts:
+  objects:
+    location: '${_BUCKET_NAME}'
+    paths: ['./dist/**/*']
