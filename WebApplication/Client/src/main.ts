@@ -33,7 +33,7 @@ Storage.prototype.removeItem = function(key) {
 }
 
 /**
- * Scripts of metrics
+ *  metrics and jivosite
  */
 if (environment.isProduction) {
     document.write(`
@@ -62,5 +62,6 @@ if (environment.isProduction) {
   
         gtag('config', 'UA-135679645-3');
     </script>
+    <script src="//code3.jivosite.com/widget.js" data-jv-id="GzNxkXh6Tf" async></script>
   `);
 }
