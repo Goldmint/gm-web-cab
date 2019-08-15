@@ -42,7 +42,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public numberBlocks: number = 0;
   public numberNodes: number = 0;
   public numberTx: number = 0;
-  public anyChartRewardData = [];
+  public anyChartGoldRewardData = [];
+  public anyChartMntRewardData = [];
   public anyChartTxData = [];
   public transactionsList: TransactionsList[] = [];
   public prevTransactionsList: any[] = [];
@@ -61,7 +62,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private interval: any;
   private charts: any = {
-    reward: {},
+    goldReward: {},
+    mntReward: {},
     tx: {}
   };
 
@@ -98,7 +100,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
       this.setChartsData(data[1].res);
       this.setBlockAndTransactionsInfo(data[2].res.list, data[3].res.list)
 
-      this.initRewardChart();
+      this.initGoldRewardChart();
+      this.initMntRewardChart();
       this.initTxChart();
 
       this.isDataLoaded = true;
@@ -125,7 +128,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
 
     combined.subscribe((data: any) => {
       if (clearOldValues) {
-        this.anyChartRewardData = [];
+        this.anyChartGoldRewardData = [];
+        this.anyChartMntRewardData = [];
         this.anyChartTxData = [];
       }
 
@@ -140,8 +144,10 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   }
 
   updateChartsData() {
-    this.charts.reward.table.remove();
-    this.charts.reward.table.addData(this.anyChartRewardData);
+    this.charts.goldReward.table.remove();
+    this.charts.goldReward.table.addData(this.anyChartGoldRewardData);
+    this.charts.mntReward.table.remove();
+    this.charts.mntReward.table.addData(this.anyChartMntRewardData);
     this.charts.tx.table.remove();
     this.charts.tx.table.addData(this.anyChartTxData);
   }
@@ -157,7 +163,8 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
         day.length === 1 && (day = '0' + day);
 
         const dateString = date.getFullYear() + '-' + month + '-' + day;
-        this.anyChartRewardData.push([dateString, +item.fee_gold, +item.fee_mnt]);
+        this.anyChartGoldRewardData.push([dateString, +item.fee_gold]);
+        this.anyChartMntRewardData.push([dateString, +item.fee_mnt]);
         this.anyChartTxData.push([dateString, item.transactions, +item.volume_gold, +item.volume_mnt]);
       });
     }
@@ -212,45 +219,46 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     type === 'address' ? this.isValidSumusAddress = payloadCrc === crc : this.isValidDigest = payloadCrc === crc;
   }
 
-  toggleCommissionChart(isGold: boolean) {
-    this.charts.reward.chart.plot(0).enabled(isGold);
-    this.charts.reward.chart.plot(1).enabled(!isGold);
-  }
-
-  toggleTxChart(isGold: boolean) {
-    this.charts.tx.chart.plot(0).enabled(isGold);
-    this.charts.tx.chart.plot(1).enabled(!isGold);
-  }
-
-  initRewardChart() {
+  initGoldRewardChart() {
     anychart.onDocumentReady( () => {
-      this.charts.reward.table = anychart.data.table();
-      this.charts.reward.table.addData(this.anyChartRewardData);
+      this.charts.goldReward.table = anychart.data.table();
+      this.charts.goldReward.table.addData(this.anyChartGoldRewardData);
 
-      this.charts.reward.mapping_gold = this.charts.reward.table.mapAs();
-      this.charts.reward.mapping_gold.addField('value', 1);
+      this.charts.goldReward.mapping_gold = this.charts.goldReward.table.mapAs();
+      this.charts.goldReward.mapping_gold.addField('value', 1);
 
-      this.charts.reward.mapping_mnt = this.charts.reward.table.mapAs();
-      this.charts.reward.mapping_mnt.addField('value', 2);
+      this.charts.goldReward.chart = anychart.stock();
 
-      this.charts.reward.chart = anychart.stock();
+      this.charts.goldReward.chart.plot(0).line(this.charts.goldReward.mapping_gold).name('GOLD');
 
-      this.charts.reward.chart.plot(0).line(this.charts.reward.mapping_gold).name('GOLD');
-      this.charts.reward.chart.plot(1).line(this.charts.reward.mapping_mnt).name('MNT');
+      this.charts.goldReward.chart.plot(0).legend().title().useHtml(true);
+      this.charts.goldReward.chart.plot(0).legend().titleFormat('');
+      this.charts.goldReward.chart.plot(0).legend().itemsFormatter(() => []);
 
-      this.charts.reward.chart.plot(0).legend().title().useHtml(true);
-      this.charts.reward.chart.plot(0).legend().titleFormat('');
-      this.charts.reward.chart.plot(0).legend().itemsFormatter(() => []);
+      this.charts.goldReward.chart.title('Collected Fee');
+      this.charts.goldReward.chart.container('gold-reward-chart-container');
+      this.charts.goldReward.chart.draw();
+    });
+  }
 
-      this.charts.reward.chart.plot(1).legend().title().useHtml(true);
-      this.charts.reward.chart.plot(1).legend().titleFormat('');
-      this.charts.reward.chart.plot(1).legend().itemsFormatter(() => []);
+  initMntRewardChart() {
+    anychart.onDocumentReady( () => {
+      this.charts.mntReward.table = anychart.data.table();
+      this.charts.mntReward.table.addData(this.anyChartMntRewardData);
 
-      this.charts.reward.chart.plot(1).enabled(false);
+      this.charts.mntReward.mapping_mnt = this.charts.mntReward.table.mapAs();
+      this.charts.mntReward.mapping_mnt.addField('value', 1);
 
-      this.charts.reward.chart.title('Collected Fee');
-      this.charts.reward.chart.container('reward-chart-container');
-      this.charts.reward.chart.draw();
+      this.charts.mntReward.chart = anychart.stock();
+
+      this.charts.mntReward.chart.plot(0).line(this.charts.mntReward.mapping_mnt).name('MNT');
+      this.charts.mntReward.chart.plot(0).legend().title().useHtml(true);
+      this.charts.mntReward.chart.plot(0).legend().titleFormat('');
+      this.charts.mntReward.chart.plot(0).legend().itemsFormatter(() => []);
+
+      this.charts.mntReward.chart.title('Collected Fee');
+      this.charts.mntReward.chart.container('mnt-reward-chart-container');
+      this.charts.mntReward.chart.draw();
     });
   }
 
