@@ -46,7 +46,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   public liteWalletLink;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
-  private liteWallet = window['GoldMint'];
+  private liteWallet = null;
   private checkLiteWalletInterval;
   private sub1: Subscription;
   private Web3 = new Web3();
@@ -65,6 +65,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.liteWallet = window['GoldMint'];
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
     this.liteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
 
@@ -200,7 +201,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
 
   checkLiteWallet() {
     if (window.hasOwnProperty('GoldMint')) {
-      this.liteWallet.getCurrentNetwork().then(res => {
+      this.liteWallet && this.liteWallet.getCurrentNetwork().then(res => {
         if (this.currentWalletNetwork != res) {
           this.currentWalletNetwork = res;
           if (res !== null && res !== this.allowedWalletNetwork) {
@@ -213,7 +214,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
         }
       });
 
-      this.liteWallet.getAccount().then(res => {
+      this.liteWallet && this.liteWallet.getAccount().then(res => {
         if (this.sumusAddress != res[0]) {
           this.sumusAddress = res.length ? res[0] : null;
           this._cdRef.markForCheck();
