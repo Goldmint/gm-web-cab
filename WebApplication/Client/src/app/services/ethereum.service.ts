@@ -30,6 +30,9 @@ export class EthereumService {
   private EthPoolContractABI: string;
   // old pool contract
   public EthOldPoolContractAddress: string = environment.EthOldPoolContractAddress;
+  // swap contract
+  public SwapContractAddress: string = environment.SwapContractAddress;
+  private SwapContractABI: string;
 
   private _web3Infura: Web3 = null;
   private _web3Metamask: Web3 = null;
@@ -45,10 +48,13 @@ export class EthereumService {
   public poolContract: any;
   public oldPoolContract: any;
   public contractMntp: any;
+  public swapContract: any;
+
+  private Web3 = new Web3();
   private _contactsInitted: boolean = false;
   private _totalGoldBalances = {issued: null, burnt: null};
   private _allowedUrlOccurrencesForInject = [
-    'sell', 'buy', 'master-node', 'ethereum-pool'
+    'sell', 'buy', 'master-node', 'ethereum-pool', 'swap-mntp'
   ];
   private checkWeb3Interval = null;
 
@@ -79,8 +85,7 @@ export class EthereumService {
 
   public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
-  // public getSuccessMigrationGoldLink$ = new Subject();
-  // public getSuccessMigrationMntpLink$ = new Subject();
+  public getSuccessSwapMNTPLink$ = new Subject();
 
   constructor(
     private _userService: UserService,
@@ -129,10 +134,6 @@ export class EthereumService {
         if (this._web3Infura.eth) {
           this._contractInfura = this._web3Infura.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
 
-          // this._contractInfura.mntpToken((error, address) => {
-          //   this.EthMntpContractAddress = address;
-          // });
-
           this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
             this.EthMntpContractABI = abi['result'];
           });
@@ -143,15 +144,9 @@ export class EthereumService {
           this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
             this.EthPoolContractABI = abi['result'];
           });
-
-         //  this._contractInfura.goldToken((error, address) => {
-         //    this.EthGoldContractAddress = address;
-         //
-         //    this.getContractABI(this.EthGoldContractAddress).subscribe(abi => {
-         //      this.EthGoldContractABI = abi['result'];
-         //      this._contractHotGold = this._web3Infura.eth.contract(JSON.parse(this.EthGoldContractABI)).at(this.EthGoldContractAddress);
-         //    });
-         // });
+          this.getContractABI(this.SwapContractAddress).subscribe(abi => {
+            this.SwapContractABI = abi['result'];
+          });
 
         } else {
           this._web3Infura = null;
@@ -175,6 +170,7 @@ export class EthereumService {
         this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
         this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
         this.oldPoolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthOldPoolContractAddress);
+        this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
 
         this.isPoolContractLoaded$.next(true);
       } else {
@@ -369,17 +365,35 @@ export class EthereumService {
     });
   }
 
-  // public goldTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
-  //   if (this._contractGold == null) return;
-  //   this._contractGold.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
-  //     this.getSuccessMigrationGoldLink$.next(res);
-  //   });
-  // }
-  //
-  // public mntpTransferMigration(fromAddr: string, toAddr: string, amount: string, gasPrice: number) {
-  //   if (this.contractMntp == null) return;
-  //   this.contractMntp.transfer(toAddr, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
-  //     this.getSuccessMigrationMntpLink$.next(res);
-  //   });
-  // }
+  public swapMNTP(sumusAddress, fromAddr: string, amount: number, gasPrice: number) {
+    if (!this.swapContract || !this.contractMntp) return
+
+    this.contractMntp.allowance(fromAddr, this.SwapContractAddress, (err, res) => {
+      if (res) {
+        const allowance = +new BigNumber(res.toString()).div(new BigNumber(10).pow(18));
+        const wei = this.Web3.toWei(amount);
+
+        if (allowance !== 0 && allowance !== amount) {
+          this.contractMntp.approve(this.SwapContractAddress, 0, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+            res && setTimeout(() => {
+              this._swapMntp(sumusAddress, fromAddr, wei, gasPrice);
+            }, 1000);
+          });
+        } else {
+          this._swapMntp(sumusAddress, fromAddr, wei, gasPrice);
+        }
+      }
+    });
+  }
+
+  private _swapMntp(sumusAddress, fromAddr: string, wei: string, gasPrice: number) {
+    this.contractMntp.approve(this.SwapContractAddress, wei, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+      res && setTimeout(() => {
+        this.swapContract.swapMntp(wei, sumusAddress, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+          this.getSuccessSwapMNTPLink$.next(res);
+        });
+      }, 1000);
+    });
+  }
+
 }

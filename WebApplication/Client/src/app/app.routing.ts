@@ -50,6 +50,7 @@ import {OverviewPageComponent} from "./pages/master-node-page/overview-page/over
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
+import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
 
 
 const appRoutes: Routes = [
@@ -99,6 +100,7 @@ const appRoutes: Routes = [
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
   { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },
+  { path: 'swap-mntp', component: SwapMntpComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },
   { path: 'scanner/tx/:id/:network', component: TxInfoPageComponent },

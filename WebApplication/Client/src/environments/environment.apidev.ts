@@ -24,6 +24,7 @@ export const environment = {
   EthMntpContractAddress: '0x160350f317b573f477473dd74c3bdfcf5e619da0',
   EthPoolContractAddress: '0x11c6a3f8974ab6b6a3720d9d86b21e260b5b173b',
   EthOldPoolContractAddress: '0xcD4aE63c113a29757C2afBe240B740324A339DC2',
+  SwapContractAddress: '0xdfad4474999773137c131c1c8cb343ed150c95ec',
   getLiteWalletLink: {
     chrome: 'https://chrome.google.com/webstore/detail/goldmint-lite-wallet/fnabdmcgpkkjjegokfcnfbpneacddpfh',
     firefox: 'https://addons.mozilla.org/ru/firefox/addon/goldmint-lite-wallet/'

@@ -1621,6 +1621,7 @@
       "HeadingSell": "SELL GOLD",
       "HeadingTransfer": "TRANSFER GOLD",
       "MasterNode": "GET TOKENS",
+      "SwapMNTP": "SWAP MNTP",
       "HeadingPool": "BLOCKCHAIN POOL",
       "Text": "Please login to your account or approve access to the Ethereum blockchain"
     },

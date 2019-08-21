@@ -128,6 +128,7 @@ import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-
 import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
 import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { NetworkSwitcherBlockComponent } from './blocks/network-switcher-block/network-switcher-block.component';
+import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -239,7 +240,8 @@ export function getGoldmintToken() {
     MobileNavbarBlockComponent,
     BuyMntpPageComponent,
     BuyPageComponent,
-    NetworkSwitcherBlockComponent
+    NetworkSwitcherBlockComponent,
+    SwapMntpComponent
   ],
   exports: [],
   providers: [
