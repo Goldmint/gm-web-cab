@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using Goldmint.WebApplication.Core;
-using System.Web;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -26,19 +25,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[AnonymousAccess]
 		[HttpGet, Route("google")]
 		[ProducesResponseType(typeof(RedirectView), 200)]
-		public async Task<APIResponse> Google(string returnUrl = "/") {
+		public async Task<APIResponse> Google() {
 
 			var provider = HttpContext.RequestServices.GetRequiredService<GoogleProvider>();
-	
-			var cbk = new Uri(Url.Link("OAuthGoogleCallback", new { }));
-			var qry = HttpUtility.ParseQueryString(cbk.Query);
-			qry["returnUrl"] = returnUrl ?? "/";
-			cbk = new UriBuilder(cbk) {Query = qry.ToString()}.Uri;
 
 			return APIResponse.Success(
 				new RedirectView() {
 					Redirect = await provider.GetRedirect(
-						cbk.AbsoluteUri,
+						Url.Link("OAuthGoogleCallback", new { }),
 						null
 					),
 				}
@@ -52,7 +46,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[HttpGet, Route("googleCallback", Name = "OAuthGoogleCallback")]
 		[ProducesResponseType(302)]
 		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task<IActionResult> GoogleCallback(string error, string code, string state, string returnUrl = "/") {
+		public async Task<IActionResult> GoogleCallback(string error, string code, string state) {
 			try {
 
 				if (!string.IsNullOrWhiteSpace(error) || string.IsNullOrWhiteSpace(code)) {
