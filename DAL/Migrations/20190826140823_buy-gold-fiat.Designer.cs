@@ -3,14 +3,16 @@ using System;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190826140823_buy-gold-fiat")]
+    partial class buygoldfiat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,64 +46,6 @@ namespace Goldmint.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("gm_banned_country");
-                });
-
-            modelBuilder.Entity("Goldmint.DAL.Models.BuyGoldFiat", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnName("concurrency_stamp")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("Destination")
-                        .IsRequired()
-                        .HasColumnName("destination")
-                        .HasMaxLength(128);
-
-                    b.Property<int>("ExchangeCurrency")
-                        .HasColumnName("exchange_currency");
-
-                    b.Property<long>("FiatAmount")
-                        .HasColumnName("fiat_amount");
-
-                    b.Property<decimal>("GoldAmount")
-                        .HasColumnName("gold_amount")
-                        .HasColumnType("decimal(38, 18)");
-
-                    b.Property<long>("GoldRateCents")
-                        .HasColumnName("gold_rate");
-
-                    b.Property<string>("OplogId")
-                        .IsRequired()
-                        .HasColumnName("oplog_id")
-                        .HasMaxLength(32);
-
-                    b.Property<long>("RelUserFinHistoryId")
-                        .HasColumnName("rel_user_finhistory");
-
-                    b.Property<int>("Status")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime?>("TimeCompleted")
-                        .HasColumnName("time_completed");
-
-                    b.Property<DateTime>("TimeCreated")
-                        .HasColumnName("time_created");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RelUserFinHistoryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("gm_buy_gold_fiat");
                 });
 
             modelBuilder.Entity("Goldmint.DAL.Models.CreditCardPayment", b =>
@@ -1315,19 +1259,6 @@ namespace Goldmint.DAL.Migrations
 
             modelBuilder.Entity("Goldmint.DAL.Models.BannedCountry", b =>
                 {
-                    b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Goldmint.DAL.Models.BuyGoldFiat", b =>
-                {
-                    b.HasOne("Goldmint.DAL.Models.UserFinHistory", "RelUserFinHistory")
-                        .WithMany()
-                        .HasForeignKey("RelUserFinHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Goldmint.DAL.Models.Identity.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")

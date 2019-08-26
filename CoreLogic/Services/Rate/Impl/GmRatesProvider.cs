@@ -60,7 +60,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			return new CurrencyRate(
 				cur: type,
 				stamp: DateTimeOffset.FromUnixTimeSeconds(result.result.timestamp).UtcDateTime,
-				usd: RoundCents(result.result.usd)
+				usd: RoundCents(result.result.usd),
+				eur: RoundCents(result.result.eur)
 			);
 		}
 
@@ -83,7 +84,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 				public long timestamp { get; set; }
 				public double usd { get; set; }
-				// public double eur { get; set; }
+				public double eur { get; set; }
 			}
 		}
 	}

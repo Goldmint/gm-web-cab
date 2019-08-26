@@ -76,7 +76,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				if (rcfg.Gold.AllowTradingOverall && _rates.TryGetValue(cur, out var ret)) {
 					return ret;
 				}
-				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0);
+				return new SafeCurrencyRate(false, false, TimeSpan.Zero, cur, new DateTime(0, DateTimeKind.Utc), 0, 0);
 			}
 			finally {
 				_mutexUpdate.ExitReadLock();
@@ -196,7 +196,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				ttl: ttl,
 				cur: unsafeRate.Currency,
 				stamp: unsafeRate.Stamp,
-				usd: unsafeRate.Usd
+				usd: unsafeRate.Usd,
+				eur: unsafeRate.Eur
 			);
 		}
 

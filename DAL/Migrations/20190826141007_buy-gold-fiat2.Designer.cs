@@ -3,14 +3,16 @@ using System;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Goldmint.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190826141007_buy-gold-fiat2")]
+    partial class buygoldfiat2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,9 +66,6 @@ namespace Goldmint.DAL.Migrations
 
                     b.Property<int>("ExchangeCurrency")
                         .HasColumnName("exchange_currency");
-
-                    b.Property<long>("FiatAmount")
-                        .HasColumnName("fiat_amount");
 
                     b.Property<decimal>("GoldAmount")
                         .HasColumnName("gold_amount")

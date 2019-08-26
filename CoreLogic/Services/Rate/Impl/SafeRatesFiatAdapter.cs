@@ -28,6 +28,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public static long? ExtractFiatRate(Models.SafeCurrencyRate rate, FiatCurrency fiatCurrency) {
 			switch (fiatCurrency) {
 				case FiatCurrency.Usd: return rate.Usd;
+				case FiatCurrency.Eur: return rate.Eur;
 			}
 			throw new NotImplementedException("Fiat currency is not implemented");
 		}

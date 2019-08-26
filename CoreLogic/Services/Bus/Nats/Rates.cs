@@ -31,6 +31,8 @@ namespace Goldmint.CoreLogic.Services.Bus.Nats {
 				public bool CanSell { get; set; }
 				[ProtoMember(6)]
 				public long Usd { get; set; }
+				[ProtoMember(7)]
+				public long Eur { get; set; }
 			}
 		}
 	}

@@ -400,6 +400,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			switch (fiatCurrency) {
 
 				case FiatCurrency.Usd:
+				case FiatCurrency.Eur:
 					min = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMinUsd;
 					max = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMaxUsd;
 

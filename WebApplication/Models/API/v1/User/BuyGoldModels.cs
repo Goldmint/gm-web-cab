@@ -249,16 +249,10 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 	public class CreditCardModel : BaseValidableModel {
 
 		/// <summary>
-		/// Card ID
-		/// </summary>
-		[Required]
-		public long CardId { get; set; }
-
-		/// <summary>
 		/// Address
 		/// </summary>
 		[Required]
-		public string EthAddress { get; set; }
+		public string SumusAddress { get; set; }
 
 		/// <summary>
 		/// Fiat currency
@@ -278,22 +272,13 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 		[Required]
 		public bool Reversed { get; set; }
 
-	    /// <summary>
-	    /// Promo code
-	    /// </summary>
-	    public string PromoCode { get; set; }
-
         // ---
 
         protected override FluentValidation.Results.ValidationResult ValidateFields() {
 			var v = new InlineValidator<CreditCardModel>() { CascadeMode = CascadeMode.StopOnFirstFailure };
 
-			v.RuleFor(_ => _.CardId)
-				.Must(Common.ValidationRules.BeValidId).WithMessage("Invalid format")
-				;
-
-			v.RuleFor(_ => _.EthAddress)
-				.Must(Common.ValidationRules.BeValidEthereumAddress).WithMessage("Invalid format")
+			v.RuleFor(_ => _.SumusAddress)
+				.Must(Common.ValidationRules.BeValidSumusAddress).WithMessage("Invalid format")
 				;
 
 			v.RuleFor(_ => _.Currency)
@@ -310,35 +295,5 @@ namespace Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels
 	}
 
 	public class CreditCardView {
-
-		/// <summary>
-		/// Request ID
-		/// </summary>
-		[Required]
-		public long RequestId { get; set; }
-
-		/// <summary>
-		/// Fiat currency
-		/// </summary>
-		[Required]
-		public string Currency { get; set; }
-
-		/// <summary>
-		/// Cents per GOLD
-		/// </summary>
-		[Required]
-		public double GoldRate { get; set; }
-
-		/// <summary>
-		/// Expires at datetime (unixstamp)
-		/// </summary>
-		[Required]
-		public long Expires { get; set; }
-
-		/// <summary>
-		/// Estimation data
-		/// </summary>
-		[Required]
-		public EstimateView Estimation { get; set; }
 	}
 }

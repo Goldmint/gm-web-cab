@@ -564,6 +564,7 @@ namespace Goldmint.Common {
 	public enum FiatCurrency {
 
 		Usd = 1,
+		Eur = 2,
 	}
 
 	public enum CurrencyRateType {

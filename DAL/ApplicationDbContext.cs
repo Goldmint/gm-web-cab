@@ -34,6 +34,7 @@ namespace Goldmint.DAL {
 		public DbSet<PoolFreezeRequest> PoolFreezeRequest { get; set; }
 		public DbSet<UserSumusWallet> UserSumusWallet { get; set; }
 		public DbSet<SellGoldEth> SellGoldEth { get; set; }
+		public DbSet<BuyGoldFiat> BuyGoldFiat { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 

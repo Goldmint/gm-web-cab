@@ -8,15 +8,17 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 		public readonly CurrencyRateType Currency;
 		public readonly DateTime Stamp;
 		public readonly long Usd;
+		public readonly long Eur;
 
-		public CurrencyRate(CurrencyRateType cur, DateTime stamp, long usd) {
+		public CurrencyRate(CurrencyRateType cur, DateTime stamp, long usd, long eur) {
 			Currency = cur;
 			Stamp = stamp;
 			Usd = usd;
+			Eur = eur;
 		}
 
 		public override string ToString() {
-			return $"cur={ Currency.ToString() };usd={ Usd };stm={ Stamp };";
+			return $"cur={ Currency.ToString() };usd={ Usd };eur={ Eur };stm={ Stamp };";
 		}
 	}
 
@@ -26,7 +28,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 		private readonly bool _canSell;
 		private readonly TimeSpan _ttl;
 
-		public SafeCurrencyRate(bool canBuy, bool canSell, TimeSpan ttl, CurrencyRateType cur, DateTime stamp, long usd) : base(cur, stamp, usd) {
+		public SafeCurrencyRate(bool canBuy, bool canSell, TimeSpan ttl, CurrencyRateType cur, DateTime stamp, long usd, long eur) : base(cur, stamp, usd, eur) {
 			_canBuy = canBuy;
 			_canSell = canSell;
 			_ttl = ttl;
@@ -50,6 +52,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 				CanBuy = rate._canBuy,
 				CanSell = rate._canSell,
 				Usd = rate.Usd,
+				Eur = rate.Eur,
 			};
 		}
 
@@ -60,7 +63,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 				ttl: TimeSpan.FromSeconds(rate.Ttl),
 				cur: rate.Currency,
 				stamp: DateTimeOffset.FromUnixTimeSeconds(rate.Stamp).UtcDateTime,
-				usd: rate.Usd
+				usd: rate.Usd,
+				eur: rate.Eur
 			);
 		}
 	}

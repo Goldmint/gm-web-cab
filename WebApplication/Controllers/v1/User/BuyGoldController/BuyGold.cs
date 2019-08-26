@@ -18,92 +18,91 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	[Route("api/v1/user/gold/buy")]
 	public partial class BuyGoldController : BaseController {
 
-		//	/// <summary>
-		//	/// Estimate
-		//	/// </summary>
-		//	[AnonymousAccess]
-		//	[HttpPost, Route("estimate")]
-		//	[ProducesResponseType(typeof(EstimateView), 200)]
-		//	public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
+		/// <summary>
+		/// Estimate
+		/// </summary>
+		[AnonymousAccess]
+		[HttpPost, Route("estimate")]
+		[ProducesResponseType(typeof(EstimateView), 200)]
+		public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
 
-		//		if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-		//			return APIResponse.BadRequest(errFields);
-		//		}
+			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
+				return APIResponse.BadRequest(errFields);
+			}
 
-		//		var exchangeCurrency = FiatCurrency.Usd;
-		//		EthereumToken? ethereumToken = null;
+			var exchangeCurrency = FiatCurrency.Usd;
+			EthereumToken? ethereumToken = null;
 
-		//		// try parse fiat currency
-		//		if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
-		//			exchangeCurrency = fc;
-		//		}
-		//		// or crypto currency
-		//		else if (Enum.TryParse(model.Currency, true, out EthereumToken cc)) {
-		//			ethereumToken = cc;
-		//		}
-		//		else {
-		//			return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
-		//		}
+			// try parse fiat currency
+			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
+				exchangeCurrency = fc;
+			}
+			// or crypto currency
+			else if (Enum.TryParse(model.Currency, true, out EthereumToken cc)) {
+				ethereumToken = cc;
+			}
+			else {
+				return APIResponse.BadRequest(nameof(model.Currency), "Invalid format");
+			}
 
-		//		// try parse amount
-		//		if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (ethereumToken == null && !model.Reversed && inputAmount > long.MaxValue)) {
-		//			return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
-		//		}
+			// try parse amount
+			if (!BigInteger.TryParse(model.Amount, out var inputAmount) || inputAmount < 1 || (ethereumToken == null && !model.Reversed && inputAmount > long.MaxValue)) {
+				return APIResponse.BadRequest(nameof(model.Amount), "Invalid amount");
+			}
 
-		//		// ---
+			// ---
 
-		//		var userOrNull = await GetUserFromDb();
-		//		var rcfg = RuntimeConfigHolder.Clone();
+			var userOrNull = await GetUserFromDb();
+			var rcfg = RuntimeConfigHolder.Clone();
 
-		//		// get user limits
-		//		var limits = ethereumToken != null
-		//			? DepositLimits(rcfg, ethereumToken.Value)
-		//			: await DepositLimits(rcfg, DbContext, userOrNull?.Id, exchangeCurrency);
+			// get user limits
+			var limits = ethereumToken != null
+				? DepositLimits(rcfg, ethereumToken.Value)
+				: await DepositLimits(rcfg, DbContext, userOrNull?.Id, exchangeCurrency);
 
-		//		// check promocode
-		//		PromoCode promoCode = null;
-		//		if (rcfg.Gold.AllowPromoCodes) {
-		//			var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+			// check promocode
+			PromoCode promoCode = null;
+			if (rcfg.Gold.AllowPromoCodes) {
+				var codeStatus = await GetPromoCodeStatus(model.PromoCode);
+				if (codeStatus.Valid == false) {
+					if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
+						promoCode = null;
+					else {
+						return APIResponse.BadRequest(codeStatus.ErrorCode);
+					}
+				}
+				else {
+					//if (await GetUserTier() != UserTier.Tier2) {
+					//	return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+					//}
+					promoCode = await DbContext.PromoCode
+						.AsNoTracking()
+						.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
+					;
+				}
+			}
 
-		//			if (codeStatus.Valid == false) {
-		//				if (codeStatus.ErrorCode == APIErrorCode.PromoCodeNotEnter)
-		//					promoCode = null;
-		//				else {
-		//					return APIResponse.BadRequest(codeStatus.ErrorCode);
-		//				}
-		//			}
-		//			else {
-		//				//if (await GetUserTier() != UserTier.Tier2) {
-		//				//	return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-		//				//}
-		//				promoCode = await DbContext.PromoCode
-		//						.AsNoTracking()
-		//						.FirstOrDefaultAsync(_ => _.Code == model.PromoCode.ToUpper())
-		//					;
-		//			}
-		//		}
+			// estimate
+			var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
+			if (!estimation.TradingAllowed) {
+				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+			}
+			if (estimation.IsLimitExceeded) {
+				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
+			}
 
-		//		// estimate
-		//		var estimation = await Estimation(rcfg, inputAmount, ethereumToken, exchangeCurrency, model.Reversed, promoCode?.DiscountValue ?? 0d, limits.Min, limits.Max);
-		//		if (!estimation.TradingAllowed) {
-		//			return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
-		//		}
-		//		if (estimation.IsLimitExceeded) {
-		//			return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
-		//		}
+			// promocode limit
+			if (promoCode != null) {
 
-		//		// promocode limit
-		//		if (promoCode != null) {
+				var limit = new BigInteger(promoCode.Limit * (decimal)Math.Pow(10, TokensPrecision.EthereumGold));
+				if (limit < estimation.ResultGoldAmount) {
+					return APIResponse.BadRequest(APIErrorCode.PromoCodeLimitExceeded);
+				}
+				estimation.View.Discount = promoCode.DiscountValue;
+			}
 
-		//			var limit = new BigInteger(promoCode.Limit * (decimal) Math.Pow(10, TokensPrecision.EthereumGold));
-		//			if (limit < estimation.ResultGoldAmount) {
-		//				return APIResponse.BadRequest(APIErrorCode.PromoCodeLimitExceeded);
-		//			}
-		//			estimation.View.Discount = promoCode.DiscountValue;
-		//		}
-
-		//		return APIResponse.Success(estimation.View);
-		//	}
+			return APIResponse.Success(estimation.View);
+		}
 
 		//	/// <summary>
 		//	/// Confirm request
@@ -221,248 +220,248 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		//	// ---
 
-		//	[NonAction]
-		//	private async Task<PromoCodeStatus> GetPromoCodeStatus(string str) {
-		//		if (string.IsNullOrEmpty(str))
-		//			return new PromoCodeStatus {
-		//				Valid = false,
-		//				ErrorCode = APIErrorCode.PromoCodeNotEnter
-		//			};
+		[NonAction]
+		private async Task<PromoCodeStatus> GetPromoCodeStatus(string str) {
+			if (string.IsNullOrEmpty(str))
+				return new PromoCodeStatus {
+					Valid = false,
+					ErrorCode = APIErrorCode.PromoCodeNotEnter
+				};
 
-		//		var code = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
-		//			_ => _.Code == str.ToUpper());
+			var code = await DbContext.PromoCode.AsNoTracking().FirstOrDefaultAsync(
+				_ => _.Code == str.ToUpper());
 
-		//		if (code == null)
-		//			return new PromoCodeStatus {
-		//				Valid = false,
-		//				ErrorCode = APIErrorCode.PromoCodeNotFound
-		//			};
+			if (code == null)
+				return new PromoCodeStatus {
+					Valid = false,
+					ErrorCode = APIErrorCode.PromoCodeNotFound
+				};
 
-		//		if (code.TimeExpires < DateTime.UtcNow)
-		//			return new PromoCodeStatus {
-		//				Valid = false,
-		//				ErrorCode = APIErrorCode.PromoCodeExpired
-		//			};
+			if (code.TimeExpires < DateTime.UtcNow)
+				return new PromoCodeStatus {
+					Valid = false,
+					ErrorCode = APIErrorCode.PromoCodeExpired
+				};
 
-		//		if (code.UsageType == PromoCodeUsageType.Single) {
-		//			var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
-		//				_ => _.PromoCodeId == code.Id);
+			if (code.UsageType == PromoCodeUsageType.Single) {
+				var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
+					_ => _.PromoCodeId == code.Id);
 
-		//			if (used != null)
-		//				return new PromoCodeStatus {
-		//					Valid = false,
-		//					ErrorCode = APIErrorCode.PromoCodeIsUsed
-		//				};
-		//		}
-		//		if (code.UsageType == PromoCodeUsageType.Multiple) {
-		//			var user = await GetUserFromDb();
-		//			var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
-		//				_ => _.PromoCodeId == code.Id &&
-		//					 _.UserId == user.Id);
+				if (used != null)
+					return new PromoCodeStatus {
+						Valid = false,
+						ErrorCode = APIErrorCode.PromoCodeIsUsed
+					};
+			}
+			if (code.UsageType == PromoCodeUsageType.Multiple) {
+				var user = await GetUserFromDb();
+				var used = await DbContext.UsedPromoCodes.AsNoTracking().FirstOrDefaultAsync(
+					_ => _.PromoCodeId == code.Id &&
+						 _.UserId == user.Id);
 
-		//			if (used != null)
-		//				return new PromoCodeStatus {
-		//					Valid = false,
-		//					ErrorCode = APIErrorCode.PromoCodeIsUsed
-		//				};
-		//		}
+				if (used != null)
+					return new PromoCodeStatus {
+						Valid = false,
+						ErrorCode = APIErrorCode.PromoCodeIsUsed
+					};
+			}
 
-		//		return new PromoCodeStatus {
-		//			Valid = true
-		//		};
-		//	}
+			return new PromoCodeStatus {
+				Valid = true
+			};
+		}
 
-		//	[NonAction]
-		//	private async Task MarkPromoCodeUsed(string str, long userId, long requestId) {
-		//		var pc = await (
-		//				from c in DbContext.PromoCode
-		//				where
-		//					c.Code == str.ToUpper()
-		//				select c
-		//			)
-		//			.AsTracking()
-		//			.FirstOrDefaultAsync();
+		[NonAction]
+		private async Task MarkPromoCodeUsed(string str, long userId, long requestId) {
+			var pc = await (
+					from c in DbContext.PromoCode
+					where
+						c.Code == str.ToUpper()
+					select c
+				)
+				.AsTracking()
+				.FirstOrDefaultAsync();
 
-		//		if (pc == null)
-		//			throw new Exception($"PromoCode not found for #{ requestId }");
+			if (pc == null)
+				throw new Exception($"PromoCode not found for #{ requestId }");
 
-		//		await DbContext.AddAsync(new UsedPromoCodes() {
-		//			PromoCodeId = pc.Id,
-		//			TimeUsed = DateTime.UtcNow,
-		//			UserId = userId
-		//		});
+			await DbContext.AddAsync(new UsedPromoCodes() {
+				PromoCodeId = pc.Id,
+				TimeUsed = DateTime.UtcNow,
+				UserId = userId
+			});
 
-		//		await DbContext.SaveChangesAsync();
-		//	}
+			await DbContext.SaveChangesAsync();
+		}
 
-		//	// ---
+		// ---
 
-		//	internal class PromoCodeStatus {
-		//		public bool Valid { get; set; }
-		//		public APIErrorCode ErrorCode { get; set; }
-		//	}
+		internal class PromoCodeStatus {
+			public bool Valid { get; set; }
+			public APIErrorCode ErrorCode { get; set; }
+		}
 
-		//	internal class EstimationResult {
-		//		public bool TradingAllowed { get; set; }
-		//		public bool IsLimitExceeded { get; set; }
-		//		public EstimateView View { get; set; }
-		//		public long CentsPerAssetRate { get; set; }
-		//		public long CentsPerGoldRate { get; set; }
-		//		public BigInteger ResultCurrencyAmount { get; set; }
-		//		public BigInteger ResultGoldAmount { get; set; }
-		//	}
+		internal class EstimationResult {
+			public bool TradingAllowed { get; set; }
+			public bool IsLimitExceeded { get; set; }
+			public EstimateView View { get; set; }
+			public long CentsPerAssetRate { get; set; }
+			public long CentsPerGoldRate { get; set; }
+			public BigInteger ResultCurrencyAmount { get; set; }
+			public BigInteger ResultGoldAmount { get; set; }
+		}
 
-		//	[NonAction]
-		//	private async Task<EstimationResult> Estimation(
-		//		RuntimeConfig rcfg,
-		//		BigInteger inputAmount,
-		//		EthereumToken? ethereumToken,
-		//		FiatCurrency fiatCurrency,
-		//		bool reversed,
-		//		double discount,
-		//		BigInteger depositLimitMin,
-		//		BigInteger depositLimitMax
-		//	) {
+		[NonAction]
+		private async Task<EstimationResult> Estimation(
+			RuntimeConfig rcfg,
+			BigInteger inputAmount,
+			EthereumToken? ethereumToken,
+			FiatCurrency fiatCurrency,
+			bool reversed,
+			double discount,
+			BigInteger depositLimitMin,
+			BigInteger depositLimitMax
+		) {
 
-		//		bool allowed = false;
+			bool allowed = false;
 
-		//		var centsPerAsset = 0L;
-		//		var centsPerGold = 0L;
-		//		var resultCurrencyAmount = BigInteger.Zero;
-		//		var resultGoldAmount = BigInteger.Zero;
+			var centsPerAsset = 0L;
+			var centsPerGold = 0L;
+			var resultCurrencyAmount = BigInteger.Zero;
+			var resultGoldAmount = BigInteger.Zero;
 
-		//		object viewAmount = null;
-		//		var viewAmountCurrency = "";
+			object viewAmount = null;
+			var viewAmountCurrency = "";
 
-		//		var limitsData = (EstimateLimitsView)null;
+			var limitsData = (EstimateLimitsView)null;
 
-		//		// default estimation: specified currency to GOLD
-		//		if (!reversed) {
-		//			// fiat
-		//			if (ethereumToken == null) {
+			// default estimation: specified currency to GOLD
+			if (!reversed) {
+				// fiat
+				if (ethereumToken == null) {
 
-		//				var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
-		//					services: HttpContext.RequestServices,
-		//					fiatCurrency: fiatCurrency,
-		//					fiatAmountCents: (long)inputAmount,
-		//					discount: discount
-		//				);
+					var res = await CoreLogic.Finance.Estimation.BuyGoldFiat(
+						services: HttpContext.RequestServices,
+						fiatCurrency: fiatCurrency,
+						fiatAmountCents: (long)inputAmount,
+						discount: discount
+					);
 
-		//				allowed = res.Allowed;
-		//				centsPerGold = res.CentsPerGoldRate;
-		//				resultCurrencyAmount = inputAmount;
-		//				resultGoldAmount = res.ResultGoldAmount;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					resultCurrencyAmount = inputAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
-		//				viewAmount = resultGoldAmount.ToString();
-		//				viewAmountCurrency = "GOLD";
+					viewAmount = resultGoldAmount.ToString();
+					viewAmountCurrency = "GOLD";
 
-		//				limitsData = new EstimateLimitsView() {
-		//					Currency = fiatCurrency.ToString().ToUpper(),
-		//					Min = (long)depositLimitMin / 100d,
-		//					Max = (long)depositLimitMax / 100d,
-		//					Cur = (long)resultCurrencyAmount / 100d,
-		//				};
-		//			}
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = (long)depositLimitMin / 100d,
+						Max = (long)depositLimitMax / 100d,
+						Cur = (long)resultCurrencyAmount / 100d,
+					};
+				}
 
-		//			// cryptoasset
-		//			else {
-		//				var res = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
-		//					services: HttpContext.RequestServices,
-		//					ethereumToken: ethereumToken.Value,
-		//					fiatCurrency: fiatCurrency,
-		//					cryptoAmount: inputAmount,
-		//					discount: discount
-		//				);
+				// cryptoasset
+				else {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldCrypto(
+						services: HttpContext.RequestServices,
+						ethereumToken: ethereumToken.Value,
+						fiatCurrency: fiatCurrency,
+						cryptoAmount: inputAmount,
+						discount: discount
+					);
 
-		//				allowed = res.Allowed;
-		//				centsPerGold = res.CentsPerGoldRate;
-		//				centsPerAsset = res.CentsPerAssetRate;
-		//				resultCurrencyAmount = inputAmount;
-		//				resultGoldAmount = res.ResultGoldAmount;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					centsPerAsset = res.CentsPerAssetRate;
+					resultCurrencyAmount = inputAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
-		//				viewAmount = resultGoldAmount.ToString();
-		//				viewAmountCurrency = "GOLD";
+					viewAmount = resultGoldAmount.ToString();
+					viewAmountCurrency = "GOLD";
 
-		//				limitsData = new EstimateLimitsView() {
-		//					Currency = fiatCurrency.ToString().ToUpper(),
-		//					Min = depositLimitMin.ToString(),
-		//					Max = depositLimitMax.ToString(),
-		//					Cur = resultCurrencyAmount.ToString(),
-		//				};
-		//			}
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = depositLimitMin.ToString(),
+						Max = depositLimitMax.ToString(),
+						Cur = resultCurrencyAmount.ToString(),
+					};
+				}
 
-		//		}
-		//		// reversed estimation: GOLD to specified currency
-		//		else {
-		//			// fiat
-		//			if (ethereumToken == null) {
-		//				var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
-		//					services: HttpContext.RequestServices,
-		//					fiatCurrency: fiatCurrency,
-		//					requiredGoldAmount: inputAmount,
-		//					discount: discount
-		//				);
+			}
+			// reversed estimation: GOLD to specified currency
+			else {
+				// fiat
+				if (ethereumToken == null) {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldFiatRev(
+						services: HttpContext.RequestServices,
+						fiatCurrency: fiatCurrency,
+						requiredGoldAmount: inputAmount,
+						discount: discount
+					);
 
-		//				allowed = res.Allowed;
-		//				centsPerGold = res.CentsPerGoldRate;
-		//				resultCurrencyAmount = res.ResultCentsAmount;
-		//				resultGoldAmount = res.ResultGoldAmount;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					resultCurrencyAmount = res.ResultCentsAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
-		//				viewAmount = (long)resultCurrencyAmount / 100d;
-		//				viewAmountCurrency = fiatCurrency.ToString().ToUpper();
+					viewAmount = (long)resultCurrencyAmount / 100d;
+					viewAmountCurrency = fiatCurrency.ToString().ToUpper();
 
-		//				limitsData = new EstimateLimitsView() {
-		//					Currency = fiatCurrency.ToString().ToUpper(),
-		//					Min = (long)depositLimitMin / 100d,
-		//					Max = (long)depositLimitMax / 100d,
-		//					Cur = (long)resultCurrencyAmount / 100d,
-		//				};
-		//			}
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = (long)depositLimitMin / 100d,
+						Max = (long)depositLimitMax / 100d,
+						Cur = (long)resultCurrencyAmount / 100d,
+					};
+				}
 
-		//			// cryptoasset
-		//			else {
-		//				var res = await CoreLogic.Finance.Estimation.BuyGoldCryptoRev(
-		//					services: HttpContext.RequestServices,
-		//					ethereumToken: ethereumToken.Value,
-		//					fiatCurrency: fiatCurrency,
-		//					requiredGoldAmount: inputAmount,
-		//					discount: discount
-		//				);
+				// cryptoasset
+				else {
+					var res = await CoreLogic.Finance.Estimation.BuyGoldCryptoRev(
+						services: HttpContext.RequestServices,
+						ethereumToken: ethereumToken.Value,
+						fiatCurrency: fiatCurrency,
+						requiredGoldAmount: inputAmount,
+						discount: discount
+					);
 
-		//				allowed = res.Allowed;
-		//				centsPerGold = res.CentsPerGoldRate;
-		//				centsPerAsset = res.CentsPerAssetRate;
-		//				resultCurrencyAmount = res.ResultAssetAmount;
-		//				resultGoldAmount = res.ResultGoldAmount;
+					allowed = res.Allowed;
+					centsPerGold = res.CentsPerGoldRate;
+					centsPerAsset = res.CentsPerAssetRate;
+					resultCurrencyAmount = res.ResultAssetAmount;
+					resultGoldAmount = res.ResultGoldAmount;
 
-		//				viewAmount = resultCurrencyAmount.ToString();
-		//				viewAmountCurrency = ethereumToken.Value.ToString().ToUpper();
+					viewAmount = resultCurrencyAmount.ToString();
+					viewAmountCurrency = ethereumToken.Value.ToString().ToUpper();
 
-		//				limitsData = new EstimateLimitsView() {
-		//					Currency = fiatCurrency.ToString().ToUpper(),
-		//					Min = depositLimitMin.ToString(),
-		//					Max = depositLimitMax.ToString(),
-		//					Cur = resultCurrencyAmount.ToString(),
-		//				};
-		//			}
-		//		}
+					limitsData = new EstimateLimitsView() {
+						Currency = fiatCurrency.ToString().ToUpper(),
+						Min = depositLimitMin.ToString(),
+						Max = depositLimitMax.ToString(),
+						Cur = resultCurrencyAmount.ToString(),
+					};
+				}
+			}
 
-		//		var limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
+			var limitExceeded = resultCurrencyAmount < depositLimitMin || resultCurrencyAmount > depositLimitMax;
 
-		//		return new EstimationResult() {
-		//			TradingAllowed = allowed,
-		//			IsLimitExceeded = limitExceeded,
-		//			View = new EstimateView() {
-		//				Amount = viewAmount,
-		//				AmountCurrency = viewAmountCurrency,
-		//				Limits = limitsData,
-		//			},
-		//			CentsPerAssetRate = centsPerAsset,
-		//			CentsPerGoldRate = centsPerGold,
-		//			ResultCurrencyAmount = resultCurrencyAmount,
-		//			ResultGoldAmount = resultGoldAmount,
-		//		};
-		//	}
+			return new EstimationResult() {
+				TradingAllowed = allowed,
+				IsLimitExceeded = limitExceeded,
+				View = new EstimateView() {
+					Amount = viewAmount,
+					AmountCurrency = viewAmountCurrency,
+					Limits = limitsData,
+				},
+				CentsPerAssetRate = centsPerAsset,
+				CentsPerGoldRate = centsPerGold,
+				ResultCurrencyAmount = resultCurrencyAmount,
+				ResultGoldAmount = resultGoldAmount,
+			};
+		}
 
 		// ---
 
@@ -514,6 +513,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			switch (fiatCurrency) {
 
 				case FiatCurrency.Usd:
+				case FiatCurrency.Eur:
 					min = rcfg.Gold.PaymentMehtods.CreditCardDepositMinUsd;
 					max = rcfg.Gold.PaymentMehtods.CreditCardDepositMaxUsd;
 

@@ -17,7 +17,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				new CurrencyRate(
 					cur: CurrencyRateType.Gold,
 					stamp: DateTime.UtcNow,
-					usd: DefaultValue(_defaultGoldRate)
+					usd: DefaultValue(_defaultGoldRate),
+					eur: 1
 				)
 			);
 		}
@@ -27,7 +28,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				new CurrencyRate(
 					cur: CurrencyRateType.Eth,
 					stamp: DateTime.UtcNow,
-					usd: DefaultValue(_defaultEthRate)
+					usd: DefaultValue(_defaultEthRate),
+					eur: 1
 				)
 			);
 		}

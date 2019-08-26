@@ -191,17 +191,17 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<ITemplateProvider, TemplateProvider>();
 
 			// kyc
-			if (_environment.IsProduction()) {
+			//if (_environment.IsProduction()) {
 				services.AddScoped<IKycProvider>(fac => {
 					return new ShuftiPro13KycProvider(opts => {
 						opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
 						opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
 					}, LogManager.LogFactory);
 				});
-			}
-			else {
-				services.AddScoped<IKycProvider, DebugKycProvider>();
-			}
+			//}
+			//else {
+			//	services.AddScoped<IKycProvider, DebugKycProvider>();
+			//}
 
 			// cc payment acquirer
 			services.AddScoped<The1StPayments>(fac => {
