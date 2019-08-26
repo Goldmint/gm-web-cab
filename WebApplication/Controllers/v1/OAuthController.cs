@@ -95,11 +95,14 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 					// load options
 					await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
-	
+					if (user.UserOptions?.DpaDocumentId != null) {
+						await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
+					}
+
 					// dpa is unsigned
 					if (!CoreLogic.User.HasSignedDpa(user.UserOptions)) {
 						Logger.Info($"User {userInfo.Id} - DPA required");
-
+						
 						if (user.UserOptions?.DpaDocumentId == null) {
 							await SendDpa(user, audience, userLocale);
 						}
@@ -107,8 +110,17 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaRequired)
 						);
 					}
+					else {
+						Logger.Info($"User {userInfo.Id} - DPA signed, but email is unconfirmed");
+
+						user.EmailConfirmed = true;
+						await DbContext.SaveChangesAsync();
+						signResult = await SignInManager.CanSignInAsync(user);
+					}
 				}
-				else {
+				
+				// can sign in
+				if (signResult) {
 					Logger.Info($"User {userInfo.Id} - can sign in");
 
 					// check rights
