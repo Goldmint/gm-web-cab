@@ -9,7 +9,3 @@ To run the project follow the instruction
 
 cd WebApplication/Client
 ng serve --port 8001 --proxy-config proxy.config.json
-
-
-
-
