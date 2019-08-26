@@ -100,7 +100,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					if (!CoreLogic.User.HasSignedDpa(user.UserOptions)) {
 						Logger.Info($"User {userInfo.Id} - DPA required");
 
-						await SendDpa(user, audience, userLocale);
+						if (user.UserOptions?.DpaDocumentId == null) {
+							await SendDpa(user, audience, userLocale);
+						}
 						return Redirect(
 							this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaRequired)
 						);
