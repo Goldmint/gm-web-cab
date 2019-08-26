@@ -73,7 +73,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 									try {
 									// notification
-									await EmailComposer.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, Locale.En))
+									await EmailComposer.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeGoldIssued, Locale.En))
 										.ReplaceBodyTag("REQUEST_ID", row.Id.ToString())
 										.ReplaceBodyTag("SCANNER_LINK", "https://staging.goldmint.io/cabinet/#/scanner/tx/" + req.Transaction + "?network=testnet")
 										.ReplaceBodyTag("DETAILS_SOURCE", TextFormatter.FormatAmount(row.FiatAmount, row.ExchangeCurrency))

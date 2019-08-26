@@ -67,7 +67,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var timeNow = DateTime.UtcNow;
-			var timeExpires = timeNow.AddSeconds(30);
+			var timeExpires = timeNow.AddSeconds(300);
 
 			var ticket = await OplogProvider.NewGoldBuyingRequestWithCreditCard(
 				userId: user.Id,
