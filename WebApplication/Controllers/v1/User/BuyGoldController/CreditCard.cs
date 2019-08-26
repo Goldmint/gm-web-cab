@@ -146,20 +146,20 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			try {
 				natsConnection = HttpContext.RequestServices.GetRequiredService<NATS.Client.IConnection>();
 
-				var erequest = new Sumus.Sender.Send.Request() {
+				var natsRequest = new Sumus.Sender.Send.Request() {
 					RequestID = $"buy-{request.Id}",
 					Amount = TextFormatter.FormatTokenAmount(estimation.ResultGoldAmount, Common.TokensPrecision.Sumus),
 					Token = "GOLD",
 					Wallet = model.SumusAddress,
 				};
 
-				var msg = await natsConnection.RequestAsync(Sumus.Sender.Send.Subject, Serializer.Serialize(request), 5000);
+				var msg = await natsConnection.RequestAsync(Sumus.Sender.Send.Subject, Serializer.Serialize(natsRequest), 5000);
 				var rep = Serializer.Deserialize<Sumus.Sender.Send.Reply>(msg.Data);
 				if (!rep.Success) {
 					throw new Exception(rep.Error);
 				}
 
-				Logger.Info($"{erequest.Amount} GOLD emission operation posted");
+				Logger.Info($"{natsRequest.Amount} GOLD emission operation posted");
 			} catch (Exception e) {
 				Logger.Error(e, $"{TextFormatter.FormatTokenAmount(estimation.ResultGoldAmount, Common.TokensPrecision.Sumus)} GOLD emission operation failed to post");
 				return APIResponse.GeneralInternalFailure(e);
