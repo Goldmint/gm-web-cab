@@ -159,7 +159,7 @@ export class EthereumService {
 
       if (ethereum) {
         this._web3Metamask = new Web3(ethereum);
-        ethereum.enable().then();
+        // ethereum.enable().then();
       } else {
         this._web3Metamask = new Web3(window['web3'].currentProvider);
       }
@@ -212,7 +212,7 @@ export class EthereumService {
 
   private checkHotBalance() {
     this._userId != null && this._contractInfura && this._contractInfura.getUserHotGoldBalance(this._userId, (err, res) => {
-      this._obsHotGoldBalanceSubject.next(res.div(new BigNumber(10).pow(18)));
+      res !== null && this._obsHotGoldBalanceSubject.next(res.div(new BigNumber(10).pow(18)));
     });
   }
 
@@ -338,6 +338,11 @@ export class EthereumService {
 
   public getObservableSumusAccount(): Observable<any> {
     return this._obsSumusAccount;
+  }
+
+  public connectToMetaMask() {
+    const ethereum = window['ethereum'];
+    ethereum && ethereum.enable().then();
   }
 
   public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {

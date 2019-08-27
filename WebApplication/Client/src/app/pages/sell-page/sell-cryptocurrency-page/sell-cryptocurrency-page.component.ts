@@ -158,6 +158,9 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
     });
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      if (!this.ethAddress && ethAddr) {
+        this._messageBox.closeModal();
+      }
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.goldBalance !== null) {
         // this.router.navigate(['sell']);
@@ -183,6 +186,7 @@ export class SellCryptocurrencyPageComponent implements OnInit, OnDestroy, After
   }
 
   enableMetamaskModal() {
+    this._ethService.connectToMetaMask();
     this._userService.showLoginToMMBox('HeadingSell');
   }
 

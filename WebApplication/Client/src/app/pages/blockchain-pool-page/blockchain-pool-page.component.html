@@ -22,7 +22,7 @@
 
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="withdraw" [innerHTML]="'PAGES.BlockchainPool.Labels.Withdraw' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(!mntpReward && !goldReward) || isInvalidNetwork" (click)="onSubmit(submitMethod[0])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(!mntpReward && !goldReward) || isInvalidNetwork || !ethAddress" (click)="onSubmit(submitMethod[0])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#goldsell-history-black"></use>
           </svg>
@@ -36,7 +36,7 @@
 
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork || userFrozenStake > 0" (click)="onSubmit(submitMethod[1])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork || userFrozenStake > 0 || !ethAddress" (click)="onSubmit(submitMethod[1])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#outbox"></use>
           </svg>
@@ -56,7 +56,7 @@
 
       <div class="col-12 col-lg-4 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
         <label class="pool-label-btn" for="unhold-old" [innerHTML]="'PAGES.BlockchainPool.Labels.UnholdOld' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="isInvalidNetwork" (click)="onSubmit(submitMethod[2])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="isInvalidNetwork || !ethAddress" (click)="onSubmit(submitMethod[2])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#outbox"></use>
           </svg>

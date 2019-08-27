@@ -191,9 +191,9 @@
         "minLimit": "Amount is less than minimum limit",
         "maxLimit": "Amount is greater than maximum limit",
         "GetMM": "Get MetaMask",
-        "EnableMM": "Enable MetaMask",
-        "GetMW": "Get Mint Wallet",
-        "EnableMW": "Enable Mint Wallet",
+        "EnableMM": "Connect MetaMask",
+        "GetMW": "Get Lite Wallet",
+        "EnableMW": "Connect Lite Wallet",
         "NotAllow": "Method is not allowed now"
       }
     },
@@ -249,7 +249,7 @@
         "Migration": "Token migration"
       },
       "Labels": {
-        "GetMintWallet": "Get Mint Wallet"
+        "GetMintWallet": "Get Lite Wallet"
       },
       "LaunchPage": {
         "Heading": "Launch Master Node",
@@ -1613,8 +1613,8 @@
       "Text": "MetaMask is a bridge that allows you to visit the distributed web of tomorrow in your browser today. It allows you to run Ethereum dApps right in your browser without running a full Ethereum node. Please, install the MetaMask add-on in Chrome, Firefox or Opera browser. Get <a href=\"https://metamask.io\" target=\"_blank\">Metamask</a>"
     },
     "LiteWallet": {
-      "Heading": "Mint Wallet",
-      "Text": "Mint Wallet is provided for token holders to safely and securely store, send or receive MNT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MNT/GOLD. Get"
+      "Heading": "Lite Wallet",
+      "Text": "Lite Wallet is provided for token holders to safely and securely store, send or receive MNT or GOLD tokens. It allows you to have multiple wallets which will provide the user with multiple places to store MNT/GOLD. Get"
     },
     "LoginToMM": {
       "HeadingBuy": "BUY GOLD",
@@ -1638,7 +1638,7 @@
     },
     "InvalidNetwork": "You must use {{ network }} network",
     "InvalidNetworkMM": "You must use {{ network }} network for MetaMask",
-    "InvalidNetworkWallet": "You must use {{ network }} network for Mint Wallet",
+    "InvalidNetworkWallet": "You must use {{ network }} network for Lite Wallet",
     "logOut": "Are you sure you want to log out?",
     "SomethingWrong": "Something went wrong.",
     "DepositLimit": "Deposit limit reached",

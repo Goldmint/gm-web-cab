@@ -69,6 +69,9 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
     });
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
+      if (!this.ethAddress && ethAddr) {
+        this._messageBox.closeModal();
+      }
       this.ethAddress = ethAddr;
       if (!this.ethAddress && this.tokenBalance !== null) {
         this.tokenBalance = null;
@@ -107,6 +110,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   }
 
   enableMetamaskModal() {
+    this._ethService.connectToMetaMask();
     this._userService.showLoginToMMBox('HeadingPool');
   }
 
