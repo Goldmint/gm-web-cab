@@ -56,6 +56,9 @@ export class BlockchainPoolPageComponent implements OnInit {
     this.isAuthenticated = this._userService.isAuthenticated();
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
+      if (!this.ethAddress && address) {
+        this._messageBox.closeModal();
+      }
       this.ethAddress = address;
       this._cdRef.markForCheck();
     });
@@ -78,6 +81,7 @@ export class BlockchainPoolPageComponent implements OnInit {
     if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
       this.loading = true;
       this.timeoutPopUp = setTimeout(() => {
+        this._ethService.connectToMetaMask();
         !this.ethAddress && this._userService.showLoginToMMBox('HeadingPool');
         this.loading = false;
         this._cdRef.markForCheck();

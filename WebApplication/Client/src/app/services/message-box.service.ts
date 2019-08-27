@@ -49,9 +49,9 @@ export class MessageBoxService implements OnDestroy {
             else {
               if (MessageBoxService.queue.length) {
                 let nextMessageBox  = MessageBoxService.queue[0];
-
                 let modalRef = this._modalService.show(MessageBoxComponent, this._config);
                     modalRef.content = Object.assign(modalRef.content, nextMessageBox.content);
+                this._bsModalRef = {...modalRef};
               }
             }
           }
@@ -69,6 +69,7 @@ export class MessageBoxService implements OnDestroy {
     if (!MessageBoxService.queue.length || clearQueue) {
       let modalRef = this._modalService.show(MessageBoxComponent, this._config);
           modalRef.content = Object.assign(modalRef.content, messageBox.content);
+      this._bsModalRef = {...modalRef};
 
       MessageBoxService.queue.push(modalRef);
     }
@@ -96,6 +97,14 @@ export class MessageBoxService implements OnDestroy {
 
   public authModal() {
     this._modalService.show(AuthModalComponent, this._config);
+  }
+
+  public closeModal() {
+    if (this._bsModalRef) {
+      this._bsModalRef.hide();
+      let index = MessageBoxService.queue.findIndex(modalRef => modalRef.content.id === this._bsModalRef.content.id);
+      MessageBoxService.queue.splice(index, 1);
+    }
   }
 
 }

@@ -120,6 +120,9 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
 
   getEthAddress() {
     this.ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
+      if (!this.ethAddress && address) {
+        this.messageBox.closeModal();
+      }
       this.ethAddress = address;
       if (this.ethAddress !== null) {
         this.isMetamask = true;
@@ -153,6 +156,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   }
 
   enableMetamaskModal() {
+    this.ethService.connectToMetaMask();
     this.userService.showLoginToMMBox('SwapMNTP');
   }
 

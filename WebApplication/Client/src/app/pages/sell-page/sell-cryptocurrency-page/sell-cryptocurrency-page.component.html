@@ -7,10 +7,10 @@
     <form *ngIf="!showCryptoCurrencyBlock">
         <div class="w-100">
           <div class="btn-group">
-            <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
             <label class="btn btn-primary btn-sm"
                    [ngClass]="{'active': currentCoin === coinList[1]}"
                    (click)="chooseCurrentCoin(coinList[1])">Eth</label>
+            <label class="btn btn-primary btn-sm disabled" disabled>BTC</label>
           </div>
 
           <div *ngIf="sumusAddress" class="line-height mt-3">
@@ -20,10 +20,10 @@
 
           <div class="pt-4">
             <form #sellForm="ngForm">
-              <div>
+              <div class="row">
                 <div class="col-12">
                   <div class="from-row form-group">
-                    <label for="goldAmountInput">{{ "PAGES.Sell.CtyptoCurrency.Labels.Amount" | translate }}</label>
+                    <label for="goldAmountInput">Deposit Amount</label>
                     <div class="d-flex align-items-center">
                       <div class="form-currency form-currency--gold">
                         <svg class="icon">
@@ -61,7 +61,7 @@
 
                 <div class="col-12">
                   <div class="from-row form-group ">
-                    <label for="coinAmount">{{ "PAGES.Sell.CtyptoCurrency.Labels.Estimate" | translate }} ($ {{ coinAmountToUSD | number:'1.1-2':locale }})</label>
+                    <label for="coinAmount">Estimated Amount ($ {{ coinAmountToUSD | number:'1.1-2':locale }})</label>
                     <div class="d-flex align-items-center">
                       <div class="form-currency">
                         <svg class="icon" width="30" height="30">
@@ -103,7 +103,7 @@
                     {{ "PAGES.Sell.CtyptoCurrency.Info.Destination" | translate }} <b>{{ ethAddress | reduction:6:4 }}</b>
                   </div>
 
-                  <button type="button" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || isInvalidNetwork || isEthLimitError">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
+                  <button type="button" (click)="onSubmit()" class="btn btn-primary" [disabled]="loading || invalidBalance || !goldAmount || !coinAmount || isTradingError || isTradingLimit || isInvalidNetwork || isEthLimitError || !ethAddress">{{ "PAGES.Sell.Buttons.SellNow" | translate }}</button>
                   <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                 </div>
               </div>
