@@ -138,10 +138,16 @@ export class BuySepaPageComponent implements OnInit, OnDestroy {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      this.isTransactionSent = true;
-
-      this._commonService.deleteFxCookies();
-      this._cdRef.markForCheck();
+      this.loading = true;
+      this._apiService.buyByCreditCard('eur', this.sumusAddress, (100 * 100).toString()).subscribe(res => {
+        this.isTransactionSent = true;
+        this._commonService.deleteFxCookies();
+        this.loading = false;
+        this._cdRef.markForCheck();
+      }, () => {
+        this.loading = false;
+        this._cdRef.markForCheck();
+      });
     }
   }
 

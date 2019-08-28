@@ -38,6 +38,7 @@ export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
   public loading: boolean = false;
   public isTransactionSent: boolean = false;
   public merchantPageUrl: string = null;
+  public tradingLimit: any = null;
 
   private rate: any = null;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -103,6 +104,13 @@ export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
         this.rate = rate;
       }
     });
+
+    this._apiService.transferTradingLimit$.takeUntil(this.destroy$).subscribe((limit: any) => {
+      this.tradingLimit = {};
+      this.tradingLimit.min = limit.min;
+      this.tradingLimit.max = limit.max;
+      this._cdRef.markForCheck();
+    });
   }
 
   setDefaultAmount() {
@@ -164,6 +172,7 @@ export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
   }
 
   changeValue(event, isGold: boolean) {
+    this.tradingLimit = null;
     event.target.value = this._commonService.substrValue(event.target.value);
     isGold ? (this.goldAmount = +event.target.value) : (this.euroAmount = +event.target.value);
     this.calcAmount(isGold);
@@ -190,10 +199,16 @@ export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
 
   onSubmit(form: NgForm) {
     if (form.valid && +this.goldAmount && +this.euroAmount) {
-      this.isTransactionSent = true;
-
-      this._commonService.deleteFxCookies();
-      this._cdRef.markForCheck();
+      this.loading = true;
+      this._apiService.buyByCreditCard('eur', this.sumusAddress, (this.euroAmount * 100).toString()).subscribe(res => {
+        this.isTransactionSent = true;
+        this._commonService.deleteFxCookies();
+        this.loading = false;
+        this._cdRef.markForCheck();
+      }, () => {
+        this.loading = false;
+        this._cdRef.markForCheck();
+      });
     }
   }
 

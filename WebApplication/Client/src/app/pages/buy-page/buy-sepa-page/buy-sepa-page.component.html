@@ -127,7 +127,7 @@
                                 <span class="font-weight-bold">Destination Wallet:</span> {{ sumusAddress | reduction:6:4 }}
                             </div>
 
-                            <div class="custom-control custom-checkbox">
+                            <div class="custom-control custom-checkbox" *ngIf="sumusAddress">
                                 <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
                                 <label class="custom-control-label" for="agreeCheck">
                                     {{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}
@@ -136,7 +136,7 @@
                             </div>
 
                             <div class="mt-4">
-                                <button type="button" (click)="onSubmit(form)" class="btn btn-primary" [disabled]="form.invalid || !isDataLoaded || !agreeCheck || !isIBANValid || isInvalidWalletNetwork">Confirm and print</button>
+                                <button type="button" (click)="onSubmit(form)" class="btn btn-primary" [disabled]="form.invalid || !isDataLoaded || !agreeCheck || !isIBANValid || isInvalidWalletNetwork || loading">Confirm and print</button>
                                 <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                             </div>
                         </form>

@@ -357,6 +357,17 @@ export class APIService {
       );
   }
 
+  buyByCreditCard(currency: string, sumusAddress: string, amount: string, reversed: boolean = false) {
+    const params = {currency, sumusAddress, amount, reversed}
+
+    return this._http
+      .post(`${this._baseUrl}/user/gold/buy/ccard`, params, this.jwt())
+      .pipe(
+        catchError(this._handleError),
+        shareReplay(),
+      );
+  }
+
   sellGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
     const params = {cardId, ethAddress, currency, amount, reversed}
 

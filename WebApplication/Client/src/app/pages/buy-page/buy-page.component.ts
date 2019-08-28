@@ -96,8 +96,13 @@ export class BuyPageComponent implements OnInit, OnDestroy {
       if (rate) {
         if (!this.rate) {
           this.rate = rate;
-          this.goldAmount = +this._commonService.getCookie('fx_deposit_amount') || 1;
-          this.calcAmount(true);
+          if (+this._commonService.getCookie('fx_deposit_amount')) {
+            this.euroAmount =  +this._commonService.getCookie('fx_deposit_amount');
+            this.calcAmount(false);
+          } else {
+            this.goldAmount = 1;
+            this.calcAmount(true);
+          }
         }
         this.rate = rate;
       }

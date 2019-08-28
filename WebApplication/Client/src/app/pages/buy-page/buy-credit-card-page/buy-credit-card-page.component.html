@@ -61,10 +61,14 @@
                                                    [(ngModel)]="euroAmount"
                                                    autocomplete="off"
                                                    (input)="changeValue($event, false)"
-                                                   [ngClass]="{'is-invalid': !euroAmount && form.dirty}">
+                                                   [ngClass]="{'is-invalid': (!euroAmount && form.dirty) || tradingLimit}">
                                         </div>
                                         <div class="invalid-feedback" *ngIf="!+euroAmount">
                                             Invalid amount
+                                        </div>
+                                        <div class="invalid-feedback" *ngIf="tradingLimit">
+                                            <div>Minimal amount value is {{ tradingLimit?.min }}</div>
+                                            <div>Maximum amount value is {{ tradingLimit?.max }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -194,7 +198,7 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <button type="button" (click)="onSubmit(cardForm)" class="btn btn-primary" [disabled]="cardForm.invalid || !isDataLoaded || !+goldAmount || !+euroAmount || isInvalidWalletNetwork || !sumusAddress || !agreeCheck">BUY</button>
+                                    <button type="button" (click)="onSubmit(cardForm)" class="btn btn-primary" [disabled]="cardForm.invalid || !isDataLoaded || !+goldAmount || !+euroAmount || isInvalidWalletNetwork || !sumusAddress || !agreeCheck || tradingLimit || loading">Confirm</button>
                                     <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
                                 </div>
                             </form>
