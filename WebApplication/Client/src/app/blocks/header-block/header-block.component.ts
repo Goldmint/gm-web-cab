@@ -84,10 +84,10 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         window.scrollTo(0, 0);
 
         if (this.route.snapshot.queryParams['fx-deposit-amount']) {
-          this.commonService.setCookie('fx_deposit_amount', this.route.snapshot.queryParams['fx-deposit-amount']);
+          this.commonService.setCookie('fx_deposit_amount', this.route.snapshot.queryParams['fx-deposit-amount'], {'max-age': 21600});
         }
         if (this.route.snapshot.queryParams['fx-url']) {
-          this.commonService.setCookie('fx_url', this.route.snapshot.queryParams['fx-url']);
+          this.commonService.setCookie('fx_url', this.route.snapshot.queryParams['fx-url'], {'max-age': 21600});
         }
 
         const network = this.route.snapshot.queryParams.network || localStorage.getItem('network');

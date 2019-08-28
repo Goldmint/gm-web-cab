@@ -8,10 +8,7 @@ export class CommonService {
   public changeFeedTab = new Subject();
   public getPawnShopOrganization = new BehaviorSubject(null);
   public getActiveMenuItem = new BehaviorSubject(null);
-  public buyAmount = {
-    gold: 0,
-    eur: 0
-  }
+  public buyAmount: {euro: number, gold: number, isGold: boolean} | any = null;
 
   constructor() { }
 
@@ -76,6 +73,12 @@ export class CommonService {
       "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
     return matches ? decodeURIComponent(matches[1]) : undefined;
+  }
+
+  public deleteFxCookies() {
+    this.setCookie('fx_deposit_amount', '', {'max-age': -1});
+    this.setCookie('fx_url', '', {'max-age': -1});
+    this.setCookie('fx_buy_data', '', {'max-age': -1});
   }
 
 }

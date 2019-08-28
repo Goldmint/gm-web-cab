@@ -1,0 +1,220 @@
+<!-- host: .page -->
+
+<ng-container *ngIf="!isBlockedCountry">
+    <ng-container *ngIf="!isTransactionSent">
+        <ng-container *ngIf="isAuthenticated && user?.verifiedL0 === false; else content">
+            <div class="mt-4">
+                <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
+
+                <div class="row kyc-pros mb-4 pb-2">
+                    <div class="col-lg-3">
+                        <svg class="kyc-pros__icon" width="33px" height="44px">
+                            <use xlink:href="#verify-secure"></use>
+                        </svg>
+                        <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+                        <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <svg class="kyc-pros__icon" width="28px" height="44px">
+                            <use xlink:href="#verify-simple"></use>
+                        </svg>
+                        <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+                        <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <svg class="kyc-pros__icon" width="36px" height="44px">
+                            <use xlink:href="#verify-complaint"></use>
+                        </svg>
+                        <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+                        <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+                    </div>
+                    <div class="col-lg-3 pl-lg-4 align-self-center">
+                        <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-template #content>
+            <section class="page__section section section--no-bottom">
+                <h2 class="section__title">Estimation</h2>
+
+                <div class="section__content pt-4 pb-3">
+                    <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
+                        <div class="container"></div>
+                    </div>
+
+                    <ng-template #blockLoaded>
+                        <form #form="ngForm">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="from-row form-group">
+                                        <label for="euro-amount">Amount</label>
+                                        <div class="d-flex align-items-center">
+                                            <div class="form-currency form-currency--gold mb-0">
+                                                <svg class="icon">
+                                                    <use xlink:href="#cur-eur"></use>
+                                                </svg>
+                                            </div>
+                                            <input type="text" class="form-control mb-0" name="euroAmountControl" id="euro-amount"
+                                                   #euroAmountControl="ngModel"
+                                                   [(ngModel)]="euroAmount"
+                                                   autocomplete="off"
+                                                   (input)="changeValue($event, false)"
+                                                   [ngClass]="{'is-invalid': !euroAmount && form.dirty}">
+                                        </div>
+                                        <div class="invalid-feedback" *ngIf="!+euroAmount">
+                                            Invalid amount
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="from-row form-group ">
+                                        <label for="gold-amount">Estimated Amount</label>
+                                        <div class="d-flex align-items-center">
+                                            <div class="form-currency mb-0">
+                                                <svg class="icon" width="30" height="30">
+                                                    <use xlink:href="#cur-gold"></use>
+                                                </svg>
+                                            </div>
+                                            <input type="text" class="form-control mb-0" name="goldAmountControl" id="gold-amount"
+                                                   #goldAmountControl="ngModel"
+                                                   [(ngModel)]="goldAmount"
+                                                   autocomplete="off"
+                                                   (input)="changeValue($event, true)"
+                                                   [ngClass]="{'is-invalid': !goldAmount && form.dirty}">
+                                        </div>
+                                        <div class="invalid-feedback" *ngIf="!+goldAmount">
+                                            Invalid amount
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </ng-template>
+                </div>
+            </section>
+
+            <section class="page__section section section--no-bottom" *ngIf="isDataLoaded">
+                <h2 class="section__title">Credit Card</h2>
+
+                <div class="section__content pt-4 pb-3">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <form #cardForm="ngForm">
+                                <div class="from-row form-group">
+                                    <label for="card-number">Card Number</label>
+                                    <input type="text" class="form-control mb-0" name="card-number" id="card-number"
+                                           #cardNumberControl="ngModel"
+                                           [(ngModel)]="creditCard.number"
+                                           (input)="validateCardNumber($event)"
+                                           autocomplete="off"
+                                           [ngClass]="{'is-invalid': cardNumberControl.invalid && cardNumberControl.touched}"
+                                           minlength="13"
+                                           maxlength="25"
+                                           required>
+                                    <div class="invalid-feedback" *ngIf="cardNumberControl.errors && cardNumberControl.touched">
+                                        <span *ngIf="cardNumberControl.errors.required">Field is required</span>
+                                        <span *ngIf="cardNumberControl.errors.minlength || cardNumberControl.errors.maxlength">Invalid format</span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <div class="from-row form-group">
+                                            <label for="card-holder">Card Holder</label>
+                                            <input type="text" class="form-control mb-0" name="card-holder" id="card-holder"
+                                                   #cardHolderControl="ngModel"
+                                                   [(ngModel)]="creditCard.holder"
+                                                   autocomplete="off"
+                                                   [ngClass]="{'is-invalid': cardHolderControl.invalid && cardHolderControl.touched}"
+                                                   required>
+                                            <div class="invalid-feedback" *ngIf="cardHolderControl.invalid && cardHolderControl.touched">
+                                                Field is required
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="from-row form-group">
+                                            <label for="exp-date">Exp. Date</label>
+                                            <input type="text" class="form-control mb-0" name="exp-date" id="exp-date"
+                                                   #expDateControl="ngModel"
+                                                   [(ngModel)]="creditCard.expDate"
+                                                   autocomplete="off"
+                                                   mask='00/00'
+                                                   [clearIfNotMatch]="true"
+                                                   [ngClass]="{'is-invalid': expDateControl.invalid && expDateControl.touched}"
+                                                   required>
+                                            <div class="invalid-feedback" *ngIf="expDateControl.invalid && expDateControl.touched">
+                                                Field is required
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="from-row form-group">
+                                            <label for="security-code">Security Code</label>
+                                            <input type="password" class="form-control mb-0" name="security-code" id="security-code"
+                                                   #securityCodeControl="ngModel"
+                                                   [(ngModel)]="creditCard.securityCode"
+                                                   (input)="validateCSecurityCode($event)"
+                                                   autocomplete="off"
+                                                   [ngClass]="{'is-invalid': securityCodeControl.invalid && securityCodeControl.touched}"
+                                                   minlength="3"
+                                                   maxlength="3"
+                                                   required>
+                                            <div class="invalid-feedback" *ngIf="securityCodeControl.errors && securityCodeControl.touched">
+                                                <span *ngIf="securityCodeControl.errors.required">Field is required</span>
+                                                <span *ngIf="securityCodeControl.errors.minlength || securityCodeControl.errors.maxlength">Invalid format</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="font-weight-500 lead icon--red pointer" *ngIf="noMintWallet">
+                                    <span (click)="getLiteWalletModal()">{{ "PAGES.Sell.Errors.GetMW" | translate }}</span>
+                                </div>
+                                <div class="font-weight-500 lead icon--red pointer" *ngIf="!noMintWallet && !sumusAddress">
+                                    <span (click)="enableLiteWalletModal()">{{ "PAGES.Sell.Errors.EnableMW" | translate }}</span>
+                                </div>
+
+                                <div class="custom-control custom-checkbox" *ngIf="sumusAddress">
+                                    <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
+                                    <label class="custom-control-label" for="agreeCheck">
+                                        {{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}
+                                        <a href="https://app.goldmint.io/#/legal-security/termsOfTesting" target="_blank">ToS</a>
+                                    </label>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="button" (click)="onSubmit(cardForm)" class="btn btn-primary" [disabled]="cardForm.invalid || !isDataLoaded || !+goldAmount || !+euroAmount || isInvalidWalletNetwork || !sumusAddress || !agreeCheck">BUY</button>
+                                    <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </ng-template>
+    </ng-container>
+
+    <ng-container *ngIf="isTransactionSent">
+        <section class="page__section section section--no-bottom">
+            <h2 class="section__title">Payment</h2>
+
+            <div class="section__content pt-4 pb-3">
+                Your request is being processed. We will notify you soon via E-mail. <br>
+                Also you can track the transaction with Lite Wallet
+                <span *ngIf="merchantPageUrl">and return <a [href]="merchantPageUrl" class="a-link">back to merchant page</a></span>
+            </div>
+        </section>
+    </ng-container>
+</ng-container>
+
+<div *ngIf="isBlockedCountry" class="text-center">
+    <div [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></div>
+</div>

@@ -1,32 +1,21 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostBinding,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation
-} from '@angular/core';
-import {User} from "../../interfaces";
-import {environment} from "../../../environments/environment";
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {User} from "../../../interfaces";
+import {environment} from "../../../../environments/environment";
 import {Observable, Subject} from "rxjs";
-import {APIService, GoldrateService, MessageBoxService, UserService} from "../../services";
-import {CommonService} from "../../services/common.service";
-import {Router} from "@angular/router";
+import {APIService, GoldrateService, MessageBoxService, UserService} from "../../../services";
+import {CommonService} from "../../../services/common.service";
+import {NgForm} from "@angular/forms";
 
 @Component({
-  selector: 'app-buy-page',
-  templateUrl: './buy-page.component.html',
-  styleUrls: ['./buy-page.component.sass'],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'page' }
+  selector: 'app-buy-credit-card-page',
+  templateUrl: './buy-credit-card-page.component.html',
+  styleUrls: ['./buy-credit-card-page.component.sass']
 })
-export class BuyPageComponent implements OnInit, OnDestroy {
+export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') class = 'page';
 
-  public loading = true;
+  public isDataLoaded = true;
   public user: User;
   public blockedCountriesList = [];
   public isBlockedCountry: boolean = false;
@@ -38,11 +27,16 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   public allowedWalletNetwork = environment.walletNetwork;
   public currentWalletNetwork;
   public isInvalidWalletNetwork: boolean = true;
-  public methdosUrl = [
-    '/buy/cryptocurrency',
-    '/buy/credit-card',
-    '/buy-sepa'
-  ];
+  public creditCard = {
+    number: null,
+    holder: null,
+    expDate: null,
+    securityCode: null
+  };
+  public agreeCheck: boolean = false;
+  public loading: boolean = false;
+  public isTransactionSent: boolean = false;
+  public merchantPageUrl: string = null;
 
   private rate: any = null;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -55,15 +49,13 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _cdRef: ChangeDetectorRef,
     private _commonService: CommonService,
-    private _goldrateService: GoldrateService,
-    private router: Router
+    private _goldrateService: GoldrateService
   ) { }
 
   ngOnInit() {
     this.liteWallet = window['GoldMint'];
     this.isAuthenticated = this._userService.isAuthenticated();
-    !this.isAuthenticated && (this.loading = false);
-    this._commonService.buyAmount = {};
+    !this.isAuthenticated && (this.isDataLoaded = true);
 
     this.detectLiteWallet();
 
@@ -71,6 +63,10 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     this.checkLiteWalletInterval = setInterval(() => {
       this.checkLiteWallet();
     }, 500);
+
+    this.setDefaultAmount();
+    const merchantPageUrl = this._commonService.getCookie('fx_url');
+    this.merchantPageUrl = merchantPageUrl ? decodeURIComponent(merchantPageUrl) : null;
 
     this.isAuthenticated && Observable.combineLatest(
       this._apiService.getProfile(),
@@ -84,11 +80,11 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         this.isBlockedCountry = this.blockedCountriesList.indexOf(res[2].data['country']) >= 0;
         !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
           this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
-          this.loading = false;
+          this.isDataLoaded = true;
           this._cdRef.markForCheck();
         });
 
-        this.isBlockedCountry && (this.loading = false);
+        this.isBlockedCountry && (this.isDataLoaded = true);
         this._cdRef.markForCheck();
       });
 
@@ -96,12 +92,30 @@ export class BuyPageComponent implements OnInit, OnDestroy {
       if (rate) {
         if (!this.rate) {
           this.rate = rate;
-          this.goldAmount = +this._commonService.getCookie('fx_deposit_amount') || 1;
-          this.calcAmount(true);
+          this.calcAmount(this._commonService.buyAmount ? this._commonService.buyAmount.isGold : true);
         }
         this.rate = rate;
       }
     });
+  }
+
+  setDefaultAmount() {
+    if (this._commonService.buyAmount) {
+      this.goldAmount = this._commonService.buyAmount.gold;
+      this.euroAmount = this._commonService.buyAmount.euro;
+    } else if (this._commonService.getCookie('fx_buy_data')) {
+      try {
+        let data = JSON.parse(this._commonService.getCookie('fx_buy_data'));
+        this.goldAmount = data.goldAmount;
+        this.euroAmount = data.euroAmount;
+      } catch (e) {
+        this.goldAmount = 1;
+      }
+    } else if (this._commonService.getCookie('fx_deposit_amount')) {
+      this.goldAmount = +this._commonService.getCookie('fx_deposit_amount');
+    } else {
+      this.goldAmount = 1;
+    }
   }
 
   detectLiteWallet() {
@@ -109,10 +123,6 @@ export class BuyPageComponent implements OnInit, OnDestroy {
       this.noMintWallet = true;
       this._cdRef.markForCheck();
     }
-  }
-
-  connectLiteWallet() {
-    this.noMintWallet ? this.getLiteWalletModal() : this.enableLiteWalletModal();
   }
 
   getLiteWalletModal() {
@@ -159,29 +169,26 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     } else {
       this.goldAmount = +this._commonService.substrValue(this.euroAmount / this.rate.eur);
     }
-    this._commonService.buyAmount.isGold = isGold;
     this._cdRef.markForCheck();
   }
 
-  onMethodSelect(url: string) {
-    if (!this.goldAmount || !this.euroAmount) {
-      return;
-    }
+  validateCardNumber(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    this.creditCard.number = e.target.value;
+  }
 
-    if (!this.isAuthenticated) {
-      let data = {
-        returnToBuyPage: true,
-        euroAmount: this.euroAmount,
-        goldAmount: this.goldAmount
-      }
-      this._commonService.setCookie('fx_buy_data', JSON.stringify(data), {'max-age': 21600});
-      this.router.navigate(['/signin']);
-      return;
-    }
+  validateCSecurityCode(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    this.creditCard.securityCode = e.target.value;
+  }
 
-    this._commonService.buyAmount.gold = this.goldAmount;
-    this._commonService.buyAmount.euro = this.euroAmount;
-    this.router.navigate([url]);
+  onSubmit(form: NgForm) {
+    if (form.valid && +this.goldAmount && +this.euroAmount) {
+      this.isTransactionSent = true;
+
+      this._commonService.deleteFxCookies();
+      this._cdRef.markForCheck();
+    }
   }
 
   ngOnDestroy() {

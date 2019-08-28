@@ -51,6 +51,8 @@ import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
+import {BuyCryptocurrencyPageComponent} from "./pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component";
+import {BuyCreditCardPageComponent} from "./pages/buy-page/buy-credit-card-page/buy-credit-card-page.component";
 
 
 const appRoutes: Routes = [
@@ -72,6 +74,8 @@ const appRoutes: Routes = [
   { path: 'sell', component: SellPageComponent },
   { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'buy', component: BuyPageComponent },
+  { path: 'buy/cryptocurrency', component: BuyCryptocurrencyPageComponent },
+  { path: 'buy/credit-card', component: BuyCreditCardPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {

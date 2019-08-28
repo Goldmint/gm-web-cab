@@ -129,6 +129,8 @@ import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.compon
 import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { NetworkSwitcherBlockComponent } from './blocks/network-switcher-block/network-switcher-block.component';
 import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
+import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component';
+import { BuyCreditCardPageComponent } from './pages/buy-page/buy-credit-card-page/buy-credit-card-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -241,7 +243,9 @@ export function getGoldmintToken() {
     BuyMntpPageComponent,
     BuyPageComponent,
     NetworkSwitcherBlockComponent,
-    SwapMntpComponent
+    SwapMntpComponent,
+    BuyCryptocurrencyPageComponent,
+    BuyCreditCardPageComponent
   ],
   exports: [],
   providers: [
