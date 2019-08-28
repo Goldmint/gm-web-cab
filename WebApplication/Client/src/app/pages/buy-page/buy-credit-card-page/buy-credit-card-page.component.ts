@@ -5,6 +5,7 @@ import {Observable, Subject} from "rxjs";
 import {APIService, GoldrateService, MessageBoxService, UserService} from "../../../services";
 import {CommonService} from "../../../services/common.service";
 import {NgForm} from "@angular/forms";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-buy-credit-card-page',
@@ -49,13 +50,18 @@ export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _cdRef: ChangeDetectorRef,
     private _commonService: CommonService,
-    private _goldrateService: GoldrateService
+    private _goldrateService: GoldrateService,
+    private router: Router
   ) { }
 
   ngOnInit() {
     this.liteWallet = window['GoldMint'];
     this.isAuthenticated = this._userService.isAuthenticated();
-    !this.isAuthenticated && (this.isDataLoaded = true);
+
+    if (!this.isAuthenticated) {
+      this.router.navigate(['/buy']);
+      return;
+    }
 
     this.detectLiteWallet();
 

@@ -1,0 +1,153 @@
+<!-- host: .page -->
+
+<ng-container *ngIf="!isBlockedCountry">
+    <ng-container *ngIf="isAuthenticated && user?.verifiedL0 === false; else content">
+        <div class="mt-4">
+            <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
+
+            <div class="row kyc-pros mb-4 pb-2">
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="33px" height="44px">
+                        <use xlink:href="#verify-secure"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="28px" height="44px">
+                        <use xlink:href="#verify-simple"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="36px" height="44px">
+                        <use xlink:href="#verify-complaint"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3 pl-lg-4 align-self-center">
+                    <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-template #content>
+        <section class="page__section section section--no-bottom">
+            <h2 class="section__title">
+                {{ !isTransactionSent ? 'Payee' : 'Order' }}
+            </h2>
+
+            <div class="section__content pt-4 pb-3">
+                <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
+                    <div class="container"></div>
+                </div>
+
+                <ng-template #blockLoaded>
+                    <div class="form-group">
+                        Name: CYBERBRIDGE OU
+                    </div>
+                    <div class="form-group">
+                        IMAN: EE471000001020145685
+                    </div>
+                    <div class="form-group">
+                        Address: Peterburi tee 147, Tallinn, Estonia, 11415
+                    </div>
+                    <div class="form-group">
+                        <span>Date: {{ currentDate | date:'yyyy-MM-dd' }}</span>
+                    </div>
+                    <div class="form-group">
+                        Reference: <span *ngIf="!isTransactionSent">after confirmation</span>
+                        <span *ngIf="isTransactionSent">123e4567-e89b-12d3-a456-426655440000</span>
+                    </div>
+                </ng-template>
+            </div>
+        </section>
+
+        <section class="page__section section section--no-bottom" *ngIf="isDataLoaded && !isTransactionSent">
+            <h2 class="section__title">Payer</h2>
+
+            <div class="section__content pt-4 pb-3">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <form #form="ngForm">
+                            <div class="from-row form-group">
+                                <label for="payer-name">Customer Name</label>
+                                <input type="text" class="form-control mb-0" name="payer-name" id="payer-name"
+                                       #payerNameControl="ngModel"
+                                       [(ngModel)]="payerData.name"
+                                       autocomplete="off"
+                                       [ngClass]="{'is-invalid': payerNameControl.invalid && payerNameControl.touched}"
+                                       required>
+                                <div class="invalid-feedback" *ngIf="payerNameControl.errors && payerNameControl.touched">
+                                    <span *ngIf="payerNameControl.errors.required">Field is required</span>
+                                </div>
+                            </div>
+
+                            <div class="from-row form-group">
+                                <label for="payer-holder">Account Holder Name</label>
+                                <input type="text" class="form-control mb-0" name="payer-holder" id="payer-holder"
+                                       #payerHolderControl="ngModel"
+                                       [(ngModel)]="payerData.holderName"
+                                       autocomplete="off"
+                                       [ngClass]="{'is-invalid': payerHolderControl.invalid && payerHolderControl.touched}"
+                                       required>
+                                <div class="invalid-feedback" *ngIf="payerHolderControl.invalid && payerHolderControl.touched">
+                                    Field is required
+                                </div>
+                            </div>
+
+                            <div class="from-row form-group">
+                                <label for="payer-iban">IBAN</label>
+                                <input type="text" class="form-control mb-0" name="payer-iban" id="payer-iban"
+                                       #payerIBANControl="ngModel"
+                                       [(ngModel)]="payerData.iban"
+                                       (input)="validateIBAN($event)"
+                                       autocomplete="off"
+                                       [ngClass]="{'is-invalid': (payerIBANControl.invalid || !isIBANValid) && payerIBANControl.touched}"
+                                       required>
+                                <div class="invalid-feedback" *ngIf="payerIBANControl.invalid && payerIBANControl.touched">
+                                    Field is required
+                                </div>
+                                <div class="invalid-feedback" *ngIf="payerIBANControl.valid && payerIBANControl.touched && !isIBANValid">
+                                    This IBAN is invalid
+                                </div>
+                            </div>
+
+                            <div class="font-weight-500 lead icon--red pointer" *ngIf="noMintWallet">
+                                <span (click)="getLiteWalletModal()">{{ "PAGES.Sell.Errors.GetMW" | translate }}</span>
+                            </div>
+                            <div class="font-weight-500 lead icon--red pointer" *ngIf="!noMintWallet && !sumusAddress">
+                                <span (click)="enableLiteWalletModal()">{{ "PAGES.Sell.Errors.EnableMW" | translate }}</span>
+                            </div>
+
+                            <div class="mb-3" *ngIf="sumusAddress">
+                                <span class="font-weight-bold">Destination Wallet:</span> {{ sumusAddress | reduction:6:4 }}
+                            </div>
+
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck">
+                                <label class="custom-control-label" for="agreeCheck">
+                                    {{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}
+                                    <a href="https://app.goldmint.io/#/legal-security/termsOfTesting" target="_blank">ToS</a>
+                                </label>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="button" (click)="onSubmit(form)" class="btn btn-primary" [disabled]="form.invalid || !isDataLoaded || !agreeCheck || !isIBANValid || isInvalidWalletNetwork">Confirm and print</button>
+                                <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </ng-template>
+</ng-container>
+
+<div *ngIf="isBlockedCountry" class="text-center">
+    <div [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></div>
+</div>

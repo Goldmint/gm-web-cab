@@ -53,6 +53,7 @@ import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
 import {BuyCryptocurrencyPageComponent} from "./pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component";
 import {BuyCreditCardPageComponent} from "./pages/buy-page/buy-credit-card-page/buy-credit-card-page.component";
+import {BuySepaPageComponent} from "./pages/buy-page/buy-sepa-page/buy-sepa-page.component";
 
 
 const appRoutes: Routes = [
@@ -76,6 +77,7 @@ const appRoutes: Routes = [
   { path: 'buy', component: BuyPageComponent },
   { path: 'buy/cryptocurrency', component: BuyCryptocurrencyPageComponent },
   { path: 'buy/credit-card', component: BuyCreditCardPageComponent },
+  { path: 'buy/sepa', component: BuySepaPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {

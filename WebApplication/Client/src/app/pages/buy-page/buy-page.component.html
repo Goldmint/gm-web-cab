@@ -87,7 +87,7 @@
             </div>
         </section>
 
-        <section class="page__section section section--no-bottom a-link connect-lite-wallet" *ngIf="!loading && !sumusAddress">
+        <section class="page__section section section--no-bottom color-red connect-lite-wallet" *ngIf="!loading && !sumusAddress">
             <h2 class="section__title" (click)="connectLiteWallet()">Connect Lite Wallet</h2>
         </section>
 
@@ -101,7 +101,7 @@
                         <label>Ctyptocurrency</label>
                         <button class="btn btn-primary btn-block"
                                 (click)="onMethodSelect(methdosUrl[0])"
-                                [disabled]="!sumusAddress || isInvalidWalletNetwork || !goldAmount || !euroAmount">
+                                [disabled]="true">
                             <svg class="icon" width="56px" height="56px">
                                 <use xlink:href="#payment-crypto"></use>
                             </svg>

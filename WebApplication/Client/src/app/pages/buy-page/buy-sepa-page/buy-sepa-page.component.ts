@@ -1,50 +1,43 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostBinding,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation
-} from '@angular/core';
-import {User} from "../../interfaces";
-import {environment} from "../../../environments/environment";
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {User} from "../../../interfaces";
 import {Observable, Subject} from "rxjs";
-import {APIService, GoldrateService, MessageBoxService, UserService} from "../../services";
-import {CommonService} from "../../services/common.service";
+import {APIService, GoldrateService, MessageBoxService, UserService} from "../../../services";
+import {CommonService} from "../../../services/common.service";
+import {NgForm} from "@angular/forms";
 import {Router} from "@angular/router";
+import * as IBAN from "iban"
+import {environment} from "../../../../environments/environment";
 
 @Component({
-  selector: 'app-buy-page',
-  templateUrl: './buy-page.component.html',
-  styleUrls: ['./buy-page.component.sass'],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'page' }
+  selector: 'app-buy-sepa-page',
+  templateUrl: './buy-sepa-page.component.html',
+  styleUrls: ['./buy-sepa-page.component.sass']
 })
-export class BuyPageComponent implements OnInit, OnDestroy {
+export class BuySepaPageComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') class = 'page';
 
-  public loading = true;
+  public isDataLoaded = true;
   public user: User;
   public blockedCountriesList = [];
   public isBlockedCountry: boolean = false;
   public isAuthenticated: boolean = false;
-  public euroAmount: number = 0;
-  public goldAmount: number = 0;
   public sumusAddress: string = null;
   public noMintWallet: boolean = false;
   public allowedWalletNetwork = environment.walletNetwork;
   public currentWalletNetwork;
   public isInvalidWalletNetwork: boolean = true;
-  public methdosUrl = [
-    '/buy/cryptocurrency',
-    '/buy/credit-card',
-    '/buy/sepa'
-  ];
+  public payerData = {
+    name: null,
+    holderName: null,
+    iban: null
+  };
+  public agreeCheck: boolean = false;
+  public loading: boolean = false;
+  public isTransactionSent: boolean = false;
+  public currentDate = new Date();
+  public isIBANValid: boolean = false;
 
-  private rate: any = null;
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = null;
   private checkLiteWalletInterval;
@@ -62,8 +55,11 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.liteWallet = window['GoldMint'];
     this.isAuthenticated = this._userService.isAuthenticated();
-    !this.isAuthenticated && (this.loading = false);
-    this._commonService.buyAmount = {};
+
+    if (!this.isAuthenticated) {
+      this.router.navigate(['/buy']);
+      return;
+    }
 
     this.detectLiteWallet();
 
@@ -80,28 +76,20 @@ export class BuyPageComponent implements OnInit, OnDestroy {
       .subscribe((res) => {
         this.user = res[0].data;
 
+        this.payerData.name = this.user.name;
+        this.payerData.holderName = this.user.name;
+
         this.blockedCountriesList = res[1] ? res[1].data : [];
         this.isBlockedCountry = this.blockedCountriesList.indexOf(res[2].data['country']) >= 0;
         !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
           this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
-          this.loading = false;
+          this.isDataLoaded = true;
           this._cdRef.markForCheck();
         });
 
-        this.isBlockedCountry && (this.loading = false);
+        this.isBlockedCountry && (this.isDataLoaded = true);
         this._cdRef.markForCheck();
       });
-
-    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(rate => {
-      if (rate) {
-        if (!this.rate) {
-          this.rate = rate;
-          this.goldAmount = +this._commonService.getCookie('fx_deposit_amount') || 1;
-          this.calcAmount(true);
-        }
-        this.rate = rate;
-      }
-    });
   }
 
   detectLiteWallet() {
@@ -109,10 +97,6 @@ export class BuyPageComponent implements OnInit, OnDestroy {
       this.noMintWallet = true;
       this._cdRef.markForCheck();
     }
-  }
-
-  connectLiteWallet() {
-    this.noMintWallet ? this.getLiteWalletModal() : this.enableLiteWalletModal();
   }
 
   getLiteWalletModal() {
@@ -147,41 +131,18 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeValue(event, isGold: boolean) {
-    event.target.value = this._commonService.substrValue(event.target.value);
-    isGold ? (this.goldAmount = +event.target.value) : (this.euroAmount = +event.target.value);
-    this.calcAmount(isGold);
-  }
-
-  calcAmount(isGold: boolean) {
-    if (isGold) {
-      this.euroAmount = +this._commonService.substrValue(this.goldAmount * this.rate.eur);
-    } else {
-      this.goldAmount = +this._commonService.substrValue(this.euroAmount / this.rate.eur);
-    }
-    this._commonService.buyAmount.isGold = isGold;
+  validateIBAN(e) {
+    this.isIBANValid = IBAN.isValid(e.target.value);
     this._cdRef.markForCheck();
   }
 
-  onMethodSelect(url: string) {
-    if (!this.goldAmount || !this.euroAmount) {
-      return;
-    }
+  onSubmit(form: NgForm) {
+    if (form.valid) {
+      this.isTransactionSent = true;
 
-    if (!this.isAuthenticated) {
-      let data = {
-        returnToBuyPage: true,
-        euroAmount: this.euroAmount,
-        goldAmount: this.goldAmount
-      }
-      this._commonService.setCookie('fx_buy_data', JSON.stringify(data), {'max-age': 21600});
-      this.router.navigate(['/signin']);
-      return;
+      this._commonService.deleteFxCookies();
+      this._cdRef.markForCheck();
     }
-
-    this._commonService.buyAmount.gold = this.goldAmount;
-    this._commonService.buyAmount.euro = this.euroAmount;
-    this.router.navigate([url]);
   }
 
   ngOnDestroy() {
