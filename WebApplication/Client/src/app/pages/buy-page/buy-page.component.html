@@ -1,42 +1,141 @@
 <!-- host: .page -->
-<!--<h1 class="page__heading">{{ "PAGES.Buy.Heading" | translate }}</h1>-->
 
-<section class="page__section section">
-  <h2 class="section__title">{{ "PAGES.Buy.SectionTitle" | translate }}</h2>
+<ng-container *ngIf="!isBlockedCountry">
+    <ng-container *ngIf="isAuthenticated && user?.verifiedL0 === false; else content">
+        <div class="mt-4">
+            <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
 
-  <div class="section__content pt-4">
-    <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
-      <div class="container"></div>
-    </div>
-
-    <ng-template #blockLoaded>
-      <div *ngIf="!isBlockedCountry">
-        <div class="row mb-4 align-items-baseline">
-
-          <div class="col-md-6 col-xl-4 form-group text-center">
-            <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
-            <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                    [disabled]="true">
-              <svg class="icon" width="56px" height="56px">
-                <use xlink:href="#payment-crypto"></use>
-              </svg>
-            </button>
-            <div  class="text-left pt-1 blocked-notification text-center">
-              <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
+            <div class="row kyc-pros mb-4 pb-2">
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="33px" height="44px">
+                        <use xlink:href="#verify-secure"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="28px" height="44px">
+                        <use xlink:href="#verify-simple"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="36px" height="44px">
+                        <use xlink:href="#verify-complaint"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3 pl-lg-4 align-self-center">
+                    <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+                </div>
             </div>
-          </div>
-
-          <div class="col-md-6 col-xl-8 align-self-center text-center">
-            Now buying GOLD is available only to qualified investors.<br>
-            Please contact us <a href="mailto:invest@goldmint.io" target="_blank">invest@goldmint.io</a>
-          </div>
         </div>
-      </div>
+    </ng-container>
 
-      <div *ngIf="isBlockedCountry" class="mt-4 text-center">
-        <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></p>
-      </div>
+    <ng-template #content>
+        <section class="page__section section section--no-bottom">
+            <h2 class="section__title">Estimate</h2>
 
+            <div class="section__content pt-4 pb-3">
+                <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
+                    <div class="container"></div>
+                </div>
+
+                <ng-template #blockLoaded>
+                    <form class="calc-form" #form="ngForm">
+                        <div class="calc-form__euro">
+                            <div class="d-flex align-items-center">
+                                <div class="form-currency form-currency--gold mb-0">
+                                    <svg class="icon">
+                                        <use xlink:href="#cur-eur"></use>
+                                    </svg>
+                                </div>
+                                <input type="text" class="form-control mb-0" name="euroAmountControl"
+                                       #euroAmountControl="ngModel"
+                                       [(ngModel)]="euroAmount"
+                                       autocomplete="off"
+                                       (input)="changeValue($event, false)"
+                                       [ngClass]="{'is-invalid': !euroAmount && form.dirty}">
+                            </div>
+                        </div>
+
+                        <div class="calc-form__arrow">
+                            <svg class="icon icon--gold" width="30" height="25">
+                                <use xlink:href="#next-arrow"></use>
+                            </svg>
+                        </div>
+
+                        <div class="calc-form__gold">
+                            <div class="d-flex align-items-center">
+                                <div class="form-currency form-currency--gold mb-0">
+                                    <svg class="icon">
+                                        <use xlink:href="#cur-gold"></use>
+                                    </svg>
+                                </div>
+                                <input type="text" class="form-control mb-0" name="goldAmountControl"
+                                       #goldAmountControl="ngModel"
+                                       [(ngModel)]="goldAmount"
+                                       autocomplete="off"
+                                       (input)="changeValue($event, true)"
+                                       [ngClass]="{'is-invalid': !goldAmount && form.dirty}">
+                            </div>
+                        </div>
+                    </form>
+                </ng-template>
+            </div>
+        </section>
+
+        <section class="page__section section section--no-bottom a-link connect-lite-wallet" *ngIf="!loading && !sumusAddress">
+            <h2 class="section__title" (click)="connectLiteWallet()">Connect Lite Wallet</h2>
+        </section>
+
+        <section class="page__section section" [ngClass]="{'disabled': !sumusAddress}" *ngIf="!loading">
+            <h2 class="section__title">Select a method</h2>
+
+            <div class="section__content pt-4">
+                <div class="row mb-4 align-items-baseline">
+
+                    <div class="col-md-6 col-xl-4 form-group text-center">
+                        <label>Ctyptocurrency</label>
+                        <button class="btn btn-primary btn-block"
+                                (click)="onMethodSelect(methdosUrl[0])"
+                                [disabled]="!sumusAddress || isInvalidWalletNetwork || !goldAmount || !euroAmount">
+                            <svg class="icon" width="56px" height="56px">
+                                <use xlink:href="#payment-crypto"></use>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="col-md-6 col-xl-4 form-group text-center">
+                        <label>Credit Card</label>
+                        <button class="btn btn-primary btn-block"
+                                (click)="onMethodSelect(methdosUrl[1])"
+                                [disabled]="!sumusAddress || isInvalidWalletNetwork || !goldAmount || !euroAmount">
+                            <svg class="icon" width="56px" height="56px">
+                                <use xlink:href="#payment-card"></use>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="col-md-6 col-xl-4 form-group text-center">
+                        <label>SEPA</label>
+                        <button class="btn btn-primary btn-block"
+                                (click)="onMethodSelect(methdosUrl[2])"
+                                [disabled]="!sumusAddress || isInvalidWalletNetwork || !goldAmount || !euroAmount">
+                            <svg class="icon" width="106px" height="56px">
+                                <use xlink:href="#sepa"></use>
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
     </ng-template>
-  </div>
-</section>
+</ng-container>
+
+<div *ngIf="isBlockedCountry" class="text-center">
+    <div [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></div>
+</div>

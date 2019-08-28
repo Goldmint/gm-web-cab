@@ -8,6 +8,10 @@ export class CommonService {
   public changeFeedTab = new Subject();
   public getPawnShopOrganization = new BehaviorSubject(null);
   public getActiveMenuItem = new BehaviorSubject(null);
+  public buyAmount = {
+    gold: 0,
+    eur: 0
+  }
 
   constructor() { }
 
@@ -43,6 +47,35 @@ export class CommonService {
       .replace(/([^\d.])|(^\.)/g, '')
       .replace(/^(\d{1,6})\d*(?:(\.\d{0,6})[\d.]*)?/, '$1$2')
       .replace(/^0+(\d)/, '$1');
+  }
+
+  public setCookie(name, value, options = {}) {
+    let data: any = {
+      path: '/',
+      ...options
+    };
+
+    if (data.expires && data.expires.toUTCString) {
+      data.expires = data.expires.toUTCString();
+    }
+
+    let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+
+    for (let key in data) {
+      updatedCookie += "; " + key;
+      let optionValue = data[key];
+      if (optionValue !== true) {
+        updatedCookie += "=" + optionValue;
+      }
+    }
+    document.cookie = updatedCookie;
+  }
+
+  public getCookie(name) {
+    let matches = document.cookie.match(new RegExp(
+      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
   }
 
 }

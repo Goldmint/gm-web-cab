@@ -7,12 +7,12 @@ import {
   OnInit,
   ViewEncapsulation
 } from '@angular/core';
-import {TFAInfo, User} from "../../interfaces";
-import {TradingStatus} from "../../interfaces/trading-status";
+import {User} from "../../interfaces";
 import {environment} from "../../../environments/environment";
 import {Observable, Subject} from "rxjs";
-import {APIService, EthereumService, MessageBoxService, UserService} from "../../services";
-import {TranslateService} from "@ngx-translate/core";
+import {APIService, GoldrateService, MessageBoxService, UserService} from "../../services";
+import {CommonService} from "../../services/common.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-buy-page',
@@ -27,45 +27,60 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'page';
 
   public loading = true;
-  public isMetamask = true;
   public user: User;
-  public tfaInfo: TFAInfo;
-  public tradingStatus: TradingStatus;
   public blockedCountriesList = [];
   public isBlockedCountry: boolean = false;
-  public MMNetwork = environment.MMNetwork;
-  public isInvalidNetwork: boolean = true;
   public isAuthenticated: boolean = false;
+  public euroAmount: number = 0;
+  public goldAmount: number = 0;
+  public sumusAddress: string = null;
+  public noMintWallet: boolean = false;
+  public allowedWalletNetwork = environment.walletNetwork;
+  public currentWalletNetwork;
+  public isInvalidWalletNetwork: boolean = true;
+  public methdosUrl = [
+    '/buy-cryptocurrency',
+    '/buy-credit-card',
+    '/buy-sepa'
+  ];
 
+  private rate: any = null;
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private liteWallet = null;
+  private checkLiteWalletInterval;
 
   constructor(
     private _userService: UserService,
     private _apiService: APIService,
     private _messageBox: MessageBoxService,
     private _cdRef: ChangeDetectorRef,
-    private _translate: TranslateService,
-    private _ethService: EthereumService
+    private _commonService: CommonService,
+    private _goldrateService: GoldrateService,
+    private router: Router
   ) { }
 
   ngOnInit() {
+    this.liteWallet = window['GoldMint'];
     this.isAuthenticated = this._userService.isAuthenticated();
     !this.isAuthenticated && (this.loading = false);
 
+    this.detectLiteWallet();
+
+    this.checkLiteWallet();
+    this.checkLiteWalletInterval = setInterval(() => {
+      this.checkLiteWallet();
+    }, 500);
+
     this.isAuthenticated && Observable.combineLatest(
-      this._apiService.getTFAInfo(),
       this._apiService.getProfile(),
-      this._apiService.getTradingStatus(),
-      this._apiService.getKYCProfile(),
-      this._apiService.getBannedCountries()
+      this._apiService.getBannedCountries(),
+      this._apiService.getKYCProfile()
     )
       .subscribe((res) => {
-        this.tfaInfo = res[0].data;
-        this.user = res[1].data;
-        this.tradingStatus = res[2].data.trading;
+        this.user = res[0].data;
 
-        this.blockedCountriesList = res[4] ? res[4].data : [];
-        this.isBlockedCountry = this.blockedCountriesList.indexOf(res[3].data['country']) >= 0;
+        this.blockedCountriesList = res[1] ? res[1].data : [];
+        this.isBlockedCountry = this.blockedCountriesList.indexOf(res[2].data['country']) >= 0;
         !this.isBlockedCountry && this._userService.getIPInfo().subscribe(data => {
           this.isBlockedCountry = this.blockedCountriesList.indexOf(data['country']) >= 0;
           this.loading = false;
@@ -76,22 +91,96 @@ export class BuyPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
-    this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
-      if (network !== null) {
-        if (network != this.MMNetwork.index) {
-          this._userService.invalidNetworkModal(this.MMNetwork.name);
-          this.isInvalidNetwork = true;
-        } else {
-          this.isInvalidNetwork = false;
+    this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(rate => {
+      if (rate) {
+        if (!this.rate) {
+          this.rate = rate;
+          this.goldAmount = +this._commonService.getCookie('fx_deposit_amount') || 1;
+          this.calcAmount(true);
         }
-        this._cdRef.markForCheck();
+        this.rate = rate;
       }
     });
+  }
 
-    this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
-      this.isMetamask = !ethAddr ? false : true;
+  detectLiteWallet() {
+    if (!window.hasOwnProperty('GoldMint')) {
+      this.noMintWallet = true;
       this._cdRef.markForCheck();
-    });
+    }
+  }
+
+  connectLiteWallet() {
+    this.noMintWallet ? this.getLiteWalletModal() : this.enableLiteWalletModal();
+  }
+
+  getLiteWalletModal() {
+    this._userService.showGetLiteWalletModal();
+  }
+
+  enableLiteWalletModal() {
+    this._userService.showLoginToLiteWalletModal();
+  }
+
+  checkLiteWallet() {
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet && this.liteWallet.getCurrentNetwork().then(res => {
+        if (this.currentWalletNetwork != res) {
+          this.currentWalletNetwork = res;
+          if (res !== null && res !== this.allowedWalletNetwork) {
+            this._userService.showInvalidNetworkModal('InvalidNetworkWallet', this.allowedWalletNetwork);
+            this.isInvalidWalletNetwork = true;
+          } else {
+            this.isInvalidWalletNetwork = false;
+          }
+          this._cdRef.markForCheck();
+        }
+      });
+
+      this.liteWallet && this.liteWallet.getAccount().then(res => {
+        if (this.sumusAddress != res[0]) {
+          this.sumusAddress = res.length ? res[0] : null;
+          this._cdRef.markForCheck();
+        }
+      });
+    }
+  }
+
+  changeValue(event, isGold: boolean) {
+    event.target.value = this._commonService.substrValue(event.target.value);
+    isGold ? (this.goldAmount = +event.target.value) : (this.euroAmount = +event.target.value);
+    this.calcAmount(isGold);
+  }
+
+  calcAmount(isGold: boolean) {
+    if (isGold) {
+      this.euroAmount = +this._commonService.substrValue(this.goldAmount * this.rate.eur);
+    } else {
+      this.goldAmount = +this._commonService.substrValue(this.euroAmount / this.rate.eur);
+    }
+    this._cdRef.markForCheck();
+  }
+
+  onMethodSelect(url: string) {
+    if (!this.goldAmount || !this.euroAmount) {
+      return;
+    }
+
+    if (!this.isAuthenticated) {
+      let data = {
+        returnToBuyPage: true,
+        euroAmount: this.euroAmount,
+        goldAmount: this.goldAmount,
+        fxUrl: decodeURIComponent(this._commonService.getCookie('fx_url')) || ''
+      }
+      this._commonService.setCookie('fx_buy_data', JSON.stringify(data));
+      this.router.navigate(['/signin']);
+      return;
+    }
+
+    this._commonService.buyAmount.gold = this.goldAmount;
+    this._commonService.buyAmount.eur = this.euroAmount;
+    this.router.navigate([url]);
   }
 
   ngOnDestroy() {

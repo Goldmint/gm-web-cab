@@ -25,7 +25,8 @@ export class GoldrateService {
       .subscribe(res => {
         let rate = {
           gold: res['result'].usd,
-          eth: res['result'].eth / Math.pow(10, 18)
+          eth: res['result'].eth / Math.pow(10, 18),
+          eur: res['result'].eur
         }
         this._obsRateSubject.next(rate);
       });

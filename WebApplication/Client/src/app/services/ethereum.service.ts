@@ -154,7 +154,7 @@ export class EthereumService {
       });
     }
 
-    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI && this.EthMntpContractABI && this.EthPoolContractABI) {
+    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI && this.EthMntpContractABI && this.EthPoolContractABI && this.SwapContractABI) {
       let ethereum = window['ethereum'];
 
       if (ethereum) {

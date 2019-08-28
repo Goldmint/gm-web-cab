@@ -1,9 +1,36 @@
-.form-currency--usd .icon
-  width: 30px
-
 .blocked-notification
   color: red
   font-size: .8em
 
-.transactions-paused
-  font-size: 1.125rem
+.calc-form
+  display: flex
+  align-items: center
+
+  .calc-form__euro
+    width: 45%
+
+  .calc-form__arrow
+    text-align: center
+    width: 10%
+
+  .calc-form__gold
+    width: 45%
+
+.connect-lite-wallet
+  min-height: 20px
+
+.section.disabled
+  border-top: 3px solid #cfcfcf
+
+@media (max-width: 575px)
+  .calc-form
+    display: block
+
+    .calc-form__euro, .calc-form__gold
+      width: 100%
+
+    .calc-form__euro
+      margin-bottom: 16px
+
+    .calc-form__arrow
+      display: none

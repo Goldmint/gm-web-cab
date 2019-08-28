@@ -83,6 +83,13 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         document.body.style.overflow = 'visible';
         window.scrollTo(0, 0);
 
+        if (this.route.snapshot.queryParams['fx-deposit-amount']) {
+          this.commonService.setCookie('fx_deposit_amount', this.route.snapshot.queryParams['fx-deposit-amount']);
+        }
+        if (this.route.snapshot.queryParams['fx-url']) {
+          this.commonService.setCookie('fx_url', this.route.snapshot.queryParams['fx-url']);
+        }
+
         const network = this.route.snapshot.queryParams.network || localStorage.getItem('network');
         this.router.navigate([], {
           queryParams: { network: network == this.networkList.testnet ? network : null },
