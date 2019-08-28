@@ -22,6 +22,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
 
   public gold_usd_rate: number = 0;
   public gold_eth_rate: number = 0;
+  public gold_eur_rate: number = 0;
   public user: User;
   public locale: string;
   public isShowMobileMenu: boolean = false;
@@ -100,7 +101,11 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     });
 
     this._goldrateService.getObservableRate().takeUntil(this.destroy$).subscribe(data => {
-      data && (this.gold_usd_rate = data.gold) && (this.gold_eth_rate = data.eth);
+      if (data) {
+        this.gold_usd_rate = data.gold;
+        this.gold_eth_rate = data.eth;
+        this.gold_eur_rate = data.eur;
+      }
       this._cdRef.markForCheck();
     });
 

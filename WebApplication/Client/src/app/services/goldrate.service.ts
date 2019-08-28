@@ -7,8 +7,8 @@ import {interval} from "rxjs/observable/interval";
 @Injectable()
 export class GoldrateService {
 
-  private _obsRateSubject = new BehaviorSubject<{gold: number, eth: number} | null>(null);
-  private _obsRate: Observable<{gold: number, eth: number} | null> = this._obsRateSubject.asObservable();
+  private _obsRateSubject = new BehaviorSubject<{gold: number, eth: number, eur: number} | null>(null);
+  private _obsRate: Observable<{gold: number, eth: number, eur: number} | null> = this._obsRateSubject.asObservable();
 
   constructor(private _apiService: APIService) {
 
@@ -32,7 +32,7 @@ export class GoldrateService {
       });
   }
 
-  public getObservableRate(): Observable<{gold: number, eth: number} | null> {
+  public getObservableRate(): Observable<{gold: number, eth: number, eur: number} | null> {
     return this._obsRate;
   }
 }
