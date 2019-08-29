@@ -91,6 +91,10 @@
                  [ngClass]="{'no-connect': !sumusAddress}"
                  *ngIf="!loading">
             <h2 class="section__title" (click)="connectLiteWallet()">2. Connect Lite Wallet</h2>
+
+            <div class="section__content pt-4 pb-3" *ngIf="noMintWallet">
+                Please <a class="a-link" (click)="reloadPage()">reload this page</a> after Lite Wallet extension installation
+            </div>
         </section>
 
         <section class="page__section section" [ngClass]="{'disabled': !sumusAddress}" *ngIf="!loading">

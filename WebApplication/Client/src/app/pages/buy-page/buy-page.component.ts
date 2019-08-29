@@ -173,6 +173,10 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     this._cdRef.markForCheck();
   }
 
+  reloadPage() {
+    window.location.reload();
+  }
+
   onMethodSelect(url: string) {
     if (!this.goldAmount || !this.euroAmount) {
       return;
