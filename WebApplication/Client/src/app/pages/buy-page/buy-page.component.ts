@@ -117,6 +117,7 @@ export class BuyPageComponent implements OnInit, OnDestroy {
   }
 
   connectLiteWallet() {
+    if (this.sumusAddress) return;
     this.noMintWallet ? this.getLiteWalletModal() : this.enableLiteWalletModal();
   }
 
@@ -128,13 +129,17 @@ export class BuyPageComponent implements OnInit, OnDestroy {
     this._userService.showLoginToLiteWalletModal();
   }
 
+  showInvalidNetworkModal() {
+    this._userService.showInvalidNetworkModal(environment.isProduction ? 'InvalidNetworkWallet' : 'InvalidNetworkWalletTest', this.allowedWalletNetwork);
+  }
+
   checkLiteWallet() {
     if (window.hasOwnProperty('GoldMint')) {
       this.liteWallet && this.liteWallet.getCurrentNetwork().then(res => {
         if (this.currentWalletNetwork != res) {
           this.currentWalletNetwork = res;
           if (res !== null && res !== this.allowedWalletNetwork) {
-            this._userService.showInvalidNetworkModal('InvalidNetworkWallet', this.allowedWalletNetwork);
+            this.showInvalidNetworkModal();
             this.isInvalidWalletNetwork = true;
           } else {
             this.isInvalidWalletNetwork = false;
@@ -170,6 +175,21 @@ export class BuyPageComponent implements OnInit, OnDestroy {
 
   onMethodSelect(url: string) {
     if (!this.goldAmount || !this.euroAmount) {
+      return;
+    }
+
+    if(this.noMintWallet) {
+      this.getLiteWalletModal()
+      return;
+    }
+
+    if (!this.sumusAddress) {
+      this.enableLiteWalletModal();
+      return;
+    }
+
+    if (this.isInvalidWalletNetwork) {
+      this.showInvalidNetworkModal();
       return;
     }
 

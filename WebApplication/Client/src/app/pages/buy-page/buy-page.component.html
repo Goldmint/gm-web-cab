@@ -36,7 +36,7 @@
 
     <ng-template #content>
         <section class="page__section section section--no-bottom">
-            <h2 class="section__title">Estimate</h2>
+            <h2 class="section__title">1. Estimate</h2>
 
             <div class="section__content pt-4 pb-3">
                 <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
@@ -87,12 +87,14 @@
             </div>
         </section>
 
-        <section class="page__section section section--no-bottom color-red connect-lite-wallet" *ngIf="!loading && !sumusAddress">
-            <h2 class="section__title" (click)="connectLiteWallet()">Connect Lite Wallet</h2>
+        <section class="page__section section section--no-bottom connect-lite-wallet"
+                 [ngClass]="{'no-connect': !sumusAddress}"
+                 *ngIf="!loading">
+            <h2 class="section__title" (click)="connectLiteWallet()">2. Connect Lite Wallet</h2>
         </section>
 
         <section class="page__section section" [ngClass]="{'disabled': !sumusAddress}" *ngIf="!loading">
-            <h2 class="section__title">Select a method</h2>
+            <h2 class="section__title">3. Select a method</h2>
 
             <div class="section__content pt-4">
                 <div class="row mb-4 align-items-baseline">
@@ -112,7 +114,7 @@
                         <label>Credit Card</label>
                         <button class="btn btn-primary btn-block"
                                 (click)="onMethodSelect(methdosUrl[1])"
-                                [disabled]="!sumusAddress || isInvalidWalletNetwork || !goldAmount || !euroAmount">
+                                [disabled]="!goldAmount || !euroAmount">
                             <svg class="icon" width="56px" height="56px">
                                 <use xlink:href="#payment-card"></use>
                             </svg>
@@ -123,7 +125,7 @@
                         <label>SEPA</label>
                         <button class="btn btn-primary btn-block"
                                 (click)="onMethodSelect(methdosUrl[2])"
-                                [disabled]="!sumusAddress || isInvalidWalletNetwork || !goldAmount || !euroAmount">
+                                [disabled]="!goldAmount || !euroAmount">
                             <svg class="icon" width="106px" height="56px">
                                 <use xlink:href="#sepa"></use>
                             </svg>

@@ -153,7 +153,7 @@ export class BuyCreditCardPageComponent implements OnInit, OnDestroy {
         if (this.currentWalletNetwork != res) {
           this.currentWalletNetwork = res;
           if (res !== null && res !== this.allowedWalletNetwork) {
-            this._userService.showInvalidNetworkModal('InvalidNetworkWallet', this.allowedWalletNetwork);
+            this._userService.showInvalidNetworkModal(environment.isProduction ? 'InvalidNetworkWallet' : 'InvalidNetworkWalletTest', this.allowedWalletNetwork);
             this.isInvalidWalletNetwork = true;
           } else {
             this.isInvalidWalletNetwork = false;
