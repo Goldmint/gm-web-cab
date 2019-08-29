@@ -128,7 +128,7 @@ const appRoutes: Routes = [
     ]
   },
 
-  { path: '', redirectTo: 'master-node', pathMatch: 'full' },
+  { path: '', redirectTo: 'buy', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }
 ];
 
