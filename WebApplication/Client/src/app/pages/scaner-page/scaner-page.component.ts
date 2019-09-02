@@ -167,6 +167,9 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
         this.anyChartMntRewardData.push([dateString, +item.fee_mnt]);
         this.anyChartTxData.push([dateString, item.transactions, +item.volume_gold, +item.volume_mnt]);
       });
+
+      this.anyChartGoldRewardData.splice(0, 1);
+      this.anyChartMntRewardData.splice(0, 1);
     }
   }
 

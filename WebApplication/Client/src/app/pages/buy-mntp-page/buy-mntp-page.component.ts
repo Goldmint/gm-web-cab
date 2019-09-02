@@ -75,6 +75,7 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
             +item.total_stake
           ]);
         });
+        this.chartData.splice(0, 1);
         this.initChart();
       }
     });
