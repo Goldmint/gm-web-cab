@@ -28,13 +28,14 @@ export class BlockchainPoolPageComponent implements OnInit {
   public goldRewardOld: number = 0;
 
   public ethAddress: string = null;
-  public loading: boolean = false;
+  public loading: boolean = true;
   public isAuthenticated: boolean = false;
   public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake', 'withdrawRewardAndUnholdStakeOld'];
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
   public etherscanContractUrl = environment.etherscanContractUrl;
   public poolContractAddress = environment.EthPoolContractAddress;
+  public noMetamask: boolean = false;
 
   private timeoutPopUp;
   private destroy$: Subject<boolean> = new Subject<boolean>();
@@ -51,8 +52,7 @@ export class BlockchainPoolPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._poolService.getPoolData();
-
+    // this._poolService.getPoolData();
     this.isAuthenticated = this._userService.isAuthenticated();
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
@@ -65,28 +65,14 @@ export class BlockchainPoolPageComponent implements OnInit {
 
     this._ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
       if (network !== null) {
-        if (network != this.MMNetwork.index) {
-          this._userService.invalidNetworkModal(this.MMNetwork.name);
-          this.isInvalidNetwork = true;
-        } else {
-          this.isInvalidNetwork = false;
-        }
+        this.isInvalidNetwork = network != this.MMNetwork.index;
         this._cdRef.markForCheck();
       }
     });
 
+    this.detectMetaMask();
     this.initWithdrawTransactionModal();
     this.initUnholdTransactionModal();
-
-    if (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) {
-      this.loading = true;
-      this.timeoutPopUp = setTimeout(() => {
-        this._ethService.connectToMetaMask();
-        !this.ethAddress && this._userService.showLoginToMMBox('HeadingPool');
-        this.loading = false;
-        this._cdRef.markForCheck();
-      }, 4000);
-    }
 
     this._poolService.getObsUserStake().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null) {
@@ -139,6 +125,19 @@ export class BlockchainPoolPageComponent implements OnInit {
     });
   }
 
+  detectMetaMask() {
+    if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
+      this.noMetamask = true;
+      this.loading = false;
+      this._cdRef.markForCheck();
+    } else {
+      setTimeout(() => {
+        this.loading = false;
+        this._cdRef.markForCheck();
+      }, 3000);
+    }
+  }
+
   setPoolDataUpdate() {
     this._poolService.destroy$.next(true);
     this._poolService.updatePoolData();
@@ -169,6 +168,22 @@ export class BlockchainPoolPageComponent implements OnInit {
   onSubmit(method: string) {
     if (!this.isAuthenticated) {
       this._messageBox.authModal();
+      return;
+    }
+
+    if (this.noMetamask) {
+      this._userService.showGetMetamaskModal();
+      return;
+    }
+
+    if (!this.ethAddress) {
+      this._ethService.connectToMetaMask();
+      this._userService.showLoginToMMBox('HeadingPool');
+      return;
+    }
+
+    if (this.isInvalidNetwork) {
+      this._userService.invalidNetworkModal(this.MMNetwork.name);
       return;
     }
 

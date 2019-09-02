@@ -41,6 +41,7 @@ export class PoolService {
   public destroy$ = new Subject();
 
   private etherscanUrl = environment.etherscanUrl;
+  private metamaskNetwork: any = null;
 
   constructor(
     private _ethService: EthereumService,
@@ -49,6 +50,13 @@ export class PoolService {
     this._ethService.getObservableEthAddress().subscribe(address => {
       if (address) {
         this.getPoolData();
+      }
+    });
+
+    this._ethService.getObservableNetwork().subscribe(network => {
+      if (network && network !== this.metamaskNetwork) {
+        this.metamaskNetwork && this.getPoolData();
+        this.metamaskNetwork = network;
       }
     });
   }

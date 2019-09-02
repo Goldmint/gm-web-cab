@@ -1,5 +1,4 @@
 <!-- host: .page -->
-<!--<h1 class="page__heading" [ngClass]="{'beta-label': isProduction}">{{ "PAGES.BlockchainPool.Heading" | translate }}</h1>-->
 
 <section class="page__section section mb-4">
   <h2 class="section__title">Ethereum pool for mining MNTP (ERC 20) tokens only</h2>
@@ -22,21 +21,20 @@
 
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="withdraw" [innerHTML]="'PAGES.BlockchainPool.Labels.Withdraw' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(!mntpReward && !goldReward) || isInvalidNetwork || !ethAddress" (click)="onSubmit(submitMethod[0])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(ethAddress && !isInvalidNetwork && !mntpReward && !goldReward) || loading" (click)="onSubmit(submitMethod[0])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#goldsell-history-black"></use>
           </svg>
 
           <div>
             <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
 
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="!heldTokens || isInvalidNetwork || userFrozenStake > 0 || !ethAddress" (click)="onSubmit(submitMethod[1])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="(ethAddress && !isInvalidNetwork && (!heldTokens || userFrozenStake > 0)) || loading" (click)="onSubmit(submitMethod[1])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#outbox"></use>
           </svg>
@@ -44,7 +42,6 @@
           <div>
             <div class="unhold-tokens"><b>{{ heldTokens | substr:3 }}</b> MNTP</div>
             <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            <!--<div><b>{{ goldReward.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
         <div class="color-red mt-2" *ngIf="userFrozenStake > 0">
@@ -56,7 +53,7 @@
 
       <div class="col-12 col-lg-4 form-group text-center" *ngIf="heldTokensOld + mntpRewardOld + goldRewardOld > 0">
         <label class="pool-label-btn" for="unhold-old" [innerHTML]="'PAGES.BlockchainPool.Labels.UnholdOld' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="isInvalidNetwork || !ethAddress" (click)="onSubmit(submitMethod[2])">
+        <button class="btn btn-primary btn-block poll-action-btn" id="unhold-old" [disabled]="loading" (click)="onSubmit(submitMethod[2])">
           <svg class="icon" width="56px" height="56px">
             <use xlink:href="#outbox"></use>
           </svg>
@@ -64,7 +61,6 @@
           <div>
             <div class="unhold-tokens"><b>{{ heldTokensOld | substr:3 }}</b> MNTP</div>
             <div><b>{{ mntpRewardOld.toFixed(3) }}</b> MNTP </div>
-            <!--<div><b>{{ goldRewardOld.toFixed(3) }}</b> GOLD</div>-->
           </div>
         </button>
       </div>
