@@ -24,32 +24,32 @@
 
         <!--ENABLE-->
         <div class="col-md text-center">
-          <div class="btn-wrapper">
+          <div class="btn-wrapper mb-2">
             <a class="btn btn-primary keep-tfa-button" routerLink="/account/2fa">{{ "PAGES.2FA.SecurityBlock.Buttons.Setup" | translate }}</a>
 
-            <span class="btn__help-text btn__help-text--success pt-4">
-              <svg class="icon" width="20px" height="20px">
-                <use xlink:href="#ok"></use>
-              </svg>
-              {{ "PAGES.2FA.SecurityBlock.Labels.Recommended" | translate }}
-            </span>
+<!--            <span class="btn__help-text btn__help-text&#45;&#45;success pt-4">-->
+<!--              <svg class="icon" width="20px" height="20px">-->
+<!--                <use xlink:href="#ok"></use>-->
+<!--              </svg>-->
+<!--              {{ "PAGES.2FA.SecurityBlock.Labels.Recommended" | translate }}-->
+<!--            </span>-->
           </div>
-          <p [innerHTML]="'PAGES.2FA.SecurityBlock.Description.Setup' | translate"> </p>
+<!--          <p [innerHTML]="'PAGES.2FA.SecurityBlock.Description.Setup' | translate"> </p>-->
         </div>
 
         <!--KEEP DISABLED-->
         <div class="col-md text-center">
-          <div class="btn-wrapper">
+          <div class="btn-wrapper mb-2">
             <a class="btn btn-primary keep-tfa-button" (click)="page = pages.KeepDisabled">{{ "PAGES.2FA.SecurityBlock.Buttons.Keep" | translate }}</a>
 
-            <span class="btn__help-text btn__help-text--warning pt-4">
-              <svg class="icon" width="20px" height="20px">
-                <use xlink:href="#nok"></use>
-              </svg>
-              {{ "PAGES.2FA.SecurityBlock.Labels.NotRecommended" | translate }}
-            </span>
+<!--            <span class="btn__help-text btn__help-text&#45;&#45;warning pt-4">-->
+<!--              <svg class="icon" width="20px" height="20px">-->
+<!--                <use xlink:href="#nok"></use>-->
+<!--              </svg>-->
+<!--              {{ "PAGES.2FA.SecurityBlock.Labels.NotRecommended" | translate }}-->
+<!--            </span>-->
           </div>
-          <p>{{ "PAGES.2FA.SecurityBlock.Description.Keep.Text" | translate }}<span class="text-warning"> {{ "PAGES.2FA.SecurityBlock.Description.Keep.Word" | translate }}</span>.</p>
+<!--          <p>{{ "PAGES.2FA.SecurityBlock.Description.Keep.Text" | translate }}<span class="text-warning"> {{ "PAGES.2FA.SecurityBlock.Description.Keep.Word" | translate }}</span>.</p>-->
         </div>
       </div>
     </div>

@@ -959,8 +959,8 @@
           }
         },
         "Buttons": {
-          "Setup": "Setup two-factor authentication",
-          "Keep": "Keep two-factor authentication disabled"
+          "Setup": "Setup 2FA AUTH",
+          "Keep": "Keep 2FA AUTH disabled"
         }
       },
       "SecurityIssueBlock": {
