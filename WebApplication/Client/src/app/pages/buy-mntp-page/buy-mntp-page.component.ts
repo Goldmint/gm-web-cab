@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {APIService} from "../../services";
 
 @Component({
@@ -6,7 +6,7 @@ import {APIService} from "../../services";
   templateUrl: './buy-mntp-page.component.html',
   styleUrls: ['./buy-mntp-page.component.sass']
 })
-export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BuyMntpPageComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') class = 'page';
 
@@ -18,6 +18,10 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
     'https://widget-convert.bancor.network/v1'
   ];
   public bancorWidgetLoaded: boolean = false;
+  public mntpPrice: number = 0;
+  public tokensAmount: number = 10000;
+  public totalROI: number = 0;
+  public baseMntpPrice: number = null;
 
   private chartData = [];
 
@@ -56,7 +60,8 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.apiService.getScannerDailyStatistic(true).subscribe((data: any) => {
       if (data && data.res) {
-        data.res.forEach(item => {
+        let maxMntpPrice = 0;
+        data.res.forEach((item, index) => {
           const date = new Date(item.timestamp * 1000);
           let month = (date.getMonth()+1).toString(),
             day = date.getDate().toString();
@@ -74,15 +79,35 @@ export class BuyMntpPageComponent implements OnInit, AfterViewInit, OnDestroy {
             isNaN(btc) ? 0 : Math.ceil((btc) * 100000000) / 100000000,
             +item.total_stake
           ]);
+
+          if (index < 7 && item.coin_price && item.coin_price.mntp_usd > maxMntpPrice) {
+            maxMntpPrice = item.coin_price.mntp_usd;
+          }
         });
         this.chartData.splice(0, 1);
         this.initChart();
+
+        this.baseMntpPrice = maxMntpPrice;
+        this.mntpPrice = maxMntpPrice;
+        this.calcROI();
       }
     });
   }
 
-  ngAfterViewInit() {
+  calcROI() {
+    if (!this.tokensAmount || !this.mntpPrice) {
+      this.totalROI = 0;
+      this.cdRef.markForCheck();
+      return;
+    }
 
+    if (this.tokensAmount >= 10000) {
+      this.totalROI = this.baseMntpPrice * 365 * 100 / (this.mntpPrice * 10000);
+    } else if (this.tokensAmount < 10000) {
+      this.totalROI = this.baseMntpPrice * 365 * 0.75 * 100 / (this.mntpPrice * 10000);
+    }
+    this.totalROI = +this.totalROI.toFixed(2);
+    this.cdRef.markForCheck();
   }
 
   initChart() {

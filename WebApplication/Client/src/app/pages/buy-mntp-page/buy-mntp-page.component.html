@@ -24,8 +24,6 @@
               </div>
             </div>
           </div>
-
-          <div id="chart-container"></div>
         </div>
 
         <div class="col-md-5">
@@ -43,6 +41,49 @@
           </div>
         </div>
 
+      </div>
+
+      <hr class="mt-4 mb-2">
+
+      <div class="row">
+          <div class="col-md-7">
+              <div id="chart-container"></div>
+          </div>
+          <div class="col-md-5">
+            <div class="roi-calc">
+                <div class="roi-calc__heading">Profitability Calculator</div>
+                <form #form="ngForm">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="from-row form-group mb-0">
+                                <label for="mntp-price">Enter MNTP price</label>
+                                <div>
+                                    <input type="number" class="form-control" name="mntp-price" id="mntp-price"
+                                           [(ngModel)]="mntpPrice"
+                                           autocomplete="off"
+                                           (input)="calcROI()"
+                                           [disabled]="baseMntpPrice === null">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="from-row form-group mb-0">
+                                <label for="tokens-amount">Enter tokens amount</label>
+                                <div>
+                                    <input type="number" class="form-control" name="tokens-amount" id="tokens-amount"
+                                           [(ngModel)]="tokensAmount"
+                                           autocomplete="off"
+                                           (input)="calcROI()"
+                                           [disabled]="baseMntpPrice === null">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="roi-calc__result">Your Total ROI: {{ totalROI }}%</div>
+            </div>
+          </div>
       </div>
 
       <div class="mt-5 mt-md-4">
