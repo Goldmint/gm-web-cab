@@ -8,6 +8,7 @@ import {User} from "../../interfaces/user";
 import {TFAInfo} from "../../interfaces";
 import {Subject} from "rxjs/Subject";
 import {environment} from "../../../environments/environment";
+import {CommonService} from "../../services/common.service";
 
 @Component({
   selector: 'app-sell-page',
@@ -29,8 +30,11 @@ export class SellPageComponent implements OnInit, OnDestroy {
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = false;
   public isAuthenticated: boolean = false;
+  public sumusAddress: string = '';
+  public sumusGold: number = 0;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
+  private liteWallet;
 
   constructor(
     private _userService: UserService,
@@ -38,10 +42,12 @@ export class SellPageComponent implements OnInit, OnDestroy {
     private _messageBox: MessageBoxService,
     private _cdRef: ChangeDetectorRef,
     private _translate: TranslateService,
-    private _ethService: EthereumService
+    private _ethService: EthereumService,
+    private _commonService: CommonService
   ) { }
 
   ngOnInit() {
+    this.liteWallet = window['GoldMint'];
     this.isAuthenticated = this._userService.isAuthenticated();
     !this.isAuthenticated && (this.loading = false);
 
@@ -69,6 +75,14 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       });
 
+    this._ethService.getObservableSumusAccount().takeUntil(this.destroy$).subscribe(data => {
+      if (data) {
+        this.sumusGold = +data.sumusGold > 0 ? +this._commonService.substrValue((+data.sumusGold / Math.pow(10, 18))) : 0;
+        this.sumusAddress = data.sumusWallet;
+        this._cdRef.markForCheck();
+      }
+    });
+
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(ethAddr => {
       this.isMetamask = !ethAddr ? false : true;
       this._cdRef.markForCheck();
@@ -85,6 +99,17 @@ export class SellPageComponent implements OnInit, OnDestroy {
         this._cdRef.markForCheck();
       }
     });
+  }
+
+  openLiteWallet() {
+    if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet.getAccount().then(res => {
+        !res.length && this._userService.showLoginToLiteWalletModal();
+        res.length && this.liteWallet.openSendTokenPage(this.sumusAddress, 'GOLD').then(() => {});
+      });
+    } else {
+      this._userService.showGetLiteWalletModal();
+    }
   }
 
   ngOnDestroy() {

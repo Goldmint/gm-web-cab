@@ -1,90 +1,107 @@
 <!-- host: .page -->
-<!--<h1 class="page__heading">{{ "PAGES.Sell.Heading" | translate }}</h1>-->
-<section class="page__section section">
-  <h2 class="section__title">{{ "PAGES.Sell.SectionTitle" | translate }}</h2>
 
-  <div class="section__content pt-4">
-    <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
-      <div class="container"></div>
-    </div>
+<ng-container *ngIf="!isBlockedCountry">
+    <ng-container *ngIf="isAuthenticated && !loading && !user?.verifiedL1; else content">
+        <div class="mt-4">
+            <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
 
-    <ng-template #blockLoaded>
-      <div *ngIf="!isBlockedCountry">
-        <ng-container *ngIf="isAuthenticated && !user?.verifiedL1; else blockMethods">
-
-          <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
-
-          <div class="row kyc-pros mb-4 pb-2">
-            <div class="col-lg-3">
-              <svg class="kyc-pros__icon" width="33px" height="44px">
-                <use xlink:href="#verify-secure"></use>
-              </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
-            </div>
-            <div class="col-lg-3">
-              <svg class="kyc-pros__icon" width="28px" height="44px">
-                <use xlink:href="#verify-simple"></use>
-              </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
-            </div>
-            <div class="col-lg-3">
-              <svg class="kyc-pros__icon" width="36px" height="44px">
-                <use xlink:href="#verify-complaint"></use>
-              </svg>
-              <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
-              <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
-            </div>
-            <div class="col-lg-3 pl-lg-4 align-self-center">
-              <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-template #blockMethods>
-          <ng-container>
-            <div class="row mb-4 align-items-baseline">
-
-              <div class="col-md-6 col-xl-4 form-group text-center">
-                <label for="btnCryptoCapital">{{ "PAGES.Sell.Method.CtyptoCurrency" | translate }}</label>
-                <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocarrency"
-                        [disabled]="isAuthenticated && (!tradingStatus?.ethAllowed || isInvalidNetwork)">
-                  <svg class="icon" width="56px" height="56px">
-                    <use xlink:href="#payment-crypto"></use>
-                  </svg>
-                </button>
-                <div  class="text-left pt-1 blocked-notification text-center">
-                  <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
+            <div class="row kyc-pros mb-4 pb-2">
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="33px" height="44px">
+                        <use xlink:href="#verify-secure"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
                 </div>
-              </div>
-
-              <div class="col-md-6 col-xl-8 align-self-center text-center">
-                Here you can sell your crypto-assets GOLD for ETH at<br>
-                the current price of gold and without any additional fees.
-              </div>
-
-              <!--<div class="col col-xl-3 form-group text-center">-->
-                <!--<label for="btnPaymentCard">{{ "PAGES.Sell.Method.PaymentCard" | translate }}</label>-->
-                <!--<button class="btn btn-primary btn-block" id="btnPaymentCard" routerLink="payment-card"-->
-                        <!--[disabled]="!isAuthenticated || (!tradingStatus?.creditCardSellingAllowed || isInvalidNetwork)">-->
-                  <!--<svg class="icon" width="56px" height="56px">-->
-                    <!--<use xlink:href="#payment-card"></use>-->
-                  <!--</svg>-->
-                <!--</button>-->
-                <!--<div class="text-left pt-1 blocked-notification text-center">-->
-                  <!--<div *ngIf="!tradingStatus?.creditCardSellingAllowed"> {{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>-->
-                <!--</div>-->
-              <!--</div>-->
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="28px" height="44px">
+                        <use xlink:href="#verify-simple"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3">
+                    <svg class="kyc-pros__icon" width="36px" height="44px">
+                        <use xlink:href="#verify-complaint"></use>
+                    </svg>
+                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
+                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
+                </div>
+                <div class="col-lg-3 pl-lg-4 align-self-center">
+                    <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
+                </div>
             </div>
-          </ng-container>
-        </ng-template>
-      </div>
+        </div>
+    </ng-container>
 
-      <div *ngIf="isBlockedCountry" class="mt-4 text-center">
-        <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></p>
-      </div>
+    <ng-template #content>
+        <section class="page__section section section__square section--no-bottom">
+            <h2 class="section__title">
+                <span class="square" [ngClass]="{'disabled': !isAuthenticated}"></span>
+                <span>Send GOLD</span>
+            </h2>
 
+            <div class="section__content pt-4 pb-3">
+                <div class="progress-linear progress-linear--tiny" *ngIf="loading; else blockLoaded">
+                    <div class="container"></div>
+                </div>
+
+                <ng-template #blockLoaded>
+                    <div *ngIf="isAuthenticated && sumusAddress">
+                        First of all, please send GOLD to your personal deposit address <a class="a-link word-break" (click)="openLiteWallet()">{{ sumusAddress }}</a>
+                    </div>
+                    <div *ngIf="!isAuthenticated">
+                        <a routerLink="/signin">Log in</a> to see address
+                    </div>
+                </ng-template>
+            </div>
+        </section>
+
+        <section class="page__section section section--no-bottom section__squares" *ngIf="!loading">
+            <h2 class="section__title">
+                <span class="squares" [ngClass]="{'disabled': !isAuthenticated}">
+                    <span></span><span></span><span></span><span></span>
+                </span>
+                <span>Your deposit: {{ sumusGold }}</span>
+                <svg class="icon--gold ml-2" width="20" height="20">
+                    <use xlink:href="#cur-gold"></use>
+                </svg>
+            </h2>
+
+            <div class="section__content pt-4 pb-3" *ngIf="!isAuthenticated">
+                <a routerLink="/signin">Log in</a> to see
+            </div>
+        </section>
+
+        <section class="page__section section section__squares" *ngIf="!loading">
+            <h2 class="section__title">
+                <span class="squares" [ngClass]="{'disabled': !isAuthenticated}">
+                    <span></span><span></span><span></span><span></span>
+                </span>
+                <span>Select a method</span>
+            </h2>
+
+            <div class="section__content pt-4">
+                <div class="row align-items-baseline">
+                    <div class="col-md-6 col-xl-4 form-group text-center">
+                        <button class="btn btn-primary btn-block d-flex align-items-center" [routerLink]="isAuthenticated ? 'cryptocarrency' : '/signin'"
+                                [disabled]="(isAuthenticated && !tradingStatus?.ethAllowed) || isInvalidNetwork">
+                            <svg class="icon" width="56px" height="56px">
+                                <use xlink:href="#payment-crypto"></use>
+                            </svg>
+                            <span class="ml-3">Ctyptocurrency</span>
+                        </button>
+                        <div  class="text-left pt-1 blocked-notification text-center">
+                            <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
     </ng-template>
-  </div>
-</section>
+</ng-container>
+
+<div *ngIf="isBlockedCountry" class="text-center">
+    <div [innerHTML]=" 'PAGES.Finance.KYC.BlockedCountry' | translate "></div>
+</div>
