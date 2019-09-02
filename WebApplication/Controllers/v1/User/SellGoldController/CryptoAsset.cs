@@ -65,6 +65,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
 			}
 
+			// limit gold amount to max available
+			if (estimation.ResultGoldAmount.FromSumus() > user.UserSumusWallet.BalanceGold) {
+				estimation = await Estimation(rcfg, user.UserSumusWallet.BalanceGold.ToSumus(), EthereumToken.Eth, exchangeCurrency, model.EthAddress, false, limits.Min, limits.Max);
+				if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
+					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
+				}
+				if (estimation.IsLimitExceeded) {
+					return APIResponse.BadRequest(APIErrorCode.TradingExchangeLimit, estimation.View.Limits);
+				}
+			}
+
 			var timeNow = DateTime.UtcNow;
 
 			var ticket = await OplogProvider.NewGoldSellingRequestForCryptoasset(

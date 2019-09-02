@@ -125,11 +125,17 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					DbContext.UserActivity.Add(userActivity);
 					await DbContext.SaveChangesAsync();
 
-					// mark request for processing
+					// mark request failed
 					request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
 					request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
 					request.Status = SellGoldRequestStatus.Failed;
 					await DbContext.SaveChangesAsync();
+
+					try {
+						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Failed, $"Failed to charge user for {request.GoldAmount} GOLD");
+					}
+					catch {
+					}
 
 					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 				} else {
