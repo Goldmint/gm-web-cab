@@ -12,7 +12,8 @@ using Goldmint.Common.Extensions;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
-	public partial class UserController : BaseController {
+	[Route("api/v1/user")]
+	public class UserController : BaseController {
 
 		/// <summary>
 		/// Profile info
