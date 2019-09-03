@@ -171,24 +171,9 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   initModal() {
     this.ethService.getSuccessSwapMNTPLink$.takeUntil(this.destroy$).subscribe((hash: string) => {
       if (hash) {
-        this.successModal(hash);
         this.swapMntpTxHash = hash;
         this._cdRef.markForCheck();
       }
-    });
-  }
-
-  successModal(hash: string) {
-    this.translate.get('PAGES.Sell.CtyptoCurrency.SuccessModal').subscribe(phrases => {
-      this.messageBox.alert(`
-        <div class="text-center">
-          <div class="font-weight-500 mb-2">${phrases.Heading}</div>
-          <div class="color-red">${phrases.Steps}</div>
-          <div>${phrases.Hash}</div>
-          <div class="mb-2 sell-hash">${hash}</div>
-          <a href="${this.etherscanUrl}${hash}" target="_blank">${phrases.Link}</a>
-        </div>
-        `).subscribe();
     });
   }
 
@@ -225,11 +210,6 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (!this.isAuthenticated) {
-      this.messageBox.authModal();
-      return;
-    }
-
     let firstLoad = true;
     this.sub1 && this.sub1.unsubscribe();
     this.sub1 = this.ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {
