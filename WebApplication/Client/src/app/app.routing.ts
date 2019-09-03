@@ -70,7 +70,7 @@ const appRoutes: Routes = [
   { path: 'nodes/latest-reward-distributions', component: LatestRewardPageComponent },
   { path: 'nodes/reward-transactions/:id', component: RewardTransactionsPageComponent },
   { path: 'sell', component: SellPageComponent },
-  { path: 'sell/cryptocarrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
+  { path: 'sell/cryptocurrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
   { path: 'buy', component: BuyPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },

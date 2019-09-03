@@ -84,12 +84,12 @@
             <div class="section__content pt-4">
                 <div class="row align-items-baseline">
                     <div class="col-md-6 col-xl-4 form-group text-center">
-                        <button class="btn btn-primary btn-block d-flex align-items-center" [routerLink]="isAuthenticated ? 'cryptocarrency' : '/signin'"
+                        <button class="btn btn-primary btn-block d-flex align-items-center" [routerLink]="isAuthenticated ? 'cryptocurrency' : '/signin'"
                                 [disabled]="(isAuthenticated && !tradingStatus?.ethAllowed) || isInvalidNetwork">
                             <svg class="icon" width="56px" height="56px">
                                 <use xlink:href="#payment-crypto"></use>
                             </svg>
-                            <span class="ml-3">Ctyptocurrency</span>
+                            <span class="ml-3">Cryptocurrency</span>
                         </button>
                         <div  class="text-left pt-1 blocked-notification text-center">
                             <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Sell.Errors.NotAllow" | translate }}</div>
