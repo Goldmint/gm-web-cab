@@ -134,11 +134,6 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (!this.isAuthenticated) {
-      this._messageBox.authModal();
-      return;
-    }
-
     let firstLoad = true;
     this.sub1 && this.sub1.unsubscribe();
     this.sub1 = this._ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {

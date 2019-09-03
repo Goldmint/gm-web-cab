@@ -1,5 +1,6 @@
 import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {APIService} from "../../services";
+import {combineLatest} from "rxjs/observable/combineLatest";
 
 @Component({
   selector: 'app-buy-mntp-page',
@@ -19,10 +20,10 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
   ];
   public bancorWidgetLoaded: boolean = false;
   public mntpPrice: number = 0;
-  public tokensAmount: number = 10000;
+  public mntpAmount: number = 10000;
   public totalROI: number = 0;
-  public baseMntpPrice: number = null;
-
+  public lastStatisticDay;
+  
   private chartData = [];
 
   constructor(
@@ -58,10 +59,14 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
       this.cdRef.markForCheck();
     };
 
-    this.apiService.getScannerDailyStatistic(true).subscribe((data: any) => {
-      if (data && data.res) {
-        let maxMntpPrice = 0;
-        data.res.forEach((item, index) => {
+    const combined = combineLatest(
+      this.apiService.getScannerDailyStatistic(true),
+      this.apiService.getMntpRate()
+    );
+
+    combined.subscribe((data: any[]) => {
+      if (data && data[0]&& data[0].res) {
+        data[0].res.forEach((item, index) => {
           const date = new Date(item.timestamp * 1000);
           let month = (date.getMonth()+1).toString(),
             day = date.getDate().toString();
@@ -80,31 +85,36 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
             +item.total_stake
           ]);
 
-          if (index < 7 && item.coin_price && item.coin_price.mntp_usd > maxMntpPrice) {
-            maxMntpPrice = item.coin_price.mntp_usd;
+          if (index === 1) {
+            this.lastStatisticDay = item;
           }
         });
+
         this.chartData.splice(0, 1);
         this.initChart();
-
-        this.baseMntpPrice = maxMntpPrice;
-        this.mntpPrice = maxMntpPrice;
-        this.calcROI();
       }
+
+      if (data && data[1] && data[1].result) {
+        this.mntpPrice = data[1].result.usd;
+      }
+
+      this.calcROI();
     });
   }
 
   calcROI() {
-    if (!this.tokensAmount || !this.mntpPrice) {
+    if (!this.mntpAmount || !this.mntpPrice || !this.lastStatisticDay) {
       this.totalROI = 0;
       this.cdRef.markForCheck();
       return;
     }
 
-    if (this.tokensAmount >= 10000) {
-      this.totalROI = this.baseMntpPrice * 365 * 100 / (this.mntpPrice * 10000);
-    } else if (this.tokensAmount < 10000) {
-      this.totalROI = this.baseMntpPrice * 365 * 0.75 * 100 / (this.mntpPrice * 10000);
+    const incomePerMntpDay = (this.lastStatisticDay.fee_mnt * this.lastStatisticDay.coin_price.mntp_usd + this.lastStatisticDay.fee_gold * this.lastStatisticDay.coin_price.gold_usd) / (this.lastStatisticDay.total_stake + this.mntpAmount);
+
+    if (this.mntpAmount >= 10000) {
+      this.totalROI = incomePerMntpDay * 365 / this.mntpPrice;
+    } else if (this.mntpAmount < 10000) {
+      this.totalROI = incomePerMntpDay * 365 * 0.75 / this.mntpPrice;
     }
     this.totalROI = +this.totalROI.toFixed(2);
     this.cdRef.markForCheck();

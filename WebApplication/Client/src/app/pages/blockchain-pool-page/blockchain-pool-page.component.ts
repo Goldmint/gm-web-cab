@@ -166,11 +166,6 @@ export class BlockchainPoolPageComponent implements OnInit {
   }
 
   onSubmit(method: string) {
-    if (!this.isAuthenticated) {
-      this._messageBox.authModal();
-      return;
-    }
-
     if (this.noMetamask) {
       this._userService.showGetMetamaskModal();
       return;

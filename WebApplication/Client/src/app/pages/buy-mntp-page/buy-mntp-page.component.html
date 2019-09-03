@@ -62,7 +62,7 @@
                                            [(ngModel)]="mntpPrice"
                                            autocomplete="off"
                                            (input)="calcROI()"
-                                           [disabled]="baseMntpPrice === null">
+                                           [disabled]="!lastStatisticDay">
                                 </div>
                             </div>
                         </div>
@@ -72,10 +72,10 @@
                                 <label for="tokens-amount">Enter tokens amount</label>
                                 <div>
                                     <input type="number" class="form-control" name="tokens-amount" id="tokens-amount"
-                                           [(ngModel)]="tokensAmount"
+                                           [(ngModel)]="mntpAmount"
                                            autocomplete="off"
                                            (input)="calcROI()"
-                                           [disabled]="baseMntpPrice === null">
+                                           [disabled]="!lastStatisticDay">
                                 </div>
                             </div>
                         </div>

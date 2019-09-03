@@ -180,6 +180,15 @@ export class APIService {
       );
   }
 
+  getMntpRate(): Observable<object> {
+    return this._http
+      .get('https://service.goldmint.io/info/rate/v1/mntp')
+      .pipe(
+        catchError(this._handleError),
+        shareReplay()
+      );
+  }
+
   getZendeskTokenSSO() {
     return this._http
       .get(`${this._baseUrl}/user/zendesk/sso`, this.jwt())
