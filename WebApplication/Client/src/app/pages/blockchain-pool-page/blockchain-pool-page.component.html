@@ -27,7 +27,12 @@
           </svg>
 
           <div>
-            <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
+            <ng-container *ngIf="ethAddress">
+                <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
+            </ng-container>
+            <ng-container *ngIf="!ethAddress">
+                <div class="pre-line"><b>CONNECT METAMASK</b></div>
+            </ng-container>
           </div>
         </button>
       </div>
@@ -40,8 +45,13 @@
           </svg>
 
           <div>
-            <div class="unhold-tokens"><b>{{ heldTokens | substr:3 }}</b> MNTP</div>
-            <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
+            <ng-container *ngIf="ethAddress">
+                <div class="unhold-tokens"><b>{{ heldTokens | substr:3 }}</b> MNTP</div>
+                <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
+            </ng-container>
+            <ng-container *ngIf="!ethAddress">
+                 <div class="pre-line"><b>CONNECT METAMASK</b></div>
+            </ng-container>
           </div>
         </button>
         <div class="color-red mt-2" *ngIf="userFrozenStake > 0">
