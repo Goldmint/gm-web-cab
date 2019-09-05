@@ -56,12 +56,12 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="from-row form-group mb-0">
-                                <label for="mntp-price">Enter MNTP price</label>
+                                <label for="mntp-price">What was your MNTP price</label>
                                 <div>
-                                    <input type="number" class="form-control" name="mntp-price" id="mntp-price"
+                                    <input type="text" class="form-control" name="mntp-price" id="mntp-price"
                                            [(ngModel)]="mntpPrice"
                                            autocomplete="off"
-                                           (input)="calcROI()"
+                                           (input)="calcROI($event)"
                                            [disabled]="!lastStatisticDay">
                                 </div>
                             </div>
@@ -71,10 +71,10 @@
                             <div class="from-row form-group mb-0">
                                 <label for="tokens-amount">Enter tokens amount</label>
                                 <div>
-                                    <input type="number" class="form-control" name="tokens-amount" id="tokens-amount"
+                                    <input type="text" class="form-control" name="tokens-amount" id="tokens-amount"
                                            [(ngModel)]="mntpAmount"
                                            autocomplete="off"
-                                           (input)="calcROI()"
+                                           (input)="calcROI($event)"
                                            [disabled]="!lastStatisticDay">
                                 </div>
                             </div>

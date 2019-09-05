@@ -95,28 +95,30 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
       }
 
       if (data && data[1] && data[1].result) {
-        this.mntpPrice = data[1].result.usd;
+        this.mntpPrice = Math.floor(data[1].result.usd * 100) / 100;
       }
 
-      this.calcROI();
+      this.calcROI(null);
     });
   }
 
-  calcROI() {
-    if (!this.mntpAmount || !this.mntpPrice || !this.lastStatisticDay) {
+  calcROI(e) {
+    if (e) {
+      e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+    }
+
+    if (!+this.mntpAmount || !+this.mntpPrice || !this.lastStatisticDay) {
       this.totalROI = 0;
       this.cdRef.markForCheck();
       return;
     }
+    const incomePerMntpDay = (this.lastStatisticDay.fee_mnt * this.lastStatisticDay.coin_price.mntp_usd + this.lastStatisticDay.fee_gold * this.lastStatisticDay.coin_price.gold_usd) / this.lastStatisticDay.total_stake;
 
-    const incomePerMntpDay = (this.lastStatisticDay.fee_mnt * this.lastStatisticDay.coin_price.mntp_usd + this.lastStatisticDay.fee_gold * this.lastStatisticDay.coin_price.gold_usd) / (this.lastStatisticDay.total_stake + this.mntpAmount);
-
-    if (this.mntpAmount >= 10000) {
-      this.totalROI = incomePerMntpDay * 365 / this.mntpPrice;
-    } else if (this.mntpAmount < 10000) {
-      this.totalROI = incomePerMntpDay * 365 * 0.75 / this.mntpPrice;
+    this.totalROI = incomePerMntpDay * 365 * 100 / +this.mntpPrice;
+    if (+this.mntpAmount < 10000) {
+      this.totalROI = 0.75 * this.totalROI;
     }
-    this.totalROI = +this.totalROI.toFixed(2);
+    this.totalROI = +this.totalROI.toFixed();
     this.cdRef.markForCheck();
   }
 
