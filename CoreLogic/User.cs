@@ -17,15 +17,6 @@ namespace Goldmint.CoreLogic {
 
 		public static readonly TimeSpan FinancialHistoryOvarlappingOperationsAllowedWithin = TimeSpan.FromMinutes(60);
 
-		public static bool HasSignedDpa(DAL.Models.UserOptions data) {
-			return
-				data?.DpaDocument != null &&
-				data.DpaDocument.Type == SignedDocumentType.Dpa &&
-				data.DpaDocument.TimeCompleted != null &&
-				data.DpaDocument.IsSigned
-			;
-		}
-
 		public static bool HasFilledPersonalData(DAL.Models.UserVerification data) {
 			return
 				(data?.FirstName?.Length ?? 0) > 0 &&
@@ -48,29 +39,20 @@ namespace Goldmint.CoreLogic {
 			;
 		}
 
-		public static bool HasProvedResidence(DAL.Models.UserVerification data, bool residenceRequried) {
-		    if (residenceRequried)
-		        return data?.ProvedResidence ?? false;
-		    return true;
-		}
-
 		// ---
 
 		/// <summary>
 		/// User's tier
 		/// </summary>
-		public static UserTier GetTier(DAL.Models.Identity.User user, RuntimeConfig rc) {
+		public static UserTier GetTier(DAL.Models.Identity.User user) {
 			var tier = UserTier.Tier0;
 
-			var hasDpa = HasSignedDpa(user?.UserOptions);
+			var hasAgreement = HasTosSigned(user?.UserVerification);
 			var hasPersData = HasFilledPersonalData(user?.UserVerification);
 			var hasKyc = HasKycVerification(user?.UserVerification);
-			var hasProvedResidence = HasProvedResidence(user?.UserVerification, rc.Tier2ResidenceRequried);
-			var hasAgreement = HasTosSigned(user?.UserVerification);
 
-			if (hasDpa && hasPersData) tier = UserTier.Tier1;
-
-			if (hasKyc && hasProvedResidence && hasAgreement) tier = UserTier.Tier2;
+			if (hasAgreement) tier = UserTier.Tier1;
+			if (hasAgreement && hasPersData && hasKyc) tier = UserTier.Tier2;
 
 			return tier;
 		}
@@ -90,21 +72,6 @@ namespace Goldmint.CoreLogic {
 				TimeCreated = DateTime.UtcNow,
 				Locale = locale,
 			};
-		}
-
-		/// <summary>
-		/// Check for pending operations
-		/// </summary>
-		public static async Task<bool> HasPendingBlockchainOps(IServiceProvider services, long userId) {
-
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var notTime = DateTime.UtcNow;
-
-			return await dbContext.UserFinHistory.Where(_ =>
-				_.UserId == userId &&
-				_.Status == UserFinHistoryStatus.Processing &&
-				(notTime - _.TimeCreated) < FinancialHistoryOvarlappingOperationsAllowedWithin
-			).CountAsync() > 0;
 		}
 
 		/// <summary>
@@ -128,39 +95,6 @@ namespace Goldmint.CoreLogic {
 			public decimal EthWithdrawn { get; set; }
 			public long FiatUsdDeposited { get; set; }
 			public long FiatUsdWithdrawn { get; set; }
-		}
-
-		/// <summary>
-		/// Change user limits
-		/// </summary>
-		public static async Task UpdateUserLimits(ApplicationDbContext dbContext, long userId, UpdateUserLimitsData data) {
-
-			var nowTime = DateTime.UtcNow;
-			var today = new DateTime(nowTime.Year, nowTime.Month, nowTime.Day, 0, 0, 0, DateTimeKind.Utc);
-			var isNew = false;
-
-			// get from db
-			var limits = await dbContext.UserLimits.FirstOrDefaultAsync(_ => _.UserId == userId && _.TimeCreated == today);
-
-			// doesn't exist
-			if (limits == null) {
-				limits = new UserLimits() {
-					UserId = userId,
-					TimeCreated = today,
-				};
-				isNew = true;
-			}
-
-			limits.EthDeposited += data.EthDeposited;
-			limits.EthWithdrawn += data.EthWithdrawn;
-			limits.FiatDeposited += data.FiatUsdDeposited;
-			limits.FiatWithdrawn += data.FiatUsdWithdrawn;
-
-			if (isNew) {
-				await dbContext.UserLimits.AddAsync(limits);
-			}
-
-			await dbContext.SaveChangesAsync();
 		}
 
 		/// <summary>

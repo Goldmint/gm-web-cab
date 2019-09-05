@@ -23,7 +23,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 		/// <summary>
 		/// Cards list
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("list")]
 		[ProducesResponseType(typeof(ListView), 200)]
 		public async Task<APIResponse> List() {
@@ -56,7 +56,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 		/// <summary>
 		/// Add card
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("add")]
 		[ProducesResponseType(typeof(AddView), 200)]
 		public async Task<APIResponse> Add([FromBody] AddModel model) {
@@ -70,7 +70,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -171,7 +171,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 		/// <summary>
 		/// Confirm card
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("confirm")]
 		[ProducesResponseType(typeof(ConfirmView), 200)]
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
@@ -297,7 +297,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 		/// <summary>
 		/// Verify card by security code
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("verify")]
 		[ProducesResponseType(typeof(object), 200)]
 		public async Task<APIResponse> Verify([FromBody] VerifyModel model) {
@@ -313,7 +313,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			// ---
 			var rcfg = RuntimeConfigHolder.Clone();
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
@@ -372,7 +372,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 		/// <summary>
 		/// Card status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("status")]
 		[ProducesResponseType(typeof(StatusView), 200)]
 		public async Task<APIResponse> Status([FromBody] StatusModel model) {
@@ -385,7 +385,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 			// ---
 			var rcfg = RuntimeConfigHolder.Clone();
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -478,7 +478,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User.CreditCardController {
 		/// <summary>
 		/// Remove card by ID
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("remove")]
 		[ProducesResponseType(typeof(RemoveView), 200)]
 		public async Task<APIResponse> Remove([FromBody] RemoveModel model) {

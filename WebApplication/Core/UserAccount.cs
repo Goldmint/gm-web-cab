@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Core {
 		/// <summary>
 		/// New user account
 		/// </summary>
-		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null) {
+		public static async Task<CreateUserAccountResult> CreateUserAccount(IServiceProvider services, string email, string password = null, bool emailConfirmed = false) {
 
 			var logger = services.GetLoggerFor(typeof(UserAccount));
 			var dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -48,7 +48,7 @@ namespace Goldmint.WebApplication.Core {
 					TfaSecret = tfaSecret,
 					JwtSaltCabinet = GenerateJwtSalt(),
 					JwtSaltDashboard = GenerateJwtSalt(),
-					EmailConfirmed = false,
+					EmailConfirmed = emailConfirmed,
 					AccessRights = 0,
 
 					UserOptions = new DAL.Models.UserOptions() {
@@ -82,7 +82,7 @@ namespace Goldmint.WebApplication.Core {
 						newUser.NormalizedUserName = name.ToUpperInvariant();
 						newUser.JwtSaltCabinet = GenerateJwtSalt();
 						newUser.JwtSaltDashboard = GenerateJwtSalt();
-						newUser.AccessRights = (long)AccessRights.Client;
+						newUser.AccessRights = 1;
 
 						await dbContext.SaveChangesAsync();
 
@@ -131,35 +131,6 @@ namespace Goldmint.WebApplication.Core {
 		}
 
 		/// <summary>
-		/// Get proper access rights mask depending on audience and user settings
-		/// </summary>
-		public static long? ResolveAccessRightsMask(IServiceProvider services, JwtAudience audience, User user) {
-			var environment = services.GetRequiredService<IHostingEnvironment>();
-
-			var rights = (long)user.AccessRights;
-			var defaultUserMaxRights = 0L | (long)AccessRights.Client;
-
-			if (audience == JwtAudience.Cabinet) {
-				// max rights are default user rights
-				return user.AccessRights & defaultUserMaxRights;
-			}
-			else if (audience == JwtAudience.Dashboard) {
-
-				// tfa must be enabled
-				if (!user.TwoFactorEnabled) return null;
-
-				// exclude client rights
-				rights = (rights - defaultUserMaxRights);
-
-				// has any of dashboard access rights - ok
-				if (rights > 0) {
-					return rights;
-				}
-			}
-			return null;
-		}
-
-		/// <summary>
 		/// Random access stamp
 		/// </summary>
 		private static string GenerateJwtSalt() {
@@ -172,7 +143,6 @@ namespace Goldmint.WebApplication.Core {
 		public static void GenerateJwtSalt(User user, JwtAudience audience) {
 			switch (audience) {
 				case JwtAudience.Cabinet: user.JwtSaltCabinet = GenerateJwtSalt(); break;
-				case JwtAudience.Dashboard: user.JwtSaltDashboard = GenerateJwtSalt(); break;
 				default: throw new NotImplementedException("Audience is not implemented");
 			}
 		}
@@ -184,7 +154,6 @@ namespace Goldmint.WebApplication.Core {
 			if (user == null) return null;
 			switch (audience) {
 				case JwtAudience.Cabinet: return user.JwtSaltCabinet;
-				case JwtAudience.Dashboard: return user.JwtSaltDashboard;
 				default: throw new NotImplementedException("Audience is not implemented");
 			}
 		}
@@ -194,55 +163,6 @@ namespace Goldmint.WebApplication.Core {
 		/// </summary>
 		public static string GenerateTfaSecret() {
 			return SecureRandom.GetString09azAZSpecs(14);
-		}
-
-		/// <summary>
-		/// Reset DPA state and resend it to the specified email address
-		/// </summary>
-		public static async Task<bool> ResendUserDpaDocument(IServiceProvider services, User user, string email, string redirectUrl, Locale locale) {
-
-			if (user == null) {
-				throw new ArgumentException("User is null");
-			}
-			if (user.UserOptions == null) {
-				throw new ArgumentException("User options not included");
-			}
-
-			// ---
-
-			var logger = services.GetLoggerFor(typeof(UserAccount));
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var appConfig = services.GetRequiredService<AppConfig>();
-			var docService = services.GetRequiredService<IDocSigningProvider>();
-
-			// create new request
-			var request = new SignedDocument() {
-				Type = SignedDocumentType.Dpa,
-				IsSigned = false,
-				ReferenceId = Guid.NewGuid().ToString("N"),
-				TimeCreated = DateTime.UtcNow,
-				UserId = user.Id,
-				Secret = appConfig.Services.SignRequest.Auth,
-			};
-
-			// add/save
-			dbContext.SignedDocument.Add(request);
-			await dbContext.SaveChangesAsync();
-
-			// set new unverified agreement 
-			user.UserOptions.DpaDocumentId = request.Id;
-			dbContext.Update(user.UserOptions);
-			await dbContext.SaveChangesAsync();
-
-			return await docService.SendDpaRequest(
-				locale: locale,
-				refId: request.ReferenceId,
-				firstName: "", // user.UserVerification.FirstName,
-				lastName: "", // user.UserVerification.LastName,
-				email: email,
-				date: DateTime.UtcNow,
-				redirectUrl: redirectUrl
-			);
 		}
 
 		// ---

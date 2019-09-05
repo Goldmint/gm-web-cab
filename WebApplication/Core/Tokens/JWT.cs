@@ -17,12 +17,9 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 	public static class JWT {
 
-		//public const string Issuer = "app.goldmint.io";
-
 		public const string GMAreaField = "gm_area";
 		public const string GMIdField = "gm_id";
 		public const string GMSecurityStampField = "gm_sstamp";
-		public const string GMRightsField = "gm_rights";
 
 		// ---
 
@@ -35,7 +32,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 			return new TokenValidationParameters() {
 				NameClaimType = GMIdField,
-				RoleClaimType = GMRightsField,
+				RoleClaimType = "role",
 				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = CreateJwtSecurityKey(appConfig.Auth.Jwt.Secret),
 				ValidateIssuer = true,
@@ -84,7 +81,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 		/// <summary>
 		/// Make a token for specified user with specified state
 		/// </summary>
-		public static string CreateAuthToken(AppConfig appConfig, JwtAudience audience, JwtArea area, User user, long rightsMask) {
+		public static string CreateAuthToken(AppConfig appConfig, JwtAudience audience, JwtArea area, User user) {
 
 			var now = DateTime.UtcNow;
 			var uniqueness = UniqueId(appConfig.Auth.Jwt.Secret);
@@ -101,7 +98,7 @@ namespace Goldmint.WebApplication.Core.Tokens {
 				// gm fields
 				new Claim(GMSecurityStampField, ObtainSecurityStamp(jwtSalt)),
 				new Claim(GMIdField, user.UserName),
-				new Claim(GMRightsField, rightsMask.ToString()),
+				new Claim("role", "user"),
 				new Claim(GMAreaField, area.ToString().ToLower()),
 			};
 
@@ -168,36 +165,6 @@ namespace Goldmint.WebApplication.Core.Tokens {
 			return (new JwtSecurityTokenHandler()).WriteToken(token);
 		}
 
-		/// <summary>
-		/// Make a token for Zendesk SSO flow
-		/// </summary>
-		public static string CreateZendeskSsoToken(AppConfig appConfig, User user) {
-			var now = DateTime.UtcNow;
-			var uniqueness = UniqueId(appConfig.Auth.Jwt.Secret);
-
-			var claims = new[] {
-				new Claim(JwtRegisteredClaimNames.Jti, uniqueness),
-				new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-				new Claim("email", user.NormalizedEmail.ToLower()),
-				new Claim("name", user.UserName),
-				new Claim("external_id", user.UserName + "@" + appConfig.Auth.Jwt.Issuer),
-				new Claim("role", "user"),
-			};
-
-			var creds = new SigningCredentials(
-				CreateJwtSecurityKey(appConfig.Auth.ZendeskSso.JwtSecret), 
-				SecurityAlgorithms.HmacSha256
-			);
-
-			var token = new JwtSecurityToken(
-				issuer: appConfig.Auth.Jwt.Issuer,
-				claims: claims,
-				signingCredentials: creds
-			);
-
-			return (new JwtSecurityTokenHandler()).WriteToken(token);
-		}
-
 		// ---
 
 		public static JwtBearerEvents AddEvents() {
@@ -246,16 +213,6 @@ namespace Goldmint.WebApplication.Core.Tokens {
 								from u in dbContext.Users
 								where u.UserName == rawUserName
 								select ObtainSecurityStamp(u.JwtSaltCabinet)
-							)
-							.AsNoTracking()
-							.FirstOrDefaultAsync();
-						}
-						// dashboard
-						else if (audience == JwtAudience.Dashboard) {
-							sstamp = await (
-								from u in dbContext.Users
-								where u.UserName == rawUserName
-								select ObtainSecurityStamp(u.JwtSaltDashboard)
 							)
 							.AsNoTracking()
 							.FirstOrDefaultAsync();

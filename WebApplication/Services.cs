@@ -80,7 +80,7 @@ namespace Goldmint.WebApplication {
 			// identity
 			var idbld = services
 				.AddIdentityCore<User>(opts => {
-					opts.SignIn.RequireConfirmedEmail = true;
+					opts.SignIn.RequireConfirmedEmail = false;
 					opts.User.RequireUniqueEmail = true;
 
 					opts.Password.RequireDigit = false;
@@ -141,18 +141,9 @@ namespace Goldmint.WebApplication {
 						policy => policy.AddRequirements(new Core.Policies.RequireJWTArea(v))
 					);
 				}
-
-				// access rights
-				foreach (var ar in (AccessRights[]) Enum.GetValues(typeof(AccessRights))) {
-					opts.AddPolicy(
-						Core.Policies.Policy.AccessRightsTemplate + ar.ToString(), 
-						policy => policy.AddRequirements(new Core.Policies.RequireAccessRights(ar))
-					);
-				}
 			});
 			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireJWTAudience.Handler>();
 			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireJWTArea.Handler>();
-			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireAccessRights.Handler>();
 			services.AddScoped<GoogleProvider>();
 
 			// tokens

@@ -37,9 +37,4 @@ namespace Goldmint.WebApplication.Core.Policies {
 	public class RequireJWTAreaAttribute : AuthorizeAttribute {
 		public RequireJWTAreaAttribute(Common.JwtArea area) : base(Policies.Policy.JWTAreaTemplate + area.ToString()) { }
 	}
-
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public class RequireAccessRightsAttribute : AuthorizeAttribute {
-		public RequireAccessRightsAttribute(Common.AccessRights rights) : base(Policies.Policy.AccessRightsTemplate + rights.ToString()) { }
-	}
 }

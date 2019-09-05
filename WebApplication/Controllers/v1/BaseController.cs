@@ -96,9 +96,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (audience == JwtAudience.Cabinet) {
 				appUri = AppConfig.Apps.Cabinet.Url;
 			}
-			else if (audience == JwtAudience.Dashboard) {
-				appUri = AppConfig.Apps.Dashboard.Url;
-			}
 			else {
 				throw new NotImplementedException("Audience is not implemented. Could not create app link");
 			}
@@ -126,23 +123,13 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return null;
 		}
 
-		[NonAction]
-		protected long GetCurrentRights() {
-			var rightsStr = HttpContext.User.Claims.FirstOrDefault(_ => _.Type == Core.Tokens.JWT.GMRightsField)?.Value;
-			if (rightsStr != null) {
-				if (long.TryParse(rightsStr, out long rights)) {
-					return rights;
-				}
-			}
-			return 0;
-		}
 
 		[NonAction]
 		protected async Task<DAL.Models.Identity.User> GetUserFromDb() {
 			if (IsUserAuthenticated()) {
 				var name = UserManager.NormalizeKey(HttpContext.User.Identity.Name);
 				return await DbContext.Users
-					.Include(_ => _.UserOptions).ThenInclude(_ => _.DpaDocument)
+					.Include(_ => _.UserOptions)
 					.Include(_ => _.UserVerification).ThenInclude(_ => _.LastKycTicket)
 					.Include(_ => _.UserSumusWallet)
 					.AsTracking()
@@ -195,10 +182,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 		[NonAction]
 		protected async Task<UserTier> GetUserTier() {
-			var rcfg = RuntimeConfigHolder.Clone();
-
 			var user = await GetUserFromDb();
-			return CoreLogic.User.GetTier(user, rcfg);
+			return CoreLogic.User.GetTier(user);
 		}
 	}
 }

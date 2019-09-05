@@ -151,12 +151,6 @@ namespace Goldmint.WebApplication.Models.API.v1.User.UserModels {
 		public string Email { get; set; }
 
 		/// <summary>
-		/// Has DPA signed
-		/// </summary>
-		[Required]
-		public bool DpaSigned { get; set; }
-
-		/// <summary>
 		/// TFA enabled for this user
 		/// </summary>
 		[Required]
