@@ -14,12 +14,11 @@
         <div class="row mb-4 align-items-baseline">
 
           <div class="col-md-6 col-xl-4 form-group text-center">
-            <label for="btnCryptoCapital">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</label>
-            <button class="btn btn-primary btn-block" id="btnCryptoCapital" routerLink="cryptocurrency"
-                    [disabled]="true">
+            <button class="btn btn-primary btn-block d-flex align-items-center" routerLink="cryptocurrency" [disabled]="true">
               <svg class="icon" width="56px" height="56px">
                 <use xlink:href="#payment-crypto"></use>
               </svg>
+              <span class="ml-3">{{ "PAGES.Buy.Method.CtyptoCurrency" | translate }}</span>
             </button>
             <div  class="text-left pt-1 blocked-notification text-center">
               <div *ngIf="isAuthenticated && !tradingStatus?.ethAllowed">{{ "PAGES.Buy.Errors.NotAllow" | translate }}</div>
