@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// GOLD to ETH
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
 		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
@@ -42,7 +42,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {

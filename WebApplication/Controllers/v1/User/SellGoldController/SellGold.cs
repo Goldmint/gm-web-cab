@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Estimate
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("estimate")]
 		[ProducesResponseType(typeof(EstimateView), 200)]
 		public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
@@ -75,7 +75,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Confirm request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("confirm")]
 		[ProducesResponseType(typeof(ConfirmView), 200)]
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {

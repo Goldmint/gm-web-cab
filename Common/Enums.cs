@@ -21,11 +21,6 @@ namespace Goldmint.Common {
 		/// App access
 		/// </summary>
 		Cabinet = 1,
-
-		/// <summary>
-		/// Dashboard access
-		/// </summary>
-		Dashboard,
 	}
 
 	public enum JwtArea {
@@ -61,60 +56,6 @@ namespace Goldmint.Common {
 		Dpa,
 	}
 
-	public enum AccessRights : long {
-
-		/// <summary>
-		/// App client
-		/// </summary>
-		Client = 0x1L,
-
-		/// <summary>
-		/// Dashboard: general access, read access
-		/// </summary>
-		DashboardReadAccess = 0x2L,
-
-		/// <summary>
-		/// App client - extra access
-		/// </summary>
-		ClientExtraAccess = 0x4L,
-
-		// ---
-
-		/// <summary>
-		/// Dashboard: buy requests write access
-		/// </summary>
-		BuyRequestsWriteAccess = 0x2000000L,
-
-		/// <summary>
-		/// Dashboard: sell requests write access
-		/// </summary>
-		SellRequestsWriteAccess = 0x4000000L,
-
-		/// <summary>
-		/// Dashboard: promo codes access
-		/// </summary>
-		PromoCodesWriteAccess = 0x8000000L,
-
-		/// <summary>
-		/// Dashboard: user list write access
-		/// </summary>
-		UsersWriteAccess = 0x10000000L,
-
-		/// <summary>
-		/// Dashboard: countries tab write access
-		/// </summary>
-		CountriesWriteAccess = 0x20000000L,
-
-		/// <summary>
-		/// Dashboard: transparency tab write access
-		/// </summary>
-		TransparencyWriteAccess = 0x40000000L,
-
-		/// <summary>
-		/// Critical functions access
-		/// </summary>
-		Owner = 0x80000000L,
-	}
 
 	public enum UserTier {
 

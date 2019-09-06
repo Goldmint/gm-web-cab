@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Get TFA status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("tfa/view")]
 		[ProducesResponseType(typeof(TfaView), 200)]
 		public async Task<APIResponse> TFAView() {
@@ -34,7 +34,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Set TFA status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("tfa/edit")]
 		[ProducesResponseType(typeof(TfaView), 200)]
 		public async Task<APIResponse> TFAEdit([FromBody] TfaEditModel model) {

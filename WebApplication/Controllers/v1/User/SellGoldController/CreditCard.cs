@@ -18,7 +18,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//	/// <summary>
 	//	/// GOLD to USD
 	//	/// </summary>
-	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 	//	[HttpPost, Route("ccard")]
 	//	[ProducesResponseType(typeof(CreditCardView), 200)]
 	//	public async Task<APIResponse> CreditCard([FromBody] CreditCardModel model) {

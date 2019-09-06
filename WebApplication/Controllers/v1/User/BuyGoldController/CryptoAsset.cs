@@ -17,7 +17,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//	/// <summary>
 	//	/// ETH to GOLD
 	//	/// </summary>
-	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 	//	[HttpPost, Route("asset/eth")]
 	//	[ProducesResponseType(typeof(AssetEthView), 200)]
 	//	public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {

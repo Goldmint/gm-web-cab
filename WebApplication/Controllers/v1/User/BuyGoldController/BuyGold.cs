@@ -1,4 +1,7 @@
 ﻿using Goldmint.Common;
+using Goldmint.Common.Extensions;
+using Goldmint.CoreLogic.Services.Bus.Nats;
+using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.PromoCode;
@@ -8,6 +11,7 @@ using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -104,121 +108,58 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(estimation.View);
 		}
 
-		//	/// <summary>
-		//	/// Confirm request
-		//	/// </summary>
-		//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		//	[HttpPost, Route("confirm")]
-		//	[ProducesResponseType(typeof(ConfirmView), 200)]
-		//	public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
+		// ---
 
-		//		if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-		//			return APIResponse.BadRequest(errFields);
-		//		}
+		[NonAction]
+		public static async Task SendGoldOnTier2Verification(IServiceProvider services, long userId) {
 
-		//		var user = await GetUserFromDb();
-		//		var userLocale = GetUserLocale();
-		//		var agent = GetUserAgentInfo();
+			var DbContext = services.GetRequiredService<DAL.ApplicationDbContext>();
+			var Logger = services.GetLoggerFor(typeof(BuyGoldController));
+			var natsConnection = services.GetRequiredService<NATS.Client.IConnection>();
+			var OplogProvider = services.GetRequiredService<IOplogProvider>();
 
-		//		// ---
+			var requests = 
+				await (
+					from r in DbContext.BuyGoldFiat
+					where r.Status == SellGoldRequestStatus.Unconfirmed && r.UserId == userId
+					select r
+				)
+				.Include(_ => _.RelUserFinHistory)
+				.AsTracking()
+				.ToArrayAsync()
+			;
 
-		//		var request = await (
-		//			from r in DbContext.BuyGoldRequest
-		//			where
-		//				r.Status == BuyGoldRequestStatus.Unconfirmed &&
-		//				r.Id == model.RequestId &&
-		//				r.UserId == user.Id &&
-		//				r.TimeExpires > DateTime.UtcNow
-		//			select r
-		//		)
-		//		.Include(_ => _.RelUserFinHistory)
-		//		.AsTracking()
-		//		.FirstOrDefaultAsync()
-		//		;
+			foreach (var request in requests) {
+				try {
+					await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
+				}
+				catch { }
 
-		//		// request not exists
-		//		if (request == null) {
-		//			return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
-		//		}
+				request.Status = SellGoldRequestStatus.Confirmed;
+				await DbContext.SaveChangesAsync();
 
-		//		if (model.PromoCode != null) {
-		//			//get promocode and check again then mark it as used
-		//			await MarkPromoCodeUsed(model.PromoCode, user.Id, model.RequestId);
-		//		}
+				// emission request
+				try {
+					var natsRequest = new Sumus.Sender.Send.Request() {
+						RequestID = $"buy-{request.Id}",
+						Amount = TextFormatter.FormatTokenAmount(request.GoldAmount.ToSumus(), Common.TokensPrecision.Sumus),
+						Token = "GOLD",
+						Wallet = request.Destination,
+					};
 
-		//		// activity
-		//		var userActivity = CoreLogic.User.CreateUserActivity(
-		//			user: user,
-		//			type: Common.UserActivityType.Exchange,
-		//			comment: $"Gold buying request #{request.Id} confirmed",
-		//			ip: agent.Ip,
-		//			agent: agent.Agent,
-		//			locale: userLocale
-		//		);
-		//		DbContext.UserActivity.Add(userActivity);
-		//		await DbContext.SaveChangesAsync();
+					var msg = await natsConnection.RequestAsync(Sumus.Sender.Send.Subject, Serializer.Serialize(natsRequest), 5000);
+					var rep = Serializer.Deserialize<Sumus.Sender.Send.Reply>(msg.Data);
+					if (!rep.Success) {
+						throw new Exception(rep.Error);
+					}
 
-		//		// mark request for processing
-		//		request.RelUserFinHistory.Status = UserFinHistoryStatus.Manual;
-		//		request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
-		//		request.Status = BuyGoldRequestStatus.Confirmed;
-
-		//		await DbContext.SaveChangesAsync();
-
-		//		try {
-		//			await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
-		//		}
-		//		catch { }
-
-		//		// credit card
-		//		if (request.Input == BuyGoldRequestInput.CreditCardDeposit) {
-
-		//			// check
-		//			if (request.RelInputId == null) {
-		//				throw new Exception($"RelInputId is invalid at #{ request.Id }");
-		//			}
-		//			if (!long.TryParse(request.InputExpected, out var amount)) {
-		//				throw new Exception($"Amount is invalid at #{ request.Id }");
-		//			}
-
-		//			// get the card
-		//			var card = await (
-		//					from c in DbContext.UserCreditCard
-		//					where
-		//						c.UserId == user.Id &&
-		//						c.Id == request.RelInputId &&
-		//						c.State == CardState.Verified
-		//					select c
-		//				)
-		//				.AsNoTracking()
-		//				.FirstOrDefaultAsync();
-		//			if (card == null) {
-		//				return APIResponse.BadRequest(nameof(model.RequestId), "Invalid id");
-		//			}
-
-		//			// enqueue payment
-		//			var payment = await CoreLogic.Finance.The1StPaymentsProcessing.CreateDepositPayment(
-		//				services: HttpContext.RequestServices,
-		//				card: card,
-		//				currency: request.ExchangeCurrency,
-		//				amountCents: amount,
-		//				buyRequestId: request.Id,
-		//				oplogId: request.OplogId
-		//			);
-		//			payment.Status = CardPaymentStatus.Pending;
-		//			DbContext.CreditCardPayment.Add(payment);
-		//			await DbContext.SaveChangesAsync();
-
-		//		}
-
-		//		// TODO: email?
-
-		//		return APIResponse.Success(
-		//			new ConfirmView() { }
-		//		);
-		//	}
-
-		//	// ---
+					Logger.Info($"{request.GoldAmount} GOLD emission operation #{request.Id} posted");
+				} catch (Exception e) {
+					Logger.Error(e, $"{request.GoldAmount} GOLD emission operation #{request.Id} failed to post");
+				}
+			}
+			natsConnection.Close();
+		}
 
 		[NonAction]
 		private async Task<PromoCodeStatus> GetPromoCodeStatus(string str) {

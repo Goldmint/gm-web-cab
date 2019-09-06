@@ -123,7 +123,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// <summary>
 		/// System status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("status")]
 		[ProducesResponseType(typeof(StatusView), 200)]
 		public async Task<APIResponse> Status() {

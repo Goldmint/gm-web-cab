@@ -10,6 +10,7 @@ using System;
 using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.WebApplication.Core;
+using Goldmint.WebApplication.Core.Tokens;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -30,7 +31,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var agent = GetUserAgentInfo();
-			var audience = JwtAudience.Cabinet;
 			var userLocale = GetUserLocale();
 
 			// captcha
@@ -44,28 +44,36 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 			if (result.User != null) {
 
-				var jwtSalt = UserAccount.CurrentJwtSalt(result.User, audience);
-					
-				var tokenForDpa = Core.Tokens.JWT.CreateSecurityToken(
+				// confirmation token
+				var token = Core.Tokens.JWT.CreateSecurityToken(
 					appConfig: AppConfig,
 					entityId: result.User.UserName,
-					audience: audience,
-					securityStamp: jwtSalt,
-					area: JwtArea.Dpa,
-					validFor: TimeSpan.FromDays(1)
+					audience: JwtAudience.Cabinet,
+					securityStamp: result.User.JwtSaltCabinet,
+					area: Common.JwtArea.Registration, 
+					validFor: TimeSpan.FromDays(2)
 				);
 
-				// send dpa
-				await DbContext.Entry(result.User).Reference(_ => _.UserOptions).LoadAsync();
-				await Core.UserAccount.ResendUserDpaDocument(
-					locale: userLocale,
-					services: HttpContext.RequestServices,
-					user: result.User,
-					email: result.User.Email,
-					redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned.Replace(":token", tokenForDpa))
-				);
+				var callbackUrl = this.MakeAppLink(JwtAudience.Cabinet, fragment: AppConfig.Apps.Cabinet.RouteSignUpConfirmation.Replace(":token", token));
 
-				return APIResponse.Success();
+				// email confirmation
+				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.EmailConfirmation, userLocale))
+					.Link(callbackUrl)
+					.Send(model.Email, "", EmailQueue)
+				;
+
+				// auth token
+				return APIResponse.Success(
+					new Models.API.v1.User.UserModels.AuthenticateView() {
+						Token = JWT.CreateAuthToken(
+							appConfig: AppConfig, 
+							user: result.User, 
+							audience: JwtAudience.Cabinet,
+							area: JwtArea.Authorized
+						),
+						TfaRequired = false,
+					}
+				);
 			}
 			else {
 				if (result.IsUsernameExists || result.IsEmailExists) {
@@ -76,7 +84,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			throw new Exception("Registration failed");
 		}
 
-		/*
 		/// <summary>
 		/// Email confirmation while registration
 		/// </summary>
@@ -90,7 +97,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				return APIResponse.BadRequest(errFields);
 			}
 
-			var audience = JwtAudience.Cabinet;
 			var user = (DAL.Models.Identity.User)null;
 			var agent = GetUserAgentInfo();
 			var userLocale = GetUserLocale();
@@ -99,34 +105,21 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (! await Core.Tokens.JWT.IsValid(
 				appConfig: AppConfig, 
 				jwtToken: model.Token, 
-				expectedAudience: audience,
+				expectedAudience: JwtAudience.Cabinet,
 				expectedArea: Common.JwtArea.Registration,
 				validStamp: async (jwt, id) => {
 					user = await UserManager.FindByNameAsync(id);
-					return user?.JwtSalt;
+					return user.JwtSaltCabinet;
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
 			user.EmailConfirmed = true;
-			user.JwtSalt = Core.UserAccount.GenerateJwtSalt();
 			await DbContext.SaveChangesAsync();
-
-			// load user's options
-			await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
-
-			// send dpa
-			await Core.UserAccount.ResendUserDpaDocument(
-				locale: userLocale,
-				services: HttpContext.RequestServices,
-				user: user,
-				email: user.Email,
-				redirectUrl: this.MakeAppLink(audience, fragment: AppConfig.Apps.Cabinet.RouteDpaSigned)
-			);
 
 			return APIResponse.Success();
 		}
-		*/
+
 	}
 }
