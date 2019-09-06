@@ -132,6 +132,9 @@ import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
 import { BuyCryptocurrencyPageComponent } from './pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component';
 import { BuyCreditCardPageComponent } from './pages/buy-page/buy-credit-card-page/buy-credit-card-page.component';
 import { BuySepaPageComponent } from './pages/buy-page/buy-sepa-page/buy-sepa-page.component';
+import { TosVerificationPageComponent } from './pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component';
+import { NoVerificationBlockComponent } from './blocks/no-verification-block/no-verification-block.component';
+import { NoKycVerificationBlockComponent } from './blocks/no-kyc-verification-block/no-kyc-verification-block.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -247,7 +250,10 @@ export function getGoldmintToken() {
     SwapMntpComponent,
     BuyCryptocurrencyPageComponent,
     BuyCreditCardPageComponent,
-    BuySepaPageComponent
+    BuySepaPageComponent,
+    TosVerificationPageComponent,
+    NoVerificationBlockComponent,
+    NoKycVerificationBlockComponent
   ],
   exports: [],
   providers: [

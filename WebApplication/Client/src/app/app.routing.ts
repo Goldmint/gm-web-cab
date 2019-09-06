@@ -54,6 +54,7 @@ import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
 import {BuyCryptocurrencyPageComponent} from "./pages/buy-page/buy-cryptocurrency-page/buy-cryptocurrency-page.component";
 import {BuyCreditCardPageComponent} from "./pages/buy-page/buy-credit-card-page/buy-credit-card-page.component";
 import {BuySepaPageComponent} from "./pages/buy-page/buy-sepa-page/buy-sepa-page.component";
+import {TosVerificationPageComponent} from "./pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component";
 
 
 const appRoutes: Routes = [
@@ -103,6 +104,7 @@ const appRoutes: Routes = [
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
+  { path: 'tos-verification', component: TosVerificationPageComponent, canActivate: [AuthGuard] },
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
   { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },

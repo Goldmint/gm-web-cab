@@ -54,6 +54,7 @@ export class SettingsVerificationPageComponent implements OnInit {
   private selectedCountry;
   private interval: Subscription;
   private sub1: Subscription;
+  private isKycPendingState: boolean = false;
 
   constructor(
     private _apiService: APIService,
@@ -83,21 +84,16 @@ export class SettingsVerificationPageComponent implements OnInit {
       this.phase = Phase.Kyc;
     }
 
-    if (this.kycProfile.isAgreementSigned) {
-      this.phase = Phase.Finished;
-    }
-    else if (this.kycProfile.isResidenceRequired && this.kycProfile.isResidenceProved) {
-      this.phase = Phase.ToS;
-    }
-    else if (this.kycProfile.isKycFinished) {
-      if (this.kycProfile.isResidenceRequired) {
-        this.phase = Phase.ResidencePending;
-      } else {
-        this.phase = Phase.ToS;
-      }
-    }
-    else if (this.kycProfile.isKycPending) {
+   if (this.kycProfile.isKycFinished) {
+     this.isKycPendingState && this.router.navigate(['/buy']);
+     this.phase = Phase.Finished;
+
+      // if (this.kycProfile.isResidenceRequired) {
+      //   this.phase = Phase.ResidencePending;
+      // }
+    } else if (this.kycProfile.isKycPending) {
       this.phase = Phase.KycPending;
+      this.isKycPendingState = true;
       this.interval && this.interval.unsubscribe();
       this.interval = Observable.interval(5000).subscribe(() => {
         this.refreshPage();
