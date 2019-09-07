@@ -49,7 +49,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					appConfig: AppConfig,
 					entityId: result.User.UserName,
 					audience: JwtAudience.Cabinet,
-					securityStamp: result.User.JwtSaltCabinet,
+					securityStamp: "",
 					area: Common.JwtArea.Registration, 
 					validFor: TimeSpan.FromDays(2)
 				);
@@ -107,9 +107,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				jwtToken: model.Token, 
 				expectedAudience: JwtAudience.Cabinet,
 				expectedArea: Common.JwtArea.Registration,
-				validStamp: async (jwt, id) => {
-					user = await UserManager.FindByNameAsync(id);
-					return user.JwtSaltCabinet;
+				validStamp: (jwt, id) => {
+					return Task.FromResult("");
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
