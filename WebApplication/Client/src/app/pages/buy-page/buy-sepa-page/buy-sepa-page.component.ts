@@ -37,6 +37,7 @@ export class BuySepaPageComponent implements OnInit, OnDestroy {
   public isTransactionSent: boolean = false;
   public currentDate = new Date();
   public isIBANValid: boolean = false;
+  public noKycVerification: boolean = false;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = null;
@@ -140,7 +141,12 @@ export class BuySepaPageComponent implements OnInit, OnDestroy {
     if (form.valid) {
       this.loading = true;
       this._apiService.buyByCreditCard('eur', this.sumusAddress, (100 * 100).toString()).subscribe(res => {
-        this.isTransactionSent = true;
+        if (!this.user.verifiedL1) {
+          this.noKycVerification = true;
+        } else {
+          this.isTransactionSent = true;
+        }
+
         this._commonService.deleteFxCookies();
         this.loading = false;
         this._cdRef.markForCheck();

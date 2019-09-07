@@ -1,0 +1,27 @@
+<!-- host: .page -->
+
+<section class="page__section section section--warning section--no-bottom">
+    <h2 class="section__title section__title--warning">
+      <svg class="icon" width="18px" height="16px">
+        <use xlink:href="#warning"></use>
+      </svg>
+      {{ "PAGES.Settings.KYC.ToS.Heading" | translate }}
+    </h2>
+
+    <div class="section__content">
+      <div class="custom-control custom-checkbox text-center">
+        <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="isAgreeCheck">
+        <label class="custom-control-label custom-control-label-agree" for="agreeCheck">
+          {{ "PAGES.Settings.KYC.ToS.Agree" | translate }}
+          <a href="#/legal-security/termsOfSale" target="_blank">{{ "PAGES.Settings.KYC.ToS.Link" | translate }}</a>
+        </label>
+      </div>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-4" [disabled]="loading || !isAgreeCheck" (click)="agreedWithTos()">
+          {{ "PAGES.Settings.KYC.ToS.Button" | translate }}
+          <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-black-bg-gold.gif">
+        </button>
+      </div>
+    </div>
+</section>

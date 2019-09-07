@@ -3,34 +3,7 @@
 <ng-container *ngIf="!isBlockedCountry">
     <ng-container *ngIf="isAuthenticated && user?.verifiedL0 === false; else content">
         <div class="mt-4">
-            <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
-
-            <div class="row kyc-pros mb-4 pb-2">
-                <div class="col-lg-3">
-                    <svg class="kyc-pros__icon" width="33px" height="44px">
-                        <use xlink:href="#verify-secure"></use>
-                    </svg>
-                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
-                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
-                </div>
-                <div class="col-lg-3">
-                    <svg class="kyc-pros__icon" width="28px" height="44px">
-                        <use xlink:href="#verify-simple"></use>
-                    </svg>
-                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
-                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
-                </div>
-                <div class="col-lg-3">
-                    <svg class="kyc-pros__icon" width="36px" height="44px">
-                        <use xlink:href="#verify-complaint"></use>
-                    </svg>
-                    <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
-                    <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
-                </div>
-                <div class="col-lg-3 pl-lg-4 align-self-center">
-                    <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
-                </div>
-            </div>
+            <app-no-verification-block></app-no-verification-block>
         </div>
     </ng-container>
 
