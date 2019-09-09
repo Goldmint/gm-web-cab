@@ -120,7 +120,7 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
       ) * 0.75 / this.lastStatisticDay.total_stake
     ;
     // hardcode, for now
-    incomePerMntpDay = 4.5;
+    incomePerMntpDay = 4.5 / 10000;
 
     this.totalROI = incomePerMntpDay * 365 * 100 / +this.mntpPrice;
     if (+this.mntpAmount < 10000) {
