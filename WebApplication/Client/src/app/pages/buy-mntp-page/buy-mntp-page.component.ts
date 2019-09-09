@@ -75,8 +75,8 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
           day.length === 1 && (day = '0' + day);
 
           const dateString = date.getFullYear() + '-' + month + '-' + day;
-          const usd = (+item.fee_gold * item.coin_price.gold_usd + +item.fee_mnt * item.coin_price.mntp_usd) * 0.75 / +item.total_stake * 10000;
-          const btc = (+item.fee_gold * item.coin_price.gold_btc + +item.fee_mnt * item.coin_price.mntp_btc) * 0.75 / +item.total_stake * 10000;
+          const usd = (+item.fee_gold * item.coin_price.gold_usd + +item.fee_mnt * item.coin_price.mntp_usd) * 0.75 * 10000 / +item.total_stake;
+          const btc = (+item.fee_gold * item.coin_price.gold_btc + +item.fee_mnt * item.coin_price.mntp_btc) * 0.75 * 10000 / +item.total_stake;
 
           this.chartData.push([
             dateString,
@@ -86,6 +86,7 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
           ]);
 
           if (index === 1) {
+            // TODO: take max over month
             this.lastStatisticDay = item;
           }
         });
@@ -112,7 +113,14 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
       this.cdRef.markForCheck();
       return;
     }
-    const incomePerMntpDay = (this.lastStatisticDay.fee_mnt * this.lastStatisticDay.coin_price.mntp_usd + this.lastStatisticDay.fee_gold * this.lastStatisticDay.coin_price.gold_usd) / this.lastStatisticDay.total_stake;
+    let incomePerMntpDay = 
+      (
+        this.lastStatisticDay.fee_mnt * this.lastStatisticDay.coin_price.mntp_usd
+        + this.lastStatisticDay.fee_gold * this.lastStatisticDay.coin_price.gold_usd
+      ) * 0.75 / this.lastStatisticDay.total_stake
+    ;
+    // hardcode, for now
+    incomePerMntpDay = 4.5;
 
     this.totalROI = incomePerMntpDay * 365 * 100 / +this.mntpPrice;
     if (+this.mntpAmount < 10000) {
