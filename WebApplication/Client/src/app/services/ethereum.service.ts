@@ -206,7 +206,7 @@ export class EthereumService {
     this.updateEthBalance(this._lastAddress);
 
     this.checkHotBalance();
-    this.updateTotalGoldBalances();
+    // this.updateTotalGoldBalances();
     this.updateEthLimitBalance(this.EthContractAddress);
   }
 
