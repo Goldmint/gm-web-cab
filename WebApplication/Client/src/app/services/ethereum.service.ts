@@ -144,9 +144,9 @@ export class EthereumService {
           this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
             this.EthPoolContractABI = abi['result'];
           });
-          // this.getContractABI(this.SwapContractAddress).subscribe(abi => {
-          //   this.SwapContractABI = abi['result'];
-          // });
+          this.getContractABI(this.SwapContractAddress).subscribe(abi => {
+            this.SwapContractABI = abi['result'];
+          });
 
         } else {
           this._web3Infura = null;
@@ -154,7 +154,7 @@ export class EthereumService {
       });
     }
 
-    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI && this.EthMntpContractABI && this.EthPoolContractABI /*&& this.SwapContractABI*/) {
+    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthGoldContractABI && this.EthMntpContractABI && this.EthPoolContractABI && this.SwapContractABI) {
       let ethereum = window['ethereum'];
 
       if (ethereum) {
@@ -170,7 +170,7 @@ export class EthereumService {
         this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
         this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
         this.oldPoolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthOldPoolContractAddress);
-        // this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
+        this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
 
         this.isPoolContractLoaded$.next(true);
       } else {

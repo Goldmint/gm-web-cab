@@ -100,7 +100,7 @@ const appRoutes: Routes = [
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
   { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },
-  // { path: 'swap-mntp', component: SwapMntpComponent },
+  { path: 'swap-mntp', component: SwapMntpComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },
   { path: 'scanner/tx/:id/:network', component: TxInfoPageComponent },
