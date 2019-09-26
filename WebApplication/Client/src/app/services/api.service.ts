@@ -625,7 +625,7 @@ export class APIService {
 
     if (token) {
       return {
-        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+        headers: new HttpHeaders().set('GM-Authorization', `Bearer ${token}`)
       };
     }
 

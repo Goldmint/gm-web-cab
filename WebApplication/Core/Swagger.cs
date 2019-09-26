@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Core {
 				}
 
 				operation.Parameters.Add(new NonBodyParameter {
-					Name = "Authorization",
+					Name = "GM-Authorization",
 					In = "header",
 					Type = "string",
 					Default = "Bearer ",

@@ -204,10 +204,26 @@ namespace Goldmint.WebApplication.Core.Tokens {
 
 			return new JwtBearerEvents() {
 
-				// user must get new token
 				OnChallenge = (ctx) => {
+					// user must get new token
 					ctx.Response.StatusCode = 403;
 					ctx.HandleResponse();
+					return Task.CompletedTask;
+				},
+
+				OnMessageReceived = context => {
+					string a = context.Request.Headers["GM-Authorization"];
+					if (string.IsNullOrEmpty(a)) {
+						context.NoResult();
+						return Task.CompletedTask;
+					}
+					if (a.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
+						context.Token = a.Substring("Bearer ".Length).Trim();
+					}
+					if (string.IsNullOrEmpty(context.Token)) {
+						context.NoResult();
+						return Task.CompletedTask;
+					}
 					return Task.CompletedTask;
 				},
 
