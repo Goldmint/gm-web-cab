@@ -178,6 +178,17 @@ namespace Goldmint.WebApplication.Core.Tokens {
 					return Task.CompletedTask;
 				},
 
+				OnMessageReceived = (ctx) => {
+					ctx.Token = "";
+					if (ctx.Request.Headers.TryGetValue("GM-Authorization", out var t)) {
+						var field = t.ToString();
+						if (field.StartsWith("Bearer ") || field.StartsWith("bearer ")) {
+							ctx.Token = field.Substring(7);
+						}
+					}
+					return Task.CompletedTask;
+				},
+
 				OnTokenValidated = async (ctx) => {
 					var token = ctx.SecurityToken as JwtSecurityToken;
 					try {

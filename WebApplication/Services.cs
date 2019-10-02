@@ -170,7 +170,12 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 			// notifications
-			services.AddScoped<INotificationQueue, DBNotificationQueue>();
+			if (_environment.IsDevelopment()) {
+				services.AddScoped<INotificationQueue, NullNotificationQueue>();
+			}
+			else {
+				services.AddScoped<INotificationQueue, DBNotificationQueue>();
+			}
 
 			// templates
 			services.AddSingleton<ITemplateProvider, TemplateProvider>();

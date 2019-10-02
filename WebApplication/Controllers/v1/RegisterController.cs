@@ -101,21 +101,23 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var userLocale = GetUserLocale();
 
 			// check token
-			if (! await Core.Tokens.JWT.IsValid(
+			if (!await JWT.IsValid(
 				appConfig: AppConfig, 
 				jwtToken: model.Token, 
 				expectedAudience: JwtAudience.Cabinet,
 				expectedArea: Common.JwtArea.Registration,
-				validStamp: (jwt, id) => {
-					return Task.FromResult("");
+				validStamp: async (jwt, id) => {
+					user = await UserManager.FindByNameAsync(id);
+					return "";
 				}
 			) || user == null) {
 				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
 			}
 
-			user.EmailConfirmed = true;
-			await DbContext.SaveChangesAsync();
-
+			if (!user.EmailConfirmed) {
+				user.EmailConfirmed = true;
+				await DbContext.SaveChangesAsync();
+			}
 			return APIResponse.Success();
 		}
 
