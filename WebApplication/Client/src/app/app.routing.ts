@@ -90,8 +90,8 @@ const appRoutes: Routes = [
       { path: 'profile', component: SettingsProfilePageComponent },
       { path: 'verification', component: SettingsVerificationPageComponent },
       { path: '2fa', component: SettingsTFAPageComponent },
-      { path: 'cards', component: SettingsCardsPageComponent },
-      { path: 'cards/:cardId', component: SettingsCardsPageComponent },
+      // { path: 'cards', component: SettingsCardsPageComponent },
+      // { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
       // { path: 'limits', component: LimitsPageComponent }
