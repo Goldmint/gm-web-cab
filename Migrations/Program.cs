@@ -1,13 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using Goldmint.Common;
-using Goldmint.Common.Sumus;
 using Goldmint.DAL;
-using Goldmint.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace Goldmint.Migrations {
 
