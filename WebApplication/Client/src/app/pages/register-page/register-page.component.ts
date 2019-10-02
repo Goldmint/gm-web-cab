@@ -96,7 +96,8 @@ export class RegisterPageComponent implements OnInit {
       })
       .subscribe(
         res => {
-          this.router.navigate(['/signup/success']);
+          // this.router.navigate(['/signup/success']);
+          this.userService.login(this.signupModel.email, this.signupModel.password, null).subscribe();
         },
         err => {
           this.captchaRef.reset();

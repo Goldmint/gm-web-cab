@@ -51,6 +51,7 @@ import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
+import {TosVerificationPageComponent} from "./pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component";
 
 
 const appRoutes: Routes = [
@@ -89,14 +90,15 @@ const appRoutes: Routes = [
       { path: 'profile', component: SettingsProfilePageComponent },
       { path: 'verification', component: SettingsVerificationPageComponent },
       { path: '2fa', component: SettingsTFAPageComponent },
-      { path: 'cards', component: SettingsCardsPageComponent },
-      { path: 'cards/:cardId', component: SettingsCardsPageComponent },
+      // { path: 'cards', component: SettingsCardsPageComponent },
+      // { path: 'cards/:cardId', component: SettingsCardsPageComponent },
       { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
       // { path: 'limits', component: LimitsPageComponent }
       // { path: 'fees', component: SettingsFeesPageComponent }
     ]
   },
+  { path: 'tos-verification', component: TosVerificationPageComponent, canActivate: [AuthGuard] },
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
   { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },

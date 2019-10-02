@@ -66,7 +66,7 @@ export class LoginPageComponent implements OnInit {
         if (currentUser.challenges.indexOf('2fa') > -1 && (!sessionStorage || !parseInt(sessionStorage.getItem('gmint_uc_2fa'), 0))) {
           sessionStorage && sessionStorage.setItem('gmint_uc_2fa', '1');
 
-          this._router.navigate(['/signup/2fa']);
+          // this._router.navigate(['/signup/2fa']);
         }
       }
     });
