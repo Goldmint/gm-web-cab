@@ -1,7 +1,6 @@
 export const environment = {
   production: true,
   isProduction: true,
-  detectExtraRights: true,
   MMNetwork: {
     name: 'Main',
     index: 1
@@ -14,7 +13,7 @@ export const environment = {
   apiUrl: 'https://app.goldmint.io/api/v1',
   marketApiUrl: 'https://service.goldmint.io/pawnmarket/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
-  recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
+  recaptchaSiteKey: '6Ld3i7sUAAAAAImqZ_pZbav0szhkPDqoI73ji11j',
   etherscanUrl: 'https://etherscan.io/tx/',
   etherscanContractUrl: "https://etherscan.io/address/",
   infuraUrl: 'https://service.goldmint.io/proxy/infura/mainnet',
