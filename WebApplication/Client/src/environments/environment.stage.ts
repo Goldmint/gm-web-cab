@@ -1,7 +1,6 @@
 export const environment = {
   production: true,
   isProduction: false,
-  detectExtraRights: false,
   MMNetwork: {
     name: 'Rinkeby',
     index: 4
@@ -14,7 +13,7 @@ export const environment = {
   apiUrl: 'https://staging.goldmint.io/api/v1',
   marketApiUrl: 'https://staging.goldmint.io/market/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
-  recaptchaSiteKey: '6LcuSTcUAAAAAGGcHJdRqDN1fEmtKjYue_872F0k',
+  recaptchaSiteKey: '6Ld3i7sUAAAAAImqZ_pZbav0szhkPDqoI73ji11j',
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
   etherscanContractUrl: "https://rinkeby.etherscan.io/address/",
   infuraUrl: 'https://service.goldmint.io/proxy/infura/rinkeby',
