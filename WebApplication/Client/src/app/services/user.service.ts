@@ -68,6 +68,7 @@ export class UserService {
           shareReplay(),
           (profile: APIResponse<User>) => {
             let user = profile.data;
+            if (!user.verifiedL0) this.redirectToTosVerifPage();
             return user;
           }
         ).subscribe(user => {
@@ -84,6 +85,10 @@ export class UserService {
     else {
       this._messageBox.alert(response.errorDesc);
     }
+  }
+
+  redirectToTosVerifPage() {
+    this._router.navigate(['/tos-verification']);
   }
 
   login(username: string, password: string, recaptcha: string) {
@@ -242,7 +247,7 @@ export class UserService {
 		this.refreshJwtToken(true);
 		interval(10000).subscribe(time => { this.refreshJwtToken(false); });
 	}
-  
+
 	private refreshJwtToken(forceNewToken: boolean) {
 		const token = this._jwtHelper.tokenGetter();
 		if (!token) {

@@ -16,6 +16,7 @@ import { KYCProfile } from '../../../models/kyc-profile';
 import * as countries from '../../../../assets/data/countries.json';
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
+import {Router} from "@angular/router";
 
 enum Phase { Start, Basic, Kyc, KycPending, ResidencePending, ResidenceProved, ToS, Finished }
 
@@ -53,12 +54,15 @@ export class SettingsVerificationPageComponent implements OnInit {
   private selectedCountry;
   private interval: Subscription;
   private sub1: Subscription;
+  private isKycPendingState: boolean = false;
 
   constructor(
     private _apiService: APIService,
     private _userService: UserService,
     private _cdRef: ChangeDetectorRef,
-    private _messageBox: MessageBoxService) {
+    private _messageBox: MessageBoxService,
+    private router: Router
+  ) {
 
     this.dateOfBirth = { day: 1, month: 1, year: '' };
     this.countries = <Country[]><any>countries;
@@ -80,21 +84,16 @@ export class SettingsVerificationPageComponent implements OnInit {
       this.phase = Phase.Kyc;
     }
 
-    if (this.kycProfile.isAgreementSigned) {
+    if (this.kycProfile.isKycFinished) {
+      this.isKycPendingState && this.router.navigate(['/buy']);
       this.phase = Phase.Finished;
-    }
-    else if (this.kycProfile.isResidenceRequired && this.kycProfile.isResidenceProved) {
-      this.phase = Phase.ToS;
-    }
-    else if (this.kycProfile.isKycFinished) {
-      if (this.kycProfile.isResidenceRequired) {
-        this.phase = Phase.ResidencePending;
-      } else {
-        this.phase = Phase.ToS;
-      }
-    }
-    else if (this.kycProfile.isKycPending) {
+
+      // if (this.kycProfile.isResidenceRequired) {
+      //   this.phase = Phase.ResidencePending;
+      // }
+    } else if (this.kycProfile.isKycPending) {
       this.phase = Phase.KycPending;
+      this.isKycPendingState = true;
       this.interval && this.interval.unsubscribe();
       this.interval = Observable.interval(5000).subscribe(() => {
         this.refreshPage();
