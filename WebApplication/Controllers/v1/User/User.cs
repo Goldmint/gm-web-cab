@@ -25,7 +25,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		    var rcfg = RuntimeConfigHolder.Clone();
             var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 
 			// user challenges
 			var challenges = new List<string>();
@@ -36,9 +36,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Id = user.UserName,
 					Name = CoreLogic.User.HasFilledPersonalData(user.UserVerification) ? (user.UserVerification.FirstName + " " + user.UserVerification.LastName).Trim() : user.UserName,
 					Email = user.Email ?? "",
-					DpaSigned = user.UserOptions.DpaDocument?.IsSigned ?? false,
 					TfaEnabled = user.TwoFactorEnabled,
-					HasExtraRights = (user.AccessRights & (long)AccessRights.ClientExtraAccess) == (long)AccessRights.ClientExtraAccess,
 					VerifiedL0 = userTier >= UserTier.Tier1,
 					VerifiedL1 = userTier >= UserTier.Tier2,
 					Challenges = challenges.ToArray(),
@@ -68,9 +66,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
-		/// User activity
+		/// User activity records
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("activity")]
 		[ProducesResponseType(typeof(ActivityView), 200)]
 		public async Task<APIResponse> Activity([FromBody] ActivityModel model) {
@@ -118,9 +116,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
-		/// Fiat history
+		/// Fin history records
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("history")]
 		[ProducesResponseType(typeof(FiatHistoryView), 200)]
 		public async Task<APIResponse> FiatHistory([FromBody] FiatHistoryModel model) {

@@ -1,5 +1,4 @@
 ﻿using Goldmint.Common;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.Localization.Impl {
 
@@ -19,7 +19,7 @@ namespace Goldmint.CoreLogic.Services.Localization.Impl {
 		private readonly ILogger _logger;
 		private readonly Dictionary<string, string> _resources;
 
-		public TemplateProvider(LogFactory logFactory) {
+		public TemplateProvider(ILogger logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_resources = new Dictionary<string, string>();
 			LoadUp();

@@ -1,13 +1,10 @@
-﻿using Goldmint.Common;
-using Goldmint.DAL;
+﻿using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
-using System.IO;
 using Goldmint.CoreLogic.Services.Bus.Nats;
 
 namespace Goldmint.QueueService.Workers.SumusWallet {
@@ -15,7 +12,6 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 	public class RefillListener: BaseWorker {
 
 		private IServiceProvider _services;
-		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
@@ -24,7 +20,6 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 
 		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
-			_logger = services.GetLoggerFor(this.GetType());
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_natsConn = services.GetRequiredService<NATS.Client.IConnection>();
 			return Task.CompletedTask;
@@ -35,7 +30,7 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 		}
 
 		protected override async Task OnUpdate() {
-			using (var sub = _natsConn.SubscribeSync(Sumus.Refiller.Refilled.Subject)) {
+			using (var sub = _natsConn.SubscribeSync(MintSender.Watcher.Refill.Subject)) {
 				while (!IsCancelled()) {
 					try {
 						var msg = sub.NextMessage(1000);
@@ -43,18 +38,23 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 							_dbContext.DetachEverything();
 
 							// read msg
-							var req = Serializer.Deserialize<Sumus.Refiller.Refilled.Request>(msg.Data);
+							var req = Serializer.Deserialize<MintSender.Watcher.Refill.Request>(msg.Data);
+
+							if (req.Service != MintSender.CoreService) {
+								continue;
+							}
 
 							// find wallet
 							var row = await (
 								from r in _dbContext.UserSumusWallet
-								where r.PublicKey == req.Wallet
+								where r.PublicKey == req.PublicKey
 								select r
 							)
 							.AsNoTracking()
-							.LastAsync();
+							.LastAsync()
+							;
 							if (row == null) {
-								throw new Exception($"Wallet #{req.Wallet} not found");
+								throw new Exception($"Wallet #{req.PublicKey} not found");
 							}
 
 							// parse amount
@@ -77,14 +77,14 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 							}
 
 							// reply
-							var rep = new Sumus.Refiller.Refilled.Reply() { Success = true };
+							var rep = new MintSender.Watcher.Refill.Reply() { Success = true };
 							_natsConn.Publish(msg.Reply, Serializer.Serialize(rep));
 						}
 						catch (Exception e) {
-							_logger.Error(e, $"Failed to process message");
+							Logger.Error(e, $"Failed to process message");
 
 							// reply
-							var rep = new Sumus.Refiller.Refilled.Reply() { Success = false, Error = e.ToString() };
+							var rep = new MintSender.Watcher.Refill.Reply() { Success = false, Error = e.ToString() };
 							_natsConn.Publish(msg.Reply, Serializer.Serialize(rep));
 						}
 					} catch{ }

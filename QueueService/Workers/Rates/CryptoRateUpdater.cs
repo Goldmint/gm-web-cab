@@ -27,10 +27,10 @@ namespace Goldmint.QueueService.Workers.Rates {
 		protected override async Task OnUpdate() {
 			try {
 				var rate = await _ethRateProvider.RequestEthRate(_requestTimeout);
-				Logger.Trace($"Current eth rate {rate}");
+				Logger.Verbose($"Current eth rate {rate}");
 				_aggregatedRatesDispatcher.OnProviderCurrencyRate(rate);
 			} catch (Exception e) {
-				Logger.Error(e);
+				Logger.Error(e, "Failed to update ETH rate");
 			}
 		}
 	}

@@ -6,31 +6,23 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Goldmint.DAL.Models.PromoCode;
 
 namespace Goldmint.DAL {
 
 	public class ApplicationDbContext : IdentityDbContext<User, Role, long, UserClaim, UserRole, UserLogin, RoleClaim, UserToken> {
 
-		public DbSet<Models.Mutex> Mutex { get; set; }
 		public DbSet<BannedCountry> BannedCountry { get; set; }
 		public DbSet<KycTicket> KycShuftiProTicket { get; set; }
 		public DbSet<Notification> Notification { get; set; }
 		public DbSet<Settings> Settings { get; set; }
-		public DbSet<SignedDocument> SignedDocument { get; set; }
 		public DbSet<EthSending> EthSending { get; set; }
 		public DbSet<Transparency> Transparency { get; set; }
 		public DbSet<TransparencyStat> TransparencyStat { get; set; }
 		public DbSet<UserActivity> UserActivity { get; set; }
 		public DbSet<UserFinHistory> UserFinHistory { get; set; }
-		public DbSet<UserOpLog> UserOpLog { get; set; }
 		public DbSet<UserOptions> UserOptions { get; set; }
 		public DbSet<UserVerification> UserVerification { get; set; }
-		public DbSet<UserCreditCard> UserCreditCard { get; set; }
-		public DbSet<CreditCardPayment> CreditCardPayment { get; set; }
 		public DbSet<UserLimits> UserLimits { get; set; }
-		public DbSet<PromoCode> PromoCode { get; set; }
-		public DbSet<UsedPromoCodes> UsedPromoCodes { get; set; }
 		public DbSet<PoolFreezeRequest> PoolFreezeRequest { get; set; }
 		public DbSet<UserSumusWallet> UserSumusWallet { get; set; }
 		public DbSet<SellGoldEth> SellGoldEth { get; set; }
@@ -55,10 +47,6 @@ namespace Goldmint.DAL {
 		}
 
 		// ---
-
-		/*public void Detach(object entity) {
-			this.Entry(entity).State = EntityState.Detached;
-		}*/
 
 		public void DetachEverything() {
 			var entries = this.ChangeTracker

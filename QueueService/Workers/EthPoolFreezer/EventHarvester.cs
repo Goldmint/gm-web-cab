@@ -34,7 +34,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 		protected override async Task OnInit(IServiceProvider services) {
 
-			Logger.Info($"{_confirmationsRequired} confirmations required for pool-freezer event");
+			Logger.Information($"{_confirmationsRequired} confirmations required for pool-freezer event");
 
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -45,7 +45,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 			if (BigInteger.TryParse(runtimeConfig.Ethereum.HarvestFromBlock, out var lbCfg) && lbCfg >= 0) {
 				_lastBlock = lbCfg;
 
-				Logger.Info($"Using last block #{lbCfg} (appsettings)");
+				Logger.Information($"Using last block #{lbCfg} (appsettings)");
 			}
 
 			// get last block from db; remember last saved block
@@ -53,7 +53,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 				_lastBlock = lbDb;
 				_lastSavedBlock = lbDb;
 
-				Logger.Info($"Using last block #{lbDb} (DB)");
+				Logger.Information($"Using last block #{lbDb} (DB)");
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 					_dbContext.PoolFreezeRequest.Add(model);
 					await _dbContext.SaveChangesAsync();
 
-					Logger.Info(
+					Logger.Information(
 						$"Pool-freezer event enqueued for tx {v.TransactionId}"
 					);
 				} catch (Exception e) {
@@ -109,7 +109,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 			if (_lastSavedBlock != _lastBlock) {
 				if (await _dbContext.SaveDbSetting(DbSetting.PoolFreezerHarvLastBlock, _lastBlock.ToString())) {
 					_lastSavedBlock = _lastBlock;
-					Logger.Info($"Last block #{_lastBlock} saved to DB");
+					Logger.Information($"Last block #{_lastBlock} saved to DB");
 				}
 			}
 		}

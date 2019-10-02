@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.Common.Extensions;
-using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.CoreLogic.Services.Notification.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Notification;
@@ -22,7 +21,6 @@ namespace Goldmint.QueueService.Workers.EthSender {
 		private ApplicationDbContext _dbContext;
 		private IEthereumReader _ethReader;
 		private IEthereumWriter _ethWriter;
-		private IOplogProvider _oplog;
 		private AppConfig _appConfig;
 		private ITemplateProvider _templateProvider;
 		private INotificationQueue _notificationQueue;
@@ -36,7 +34,6 @@ namespace Goldmint.QueueService.Workers.EthSender {
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethReader = services.GetRequiredService<IEthereumReader>();
 			_ethWriter = services.GetRequiredService<IEthereumWriter>();
-			_oplog = services.GetRequiredService<IOplogProvider>();
 			_appConfig = services.GetRequiredService<AppConfig>();
 			_templateProvider = services.GetRequiredService<ITemplateProvider>();
 			_notificationQueue = services.GetRequiredService<INotificationQueue>();
@@ -69,18 +66,12 @@ namespace Goldmint.QueueService.Workers.EthSender {
 				try {
 					r.Status = EthereumOperationStatus.BlockchainInit;
 					_dbContext.SaveChanges();
-					try {
-						await _oplog.Update(r.OplogId, UserOpLogStatus.Pending, $"Ether-sending transaction preparation");
-					} catch {}
 
 					var tx = await _ethWriter.SendEth(r.Address, r.Amount.ToEther());
 					r.Status = EthereumOperationStatus.BlockchainConfirm;
 					r.Transaction = tx;
 					r.RelUserFinHistory.RelEthTransactionId = tx;
 					r.TimeNextCheck = DateTime.UtcNow.AddSeconds(60);
-					try {
-						await _oplog.Update(r.OplogId, UserOpLogStatus.Pending, $"Ether-sending transaction {tx} posted");
-					} catch {}
 
 					ethAmount -= r.Amount.ToEther();
 

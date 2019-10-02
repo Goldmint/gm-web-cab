@@ -2,6 +2,7 @@ using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using System;
 using System.Numerics;
 using Xunit;
@@ -32,7 +33,7 @@ namespace Goldmint.CoreLogicTests.Estimation {
 			_ratesDispatcher = new SafeRatesDispatcher(
 				null,
 				RuntimeConfigHolder,
-				LogFactory,
+				Log.Logger,
 				opts => {
 					opts.PublishPeriod = TimeSpan.FromSeconds(1);
 					opts.GoldTtl = TimeSpan.FromSeconds(60);

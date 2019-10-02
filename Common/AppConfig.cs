@@ -15,7 +15,6 @@
 			public string RelativeApiPath { get; set; } = "/";
 
 			public CabinetSection Cabinet { get; set; } = new CabinetSection();
-			public DashboardSection Dashboard { get; set; } = new DashboardSection();
 
 			// ---
 
@@ -29,9 +28,6 @@
 				public string RouteOAuthAuthorized { get; set; } = "";
 				public string RouteDpaRequired { get; set; } = "";
 				public string RouteDpaSigned { get; set; } = "";
-			}
-
-			public class DashboardSection : BaseAppSection {
 			}
 
 			public abstract class BaseAppSection {
@@ -60,21 +56,10 @@
 
 			public string TwoFactorIssuer { get; set; } = "goldmint.io";
 
-			public FacebookSection Facebook { get; set; } = new FacebookSection();
-			public class FacebookSection {
-				public string AppId { get; set; } = "";
-				public string AppSecret { get; set; } = "";
-			}
-
 			public GoogleSection Google { get; set; } = new GoogleSection();
 			public class GoogleSection {
 				public string ClientId { get; set; } = "";
 				public string ClientSecret { get; set; } = "";
-			}
-
-			public ZendeskSsoSection ZendeskSso { get; set; } = new ZendeskSsoSection();
-			public class ZendeskSsoSection {
-				public string JwtSecret { get; set; } = "";
 			}
 		}
 
@@ -82,13 +67,6 @@
 
 		public ServicesSection Services { get; set; } = new ServicesSection();
 		public class ServicesSection {
-
-			public GoogleSheetsSection GoogleSheets { get; set; } = null;
-			public class GoogleSheetsSection {
-
-				public string ClientSecret64 { get; set; } = "";
-				public string SheetId { get; set; } = "";
-			}
 
 			public RecaptchaSection Recaptcha { get; set; } = new RecaptchaSection();
 			public class RecaptchaSection {
@@ -114,35 +92,8 @@
 				public string CallbackSecret { get; set; } = "";
 			}
 
-			public The1StPaymentsSection The1StPayments { get; set; } = new The1StPaymentsSection();
-			public class The1StPaymentsSection {
-
-				public string MerchantGuid { get; set; } = "";
-				public string ProcessingPassword { get; set; } = "";
-				public string Gateway { get; set; } = "";
-				public string RsInitStoreSms3D { get; set; } = "";
-				public string RsInitRecurrent3D { get; set; } = "";
-				public string RsInitStoreSms { get; set; } = "";
-				public string RsInitRecurrent { get; set; } = "";
-				public string RsInitStoreCrd { get; set; } = "";
-				public string RsInitRecurrentCrd { get; set; } = "";
-				public string RsInitStoreP2P { get; set; } = "";
-				public string RsInitRecurrentP2P { get; set; } = "";
-			}
-
 			public EthereumSection Ethereum { get; set; } = new EthereumSection();
 			public class EthereumSection {
-
-				//public string StorageContractAbi { get; set; } = "";
-				//public string StorageContractAddress { get; set; } = "";
-				//public string StorageManagerPk { get; set; } = "";
-
-				//public string MigrationContractAbi { get; set; } = "";
-				//public string MigrationContractAddress { get; set; } = "";
-				//public string MigrationManagerPk { get; set; } = "";
-
-				//public string GoldContractAbi { get; set; } = "";
-				//public string GoldContractAddress { get; set; } = "";
 
 				public string MntpContractAbi { get; set; } = "";
 				public string MntpContractAddress { get; set; } = "";
@@ -155,29 +106,28 @@
 
 				public string EtherscanTxView { get; set; } = "";
 				public string Provider { get; set; } = "";
-				public string LogsProvider { get; set; } = "";
 
 				public int ConfirmationsRequired {get; set;} = 12;
 				public string EthSenderPk { get; set; } = "";
 			}
 
-			public SignRequestSection SignRequest { get; set; } = new SignRequestSection();
-			public class SignRequestSection {
+			//public SignRequestSection SignRequest { get; set; } = new SignRequestSection();
+			//public class SignRequestSection {
 
-				public string Url { get; set; } = "";
-				public string Auth { get; set; } = "";
-				public string SenderEmail { get; set; } = "";
-				public string CallbackSecret { get; set; } = "";
-				public TemplateSection[] Templates { get; set; } = new TemplateSection[0];
+			//	public string Url { get; set; } = "";
+			//	public string Auth { get; set; } = "";
+			//	public string SenderEmail { get; set; } = "";
+			//	public string CallbackSecret { get; set; } = "";
+			//	public TemplateSection[] Templates { get; set; } = new TemplateSection[0];
 
-				public class TemplateSection {
+			//	public class TemplateSection {
 
-					public string Name { get; set; }
-					public string Locale { get; set; }
-					public string Filename { get; set; }
-					public string Template { get; set; }
-				}
-			}
+			//		public string Name { get; set; }
+			//		public string Locale { get; set; }
+			//		public string Filename { get; set; }
+			//		public string Template { get; set; }
+			//	}
+			//}
 
 			public GMRatesProviderSection GMRatesProvider { get; set; } = new GMRatesProviderSection();
 			public class GMRatesProviderSection {

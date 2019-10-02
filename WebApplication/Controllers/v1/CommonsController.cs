@@ -94,36 +94,11 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			).AsNoTracking().ToArrayAsync();
 			return APIResponse.Success(list);
 		}
-		
-		/// <summary>
-		/// Fees table
-		/// </summary>
-		[AnonymousAccess]
-		[HttpGet, Route("fees")]
-		[ProducesResponseType(typeof(FeesView), 200)]
-		public async Task<APIResponse> Fees() {
-
-			var ret = new FeesView() {
-				Fiat = new FeesViewCurrency[0],
-				Crypto = new FeesViewCurrency[0],
-			};
-
-			// TODO: DB hit, cache response for some period + ser/deser via common structure
-
-			var json = await DbContext.GetDbSetting(DbSetting.FeesTable, null);
-			if (json != null) {
-				ret = Common.Json.Parse<FeesView>(json);
-			}
-
-			return APIResponse.Success(
-				ret
-			);
-		}
 
 		/// <summary>
 		/// System status
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("status")]
 		[ProducesResponseType(typeof(StatusView), 200)]
 		public async Task<APIResponse> Status() {
@@ -141,7 +116,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					EthAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowTradingEth,
 					CreditCardBuyingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowBuyingCreditCard,
 					CreditCardSellingAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowSellingCreditCard,
-					PromoCodesAllowed = rcfg.Gold.AllowTradingOverall && rcfg.Gold.AllowPromoCodes,
 				},
 				Limits = new StatusViewLimits() {
 					Eth = new StatusViewLimits.Method() {

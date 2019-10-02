@@ -13,19 +13,11 @@ namespace Goldmint.Migrations {
 
 	public static class Program {
 		public static void Main(string[] args) {
-			if (args[0] == "user-sumus-wallet-gen") {
+			if (args[0] == "retrack-mint-deposit-wallets") {
 				var ctx = new ApplicationDbContextFactory().CreateDbContext(new string[]{ });
-				var userz = ctx.Users.ToListAsync().Result;
-				foreach (var u in userz) {
-					var s = new Signer();
-					var w = new UserSumusWallet() {
-						UserId = u.Id,
-						PublicKey = s.PublicKey,
-						PrivateKey = s.PrivateKey,
-						TimeCreated = DateTime.UtcNow,
-						TimeChecked = DateTime.UtcNow,
-					};
-					ctx.UserSumusWallet.Add(w);
+				var wallets = ctx.UserSumusWallet.AsTracking().ToListAsync().Result;
+				foreach (var w in wallets) {
+					w.Tracking = false;
 				}
 				ctx.SaveChanges(true);
 			}

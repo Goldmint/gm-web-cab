@@ -6,8 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
-using Goldmint.Common.Extensions;
-using Goldmint.CoreLogic.Services.Oplog;
 
 namespace Goldmint.QueueService.Workers.EthSender {
 
@@ -20,7 +18,6 @@ namespace Goldmint.QueueService.Workers.EthSender {
 		private ApplicationDbContext _dbContext;
 		private IEthereumReader _ethReader;
 		private IEthereumWriter _ethWriter;
-		private IOplogProvider _oplog;
 
 		public Confirmer(int rowsPerRound, int ethConfirmations) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
@@ -32,7 +29,6 @@ namespace Goldmint.QueueService.Workers.EthSender {
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethReader = services.GetRequiredService<IEthereumReader>();
 			_ethWriter = services.GetRequiredService<IEthereumWriter>();
-			_oplog = services.GetRequiredService<IOplogProvider>();
 			return Task.CompletedTask;
 		}
 
@@ -59,15 +55,6 @@ namespace Goldmint.QueueService.Workers.EthSender {
 				try {
 					var txInfo = await _ethReader.CheckTransaction(r.Transaction, _ethConfirmations);
 					if (txInfo.Status == EthTransactionStatus.Success || txInfo.Status == EthTransactionStatus.Failed) {
-						try {
-							if (txInfo.Status == EthTransactionStatus.Success) {
-								await _oplog.Update(r.OplogId, UserOpLogStatus.Completed, "Eth-sending is confirmed");
-							}
-							if (txInfo.Status == EthTransactionStatus.Failed) {
-								await _oplog.Update(r.OplogId, UserOpLogStatus.Failed, "Eth-sending isn't confirmed");
-							}
-						} catch {}
-
 						r.Status = txInfo.Status == EthTransactionStatus.Success? EthereumOperationStatus.Success: EthereumOperationStatus.Failed;
 						r.RelUserFinHistory.Status = txInfo.Status == EthTransactionStatus.Success? UserFinHistoryStatus.Completed: UserFinHistoryStatus.Failed;
 					} else {

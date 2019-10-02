@@ -217,12 +217,6 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 		/// </summary>
 		[Required]
 		public bool CreditCardSellingAllowed { get; set; }
-		
-		/// <summary>
-		/// Promo codes are allowed
-		/// </summary>
-		[Required]
-		public bool PromoCodesAllowed { get; set; }
 	}
 
 	public class StatusViewLimits {

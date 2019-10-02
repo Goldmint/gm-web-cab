@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Estimate
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("estimate")]
 		[ProducesResponseType(typeof(EstimateView), 200)]
 		public async Task<APIResponse> Estimate([FromBody] EstimateModel model) {
@@ -75,7 +75,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// Confirm request
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("confirm")]
 		[ProducesResponseType(typeof(ConfirmView), 200)]
 		public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
@@ -131,20 +131,8 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					request.Status = SellGoldRequestStatus.Failed;
 					await DbContext.SaveChangesAsync();
 
-					try {
-						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Failed, $"Failed to charge user for {request.GoldAmount} GOLD");
-					}
-					catch {
-					}
-
 					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 				} else {
-
-					try {
-						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, $"User charged: {request.GoldAmount} GOLD");
-					}
-					catch {
-					}
 
 					// activity
 					var userActivity = CoreLogic.User.CreateUserActivity(
@@ -163,12 +151,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
 					request.Status = SellGoldRequestStatus.Confirmed;
 					await DbContext.SaveChangesAsync();
-
-					try {
-						await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
-					}
-					catch {
-					}
 
 					return APIResponse.Success(
 						new ConfirmView() { }
@@ -410,7 +392,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					max = rcfg.Gold.PaymentMehtods.CreditCardWithdrawMaxUsd;
 
 					// has limit
-					accMax = rcfg.Gold.PaymentMehtods.FiatUserWithdrawLimitUsd;
+					accMax = 0;
 					if (accMax > 0) {
 						accUsed = (userLimits?.FiatUsdWithdrawn ?? 0) / 100d;
 						max = Math.Min(

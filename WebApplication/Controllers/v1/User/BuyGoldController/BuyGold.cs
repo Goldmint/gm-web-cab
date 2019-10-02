@@ -1,15 +1,8 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.DAL;
-using Goldmint.DAL.Models.PromoCode;
-using Goldmint.WebApplication.Core.Policies;
-using Goldmint.WebApplication.Core.Response;
-using Goldmint.WebApplication.Models.API;
-using Goldmint.WebApplication.Models.API.v1.User.BuyGoldModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -108,7 +101,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		//	/// <summary>
 		//	/// Confirm request
 		//	/// </summary>
-		//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		//	[HttpPost, Route("confirm")]
 		//	[ProducesResponseType(typeof(ConfirmView), 200)]
 		//	public async Task<APIResponse> Confirm([FromBody] ConfirmModel model) {
@@ -166,11 +159,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		//		await DbContext.SaveChangesAsync();
 
-		//		try {
-		//			await OplogProvider.Update(request.OplogId, UserOpLogStatus.Pending, "Request confirmed by user");
-		//		}
-		//		catch { }
-
 		//		// credit card
 		//		if (request.Input == BuyGoldRequestInput.CreditCardDeposit) {
 
@@ -204,7 +192,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		//				currency: request.ExchangeCurrency,
 		//				amountCents: amount,
 		//				buyRequestId: request.Id,
-		//				oplogId: request.OplogId
 		//			);
 		//			payment.Status = CardPaymentStatus.Pending;
 		//			DbContext.CreditCardPayment.Add(payment);
@@ -518,7 +505,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					max = rcfg.Gold.PaymentMehtods.CreditCardDepositMaxUsd;
 
 					// has limit
-					accMax = rcfg.Gold.PaymentMehtods.FiatUserDepositLimitUsd;
+					accMax = 0;
 					if (accMax > 0) {
 						accUsed = (userLimits?.FiatUsdDeposited ?? 0) / 100d;
 						max = Math.Min(

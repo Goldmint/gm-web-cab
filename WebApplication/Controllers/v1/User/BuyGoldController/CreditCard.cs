@@ -8,7 +8,6 @@ using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Linq;
-using Goldmint.DAL.Models.PromoCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
@@ -18,7 +17,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//	/// <summary>
 	//	/// USD to GOLD
 	//	/// </summary>
-	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 	//	[HttpPost, Route("ccard")]
 	//	[ProducesResponseType(typeof(CreditCardView), 200)]
 	//	public async Task<APIResponse> CreditCard([FromBody] CreditCardModel model) {
@@ -108,15 +107,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//		var timeNow = DateTime.UtcNow;
 	//		var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
-	//		var ticket = await OplogProvider.NewGoldBuyingRequestWithCreditCard(
-	//			userId: user.Id,
-	//			destAddress: model.EthAddress,
-	//			fiatCurrency: exchangeCurrency,
-	//			goldRate: estimation.CentsPerGoldRate,
-	//			centsAmount: (long)estimation.ResultCurrencyAmount,
-	//			promoCode: promoCode == null? null: $"{promoCode.Code} ({(int)promoCode.DiscountValue})%"
-	//		);
-
 	//		// history
 	//		var finHistory = new DAL.Models.UserFinHistory() {
 
@@ -128,7 +118,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//			DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.EthereumGold),
 	//			Comment = "", // see below
 
-	//			OplogId = ticket,
 	//			TimeCreated = timeNow,
 	//			TimeExpires = timeExpires,
 	//			UserId = user.Id,
@@ -153,7 +142,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//			InputExpected = estimation.ResultCurrencyAmount.ToString(),
 
 	//			PromoCodeId = promoCode?.Id,
-	//			OplogId = ticket,
 	//			TimeCreated = timeNow,
 	//			TimeExpires = timeExpires,
 	//			TimeNextCheck = timeNow,

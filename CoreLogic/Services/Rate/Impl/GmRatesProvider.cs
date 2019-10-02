@@ -1,10 +1,10 @@
 ﻿using Goldmint.Common;
 using Goldmint.Common.WebRequest;
 using Goldmint.CoreLogic.Services.Rate.Models;
-using NLog;
 using System;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
@@ -13,7 +13,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly Options _opts;
 		private readonly ILogger _logger;
 
-		public GmRatesProvider(Action<Options> opts, LogFactory logFactory) {
+		public GmRatesProvider(Action<Options> opts, ILogger logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_opts = new Options() {
 				GoldUrl = "",
@@ -53,7 +53,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			if (result == null) {
 				var ex = new Exception($"Failed to get gold rate");
-				_logger.Error(ex);
+				_logger.Error(ex, ex.ToString());
 				throw ex;
 			}
 

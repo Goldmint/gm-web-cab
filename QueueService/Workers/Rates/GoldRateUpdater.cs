@@ -27,10 +27,10 @@ namespace Goldmint.QueueService.Workers.Rates {
 		protected override async Task OnUpdate() {
 			try {
 				var rate = await _goldRateProvider.RequestGoldRate(_requestTimeout);
-				Logger.Trace($"Current gold rate {rate}");
+				Logger.Verbose($"Current gold rate {rate}");
 				_aggregatedRatesDispatcher.OnProviderCurrencyRate(rate);
 			} catch (Exception e) {
-				Logger.Error(e);
+				Logger.Error(e, "Failed to process GOLD rate");
 			}
 		}
 	}

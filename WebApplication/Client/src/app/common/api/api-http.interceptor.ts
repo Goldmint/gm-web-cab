@@ -40,7 +40,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
       if (req.url.indexOf(environment.apiUrl) >= 0) {
         handle = next.handle(req.clone({
           setHeaders: {
-            'GM-LOCALE': localStorage.getItem('gmint_language') || ''
+            'GM-Locale': localStorage.getItem('gmint_language') || ''
           }
         }));
       } else {

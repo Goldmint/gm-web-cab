@@ -16,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		/// <summary>
 		/// GOLD to ETH
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
 		public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
@@ -42,7 +42,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			var rcfg = RuntimeConfigHolder.Clone();
 
 			var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 			var agent = GetUserAgentInfo();
 
 			if (userTier < UserTier.Tier2) {
@@ -78,15 +78,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			var timeNow = DateTime.UtcNow;
 
-			var ticket = await OplogProvider.NewGoldSellingRequestForCryptoasset(
-				userId: user.Id,
-				ethereumToken: EthereumToken.Eth,
-				destAddress: model.EthAddress,
-				fiatCurrency: exchangeCurrency,
-				outputRate: estimation.CentsPerAssetRate,
-				goldRate: estimation.CentsPerGoldRate
-			);
-
 			// history
 			var finHistory = new DAL.Models.UserFinHistory() {
 
@@ -98,7 +89,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultCurrencyAmount, TokensPrecision.Ethereum),
 				Comment = "", // see below
 
-				OplogId = ticket,
 				TimeCreated = timeNow,
 				TimeExpires = null,
 				UserId = user.Id,
@@ -120,7 +110,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				TimeCreated = timeNow,
 				UserId = user.Id,
 				RelUserFinHistoryId = finHistory.Id,
-				OplogId = ticket,
 			};
 
 			// add and save

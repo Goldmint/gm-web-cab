@@ -6,13 +6,10 @@ using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Core.Tokens;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.UserModels;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Goldmint.WebApplication.Core;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -44,10 +41,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 				// locked out
 				if (user.LockoutEnd != null && user.LockoutEnd.Value.UtcDateTime > DateTime.UtcNow) {
-					//if (!await Core.Recaptcha.Verify(AppConfig.Services.Recaptcha.SecretKey, model.Captcha, agent.Ip)) {
-					//	return APIResponse.BadRequest(APIErrorCode.AccountLocked, "Too many unsuccessful attempts. Account is locked, try to sign in later");
-					//}
-
 					// unlock before this check
 					isLockedOut = true;
 					user.LockoutEnd = null;
@@ -61,17 +54,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					}
 				}
 
-				// load options / dpa doc
+				// load options
 				await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
-				if (user.UserOptions != null) {
-					await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
-
-					// check if dpa is signed but email is not confirmed
-					if (!user.EmailConfirmed && (user.UserOptions.DpaDocument?.IsSigned ?? false)) {
-						user.EmailConfirmed = true;
-						await DbContext.SaveChangesAsync();
-					}
-				}
 
 				var sres = OnSignInResultCheck(
 					services: HttpContext.RequestServices,
@@ -184,8 +168,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 						appConfig: AppConfig, 
 						user: user, 
 						audience: audience.Value,
-						area: JwtArea.Authorized,
-						rightsMask: GetCurrentRights()
+						area: JwtArea.Authorized
 					),
 				}
 			);
@@ -210,102 +193,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			return APIResponse.Success();
 		}
 
-
-		/// <summary>
-		/// DPA check
-		/// </summary>
-		[AnonymousAccess]
-		[HttpPost, Route("dpaCheck")]
-		[ProducesResponseType(typeof(AuthenticateView), 200)]
-		public async Task<APIResponse> DpaCheck([FromBody] DpaCheckModel model) {
-
-			// validate
-			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
-				return APIResponse.BadRequest(errFields);
-			}
-
-			var audience = JwtAudience.Cabinet;
-			var user = (DAL.Models.Identity.User)null;
-			var agent = GetUserAgentInfo();
-			var userLocale = GetUserLocale();
-
-			// check token
-			if (!await Core.Tokens.JWT.IsValid(
-				    appConfig: AppConfig,
-				    jwtToken: model.Token,
-				    expectedAudience: audience,
-				    expectedArea: Common.JwtArea.Dpa,
-				    validStamp: async (jwt, id) => {
-					    user = await UserManager.FindByNameAsync(id);
-						return UserAccount.CurrentJwtSalt(user, audience);
-				    }
-			    ) || user == null) {
-				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
-			}
-
-			// load options
-			await DbContext.Entry(user).Reference(_ => _.UserOptions).LoadAsync();
-			if (user.UserOptions?.DpaDocumentId == null) {
-				return APIResponse.BadRequest(nameof(model.Token), "Invalid token");
-			}
-
-			// load existing dpa doc
-			await DbContext.Entry(user.UserOptions).Reference(_ => _.DpaDocument).LoadAsync();
-			if (user.UserOptions.DpaDocument.IsSigned) {
-
-				user.EmailConfirmed = true;
-				UserAccount.GenerateJwtSalt(user, audience);
-				await DbContext.SaveChangesAsync();
-
-				return OnSignInResultCheck(
-					services: HttpContext.RequestServices,
-					result: SignInResult.Success,
-					user: user,
-					audience: audience,
-					tfaRequired: false
-				);
-			}
-
-			return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
-		}
-
-/*
-
-		/// <summary>
-		/// DPA check
-		/// </summary>
-		[AnonymousAccess]
-		[HttpGet, Route("debugAuth")]
-		[ProducesResponseType(typeof(AuthenticateView), 200)]
-		public async Task<APIResponse> DebugAuth(long id, string audi) {
-
-			var user = await UserManager.FindByIdAsync(id.ToString());
-
-			JwtAudience audience = JwtAudience.Cabinet;
-			if (!string.IsNullOrWhiteSpace(audi)) {
-				if (Enum.TryParse(audi, true, out JwtAudience aud)) {
-					audience = aud;
-				}
-			}
-
-			// denied
-			var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(HttpContext.RequestServices, audience, user);
-			if (accessRightsMask == null) return null;
-
-			return APIResponse.Success(
-				new AuthenticateView() {
-				Token = JWT.CreateAuthToken(
-					appConfig: AppConfig,
-					user: user,
-					audience: audience,
-					area: JwtArea.Authorized,
-					rightsMask: accessRightsMask.Value
-				),
-				TfaRequired = false,
-			});
-		}
-*/
-
 		// ---
 
 		[NonAction]
@@ -313,15 +200,6 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			if (result != null) {
 
 				if (result.Succeeded || result.RequiresTwoFactor) {
-
-					// denied
-					var accessRightsMask = Core.UserAccount.ResolveAccessRightsMask(services, audience, user);
-					if (accessRightsMask == null) return null;
-
-					// DPA is unsigned
-					if (!CoreLogic.User.HasSignedDpa(user.UserOptions)) {
-						return APIResponse.BadRequest(APIErrorCode.AccountDpaNotSigned, "DPA is not signed yet");
-					}
 
 					// tfa token
 					if (tfaRequired || result.RequiresTwoFactor) {
@@ -331,8 +209,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 									appConfig: AppConfig, 
 									user: user, 
 									audience: audience,
-									area: JwtArea.Tfa,
-									rightsMask: accessRightsMask.Value
+									area: JwtArea.Tfa
 								),
 								TfaRequired = true,
 							}
@@ -350,8 +227,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 								appConfig: AppConfig, 
 								user: user, 
 								audience: audience,
-								area: JwtArea.Authorized,
-								rightsMask: accessRightsMask.Value
+								area: JwtArea.Authorized
 							),
 							TfaRequired = false,
 						}

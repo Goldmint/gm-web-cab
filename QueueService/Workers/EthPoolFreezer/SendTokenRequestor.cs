@@ -2,12 +2,9 @@
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.Common.Extensions;
-using System.IO;
 using Goldmint.CoreLogic.Services.Bus.Nats;
 
 namespace Goldmint.QueueService.Workers.EthPoolFreezer {
@@ -15,7 +12,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 	public class SendTokenRequestor : BaseWorker {
 
 		private readonly int _rowsPerRound;
-		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
@@ -24,7 +20,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
-			_logger = services.GetLoggerFor(this.GetType());
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_natsConn = services.GetRequiredService<NATS.Client.IConnection>();
 			return Task.CompletedTask;
@@ -53,7 +48,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 			if (IsCancelled()) return;
 			if (rows.Length == 0) return;
 
-			_logger.Info($"Requesting {rows.Length} emission operations");
+			Logger.Information($"Requesting {rows.Length} emission operations");
 
 			foreach (var row in rows) {
 				if (IsCancelled()) return;
@@ -65,23 +60,24 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 						amount += 0.1m;
 					}
 
-					var request = new Sumus.Sender.Send.Request() {
+					var request = new MintSender.Sender.Send.Request() {
+						Service = MintSender.CoreService,
 						RequestID = row.Id.ToString(),
 						Amount = amount.ToString(System.Globalization.CultureInfo.InvariantCulture),
 						Token = "MNT",
-						Wallet = row.SumAddress,
+						PublicKey = row.SumAddress,
 					};
 
-					var msg = await _natsConn.RequestAsync(Sumus.Sender.Send.Subject, Serializer.Serialize(request), 5000);
-					var rep = Serializer.Deserialize<Sumus.Sender.Send.Reply>(msg.Data);
+					var msg = await _natsConn.RequestAsync(MintSender.Sender.Send.Subject, Serializer.Serialize(request), 5000);
+					var rep = Serializer.Deserialize<MintSender.Sender.Send.Reply>(msg.Data);
 					
 					if (!rep.Success) {
 						throw new Exception(rep.Error);
 					}
-					_logger.Info($"Emission operation #{row.Id} posted");
+					Logger.Information($"Emission operation #{row.Id} posted");
 					success = true;
 				} catch (Exception e) {
-					_logger.Error(e, $"Emission operation #{row.Id} failed to post");
+					Logger.Error(e, $"Emission operation #{row.Id} failed to post");
 				}
 
 				if (success) {

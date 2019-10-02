@@ -1,11 +1,15 @@
-﻿using Goldmint.Common;
-using NLog;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.QueueService.Workers {
+
+	public interface IWorker {
+		Task Loop(CancellationToken ct);
+		Task Init(IServiceProvider services);
+	}
 
 	public abstract class BaseWorker : IWorker {
 
@@ -17,10 +21,6 @@ namespace Goldmint.QueueService.Workers {
 
 		protected CancellationToken CancellationToken { get; private set; }
 		protected ILogger Logger { get; private set; }
-		//protected long LoopNumber { get; private set; }
-
-		//protected long StatExceptionsCounter { get; private set; }
-		//protected int StatAverageLoad { get; private set; }
 
 		protected BaseWorker() {
 			_period = TimeSpan.FromSeconds(10);
@@ -38,69 +38,37 @@ namespace Goldmint.QueueService.Workers {
 			if (_launched) throw new InvalidOperationException();
 			_launched = true;
 
-			// var timingAvgPeriodSec = 60d;
-			// var timingAvgMult = Math.Max(1, Math.Floor(timingAvgPeriodSec / (_period.TotalSeconds <= 0? timingAvgPeriodSec: _period.TotalSeconds)));
-			// var timingAvgAccum = 0d;
-			// var timingAvgAccumCounter = 0;
-
 			CancellationToken = ct;
 			if (_initialDelay > TimeSpan.Zero) {
 				await Task.Delay(_initialDelay, CancellationToken);
 			}
 
-			Logger?.Trace("Loop started");
+			Logger?.Verbose("Loop started");
 
-			// var lastLoopStart = DateTime.UtcNow;
 			while (!IsCancelled()) {
 				try {
-					//lastLoopStart = DateTime.UtcNow;
 					await OnUpdate();
 				}
 				catch (Exception e) {
 					Logger?.Error(e, "loop failure");
-					//++StatExceptionsCounter;
 					OnException(e);
 				}
-
-				// load
-				// var updateDuration = DateTime.UtcNow - lastLoopStart;
-				// var timingLoad = updateDuration.TotalSeconds / (_period.TotalSeconds <= 0 ? updateDuration.TotalSeconds : _period.TotalSeconds);
-				// timingAvgAccum = (timingAvgAccum * timingAvgAccumCounter + timingLoad) / (timingAvgAccumCounter + 1);
-				// StatAverageLoad = (int)Math.Round(timingAvgAccum * 100);
-				// if (timingAvgAccumCounter < timingAvgMult) ++timingAvgAccumCounter;
-
 				try {
 					OnPostUpdate();
 				}
 				catch (Exception e) {
 					Logger?.Error(e, "loop failure (post)");
 				}
-				
 				if (_burstMode) {
 					break;
 				}
-
-				// time to sleep
-				//var cycleDuration = DateTime.UtcNow - lastLoopStart;
-				//var sleep = TimeSpan.Zero;
-				//if (cycleDuration < _period) {
-				//	sleep = _period - cycleDuration;
-				//}
-				//if (sleep > TimeSpan.Zero) {
-				//	try {
-				//		await Task.Delay(sleep, CancellationToken);
-				//	}
-				//	catch { }
-				//}
-				// ++LoopNumber;
-
 				try {
 					await Task.Delay(_period, CancellationToken);
 				}
 				catch { }
 			}
 
-			Logger?.Trace("Loop stopped. Cleanup");
+			Logger?.Verbose("Loop stopped. Cleanup");
 			OnCleanup();
 		}
 
@@ -140,17 +108,14 @@ namespace Goldmint.QueueService.Workers {
 			return _period;
 		}
 
-		protected virtual void OnCleanup() {
-		}
-
-		protected virtual void OnException(Exception e) {
-		}
-
-		protected virtual void OnPostUpdate() {
-		}
+		// ---
 
 		protected abstract Task OnInit(IServiceProvider services);
 		protected abstract Task OnUpdate();
+		
+		protected virtual void OnCleanup() {}
+		protected virtual void OnException(Exception e) {}
+		protected virtual void OnPostUpdate() {}
 		
 	}
 }

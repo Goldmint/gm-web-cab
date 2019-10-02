@@ -1,9 +1,9 @@
 ﻿using Goldmint.Common;
-using NLog;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 
@@ -14,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		private IRuntimeConfigLoader _loader;
 		private RuntimeConfig _config;
 
-		public RuntimeConfigHolder(LogFactory logFactory) {
+		public RuntimeConfigHolder(ILogger logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_locker = new ReaderWriterLockSlim();
 			_config = new RuntimeConfig();
@@ -35,8 +35,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		}
 
 		public async Task Reload() {
-
-			_logger.Info("Reloading runtime config");
+			_logger.Information("Reloading runtime config");
 
 			var newConfig = Clone();
 
@@ -56,7 +55,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 				_locker.EnterWriteLock();
 				_config = newConfig;
 
-				_logger.Info("Runtime config reloaded");
+				_logger.Information("Runtime config reloaded");
 			}
 			finally {
 				_locker.ExitWriteLock();

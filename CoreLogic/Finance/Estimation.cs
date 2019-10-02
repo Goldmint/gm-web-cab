@@ -1,11 +1,8 @@
 ﻿using Goldmint.Common;
 using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 
 namespace Goldmint.CoreLogic.Finance {

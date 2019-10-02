@@ -1,8 +1,6 @@
 ﻿using Goldmint.Common;
 using Goldmint.Common.Extensions;
-using Goldmint.CoreLogic.Finance;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
-using Goldmint.CoreLogic.Services.Oplog;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +18,6 @@ namespace Goldmint.QueueService.Workers.Sell {
 		private ApplicationDbContext _dbContext;
 		private IEthereumReader _ethereumReader;
 		private IEthereumWriter _ethereumWriter;
-		private IOplogProvider _oplog;
 
 		public RequestProcessor(int rowsPerRound) {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
@@ -31,7 +28,6 @@ namespace Goldmint.QueueService.Workers.Sell {
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_ethereumReader = services.GetRequiredService<IEthereumReader>();
 			_ethereumWriter = services.GetRequiredService<IEthereumWriter>();
-			_oplog = services.GetRequiredService<IOplogProvider>();
 			return Task.CompletedTask;
 		}
 
@@ -71,7 +67,6 @@ namespace Goldmint.QueueService.Workers.Sell {
 							Address = r.Destination,
 							TimeCreated = DateTime.UtcNow,
 							TimeNextCheck = DateTime.UtcNow,
-							OplogId = r.OplogId,
 							RelUserFinHistoryId = r.RelUserFinHistoryId,
 							UserId = r.UserId,
 						};
@@ -79,20 +74,12 @@ namespace Goldmint.QueueService.Workers.Sell {
 						_dbContext.SaveChanges();
 
 						tx.Commit();
-						
-						try {
-							await _oplog.Update(r.OplogId, UserOpLogStatus.Pending, $"Ether-sending transaction #{sending.Id} enqueued");
-						} catch {}
 					}
 					ethAmount -= r.EthAmount.ToEther();
 
 				} catch (Exception e) {
 					Logger.Error(e, $"Failed to process #{r.Id}");
 					
-					try {
-						await _oplog.Update(r.OplogId, UserOpLogStatus.Failed, "Failed to enqueue Ethereum transaction");
-					} catch {}
-
 					try {
 						r.Status = SellGoldRequestStatus.Failed;
 						r.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;

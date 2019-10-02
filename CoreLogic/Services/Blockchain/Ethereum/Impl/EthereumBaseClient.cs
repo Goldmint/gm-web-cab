@@ -1,11 +1,10 @@
 ﻿using Goldmint.Common;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
-using NLog;
 using System;
-using System.Numerics;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 
@@ -16,13 +15,6 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 		protected Nethereum.JsonRpc.Client.IClient EthProvider { get; }
 		protected Nethereum.JsonRpc.Client.IClient EthLogsProvider { get; }
 
-		//protected string StorageContractAddress { get; }
-		//protected string StorageContractAbi { get; }
-		//protected string MigrationContractAddress { get; }
-		//protected string MigrationContractAbi { get; }
-
-		//protected string GoldContractAddress { get;}
-		//protected string GoldContractAbi { get; }
 		protected string MntpContractAddress { get; }
 		protected string MntpContractAbi { get; }
 
@@ -31,19 +23,8 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 		protected string PoolFreezerContractAddress { get; }
 		protected string PoolFreezerContractAbi { get; }
 
-		// ---
-
-		protected EthereumBaseClient(AppConfig appConfig, LogFactory logFactory) {
+		protected EthereumBaseClient(AppConfig appConfig, ILogger logFactory) {
 			Logger = logFactory.GetLoggerFor(this);
-
-			//StorageContractAddress = appConfig.Services.Ethereum.StorageContractAddress;
-			//StorageContractAbi = appConfig.Services.Ethereum.StorageContractAbi;
-
-			//MigrationContractAddress = appConfig.Services.Ethereum.MigrationContractAddress;
-			//MigrationContractAbi = appConfig.Services.Ethereum.MigrationContractAbi;
-
-			//GoldContractAddress = appConfig.Services.Ethereum.GoldContractAddress;
-			//GoldContractAbi = appConfig.Services.Ethereum.GoldContractAbi;
 
 			MntpContractAddress = appConfig.Services.Ethereum.MntpContractAddress;
 			MntpContractAbi = appConfig.Services.Ethereum.MntpContractAbi;
@@ -55,7 +36,7 @@ namespace Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl {
 			PoolFreezerContractAbi = appConfig.Services.Ethereum.PoolFreezerContractAbi;
 
 			EthProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
-			EthLogsProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.LogsProvider));
+			EthLogsProvider = new Nethereum.JsonRpc.Client.RpcClient(new Uri(appConfig.Services.Ethereum.Provider));
 		}
 
 		protected async Task<HexBigInteger> GasPrice() {

@@ -1,6 +1,5 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Rate.Models;
-using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
@@ -27,7 +27,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public SafeRatesDispatcher(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory, Action<Options> opts) {
+		public SafeRatesDispatcher(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory, Action<Options> opts) {
 
 			_natsConn = natsConn;
 			_runtimeConfigHolder = runtimeConfigHolder;
@@ -55,7 +55,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		}
 
 		private void DisposeManaged() {
-			_logger.Trace("Disposing");
+			_logger.Verbose("Disposing");
 
 			Stop(true);
 			_workerCancellationTokenSource?.Dispose();
@@ -90,7 +90,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				if (_workerTask == null) {
 					if (period != null) _opts.PublishPeriod = period.Value;
 
-					_logger.Trace($"Publishing period={ _opts.PublishPeriod }");
+					_logger.Verbose($"Publishing period={ _opts.PublishPeriod }");
 					_workerTask = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
 				}
 			}
@@ -99,11 +99,11 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		public void Stop(bool blocking = false) {
 			lock (_startStopMonitor) {
 
-				_logger.Trace("Send cancellation");
+				_logger.Verbose("Send cancellation");
 				_workerCancellationTokenSource.Cancel();
 
 				if (blocking && _workerTask != null) {
-					_logger.Trace("Wait for cancellation");
+					_logger.Verbose("Wait for cancellation");
 					_workerTask.Wait();
 				}
 			}
@@ -127,7 +127,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 				Thread.Sleep(_opts.PublishPeriod);
 			}
 
-			_logger.Trace("Worker cancelled");
+			_logger.Verbose("Worker cancelled");
 		}
 
 		private Task Update() {

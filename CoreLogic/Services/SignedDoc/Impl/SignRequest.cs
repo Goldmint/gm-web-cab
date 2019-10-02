@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Goldmint.Common;
 using Goldmint.Common.WebRequest;
 using Microsoft.AspNetCore.Http;
-using NLog;
 using System.IO;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 
@@ -22,7 +22,7 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 		private readonly ILogger _logger;
 		private readonly IList<TemplateDesc> _templates;
 
-		public SignRequest(Options opts, LogFactory logFactory) {
+		public SignRequest(Options opts, ILogger logFactory) {
 			_baseUrl = opts.BaseUrl.TrimEnd('/');
 			_authString = opts.AuthString;
 			_senderEmail = opts.SenderEmail;
@@ -191,11 +191,11 @@ namespace Goldmint.CoreLogic.Services.SignedDoc.Impl {
 				ret.ServiceStatus = data.status;
 				ret.ServiceMessage = data.event_type;
 
-				_logger?.Info($"Callback status '{data.status}', event '{data.event_type}' for ref {data.document.external_id}");
+				_logger?.Information($"Callback status '{data.status}', event '{data.event_type}' for ref {data.document.external_id}");
 			}
 			catch (Exception e) {
 				ret.OverallStatus = OverallStatus.Error;
-				_logger?.Info(e, "Callback failure");
+				_logger?.Information(e, "Callback failure");
 			}
 
 			return ret;

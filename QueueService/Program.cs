@@ -2,32 +2,18 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
-using NLog.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Pipes;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NLog.Web;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.CoreLogic.Finance;
+using Serilog;
 
 namespace Goldmint.QueueService {
 
 	public partial class Program {
-
-		[Flags]
-		public enum WorkingMode : int {
-			Worker = 1,
-			Core = 2,
-		}
-
-		public static WorkingMode Mode { get; private set; }
 
 		private static IConfiguration _configuration;
 		private static AppConfig _appConfig;
@@ -50,14 +36,6 @@ namespace Goldmint.QueueService {
 					}).Start();
 				}
 			};
-
-			// resolve working mode
-			var workingModeRaw = Environment.GetEnvironmentVariable("ASPNETCORE_MODE") ?? "";
-			if (workingModeRaw.Contains("worker")) Mode |= WorkingMode.Worker;
-			if (workingModeRaw.Contains("core")) Mode |= WorkingMode.Core;
-			if (Mode == 0) {
-				throw new Exception("Mode must be specified in args");
-			}
 
 			_environment = new Microsoft.AspNetCore.Hosting.Internal.HostingEnvironment();
 			_environment.EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -87,28 +65,20 @@ namespace Goldmint.QueueService {
 				throw new Exception("Failed to get app settings", e);
 			}
 
-			// nlog config/factory
-			LogManager.LoadConfiguration(Path.Combine(curDir, $"nlog.{_environment.EnvironmentName}.config"));
-#if DEBUG
-			LogManager.LogFactory.KeepVariablesOnReload = true;
-			LogManager.LogFactory.Configuration.Variables["logDirectory"] = "/log/qs/core/";
-			LogManager.LogFactory.Configuration.Reload();
-			LogManager.LogFactory.ReconfigExistingLoggers();
-#endif
-
-			// this class logger
-			var logger = LogManager.LogFactory.GetLogger(typeof(Program).FullName);
-			logger.Info($"Launched ({ Mode.ToString() })");
+			// serilog config
+			var logConf = new LoggerConfiguration();
+			{
+				if (_environment.IsDevelopment()) {
+					logConf.MinimumLevel.Verbose();
+				}
+				logConf.WriteTo.Console();
+			}
+			var logger = Log.Logger = logConf.CreateLogger();
+			
+			logger.Information("Starting");
 
 			// runtime config
-			_runtimeConfigHolder = new RuntimeConfigHolder(LogManager.LogFactory);
-
-			// custom db connection
-			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
-			if (!string.IsNullOrWhiteSpace(dbCustomConnection)) {
-				_appConfig.ConnectionStrings.Default = dbCustomConnection;
-				logger.Info($"Using custom db connection: {dbCustomConnection}");
-			}
+			_runtimeConfigHolder = new RuntimeConfigHolder(logger);
 
 			// setup services
 			var servicesCollection = new ServiceCollection();
@@ -119,7 +89,7 @@ namespace Goldmint.QueueService {
 			_runtimeConfigHolder.SetLoader(services.GetRequiredService<IRuntimeConfigLoader>());
 
 			// setup ms logger
-			services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
+			// services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
 
 			// run services
 			RunServices();
@@ -129,10 +99,10 @@ namespace Goldmint.QueueService {
 
 			// cleanup
 			StopServices();
-			LogManager.Shutdown();
+			Log.CloseAndFlush();
 
 			_shutdownCompletedEvent.Set();
-			logger.Info("Stopped");
+			logger.Information("Stopped");
 		}
 
 		private static void onStop(object sender, EventArgs e) {

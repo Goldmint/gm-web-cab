@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.DAL.Models.PromoCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
@@ -17,7 +16,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//	/// <summary>
 	//	/// ETH to GOLD
 	//	/// </summary>
-	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+	//	[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 	//	[HttpPost, Route("asset/eth")]
 	//	[ProducesResponseType(typeof(AssetEthView), 200)]
 	//	public async Task<APIResponse> AssetEth([FromBody] AssetEthModel model) {
@@ -90,16 +89,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//		var timeNow = DateTime.UtcNow;
 	//		var timeExpires = timeNow.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest);
 
-	//		var ticket = await OplogProvider.NewGoldBuyingRequestForCryptoasset(
-	//			userId: user.Id,
-	//			ethereumToken: EthereumToken.Eth,
-	//			destAddress: model.EthAddress,
-	//			fiatCurrency: exchangeCurrency,
-	//			inputRate: estimation.CentsPerAssetRate,
-	//			goldRate: estimation.CentsPerGoldRate,
-	//			promoCode: promoCode == null? null: $"{promoCode.Code} ({(int)promoCode.DiscountValue})%"
-	//		);
-
 	//		// history
 	//		var finHistory = new DAL.Models.UserFinHistory() {
 
@@ -111,7 +100,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//			DestinationAmount = null,
 	//			Comment = "", // see below
 
-	//			OplogId = ticket,
 	//			TimeCreated = timeNow,
 	//			TimeExpires = timeExpires.AddSeconds(rcfg.Gold.Timeouts.ContractBuyRequest), // double time
 	//			UserId = user.Id,
@@ -136,7 +124,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 	//			InputExpected = estimation.ResultCurrencyAmount.ToString(),
 
 	//			PromoCodeId = promoCode?.Id,
-	//			OplogId = ticket,
 	//			TimeCreated = timeNow,
 	//			TimeExpires = timeExpires,
 	//			TimeNextCheck = timeNow,

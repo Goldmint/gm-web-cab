@@ -1,12 +1,11 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Rate.Models;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using Goldmint.Common.Extensions;
-using System.Threading.Tasks;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
@@ -20,7 +19,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public BusSafeRatesSource(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory) {
+		public BusSafeRatesSource(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
 			_natsConn = natsConn;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);

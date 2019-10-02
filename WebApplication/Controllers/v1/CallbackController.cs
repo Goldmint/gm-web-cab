@@ -1,7 +1,4 @@
-﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Google.Impl;
-using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.WebApplication.Core.Policies;
+﻿using Goldmint.WebApplication.Core.Policies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -48,85 +45,29 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[HttpPost, Route("shuftipro", Name = "CallbackShuftiPro")]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task<IActionResult> ShuftiPro() {
+			var check = await KycExternalProvider.OnServiceCallback(HttpContext.Request);
+			if (check.IsFinalStatus) {
 
-			//if (secret == AppConfig.Services.ShuftiPro.CallbackSecret) {
-
-				var check = await KycExternalProvider.OnServiceCallback(HttpContext.Request);
-				if (check.IsFinalStatus) {
-
-					var ticket = await (
+				var ticket = 
+					await (
 						from t in DbContext.KycShuftiProTicket
 						where t.ReferenceId == check.TicketId && t.TimeResponded == null
 						select t
 					)
-						.Include(tickt => tickt.User)
-						.ThenInclude(user => user.UserVerification)
-						.FirstOrDefaultAsync()
-					;
+					.Include(tickt => tickt.User).ThenInclude(user => user.UserVerification)
+					.FirstOrDefaultAsync()
+				;
 
-					if (ticket != null) {
+				if (ticket != null) {
 
-						var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.Verified;
+					var userVerified = check.OverallStatus == CoreLogic.Services.KYC.VerificationStatus.Verified;
 
-						ticket.IsVerified = userVerified;
-						ticket.CallbackStatusCode = check.ServiceStatus;
-						ticket.CallbackMessage = check.ServiceMessage;
-						ticket.TimeResponded = DateTime.UtcNow;
-
-						await DbContext.SaveChangesAsync();
-
-						if (GoogleSheets != null && ticket?.User?.UserVerification != null) {
-							try {
-								await GoogleSheets.InsertUser(
-									new UserInfoCreate() {
-										UserId = ticket.UserId,
-										UserName = ticket.User.UserName,
-										FirstName = ticket.User.UserVerification.FirstName,
-										LastName = ticket.User.UserVerification.LastName,
-										Country = ticket.User.UserVerification.Country,
-										Birthday = ticket.User.UserVerification.DoB?.ToString("yyyy MMMM dd"),
-									}
-								);
-							}
-							catch (Exception e) {
-								Logger.Error(e, "Failed to persist user's verification in Google Sheets");
-							}
-						}
-					}
+					ticket.IsVerified = userVerified;
+					ticket.CallbackStatusCode = check.ServiceStatus;
+					ticket.CallbackMessage = check.ServiceMessage;
+					ticket.TimeResponded = DateTime.UtcNow;
+					await DbContext.SaveChangesAsync();
 				}
-			//}
-
-			return Ok();
-		}
-
-		/// <summary>
-		/// Callback from SignRequest service
-		/// </summary>
-		[AnonymousAccess]
-		[HttpPost, Route("signrequest/{secret}")]
-		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task<IActionResult> SignRequest(string secret) {
-
-			if (secret == AppConfig.Services.SignRequest.CallbackSecret) {
-
-				var check = await DocSigningProvider.OnServiceCallback(HttpContext.Request);
-				if (check.OverallStatus == OverallStatus.Signed || check.OverallStatus == OverallStatus.Declined) {
-
-					var doc = await DbContext.SignedDocument
-						.Include(_ => _.User)
-						.FirstOrDefaultAsync(_ => _.ReferenceId == check.ReferenceId)
-					;
-					if (doc != null) {
-						
-						doc.IsSigned = check.OverallStatus == OverallStatus.Signed;
-						doc.CallbackEvent = check.ServiceMessage;
-						doc.CallbackStatus = check.ServiceStatus;
-						doc.TimeCompleted = DateTime.UtcNow;
-
-						await DbContext.SaveChangesAsync();
-					}
-				}
-
 			}
 			return Ok();
 		}

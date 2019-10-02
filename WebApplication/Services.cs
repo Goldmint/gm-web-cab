@@ -1,24 +1,16 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum.Impl;
-using Goldmint.CoreLogic.Services.Google.Impl;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.KYC.Impl;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
-using Goldmint.CoreLogic.Services.Mutex;
-using Goldmint.CoreLogic.Services.Mutex.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
-using Goldmint.CoreLogic.Services.Oplog;
-using Goldmint.CoreLogic.Services.Oplog.Impl;
 using Goldmint.CoreLogic.Services.Rate;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.CoreLogic.Services.SignedDoc;
-using Goldmint.CoreLogic.Services.SignedDoc.Impl;
-using Goldmint.CoreLogic.Services.The1StPayments;
 using Goldmint.DAL;
 using Goldmint.DAL.Models.Identity;
 using Goldmint.WebApplication.Services.OAuth.Impl;
@@ -29,7 +21,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Linq;
 
@@ -48,7 +41,14 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton(_appConfig);
 
 			// logger
-			services.AddSingleton(LogManager.LogFactory);
+			services.AddSingleton<Serilog.ILogger>(Log.Logger);
+			services.AddLogging(builder => {
+				builder
+					.AddFilter("Microsoft", LogLevel.Error)
+					.AddFilter("System", LogLevel.Error)
+					.AddConsole()
+				;
+			});
 
 			// swagger
 			if (!_environment.IsProduction()) {
@@ -62,7 +62,7 @@ namespace Goldmint.WebApplication {
 					opts.OperationFilter<Core.Swagger.JWTHeaderParameter>();
 					opts.OperationFilter<Core.Swagger.DefaultErrorResponse>();
 					opts.DocumentFilter<Core.Swagger.EnumDescription>();
-					opts.TagActionsBy(Core.Swagger.TagSelector);
+					//opts.TagActionsBy(Core.Swagger.TagSelector);
 				});
 			}
 
@@ -80,7 +80,7 @@ namespace Goldmint.WebApplication {
 			// identity
 			var idbld = services
 				.AddIdentityCore<User>(opts => {
-					opts.SignIn.RequireConfirmedEmail = true;
+					opts.SignIn.RequireConfirmedEmail = false;
 					opts.User.RequireUniqueEmail = true;
 
 					opts.Password.RequireDigit = false;
@@ -141,18 +141,9 @@ namespace Goldmint.WebApplication {
 						policy => policy.AddRequirements(new Core.Policies.RequireJWTArea(v))
 					);
 				}
-
-				// access rights
-				foreach (var ar in (AccessRights[]) Enum.GetValues(typeof(AccessRights))) {
-					opts.AddPolicy(
-						Core.Policies.Policy.AccessRightsTemplate + ar.ToString(), 
-						policy => policy.AddRequirements(new Core.Policies.RequireAccessRights(ar))
-					);
-				}
 			});
 			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireJWTAudience.Handler>();
 			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireJWTArea.Handler>();
-			services.AddSingleton<IAuthorizationHandler, Core.Policies.RequireAccessRights.Handler>();
 			services.AddScoped<GoogleProvider>();
 
 			// tokens
@@ -178,12 +169,6 @@ namespace Goldmint.WebApplication {
 			// http context
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-			// mutex
-			services.AddScoped<IMutexHolder, DBMutexHolder>();
-
-			// tickets desk
-			services.AddScoped<IOplogProvider, DbOplogProvider>();
-
 			// notifications
 			services.AddScoped<INotificationQueue, DBNotificationQueue>();
 
@@ -196,29 +181,12 @@ namespace Goldmint.WebApplication {
 					return new ShuftiPro13KycProvider(opts => {
 						opts.ClientId = _appConfig.Services.ShuftiPro.ClientId;
 						opts.ClientSecret = _appConfig.Services.ShuftiPro.ClientSecret;
-					}, LogManager.LogFactory);
+					}, Log.Logger);
 				});
 			}
 			else {
 				services.AddScoped<IKycProvider, DebugKycProvider>();
 			}
-
-			// cc payment acquirer
-			services.AddScoped<The1StPayments>(fac => {
-				return new The1StPayments(opts => {
-					opts.MerchantGuid = _appConfig.Services.The1StPayments.MerchantGuid;
-					opts.ProcessingPassword = _appConfig.Services.The1StPayments.ProcessingPassword;
-					opts.Gateway = _appConfig.Services.The1StPayments.Gateway;
-					opts.RsInitStoreSms3D = _appConfig.Services.The1StPayments.RsInitStoreSms3D;
-					opts.RsInitRecurrent3D = _appConfig.Services.The1StPayments.RsInitRecurrent3D;
-					opts.RsInitStoreSms = _appConfig.Services.The1StPayments.RsInitStoreSms;
-					opts.RsInitRecurrent = _appConfig.Services.The1StPayments.RsInitRecurrent;
-					opts.RsInitStoreCrd = _appConfig.Services.The1StPayments.RsInitStoreCrd;
-					opts.RsInitRecurrentCrd = _appConfig.Services.The1StPayments.RsInitRecurrentCrd;
-					opts.RsInitStoreP2P = _appConfig.Services.The1StPayments.RsInitStoreP2P;
-					opts.RsInitRecurrentP2P = _appConfig.Services.The1StPayments.RsInitRecurrentP2P;
-				}, LogManager.LogFactory);
-			});
 
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
@@ -236,52 +204,45 @@ namespace Goldmint.WebApplication {
 			services.AddScoped(_ => natsConnGetter());
 
 			// rates
-			_busSafeRatesSource = new CoreLogic.Services.Rate.Impl.BusSafeRatesSource(natsConnGetter(), _runtimeConfigHolder, LogManager.LogFactory);
+			_busSafeRatesSource = new BusSafeRatesSource(natsConnGetter(), _runtimeConfigHolder, Log.Logger);
 			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
-			services.AddSingleton<CoreLogic.Services.Rate.Impl.SafeRatesFiatAdapter>();
+			services.AddSingleton<SafeRatesFiatAdapter>();
 
 			// runtime config updater
-			_configUpdater = new RuntimeConfigUpdater(natsConnGetter(), natsConnGetter(), _runtimeConfigHolder, LogManager.LogFactory);
+			_configUpdater = new RuntimeConfigUpdater(natsConnGetter(), natsConnGetter(), _runtimeConfigHolder, Log.Logger);
 			services.AddSingleton<IRuntimeConfigUpdater>(_configUpdater);
 
 			// docs signing
-			services.AddSingleton<IDocSigningProvider>(fac => {
-				var srv = new SignRequest(
-					opts: new SignRequest.Options() { 
-						BaseUrl = _appConfig.Services.SignRequest.Url,
-						AuthString = _appConfig.Services.SignRequest.Auth,
-						SenderEmail = _appConfig.Services.SignRequest.SenderEmail,
-						SenderEmailName = "GoldMint",
-					},
-					logFactory: LogManager.LogFactory
-				);
-				foreach (var t in _appConfig.Services.SignRequest.Templates) {
-					if (Enum.TryParse(t.Locale, true, out Common.Locale locale)) {
-						srv.AddTemplate(locale, t.Name, t.Filename, t.Template);
-					}
-				}
-				return srv;
-			});
-
-			// google sheets
-			if (_appConfig.Services.GoogleSheets != null) {
-				services.AddSingleton(new Sheets(_appConfig, LogManager.LogFactory));
-			}
+			//services.AddSingleton<IDocSigningProvider>(fac => {
+			//	var srv = new SignRequest(
+			//		opts: new SignRequest.Options() { 
+			//			BaseUrl = _appConfig.Services.SignRequest.Url,
+			//			AuthString = _appConfig.Services.SignRequest.Auth,
+			//			SenderEmail = _appConfig.Services.SignRequest.SenderEmail,
+			//			SenderEmailName = "GoldMint",
+			//		},
+			//		logFactory: LogManager.LogFactory
+			//	);
+			//	foreach (var t in _appConfig.Services.SignRequest.Templates) {
+			//		if (Enum.TryParse(t.Locale, true, out Common.Locale locale)) {
+			//			srv.AddTemplate(locale, t.Name, t.Filename, t.Template);
+			//		}
+			//	}
+			//	return srv;
+			//});
 
 			return services.BuildServiceProvider();
 		}
 
 		public void RunServices() {
-			var logger = LogManager.LogFactory.GetCurrentClassLogger();
-			logger.Info("Run services");
+			Log.Logger.Information("Run services");
 			_runtimeConfigHolder.Reload().Wait();
 			_busSafeRatesSource?.Run();
 			_configUpdater?.Run();
 		}
 
 		public void StopServices() {
-			var logger = LogManager.LogFactory.GetCurrentClassLogger();
-			logger.Info("Stop services");
+			Log.Logger.Information("Stop services");
 
 			try {
 				_busSafeRatesSource?.Stop();
@@ -289,10 +250,10 @@ namespace Goldmint.WebApplication {
 				_configUpdater?.Stop();
 				_configUpdater?.Dispose();
 			} catch (Exception e) {
-				logger.Error(e);
+				Log.Logger.Error(e, "Failed to stop services");
 			}
 
-			logger.Info("Services stopped");
+			Log.Logger.Information("Services stopped");
 		}
 	}
 }

@@ -2,7 +2,6 @@
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +13,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 	public class SendTokenConfirmer : BaseWorker {
 
-		private ILogger _logger;
 		private ApplicationDbContext _dbContext;
 		private NATS.Client.IConnection _natsConn;
 
@@ -22,7 +20,6 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
-			_logger = services.GetLoggerFor(this.GetType());
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
 			_natsConn = services.GetRequiredService<NATS.Client.IConnection>();
 			return Task.CompletedTask;
@@ -33,7 +30,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 		}
 
 		protected override async Task OnUpdate() {
-			using (var sub = _natsConn.SubscribeSync(Sumus.Sender.Sent.Subject)) {
+			using (var sub = _natsConn.SubscribeSync(MintSender.Sender.Sent.Subject)) {
 				while (!IsCancelled()) {
 					try {
 						var msg = sub.NextMessage(1000);
@@ -41,7 +38,11 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 							_dbContext.DetachEverything();
 
 							// read msg
-							var req = Serializer.Deserialize<Sumus.Sender.Sent.Request>(msg.Data);
+							var req = Serializer.Deserialize<MintSender.Sender.Sent.Request>(msg.Data);
+
+							if (req.Service != MintSender.CoreService) {
+								continue;
+							}
 
 							// find request
 							var id = long.Parse(req.RequestID);
@@ -64,15 +65,15 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 								row.TimeCompleted = DateTime.UtcNow;
 								await _dbContext.SaveChangesAsync();
 								
-								_logger.Info($"Emission request #{row.Id} completed");
+								Logger.Information($"Emission request #{row.Id} completed");
 							}
 
 							// reply
-							var rep = new Sumus.Sender.Sent.Reply() { Success = true };
+							var rep = new MintSender.Sender.Sent.Reply() { Success = true };
 							_natsConn.Publish(msg.Reply, Serializer.Serialize(rep));
 						}
 						catch (Exception e) {
-							_logger.Error(e, $"Failed to process message");
+							Logger.Error(e, $"Failed to process message");
 						}
 					} catch{ }
 				}

@@ -46,7 +46,7 @@ namespace Goldmint.WebApplication.Models.API.v1.RegisterModels {
 	}
 
 	// ---
-	/*
+	
 	public class ConfirmModel : BaseValidableModel {
 
 		/// <summary>
@@ -67,6 +67,4 @@ namespace Goldmint.WebApplication.Models.API.v1.RegisterModels {
 			return v.Validate(this);
 		}
 	}
-	*/
-
 }

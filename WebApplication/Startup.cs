@@ -7,12 +7,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
-using NLog.Extensions.Logging;
 using System;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using System.IO;
 using System.Text;
+using Serilog;
 
 namespace Goldmint.WebApplication {
 
@@ -22,8 +21,6 @@ namespace Goldmint.WebApplication {
 		private readonly IConfiguration _configuration;
 		private readonly AppConfig _appConfig;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
-
-		// ---
 
 		public Startup(IHostingEnvironment env, IConfiguration configuration) {
 			_environment = env;
@@ -50,22 +47,20 @@ namespace Goldmint.WebApplication {
 				throw new Exception("Failed to get app settings", e);
 			}
 
-			// nlog config/factory
-			LogManager.LoadConfiguration(Path.Combine(curDir, $"nlog.{_environment.EnvironmentName}.config"));
-
-			// this class logger
-			var logger = LogManager.LogFactory.GetCurrentClassLogger();
-			logger.Info("Launched");
+			// serilog config
+			var logConf = new LoggerConfiguration();
+			{
+				if (_environment.IsDevelopment()) {
+					logConf.MinimumLevel.Verbose();
+				}
+				logConf.WriteTo.Console();
+			}
+			var logger = Log.Logger = logConf.CreateLogger();
+			
+			logger.Information("Starting");
 
 			// runtime config
-			_runtimeConfigHolder = new RuntimeConfigHolder(LogManager.LogFactory);
-
-			// custom db connection
-			var dbCustomConnection = Environment.GetEnvironmentVariable("ASPNETCORE_DBCONNECTION");
-			if (!string.IsNullOrWhiteSpace(dbCustomConnection)) {
-				_appConfig.ConnectionStrings.Default = dbCustomConnection;
-				logger.Info($"Using custom db connection: {dbCustomConnection}");
-			}
+			_runtimeConfigHolder = new RuntimeConfigHolder(logger);
 		}
 
 		public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime, IRuntimeConfigLoader runtimeConfigLoader) {
@@ -77,7 +72,7 @@ namespace Goldmint.WebApplication {
 			_runtimeConfigHolder.SetLoader(runtimeConfigLoader);
 
 			// setup ms logger
-			app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
+			// app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
 
 			// nginx proxy
 			{
@@ -95,7 +90,7 @@ namespace Goldmint.WebApplication {
 			app.UseExceptionHandler(builder => {
 				builder.Run(async context => {
 					var error = context.Features.Get<IExceptionHandlerFeature>();
-					context.RequestServices?.GetService<LogFactory>()?.GetLogger(this.GetType().FullName)?.Error(error?.Error ?? new Exception("No extra data"), "Service failure");
+					context.RequestServices?.GetService<ILogger>()?.ForContext(this.GetType())?.Error(error?.Error ?? new Exception("No extra data"), "Service failure");
 					var resp = APIResponse.GeneralInternalFailure(error?.Error, !_environment.IsProduction());
 					await resp.WriteResponse(context).ConfigureAwait(false);
 				});
@@ -157,16 +152,13 @@ namespace Goldmint.WebApplication {
 		}
 
 		public void OnServerStopRequested() {
-			var logger = LogManager.LogFactory.GetCurrentClassLogger();
-			logger.Info("Webserver stop requested");
+			Log.Logger.Information("Webserver stop requested");
 		}
 
 		public void OnServerStopped() {
-			var logger = LogManager.LogFactory.GetCurrentClassLogger();
-			logger.Info("Webserver stopped");
-
+			Log.Logger.Information("Webserver stopped");
 			StopServices();
-			LogManager.Shutdown();
+			Log.CloseAndFlush();
 		}
 	}
 }

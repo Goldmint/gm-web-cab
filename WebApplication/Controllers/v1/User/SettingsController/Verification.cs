@@ -15,13 +15,12 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SettingsController : BaseController {
 
-		// TODO: constants
-		private static readonly TimeSpan AllowedPeriodBetweenKycRequests = TimeSpan.FromMinutes(30);
+		private static readonly TimeSpan AllowedPeriodBetweenKycRequests = TimeSpan.FromMinutes(5);
 
 		/// <summary>
 		/// Verification data
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpGet, Route("verification/view")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationView() {
@@ -30,24 +29,45 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
-		/// Step 1. Fill verification form
+		/// Step 1. Agreed with TOS
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
+		[HttpGet, Route("verification/agreedWithTos")]
+		[ProducesResponseType(typeof(VerificationView), 200)]
+		public async Task<APIResponse> AgreedWithTos() {
+
+            var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user);
+			var userLocale = GetUserLocale();
+
+			if (userTier == UserTier.Tier0) {
+				if (user.UserVerification == null) {
+					user.UserVerification = new UserVerification();
+				}
+				user.UserVerification.AgreedWithTos = true;
+				user.UserVerification.TimeUserChanged = DateTime.UtcNow;
+				await DbContext.SaveChangesAsync();
+			}
+			
+			return APIResponse.Success();
+		}
+
+		/// <summary>
+		/// Step 2. Fill verification form
+		/// </summary>
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("verification/edit")]
 		[ProducesResponseType(typeof(VerificationView), 200)]
 		public async Task<APIResponse> VerificationEdit([FromBody] VerificationEditModel model) {
-
 			// validate
 			if (BaseValidableModel.IsInvalid(model, out var errFields)) {
 				return APIResponse.BadRequest(errFields);
 			}
 
-		    var rcfg = RuntimeConfigHolder.Clone();
             var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 
-			// on tier-0
-			if (userTier == UserTier.Tier0 || (userTier == UserTier.Tier1 && !CoreLogic.User.HasKycVerification(user.UserVerification))) {
+			if (userTier == UserTier.Tier1 && !CoreLogic.User.HasKycVerification(user.UserVerification)) {
 
 				// format phone number
 				var phoneFormatted = Common.TextFormatter.NormalizePhoneNumber(model.PhoneNumber);
@@ -55,26 +75,24 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				// parse dob
 				var dob = DateTime.ParseExact(model.Dob, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
-				user.UserVerification = new UserVerification() {
+				{
+					user.UserVerification.FirstName = model.FirstName.Limit(64);
+					user.UserVerification.MiddleName = model.MiddleName?.Limit(64);
+					user.UserVerification.LastName = model.LastName.Limit(64);
+					user.UserVerification.DoB = dob;
 
-					FirstName = model.FirstName.Limit(64),
-					MiddleName = model.MiddleName?.Limit(64),
-					LastName = model.LastName.Limit(64),
-					DoB = dob,
+					user.UserVerification.PhoneNumber = phoneFormatted.Limit(32);
+					user.UserVerification.Country = Common.Countries.GetNameByAlpha2(model.Country);
+					user.UserVerification.CountryCode = model.Country.ToUpper();
+					user.UserVerification.State = model.State.Limit(256);
+					user.UserVerification.City = model.City.Limit(256);
+					user.UserVerification.PostalCode = model.PostalCode.Limit(16);
+					user.UserVerification.Street = model.Street.Limit(256);
+					user.UserVerification.Apartment = model.Apartment?.Limit(128);
 
-					PhoneNumber = phoneFormatted.Limit(32),
-					Country = Common.Countries.GetNameByAlpha2(model.Country),
-					CountryCode = model.Country.ToUpper(),
-					State = model.State.Limit(256),
-					City = model.City.Limit(256),
-					PostalCode = model.PostalCode.Limit(16),
-					Street = model.Street.Limit(256),
-					Apartment = model.Apartment?.Limit(128),
+					user.UserVerification.TimeUserChanged = DateTime.UtcNow;
+				}
 
-					TimeUserChanged = DateTime.UtcNow,
-				};
-
-				DbContext.UserVerification.Add(user.UserVerification);
 				await DbContext.SaveChangesAsync();
 			}
 
@@ -82,9 +100,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		/// <summary>
-		/// Step 2. KYC verification
+		/// Step 3. KYC verification
 		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
+		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("verification/kycStart")]
 		[ProducesResponseType(typeof(VerificationKycStartView), 200)]
 		public async Task<APIResponse> VerificationKycStart([FromBody] VerificationKycStartModel model) {
@@ -94,12 +112,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(errFields);
 			}
 
-		    var rcfg = RuntimeConfigHolder.Clone();
             var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
+			var userTier = CoreLogic.User.GetTier(user);
 
-			// on tier-1 + KYC is not completed
-			if (userTier != UserTier.Tier1 || CoreLogic.User.HasKycVerification(user.UserVerification)) {
+			// tos not signed, didn't fill personal data, has kyc already
+			if (
+				!CoreLogic.User.HasTosSigned(user.UserVerification) 
+				|| !CoreLogic.User.HasFilledPersonalData(user.UserVerification) 
+				|| CoreLogic.User.HasKycVerification(user.UserVerification)
+			) {
 				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
 			}
 
@@ -151,7 +172,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				callbackUrl
 			);
 
-			Logger.Trace($"{user.UserName} got kyc redirect to {kycRedirect} with callback to {callbackUrl} and middle redirect to {userTempRedirectUrl}");
+			Logger.Verbose($"{user.UserName} got kyc redirect to {kycRedirect} with callback to {callbackUrl} and middle redirect to {userTempRedirectUrl}");
 
 			return APIResponse.Success(new VerificationKycStartView() {
 				TicketId = ticket.Id.ToString(),
@@ -159,35 +180,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			});
 		}
 
-		/// <summary>
-		/// Step 4. Agreed with TOS
-		/// </summary>
-		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized), RequireAccessRights(AccessRights.Client)]
-		[HttpGet, Route("verification/agreedWithTos")]
-		[ProducesResponseType(typeof(VerificationView), 200)]
-		public async Task<APIResponse> AgreedWithTos() {
-
-		    var rcfg = RuntimeConfigHolder.Clone();
-
-            var user = await GetUserFromDb();
-			var userTier = CoreLogic.User.GetTier(user, rcfg);
-			var userLocale = GetUserLocale();
-
-			// on tier-1 + KYC completed + residence proved + agreement is not signed
-			if (userTier != UserTier.Tier1 || 
-			    !CoreLogic.User.HasKycVerification(user.UserVerification) || 
-			    !CoreLogic.User.HasProvedResidence(user.UserVerification, rcfg.Tier2ResidenceRequried) || 
-			    CoreLogic.User.HasTosSigned(user.UserVerification)) {
-				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
-			}
-
-			// ---
-
-			user.UserVerification.AgreedWithTos = true;
-			await DbContext.SaveChangesAsync();
-			
-			return APIResponse.Success(MakeVerificationView(user));
-		}
 
 		// ---
 
@@ -208,9 +200,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 		    var rcfg = RuntimeConfigHolder.Clone();
 
-            var residProved = CoreLogic.User.HasProvedResidence(user.UserVerification, rcfg.Tier2ResidenceRequried);
-			var residPending = !residProved && kycFinished;
-
 			var agrSigned = CoreLogic.User.HasTosSigned(user.UserVerification);
 			
 			var ret = new VerificationView() {
@@ -219,10 +208,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 				IsKycPending = kycPending,
 				IsKycFinished = kycFinished,
-
-				IsResidencePending = residPending,
-				IsResidenceProved = residProved,
-			    IsResidenceRequired = rcfg.Tier2ResidenceRequried,
 
                 IsAgreementSigned = agrSigned,
 

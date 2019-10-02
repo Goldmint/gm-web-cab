@@ -28,7 +28,7 @@ namespace Goldmint.WebApplication.Models {
 					.Append("/")
 					.Append(ua.OS.Family)
 					.Append("/")
-					.Append(ua.UserAgent.Family)
+					.Append(ua.UA.Family)
 					.ToString()
 					.Trim('/')
 					;

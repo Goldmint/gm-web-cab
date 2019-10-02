@@ -1,12 +1,7 @@
-﻿using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Rate.Models;
-using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using NLog;
-using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System;
 using Goldmint.Common.Extensions;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 
@@ -18,7 +13,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		private readonly ILogger _logger;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
-		public RuntimeConfigUpdater(NATS.Client.IConnection natsConnPub, NATS.Client.IConnection natsConnSub, RuntimeConfigHolder runtimeConfigHolder, LogFactory logFactory) {
+		public RuntimeConfigUpdater(NATS.Client.IConnection natsConnPub, NATS.Client.IConnection natsConnSub, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
 			_natsConnPub = natsConnPub;
 			_natsConnSub = natsConnSub;
 			_runtimeConfigHolder = runtimeConfigHolder;

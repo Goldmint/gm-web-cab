@@ -1,5 +1,4 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Core;
+using Serilog;
 
 namespace Goldmint.Common.WebRequest {
 
@@ -127,7 +127,7 @@ namespace Goldmint.Common.WebRequest {
 				}
 
 				try {
-					_logger?.Trace($"Sending request to `{url}`");
+					_logger?.Verbose($"Sending request to `{url}`");
 
 					if (post) {
 						using (var res = new Result(await client.PostAsync(url, _body, ct))) {

@@ -1,21 +1,21 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Serilog;
 using System;
 
 namespace Goldmint.Common.Extensions {
 
 	public static class LoggerExtensions {
 
-		public static ILogger GetLoggerFor(this LogFactory factory, object instance) {
-			return factory.GetLogger(instance.GetType().Name);
+		public static ILogger GetLoggerFor(this ILogger factory, object instance) {
+			return factory.ForContext(instance.GetType());
 		}
 
 		public static ILogger GetLoggerFor(this IServiceProvider services, Type type) {
-			return services.GetRequiredService<LogFactory>().GetLogger(type.Name);
+			return services.GetRequiredService<ILogger>().ForContext(type);
 		}
 
 		public static ILogger GetLoggerFor<T>(this IServiceProvider services) {
-			return services.GetRequiredService<LogFactory>().GetLogger(typeof(T).Name);
+			return services.GetRequiredService<ILogger>().ForContext(typeof(T));
 		}
 	}
 }

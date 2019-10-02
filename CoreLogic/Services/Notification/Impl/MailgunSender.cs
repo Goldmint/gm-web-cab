@@ -1,9 +1,9 @@
 ﻿using Goldmint.Common;
 using Goldmint.Common.WebRequest;
-using NLog;
 using System;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.Notification.Impl {
 
@@ -12,7 +12,7 @@ namespace Goldmint.CoreLogic.Services.Notification.Impl {
 		private AppConfig _appConfig;
 		private ILogger _logger;
 
-		public MailGunSender(AppConfig appConfig, LogFactory logFactory) {
+		public MailGunSender(AppConfig appConfig, ILogger logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 			_appConfig = appConfig;
 		}

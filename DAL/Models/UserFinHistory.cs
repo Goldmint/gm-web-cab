@@ -1,14 +1,12 @@
 ﻿using Goldmint.Common;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_user_finhistory")]
-	public class UserFinHistory : BaseUserLoggingEntity, IConcurrentUpdate {
+	public class UserFinHistory : BaseUserEntity, IConcurrentUpdate {
 
 		[Column("type"), Required]
 		public UserFinHistoryType Type { get; set; }

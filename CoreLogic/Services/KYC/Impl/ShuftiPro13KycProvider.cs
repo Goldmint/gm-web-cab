@@ -1,13 +1,11 @@
 ﻿using Goldmint.Common;
 using Goldmint.Common.WebRequest;
 using Microsoft.AspNetCore.Http;
-using NLog;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.KYC.Impl {
 
@@ -16,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 		private readonly ShuftiPro13Options _opts;
 		private readonly ILogger _logger;
 
-		public ShuftiPro13KycProvider(Action<ShuftiPro13Options> setup, LogFactory logFactory) {
+		public ShuftiPro13KycProvider(Action<ShuftiPro13Options> setup, ILogger logFactory) {
 			_opts = new ShuftiPro13Options() { };
 			setup(_opts);
 			_logger = logFactory.GetLoggerFor(this);
@@ -132,7 +130,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 					ret.ServiceMessage = result.@event;
 				}
 
-				_logger?.Info("Callback event is {0} for ref {1}", result.@event, result.reference);
+				_logger?.Information("Callback event is {0} for ref {1}", result.@event, result.reference);
 
 			} catch (Exception e) {
 				ret.OverallStatus = VerificationStatus.Fail;

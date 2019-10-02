@@ -1,13 +1,12 @@
 ﻿using Goldmint.Common;
 using Goldmint.Common.WebRequest;
 using Microsoft.AspNetCore.Http;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
+using Serilog;
 
 namespace Goldmint.CoreLogic.Services.KYC.Impl {
 
@@ -15,7 +14,7 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 
 		private readonly ILogger _logger;
 
-		public DebugKycProvider(LogFactory logFactory) {
+		public DebugKycProvider(ILogger logFactory) {
 			_logger = logFactory.GetLoggerFor(this);
 		}
 
@@ -65,11 +64,11 @@ namespace Goldmint.CoreLogic.Services.KYC.Impl {
 				ret.ServiceStatus = result["status_code"];
 				ret.ServiceMessage = result["message"];
 
-				_logger?.Info($"Callback code={ result["status_code"] } for ref { result["reference"] }: { result["message"] }");
+				_logger?.Information($"Callback code={ result["status_code"] } for ref { result["reference"] }: { result["message"] }");
 			}
 			catch (Exception e) {
 				ret.OverallStatus = VerificationStatus.Fail;
-				_logger?.Info(e, "Callback failure");
+				_logger?.Information(e, "Callback failure");
 			}
 
 			return ret;
