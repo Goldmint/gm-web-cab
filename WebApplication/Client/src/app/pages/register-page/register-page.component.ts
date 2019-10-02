@@ -67,25 +67,9 @@ export class RegisterPageComponent implements OnInit {
   }
 
   public onRegister() {
-    this.loading = true;
     this.submitButtonBlur.emit();
-
-    this.passwordChecking = true;
-    this.apiService.testPassword(this.signupModel.password)
-      .finally(() => {
-        this.passwordChecking = this.passwordChanged = false;
-        this.cdRef.detectChanges();
-      })
-      .subscribe((data) => {
-          this.signupForm.controls.password.setErrors({'weak': true});
-          this.loading = false;
-          this.cdRef.detectChanges();
-        },
-        (err) => {
-          this.signupForm.controls.password.setErrors(null);
-          this.isAgreementConfirmShown = true;
-          this.cdRef.detectChanges();
-        });
+    this.isAgreementConfirmShown = true;
+    this.cdRef.markForCheck();
   }
 
   private _register() {
@@ -97,7 +81,7 @@ export class RegisterPageComponent implements OnInit {
       .subscribe(
         res => {
           // this.router.navigate(['/signup/success']);
-          this.userService.login(this.signupModel.email, this.signupModel.password, null).subscribe();
+          this.userService.processToken(res.data.token);
         },
         err => {
           this.captchaRef.reset();

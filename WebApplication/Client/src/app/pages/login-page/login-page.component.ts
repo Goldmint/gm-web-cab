@@ -61,7 +61,6 @@ export class LoginPageComponent implements OnInit {
 
     this._userService.currentUser.subscribe(currentUser => {
       if (currentUser && currentUser.hasOwnProperty('challenges')) {
-        console.log('currentUser.challenges', currentUser, currentUser.challenges);
 
         if (currentUser.challenges.indexOf('2fa') > -1 && (!sessionStorage || !parseInt(sessionStorage.getItem('gmint_uc_2fa'), 0))) {
           sessionStorage && sessionStorage.setItem('gmint_uc_2fa', '1');

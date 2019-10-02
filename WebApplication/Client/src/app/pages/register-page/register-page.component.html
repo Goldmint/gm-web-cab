@@ -9,6 +9,9 @@
 
           <div class="section__content pt-4">
             <form name="signupForm" (ngSubmit)="signupForm.form.valid && onRegister()" #signupForm="ngForm" novalidate>
+              <input type="email" name="f-email-field" autocomplete="f-email-field" style="height: 0; width: 0; position: absolute; left: -10000px">
+              <input type="password" name="f-pass-field" autocomplete="f-pass-field" style="height: 0; width: 0; position: absolute; left: -10000px">
+
               <div class="form-group">
                 <label for="inputEmail">{{ "PAGES.Register.Labels.Email" | translate }}</label>
                 <input type="email" id="inputEmail" required email minlength="5" maxlength="256" noAutoComplete
@@ -49,12 +52,6 @@
                 </div>
                 <div class="invalid-feedback" *ngIf="errors?.Password">
                   {{ errors?.Password }}
-                </div>
-                <div class="invalid-feedback" *ngIf="password.errors?.weak">
-                  {{ "PAGES.Register.Errors.Password.weak" | translate }}
-                </div>
-                <div class="invalid-feedback" *ngIf="passwordChecking">
-                  {{ "PAGES.Register.Errors.Password.weakChecking" | translate }}
                 </div>
               </div>
 

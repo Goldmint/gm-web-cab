@@ -88,6 +88,9 @@ export class UserService {
   }
 
   redirectToTosVerifPage() {
+    if (this._router.url.indexOf('legal-security') >= 0 ) {
+      return;
+    }
     this._router.navigate(['/tos-verification']);
   }
 
