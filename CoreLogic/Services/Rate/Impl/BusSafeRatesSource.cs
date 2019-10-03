@@ -19,14 +19,14 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexRatesUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public BusSafeRatesSource(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
-			_natsConn = natsConn;
+		public BusSafeRatesSource(Bus.IConnPool bus, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
+			_natsConn = bus.GetConnection().Result;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 			_mutexRatesUpdate = new ReaderWriterLockSlim();
 			_rates = new Dictionary<CurrencyRateType, SafeCurrencyRate>();
 			
-			_natsSub = _natsConn.SubscribeAsync(Bus.Nats.Rates.Updated.Subject);
+			_natsSub = _natsConn.SubscribeAsync(Bus.Models.Rates.Updated.Subject);
 			_natsSub.MessageHandler += OnNewRates;
 		}
 
@@ -36,6 +36,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 		private void DisposeManaged() {
 			_natsConn.Close();
+			_natsConn.Dispose();
 			_mutexRatesUpdate?.Dispose();
 		}
 
@@ -50,7 +51,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		}
 
 		private void OnNewRates(object sender, NATS.Client.MsgHandlerEventArgs args) {
-			var ratesMessage = Bus.Nats.Serializer.Deserialize<Bus.Nats.Rates.Updated.Message>(args.Message.Data);
+			var ratesMessage = Bus.Serializer.Deserialize<Bus.Models.Rates.Updated.Message>(args.Message.Data);
 			
 			_mutexRatesUpdate.EnterWriteLock();
 			try {

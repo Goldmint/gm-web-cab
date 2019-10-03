@@ -1,4 +1,5 @@
-﻿using Goldmint.CoreLogic.Services.Notification;
+﻿using Goldmint.CoreLogic.Services.Bus;
+using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.DAL;
 using Goldmint.DAL.Models;
 using Microsoft.EntityFrameworkCore;
@@ -6,8 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NatsSerializer = Goldmint.CoreLogic.Services.Bus.Nats.Serializer;
-using NatsNotification = Goldmint.CoreLogic.Services.Bus.Nats.Notification;
 
 namespace Goldmint.QueueService.Workers {
 
@@ -15,7 +14,7 @@ namespace Goldmint.QueueService.Workers {
 
 		private IServiceProvider _services;
 		private IEmailSender _emailSender;
-		private NATS.Client.IConnection _natsConn;
+		private IConnPool _bus;
 		private Notification[] _pendingList;
 
 		public NotificationSender() {
@@ -24,7 +23,7 @@ namespace Goldmint.QueueService.Workers {
 		protected override async Task OnInit(IServiceProvider services) {
 			_services = services;
 			_emailSender = services.GetRequiredService<IEmailSender>();
-			_natsConn = services.GetRequiredService<NATS.Client.IConnection>();
+			_bus = services.GetRequiredService<IConnPool>();
 
 			// pending notifications from db
 			{
@@ -38,10 +37,6 @@ namespace Goldmint.QueueService.Workers {
 					.ToArrayAsync()
 				;
 			}
-		}
-
-		protected override void OnCleanup() {
-			_natsConn.Close();
 		}
 
 		protected override Task OnUpdate() {
@@ -65,55 +60,58 @@ namespace Goldmint.QueueService.Workers {
 			// nats
 			var t2 = Task.Run(async() => {
 				var dbContext = _services.GetRequiredService<ApplicationDbContext>();
-				using (var sub = _natsConn.SubscribeSync(NatsNotification.Enqueued.Subject)) {
-					while (!IsCancelled()) {
-						try {
-							var msg = sub.NextMessage(1000);
+				using (var conn = await _bus.GetConnection()) {
+					using (var sub = conn.SubscribeSync(CoreLogic.Services.Bus.Models.Notification.Enqueued.Subject)) {
+						while (!IsCancelled()) {
 							try {
-								dbContext.DetachEverything();
+								var msg = sub.NextMessage(1000);
+								try {
+									dbContext.DetachEverything();
 
-								// request/reply
-								var req = NatsSerializer.Deserialize<NatsNotification.Enqueued.Request>(msg.Data);
+									// request/reply
+									var req = Serializer.Deserialize<CoreLogic.Services.Bus.Models.Notification.Enqueued.Request>(msg.Data);
 
-								// process
-								{
-									var row = await (
-										from r in dbContext.Notification
-										where r.Id == req.Id
-										select r
-									)
-									.AsNoTracking()
-									.LastAsync();
-									if (row == null) {
-										throw new Exception($"Notification #{req.Id} not found");
+									// process
+									{
+										var row = await (
+											from r in dbContext.Notification
+											where r.Id == req.Id
+											select r
+										)
+										.AsNoTracking()
+										.LastAsync();
+										if (row == null) {
+											throw new Exception($"Notification #{req.Id} not found");
+										}
+										if (await ProcessNotification(row)) {
+											dbContext.Remove(row);
+											await dbContext.SaveChangesAsync();
+										}
 									}
-									if (await ProcessNotification(row)) {
-										dbContext.Remove(row);
-										await dbContext.SaveChangesAsync();
-									}
+
+									// reply
+									conn.Publish(
+										msg.Reply, 
+										Serializer.Serialize(
+											new CoreLogic.Services.Bus.Models.Notification.Enqueued.Reply() { Success = true }
+										)
+									);
 								}
+								catch (Exception e) {
+									Logger.Error(e, $"Failed to process message");
 
-								// reply
-								_natsConn.Publish(
-									msg.Reply, 
-									NatsSerializer.Serialize(
-										new NatsNotification.Enqueued.Reply() { Success = true }
-									)
-								);
-							}
-							catch (Exception e) {
-								Logger.Error(e, $"Failed to process message");
-
-								// reply
-								_natsConn.Publish(
-									msg.Reply, 
-									NatsSerializer.Serialize(
-										new NatsNotification.Enqueued.Reply() { Success = false, Error = e.ToString() }
-									)
-								);
-							}
-						} catch{ }
+									// reply
+									conn.Publish(
+										msg.Reply, 
+										Serializer.Serialize(
+											new CoreLogic.Services.Bus.Models.Notification.Enqueued.Reply() { Success = false, Error = e.ToString() }
+										)
+									);
+								}
+							} catch{ }
+						}
 					}
+					conn.Close();
 				}
 			});
 			

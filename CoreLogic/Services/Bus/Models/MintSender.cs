@@ -1,7 +1,6 @@
-﻿using Goldmint.Common;
-using ProtoBuf;
+﻿using ProtoBuf;
 
-namespace Goldmint.CoreLogic.Services.Bus.Nats {
+namespace Goldmint.CoreLogic.Services.Bus.Models {
 
 	// MintSender is an external service for Mint blockchain integration
 	public static class MintSender {

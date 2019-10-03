@@ -1,4 +1,5 @@
-﻿using Goldmint.CoreLogic.Services.Bus.Nats;
+﻿using Goldmint.CoreLogic.Services.Bus.Models;
+using Goldmint.CoreLogic.Services.Bus;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,11 +21,11 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 			_rowsPerRound = Math.Max(1, rowsPerRound);
 		}
 
-		protected override Task OnInit(IServiceProvider services) {
+		protected override async Task OnInit(IServiceProvider services) {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			_natsConn = services.GetRequiredService<NATS.Client.IConnection>();
-			return Task.CompletedTask;
+			var bus = services.GetRequiredService<IConnPool>();
+			_natsConn = await bus.GetConnection();
 		}
 
 		protected override void OnCleanup() {

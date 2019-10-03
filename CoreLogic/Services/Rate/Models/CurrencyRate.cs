@@ -42,8 +42,8 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 
 		// ---
 
-		public static Bus.Nats.Rates.Updated.Rate BusSerialize(SafeCurrencyRate rate) {
-			return new Bus.Nats.Rates.Updated.Rate() {
+		public static Bus.Models.Rates.Updated.Rate BusSerialize(SafeCurrencyRate rate) {
+			return new Bus.Models.Rates.Updated.Rate() {
 				Currency = rate.Currency,
 				Stamp = ((DateTimeOffset)rate.Stamp).ToUnixTimeSeconds(),
 				Ttl = (long)rate._ttl.TotalSeconds,
@@ -53,7 +53,7 @@ namespace Goldmint.CoreLogic.Services.Rate.Models {
 			};
 		}
 
-		public static SafeCurrencyRate BusDeserialize(Bus.Nats.Rates.Updated.Rate rate) {
+		public static SafeCurrencyRate BusDeserialize(Bus.Models.Rates.Updated.Rate rate) {
 			return new SafeCurrencyRate(
 				canBuy: rate.CanBuy,
 				canSell: rate.CanSell,

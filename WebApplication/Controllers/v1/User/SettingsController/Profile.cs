@@ -44,26 +44,23 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			await UserManager.RemovePasswordAsync(user);
 			await UserManager.AddPasswordAsync(user, model.New);
 
-			// posteffect
-			{
-				// notification
-				await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordChanged, userLocale))
-						.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
-						.Send(user.Email, user.UserName, EmailQueue)
-					;
+			// notification
+			await EmailComposer.FromTemplate(await TemplateProvider.GetEmailTemplate(EmailTemplate.PasswordChanged, userLocale))
+				.Initiator(agent.Ip, agent.Agent, DateTime.UtcNow)
+				.Send(user.Email, user.UserName, EmailQueue)
+			;
 
-				// activity
-				var userActivity = CoreLogic.User.CreateUserActivity(
-					user: user,
-					type: Common.UserActivityType.Password,
-					comment: "Password changed",
-					ip: agent.Ip,
-					agent: agent.Agent,
-					locale: userLocale
-				);
-				DbContext.UserActivity.Add(userActivity);
-				await DbContext.SaveChangesAsync();
-			}
+			// activity
+			var userActivity = CoreLogic.User.CreateUserActivity(
+				user: user,
+				type: Common.UserActivityType.Password,
+				comment: "Password changed",
+				ip: agent.Ip,
+				agent: agent.Agent,
+				locale: userLocale
+			);
+			DbContext.UserActivity.Add(userActivity);
+			await DbContext.SaveChangesAsync();
 
 			return APIResponse.Success(
 				new ChangePasswordView() {

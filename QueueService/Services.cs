@@ -58,22 +58,14 @@ namespace Goldmint.QueueService {
 
 
 			// nats
-			var natsFactory = new NATS.Client.ConnectionFactory();
-
-			// nats connection getter
-			NATS.Client.IConnection natsConnGetter() {
-				var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
-				opts.Url = _appConfig.Bus.Nats.Endpoint;
-				opts.AllowReconnect = true;
-				return natsFactory.CreateConnection(opts);
-			}
-			services.AddScoped(_ => natsConnGetter());
+			var natsConnPool = new CoreLogic.Services.Bus.Impl.ConnPool(_appConfig, Log.Logger);
+			services.AddSingleton<CoreLogic.Services.Bus.IConnPool>(natsConnPool);
 
 
 			// runtime config
 			services.AddSingleton(_runtimeConfigHolder);
 			services.AddSingleton<IRuntimeConfigLoader, DbRuntimeConfigLoader>();
-			_configUpdater = new RuntimeConfigUpdater(natsConnGetter(), natsConnGetter(), _runtimeConfigHolder, Log.Logger);
+			_configUpdater = new RuntimeConfigUpdater(natsConnPool, _runtimeConfigHolder, Log.Logger);
 
 
 			// rates
@@ -89,7 +81,7 @@ namespace Goldmint.QueueService {
 
 			// rates dispatcher/publisher
 			_safeAggregatedRatesDispatcher = new SafeRatesDispatcher(
-				natsConnGetter(),
+				natsConnPool,
 				_runtimeConfigHolder,
 				Log.Logger,
 				opts => {

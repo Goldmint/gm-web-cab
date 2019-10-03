@@ -1,7 +1,4 @@
-﻿using Goldmint.Common;
-using ProtoBuf;
-
-namespace Goldmint.CoreLogic.Services.Bus.Nats {
+﻿namespace Goldmint.CoreLogic.Services.Bus.Models {
 
 	// Runtime config update (from DB)
 	public static class Config {

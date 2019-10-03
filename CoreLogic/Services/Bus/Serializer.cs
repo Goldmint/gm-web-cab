@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
-namespace Goldmint.CoreLogic.Services.Bus.Nats {
+namespace Goldmint.CoreLogic.Services.Bus {
 
 	public static class Serializer {
 

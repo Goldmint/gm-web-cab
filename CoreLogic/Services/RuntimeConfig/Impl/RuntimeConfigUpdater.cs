@@ -13,13 +13,13 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		private readonly ILogger _logger;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
-		public RuntimeConfigUpdater(NATS.Client.IConnection natsConnPub, NATS.Client.IConnection natsConnSub, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
-			_natsConnPub = natsConnPub;
-			_natsConnSub = natsConnSub;
+		public RuntimeConfigUpdater(Bus.IConnPool bus, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
+			_natsConnPub = bus.GetConnection().Result;
+			_natsConnSub = bus.GetConnection().Result;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 
-			_natsAsyncSub = _natsConnSub.SubscribeAsync(Bus.Nats.Config.Updated.Subject);
+			_natsAsyncSub = _natsConnSub.SubscribeAsync(Bus.Models.Config.Updated.Subject);
 			_natsAsyncSub.MessageHandler += OnConfigUpdated;
 		}
 
@@ -29,7 +29,10 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 
 		private void DisposeManaged() {
 			_natsConnPub.Close();
+			_natsConnPub.Dispose();
 			_natsConnSub.Close();
+			_natsConnSub.Dispose();
+			_natsAsyncSub.Dispose();
 		}
 
 		// ---
@@ -47,7 +50,7 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		}
 
 		public Task PublishUpdated() {
-			_natsConnPub.Publish(Bus.Nats.Config.Updated.Subject, new byte[]{ });
+			_natsConnPub.Publish(Bus.Models.Config.Updated.Subject, new byte[]{ });
 			return Task.CompletedTask;
 		}
 	}

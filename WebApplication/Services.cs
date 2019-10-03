@@ -196,25 +196,17 @@ namespace Goldmint.WebApplication {
 			// ethereum reader
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
-			// nats factory
-			var natsFactory = new NATS.Client.ConnectionFactory();
-
-			// nats connection getter
-			NATS.Client.IConnection natsConnGetter() {
-				var opts = NATS.Client.ConnectionFactory.GetDefaultOptions();
-				opts.Url = _appConfig.Bus.Nats.Endpoint;
-				opts.AllowReconnect = true;
-				return natsFactory.CreateConnection(opts);
-			}
-			services.AddScoped(_ => natsConnGetter());
+			// nats
+			var natsConnPool = new CoreLogic.Services.Bus.Impl.ConnPool(_appConfig, Log.Logger);
+			services.AddSingleton<CoreLogic.Services.Bus.IConnPool>(natsConnPool);
 
 			// rates
-			_busSafeRatesSource = new BusSafeRatesSource(natsConnGetter(), _runtimeConfigHolder, Log.Logger);
+			_busSafeRatesSource = new BusSafeRatesSource(natsConnPool, _runtimeConfigHolder, Log.Logger);
 			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
 			services.AddSingleton<SafeRatesFiatAdapter>();
 
 			// runtime config updater
-			_configUpdater = new RuntimeConfigUpdater(natsConnGetter(), natsConnGetter(), _runtimeConfigHolder, Log.Logger);
+			_configUpdater = new RuntimeConfigUpdater(natsConnPool, _runtimeConfigHolder, Log.Logger);
 			services.AddSingleton<IRuntimeConfigUpdater>(_configUpdater);
 
 			// docs signing

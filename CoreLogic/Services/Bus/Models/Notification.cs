@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace Goldmint.CoreLogic.Services.Bus.Nats {
+namespace Goldmint.CoreLogic.Services.Bus.Models {
 
 	// Notification (email etc.)
 	public static class Notification {

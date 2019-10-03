@@ -27,9 +27,9 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 		private readonly ReaderWriterLockSlim _mutexUpdate;
 		private readonly Dictionary<CurrencyRateType, SafeCurrencyRate> _rates;
 
-		public SafeRatesDispatcher(NATS.Client.IConnection natsConn, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory, Action<Options> opts) {
+		public SafeRatesDispatcher(Bus.IConnPool bus, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory, Action<Options> opts) {
 
-			_natsConn = natsConn;
+			_natsConn = bus.GetConnection().Result;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 
@@ -61,6 +61,9 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 			_workerCancellationTokenSource?.Dispose();
 			_workerTask?.Dispose();
 			_mutexUpdate?.Dispose();
+
+			_natsConn.Close();
+			_natsConn.Dispose();
 		}
 
 		// ---
@@ -168,11 +171,11 @@ namespace Goldmint.CoreLogic.Services.Rate.Impl {
 
 			// publish
 			if (_natsConn != null && _rates.Count > 0) {
-				var msg = new Bus.Nats.Rates.Updated.Message() {
+				var msg = new Bus.Models.Rates.Updated.Message() {
 					Rates = _rates.Values.Select(SafeCurrencyRate.BusSerialize).ToArray(),
 				};
-				var bytes = Bus.Nats.Serializer.Serialize(msg);
-				_natsConn.Publish(Bus.Nats.Rates.Updated.Subject, bytes);
+				var bytes = Bus.Serializer.Serialize(msg);
+				_natsConn.Publish(Bus.Models.Rates.Updated.Subject, bytes);
 			}
 
 			return Task.CompletedTask;

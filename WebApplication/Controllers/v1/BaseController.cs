@@ -5,7 +5,6 @@ using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Rate.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
-using Goldmint.CoreLogic.Services.SignedDoc;
 using Goldmint.WebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
