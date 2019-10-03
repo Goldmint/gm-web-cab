@@ -52,6 +52,7 @@ import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.componen
 import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
 import {TosVerificationPageComponent} from "./pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component";
+import {TosGuard} from "./guards/tos.guard";
 
 
 const appRoutes: Routes = [
@@ -70,21 +71,21 @@ const appRoutes: Routes = [
   { path: 'nodes', component: OverviewPageComponent },
   { path: 'nodes/latest-reward-distributions', component: LatestRewardPageComponent },
   { path: 'nodes/reward-transactions/:id', component: RewardTransactionsPageComponent },
-  { path: 'sell', component: SellPageComponent },
-  { path: 'sell/cryptocurrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard] },
-  { path: 'buy', component: BuyPageComponent },
+  { path: 'sell', component: SellPageComponent, canActivate: [TosGuard] },
+  { path: 'sell/cryptocurrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard, TosGuard] },
+  { path: 'buy', component: BuyPageComponent, canActivate: [TosGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   {
-    path: 'finance', component: FinancePageComponent,
+    path: 'finance', component: FinancePageComponent, canActivate: [TosGuard],
     children: [
       { path: '', redirectTo: 'history', pathMatch: 'full' },
       { path: 'history', component: HistoryPageComponent }
     ]
   },
-  { path: 'support', component: SupportPageComponent, canActivate: [AuthGuard] },
+  { path: 'support', component: SupportPageComponent, canActivate: [AuthGuard, TosGuard] },
   {
-    path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard],
+    path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard, TosGuard],
     children: [
       { path: '', redirectTo: 'profile', pathMatch: 'full' },
       { path: 'profile', component: SettingsProfilePageComponent },
@@ -92,7 +93,7 @@ const appRoutes: Routes = [
       { path: '2fa', component: SettingsTFAPageComponent },
       // { path: 'cards', component: SettingsCardsPageComponent },
       // { path: 'cards/:cardId', component: SettingsCardsPageComponent },
-      { path: 'social', component: SettingsSocialPageComponent },
+      // { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
       // { path: 'limits', component: LimitsPageComponent }
       // { path: 'fees', component: SettingsFeesPageComponent }

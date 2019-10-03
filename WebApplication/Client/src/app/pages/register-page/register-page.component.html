@@ -86,7 +86,7 @@
 
               <div class="form-group m-0">
                 <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="agreeTerms" name="agreeTerms" [(ngModel)]="agreeTerms">
+                  <input type="checkbox" class="custom-control-input" id="agreeTerms" name="agreeTerms" [(ngModel)]="agreeTerms" [disabled]="loading">
                   <label class="custom-control-label custom-control-label-reg" for="agreeTerms"
                          [innerHTML]="'PAGES.Register.IAgreeTerms' | translate:{sale: location + '#/legal-security/termsOfSale', policy: location + '#/legal-security/privacy'}"></label>
                 </div>

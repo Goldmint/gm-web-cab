@@ -73,6 +73,7 @@ export class RegisterPageComponent implements OnInit {
   }
 
   private _register() {
+    this.loading = true;
     this.userService.register(this.signupModel.email, this.signupModel.password, this.signupModel.recaptcha, this.agreeCheck)
       .finally(() => {
         this.loading = false;
