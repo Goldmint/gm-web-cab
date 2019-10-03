@@ -130,6 +130,7 @@ import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { NetworkSwitcherBlockComponent } from './blocks/network-switcher-block/network-switcher-block.component';
 import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
 import { TosVerificationPageComponent } from './pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component';
+import {TosGuard} from "./guards/tos.guard";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -249,6 +250,7 @@ export function getGoldmintToken() {
   providers: [
     Title,
     AuthGuard,
+    TosGuard,
     MessageBoxService,
     APIService,
     UserService,

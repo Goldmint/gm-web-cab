@@ -68,7 +68,6 @@ export class UserService {
           shareReplay(),
           (profile: APIResponse<User>) => {
             let user = profile.data;
-            if (!user.verifiedL0) this.redirectToTosVerifPage();
             return user;
           }
         ).subscribe(user => {
@@ -85,13 +84,6 @@ export class UserService {
     else {
       this._messageBox.alert(response.errorDesc);
     }
-  }
-
-  redirectToTosVerifPage() {
-    if (this._router.url.indexOf('legal-security') >= 0 ) {
-      return;
-    }
-    this._router.navigate(['/tos-verification']);
   }
 
   login(username: string, password: string, recaptcha: string) {
