@@ -77,9 +77,20 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		public string MakeAppLink(JwtAudience audience, string fragment) {
 
-			var appUri = (string)null;
+			var origin = "";
+			if (HttpContext.Request?.Headers?.TryGetValue("Origin", out var val) ?? false) {
+				origin = val.ToString();
+			}
+
+			var appUri = "";
 			if (audience == JwtAudience.Cabinet) {
-				appUri = AppConfig.Apps.Cabinet.Url;
+				appUri = AppConfig.Apps.Cabinet.Url.FirstOrDefault();
+				foreach (var u in AppConfig.Apps.Cabinet.Url) {
+					if (u.IndexOf(origin) == 0) {
+						appUri = u;
+						break;
+					}
+				}
 			}
 			else {
 				throw new NotImplementedException("Audience is not implemented. Could not create app link");
@@ -99,7 +110,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 
 		[NonAction]
 		protected JwtAudience? GetCurrentAudience() {
-			var audStr = HttpContext.User.Claims.FirstOrDefault(_ => _.Type == "aud")?.Value;
+			var audStr = HttpContext.User?.Claims?.FirstOrDefault(_ => _.Type == "aud")?.Value;
 			if (audStr != null) {
 				if (Enum.TryParse(audStr, true, out JwtAudience aud)) {
 					return aud;
@@ -128,7 +139,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected UserAgentInfo GetUserAgentInfo() {
 			// agent
 			var agent = "Unknown";
-			if (HttpContext.Request.Headers.TryGetValue("User-Agent", out var agentParsed)) {
+			if (HttpContext.Request?.Headers.TryGetValue("User-Agent", out var agentParsed) ?? false) {
 				agent = agentParsed.ToString();
 			}
 
@@ -142,7 +153,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		[NonAction]
 		protected Locale GetUserLocale() {
 			if (
-				HttpContext.Request.Headers.TryGetValue("GM-Locale", out var localeHeader) &&
+				(HttpContext.Request?.Headers.TryGetValue("GM-Locale", out var localeHeader) ?? false) &&
 				!string.IsNullOrWhiteSpace(localeHeader.ToString()) &&
 				Enum.TryParse(localeHeader.ToString(), true, out Locale localeEnum)
 			) {

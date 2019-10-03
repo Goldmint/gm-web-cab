@@ -32,7 +32,7 @@
 
 			public abstract class BaseAppSection {
 
-				public string Url { get; set; } = "/";
+				public string[] Url { get; set; } = new string[]{ "/" };
 			}
 		}
 
