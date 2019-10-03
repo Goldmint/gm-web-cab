@@ -93,7 +93,7 @@ const appRoutes: Routes = [
       { path: '2fa', component: SettingsTFAPageComponent },
       // { path: 'cards', component: SettingsCardsPageComponent },
       // { path: 'cards/:cardId', component: SettingsCardsPageComponent },
-      { path: 'social', component: SettingsSocialPageComponent },
+      // { path: 'social', component: SettingsSocialPageComponent },
       { path: 'activity', component: SettingsActivityPageComponent },
       // { path: 'limits', component: LimitsPageComponent }
       // { path: 'fees', component: SettingsFeesPageComponent }
