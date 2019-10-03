@@ -139,8 +139,7 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
     this.sub1 = this._ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {
       if (price && firstLoad) {
         firstLoad = false;
-        const wei = this.Web3.toWei(this.tokenAmount);
-        this._poolService.holdStake(this.ethAddress, wei, +price * Math.pow(10, 9));
+        this._poolService.holdStake(this.ethAddress, this.tokenAmount, +price * Math.pow(10, 9));
       }
     });
   }

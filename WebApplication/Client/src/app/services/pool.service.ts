@@ -7,6 +7,7 @@ import {Subject} from "rxjs/Subject";
 import {MessageBoxService} from "./message-box.service";
 import {environment} from "../../environments/environment";
 import {interval} from "rxjs/observable/interval";
+import * as Web3 from "web3";
 
 @Injectable()
 export class PoolService {
@@ -42,6 +43,7 @@ export class PoolService {
 
   private etherscanUrl = environment.etherscanUrl;
   private metamaskNetwork: any = null;
+  private Web3 = new Web3();
 
   constructor(
     private _ethService: EthereumService,
@@ -185,12 +187,31 @@ export class PoolService {
     `).subscribe();
   }
 
-  public holdStake(fromAddr: string, amount: string, gasPrice: number) {
+  public holdStake(fromAddr: string, amount: number, gasPrice: number) {
     if (!this._ethService.poolContract || !this._ethService.contractMntp) return
 
-    this._ethService.contractMntp.approve(this._ethService.EthPoolContractAddress, amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+    const wei = this.Web3.toWei(amount);
+    this._ethService.contractMntp.allowance(fromAddr, this._ethService.EthPoolContractAddress, (err, res) => {
+      if (res) {
+        const allowance = +new BigNumber(res.toString()).div(new BigNumber(10).pow(18));
+
+        if (allowance !== 0 && allowance !== amount) {
+          this._ethService.contractMntp.approve(this._ethService.EthPoolContractAddress, 0, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+            res && setTimeout(() => {
+              this._holdStake(fromAddr, wei, gasPrice);
+            }, 1000);
+          });
+        } else {
+          this._holdStake(fromAddr, wei, gasPrice);
+        }
+      }
+    });
+  }
+
+  private _holdStake(fromAddr: string, wei: string, gasPrice: number) {
+    this._ethService.contractMntp.approve(this._ethService.EthPoolContractAddress, wei, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
       res && setTimeout(() => {
-        this._ethService.poolContract.holdStake(amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
+        this._ethService.poolContract.holdStake(wei, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
           this.getSuccessHoldRequestLink$.next(res);
         });
       }, 1000);
