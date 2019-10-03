@@ -27,8 +27,7 @@ export class UserService {
   public currentLocale: Observable<string> = this._locale.asObservable();
   public getLiteWalletLink;
   public windowSize$ = new Subject();
-
-  private token;
+  public isTosVerifCompleted: boolean = false;
 
   constructor(
     private _router: Router,
@@ -38,9 +37,9 @@ export class UserService {
     private _translate: TranslateService,
     private http: HttpClient
   ) {
-    this.token = localStorage.getItem('gmint_token');
-    if (this.token) {
-      this.processToken(this.token);
+    const token = localStorage.getItem('gmint_token');
+    if (token) {
+      this.processToken(token);
     }
 
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
@@ -90,7 +89,7 @@ export class UserService {
   }
 
   redirectToTosVerifPage() {
-    if (this._router.url.indexOf('legal-security') >= 0 ) {
+    if (this._router.url.indexOf('legal-security') >= 0) {
       return;
     }
     this._router.navigate(['/tos-verification']);
@@ -211,35 +210,24 @@ export class UserService {
     });
   }
 
-  /*
-  public updateUser(newUser: User) {
-    this._user.next(Object.assign(this._user.getValue(), newUser));
-  }
-
-  public setBalance(balance: Balance) {
-    let user = this._user.getValue();
-        user.balance = balance;
-
-    this._user.next(user);
-  }*/
-
   public setLocale(locale: string) {
     this._locale.next(locale);
   }
 
   public isAuthenticated(): boolean {
-    if (!this.token) {
+    const token = localStorage.getItem('gmint_token');
+    if (!token) {
       return false;
     }
 
-    const tokenExpired: boolean = this._jwtHelper.isTokenExpired(this.token);
+    const tokenExpired: boolean = this._jwtHelper.isTokenExpired(token);
     if (tokenExpired) {
       localStorage.removeItem('gmint_token');
       this._router.navigate(['/signin'], { queryParams: { returnUrl: this._router.url } });
       return false;
     }
 
-    const jwt: any = this._jwtHelper.decodeToken(this.token);
+    const jwt: any = this._jwtHelper.decodeToken(token);
     if (jwt.gm_area !== 'authorized') {
       return false;
     }
@@ -253,20 +241,21 @@ export class UserService {
 	}
 
 	private refreshJwtToken(forceNewToken: boolean) {
-		if (!this.token) {
+    const token = localStorage.getItem('gmint_token');
+		if (!token) {
 			console.log("[JWT Refresher]", "/ EMPTY TOKEN");
 			return;
 		}
 
-		const jwt:any = this._jwtHelper.decodeToken(this.token);
+		const jwt:any = this._jwtHelper.decodeToken(token);
 		if (!jwt || !jwt.hasOwnProperty('exp') || !jwt.hasOwnProperty('iat') || !jwt.hasOwnProperty('gm_area') || jwt.gm_area !== 'authorized') {
 			console.log("[JWT Refresher]", "/ INVALID TOKEN");
 			return;
 		}
 
 		var fullTtlSeconds = jwt.exp - jwt.iat;
-		if (!this._jwtHelper.isTokenExpired(this.token, 3)) {
-			var remainSeconds = (this._jwtHelper.getTokenExpirationDate(this.token).getTime() - new Date().getTime()) / 1000;
+		if (!this._jwtHelper.isTokenExpired(token, 3)) {
+			var remainSeconds = (this._jwtHelper.getTokenExpirationDate(token).getTime() - new Date().getTime()) / 1000;
 			var remainPerc = Math.round(remainSeconds / (fullTtlSeconds / 100));
 			console.log("[JWT Refresher]", "/ VALID", "/ TTL", remainSeconds + " s.", remainPerc + "%", "/ FTTL", fullTtlSeconds);
 

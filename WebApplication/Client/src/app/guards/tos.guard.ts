@@ -14,6 +14,10 @@ export class TosGuard implements CanActivate {
     if (this.userService.isAuthenticated()) {
       this.sub = this.userService.currentUser.subscribe(user => {
         this.sub && this.sub.unsubscribe();
+        if (this.userService.isTosVerifCompleted) {
+          return true;
+        }
+
         if (user && user.hasOwnProperty('verifiedL0') && !user.verifiedL0) {
           this.router.navigate(['/tos-verification']);
           return false;

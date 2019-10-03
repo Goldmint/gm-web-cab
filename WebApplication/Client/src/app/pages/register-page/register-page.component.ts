@@ -74,14 +74,14 @@ export class RegisterPageComponent implements OnInit {
 
   private _register() {
     this.loading = true;
+    this.cdRef.markForCheck();
     this.userService.register(this.signupModel.email, this.signupModel.password, this.signupModel.recaptcha, this.agreeCheck)
       .finally(() => {
         this.loading = false;
-        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
       })
       .subscribe(
         res => {
-          // this.router.navigate(['/signup/success']);
           this.userService.processToken(res.data.token);
         },
         err => {

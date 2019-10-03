@@ -27,7 +27,9 @@ export class TosVerificationPageComponent implements OnInit {
     this.loading = true;
     this._cdRef.markForCheck();
 
-    this._apiService.agreedWithTos().subscribe(data => {
+    this._apiService.agreedWithTos().subscribe(() => {
+      this._userService.isTosVerifCompleted = true;
+
       this._apiService.getProfile().subscribe(res => {
         this.loading = false;
         if (res.data && res.data.verifiedL0) {
