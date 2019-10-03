@@ -137,7 +137,7 @@ export function createTranslateLoader(http: HttpClient) {
 }
 
 export function getGoldmintToken() {
-	return localStorage.getItem('gmint_token');
+	return null;
 }
 
 @NgModule({
