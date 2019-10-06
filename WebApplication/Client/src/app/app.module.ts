@@ -96,7 +96,6 @@ import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocu
 import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
 import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
 import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
-import { PaymentCardBlockComponent } from './blocks/payment-card-block/payment-card-block.component';
 import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
 import { TimerComponent } from './common/timer/timer.component';
 import {GoldDiscount} from "./pipes/gold-discount";
@@ -218,7 +217,6 @@ export function getGoldmintToken() {
     LegalSecurityPageComponent,
     SettingsFeesPageComponent,
     SellCryptocurrencyPageComponent,
-    PaymentCardBlockComponent,
     CryptocurrencyBlockComponent,
     TimerComponent,
     LatestRewardPageComponent,

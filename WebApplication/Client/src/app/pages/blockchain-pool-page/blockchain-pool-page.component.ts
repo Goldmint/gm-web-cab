@@ -23,14 +23,10 @@ export class BlockchainPoolPageComponent implements OnInit {
   public goldReward: number = 0;
   public userFrozenStake: number = null;
 
-  public heldTokensOld: number = 0;
-  public mntpRewardOld: number = 0;
-  public goldRewardOld: number = 0;
-
   public ethAddress: string = null;
   public loading: boolean = true;
   public isAuthenticated: boolean = false;
-  public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake', 'withdrawRewardAndUnholdStakeOld'];
+  public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake'];
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
   public etherscanContractUrl = environment.etherscanContractUrl;
@@ -52,7 +48,6 @@ export class BlockchainPoolPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this._poolService.getPoolData();
     this.isAuthenticated = this._userService.isAuthenticated();
 
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
@@ -92,27 +87,6 @@ export class BlockchainPoolPageComponent implements OnInit {
     this._poolService.getObsGoldTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null) {
         this.goldReward = +data;
-        this._cdRef.markForCheck();
-      }
-    });
-
-    this._poolService.getObsOldUserStake().takeUntil(this.destroy$).subscribe(data => {
-      if (data !== null) {
-        this.heldTokensOld = +data;
-        this._cdRef.markForCheck();
-      }
-    });
-
-    this._poolService.getObsOldMntpTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
-      if (data !== null) {
-        this.mntpRewardOld = +data;
-        this._cdRef.markForCheck();
-      }
-    });
-
-    this._poolService.getObsOldGoldTokenUserReward().takeUntil(this.destroy$).subscribe(data => {
-      if (data !== null) {
-        this.goldRewardOld = +data;
         this._cdRef.markForCheck();
       }
     });

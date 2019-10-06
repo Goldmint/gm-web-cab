@@ -9,7 +9,7 @@ import 'rxjs/add/operator/retry';
 
 import {
   User, HistoryRecord, ActivityRecord, OAuthRedirectResponse,
-  TFAInfo, KYCStart,TransparencyRecord, FiatLimits,
+  TFAInfo, KYCStart, FiatLimits,
   CardsList} from '../interfaces';
 import {
   APIResponse, APIPagedResponse, AuthResponse, RegistrationResponse, CardAddResponse,
@@ -210,14 +210,6 @@ export class APIService {
       );
   }
 
-  getTransparency(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc'): Observable<APIResponse<TransparencyRecord[]>> {
-    return this._http
-      .post(`${this._baseUrl}/commons/transparency`, { offset: offset, limit: limit, sort: sort, ascending: order === 'asc' })
-      .pipe(
-        catchError(this._handleError)
-      );
-  }
-
   getHistory(offset: number = 0, limit: number = null, sort: string = 'date', order: 'asc' | 'desc' = 'desc'): Observable<APIPagedResponse<HistoryRecord[]>> {
 
     return this._http
@@ -310,24 +302,6 @@ export class APIService {
       );
   }
 
-  goldBuyAsset(ethAddress: string, amount: string, reversed: boolean, currency: string, promoCode: string) {
-    return this._http
-      .post(`${this._baseUrl}/user/gold/buy/asset/eth`, { ethAddress, amount, reversed, currency, promoCode }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
-  }
-
-  goldBuyConfirm(requestId: number, promoCode: string) {
-    return this._http
-      .post(`${this._baseUrl}/user/gold/buy/confirm`, { requestId, promoCode }, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay()
-      );
-  }
-
   goldSellAsset(ethAddress: string, amount: string, reversed: boolean, currency: string) {
     return this._http
       .post(`${this._baseUrl}/user/gold/sell/asset/eth`, { ethAddress, amount, reversed, currency }, this.jwt())
@@ -352,28 +326,6 @@ export class APIService {
       .pipe(
         catchError(this._handleError),
         shareReplay()
-      );
-  }
-
-  buyGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean, promoCode: string) {
-    const params = {cardId, ethAddress, currency, amount, reversed, promoCode}
-
-    return this._http
-      .post(`${this._baseUrl}/user/gold/buy/ccard`, params, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
-      );
-  }
-
-  sellGoldFiat(cardId: number, ethAddress: string, currency: string, amount: string, reversed: boolean) {
-    const params = {cardId, ethAddress, currency, amount, reversed}
-
-    return this._http
-      .post(`${this._baseUrl}/user/gold/sell/ccard`, params, this.jwt())
-      .pipe(
-        catchError(this._handleError),
-        shareReplay(),
       );
   }
 

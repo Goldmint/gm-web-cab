@@ -1,4 +1,4 @@
-import { Injectable/*, ChangeDetectorRef*/ } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -7,7 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { zip } from 'rxjs/observable/zip';
 import { tap, shareReplay } from 'rxjs/operators';
 import { interval } from "rxjs/observable/interval";
-import { User, OAuthRedirectResponse } from '../interfaces';
+import { User } from '../interfaces';
 import { APIResponse, AuthResponse, RegistrationResponse } from '../interfaces/api-response';
 import { MessageBoxService } from './message-box.service';
 import { APIService } from './api.service';

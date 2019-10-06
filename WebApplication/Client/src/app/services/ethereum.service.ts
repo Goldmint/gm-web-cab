@@ -13,32 +13,22 @@ import {APIService} from "./api.service";
 
 @Injectable()
 export class EthereumService {
-  private _infuraUrl = environment.infuraUrl;
   private _etherscanGetABIUrl = environment.etherscanGetABIUrl;
   private _gasPriceLink = environment.gasPriceLink;
-  // main contract
-  private EthContractAddress = environment.EthContractAddress;
-  private EthContractABI: string;
   // mntp token
   private EthMntpContractAddress: string = environment.EthMntpContractAddress;
   private EthMntpContractABI: string;
   // pool contract
   public EthPoolContractAddress: string = environment.EthPoolContractAddress;
   private EthPoolContractABI: string;
-  // old pool contract
-  public EthOldPoolContractAddress: string = environment.EthOldPoolContractAddress;
   // swap contract
   public SwapContractAddress: string = environment.SwapContractAddress;
   private SwapContractABI: string;
 
-  private _web3Infura: Web3 = null;
   private _web3Metamask: Web3 = null;
   private _lastAddress: string | null;
   private _userId: string | null;
   private _metamaskNetwork: number = null
-
-  private _contractInfura: any;
-  private _contractMetamask: any;
 
   public poolContract: any;
   public oldPoolContract: any;
@@ -56,8 +46,6 @@ export class EthereumService {
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
   private _obsMntpBalanceSubject = new BehaviorSubject<BigNumber>(null);
   private _obsMntpBalance: Observable<BigNumber> = this._obsMntpBalanceSubject.asObservable();
-  private _obsEthLimitBalanceSubject = new BehaviorSubject<BigNumber>(null);
-  private _obsEthLimitBalance: Observable<BigNumber> = this._obsEthLimitBalanceSubject.asObservable();
   private _obsGasPriceSubject = new BehaviorSubject<Object>(null);
   private _obsGasPrice: Observable<Object> = this._obsGasPriceSubject.asObservable();
   private _obsNetworkSubject = new BehaviorSubject<Number>(null);
@@ -69,7 +57,6 @@ export class EthereumService {
 
   public isPoolContractLoaded$ = new BehaviorSubject(null);
 
-  public getSuccessBuyRequestLink$ = new Subject();
   public getSuccessSellRequestLink$ = new Subject();
   public getSuccessSwapMNTPLink$ = new Subject();
 
@@ -108,31 +95,17 @@ export class EthereumService {
   }
 
   private checkWeb3() {
+    this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
+      this.EthMntpContractABI = abi['result'];
+    });
 
-    if (!this._web3Infura) {
-      this._web3Infura = new Web3(new Web3.providers.HttpProvider(this._infuraUrl));
+    this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
+      this.EthPoolContractABI = abi['result'];
+    });
 
-      this.getContractABI(this.EthContractAddress).subscribe(abi => {
-        this.EthContractABI = abi['result'];
-
-        if (this._web3Infura.eth) {
-          this._contractInfura = this._web3Infura.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
-
-          this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
-            this.EthMntpContractABI = abi['result'];
-          });
-          this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
-            this.EthPoolContractABI = abi['result'];
-          });
-          /*this.getContractABI(this.SwapContractAddress).subscribe(abi => {
-            this.SwapContractABI = abi['result'];
-          });*/
-
-        } else {
-          this._web3Infura = null;
-        }
-      });
-    }
+    /*this.getContractABI(this.SwapContractAddress).subscribe(abi => {
+        this.SwapContractABI = abi['result'];
+    });*/
 
     if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthMntpContractABI && this.EthPoolContractABI /*&& this.SwapContractABI*/) {
       let ethereum = window['ethereum'];
@@ -144,10 +117,8 @@ export class EthereumService {
       }
 
       if (this._web3Metamask.eth) {
-        this._contractMetamask = this._web3Metamask.eth.contract(JSON.parse(this.EthContractABI)).at(this.EthContractAddress);
         this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
         this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
-        this.oldPoolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthOldPoolContractAddress);
         // this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
 
         this.isPoolContractLoaded$.next(true);
@@ -180,7 +151,6 @@ export class EthereumService {
     if (this._lastAddress != null) {
       this.updateMntpBalance(this._lastAddress);
     }
-    this.updateEthLimitBalance(this.EthContractAddress);
   }
 
   private emitAddress(ethAddress: string) {
@@ -200,12 +170,6 @@ export class EthereumService {
         this._obsMntpBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
       });
     }
-  }
-
-  private updateEthLimitBalance(addr: string) {
-    this._contractMetamask && this._web3Metamask.eth.getBalance(addr, (err, res) => {
-      this._obsEthLimitBalanceSubject.next(new BigNumber(res.toString()).div(new BigNumber(10).pow(18)));
-    });
   }
 
   private getGasPrice() {
@@ -236,10 +200,6 @@ export class EthereumService {
     return this._obsMntpBalance;
   }
 
-  public getObservableEthLimitBalance(): Observable<BigNumber> {
-    return this._obsEthLimitBalance;
-  }
-
   public getObservableNetwork(): Observable<Number> {
     return this._obsNetwork;
   }
@@ -268,24 +228,6 @@ export class EthereumService {
   public connectToMetaMask() {
     const ethereum = window['ethereum'];
     ethereum && ethereum.enable().then();
-  }
-
-  public sendBuyRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {
-    if (this._contractMetamask == null) return;
-    const reference = new BigNumber(requestId);
-
-    this._contractMetamask.addBuyTokensRequest(userID, reference.toString(), { from: fromAddr, value: amount, gas: 214011, gasPrice: gasPrice }, (err, res) => {
-      this.getSuccessBuyRequestLink$.next(res);
-    });
-  }
-
-  public sendSellRequest(fromAddr: string, userID: string, requestId: number, amount: string, gasPrice: number) {
-    if (this._contractMetamask == null) return;
-    const reference = new BigNumber(requestId);
-
-    this._contractMetamask.addSellTokensRequest(userID, reference.toString(), amount, { from: fromAddr, value: 0, gas: 214011, gasPrice: gasPrice }, (err, res) => {
-      this.getSuccessSellRequestLink$.next(res);
-    });
   }
 
   public swapMNTP(sumusAddress, fromAddr: string, amount: number, gasPrice: number) {

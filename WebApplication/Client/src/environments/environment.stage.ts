@@ -16,12 +16,9 @@ export const environment = {
   recaptchaSiteKey: '6Ld3i7sUAAAAAImqZ_pZbav0szhkPDqoI73ji11j',
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
   etherscanContractUrl: "https://rinkeby.etherscan.io/address/",
-  infuraUrl: 'https://service.goldmint.io/proxy/infura/rinkeby',
   etherscanGetABIUrl: 'https://api-rinkeby.etherscan.io',
-  EthContractAddress: '0x30c695f0db4e63e287e5c2a567bb7ad4bca6da94',
   EthMntpContractAddress: '0x160350f317b573f477473dd74c3bdfcf5e619da0',
   EthPoolContractAddress: '0xE8f3AeD3fB626B98B54624f15A530D277AaBc02F',
-  EthOldPoolContractAddress: '0xcD4aE63c113a29757C2afBe240B740324A339DC2',
   SwapContractAddress: '0xdfad4474999773137c131c1c8cb343ed150c95ec',
   getLiteWalletLink: {
     chrome: 'https://chrome.google.com/webstore/detail/goldmint-lite-wallet/fnabdmcgpkkjjegokfcnfbpneacddpfh',
