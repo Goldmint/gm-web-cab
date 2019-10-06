@@ -33,6 +33,8 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   public isAuthenticated: boolean = false;
   public isInvalidNetwork: boolean = true;
   public noMetamask: boolean = false;
+  public allowance: number = null;
+  public resetTokenAllowance: boolean = false;
 
   private Web3 = new Web3();
   private timeoutPopUp;
@@ -73,6 +75,12 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
         this._messageBox.closeModal();
       }
       this.ethAddress = ethAddr;
+      if (ethAddr) {
+        this._ethService.getPoolTokenAllowance(ethAddr).subscribe((res: any) => {
+          this.allowance = res;
+          this.tokenAmount && this.checkAllowanceState(this.tokenAmount);
+        });
+      }
       if (!this.ethAddress && this.tokenBalance !== null) {
         this.tokenBalance = null;
         this.tokenAmount = 0;
@@ -131,6 +139,12 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
 
   checkEnteredAmount() {
     this.invalidBalance = this.tokenAmount > +this.tokenBalance;
+    this.checkAllowanceState(this.tokenAmount);
+  }
+
+  checkAllowanceState(amount: number) {
+    this.resetTokenAllowance = this.allowance !== 0 && this.allowance !== amount;
+    this._cdRef.markForCheck();
   }
 
   onSubmit() {

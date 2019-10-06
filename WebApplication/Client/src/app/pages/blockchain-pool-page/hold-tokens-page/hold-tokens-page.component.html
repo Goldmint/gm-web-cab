@@ -6,7 +6,7 @@
 
   <div class="section__content pt-4">
     <form #holdFrom="ngForm">
-      <div>
+      <div class="row">
         <div class="col-12">
           <div class="from-row form-group">
             <label for="mntpInput">{{ "PAGES.BlockchainPool.HoldTokens.Heading" | translate }}</label>
@@ -36,7 +36,7 @@
           </div>
         </div>
 
-        <div class="col-12 mb-3">
+        <div class="col-12">
           <div class="font-weight-500 mb-2 lead icon--red pointer" *ngIf="noMetamask">
             <span (click)="getMetamaskModal()">{{ "PAGES.Sell.Errors.GetMM" | translate }}</span>
           </div>
@@ -45,8 +45,15 @@
           </div>
         </div>
 
-        <div class="col-12 mb-5">
-          <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !tokenAmount || isInvalidNetwork">{{ "PAGES.BlockchainPool.HoldTokens.Buttons.Hold" | translate }}</button>
+        <div class="col-12 line-height" *ngIf="!noMetamask && ethAddress">
+          <div>You'll be prompted to send next Ethereum transactions with MetaMask:</div>
+          <div *ngIf="resetTokenAllowance && allowance !== null">- Reset MNTP token allowance</div>
+          <div>- Allow Ethereum pool to withdraw {{ tokenAmount }} MNTP from your account</div>
+          <div>- Hold {{ tokenAmount }} MNTP on Ethereum Pool contract.</div>
+        </div>
+
+        <div class="col-12 mb-5 mt-3">
+          <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || invalidBalance || !tokenAmount || isInvalidNetwork || allowance === null">{{ "PAGES.BlockchainPool.HoldTokens.Buttons.Hold" | translate }}</button>
           <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
         </div>
       </div>

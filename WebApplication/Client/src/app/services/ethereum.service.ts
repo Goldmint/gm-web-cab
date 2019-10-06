@@ -253,6 +253,18 @@ export class EthereumService {
     return this._obsSumusAccount;
   }
 
+  public getPoolTokenAllowance(fromAddr: string) {
+    return new Observable(observer => {
+      this.contractMntp && this.contractMntp.allowance(fromAddr, this.SwapContractAddress, (err, res) => {
+        if (res) {
+          const allowance = +new BigNumber(res.toString()).div(new BigNumber(10).pow(18));
+          observer.next(allowance);
+          observer.complete();
+        }
+      });
+    });
+  }
+
   public connectToMetaMask() {
     const ethereum = window['ethereum'];
     ethereum && ethereum.enable().then();
