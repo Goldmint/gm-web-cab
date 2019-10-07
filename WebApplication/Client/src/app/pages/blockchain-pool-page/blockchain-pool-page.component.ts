@@ -17,7 +17,6 @@ export class BlockchainPoolPageComponent implements OnInit {
 
   @HostBinding('class') class = 'page';
 
-  public isProduction = environment.isProduction;
   public heldTokens: number = 0;
   public mntpReward: number = 0;
   public goldReward: number = 0;
@@ -25,7 +24,6 @@ export class BlockchainPoolPageComponent implements OnInit {
 
   public ethAddress: string = null;
   public loading: boolean = true;
-  public isAuthenticated: boolean = false;
   public submitMethod = ['withdrawUserReward', 'withdrawRewardAndUnholdStake'];
   public MMNetwork = environment.MMNetwork;
   public isInvalidNetwork: boolean = true;
@@ -48,8 +46,6 @@ export class BlockchainPoolPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.isAuthenticated = this._userService.isAuthenticated();
-
     this._ethService.getObservableEthAddress().takeUntil(this.destroy$).subscribe(address => {
       if (!this.ethAddress && address) {
         this._messageBox.closeModal();

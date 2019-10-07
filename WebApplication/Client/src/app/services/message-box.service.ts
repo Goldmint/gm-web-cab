@@ -5,7 +5,6 @@ import { Subject } from 'rxjs/Subject';
 
 import { MessageType } from '../common/message-box/message-box.enum';
 import { MessageBoxComponent } from '../common/message-box/message-box.component';
-import {AuthModalComponent} from "../common/message-box/auth-modal/auth-modal.component";
 
 @Injectable()
 export class MessageBoxService implements OnDestroy {
@@ -93,10 +92,6 @@ export class MessageBoxService implements OnDestroy {
 
   public prompt(message: string, title?: string, single?: boolean): Subject<null|string> {
     return this._show(message, title, single, MessageType.Prompt);
-  }
-
-  public authModal() {
-    this._modalService.show(AuthModalComponent, this._config);
   }
 
   public closeModal() {

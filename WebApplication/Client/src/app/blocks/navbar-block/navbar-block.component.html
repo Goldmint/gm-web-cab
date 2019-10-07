@@ -1,18 +1,5 @@
 <nav class="navbar">
   <ul class="nav nav-pills nav-justified">
-
-    <ng-container *ngIf="activeMenuItem == 'exchange'">
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/sell">{{ "HEADER.Menu.Sell" | translate }}</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/buy">{{ "HEADER.Menu.Buy" | translate }}</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/finance">{{ "HEADER.Menu.Finance" | translate }}</a>
-      </li>
-    </ng-container>
-
     <ng-container *ngIf="activeMenuItem == 'masterNode'">
       <li class="nav-item" routerLinkActive="active">
         <a class="nav-link" routerLink="/master-node">{{ "HEADER.Menu.LaunchMasterNode" | translate }}</a>

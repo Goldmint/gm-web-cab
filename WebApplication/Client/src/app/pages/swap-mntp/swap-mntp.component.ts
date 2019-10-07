@@ -68,7 +68,6 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
     this.liteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
 
-    this.isAuthenticated = this.userService.isAuthenticated();
     this.initModal();
     this.getEthAddress();
     this.detectMetaMask();
@@ -94,10 +93,10 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.isAuthenticated && this.apiService.getProfile().subscribe(data => {
-      this.user = data.data;
-      this._cdRef.markForCheck();
-    });
+    // this.apiService.getProfile().subscribe(data => {
+    //   this.user = data.data;
+    //   this._cdRef.markForCheck();
+    // });
 
     this.ethService.getObservableMntpBalance().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null && +data !== this.mntpBalance) {

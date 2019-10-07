@@ -1,35 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { AuthGuard } from './guards/index';
-
-import { SellPageComponent } from './pages/sell-page/sell-page.component';
-import { FinancePageComponent } from './pages/finance-page/finance-page.component';
-import { HistoryPageComponent } from './pages/history-page/history-page.component';
-import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
-import { SupportPageComponent } from './pages/support-page/support-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { LoginPageComponent } from './pages/login-page/login-page.component';
-import { PasswordResetPageComponent } from './pages/login-page/password-reset-page/password-reset-page.component';
-import { LoginDpaRequiredComponent } from "./pages/login-page/login-dpa-required/login-dpa-required.component";
-import { LoginDpaSignedComponent } from "./pages/login-page/login-dpa-signed/login-dpa-signed.component";
-import { RegisterPageComponent } from './pages/register-page/register-page.component';
-import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-page/register-tfa-page.component';
-import { RegisterSuccessPageComponent } from './pages/register-page/register-success-page/register-success-page.component';
-import { RegisterEmailTakenPageComponent } from './pages/register-page/register-email-taken-page/register-email-taken-page.component';
-import { RegisterEmailConfirmedPageComponent } from './pages/register-page/register-email-confirmed-page/register-email-confirmed-page.component';
-import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
-import { SettingsProfilePageComponent } from './pages/settings-page/settings-profile-page/settings-profile-page.component';
-import { SettingsVerificationPageComponent } from './pages/settings-page/settings-verification-page/settings-verification-page.component';
-import { SettingsTFAPageComponent } from './pages/settings-page/settings-tfa-page/settings-tfa-page.component';
-import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
-import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
 import { StaticPagesComponent } from "./pages/static-pages/static-pages.component";
 import { LegalSecurityPageComponent } from "./pages/legal-security-page/legal-security-page.component";
-import {SettingsFeesPageComponent} from "./pages/settings-page/settings-fees-page/settings-fees-page.component";
-import {SellCryptocurrencyPageComponent} from "./pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component";
-import {SettingsCardsPageComponent} from "./pages/settings-page/settings-cards-page/settings-cards-page.component";
-import {MasterNodePageComponent} from "./pages/master-node-page/master-node-page.component";
 import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
 import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
 import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions-page/all-transactions-page.component";
@@ -49,57 +23,16 @@ import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-
 import {OverviewPageComponent} from "./pages/master-node-page/overview-page/overview-page.component";
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
-import {BuyPageComponent} from "./pages/buy-page/buy-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
-import {TosVerificationPageComponent} from "./pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component";
-import {TosGuard} from "./guards/tos.guard";
 
 
 const appRoutes: Routes = [
-  { path: 'signin', component: LoginPageComponent },
-  { path: 'signin/onToken/:token', component: LoginPageComponent },
-  { path: 'signin/restore', component: PasswordResetPageComponent },
-  { path: 'signin/restore/:token', component: PasswordResetPageComponent },
-  { path: 'signin/dpa/required', component: LoginDpaRequiredComponent },
-  { path: 'signin/dpa/signed/:token', component: LoginDpaSignedComponent },
-  { path: 'signup', component: RegisterPageComponent },
-  { path: 'signup/success', component: RegisterSuccessPageComponent },
-  { path: 'signup/confirmed/:token', component: RegisterEmailConfirmedPageComponent },
-  { path: 'signup/emailTaken', component: RegisterEmailTakenPageComponent },
-  { path: 'signup/2fa', component: RegisterTfaPageComponent },
   { path: 'master-node', component: LaunchNodePageComponent},
   { path: 'nodes', component: OverviewPageComponent },
   { path: 'nodes/latest-reward-distributions', component: LatestRewardPageComponent },
   { path: 'nodes/reward-transactions/:id', component: RewardTransactionsPageComponent },
-  { path: 'sell', component: SellPageComponent, canActivate: [TosGuard] },
-  { path: 'sell/cryptocurrency', component: SellCryptocurrencyPageComponent, canActivate: [AuthGuard, TosGuard] },
-  { path: 'buy', component: BuyPageComponent, canActivate: [TosGuard] },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
-  {
-    path: 'finance', component: FinancePageComponent, canActivate: [TosGuard],
-    children: [
-      { path: '', redirectTo: 'history', pathMatch: 'full' },
-      { path: 'history', component: HistoryPageComponent }
-    ]
-  },
-  { path: 'support', component: SupportPageComponent, canActivate: [AuthGuard, TosGuard] },
-  {
-    path: 'account', component: SettingsPageComponent, canActivate: [AuthGuard, TosGuard],
-    children: [
-      { path: '', redirectTo: 'profile', pathMatch: 'full' },
-      { path: 'profile', component: SettingsProfilePageComponent },
-      { path: 'verification', component: SettingsVerificationPageComponent },
-      { path: '2fa', component: SettingsTFAPageComponent },
-      // { path: 'cards', component: SettingsCardsPageComponent },
-      // { path: 'cards/:cardId', component: SettingsCardsPageComponent },
-      // { path: 'social', component: SettingsSocialPageComponent },
-      { path: 'activity', component: SettingsActivityPageComponent },
-      // { path: 'limits', component: LimitsPageComponent }
-      // { path: 'fees', component: SettingsFeesPageComponent }
-    ]
-  },
-  { path: 'tos-verification', component: TosVerificationPageComponent, canActivate: [AuthGuard] },
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
   { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },

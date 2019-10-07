@@ -10,7 +10,6 @@ export const environment = {
     mainnet: 'https://service.goldmint.io/sumus/mainnet/v1',
     testnet: 'https://service.goldmint.io/sumus/testnet/v1'
   },
-  apiUrl: 'https://app.goldmint.io/api/v1',
   marketApiUrl: 'https://service.goldmint.io/pawnmarket/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6Ld3i7sUAAAAAImqZ_pZbav0szhkPDqoI73ji11j',
@@ -23,5 +22,6 @@ export const environment = {
   getLiteWalletLink: {
     chrome: 'https://chrome.google.com/webstore/detail/goldmint-lite-wallet/fnabdmcgpkkjjegokfcnfbpneacddpfh',
     firefox: 'https://addons.mozilla.org/ru/firefox/addon/goldmint-lite-wallet/'
-  }
+  },
+  buySellCyberbridgeLink: 'https://staging.goldmint.io/cyber/'
 };

@@ -38,7 +38,7 @@
                 </li>
 
                 <li>
-                  <a routerLink="/sell" [ngClass]="{'active': activeMenuItem == 'exchange'}">{{ "HEADER.Menu.Exchange" | translate }}</a>
+                  <a [href]="buySellCyberbridgeLink" [ngClass]="{'active': activeMenuItem == 'exchange'}">{{ "HEADER.Menu.Exchange" | translate }}</a>
                 </li>
 
                 <li>
@@ -55,29 +55,6 @@
               </ul>
 
             </div>
-          </div>
-
-          <div class="col-auto pl-0" *ngIf="!isMobile && isLoggedIn()">
-            <div class="auth-info">
-              <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
-                <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
-                  <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
-
-                  <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                    <li role="menuitem">
-                      <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
-                    </li>
-                    <li role="menuitem">
-                      <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">{{ 'HEADER.SignOut' | translate }}</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-auto auth-info" *ngIf="!isLoggedIn() && !isMobile">
-            <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
           </div>
         </div>
 
@@ -99,42 +76,11 @@
   </div>
 
   <div id="mobile-menu-container" *ngIf="isShowMobileMenu">
-    <div>
-
-      <div class="mt-4 mb-3 d-flex align-items-center justify-content-between">
-        <div class="col-auto mobile-account-info">
-
-          <div class="auth-info pl-2" *ngIf="isLoggedIn()">
-            <div class="language" (mouseenter)="usermenu.show()" (click)="usermenu.show()" (mouseleave)="usermenu.hide()">
-              <div dropdown position="bottom right" class="language__select" #usermenu="bs-dropdown">
-                <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)" [ngClass]="{'active': usermenu.isOpen}">{{ user?.name }}</a>
-
-                <ul *dropdownMenu class="dropdown-menu" role="menu">
-                  <li role="menuitem">
-                    <a class="dropdown-item" routerLink="account">{{ 'HEADER.AccountInfo' | translate }}</a>
-                  </li>
-                  <li role="menuitem">
-                    <a class="dropdown-item" (click)="logout($event)" href="javascript:void(0)">{{ 'HEADER.SignOut' | translate }}</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="auth-info pl-2" *ngIf="!isLoggedIn()">
-            <a routerLink="/signin" class="mr-2">{{ 'HEADER.SignIn' | translate }}</a>
-          </div>
-
-        </div>
-
-        <div class="col-auto pr-3 d-none">
-          <language-switcher></language-switcher>
-        </div>
-
-      </div>
-
-      <app-mobile-navbar-block></app-mobile-navbar-block>
+    <div class="d-none">
+      <language-switcher></language-switcher>
     </div>
+
+    <app-mobile-navbar-block></app-mobile-navbar-block>
   </div>
 
 </header>

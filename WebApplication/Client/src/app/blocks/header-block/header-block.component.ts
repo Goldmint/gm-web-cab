@@ -28,12 +28,12 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public getLiteWalletLink;
   public menuRoutes = {
-    exchange: ['/sell', '/buy', '/finance/history'],
     masterNode: ['/master-node', '/ethereum-pool', '/buy-mntp', '/swap-mntp'],
     scanner: ['/scanner', '/nodes', '/pawnshop-loans']
   };
   public activeMenuItem: string;
   public networkList;
+  public buySellCyberbridgeLink = environment.buySellCyberbridgeLink;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -97,15 +97,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
       this._cdRef.markForCheck();
     });
 
-    this._userService.currentUser.takeUntil(this.destroy$).subscribe(currentUser => {
-      this.user = currentUser;
-      if (this.user.name) {
-        let index = this.user.name.indexOf(' ');
-        index > 0 && (this.user.name = this.user.name.slice(0, index));
-      }
-      this._cdRef.markForCheck();
-    });
-
     this._userService.currentLocale.takeUntil(this.destroy$).subscribe(currentLocale => {
       this.locale = currentLocale;
       this._cdRef.markForCheck();
@@ -123,24 +114,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     }
     this.commonService.getActiveMenuItem.next(this.activeMenuItem);
     this._cdRef.markForCheck();
-  }
-
-  public logout(e) {
-    e.preventDefault();
-
-    this._translate.get('MessageBox.logOut').subscribe(phrase => {
-      this._messageBox.confirm(phrase)
-        .subscribe(confirmed => {
-          if (confirmed) {
-            this._userService.logout(e);
-            this._cdRef.markForCheck();
-          }
-        });
-    });
-  }
-
-  public isLoggedIn() {
-    return this._userService.isAuthenticated();
   }
 
   toggleMobileMenu(e) {

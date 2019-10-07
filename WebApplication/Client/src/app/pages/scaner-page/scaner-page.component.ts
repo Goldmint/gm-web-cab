@@ -52,7 +52,6 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
   public feeSwitchModel: {
     type: 'gold'|'mnt'
   };
-  public isProduction = environment.isProduction;
   public locale: string = null;
   public balance = {
     gold: 0,

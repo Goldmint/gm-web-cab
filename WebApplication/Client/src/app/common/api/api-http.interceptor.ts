@@ -3,7 +3,6 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/c
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/observable/throw'
 import 'rxjs/add/operator/catch';
-import { environment } from '../../../environments/environment';
 
 import { MessageBoxService } from '../../services/message-box.service';
 import {TranslateService} from "@ngx-translate/core";
@@ -36,16 +35,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
       return Observable.throw('ohO_offline');
     }
     else {
-      let handle;
-      if (req.url.indexOf(environment.apiUrl) >= 0) {
-        handle = next.handle(req.clone({
-          setHeaders: {
-            'GM-Locale': localStorage.getItem('gmint_language') || ''
-          }
-        }));
-      } else {
-        handle =  next.handle(req);
-      }
+      let handle = next.handle(req);
 
       return handle.catch((error, caught) => {
           let translateKey  = null,
@@ -66,19 +56,12 @@ export class APIHttpInterceptor implements HttpInterceptor {
         1004 /// AccountEmailTaken
 			];
 
-          if (error.status === 404 && req.url.indexOf(environment.apiUrl) >= 0) {
-            translateKey = 'notFound';
-          } else if (error.error.errorCode === 103) {
+          if (error.error.errorCode === 103) {
             this._apiService.transferTradingError$.next(true);
           } else if (error.error.errorCode === 104) {
             this._apiService.transferTradingLimit$.next(error.error.data);
           } else if (error.error.errorCode === 50) {
-            try { // Safari in incognito mode doesn't have storage objects
-              localStorage.removeItem('gmint_token');
-              localStorage.removeItem('gmint_2fa');
-              sessionStorage.removeItem('gmint_uc_2fa');
-            } catch(e) {}
-            this._router.navigate(['/signin']);
+            this._router.navigate(['/master-node']);
           } else {
             if (error.error.hasOwnProperty('errorCode')) {
               let errorCode = parseInt(error.error.errorCode, 10);

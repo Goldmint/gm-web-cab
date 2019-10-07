@@ -28,8 +28,6 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   public isMetamask: boolean = false;
   public tokenAmount: number = 0;
   public etherscanUrl = environment.etherscanUrl;
-  public user: User;
-  public isAuthenticated: boolean = false;
   public agreeCheck: boolean = false;
   public allowedMMNetwork = environment.MMNetwork;
   public allowedWalletNetwork = environment.walletNetwork;
@@ -70,7 +68,6 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
     this.liteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
 
-    this.isAuthenticated = this.userService.isAuthenticated();
     this.initModal();
     this.getEthAddress();
     this.detectMetaMask();
@@ -94,11 +91,6 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
         }
         this._cdRef.markForCheck();
       }
-    });
-
-    this.isAuthenticated && this.apiService.getProfile().subscribe(data => {
-      this.user = data.data;
-      this._cdRef.markForCheck();
     });
 
     const combined = combineLatest(
@@ -237,11 +229,6 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (!this.isAuthenticated) {
-      this.messageBox.authModal();
-      return;
-    }
-
     let firstLoad = true;
     this.sub1 && this.sub1.unsubscribe();
     this.sub1 = this.ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {

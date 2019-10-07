@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { JwtModule } from '@auth0/angular-jwt';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RECAPTCHA_SETTINGS,
   RecaptchaModule
@@ -17,7 +16,6 @@ import { AppRouting } from './app.routing';
 /*
   Guards and Services
  */
-import { AuthGuard } from './guards';
 import { MessageBoxService, APIService, UserService, EthereumService, GoldrateService } from './services';
 import { APIHttpInterceptor } from './common/api/api-http.interceptor'
 
@@ -63,41 +61,15 @@ import { SpriteComponent }      from './common/sprite/sprite.component';
 /*
   Pages
  */
-import { HistoryPageComponent } from './pages/history-page/history-page.component';
-import { LimitsPageComponent } from './pages/limits-page/limits-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { SellPageComponent } from './pages/sell-page/sell-page.component';
-import { SupportPageComponent } from './pages/support-page/support-page.component';
 import { PagerBlockComponent } from './blocks/pager-block/pager-block.component';
-import { LoginPageComponent } from './pages/login-page/login-page.component';
-import { LoginOntokenPageComponent } from './pages/login-page/login-ontoken-page/login-ontoken-page.component';
-import { PasswordResetPageComponent } from './pages/login-page/password-reset-page/password-reset-page.component';
-import { RegisterPageComponent } from './pages/register-page/register-page.component';
-import { RegisterTfaPageComponent } from './pages/register-page/register-tfa-page/register-tfa-page.component';
-import { RegisterSuccessPageComponent } from './pages/register-page/register-success-page/register-success-page.component';
-import { RegisterEmailTakenPageComponent } from './pages/register-page/register-email-taken-page/register-email-taken-page.component';
-import { RegisterEmailConfirmedPageComponent } from './pages/register-page/register-email-confirmed-page/register-email-confirmed-page.component';
-import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
-import { SettingsProfilePageComponent } from './pages/settings-page/settings-profile-page/settings-profile-page.component';
-import { SettingsVerificationPageComponent } from './pages/settings-page/settings-verification-page/settings-verification-page.component';
-import { SettingsTFAPageComponent } from './pages/settings-page/settings-tfa-page/settings-tfa-page.component';
-import { SettingsCardsPageComponent } from './pages/settings-page/settings-cards-page/settings-cards-page.component';
-import { SettingsSocialPageComponent } from './pages/settings-page/settings-social-page/settings-social-page.component';
-import { SettingsActivityPageComponent } from './pages/settings-page/settings-activity-page/settings-activity-page.component';
-import { FinancePageComponent } from './pages/finance-page/finance-page.component';
 import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import { StaticPagesComponent } from './pages/static-pages/static-pages.component';
 import {SafePipe} from "./directives/safe.pipe";
-import { LoginDpaRequiredComponent } from './pages/login-page/login-dpa-required/login-dpa-required.component';
-import { LoginDpaSignedComponent } from './pages/login-page/login-dpa-signed/login-dpa-signed.component';
 import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-security-page.component';
-import { SettingsFeesPageComponent } from './pages/settings-page/settings-fees-page/settings-fees-page.component';
-import { SellCryptocurrencyPageComponent } from './pages/sell-page/sell-cryptocurrency-page/sell-cryptocurrency-page.component';
 import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
 import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
 import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
-import { CryptocurrencyBlockComponent } from './blocks/cryptocurrency-block/cryptocurrency-block.component';
-import { TimerComponent } from './common/timer/timer.component';
 import {GoldDiscount} from "./pipes/gold-discount";
 import {SubstrPipe} from "./pipes/substr.pipe";
 import {NoexpPipe} from "./pipes/noexp.pipe";
@@ -110,7 +82,6 @@ import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-bl
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {MomentModule} from "ngx-moment";
 import {NgxMaskModule} from "ngx-mask";
-import { AuthModalComponent } from './common/message-box/auth-modal/auth-modal.component';
 import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
 import { PawnshopFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component';
 import { AllTicketFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component';
@@ -125,18 +96,11 @@ import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-token
 import {PoolService} from "./services/pool.service";
 import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-navbar-block.component';
 import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
-import { BuyPageComponent } from './pages/buy-page/buy-page.component';
 import { NetworkSwitcherBlockComponent } from './blocks/network-switcher-block/network-switcher-block.component';
 import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
-import { TosVerificationPageComponent } from './pages/settings-page/settings-verification-page/tos-verification-page/tos-verification-page.component';
-import {TosGuard} from "./guards/tos.guard";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
-
-export function getGoldmintToken() {
-	return null;
 }
 
 @NgModule({
@@ -156,12 +120,6 @@ export function getGoldmintToken() {
     NgxQRCodeModule,
     HttpClientModule,
     PopoverModule.forRoot(),
-    JwtModule.forRoot({
-      config: {
-        tokenGetter: getGoldmintToken,
-        whitelistedDomains: [ environment.apiUrl ],
-      }
-    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -182,43 +140,17 @@ export function getGoldmintToken() {
 	  MasterNodePageComponent,
     LaunchNodePageComponent,
 	  OverviewPageComponent,
-    HistoryPageComponent,
-    LimitsPageComponent,
     NotFoundPageComponent,
-    SellPageComponent,
-    SupportPageComponent,
     PagerBlockComponent,
-    LoginPageComponent,
-    LoginOntokenPageComponent,
-    PasswordResetPageComponent,
-    RegisterPageComponent,
-    RegisterTfaPageComponent,
-    RegisterSuccessPageComponent,
-    RegisterEmailTakenPageComponent,
-    RegisterEmailConfirmedPageComponent,
-    SettingsPageComponent,
-    SettingsProfilePageComponent,
-    SettingsVerificationPageComponent,
-    SettingsTFAPageComponent,
-    SettingsCardsPageComponent,
-    SettingsSocialPageComponent,
-    SettingsActivityPageComponent,
     BlurDirective,
     EqualValidatorDirective,
-    FinancePageComponent,
     NoautocompleteDirective,
     StaticPagesComponent,
     SafePipe,
 	  SubstrPipe,
     NoexpPipe,
     GoldDiscount,
-    LoginDpaRequiredComponent,
-    LoginDpaSignedComponent,
     LegalSecurityPageComponent,
-    SettingsFeesPageComponent,
-    SellCryptocurrencyPageComponent,
-    CryptocurrencyBlockComponent,
-    TimerComponent,
     LatestRewardPageComponent,
     ScanerPageComponent,
     TxInfoPageComponent,
@@ -226,7 +158,6 @@ export function getGoldmintToken() {
     AllTransactionsPageComponent,
     AllBlocksPageComponent,
     AddressInfoPageComponent,
-    AuthModalComponent,
     PawnshopPageComponent,
     PawnshopFeedPageComponent,
     AllTicketFeedPageComponent,
@@ -239,16 +170,12 @@ export function getGoldmintToken() {
     HoldTokensPageComponent,
     MobileNavbarBlockComponent,
     BuyMntpPageComponent,
-    BuyPageComponent,
     NetworkSwitcherBlockComponent,
-    SwapMntpComponent,
-    TosVerificationPageComponent
+    SwapMntpComponent
   ],
   exports: [],
   providers: [
     Title,
-    AuthGuard,
-    TosGuard,
     MessageBoxService,
     APIService,
     UserService,
@@ -270,8 +197,7 @@ export function getGoldmintToken() {
     }
   ],
   entryComponents: [
-    MessageBoxComponent,
-    AuthModalComponent
+    MessageBoxComponent
   ],
   bootstrap: [AppComponent]
 })

@@ -20,7 +20,6 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') class = 'page';
 
-  public isProduction = environment.isProduction;
   public loading: boolean = false;
   public tokenBalance: BigNumber | null = null;
   public ethAddress: string = '';
@@ -30,7 +29,6 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   public MMNetwork = environment.MMNetwork;
 
   public invalidBalance: boolean = false;
-  public isAuthenticated: boolean = false;
   public isInvalidNetwork: boolean = true;
   public noMetamask: boolean = false;
   public allowance: number = null;
@@ -53,7 +51,6 @@ export class HoldTokensPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.isAuthenticated = this._userService.isAuthenticated();
     this.initSuccessTransactionModal();
 
     if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
