@@ -95,15 +95,15 @@ export class EthereumService {
   }
 
   private checkWeb3() {
-    this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
+    !this.EthMntpContractABI && this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
       this.EthMntpContractABI = abi['result'];
     });
 
-    this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
+    !this.EthPoolContractABI && this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
       this.EthPoolContractABI = abi['result'];
     });
 
-    /*this.getContractABI(this.SwapContractAddress).subscribe(abi => {
+    /*!this.SwapContractABI && this.getContractABI(this.SwapContractAddress).subscribe(abi => {
         this.SwapContractABI = abi['result'];
     });*/
 
