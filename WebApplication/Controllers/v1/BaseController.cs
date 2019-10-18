@@ -75,7 +75,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		// ---
 
 		[NonAction]
-		public string MakeAppLink(JwtAudience audience, string fragment) {
+		public string MakeAppLink(JwtAudience audience, string fragment = null) {
 
 			var origin = "";
 			if (HttpContext.Request?.Headers?.TryGetValue("Origin", out var val) ?? false) {
@@ -97,7 +97,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 
 			var uri = new UriBuilder(new Uri(appUri));
-			if (fragment != null) {
+			if (!string.IsNullOrWhiteSpace(fragment)) {
 				uri.Fragment = fragment;
 			}
 			return uri.ToString();

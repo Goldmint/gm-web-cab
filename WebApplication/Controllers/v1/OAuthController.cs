@@ -66,7 +66,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				);
 			}
 			catch {
-				return Redirect("/");
+				return Redirect(MakeAppLink(Common.JwtAudience.Cabinet));
 			}
 		}
 
@@ -150,7 +150,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				Logger.Information($"User {userInfo.Id} - failure 1");
 
 				// never should get here
-				return Redirect("/");
+				return Redirect(MakeAppLink(Common.JwtAudience.Cabinet));
 			}
 
 			// doesnt exist yet
@@ -181,7 +181,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 					Logger.Information($"User {userInfo.Id} - failure 2");
 
 					// failed
-					return Redirect("/");
+					return Redirect(MakeAppLink(Common.JwtAudience.Cabinet));
 				}
 
 				Logger.Information($"User {userInfo.Id} - failure 3");

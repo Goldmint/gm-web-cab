@@ -21,7 +21,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				to = System.Web.HttpUtility.UrlDecode(to);
 				return Redirect(to);
 			}
-			return LocalRedirect("/");
+			return Redirect(MakeAppLink(Common.JwtAudience.Cabinet));
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 				to = System.Web.HttpUtility.UrlDecode(to);
 				return Redirect(to);
 			}
-			return LocalRedirect("/");
+			return Redirect(MakeAppLink(Common.JwtAudience.Cabinet));
 		}
 
 		/// <summary>
