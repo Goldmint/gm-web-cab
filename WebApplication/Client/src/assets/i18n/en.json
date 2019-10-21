@@ -109,9 +109,9 @@
         "minLimit": "Amount is less than minimum limit",
         "maxLimit": "Amount is greater than maximum limit",
         "GetMM": "Get MetaMask",
-        "EnableMM": "Connect MetaMask",
+        "EnableMM": "Click to connect MetaMask",
         "GetMW": "Get Lite Wallet",
-        "EnableMW": "Connect Lite Wallet",
+        "EnableMW": "Log into Lite Wallet",
         "NotAllow": "Method is not allowed now"
       }
     },
