@@ -161,6 +161,17 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			}
 			return Locale.En;
 		}
+		
+		[NonAction]
+		protected string GetUserCountry() {
+			if (
+				(HttpContext.Request?.Headers.TryGetValue("CF-IPCountry", out var hdr) ?? false) &&
+				!string.IsNullOrWhiteSpace(hdr.ToString())
+			) {
+				return hdr.ToString().ToUpper();
+			}
+			return "XX";
+		}
 
 		[NonAction]
 		protected async Task<UserTier> GetUserTier() {

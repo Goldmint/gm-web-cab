@@ -130,6 +130,24 @@ namespace Goldmint.WebApplication.Models.API.v1.CommonsModels {
 
 	// ---
 
+	public class BannedCountriesView {
+
+		/// <summary>
+		/// List of country codes, alpha-2
+		/// </summary>
+		[Required]
+		public string[] Codes { get; set; }
+
+		/// <summary>
+		/// Caller of the method is banned
+		/// </summary>
+		[Required]
+		public bool CallerBanned { get; set; }
+
+	}
+
+	// ---
+
 	public class FeesView {
 
 		/// <summary>

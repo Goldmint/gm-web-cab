@@ -86,13 +86,17 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		/// </summary>
 		[AnonymousAccess]
 		[HttpGet, Route("bannedCountries")]
-		[ProducesResponseType(typeof(string[]), 200)]
+		[ProducesResponseType(typeof(BannedCountriesView), 200)]
 		public async Task<APIResponse> BannedCountries() {
-			var list = await (
+			var codes = await (
 				from a in DbContext.BannedCountry
 				select a.Code.ToUpper()
 			).AsNoTracking().ToArrayAsync();
-			return APIResponse.Success(list);
+
+			return APIResponse.Success(new BannedCountriesView() {
+				Codes = codes,
+				CallerBanned = codes.Contains(GetUserCountry()),
+			});
 		}
 
 		/// <summary>
