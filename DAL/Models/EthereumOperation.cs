@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_eth_sending")]
-	public class EthSending : BaseUserFinHistoryEntity, IConcurrentUpdate {
+	public class EthSending : BaseUserFinHistory, IConcurrentUpdate {
 
 		[Column("status"), Required]
 		public EthereumOperationStatus Status { get; set; }

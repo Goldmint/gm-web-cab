@@ -163,7 +163,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Status = (
 						i.Status == UserFinHistoryStatus.Completed
 						? 2 // success
-						: i.Status == UserFinHistoryStatus.Failed || (i.TimeExpires != null && i.TimeExpires <= nowTime)
+						: i.Status == UserFinHistoryStatus.Failed
 							? 3 // cancelled/failed
 							: 1 // pending
 					),
@@ -173,7 +173,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 					Dst = i.Destination,
 					DstAmount = i.DestinationAmount,
 					Date = ((DateTimeOffset)i.TimeCreated).ToUnixTimeSeconds(),
-					EthTxId = i.RelEthTransactionId,
 				}
 			;
 

@@ -6,43 +6,49 @@ using Serilog;
 
 namespace Goldmint.QueueService.Workers {
 
-	public interface IWorker {
-		Task Loop(CancellationToken ct);
-		Task Init(IServiceProvider services);
+	public sealed class BaseOptions {
+
+		public TimeSpan Period { get; set; }
+		public bool Once { get; set; }
+		public CancellationToken CancellationToken { get; set; }
+
+		public static BaseOptions RunOnce(CancellationToken ct) { return new BaseOptions { Once = true, CancellationToken = ct, }; }
+		public static BaseOptions RunMinutely(CancellationToken ct) { return new BaseOptions { Period = TimeSpan.FromMinutes(1), CancellationToken = ct, }; }
+		public static BaseOptions RunPeriod(CancellationToken ct, TimeSpan period) { return new BaseOptions { Period = period, CancellationToken = ct, }; }
 	}
 
-	public abstract class BaseWorker : IWorker {
+	public abstract class BaseWorker {
 
-		private bool _launched;
 		private TimeSpan _period;
-		private TimeSpan _initialDelay;
-		private bool _burstMode;
+		private bool _once;
 		private bool _selfStop;
 
 		protected CancellationToken CancellationToken { get; private set; }
 		protected ILogger Logger { get; private set; }
 
-		protected BaseWorker() {
-			_period = TimeSpan.FromSeconds(10);
-			_initialDelay = TimeSpan.Zero;
+		protected BaseWorker(BaseOptions opts) {
+			if (opts.Period.TotalSeconds < 1) {
+				_period = TimeSpan.FromSeconds(1);
+			} else {
+				_period = opts.Period;
+			}
+			_once = opts.Once;
+			if (opts.CancellationToken == null) {
+				throw new ArgumentException("cancellation token is null");
+			}
+			CancellationToken = opts.CancellationToken;
 		}
 
-		public async Task Init(IServiceProvider services) {
-			if (_launched) throw new InvalidOperationException();
+		protected abstract Task OnInit(IServiceProvider services);
+		protected abstract Task OnCleanup();
+		protected abstract Task OnUpdate();
 
+		public async Task Init(IServiceProvider services) {
 			Logger = services.GetLoggerFor(this.GetType());
 			await OnInit(services);
 		}
 
-		public async Task Loop(CancellationToken ct) {
-			if (_launched) throw new InvalidOperationException();
-			_launched = true;
-
-			CancellationToken = ct;
-			if (_initialDelay > TimeSpan.Zero) {
-				await Task.Delay(_initialDelay, CancellationToken);
-			}
-
+		public async Task Loop() {
 			Logger?.Verbose("Loop started");
 
 			while (!IsCancelled()) {
@@ -50,48 +56,27 @@ namespace Goldmint.QueueService.Workers {
 					await OnUpdate();
 				}
 				catch (Exception e) {
-					Logger?.Error(e, "loop failure");
-					OnException(e);
+					Logger?.Error(e, "OnUpdate() failure");
 				}
-				try {
-					OnPostUpdate();
-				}
-				catch (Exception e) {
-					Logger?.Error(e, "loop failure (post)");
-				}
-				if (_burstMode) {
+				if (_once) {
 					break;
 				}
 				try {
 					await Task.Delay(_period, CancellationToken);
 				}
-				catch { }
+				catch (TaskCanceledException) { }
+				catch (Exception e) {
+					Logger?.Error(e, "Loop delay failure");
+				}
 			}
 
 			Logger?.Verbose("Loop stopped. Cleanup");
-			OnCleanup();
-		}
-
-		// ---
-
-		public BaseWorker Period(TimeSpan period) {
-			if (_launched) throw new InvalidOperationException();
-
-			if (period.TotalSeconds < 1) period = TimeSpan.FromSeconds(1);
-			_period = period;
-			return this;
-		}
-
-		public BaseWorker BurstMode(bool burst = true) {
-			if (_launched) throw new InvalidOperationException();
-			_burstMode = burst;
-			return this;
-		}
-
-		public BaseWorker InitialDelay(TimeSpan delay) {
-			if (_launched) throw new InvalidOperationException();
-			_initialDelay = delay;
-			return this;
+			try {
+				await OnCleanup();
+			}
+			catch (Exception e) {
+				Logger?.Error(e, "OnCleanup() failure");
+			}
 		}
 
 		// ---
@@ -103,19 +88,5 @@ namespace Goldmint.QueueService.Workers {
 		protected void SelfStop() {
 			_selfStop = true;
 		}
-
-		protected TimeSpan GetPeriod() {
-			return _period;
-		}
-
-		// ---
-
-		protected abstract Task OnInit(IServiceProvider services);
-		protected abstract Task OnUpdate();
-		
-		protected virtual void OnCleanup() {}
-		protected virtual void OnException(Exception e) {}
-		protected virtual void OnPostUpdate() {}
-		
 	}
 }

@@ -12,6 +12,7 @@ using Goldmint.CoreLogic.Services.RuntimeConfig;
 using System.IO;
 using System.Text;
 using Serilog;
+using System.Collections.Generic;
 
 namespace Goldmint.WebApplication {
 
@@ -25,6 +26,10 @@ namespace Goldmint.WebApplication {
 		public Startup(IHostingEnvironment env, IConfiguration configuration) {
 			_environment = env;
 			_configuration = configuration;
+
+			// globlization
+			System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+			System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 
 			var curDir = Directory.GetCurrentDirectory();
 			Console.OutputEncoding = Encoding.UTF8;
@@ -53,7 +58,7 @@ namespace Goldmint.WebApplication {
 				if (_environment.IsDevelopment()) {
 					logConf.MinimumLevel.Verbose();
 				}
-				logConf.WriteTo.Console();
+				logConf.WriteTo.Console(outputTemplate: "{Timestamp:HH:mm} [{Level:u3}] {Message}   at {SourceContext}{NewLine}{Exception}");
 			}
 			var logger = Log.Logger = logConf.CreateLogger();
 			
@@ -67,6 +72,13 @@ namespace Goldmint.WebApplication {
 
 			applicationLifetime.ApplicationStopping.Register(OnServerStopRequested);
 			applicationLifetime.ApplicationStopped.Register(OnServerStopped);
+
+			// globlization
+			app.UseRequestLocalization(new RequestLocalizationOptions {
+				DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(System.Globalization.CultureInfo.InvariantCulture),
+				SupportedCultures = new List<System.Globalization.CultureInfo> { System.Globalization.CultureInfo.InvariantCulture },
+				SupportedUICultures = new List<System.Globalization.CultureInfo> { System.Globalization.CultureInfo.InvariantCulture },
+			});
 
 			// config loader
 			_runtimeConfigHolder.SetLoader(runtimeConfigLoader);

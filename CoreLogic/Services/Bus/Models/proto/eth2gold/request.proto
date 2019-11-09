@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package request;
+
+option go_package = "nats";
+option csharp_namespace = "Eth2Gold.Request";
+
+// OrderCreate requires eth2gold service to create a new order
+message OrderCreate {
+	uint64 ExternalID = 1; // External order ID
+}
+
+// OrderCreateReply is a reply for OrderCreate
+message OrderCreateReply {
+	oneof Result {
+		bytes Token 	= 1; // 32-bytes token to interact with Ethereum contract
+		string Error	= 2; // Error description
+	}
+}

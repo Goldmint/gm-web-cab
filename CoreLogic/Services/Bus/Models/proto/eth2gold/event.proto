@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = "nats";
+option csharp_namespace = "Eth2Gold.Event";
+
+// OrderDeposited notifies about completed ETH deposit
+message OrderDeposited {
+	uint64 ExternalID	= 1; // External order ID
+	string EthAmount	= 2; // ETH amount deposited
+	string Sender		= 3; // Sender Ethereum address
+	string Transaction	= 4; // Ethereum transaction
+}
+
+// OrderDepositedAck is a reply for OrderDeposited
+message OrderDepositedAck {
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package sub;
+option csharp_namespace = "Goldmint.CoreLogic.Services.Bus.Models.Core.Sub";
+
+// Send notification defined by ID (in DB)
+message NotificationSendRequest {
+	uint64 ID = 1;
+}
+message NotificationSendResponse {
+	oneof Result {
+		bool Success = 1;
+		string Error = 2;
+	}
+}

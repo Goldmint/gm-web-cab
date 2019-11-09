@@ -111,28 +111,9 @@
 				public string EthSenderPk { get; set; } = "";
 			}
 
-			//public SignRequestSection SignRequest { get; set; } = new SignRequestSection();
-			//public class SignRequestSection {
-
-			//	public string Url { get; set; } = "";
-			//	public string Auth { get; set; } = "";
-			//	public string SenderEmail { get; set; } = "";
-			//	public string CallbackSecret { get; set; } = "";
-			//	public TemplateSection[] Templates { get; set; } = new TemplateSection[0];
-
-			//	public class TemplateSection {
-
-			//		public string Name { get; set; }
-			//		public string Locale { get; set; }
-			//		public string Filename { get; set; }
-			//		public string Template { get; set; }
-			//	}
-			//}
-
 			public GMRatesProviderSection GMRatesProvider { get; set; } = new GMRatesProviderSection();
 			public class GMRatesProviderSection {
 
-				public int RequestTimeoutSec { get; set; } = 30;
 				public string GoldRateUrl { get; set; } = "";
 				public string EthRateUrl { get; set; } = "";
 			}
@@ -147,6 +128,7 @@
 			public class NatsSection {
 
 				public string Endpoint { get; set; } = "localhost:4222";
+				public int PoolSize {get; set; } = 8;
 			}
 		}
 	}

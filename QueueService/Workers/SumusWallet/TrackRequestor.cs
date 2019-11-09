@@ -1,5 +1,4 @@
-﻿using Goldmint.CoreLogic.Services.Bus.Models;
-using Goldmint.CoreLogic.Services.Bus;
+﻿using Goldmint.CoreLogic.Services.Bus;
 using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,52 +8,52 @@ using System.Threading.Tasks;
 
 namespace Goldmint.QueueService.Workers.SumusWallet {
 
+	// TrackRequestor requires mint-sender service to observe new wallets for incoming transactions
 	public sealed class TrackRequestor : BaseWorker {
 
 		private readonly int _rowsPerRound;
-
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
-		private NATS.Client.IConnection _natsConn;
+		private IBus _bus;
 
-		public TrackRequestor(int rowsPerRound) {
-			_rowsPerRound = Math.Max(1, rowsPerRound);
+		public TrackRequestor(BaseOptions opts) : base(opts) {
+			_rowsPerRound = 50;
 		}
 
-		protected override async Task OnInit(IServiceProvider services) {
+		protected override Task OnInit(IServiceProvider services) {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			var bus = services.GetRequiredService<IConnPool>();
-			_natsConn = await bus.GetConnection();
+			_bus = services.GetRequiredService<IBus>();
+			return Task.CompletedTask;
 		}
 
-		protected override void OnCleanup() {
-			_natsConn.Close();
+		protected override Task OnCleanup() {
+			return Task.CompletedTask;
 		}
 
 		protected override async Task OnUpdate() {
 			_dbContext.DetachEverything();
 
-			var rows = await (
-				from r in _dbContext.UserSumusWallet
-				where !r.Tracking
-				select r
-			)
-			.AsTracking()
-			.Take(_rowsPerRound)
-			.ToArrayAsync(CancellationToken)
+			var rows = await 
+				(from r in _dbContext.UserSumusWallet where !r.Tracking select r)
+				.AsTracking()
+				.Take(_rowsPerRound)
+				.ToArrayAsync(CancellationToken)
 			;
 			if (IsCancelled() || rows.Length == 0) return;
 
-			var req = new MintSender.Watcher.Watch.Request() {
-				Service = MintSender.CoreService,
-				PublicKeys = rows.Select(_ => _.PublicKey).ToArray(),
+			var request = new MintSender.Watcher.Request.AddRemove() {
+				Service = "core_gold_deposit",
 				Add = true,
 			};
+			request.PublicKey.AddRange(rows.Select(_ => _.PublicKey));
 
-			var msg = await _natsConn.RequestAsync(MintSender.Watcher.Watch.Subject, Serializer.Serialize(req), 5000);
-			var rep = Serializer.Deserialize<MintSender.Watcher.Watch.Reply>(msg.Data);
-			if (rep.Success) {
+			var reply = await _bus.Request(
+				MintSender.Subject.Watcher.Request.AddRemove,
+				request, MintSender.Watcher.Request.AddRemoveReply.Parser
+			);
+
+			if (reply.Success) {
 				foreach (var r in rows) {
 					r.Tracking = true;
 				}

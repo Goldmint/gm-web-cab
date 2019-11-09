@@ -3,18 +3,16 @@ using System;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
 using Serilog;
-using NatsSerializer = Goldmint.CoreLogic.Services.Bus.Serializer;
-using NatsNotification = Goldmint.CoreLogic.Services.Bus.Models.Notification;
 
 namespace Goldmint.CoreLogic.Services.Notification.Impl {
 
 	public class DBNotificationQueue : INotificationQueue {
 
 		private ApplicationDbContext _dbContext;
-		private Bus.IConnPool _bus;
+		private Bus.IBus _bus;
 		private ILogger _logger;
 
-		public DBNotificationQueue(ApplicationDbContext dbContext, Bus.IConnPool bus, ILogger logFactory) {
+		public DBNotificationQueue(ApplicationDbContext dbContext, Bus.IBus bus, ILogger logFactory) {
 			_dbContext = dbContext;
 			_logger = logFactory.GetLoggerFor(this);
 			_bus = bus;
@@ -38,21 +36,18 @@ namespace Goldmint.CoreLogic.Services.Notification.Impl {
 
 			// nats request
 			try {
-				using (var conn = await _bus.GetConnection()) {
-					try {
-						var req = new NatsNotification.Enqueued.Request() {
-							Id = noti.Id,
-						};
+				var request = new Bus.Models.Core.Sub.NotificationSendRequest() {
+					ID = (ulong)noti.Id,
+				};
 
-						var msg = await conn.RequestAsync(NatsNotification.Enqueued.Subject, NatsSerializer.Serialize(req), 2000);
-						var rep = NatsSerializer.Deserialize<NatsNotification.Enqueued.Reply>(msg.Data);
-						if (!rep.Success) {
-							_logger.Error(new Exception(rep.Error), $"Failed to request notification sending via Nats");
-							return false;
-						}
-					} finally {
-						conn.Close();
-					}
+				var reply = await _bus.Request(
+					Bus.Models.Core.Sub.Subjects.NotificationSendRequest,
+					request, Bus.Models.Core.Sub.NotificationSendResponse.Parser
+				);
+
+				if (!reply.Success) {
+					_logger.Error(new Exception(reply.Error), $"Failed to request notification sending via Nats");
+					return false;
 				}
 			} catch (Exception e) {
 				_logger.Error(e, $"Failed to get bus connection and send notification");

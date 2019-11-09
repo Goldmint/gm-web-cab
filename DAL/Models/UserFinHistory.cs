@@ -29,23 +29,8 @@ namespace Goldmint.DAL.Models {
 		[Column("comment"), MaxLength(FieldMaxLength.Comment), Required]
 		public string Comment { get; set; }
 
-		[Column("rel_eth_transaction_id"), MaxLength(FieldMaxLength.EthereumTransactionHash)]
-		public string RelEthTransactionId { get; set; }
-
-		[Column("rel_user_activity")]
-		public long? RelUserActivityId { get; set; }
-
-		[ForeignKey(nameof(RelUserActivityId))]
-		public virtual UserActivity RelUserActivity { get; set; }
-
 		[Column("time_created"), Required]
 		public DateTime TimeCreated { get; set; }
-
-		[Column("time_expires")]
-		public DateTime? TimeExpires { get; set; }
-
-		[Column("time_completed")]
-		public DateTime? TimeCompleted { get; set; }
 
 		[Column("concurrency_stamp"), MaxLength(FieldMaxLength.ConcurrencyStamp), ConcurrencyCheck]
 		public string ConcurrencyStamp { get; set; }

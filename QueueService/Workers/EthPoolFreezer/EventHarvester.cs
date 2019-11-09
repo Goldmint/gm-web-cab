@@ -1,16 +1,17 @@
 ﻿using Goldmint.Common;
+using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;
+using Goldmint.DAL.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.Common.Extensions;
-using Goldmint.DAL.Extensions;
 
 namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
+	// EventHarvester checks Ethereum freezer contract for a new events, then enqueues MNT emission requests via DB
 	public sealed class EventHarvester : BaseWorker {
 
 		private readonly int _blocksPerRound;
@@ -25,8 +26,8 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 		private long _statProcessed = 0;
 
-		public EventHarvester(int blocksPerRound, int confirmationsRequired) {
-			_blocksPerRound = Math.Max(1, blocksPerRound);
+		public EventHarvester(int confirmationsRequired, BaseOptions opts) : base(opts) {
+			_blocksPerRound = 20;
 			_confirmationsRequired = Math.Max(2, confirmationsRequired);
 			_lastBlock = BigInteger.Zero;
 			_lastSavedBlock = BigInteger.Zero;
@@ -55,6 +56,10 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 
 				Logger.Information($"Using last block #{lbDb} (DB)");
 			}
+		}
+
+		protected override Task OnCleanup() {
+			return Task.CompletedTask;
 		}
 
 		protected override async Task OnUpdate() {
@@ -109,7 +114,7 @@ namespace Goldmint.QueueService.Workers.EthPoolFreezer {
 			if (_lastSavedBlock != _lastBlock) {
 				if (await _dbContext.SaveDbSetting(DbSetting.PoolFreezerHarvLastBlock, _lastBlock.ToString())) {
 					_lastSavedBlock = _lastBlock;
-					Logger.Information($"Last block #{_lastBlock} saved to DB");
+					Logger.Debug($"Last block #{_lastBlock} saved to DB");
 				}
 			}
 		}

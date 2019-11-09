@@ -6,10 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Goldmint.DAL.Models {
 
 	[Table("gm_sell_gold_eth")]
-	public class SellGoldEth : BaseUserFinHistoryEntity, IConcurrentUpdate {
+	public class SellGoldEth : BaseUserFinHistory, IConcurrentUpdate {
 
 		[Column("status"), Required]
-		public SellGoldRequestStatus Status { get; set; }
+		public BuySellGoldRequestStatus Status { get; set; }
 		
 		[Column("gold_amount"), Required]
 		public decimal GoldAmount { get; set; }

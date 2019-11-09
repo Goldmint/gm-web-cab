@@ -3,7 +3,7 @@ using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
 using Goldmint.CoreLogic.Services.KYC;
 using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Notification;
-using Goldmint.CoreLogic.Services.Rate.Impl;
+using Goldmint.CoreLogic.Services.Price.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.WebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +17,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Goldmint.Common.Extensions;
 using Serilog;
+using Goldmint.CoreLogic.Services.Price;
+using Goldmint.CoreLogic.Services.Bus;
 
 namespace Goldmint.WebApplication.Controllers.v1 {
 
@@ -32,8 +34,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 		protected INotificationQueue EmailQueue { get; private set; }
 		protected ITemplateProvider TemplateProvider { get; private set; }
 		protected IEthereumReader EthereumObserver { get; private set; }
-		protected SafeRatesFiatAdapter SafeRatesAdapter { get; private set; }
+		protected IPriceSource PriceSource { get; private set; }
 		protected RuntimeConfigHolder RuntimeConfigHolder { get; private set; }
+		protected IBus Bus { get; private set; }
 
 		protected BaseController() { }
 
@@ -49,8 +52,9 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			EmailQueue = services.GetRequiredService<INotificationQueue>();
 			TemplateProvider = services.GetRequiredService<ITemplateProvider>();
 			EthereumObserver = services.GetRequiredService<IEthereumReader>();
-			SafeRatesAdapter = services.GetRequiredService<SafeRatesFiatAdapter>();
+			PriceSource = services.GetRequiredService<IPriceSource>();
 			RuntimeConfigHolder = services.GetRequiredService<RuntimeConfigHolder>();
+			Bus = services.GetRequiredService<IBus>();
 		}
 
 		// ---

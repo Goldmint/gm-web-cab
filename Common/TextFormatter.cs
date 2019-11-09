@@ -53,6 +53,12 @@ namespace Goldmint.Common {
 			var str = tokenAmount.ToString().PadLeft(tokenDecimals + 1, '0');
 			return str.Substring(0, str.Length - tokenDecimals) + "." + str.Substring(str.Length - tokenDecimals, fixDecimals);
 		}
+		
+		/// 1.512345670000000000, 18, 6 => 1.512345
+		public static string FormatTokenAmountFixed(decimal tokenAmount, int fixDecimals = 6) {
+			if (tokenAmount < 0 || fixDecimals < 0) return "0";
+			return tokenAmount.ToString($"F{fixDecimals}");
+		}
 
 		// 0x0000000000000000000000000000000000000000 => 0x000***000
 		public static string MaskBlockchainAddress(string address) {

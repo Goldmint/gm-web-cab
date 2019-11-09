@@ -2,11 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Goldmint.DAL.Models
-{
+namespace Goldmint.DAL.Models {
+
 	[Table("gm_user_limits")]
-	public class UserLimits : BaseUserEntity
-	{
+	public class UserLimits : BaseUserEntity {
 
 		[Column("eth_deposited")]
 		public decimal EthDeposited { get; set; }

@@ -11,47 +11,46 @@ namespace Goldmint.QueueService {
 		/// <summary>
 		/// Launch workers
 		/// </summary>
-		private static List<Task> SetupWorkers(IServiceProvider services) {
+		private static void RunWorkers(IServiceProvider services) {
+			var ct = _shutdownToken.Token;
 
-			var workers = new List<IWorker>() {
+			var workers = new BaseWorker[] {
 				
 				// notifications
-				new NotificationSender().BurstMode(),
-
-				// currency price
-				new Workers.Rates.GoldRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
-				new Workers.Rates.CryptoRateUpdater(TimeSpan.FromSeconds(_appConfig.Services.GMRatesProvider.RequestTimeoutSec)).Period(TimeSpan.FromSeconds(30)),
+				new NotificationSender(BaseOptions.RunOnce(ct)),
 
 				// ethereum pool (contract)
-				new Workers.EthPoolFreezer.EventHarvester(blocksPerRound: 50, confirmationsRequired: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(90)),
-				new Workers.EthPoolFreezer.SendTokenRequestor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
-				new Workers.EthPoolFreezer.SendTokenConfirmer().BurstMode(),
+				new Workers.EthPoolFreezer.EventHarvester(_appConfig.Services.Ethereum.ConfirmationsRequired, BaseOptions.RunPeriod(ct, TimeSpan.FromMinutes(2))),
+				new Workers.EthPoolFreezer.EmissionRequestor(BaseOptions.RunMinutely(ct)),
+				new Workers.EthPoolFreezer.EmissionConfirmer(BaseOptions.RunOnce(ct)),
+
+				// processes gold buying requests
+				new Workers.GoldBuy.Eth.Eth2GoldDepositer(BaseOptions.RunOnce(ct)),
+				new Workers.GoldBuy.Withdraw.Confirmer(BaseOptions.RunOnce(ct)),
 
 				// processes gold selling requests
-				new Workers.Sell.RequestProcessor(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
+				new Workers.GoldSell.Eth.RequestProcessor(BaseOptions.RunMinutely(ct)),
 
 				// eth sender
-				new Workers.EthSender.Sender(rowsPerRound: 50).Period(TimeSpan.FromSeconds(60)),
-				new Workers.EthSender.Confirmer(rowsPerRound: 50, ethConfirmations: _appConfig.Services.Ethereum.ConfirmationsRequired).Period(TimeSpan.FromSeconds(30)),
+				new Workers.EthSender.Sender(BaseOptions.RunMinutely(ct)),
+				new Workers.EthSender.Confirmer(_appConfig.Services.Ethereum.ConfirmationsRequired, BaseOptions.RunMinutely(ct)),
 
 				// mint deposit wallets
-				new Workers.SumusWallet.RefillListener().BurstMode(),
-				new Workers.SumusWallet.TrackRequestor(rowsPerRound: 100).Period(TimeSpan.FromSeconds(60)),
+				new Workers.SumusWallet.RefillListener(BaseOptions.RunOnce(ct)),
+				new Workers.SumusWallet.TrackRequestor(BaseOptions.RunMinutely(ct)),
 			};
 
-			// init
 			foreach (var w in workers) {
-				var scopedServices = services.CreateScope().ServiceProvider;
-				Task.Run(async () => await w.Init(scopedServices)).Wait();
+				w.Init(services.CreateScope().ServiceProvider).Wait();
 			}
 
-			// launch
-			var workerTasks = new List<Task>();
+			var tasks = new List<Task>();
 			foreach (var w in workers) {
-				workerTasks.Add(Task.Run(async () => await w.Loop(_shutdownToken.Token)));
+				var t = Task.Factory.StartNew(w.Loop, TaskCreationOptions.LongRunning);
+				tasks.Add(t.Unwrap());
 			}
 
-			return workerTasks;
+			Task.WaitAll(tasks.ToArray());
 		}
 	}
 }

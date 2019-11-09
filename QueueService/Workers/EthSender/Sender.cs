@@ -1,18 +1,19 @@
-﻿using Goldmint.DAL;
+﻿using Goldmint.Common;
+using Goldmint.Common.Extensions;
+using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
+using Goldmint.CoreLogic.Services.Localization;
+using Goldmint.CoreLogic.Services.Notification;
+using Goldmint.CoreLogic.Services.Notification.Impl;
+using Goldmint.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.Common;
-using Goldmint.CoreLogic.Services.Blockchain.Ethereum;
-using Goldmint.Common.Extensions;
-using Goldmint.CoreLogic.Services.Notification.Impl;
-using Goldmint.CoreLogic.Services.Localization;
-using Goldmint.CoreLogic.Services.Notification;
 
 namespace Goldmint.QueueService.Workers.EthSender {
 
+	// Sender gets enqueued Ethereum transaction from DB, sends ETH to the user address
 	public sealed class Sender : BaseWorker {
 
 		private readonly int _rowsPerRound;
@@ -25,8 +26,8 @@ namespace Goldmint.QueueService.Workers.EthSender {
 		private ITemplateProvider _templateProvider;
 		private INotificationQueue _notificationQueue;
 
-		public Sender(int rowsPerRound) {
-			_rowsPerRound = Math.Max(1, rowsPerRound);
+		public Sender(BaseOptions opts) : base(opts) {
+			_rowsPerRound = 50;
 		}
 
 		protected override Task OnInit(IServiceProvider services) {
@@ -40,19 +41,20 @@ namespace Goldmint.QueueService.Workers.EthSender {
 			return Task.CompletedTask;
 		}
 
+		protected override Task OnCleanup() {
+			return Task.CompletedTask;
+		}
+
 		protected override async Task OnUpdate() {
 			_dbContext.DetachEverything();
 
-			var rows = await (
-				from r in _dbContext.EthSending
-				where r.Status == EthereumOperationStatus.Initial
-				select r
-			)
-			.Include(_ => _.User)
-			.Include(_ => _.RelUserFinHistory).ThenInclude(_ => _.RelUserActivity)
-			.AsTracking()
-			.Take(_rowsPerRound)
-			.ToArrayAsync(CancellationToken)
+			var rows = await 
+				(from r in _dbContext.EthSending where r.Status == EthereumOperationStatus.Initial select r)
+				.Include(_ => _.User)
+				.Include(_ => _.RelFinHistory)
+				.AsTracking()
+				.Take(_rowsPerRound)
+				.ToArrayAsync(CancellationToken)
 			;
 			if (IsCancelled() || rows.Length == 0) return;
 
@@ -70,20 +72,18 @@ namespace Goldmint.QueueService.Workers.EthSender {
 					var tx = await _ethWriter.SendEth(r.Address, r.Amount.ToEther());
 					r.Status = EthereumOperationStatus.BlockchainConfirm;
 					r.Transaction = tx;
-					r.RelUserFinHistory.RelEthTransactionId = tx;
 					r.TimeNextCheck = DateTime.UtcNow.AddSeconds(60);
 
 					ethAmount -= r.Amount.ToEther();
 
 					try {
 						// notification
-						await EmailComposer.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, r.RelUserFinHistory.RelUserActivity.Locale))
+						await EmailComposer.FromTemplate(await _templateProvider.GetEmailTemplate(EmailTemplate.ExchangeEthTransferred, Locale.En))
 							.ReplaceBodyTag("REQUEST_ID", r.Id.ToString())
 							.ReplaceBodyTag("ETHERSCAN_LINK", _appConfig.Services.Ethereum.EtherscanTxView + tx)
-							.ReplaceBodyTag("DETAILS_SOURCE", r.RelUserFinHistory.SourceAmount + " GOLD")
-							.ReplaceBodyTag("DETAILS_ESTIMATED", r.RelUserFinHistory.DestinationAmount + " ETH")
+							.ReplaceBodyTag("DETAILS_SOURCE", r.RelFinHistory?.SourceAmount ?? "?" + " GOLD")
+							.ReplaceBodyTag("DETAILS_ESTIMATED", r.RelFinHistory?.DestinationAmount ?? "?" + " ETH")
 							.ReplaceBodyTag("DETAILS_ADDRESS", TextFormatter.MaskBlockchainAddress(r.Address))
-							.Initiator(r.RelUserFinHistory.RelUserActivity)
 							.Send(r.User.Email, r.User.UserName, _notificationQueue)
 						;
 					} catch{ }

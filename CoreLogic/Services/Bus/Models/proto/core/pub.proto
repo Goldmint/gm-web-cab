@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package pub;
+option csharp_namespace = "Goldmint.CoreLogic.Services.Bus.Models.Core.Pub";
+
+// Global config is updated and should be reloaded
+message ConfigUpdatedEvent {
+}

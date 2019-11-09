@@ -7,8 +7,8 @@ using Goldmint.CoreLogic.Services.Localization;
 using Goldmint.CoreLogic.Services.Localization.Impl;
 using Goldmint.CoreLogic.Services.Notification;
 using Goldmint.CoreLogic.Services.Notification.Impl;
-using Goldmint.CoreLogic.Services.Rate;
-using Goldmint.CoreLogic.Services.Rate.Impl;
+using Goldmint.CoreLogic.Services.Price;
+using Goldmint.CoreLogic.Services.Price.Impl;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
 using Goldmint.CoreLogic.Services.RuntimeConfig.Impl;
 using Goldmint.DAL;
@@ -30,7 +30,7 @@ namespace Goldmint.WebApplication {
 
 	public partial class Startup {
 
-		private BusSafeRatesSource _busSafeRatesSource;
+		private PriceDispatcher _priceDispatcher;
 		private RuntimeConfigUpdater _configUpdater;
 
 		public IServiceProvider ConfigureServices(IServiceCollection services) {
@@ -197,36 +197,32 @@ namespace Goldmint.WebApplication {
 			services.AddSingleton<IEthereumReader, EthereumReader>();
 
 			// nats
-			var natsConnPool = new CoreLogic.Services.Bus.Impl.ConnPool(_appConfig, Log.Logger);
-			services.AddSingleton<CoreLogic.Services.Bus.IConnPool>(natsConnPool);
+			var natsConnPool = new CoreLogic.Services.Bus.Impl.Bus(_appConfig, Log.Logger);
+			services.AddSingleton<CoreLogic.Services.Bus.IBus>(natsConnPool);
 
-			// rates
-			_busSafeRatesSource = new BusSafeRatesSource(natsConnPool, _runtimeConfigHolder, Log.Logger);
-			services.AddSingleton<IAggregatedSafeRatesSource>(_busSafeRatesSource);
-			services.AddSingleton<SafeRatesFiatAdapter>();
+			// prices
+			{
+				var gmPrices = new GMPriceProvider(
+					opts => {
+						opts.GoldUrl = _appConfig.Services.GMRatesProvider.GoldRateUrl;
+						opts.EthUrl = _appConfig.Services.GMRatesProvider.EthRateUrl;
+					},
+					Log.Logger
+				);
+
+				_priceDispatcher = new PriceDispatcher(
+					gmPrices, gmPrices, _runtimeConfigHolder, Log.Logger, 
+					opts => {
+						opts.PriceRequestPeriod = TimeSpan.FromSeconds(60);
+						opts.PriceRequestTimeout = TimeSpan.FromSeconds(10);
+					}
+				);
+				services.AddSingleton<IPriceSource>(_priceDispatcher);
+			}
 
 			// runtime config updater
 			_configUpdater = new RuntimeConfigUpdater(natsConnPool, _runtimeConfigHolder, Log.Logger);
 			services.AddSingleton<IRuntimeConfigUpdater>(_configUpdater);
-
-			// docs signing
-			//services.AddSingleton<IDocSigningProvider>(fac => {
-			//	var srv = new SignRequest(
-			//		opts: new SignRequest.Options() { 
-			//			BaseUrl = _appConfig.Services.SignRequest.Url,
-			//			AuthString = _appConfig.Services.SignRequest.Auth,
-			//			SenderEmail = _appConfig.Services.SignRequest.SenderEmail,
-			//			SenderEmailName = "GoldMint",
-			//		},
-			//		logFactory: LogManager.LogFactory
-			//	);
-			//	foreach (var t in _appConfig.Services.SignRequest.Templates) {
-			//		if (Enum.TryParse(t.Locale, true, out Common.Locale locale)) {
-			//			srv.AddTemplate(locale, t.Name, t.Filename, t.Template);
-			//		}
-			//	}
-			//	return srv;
-			//});
 
 			return services.BuildServiceProvider();
 		}
@@ -234,7 +230,7 @@ namespace Goldmint.WebApplication {
 		public void RunServices() {
 			Log.Logger.Information("Run services");
 			_runtimeConfigHolder.Reload().Wait();
-			_busSafeRatesSource?.Run();
+			_priceDispatcher?.Start();
 			_configUpdater?.Run();
 		}
 
@@ -242,8 +238,8 @@ namespace Goldmint.WebApplication {
 			Log.Logger.Information("Stop services");
 
 			try {
-				_busSafeRatesSource?.Stop();
-				_busSafeRatesSource?.Dispose();
+				_priceDispatcher?.Stop();
+				_priceDispatcher?.Dispose();
 				_configUpdater?.Stop();
 				_configUpdater?.Dispose();
 			} catch (Exception e) {

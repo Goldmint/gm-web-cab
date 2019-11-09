@@ -110,8 +110,8 @@ namespace Goldmint.WebApplication.Controllers.v1 {
 			var user = await GetUserFromDb();
 			var rcfg = RuntimeConfigHolder.Clone();
 
-			var ethDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, EthereumToken.Eth);
-			var ethWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, EthereumToken.Eth);
+			var ethDepositLimits = v1.User.BuyGoldController.DepositLimits(rcfg, TradableCurrency.Eth);
+			var ethWithdrawLimits = v1.User.SellGoldController.WithdrawalLimits(rcfg, TradableCurrency.Eth);
 			var ccDepositLimits = await v1.User.BuyGoldController.DepositLimits(rcfg, DbContext, user.Id, FiatCurrency.Usd);
 			var ccWithdrawLimits = await v1.User.SellGoldController.WithdrawalLimits(rcfg, DbContext, user.Id, FiatCurrency.Usd);
 

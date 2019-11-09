@@ -37,6 +37,10 @@ namespace Goldmint.QueueService {
 				}
 			};
 
+			// globlization
+			System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+			System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
 			_environment = new Microsoft.AspNetCore.Hosting.Internal.HostingEnvironment();
 			_environment.EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -71,7 +75,7 @@ namespace Goldmint.QueueService {
 				if (_environment.IsDevelopment()) {
 					logConf.MinimumLevel.Verbose();
 				}
-				logConf.WriteTo.Console();
+				logConf.WriteTo.Console(outputTemplate: "{Timestamp:HH:mm} [{Level:u3}] {Message}   at {SourceContext}{NewLine}{Exception}");
 			}
 			var logger = Log.Logger = logConf.CreateLogger();
 			
@@ -91,18 +95,25 @@ namespace Goldmint.QueueService {
 			// setup ms logger
 			// services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().AddNLog();
 
-			// run services
-			RunServices();
+			// start required services
+			StartServices();
 
-			// setup workers and wait
-			Task.WaitAll(SetupWorkers(services).ToArray());
+			// run workers and wait for completion
+			RunWorkers(services);
 
 			// cleanup
 			StopServices();
 			Log.CloseAndFlush();
 
-			_shutdownCompletedEvent.Set();
+			if (_environment.IsDevelopment() && Environment.UserInteractive) {
+				Console.WriteLine("Press space");
+				do {
+					while (! Console.KeyAvailable) { Thread.Sleep(100); }    
+				} while (Console.ReadKey(true).Key != ConsoleKey.Spacebar);
+			}
+
 			logger.Information("Stopped");
+			_shutdownCompletedEvent.Set();
 		}
 
 		private static void onStop(object sender, EventArgs e) {

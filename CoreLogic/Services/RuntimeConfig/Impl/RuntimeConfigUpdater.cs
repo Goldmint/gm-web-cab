@@ -1,7 +1,8 @@
-﻿using System;
-using Goldmint.Common.Extensions;
-using System.Threading.Tasks;
+﻿using Goldmint.Common.Extensions;
+using Google.Protobuf;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 
@@ -13,13 +14,13 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		private readonly ILogger _logger;
 		private readonly RuntimeConfigHolder _runtimeConfigHolder;
 
-		public RuntimeConfigUpdater(Bus.IConnPool bus, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
-			_natsConnPub = bus.GetConnection().Result;
-			_natsConnSub = bus.GetConnection().Result;
+		public RuntimeConfigUpdater(Bus.IBus bus, RuntimeConfigHolder runtimeConfigHolder, ILogger logFactory) {
+			_natsConnPub = bus.AllocateConnection().Result;
+			_natsConnSub = bus.AllocateConnection().Result;
 			_runtimeConfigHolder = runtimeConfigHolder;
 			_logger = logFactory.GetLoggerFor(this);
 
-			_natsAsyncSub = _natsConnSub.SubscribeAsync(Bus.Models.Config.Updated.Subject);
+			_natsAsyncSub = _natsConnSub.SubscribeAsync(Bus.Models.Core.Pub.Subjects.ConfigUpdatedEvent);
 			_natsAsyncSub.MessageHandler += OnConfigUpdated;
 		}
 
@@ -50,7 +51,10 @@ namespace Goldmint.CoreLogic.Services.RuntimeConfig.Impl {
 		}
 
 		public Task PublishUpdated() {
-			_natsConnPub.Publish(Bus.Models.Config.Updated.Subject, new byte[]{ });
+			_natsConnPub.Publish(
+				Bus.Models.Core.Pub.Subjects.ConfigUpdatedEvent,
+				new Bus.Models.Core.Pub.ConfigUpdatedEvent().ToByteArray()
+			);
 			return Task.CompletedTask;
 		}
 	}

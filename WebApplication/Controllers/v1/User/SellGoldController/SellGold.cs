@@ -1,26 +1,23 @@
 ﻿using Goldmint.Common;
 using Goldmint.CoreLogic.Services.RuntimeConfig;
+using Goldmint.DAL;
 using Goldmint.WebApplication.Core.Policies;
 using Goldmint.WebApplication.Core.Response;
 using Goldmint.WebApplication.Models.API;
 using Goldmint.WebApplication.Models.API.v1.User.SellGoldModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Goldmint.DAL;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	[Route("api/v1/user/gold/sell")]
 	public partial class SellGoldController : BaseController {
 
-		/// <summary>
-		/// Estimate
-		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("estimate")]
 		[ProducesResponseType(typeof(EstimateView), 200)]
@@ -32,14 +29,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var exchangeCurrency = FiatCurrency.Usd;
-			EthereumToken? ethereumToken = null;
+			TradableCurrency? ethereumToken = null;
 
 			// try parse fiat currency
 			if (Enum.TryParse(model.Currency, true, out FiatCurrency fc)) {
 				exchangeCurrency = fc;
 			}
 			// or crypto currency
-			else if (Enum.TryParse(model.Currency, true, out EthereumToken cc)) {
+			else if (Enum.TryParse(model.Currency, true, out TradableCurrency cc)) {
 				ethereumToken = cc;
 			}
 			else {
@@ -72,9 +69,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			return APIResponse.Success(estimation.View);
 		}
 
-		/// <summary>
-		/// Confirm request
-		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("confirm")]
 		[ProducesResponseType(typeof(ConfirmView), 200)]
@@ -86,20 +80,27 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			}
 
 			var user = await GetUserFromDb();
+			var userTier = CoreLogic.User.GetTier(user);
 			var userLocale = GetUserLocale();
 			var agent = GetUserAgentInfo();
 
+			if (userTier < UserTier.Tier2) {
+				return APIResponse.BadRequest(APIErrorCode.AccountNotVerified);
+			}
+
 			// ---
 
-			var request = await (
+			var request = await 
+				(
 					from r in DbContext.SellGoldEth
 					where
-						r.Status == SellGoldRequestStatus.Unconfirmed &&
+						r.Status == BuySellGoldRequestStatus.Unconfirmed &&
 						r.Id == model.RequestId &&
-						r.UserId == user.Id
+						r.UserId == user.Id &&
+						(DateTime.UtcNow - r.TimeCreated).TotalHours < 1.0
 					select r
 				)
-				.Include(_ => _.RelUserFinHistory)
+				.Include(_ => _.RelFinHistory)
 				.AsTracking()
 				.FirstOrDefaultAsync()
 			;
@@ -113,43 +114,19 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 			using (var scope = HttpContext.RequestServices.CreateScope()) {
 				if (!await CoreLogic.Finance.SumusWallet.Charge(scope.ServiceProvider, request.UserId, request.GoldAmount, SumusToken.Gold)) {
 					
-					// activity
-					var userActivity = CoreLogic.User.CreateUserActivity(
-						user: user,
-						type: Common.UserActivityType.Exchange,
-						comment: $"Gold selling request #{request.Id} failed",
-						ip: agent.Ip,
-						agent: agent.Agent,
-						locale: userLocale
-					);
-					DbContext.UserActivity.Add(userActivity);
-					await DbContext.SaveChangesAsync();
-
 					// mark request failed
-					request.RelUserFinHistory.Status = UserFinHistoryStatus.Failed;
-					request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
-					request.Status = SellGoldRequestStatus.Failed;
+					request.Status = BuySellGoldRequestStatus.Failed;
+					if (request.RelFinHistory != null) {
+						request.RelFinHistory.Status = UserFinHistoryStatus.Failed;
+						request.RelFinHistory.Comment = "Not enough GOLD";
+					}
 					await DbContext.SaveChangesAsync();
 
 					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 				} else {
-
-					// activity
-					var userActivity = CoreLogic.User.CreateUserActivity(
-						user: user,
-						type: Common.UserActivityType.Exchange,
-						comment: $"Gold selling request #{request.Id} confirmed",
-						ip: agent.Ip,
-						agent: agent.Agent,
-						locale: userLocale
-					);
-					DbContext.UserActivity.Add(userActivity);
-					await DbContext.SaveChangesAsync();
-
 					// mark request for processing
-					request.RelUserFinHistory.Status = UserFinHistoryStatus.Manual;
-					request.RelUserFinHistory.RelUserActivityId = userActivity.Id;
-					request.Status = SellGoldRequestStatus.Confirmed;
+					request.Status = BuySellGoldRequestStatus.Confirmed;
+					if (request.RelFinHistory != null) request.RelFinHistory.Status = UserFinHistoryStatus.Processing;
 					await DbContext.SaveChangesAsync();
 
 					return APIResponse.Success(
@@ -173,7 +150,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, EthereumToken? ethereumToken, FiatCurrency fiatCurrency, string ethAddress, bool reversed, BigInteger withdrawalLimitMin, BigInteger withdrawalLimitMax) {
+		private async Task<EstimationResult> Estimation(RuntimeConfig rcfg, BigInteger inputAmount, TradableCurrency? ethereumToken, FiatCurrency fiatCurrency, string ethAddress, bool reversed, BigInteger withdrawalLimitMin, BigInteger withdrawalLimitMax) {
 
 			var allowed = false;
 
@@ -349,14 +326,14 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 		}
 
 		[NonAction]
-		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, EthereumToken ethereumToken) {
+		public static WithdrawalLimitsResult WithdrawalLimits(RuntimeConfig rcfg, TradableCurrency ethereumToken) {
 
 			var cryptoAccuracy = 8;
 			var decimals = cryptoAccuracy;
 			var min = 0d;
 			var max = 0d;
 
-			if (ethereumToken == EthereumToken.Eth) {
+			if (ethereumToken == TradableCurrency.Eth) {
 				decimals = TokensPrecision.Ethereum;
 				min = rcfg.Gold.PaymentMehtods.EthWithdrawMinEther;
 				max = rcfg.Gold.PaymentMehtods.EthWithdrawMaxEther;

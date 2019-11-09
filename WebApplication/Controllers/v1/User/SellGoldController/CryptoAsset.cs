@@ -13,9 +13,6 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 	public partial class SellGoldController : BaseController {
 
-		/// <summary>
-		/// GOLD to ETH
-		/// </summary>
 		[RequireJWTAudience(JwtAudience.Cabinet), RequireJWTArea(JwtArea.Authorized)]
 		[HttpPost, Route("asset/eth")]
 		[ProducesResponseType(typeof(AssetEthView), 200)]
@@ -55,9 +52,9 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
 
-			var limits = WithdrawalLimits(rcfg, EthereumToken.Eth);
+			var limits = WithdrawalLimits(rcfg, TradableCurrency.Eth);
 
-			var estimation = await Estimation(rcfg, inputAmount, EthereumToken.Eth, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
+			var estimation = await Estimation(rcfg, inputAmount, TradableCurrency.Eth, exchangeCurrency, model.EthAddress, model.Reversed, limits.Min, limits.Max);
 			if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 				return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 			}
@@ -67,7 +64,7 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// limit gold amount to max available
 			if (estimation.ResultGoldAmount.FromSumus() > user.UserSumusWallet.BalanceGold) {
-				estimation = await Estimation(rcfg, user.UserSumusWallet.BalanceGold.ToSumus(), EthereumToken.Eth, exchangeCurrency, model.EthAddress, false, limits.Min, limits.Max);
+				estimation = await Estimation(rcfg, user.UserSumusWallet.BalanceGold.ToSumus(), TradableCurrency.Eth, exchangeCurrency, model.EthAddress, false, limits.Min, limits.Max);
 				if (!estimation.TradingAllowed || estimation.ResultCurrencyAmount < 1) {
 					return APIResponse.BadRequest(APIErrorCode.TradingNotAllowed);
 				}
@@ -80,27 +77,22 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 
 			// history
 			var finHistory = new DAL.Models.UserFinHistory() {
-
 				Status = UserFinHistoryStatus.Unconfirmed,
 				Type = UserFinHistoryType.GoldSell,
 				Source = "GOLD",
 				SourceAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultGoldAmount, TokensPrecision.Sumus),
 				Destination = "ETH",
 				DestinationAmount = TextFormatter.FormatTokenAmountFixed(estimation.ResultCurrencyAmount, TokensPrecision.Ethereum),
-				Comment = "", // see below
-
+				Comment = "",
 				TimeCreated = timeNow,
-				TimeExpires = null,
 				UserId = user.Id,
 			};
-
-			// add and save
 			DbContext.UserFinHistory.Add(finHistory);
 			await DbContext.SaveChangesAsync();
 
 			// request
 			var request = new DAL.Models.SellGoldEth() {
-				Status = SellGoldRequestStatus.Unconfirmed,
+				Status = BuySellGoldRequestStatus.Unconfirmed,
 				GoldAmount = estimation.ResultGoldAmount.FromSumus(),
 				Destination = model.EthAddress,
 				EthAmount = estimation.ResultCurrencyAmount.FromSumus(),
@@ -108,19 +100,15 @@ namespace Goldmint.WebApplication.Controllers.v1.User {
 				GoldRateCents = estimation.CentsPerGoldRate,
 				EthRateCents = estimation.CentsPerAssetRate,
 				TimeCreated = timeNow,
+				RelFinHistoryId = finHistory.Id,
 				UserId = user.Id,
-				RelUserFinHistoryId = finHistory.Id,
 			};
 
 			// add and save
 			DbContext.SellGoldEth.Add(request);
 			await DbContext.SaveChangesAsync();
 
-			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(EthereumToken.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
-
-			// update comment
-			finHistory.Comment = $"Request #{request.Id} | GOLD/ETH = { TextFormatter.FormatTokenAmountFixed(assetPerGold, TokensPrecision.Ethereum) }";
-			await DbContext.SaveChangesAsync();
+			var assetPerGold = CoreLogic.Finance.Estimation.AssetPerGold(TradableCurrency.Eth, estimation.CentsPerAssetRate, estimation.CentsPerGoldRate);
 
 			return APIResponse.Success(
 				new AssetEthView() {

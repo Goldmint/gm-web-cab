@@ -1,94 +1,100 @@
-﻿using Goldmint.DAL;
+﻿using Goldmint.Common.Extensions;
+using Goldmint.CoreLogic.Services.Bus;
+using Goldmint.DAL;
+using Google.Protobuf;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NATS.Client;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Goldmint.Common.Extensions;
-using Goldmint.CoreLogic.Services.Bus.Models;
-using Goldmint.CoreLogic.Services.Bus;
 
 namespace Goldmint.QueueService.Workers.SumusWallet {
 
+	// RefillListener listens mint-sender service for a new users' GOLD deposits
 	public class RefillListener: BaseWorker {
 
 		private IServiceProvider _services;
 		private ApplicationDbContext _dbContext;
-		private IConnPool _bus;
+		private IConnection _conn;
 
-		public RefillListener() {
+		public RefillListener(BaseOptions opts) : base(opts) {
 		}
 
-		protected override Task OnInit(IServiceProvider services) {
+		protected override async Task OnInit(IServiceProvider services) {
 			_services = services;
 			_dbContext = services.GetRequiredService<ApplicationDbContext>();
-			_bus = services.GetRequiredService<IConnPool>();
+			_conn = await services.GetRequiredService<IBus>().AllocateConnection();
+		}
+
+		protected override Task OnCleanup() {
+			_conn.Close();
+			_conn.Dispose();
 			return Task.CompletedTask;
 		}
 
 		protected override async Task OnUpdate() {
-			using (var conn = await _bus.GetConnection()) {
-				using (var sub = conn.SubscribeSync(MintSender.Watcher.Refill.Subject)) {
-					while (!IsCancelled()) {
-						try {
-							var msg = sub.NextMessage(1000);
-							try {
-								_dbContext.DetachEverything();
+			using (var sub = _conn.SubscribeAsync(
+				MintSender.Subject.Watcher.Event.Refill, 
+				new EventHandler<MsgHandlerEventArgs>(HandleMessage))
+			) {
+				sub.Start();
+				try { await Task.Delay(-1, base.CancellationToken); } catch (TaskCanceledException) { }
+				await sub.DrainAsync();
+			}
+		}
 
-								// read msg
-								var req = Serializer.Deserialize<MintSender.Watcher.Refill.Request>(msg.Data);
+		private void HandleMessage(object _, MsgHandlerEventArgs args) {
+			try {
+				_dbContext.DetachEverything();
 
-								if (req.Service != MintSender.CoreService) {
-									continue;
-								}
-
-								// find wallet
-								var row = await (
-									from r in _dbContext.UserSumusWallet
-									where r.PublicKey == req.PublicKey
-									select r
-								)
-								.AsNoTracking()
-								.LastAsync()
-								;
-								if (row == null) {
-									throw new Exception($"Wallet #{req.PublicKey} not found");
-								}
-
-								// parse amount
-								var ok = decimal.TryParse(req.Amount, System.Globalization.NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out var amount);
-								if (!ok) {
-									throw new Exception($"Failed to parse token");
-								}
-								// truncate
-								amount = amount.ToSumus().FromSumus();
-
-								// parse token
-								ok = Goldmint.Common.Sumus.Token.ParseToken(req.Token, out var token);
-								if (!ok) {
-									throw new Exception($"Failed to parse token");
-								}
-
-								// refill
-								if (!await CoreLogic.Finance.SumusWallet.Refill(_services, row.UserId, amount, token)) {
-									throw new Exception($"Failed to process refilling");
-								}
-
-								// reply
-								var rep = new MintSender.Watcher.Refill.Reply() { Success = true };
-								conn.Publish(msg.Reply, Serializer.Serialize(rep));
-							}
-							catch (Exception e) {
-								Logger.Error(e, $"Failed to process message");
-
-								// reply
-								var rep = new MintSender.Watcher.Refill.Reply() { Success = false, Error = e.ToString() };
-								conn.Publish(msg.Reply, Serializer.Serialize(rep));
-							}
-						} catch{ }
-					}
+				var request = MintSender.Watcher.Event.Refill.Parser.ParseFrom(args.Message.Data);
+				
+				if (request.Service != "core_gold_deposit") {
+					return;
 				}
-				conn.Close();
+
+				// find wallet
+				var row = 
+					(from r in _dbContext.UserSumusWallet where r.PublicKey == request.PublicKey select r)
+					.AsNoTracking()
+					.LastOrDefault()
+				;
+				if (row == null) {
+					throw new Exception($"Wallet #{request.PublicKey} not found");
+				}
+
+				// parse amount
+				var ok = decimal.TryParse(request.Amount, System.Globalization.NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out var amount);
+				if (!ok) {
+					throw new Exception($"Failed to parse amount");
+				}
+				// truncate
+				amount = amount.ToSumus().FromSumus();
+
+				// parse token
+				ok = Common.Sumus.Token.ParseToken(request.Token, out var token);
+				if (!ok) {
+					throw new Exception($"Failed to parse token");
+				}
+
+				// refill
+				if (!CoreLogic.Finance.SumusWallet.Refill(_services, row.UserId, amount, token).Result) {
+					throw new Exception($"Failed to process refilling");
+				}
+
+				// reply
+				args.Message.ArrivalSubcription.Connection.Publish(
+					args.Message.Reply, new MintSender.Watcher.Event.RefillAck() { Success = true }.ToByteArray()
+				);
+			}
+			catch (Exception e) {
+				Logger.Error(e, $"Failed to process message");
+
+				// reply
+				args.Message.ArrivalSubcription.Connection.Publish(
+					args.Message.Reply, new MintSender.Watcher.Event.RefillAck() { Success = false, Error = e.ToString() }.ToByteArray()
+				);
 			}
 		}
 	}

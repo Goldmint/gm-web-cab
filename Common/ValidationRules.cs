@@ -16,7 +16,6 @@ namespace Goldmint.Common {
 		public static readonly Regex RexTfaToken = new Regex("^[0-9]{6}$");
 		public static readonly Regex RexLatinAndPuncts = new Regex(@"^[a-zA-Z0-9]+[a-zA-Z0-9 \-\,\.\(\)\/]*$");
 		public static readonly Regex RexDigits = new Regex(@"^\d+$");
-		public static readonly Regex RexSumusAddress = new Regex(@"^[0-9a-zA-Z]{32,128}$");
 		public static readonly Regex RexEthereumAddress = new Regex(@"^0x[0-9abcdefABCDEF]{40}$");
 		public static readonly Regex RexEthereumTransactionId = new Regex(@"^0x[0-9abcdefABCDEF]{64}$");
 		public static readonly Regex RexPromoCode = new Regex("^[0-9A-Za-z]{5}-[0-9A-Za-z]{5}$");
@@ -98,7 +97,7 @@ namespace Goldmint.Common {
 		}
 
 		public static bool BeValidSumusAddress(string x) {
-			return x != null && RexSumusAddress.IsMatch(x) && Common.Sumus.Pack58.IsAddress(x);
+			return x != null && Sumus.Pack58.IsAddress(x);
 		}
 
 		public static bool BeValidEthereumAddress(string x) {
