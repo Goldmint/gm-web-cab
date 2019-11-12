@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 
@@ -20,10 +20,14 @@ export class MessageBoxComponent {
   public single: boolean;
   public callback: (content) => void;
 
-  constructor(private _bsModalRef: BsModalRef) {
+  constructor(
+    private _bsModalRef: BsModalRef,
+    private _cdRef: ChangeDetectorRef
+  ) {
     this.onClose = new Subject();
     this.single = false;
     this.callback = (content) => {};
+    setTimeout(() => this._cdRef.detectChanges(), 0);
   }
 
   public onConfirm(): void {
