@@ -58,7 +58,7 @@ namespace Goldmint.WebApplication {
 				if (_environment.IsDevelopment()) {
 					logConf.MinimumLevel.Verbose();
 				}
-				logConf.WriteTo.Console(outputTemplate: "{Timestamp:HH:mm} [{Level:u3}] {Message}   at {SourceContext}{NewLine}{Exception}");
+				logConf.WriteTo.Console(outputTemplate: "{Timestamp:dd-MMM-yyyy-HH:mm} [{Level:u3}] {Message}   at {SourceContext}{NewLine}{Exception}");
 			}
 			var logger = Log.Logger = logConf.CreateLogger();
 			

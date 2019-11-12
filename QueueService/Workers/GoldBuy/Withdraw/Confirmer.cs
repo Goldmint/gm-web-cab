@@ -53,7 +53,12 @@ namespace Goldmint.QueueService.Workers.GoldBuy.Withdraw {
 
 				// find request
 				var id = long.Parse(req.Id);
-				var row = (from r in _dbContext.WithdrawGold where r.Id == id select r).AsTracking().LastOrDefault();
+				var row = 
+					(from r in _dbContext.WithdrawGold where r.Id == id select r)
+					.Include(r => r.RelFinHistory)
+					.AsTracking()
+					.LastOrDefault()
+				;
 				if (row == null) {
 					throw new Exception($"Row #{id} not found");
 				}
@@ -63,6 +68,9 @@ namespace Goldmint.QueueService.Workers.GoldBuy.Withdraw {
 					row.SumTransaction = req.Transaction;
 					row.Status = EmissionRequestStatus.Completed;
 					row.TimeCompleted = DateTime.UtcNow;
+					if (row.RelFinHistory != null) {
+						row.RelFinHistory.Status = UserFinHistoryStatus.Completed;
+					}
 					_dbContext.SaveChanges();
 								
 					Logger.Information($"Emission request #{row.Id} completed");
