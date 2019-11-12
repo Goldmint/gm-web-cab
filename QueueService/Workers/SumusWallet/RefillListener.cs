@@ -1,4 +1,5 @@
-﻿using Goldmint.Common.Extensions;
+﻿using Goldmint.Common;
+using Goldmint.Common.Extensions;
 using Goldmint.CoreLogic.Services.Bus;
 using Goldmint.DAL;
 using Google.Protobuf;
@@ -77,6 +78,21 @@ namespace Goldmint.QueueService.Workers.SumusWallet {
 				if (!ok) {
 					throw new Exception($"Failed to parse token");
 				}
+
+				// history
+				var finHistory = new DAL.Models.UserFinHistory() {
+					Status = UserFinHistoryStatus.Completed,
+					Type = UserFinHistoryType.GoldDeposit,
+					Source = "",
+					SourceAmount = "",
+					Destination = "GOLD",
+					DestinationAmount = TextFormatter.FormatTokenAmountFixed(amount),
+					Comment = "",
+					TimeCreated = DateTime.UtcNow,
+					UserId = row.UserId,
+				};
+				_dbContext.UserFinHistory.Add(finHistory);
+				_dbContext.SaveChanges();
 
 				// refill
 				if (!CoreLogic.Finance.SumusWallet.Refill(_services, row.UserId, amount, token).Result) {
