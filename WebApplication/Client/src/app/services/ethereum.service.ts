@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Observable";
-import { interval } from "rxjs/observable/interval";
 import * as Web3 from "web3";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { UserService } from "./user.service";
@@ -10,6 +9,7 @@ import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs/Subject";
 import {NavigationEnd, Router} from "@angular/router";
 import {APIService} from "./api.service";
+import {combineLatest} from "rxjs/observable/combineLatest";
 
 @Injectable()
 export class EthereumService {
@@ -27,20 +27,16 @@ export class EthereumService {
 
   private _web3Metamask: Web3 = null;
   private _lastAddress: string | null;
-  private _userId: string | null;
-  private _metamaskNetwork: number = null
 
   public poolContract: any;
-  public oldPoolContract: any;
   public contractMntp: any;
   public swapContract: any;
 
   private Web3 = new Web3();
-  private _contactsInitted: boolean = false;
   private _allowedUrlOccurrencesForInject = [
     'sell', 'buy', 'master-node', 'ethereum-pool', 'swap-mntp'
   ];
-  private checkWeb3Interval = null;
+  private checkBalanceInterval = null;
 
   private _obsEthAddressSubject = new BehaviorSubject<string>(null);
   private _obsEthAddress: Observable<string> = this._obsEthAddressSubject.asObservable();
@@ -62,11 +58,11 @@ export class EthereumService {
     private router: Router
   ) {
     this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd && !this.checkWeb3Interval) {
+      if (event instanceof NavigationEnd && !this.checkBalanceInterval) {
         this._allowedUrlOccurrencesForInject.forEach(url => {
           if (event.urlAfterRedirects.indexOf(url) >= 0) {
-            this.checkWeb3Interval = interval(500).subscribe(this.checkWeb3.bind(this));
-            interval(7500).subscribe(this.checkBalance.bind(this));
+            this.checkWeb3();
+            this.checkBalanceInterval = setInterval(() => this.checkBalance(), 7500);
           }
         });
       }
@@ -78,71 +74,75 @@ export class EthereumService {
   }
 
   private checkWeb3() {
-    !this.EthMntpContractABI && this.getContractABI(this.EthMntpContractAddress).subscribe(abi => {
-      this.EthMntpContractABI = abi['result'];
-    });
+    !this._web3Metamask && combineLatest(
+      this.getContractABI(this.EthMntpContractAddress),
+      this.getContractABI(this.EthPoolContractAddress)
+      // this.getContractABI(this.SwapContractAddress)
+    ).subscribe(abi => {
+      this.EthMntpContractABI = abi[0]['result'];
+      this.EthPoolContractABI = abi[1]['result'];
+      // this.SwapContractABI = abi[2]['result'];
 
-    !this.EthPoolContractABI && this.getContractABI(this.EthPoolContractAddress).subscribe(abi => {
-      this.EthPoolContractABI = abi['result'];
-    });
+      const ethereum = window['ethereum'];
 
-    /*!this.SwapContractABI && this.getContractABI(this.SwapContractAddress).subscribe(abi => {
-        this.SwapContractABI = abi['result'];
-    });*/
-
-    if (!this._web3Metamask && (window.hasOwnProperty('web3') || window.hasOwnProperty('ethereum')) && this.EthMntpContractABI && this.EthPoolContractABI /*&& this.SwapContractABI*/) {
-      let ethereum = window['ethereum'];
-
-      if (ethereum) {
+      if (ethereum && ethereum.isMetaMask && this.EthMntpContractABI && this.EthPoolContractABI /*&& this.SwapContractABI*/) {
         this._web3Metamask = new Web3(ethereum);
-      } else {
-        this._web3Metamask = new Web3(window['web3'].currentProvider);
+
+        if (this._web3Metamask.eth) {
+          this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
+          this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
+          // this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
+
+          this.isPoolContractLoaded$.next(true);
+        } else {
+          this._web3Metamask = null;
+        }
+
+        ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length) {
+            this.ethRequestAccounts(ethereum);
+          } else {
+            this._lastAddress = null;
+            this.emitAddress(null);
+          }
+        });
+
+        ethereum.on('networkChanged', network => {
+          this._obsNetworkSubject.next(+network);
+        });
+
+        ethereum.send('eth_accounts').then(accounts => {
+          if (accounts && accounts.result && accounts.result.length) {
+            this.ethRequestAccounts(ethereum);
+          }
+        });
+
+        ethereum.send('net_version').then(res => {
+          this._obsNetworkSubject.next(+res.result);
+        });
       }
-
-      if (this._web3Metamask.eth) {
-        this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
-        this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
-        // this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
-
-        this.isPoolContractLoaded$.next(true);
-      } else {
-        this._web3Metamask = null;
-      }
-    }
-
-    if (!this._contactsInitted && this._userId) {
-      this._contactsInitted = true;
-      this.checkBalance();
-    }
-
-    if (this._web3Metamask && this._web3Metamask.version.network !== this._metamaskNetwork) {
-      this._metamaskNetwork = this._web3Metamask.version.network;
-      this._obsNetworkSubject.next(this._metamaskNetwork);
-    }
-
-    var addr = this._web3Metamask && this._web3Metamask.eth && this._web3Metamask.eth.accounts.length
-      ? this._web3Metamask.eth.accounts[0] : null;
-
-    if (this._lastAddress != addr) {
-      window['ethereum'] && window['ethereum'].enable().then();
-      this._lastAddress = addr;
-      this.emitAddress(addr);
-    }
+    });
   }
 
-  private checkBalance() {
-    if (this._lastAddress != null) {
-      this.updateMntpBalance(this._lastAddress);
-    }
+  private ethRequestAccounts(ethereum) {
+    ethereum.send('eth_requestAccounts').then(res => {
+      const address = (res && res.result && res.result.length) ? res.result[0] : null;
+
+      this._lastAddress = address;
+      this.emitAddress(address);
+    });
   }
 
-  private emitAddress(ethAddress: string) {
+  private emitAddress(address: string) {
     this._web3Metamask && this._web3Metamask['eth'] && this._web3Metamask['eth'].coinbase
     && (this._web3Metamask['eth'].defaultAccount = this._web3Metamask['eth'].coinbase);
 
-    this._obsEthAddressSubject.next(ethAddress);
-    this._obsMntpBalanceSubject.next(null);
+    this._obsEthAddressSubject.next(address);
     this.checkBalance();
+  }
+
+  private checkBalance() {
+    this.updateMntpBalance(this._lastAddress);
   }
 
   private updateMntpBalance(addr: string) {
@@ -199,8 +199,7 @@ export class EthereumService {
   }
 
   public connectToMetaMask() {
-    const ethereum = window['ethereum'];
-    ethereum && ethereum.enable().then();
+    window['ethereum'] && window['ethereum'].send('eth_requestAccounts').then();
   }
 
   public swapMNTP(sumusAddress, fromAddr: string, amount: number, gasPrice: number) {

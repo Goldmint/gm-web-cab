@@ -96,7 +96,7 @@ export class BlockchainPoolPageComponent implements OnInit {
   }
 
   detectMetaMask() {
-    if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
+    if (!window['ethereum'] || !window['ethereum'].isMetaMask) {
       this.noMetamask = true;
       this.loading = false;
       this._cdRef.markForCheck();

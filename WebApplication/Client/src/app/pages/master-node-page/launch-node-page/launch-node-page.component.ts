@@ -141,7 +141,7 @@ export class LaunchNodePageComponent implements OnInit, OnDestroy {
   }
 
   detectMetaMask() {
-    if (!window.hasOwnProperty('web3') && !window.hasOwnProperty('ethereum')) {
+    if (!window['ethereum'] || !window['ethereum'].isMetaMask) {
       this.noMetamask = true;
       this._cdRef.markForCheck();
     }
