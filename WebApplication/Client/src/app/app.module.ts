@@ -96,7 +96,6 @@ import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-token
 import {PoolService} from "./services/pool.service";
 import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-navbar-block.component';
 import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
-import { NetworkSwitcherBlockComponent } from './blocks/network-switcher-block/network-switcher-block.component';
 import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
 
 export function createTranslateLoader(http: HttpClient) {
@@ -170,7 +169,6 @@ export function createTranslateLoader(http: HttpClient) {
     HoldTokensPageComponent,
     MobileNavbarBlockComponent,
     BuyMntpPageComponent,
-    NetworkSwitcherBlockComponent,
     SwapMntpComponent
   ],
   exports: [],

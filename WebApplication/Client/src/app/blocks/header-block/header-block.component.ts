@@ -55,8 +55,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
     this.getLiteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
 
-    this.networkList = this._apiService.networkList;
-
     if (window.innerWidth > 992) {
       this.isMobile = this.isShowMobileMenu = false;
     } else {
@@ -83,11 +81,6 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
         document.body.style.overflow = 'visible';
         window.scrollTo(0, 0);
 
-        const network = this.route.snapshot.queryParams.network || localStorage.getItem('network');
-        this.router.navigate([], {
-          queryParams: { network: network == this.networkList.testnet ? network : null },
-          queryParamsHandling: 'merge',
-        });
         this._cdRef.markForCheck();
       }
     });

@@ -110,11 +110,6 @@ export class ScanerPageComponent implements OnInit, OnDestroy {
     this.interval = setInterval(() => {
       this.updateData(false);
     }, 60000);
-
-    this.apiService.transferCurrentNetwork.takeUntil(this.destroy$).subscribe(() => {
-      this.loading = true;
-      this.updateData(true);
-    });
   }
 
   updateData(clearOldValues: boolean = false) {

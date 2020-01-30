@@ -69,12 +69,6 @@ export class OverviewPageComponent implements OnInit, OnDestroy {
         });
       }
     });
-
-    this.apiService.transferCurrentNetwork.takeUntil(this.destroy$).subscribe(() => {
-      this.offset = -1;
-      this.setPage(null, true);
-      this.getCurrentActiveNodesStats();
-    });
   }
 
   getCurrentActiveNodesStats() {

@@ -9,7 +9,6 @@ import 'rxjs/add/operator/retry';
 
 import { environment } from '../../environments/environment';
 import {Subject} from "rxjs/Subject";
-import {ActivatedRoute, Router} from "@angular/router";
 
 
 @Injectable()
@@ -17,38 +16,13 @@ export class APIService {
 
   private _sumusBaseUrl = environment.sumusNetworkUrl;
   private _marketBaseUrl = environment.marketApiUrl;
-  public networkList = {
-    mainnet: 'mainnet',
-    testnet: 'testnet'
-  };
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
-  public transferCurrentNetwork = new Subject();
 
   constructor(
-    private _http: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this._sumusBaseUrl = environment.sumusNetworkUrl[this.networkList.mainnet];
-
-    this.route.queryParams.subscribe(params => {
-        if (params.network == this.networkList.mainnet || params.network == this.networkList.testnet) {
-          this._sumusBaseUrl = environment.sumusNetworkUrl[params.network];
-          localStorage.setItem('network', params.network);
-        }
-    });
-
-    this.transferCurrentNetwork.subscribe((network: any) => {
-      this._sumusBaseUrl = environment.sumusNetworkUrl[network];
-
-      this.router.navigate([], {
-        queryParams: { network: network == this.networkList.testnet ? network : null },
-        queryParamsHandling: 'merge',
-      });
-    })
-  }
+    private _http: HttpClient
+  ) { }
 
   getGoldRate(): Observable<object> {
     return this._http
@@ -105,18 +79,16 @@ export class APIService {
     return this._http.get(`${this._sumusBaseUrl}/status`);
   }
 
-  getScannerDailyStatistic(useMainNet: boolean = false) {
-    const sumusBaseUrl = useMainNet ? environment.sumusNetworkUrl[this.networkList.mainnet] : this._sumusBaseUrl;
-    return this._http.get(`${sumusBaseUrl}/status/daily`);
+  getScannerDailyStatistic() {
+    return this._http.get(`${this._sumusBaseUrl}/status/daily`);
   }
 
   getWalletBalance(sumusAddress: string) {
     return this._http.get(`${this._sumusBaseUrl}/wallet/${sumusAddress}`);
   }
 
-  checkTransactionStatus(digest: string, network: string) {
-    let _sumusBaseUrl = environment.sumusNetworkUrl[network] || this._sumusBaseUrl;
-    return this._http.get(`${_sumusBaseUrl}/tx/${digest}`);
+  checkTransactionStatus(digest: string) {
+    return this._http.get(`${this._sumusBaseUrl}/tx/${digest}`);
   }
 
   getTransactionsInBlock(blockNumber: number) {

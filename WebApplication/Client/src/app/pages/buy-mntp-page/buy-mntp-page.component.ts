@@ -23,7 +23,7 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
   public mntpAmount: number = 10000;
   public totalROI: number = 0;
   public lastStatisticDay;
-  
+
   private chartData = [];
 
   constructor(
@@ -60,7 +60,7 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
     };
 
     const combined = combineLatest(
-      this.apiService.getScannerDailyStatistic(true),
+      this.apiService.getScannerDailyStatistic(),
       this.apiService.getMntpRate()
     );
 
@@ -113,7 +113,7 @@ export class BuyMntpPageComponent implements OnInit, OnDestroy {
       this.cdRef.markForCheck();
       return;
     }
-    let incomePerMntpDay = 
+    let incomePerMntpDay =
       (
         this.lastStatisticDay.fee_mnt * this.lastStatisticDay.coin_price.mntp_usd
         + this.lastStatisticDay.fee_gold * this.lastStatisticDay.coin_price.gold_usd
