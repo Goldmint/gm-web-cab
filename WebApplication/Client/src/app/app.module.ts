@@ -2,14 +2,10 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RECAPTCHA_SETTINGS,
-  RecaptchaModule
-} from 'ng-recaptcha';
 
 /*
   Application main imports
  */
-import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { AppRouting } from './app.routing';
 
@@ -79,7 +75,6 @@ import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions
 import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-blocks-page.component";
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {MomentModule} from "ngx-moment";
-import {NgxMaskModule} from "ngx-mask";
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockchain-pool-page.component';
@@ -99,7 +94,6 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    RecaptchaModule.forRoot(),
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
@@ -116,8 +110,7 @@ export function createTranslateLoader(http: HttpClient) {
         useFactory: createTranslateLoader,
         deps: [HttpClient]
       }
-    }),
-    NgxMaskModule.forRoot()
+    })
   ],
   declarations: [
     AppComponent,
@@ -164,12 +157,6 @@ export function createTranslateLoader(http: HttpClient) {
     CommonService,
     PoolService,
     DatePipe,
-    {
-      provide: RECAPTCHA_SETTINGS,
-      useValue: {
-        siteKey: environment.recaptchaSiteKey
-      }
-    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: APIHttpInterceptor,

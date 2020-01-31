@@ -8,7 +8,6 @@ export const environment = {
   walletNetwork: 'test',
   sumusNetworkUrl: 'https://service.goldmint.io/mint/mainnet/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
-  recaptchaSiteKey: '6Ld3i7sUAAAAAImqZ_pZbav0szhkPDqoI73ji11j',
   etherscanUrl: 'https://rinkeby.etherscan.io/tx/',
   etherscanContractUrl: "https://rinkeby.etherscan.io/address/",
   etherscanGetABIUrl: 'https://api-rinkeby.etherscan.io',
