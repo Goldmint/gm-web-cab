@@ -94,16 +94,19 @@
       <div class="mt-5 scaner-info-container line-height">
         <h5 class="mb-3">{{ "PAGES.Scanner.LatestStatistic.Caption" | translate }}</h5>
         <div>
-          <b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityNodes" | translate }}</b>: {{ numberNodes }}
+          <span class="latest-stat-item"><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityNodes" | translate }}</b></span> {{ numberNodes }}
         </div>
         <div>
-          <b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityBlocks" | translate }}</b>: {{ numberBlocks }}
+          <span class="latest-stat-item"><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityBlocks" | translate }}</b></span> {{ numberBlocks }}
         </div>
         <div>
-          <b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityTx" | translate }}</b>: {{ numberTx }}
+          <span class="latest-stat-item"><b>{{ "PAGES.Scanner.LatestStatistic.Labels.QuantityTx" | translate }}</b></span> {{ numberTx }}
         </div>
         <div>
-          <b>Balance</b>: {{ balance.gold }} GOLD, {{ balance.mnt }} MNT
+         <span class="latest-stat-item"><b>Balance GOLD</b></span> {{ balance.gold }} GOLD
+        </div>
+        <div>
+          <span class="latest-stat-item"><b>Balance MNT</b></span> {{ balance.mnt }} MNT
         </div>
       </div>
     </div>
