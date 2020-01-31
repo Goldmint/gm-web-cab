@@ -18,7 +18,6 @@
       "LaunchMasterNode": "Launch master node",
       "Scanner": "Scanner",
       "Transactions": "Transactions",
-      "Nodes": "Nodes overview",
       "BuyMntp": "Buy MNTP"
     }
   },
@@ -150,45 +149,6 @@
         },
         "Buttons": {
           "Go": "GO"
-        }
-      },
-      "Overview": {
-        "Heading": "Overview",
-        "Labels": {
-          "Nodes": "Total running nodes:",
-          "MNT": "Total MNT held:",
-          "Reward": "Total reward earned:",
-          "ActiveNodes": "Current active nodes"
-        },
-        "Links": {
-          "LatestReward": "Latest reward distributions"
-        },
-        "Table": {
-          "Node": "Node wallet",
-          "Date": "Date",
-          "MNT": "MNT",
-          "Reward": "Total reward",
-          "Chart": "Mini chart"
-        },
-        "Chart": "Reward Progress Chart"
-      },
-      "LatestReward": {
-        "Heading": "Latest reward distributions",
-        "Table": {
-          "Date": "Date",
-          "Blocks": "Blocks",
-          "TxAmount": "Transactions",
-          "TransferredToken": "Volume",
-          "RewardAmount": "Reward"
-        }
-      },
-      "RewardTransactions": {
-        "Heading": "Reward transactions",
-        "Table": {
-          "Digest": "Digest",
-          "To": "To",
-          "Amount": "Amount",
-          "Date": "Date"
         }
       }
     },

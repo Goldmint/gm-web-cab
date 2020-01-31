@@ -29,7 +29,7 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public getLiteWalletLink;
   public menuRoutes = {
     masterNode: ['/master-node', '/ethereum-pool', '/buy-mntp', '/swap-mntp'],
-    scanner: ['/scanner', '/nodes']
+    scanner: ['/scanner']
   };
   public activeMenuItem: string;
   public buySellCyberbridgeLink = environment.buySellCyberbridgeLink;

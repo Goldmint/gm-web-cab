@@ -18,7 +18,6 @@
       "LaunchMasterNode": "Запуск мастер ноды",
       "Scanner": "Сканер",
       "Transactions": "транзакции",
-      "Nodes": "Обзор нод",
       "BuyMntp": "Покупка MNTP"
     }
   },
@@ -150,45 +149,6 @@
         },
         "Buttons": {
           "Go": "Вперед"
-        }
-      },
-      "Overview": {
-        "Heading": "Обзор",
-        "Labels": {
-          "Nodes": "Всего запущенных нод:",
-          "MNT": "Всего удержанных MNT:",
-          "Reward": "Всего получено вознаграждения:",
-          "ActiveNodes": "Текущие активные ноды"
-        },
-        "Links": {
-          "LatestReward": "Последние вознаграждения"
-        },
-        "Table": {
-          "Node": "Кошелек ноды",
-          "Date": "Дата запуска",
-          "MNT": "Удержанно MNT",
-          "Reward": "Получено вознаграждения",
-          "Chart": "Мини диаграмма"
-        },
-        "Chart": "График роста вознаграждения"
-      },
-      "LatestReward": {
-        "Heading": "Последние вознаграждения",
-        "Table": {
-          "Date": "Дата",
-          "Blocks": "Блоков",
-          "TxAmount": "Транзакций",
-          "TransferredToken": "Объем",
-          "RewardAmount": "Вознаграждение"
-        }
-      },
-      "RewardTransactions": {
-        "Heading": "Вознаграждение транзакций",
-        "Table": {
-          "Digest": "Digest",
-          "To": "В",
-          "Amount": "Количество",
-          "Date": "Дата"
         }
       }
     },

@@ -69,11 +69,9 @@ import {SafePipe} from "./directives/safe.pipe";
 import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-security-page.component';
 import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
 import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
-import { OverviewPageComponent } from './pages/master-node-page/overview-page/overview-page.component';
 import {GoldDiscount} from "./pipes/gold-discount";
 import {SubstrPipe} from "./pipes/substr.pipe";
 import {NoexpPipe} from "./pipes/noexp.pipe";
-import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
 import {TxInfoPageComponent} from "./pages/scaner-page/tx-info-page/tx-info-page.component";
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
@@ -84,7 +82,6 @@ import {MomentModule} from "ngx-moment";
 import {NgxMaskModule} from "ngx-mask";
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
-import { RewardTransactionsPageComponent } from './pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component';
 import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockchain-pool-page.component';
 import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component';
 import {PoolService} from "./services/pool.service";
@@ -132,7 +129,6 @@ export function createTranslateLoader(http: HttpClient) {
     SpriteComponent,
 	  MasterNodePageComponent,
     LaunchNodePageComponent,
-	  OverviewPageComponent,
     NotFoundPageComponent,
     PagerBlockComponent,
     BlurDirective,
@@ -144,7 +140,6 @@ export function createTranslateLoader(http: HttpClient) {
     NoexpPipe,
     GoldDiscount,
     LegalSecurityPageComponent,
-    LatestRewardPageComponent,
     ScanerPageComponent,
     TxInfoPageComponent,
     TransactionsInBlockPageComponent,
@@ -152,7 +147,6 @@ export function createTranslateLoader(http: HttpClient) {
     AllBlocksPageComponent,
     AddressInfoPageComponent,
     AccountReductionPipe,
-    RewardTransactionsPageComponent,
     BlockchainPoolPageComponent,
     HoldTokensPageComponent,
     MobileNavbarBlockComponent,

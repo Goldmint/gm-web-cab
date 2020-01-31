@@ -77,24 +77,6 @@ export class APIService {
     return this._http.get(`${this._sumusBaseUrl}/tx/list/${_block}/${address}/${from}`);
   }
 
-  // master node
-
-  getCurrentActiveNodesStats() {
-    return this._http.get(`${this._sumusBaseUrl}/node/stats`);
-  }
-
-  getCurrentActiveNodesList(from: string) {
-    return this._http.get(`${this._sumusBaseUrl}/node/list/${from || '-'}`);
-  }
-
-  getLatestRewardList(from: number) {
-    return this._http.get(`${this._sumusBaseUrl}/reward/list/${from || '-'}`);
-  }
-
-  getRewardTransactions(id: number, from: number) {
-    return this._http.get(`${this._sumusBaseUrl}/reward/${id}/list/${from || '-'}`);
-  }
-
   private _handleError(err: HttpErrorResponse | any) {
     if (err.error && err.error.errorCode) {
       switch (err.error.errorCode) {

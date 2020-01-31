@@ -10,11 +10,8 @@ import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
-import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
-import {RewardTransactionsPageComponent} from "./pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component";
 import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockchain-pool-page.component";
 import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component";
-import {OverviewPageComponent} from "./pages/master-node-page/overview-page/overview-page.component";
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
@@ -22,9 +19,6 @@ import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
 
 const appRoutes: Routes = [
   { path: 'master-node', component: LaunchNodePageComponent},
-  { path: 'nodes', component: OverviewPageComponent },
-  { path: 'nodes/latest-reward-distributions', component: LatestRewardPageComponent },
-  { path: 'nodes/reward-transactions/:id', component: RewardTransactionsPageComponent },
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
