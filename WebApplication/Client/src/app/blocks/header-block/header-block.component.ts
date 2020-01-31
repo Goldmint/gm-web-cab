@@ -29,10 +29,9 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public getLiteWalletLink;
   public menuRoutes = {
     masterNode: ['/master-node', '/ethereum-pool', '/buy-mntp', '/swap-mntp'],
-    scanner: ['/scanner', '/nodes', '/pawnshop-loans']
+    scanner: ['/scanner', '/nodes']
   };
   public activeMenuItem: string;
-  public networkList;
   public buySellCyberbridgeLink = environment.buySellCyberbridgeLink;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();

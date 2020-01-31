@@ -7,7 +7,6 @@ export const environment = {
   },
   walletNetwork: 'main',
   sumusNetworkUrl: 'https://service.goldmint.io/mint/mainnet/v1',
-  marketApiUrl: 'https://service.goldmint.io/pawnmarket/v1',
   gasPriceLink: 'https://www.etherchain.org/api/gasPriceOracle',
   recaptchaSiteKey: '6Ld3i7sUAAAAAImqZ_pZbav0szhkPDqoI73ji11j',
   etherscanUrl: 'https://etherscan.io/tx/',

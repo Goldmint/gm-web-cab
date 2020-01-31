@@ -10,13 +10,7 @@ import {AllTransactionsPageComponent} from "./pages/scaner-page/all-transactions
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
-import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
-import {PawnshopFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component";
 import {LatestRewardPageComponent} from "./pages/master-node-page/overview-page/latest-reward-page/latest-reward-page.component";
-import {OrganizationsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/organizations-table/organizations-table.component";
-import {PawnshopsTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component";
-import {FeedTableComponent} from "./pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component";
-import {AllTicketFeedPageComponent} from "./pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component";
 import {RewardTransactionsPageComponent} from "./pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component";
 import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockchain-pool-page.component";
 import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component";
@@ -44,19 +38,6 @@ const appRoutes: Routes = [
   { path: 'scanner/blocks', component: AllBlocksPageComponent },
   { path: 'scanner/transactions', component: AllTransactionsPageComponent },
   { path: 'scanner/transactions-in-block/:id', component: TransactionsInBlockPageComponent },
-  { path: 'pawnshop-loans', component: PawnshopPageComponent,
-    children: [
-      { path: '', redirectTo: 'feed', pathMatch: 'full' },
-      { path: 'feed', component: PawnshopFeedPageComponent,
-        children: [
-          { path: 'all-ticket-feed', component: AllTicketFeedPageComponent },
-          { path: 'organizations', component: OrganizationsTableComponent },
-          { path: 'pawnshop/:id', component: PawnshopsTableComponent },
-          { path: 'organization-feed/:id', component: FeedTableComponent },
-        ]
-      }
-    ]
-  },
 
   { path: '', redirectTo: 'master-node', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }

@@ -82,12 +82,6 @@ import {AllBlocksPageComponent} from "./pages/scaner-page/all-blocks-page/all-bl
 import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/address-info-page.component";
 import {MomentModule} from "ngx-moment";
 import {NgxMaskModule} from "ngx-mask";
-import {PawnshopPageComponent} from "./pages/pawnshop-page/pawnshop-page.component";
-import { PawnshopFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshop-feed-page.component';
-import { AllTicketFeedPageComponent } from './pages/pawnshop-page/pawnshop-feed-page/all-ticket-feed-page/all-ticket-feed-page.component';
-import { OrganizationsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/organizations-table/organizations-table.component';
-import { PawnshopsTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/pawnshops-table/pawnshops-table.component';
-import { FeedTableComponent } from './pages/pawnshop-page/pawnshop-feed-page/feed-table/feed-table.component';
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 import { RewardTransactionsPageComponent } from './pages/master-node-page/overview-page/reward-transactions-page/reward-transactions-page.component';
@@ -157,12 +151,6 @@ export function createTranslateLoader(http: HttpClient) {
     AllTransactionsPageComponent,
     AllBlocksPageComponent,
     AddressInfoPageComponent,
-    PawnshopPageComponent,
-    PawnshopFeedPageComponent,
-    AllTicketFeedPageComponent,
-    OrganizationsTableComponent,
-    PawnshopsTableComponent,
-    FeedTableComponent,
     AccountReductionPipe,
     RewardTransactionsPageComponent,
     BlockchainPoolPageComponent,

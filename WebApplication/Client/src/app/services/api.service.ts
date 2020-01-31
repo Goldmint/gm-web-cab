@@ -15,7 +15,6 @@ import {Subject} from "rxjs/Subject";
 export class APIService {
 
   private _sumusBaseUrl = environment.sumusNetworkUrl;
-  private _marketBaseUrl = environment.marketApiUrl;
 
   public transferTradingError$ = new Subject();
   public transferTradingLimit$ = new Subject();
@@ -40,37 +39,6 @@ export class APIService {
         catchError(this._handleError),
         shareReplay()
       );
-  }
-
-  // pawnshop
-
-  getOrganizationList(from: number) {
-    let _from = from !== null ? from : '-'
-    return this._http.get(`${this._marketBaseUrl}/org/list/${_from}`);
-  }
-
-  getOrganizationDetails(id: number) {
-    return this._http.get(`${this._marketBaseUrl}/org/details/${id}`);
-  }
-
-  getPawnshopList(org: number, from: number) {
-    let _org = org !== null ? org : '-';
-    let _from = from !== null ? from : '-';
-    return this._http.get(`${this._marketBaseUrl}/pawnshop/list/${_org}/${_from}`);
-  }
-
-  getPawnList(pawnshop: number, from: number) {
-    let _pawnshop = pawnshop !== null ? pawnshop : '-';
-    let _from = from !== null ? from : '-';
-    return this._http.get(`${this._marketBaseUrl}/pawn/list/${_pawnshop}/${_from}`);
-  }
-
-  getPawnshopDetails(id: number) {
-    return this._http.get(`${this._marketBaseUrl}/pawnshop/${id}`);
-  }
-
-  getOrganizationsName() {
-    return this._http.get(`${this._marketBaseUrl}/org/names`);
   }
 
   // scanner methods

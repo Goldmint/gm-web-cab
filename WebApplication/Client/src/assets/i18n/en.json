@@ -18,7 +18,6 @@
       "LaunchMasterNode": "Launch master node",
       "Scanner": "Scanner",
       "Transactions": "Transactions",
-      "Pawnshops": "Pawnshop loans",
       "Nodes": "Nodes overview",
       "BuyMntp": "Buy MNTP"
     }
@@ -399,79 +398,6 @@
         "Buttons": {
           "Hold": "Hold"
         }
-      }
-    },
-    "Pawnshop": {
-      "Feed": {
-        "Heading": "Feed",
-        "Tabs": {
-          "AllFeed": "All ticket feed",
-          "Organizations": "Organizations"
-        },
-        "Labels": {
-          "Organizations": "Organizations",
-          "Pawnshops": "Pawnshops",
-          "Feed": "Feed",
-          "Organization": "Organization:",
-          "Pawnshop": "Pawnshop:",
-          "AllFeed": "All ticket feed"
-        },
-        "Buttons": {
-          "Back": "Back",
-          "Next": "Next"
-        },
-        "OrgTable": {
-          "Id": "Id",
-          "Name": "Name"
-        },
-        "PawnshopTable": {
-          "Id": "Id",
-          "Name": "Name"
-        },
-        "SourceTable": {
-          "Caption": "Sources",
-          "ID": "ID",
-          "Wallet": "Wallet",
-          "BalanceMNT": "Balance MNT"
-        },
-        "FeedTable": {
-          "Caption": "Feed",
-          "Id": "Id",
-          "Org": "Organization",
-          "Num": "Num",
-          "Weight": "Weight",
-          "OpenTx": "Inbound TX",
-          "CloseTx": "Outbound TX",
-          "Status": "Status",
-          "UpdateDate": "Update date",
-          "StatusName": {
-            "new": "New",
-            "sold": "Sold",
-            "boughtout": "Bought out",
-            "discarded": "Discarded"
-          }
-        },
-        "PawnshopDetails": {
-          "Heading": "Feed",
-          "Labels": {
-            "Info": "Pawnshop info",
-            "Name": "Name:",
-            "OrgId": "Organization Id:",
-            "Rate": "Current volume:"
-          },
-          "Errors": {
-            "IncorrectPawnshopId": "Incorrect pawnshop id"
-          }
-        },
-        "Charts": {
-          "Rate": "Gold volume history",
-          "OrgChart": "Gold volume history"
-        }
-      },
-      "Invest": {
-        "MainHeading": "Invest",
-        "Heading": "Invest in pawnshop loans",
-        "Text": "If you are interested to invest in pawnshop loans, please, drop us an email to"
       }
     },
     "ErrorPage": {
