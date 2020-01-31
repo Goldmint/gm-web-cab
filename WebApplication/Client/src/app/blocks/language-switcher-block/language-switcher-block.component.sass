@@ -3,30 +3,31 @@
 
 .language
   font-size: rem(16px)
-  padding: 3px 0
   cursor: pointer
 
   &__select
-    display: inline-block
+    position: relative
+    display: flex
+    align-items: center
     font-weight: 500
     cursor: pointer
     user-select: none
 
+    &.open
+      .dropdown-toggle
+        &.active
+          &:after
+            transform: rotate(180deg)
+
     .dropdown-toggle
-      padding: rem(3px)
+      padding: 0 12px
       vertical-align: middle
       text-transform: uppercase
-      letter-spacing: rem(1.5px)
 
       &:after
         transition: transform .16s ease-out
 
-      &.active
-        &:after
-          transform: rotate(180deg)
-
     .dropdown-menu
-      width: 100%
       margin-top: 0
       margin-left: -7px
       border-radius: 0
@@ -44,15 +45,16 @@
     .dropdown-item
       padding: rem(4px) rem(22px)
       margin: rem(2px) 0
-      color: $color-brand
       cursor: pointer
       user-select: none
       transition: $transition-link
 
+      &.active, &:active
+        background-color: transparent
+
       &:hover
         background-color: rgba($color-black, .85)
-        color: $color-brand-hover
-        color: $color-white
+        color: $color-brand
 
       .language__icon
         margin-bottom: rem(2px)

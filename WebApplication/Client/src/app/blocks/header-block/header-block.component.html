@@ -42,11 +42,45 @@
                 </li>
 
                 <li>
-                  <a routerLink="/master-node" [ngClass]="{'active': activeMenuItem == 'masterNode'}">{{ "HEADER.Menu.MasterNode" | translate }}</a>
+                  <div class="auth-info">
+                    <div class="language"
+                         (mouseenter)="menu1.show()" (click)="menu1.show()" (mouseleave)="menu1.hide()">
+                      <div dropdown position="bottom right" class="language__select" #menu1="bs-dropdown">
+                        <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)"
+                           [ngClass]="{'active': menu1.isOpen || activeMenuItem == 'masterNode'}">MNT(P)</a>
+
+                        <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                          <li role="menuitem">
+                            <a class="dropdown-item" routerLink="/master-node" routerLinkActive="active">Launch master node</a>
+                          </li>
+                          <li role="menuitem">
+                            <a class="dropdown-item" routerLink="/ethereum-pool" routerLinkActive="active">Ethereum pool</a>
+                          </li>
+                          <li role="menuitem">
+                            <a class="dropdown-item" routerLink="/buy-mntp" routerLinkActive="active">Buy MNTP</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </li>
 
                 <li>
-                  <a routerLink="/scanner" [ngClass]="{'active': activeMenuItem == 'scanner'}">{{ "HEADER.Menu.Scanner" | translate }}</a>
+                  <div class="auth-info">
+                    <div class="language"
+                         (mouseenter)="menu2.show()" (click)="menu2.show()" (mouseleave)="menu2.hide()">
+                      <div dropdown position="bottom right" class="language__select" #menu2="bs-dropdown">
+                        <a dropdownToggle class="dropdown-toggle" href="javascript:void(0)"
+                           [ngClass]="{'active': menu2.isOpen || activeMenuItem == 'scanner'}">Scanner</a>
+
+                        <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                          <li role="menuitem">
+                            <a class="dropdown-item" routerLink="/scanner" routerLinkActive="active">Transactions</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </li>
 
                 <li>
@@ -71,8 +105,6 @@
         <use xlink:href="#close" *ngIf="isShowMobileMenu"></use>
       </svg>
     </div>
-
-    <app-navbar *ngIf="!isMobile"></app-navbar>
   </div>
 
   <div id="mobile-menu-container" *ngIf="isShowMobileMenu">

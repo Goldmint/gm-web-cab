@@ -41,21 +41,9 @@
   font-size: rem(12px)
 
   a:not(.btn)
-    color: $color-brand
     transition: $transition-link
     text-decoration: none
     text-transform: uppercase
-
-  .language
-    font-size: rem(14px)
-
-    &__select
-      .dropdown-toggle
-        text-transform: none
-        letter-spacing: 0
-
-      .dropdown-menu
-        font-size: rem(14px)
 
 .mobile-menu-button
   cursor: pointer
@@ -74,7 +62,7 @@
 .header-menu
   font-weight: 500
 
-  ul
+  & > ul
     margin: 0
     padding: 0
     list-style-type: none
@@ -82,11 +70,7 @@
     align-items: center
     justify-content: space-between
 
-    li
-      &:hover
-        a
-          color: $color-brand
-
+    & > li
       a
         color: #fff
         padding: 0 12px

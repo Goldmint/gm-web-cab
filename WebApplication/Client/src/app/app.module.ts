@@ -49,7 +49,6 @@ import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
  */
 import { HeaderBlockComponent } from './blocks/header-block/header-block.component';
 import { LanguageSwitcherBlockComponent } from './blocks/language-switcher-block/language-switcher-block.component';
-import { NavbarBlockComponent } from './blocks/navbar-block/navbar-block.component';
 import { FooterBlockComponent } from './blocks/footer-block/footer-block.component';
 import { MessageBoxComponent }  from './common/message-box/message-box.component';
 import { SpriteComponent }      from './common/sprite/sprite.component';
@@ -116,7 +115,6 @@ export function createTranslateLoader(http: HttpClient) {
     AppComponent,
     LanguageSwitcherBlockComponent,
     HeaderBlockComponent,
-    NavbarBlockComponent,
     FooterBlockComponent,
     MessageBoxComponent,
     SpriteComponent,
