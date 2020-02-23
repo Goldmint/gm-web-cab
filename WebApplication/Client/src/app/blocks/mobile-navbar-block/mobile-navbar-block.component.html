@@ -6,7 +6,7 @@
     </li>
 
     <li class="nav-item">
-      <a class="nav-link" [href]="buySellCyberbridgeLink">{{ "HEADER.Menu.Exchange" | translate }}</a>
+      <a class="nav-link" routerLink="/buy-sell-gold">{{ "HEADER.Menu.Exchange" | translate }}</a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
@@ -23,23 +23,15 @@
           <li class="nav-item" routerLinkActive="active">
             <a class="nav-link" routerLink="/buy-mntp">{{ "HEADER.Menu.BuyMntp" | translate }}</a>
           </li>
-           <!--<li class="nav-item" routerLinkActive="active">
-            <a class="nav-link" routerLink="/swap-mntp">Swap MNTP</a>
-          </li>-->
+         <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" routerLink="/swap-mntp">Swap</a>
+          </li>
         </ul>
       </div>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.Scanner" | translate }}</a>
-
-      <div class="sub-nav-container">
-        <ul class="nav nav-pills nav-justified sub-nav">
-          <li class="nav-item" routerLinkActive="active">
-            <a class="nav-link" routerLink="/scanner">{{ "HEADER.Menu.Transactions" | translate }}</a>
-          </li>
-        </ul>
-      </div>
     </li>
 
     <li class="nav-item" routerLinkActive="active">

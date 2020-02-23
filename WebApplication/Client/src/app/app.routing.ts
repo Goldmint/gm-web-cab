@@ -15,6 +15,7 @@ import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
+import {BuySellGoldPageComponent} from "./pages/buy-sell-gold-page/buy-sell-gold-page.component";
 
 
 const appRoutes: Routes = [
@@ -24,6 +25,7 @@ const appRoutes: Routes = [
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
   { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },
+  { path: 'buy-sell-gold', component: BuySellGoldPageComponent },
   // { path: 'swap-mntp', component: SwapMntpComponent },
   { path: 'scanner', component: ScanerPageComponent },
   { path: 'scanner/tx/:id', component: TxInfoPageComponent },

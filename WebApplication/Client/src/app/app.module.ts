@@ -82,6 +82,7 @@ import {PoolService} from "./services/pool.service";
 import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-navbar-block.component';
 import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
 import { SwapMntpComponent } from './pages/swap-mntp/swap-mntp.component';
+import { BuySellGoldPageComponent } from './pages/buy-sell-gold-page/buy-sell-gold-page.component';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -142,7 +143,8 @@ export function createTranslateLoader(http: HttpClient) {
     HoldTokensPageComponent,
     MobileNavbarBlockComponent,
     BuyMntpPageComponent,
-    SwapMntpComponent
+    SwapMntpComponent,
+    BuySellGoldPageComponent
   ],
   exports: [],
   providers: [

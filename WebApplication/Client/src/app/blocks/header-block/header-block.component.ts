@@ -28,11 +28,11 @@ export class HeaderBlockComponent implements OnInit, OnDestroy {
   public isMobile: boolean = false;
   public getLiteWalletLink;
   public menuRoutes = {
+    exchange: ['/buy-sell-gold'],
     masterNode: ['/master-node', '/ethereum-pool', '/buy-mntp', '/swap-mntp'],
     scanner: ['/scanner']
   };
   public activeMenuItem: string;
-  public buySellCyberbridgeLink = environment.buySellCyberbridgeLink;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 

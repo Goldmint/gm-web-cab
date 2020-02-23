@@ -9,7 +9,6 @@ import {environment} from "../../../environments/environment";
 export class MobileNavbarBlockComponent implements OnInit {
 
   public getLiteWalletLink;
-  public buySellCyberbridgeLink = environment.buySellCyberbridgeLink;
 
   constructor() { }
 

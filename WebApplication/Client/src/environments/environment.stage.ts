@@ -17,6 +17,5 @@ export const environment = {
   getLiteWalletLink: {
     chrome: 'https://chrome.google.com/webstore/detail/goldmint-lite-wallet/fnabdmcgpkkjjegokfcnfbpneacddpfh',
     firefox: 'https://addons.mozilla.org/ru/firefox/addon/goldmint-lite-wallet/'
-  },
-  buySellCyberbridgeLink: 'https://staging.goldmint.io/cyber/'
+  }
 };
