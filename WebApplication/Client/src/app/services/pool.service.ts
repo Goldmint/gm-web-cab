@@ -57,7 +57,7 @@ export class PoolService {
     this.getUserStake();
     this.getUserFrozenStake();
     this.getMntpTokenUserReward();
-    this.getGoldTokenUserReward();
+    // this.getGoldTokenUserReward();
   }
 
   public updatePoolData() {

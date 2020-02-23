@@ -77,7 +77,6 @@ import {MomentModule} from "ngx-moment";
 import {CommonService} from "./services/common.service";
 import {AccountReductionPipe} from "./pipes/account-reduction";
 import { BlockchainPoolPageComponent } from './pages/blockchain-pool-page/blockchain-pool-page.component';
-import { HoldTokensPageComponent } from './pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component';
 import {PoolService} from "./services/pool.service";
 import { MobileNavbarBlockComponent } from './blocks/mobile-navbar-block/mobile-navbar-block.component';
 import { BuyMntpPageComponent } from './pages/buy-mntp-page/buy-mntp-page.component';
@@ -140,7 +139,6 @@ export function createTranslateLoader(http: HttpClient) {
     AddressInfoPageComponent,
     AccountReductionPipe,
     BlockchainPoolPageComponent,
-    HoldTokensPageComponent,
     MobileNavbarBlockComponent,
     BuyMntpPageComponent,
     SwapMntpComponent,

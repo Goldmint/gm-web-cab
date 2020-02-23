@@ -1,42 +1,14 @@
 <!-- host: .page -->
 
 <section class="page__section section mb-4">
-  <h2 class="section__title">Ethereum pool for mining MNTP (ERC 20) tokens only</h2>
+  <h2 class="section__title">Deprecated ethereum pool</h2>
 
   <div class="section__content pt-4">
     <div class="progress-linear progress-linear--tiny" *ngIf="loading">
       <div class="container"></div>
     </div>
 
-    <div class="row align-items-baseline">
-
-      <div class="col-12 col-lg-4 form-group text-center">
-        <label class="pool-label-btn" for="hold">{{ "PAGES.BlockchainPool.Labels.Hold" | translate }}</label>
-        <button class="btn btn-primary btn-block poll-action-btn justify-content-center" id="hold" routerLink="/ethereum-pool/hold-tokens">
-          <svg class="icon" width="56px" height="56px">
-            <use xlink:href="#inbox"></use>
-          </svg>
-        </button>
-      </div>
-
-      <div class="col-12 col-lg-4 form-group text-center">
-        <label class="pool-label-btn" for="withdraw" [innerHTML]="'PAGES.BlockchainPool.Labels.Withdraw' | translate"></label>
-        <button class="btn btn-primary btn-block poll-action-btn" id="withdraw" [disabled]="(ethAddress && !isInvalidNetwork && !mntpReward && !goldReward) || loading" (click)="onSubmit(submitMethod[0])">
-          <svg class="icon" width="56px" height="56px">
-            <use xlink:href="#goldsell-history-black"></use>
-          </svg>
-
-          <div>
-            <ng-container *ngIf="ethAddress">
-                <div><b>{{ mntpReward.toFixed(3) }}</b> MNTP </div>
-            </ng-container>
-            <ng-container *ngIf="!ethAddress">
-                <div class="pre-line"><b>CONNECT METAMASK</b></div>
-            </ng-container>
-          </div>
-        </button>
-      </div>
-
+    <div class="row align-items-end">
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="(ethAddress && !isInvalidNetwork && (!heldTokens || userFrozenStake > 0)) || loading" (click)="onSubmit(submitMethod[1])">
@@ -59,18 +31,14 @@
         </div>
       </div>
 
-      <div class="col-12 col-lg-4"></div>
-
-      <div class="col-12 col-lg-4"></div>
-    </div>
-
-    <div>
-      For mining crypto asset GOLD you need to launch your own master node in MINT blockchain.<br>
-      After you hold 10 000.1 MNTP in Ethereum pool you will be able to swap it to MNT token in <a routerLink="/master-node">launch master node</a> section.
-    </div>
-
-    <div class="mt-3 mb-4">
-      <a [href]="etherscanContractUrl + poolContractAddress" target="_blank">{{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}</a>
+      <div class="col-12 col-lg-4 form-group text-center">
+        <a class="view-contract-btn" [href]="etherscanContractUrl + poolContractAddress" target="_blank">
+          <button class="btn btn-primary btn-block poll-action-btn justify-content-center">
+            <b>{{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}</b>
+          </button>
+        </a>
+        <div class="mt-2 d-none d-lg-block" *ngIf="userFrozenStake > 0">&nbsp;</div>
+      </div>
     </div>
 
   </div>
@@ -79,5 +47,3 @@
 <div class="color-red" *ngIf="userFrozenStake > 0">
   {{ "PAGES.BlockchainPool.Labels.ToUnfreeze.Text" | translate }} <a href="mailto:support@goldmint.io" target="_blank">{{ "PAGES.BlockchainPool.Labels.ToUnfreeze.Support" | translate }}</a>
 </div>
-
-<div class="eth-pool-stage-img"></div>

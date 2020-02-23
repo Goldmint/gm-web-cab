@@ -11,7 +11,6 @@ import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/ad
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
 import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockchain-pool-page.component";
-import {HoldTokensPageComponent} from "./pages/blockchain-pool-page/hold-tokens-page/hold-tokens-page.component";
 import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
@@ -23,7 +22,6 @@ const appRoutes: Routes = [
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
-  { path: 'ethereum-pool/hold-tokens', component: HoldTokensPageComponent },
   { path: 'buy-mntp', component: BuyMntpPageComponent },
   { path: 'buy-sell-gold', component: BuySellGoldPageComponent },
   // { path: 'swap-mntp', component: SwapMntpComponent },
