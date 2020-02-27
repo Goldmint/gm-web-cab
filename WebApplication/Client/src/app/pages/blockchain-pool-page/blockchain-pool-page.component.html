@@ -8,7 +8,7 @@
       <div class="container"></div>
     </div>
 
-    <div class="row align-items-end">
+    <div class="row align-items-center">
       <div class="col-12 col-lg-4 form-group text-center">
         <label class="pool-label-btn" for="unhold" [innerHTML]="'PAGES.BlockchainPool.Labels.Unhold' | translate"></label>
         <button class="btn btn-primary btn-block poll-action-btn" id="unhold" [disabled]="(ethAddress && !isInvalidNetwork && (!heldTokens || userFrozenStake > 0)) || loading" (click)="onSubmit(submitMethod[1])">
@@ -31,13 +31,10 @@
         </div>
       </div>
 
-      <div class="col-12 col-lg-4 form-group text-center">
+      <div class="col-12 col-lg-4 text-center" [ngClass]="{'form-group': userFrozenStake > 0}">
         <a class="view-contract-btn" [href]="etherscanContractUrl + poolContractAddress" target="_blank">
-          <button class="btn btn-primary btn-block poll-action-btn justify-content-center">
-            <b>{{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}</b>
-          </button>
+          {{ "PAGES.BlockchainPool.Labels.ViewContract" | translate }}
         </a>
-        <div class="mt-2 d-none d-lg-block" *ngIf="userFrozenStake > 0">&nbsp;</div>
       </div>
     </div>
 
