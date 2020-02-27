@@ -41,6 +41,10 @@ export class APIService {
       );
   }
 
+  swapMNT(model: any) {
+    return this._http.post('https://service.goldmint.io/mint/swap/v1/swap/mnt', model);
+  }
+
   // scanner methods
 
   getScannerStatus() {

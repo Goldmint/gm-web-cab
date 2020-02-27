@@ -15,6 +15,7 @@ import {combineLatest} from "rxjs/observable/combineLatest";
 export class EthereumService {
   private _etherscanGetABIUrl = environment.etherscanGetABIUrl;
   private _gasPriceLink = environment.gasPriceLink;
+  private _etherscanApiKey = environment.etherscanApiKey;
   // mntp token
   private EthMntpContractAddress: string = environment.EthMntpContractAddress;
   private EthMntpContractABI: string;
@@ -69,29 +70,29 @@ export class EthereumService {
     });
   }
 
-  getContractABI(address) {
-    return this._http.get(`${this._etherscanGetABIUrl}/api?module=contract&action=getabi&address=${address}&forma=raw`)
+  getContractABI(address: string) {
+    return this._http.get(`${this._etherscanGetABIUrl}/api?module=contract&action=getabi&address=${address}&forma=raw&apikey=${this._etherscanApiKey}`);
   }
 
   private checkWeb3() {
     !this._web3Metamask && combineLatest(
       this.getContractABI(this.EthMntpContractAddress),
-      this.getContractABI(this.EthPoolContractAddress)
-      // this.getContractABI(this.SwapContractAddress)
+      this.getContractABI(this.EthPoolContractAddress),
+      this.getContractABI(this.SwapContractAddress)
     ).subscribe(abi => {
       this.EthMntpContractABI = abi[0]['result'];
       this.EthPoolContractABI = abi[1]['result'];
-      // this.SwapContractABI = abi[2]['result'];
+      this.SwapContractABI = abi[2]['result'];
 
       const ethereum = window['ethereum'];
 
-      if (ethereum && ethereum.isMetaMask && this.EthMntpContractABI && this.EthPoolContractABI /*&& this.SwapContractABI*/) {
+      if (ethereum && ethereum.isMetaMask && this.EthMntpContractABI && this.EthPoolContractABI && this.SwapContractABI) {
         this._web3Metamask = new Web3(ethereum);
 
         if (this._web3Metamask.eth) {
           this.contractMntp = this._web3Metamask.eth.contract(JSON.parse(this.EthMntpContractABI)).at(this.EthMntpContractAddress);
           this.poolContract = this._web3Metamask.eth.contract(JSON.parse(this.EthPoolContractABI)).at(this.EthPoolContractAddress);
-          // this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
+          this.swapContract = this._web3Metamask.eth.contract(JSON.parse(this.SwapContractABI)).at(this.SwapContractAddress);
 
           this.isPoolContractLoaded$.next(true);
         } else {

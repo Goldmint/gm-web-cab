@@ -23,32 +23,35 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   public loading: boolean = false;
   public isDataLoaded: boolean = false;
   public isMetamask: boolean = false;
-  public tokenAmount: number = 0;
+  public mntpAmount: number = 0;
+  public mintAmount: number = 0;
   public etherscanUrl = environment.etherscanUrl;
   public etherscanContractUrl = environment.etherscanContractUrl;
-  public user: User;
-  public isAuthenticated: boolean = false;
-  public agreeCheck: boolean = false;
+  public agreeMntpConditions: boolean = false;
+  public agreeMintConditions: boolean = false;
   public allowedMMNetwork = environment.MMNetwork;
   public allowedWalletNetwork = environment.walletNetwork;
   public currentWalletNetwork;
   public isInvalidMMNetwork: boolean = true;
   public isInvalidWalletNetwork: boolean = true;
   public errors = {
-    invalidMntpValue: false
+    mntpAmount: false,
+    mintAmount: false
   };
   public noMetamask: boolean = false;
   public noMintWallet: boolean = false;
   public liteWalletLink;
-  public locale: string;
   public swapMntpTxHash: string = null;
+  public swapMintTxHash: string = null;
   public swapContractAddress = environment.SwapContractAddress;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = null;
   private checkLiteWalletInterval;
+  private checkLiteWalletBalanceInterval;
   private sub1: Subscription;
   private mntpBalance: number = 0;
+  private mintBalance: number = 0;
 
   constructor(
     private userService: UserService,
@@ -93,28 +96,27 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
       }
     });
 
-    // this.apiService.getProfile().subscribe(data => {
-    //   this.user = data.data;
-    //   this._cdRef.markForCheck();
-    // });
-
     this.ethService.getObservableMntpBalance().takeUntil(this.destroy$).subscribe(data => {
       if (data !== null && +data !== this.mntpBalance) {
         this.mntpBalance = +data;
-        this.tokenAmount = +this.commonService.substrValue(this.mntpBalance);
+        this.mntpAmount = +this.commonService.substrValue(this.mntpBalance);
         this._cdRef.markForCheck();
       }
     });
-
-    this.userService.currentLocale.takeUntil(this.destroy$).subscribe(locale => {
-      this.locale = locale;
-    });
   }
 
-  changeValue(event) {
+  changeValue(event, token: string) {
     event.target.value = this.commonService.substrValue(event.target.value);
-    this.tokenAmount = +event.target.value;
-    this.errors.invalidMntpValue = this.tokenAmount > this.mntpBalance;
+    this[token + 'Amount'] = +event.target.value;
+    this.errors[token + 'Amount'] = this[token + 'Amount'] > this[token + 'Balance'];
+    this._cdRef.markForCheck();
+  }
+
+  setTokenAmount(percent: number, token: string) {
+    const value = this.commonService.substrValue(+this[token + 'Balance'] * percent);
+    this[token + 'Amount'] = +value;
+    this.errors[token + 'Amount'] = this[token + 'Amount'] > this[token + 'Balance'];
+    this._cdRef.markForCheck();
   }
 
   getEthAddress() {
@@ -128,7 +130,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
       }
       if (!this.ethAddress && this.isMetamask) {
         this.isMetamask = false;
-        this.tokenAmount = 0;
+        this.mntpAmount = 0;
         this.mntpBalance = 0;
       }
       this._cdRef.markForCheck();
@@ -193,11 +195,30 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
 
       this.liteWallet && this.liteWallet.getAccount().then(res => {
         if (this.sumusAddress != res[0]) {
+          clearInterval(this.checkLiteWalletBalanceInterval);
           this.sumusAddress = res.length ? res[0] : null;
+          if (this.sumusAddress) {
+            this.checkLiteWalletBalance();
+            this.checkLiteWalletBalanceInterval = setInterval(() => {
+              this.checkLiteWalletBalance();
+            }, 7500);
+          } else {
+            this.mintBalance = 0;
+          }
           this._cdRef.markForCheck();
         }
       });
     }
+  }
+
+  private checkLiteWalletBalance() {
+    this.liteWallet.getBalance(this.sumusAddress).then(res => {
+      if (res && this.mintBalance !== +res.mint) {
+        this.mintBalance = +res.mint;
+        this.setTokenAmount(1, 'mint')
+        this._cdRef.markForCheck();
+      }
+    });
   }
 
   toHexString(byteArray) {
@@ -208,7 +229,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
     return s;
   }
 
-  onSubmit() {
+  swapMNTP() {
     let firstLoad = true;
     this.sub1 && this.sub1.unsubscribe();
     this.sub1 = this.ethService.getObservableGasPrice().takeUntil(this.destroy$).subscribe((price) => {
@@ -218,15 +239,50 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
           byteArray = bytes.slice(0, -4),
           bytes32 = this.toHexString(byteArray);
 
-        this.ethService.swapMNTP(bytes32, this.ethAddress, this.tokenAmount,+price * Math.pow(10, 9));
+        this.ethService.swapMNTP(bytes32, this.ethAddress, this.mntpAmount,+price * Math.pow(10, 9));
       }
     });
     this._cdRef.markForCheck();
   }
 
+  swapMNT() {
+    let message: any = {
+      src: this.sumusAddress,
+      dst: this.ethAddress,
+      stamp: Math.round(new Date().getTime() / 1000)
+    };
+    message = JSON.stringify(message);
+
+    const enc = new window['TextEncoder']();
+    const messageUint8Array = enc.encode(message)
+
+    this.liteWallet.signMessage(messageUint8Array).then(res => {
+        if (res) {
+          const model = {
+            mint: this.sumusAddress,
+            mint_msg: message,
+            mint_sig: res,
+            eth: this.ethAddress
+          }
+
+          this.apiService.swapMNT(model).subscribe((data: any) => {
+            if (data && data.data) {
+              this.liteWallet.sendTransaction(data.data.swap_address, 'MNT', this.mintAmount).then(digest => {
+                if (digest) {
+                  this.swapMintTxHash = digest;
+                  this._cdRef.markForCheck();
+                }
+              });
+            }
+          });
+        }
+    });
+  }
+
   ngOnDestroy() {
     this.destroy$.next(true);
     clearInterval(this.checkLiteWalletInterval);
+    clearInterval(this.checkLiteWalletBalanceInterval);
     this.sub1 && this.sub1.unsubscribe();
   }
 

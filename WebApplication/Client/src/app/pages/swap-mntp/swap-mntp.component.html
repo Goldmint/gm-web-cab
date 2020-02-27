@@ -1,167 +1,166 @@
 <!-- host: .page -->
 
-<div class="col-auto btn-group p-0 mn-tabs feed-tabs mb-4">
-  <label class="btn btn-primary btn-sm active d-flex align-items-center"
-         name="mntpType"
-         [(ngModel)]="switchModel.type"
-         btnRadio="mntp">
-          <div>MNTP</div>
-          <div class="mx-2">
-            <svg class="icon" width="18px" height="18px">
-              <use xlink:href="#next-arrow"></use>
-            </svg>
-          </div>
-          <div>MNT</div>
-  </label>
-  <label class="btn btn-primary btn-sm active d-flex align-items-center"
-         name="mntType"
-         [(ngModel)]="switchModel.type"
-         btnRadio="mnt">
-          <div>MNT</div>
-          <div class="mx-2">
-            <svg class="icon" width="18px" height="18px">
-              <use xlink:href="#next-arrow"></use>
-            </svg>
-          </div>
-          <div>MNTP</div>
-  </label>
+<div class="pb-4">
+  <section class="page__section section section--no-bottom">
+    <h2 class="section__title">Swap MNT(P)</h2>
+
+    <div class="mt-4">
+      In case you didn’t get back your MNTP during beta-test period, please see <a routerLink="/ethereum-pool">Deprecated Ethereum Pool</a> page
+    </div>
+
+    <div class="col-auto btn-group p-0 mn-tabs feed-tabs mt-4">
+      <label class="btn btn-primary btn-sm active d-flex align-items-center"
+             name="mntpType"
+             [(ngModel)]="switchModel.type"
+             btnRadio="mntp">
+        <div>MNTP</div>
+        <div class="mx-2">
+          <svg class="icon" width="18px" height="18px">
+            <use xlink:href="#next-arrow"></use>
+          </svg>
+        </div>
+        <div>MNT</div>
+      </label>
+      <label class="btn btn-primary btn-sm active d-flex align-items-center"
+             name="mntType"
+             [(ngModel)]="switchModel.type"
+             btnRadio="mnt">
+        <div>MNT</div>
+        <div class="mx-2">
+          <svg class="icon" width="18px" height="18px">
+            <use xlink:href="#next-arrow"></use>
+          </svg>
+        </div>
+        <div>MNTP</div>
+      </label>
+    </div>
+
+  </section>
 </div>
 
-<div class="pb-4">
+<div class="pb-4 swap-page">
   <ng-container *ngIf="switchModel.type == 'mntp'">
     <section class="page__section section pb-4">
-      <h2 class="section__title">Swap MNTP (Ethereum ERC 20) to MNT (MINT blockchain) tokens</h2>
+      <h2 class="section__title">
+        MNTP (Ethereum ERC20)
+        <div class="mx-2">
+          <svg class="icon" width="18px" height="18px">
+            <use xlink:href="#next-arrow"></use>
+          </svg>
+        </div>
+        MNT (Mint blockchain)
+      </h2>
 
       <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
         <div class="container"></div>
       </div>
 
       <ng-template #blockLoaded>
-        <ng-container *ngIf="isAuthenticated && user?.verifiedL0 === false; else content">
-          <div class="mt-4">
-            <p class="mb-5" [innerHTML]=" 'PAGES.Finance.KYC.Text' | translate "></p>
+        <div class="mt-4">
+          <form #swapMntpForm="ngForm">
+            <div class="row">
+              <div class="col-12 overflow-hidden">
+                <div class="from-row form-group">
+                  <div class="wallets-condition-block">
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': noMetamask}">
+                        <use [attr.xlink:href]="noMetamask ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': noMetamask}"
+                         (click)="noMetamask && getMetamaskModal()">Enable</a> MetaMask
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !ethAddress}">
+                        <use [attr.xlink:href]="!ethAddress ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': !ethAddress}"
+                         (click)="!ethAddress && enableMetamaskModal()">Authorize</a> MetaMask
+                      <span *ngIf="ethAddress">({{ ethAddress | reduction:6:4 }})</span>
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': noMintWallet}">
+                        <use [attr.xlink:href]="noMintWallet ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': noMintWallet}"
+                         (click)="noMintWallet && getMintWalletModal()">Enable</a> Lite Wallet
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !sumusAddress}">
+                        <use [attr.xlink:href]="!sumusAddress ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': !sumusAddress}"
+                         (click)="!sumusAddress && enableMintWalletModal()">Authorize</a> Lite Wallet
+                      <span *ngIf="sumusAddress">({{ sumusAddress | reduction:6:4 }})</span>
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !mntpAmount || errors.mntpAmount}">
+                        <use [attr.xlink:href]="!mntpAmount || errors.mntpAmount ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a>MNTP amount</a>
+                    </div>
+                  </div>
 
-            <div class="row kyc-pros mb-4 pb-2">
-              <div class="col-lg-3">
-                <svg class="kyc-pros__icon" width="33px" height="44px">
-                  <use xlink:href="#verify-secure"></use>
-                </svg>
-                <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Secure.Title" | translate }}</div>
-                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Secure.Text" | translate }}</p>
-              </div>
-              <div class="col-lg-3">
-                <svg class="kyc-pros__icon" width="28px" height="44px">
-                  <use xlink:href="#verify-simple"></use>
-                </svg>
-                <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Simple.Title" | translate }}</div>
-                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Simple.Text" | translate }}</p>
-              </div>
-              <div class="col-lg-3">
-                <svg class="kyc-pros__icon" width="36px" height="44px">
-                  <use xlink:href="#verify-complaint"></use>
-                </svg>
-                <div class="kyc-pros__title">{{ "PAGES.Finance.KYC.Pros.Complaint.Title" | translate }}</div>
-                <p class="kyc-pros__desc kyc-pros__desc--small">{{ "PAGES.Finance.KYC.Pros.Complaint.Text" | translate }}</p>
-              </div>
-              <div class="col-lg-3 pl-lg-4 align-self-center">
-                <a routerLink="/account/verification" class="btn btn-primary btn-block my-4">{{ "PAGES.Withdraw.Buttons.Start" | translate }}</a>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-template #content>
-
-          <div class="mt-4">
-            In order to swap tokens, please <a routerLink="/buy-mntp">buy</a> and send MNTP to the
-            <a [href]="etherscanContractUrl + swapContractAddress" target="_blank"> Swap contract</a>
-          </div>
-
-          <div class="mt-4">
-            <form #swapMntpForm="ngForm">
-              <div class="row">
-                <div class="col-12 overflow-hidden">
-                  <div class="from-row form-group">
-                    <label for="tokenAmountInput">{{ "PAGES.MasterNode.LaunchPage.Labels.AvailableMNTP" | translate }}</label>
-                    <div class="d-flex align-items-center">
-                      <div class="form-currency form-currency--gold">
-                        <svg class="icon">
-                          <use xlink:href="#cur-gold"></use>
-                        </svg>
+                  <div class="d-flex align-items-center">
+                    <div class="form-currency form-currency--gold">
+                      <svg class="icon">
+                        <use xlink:href="#cur-gold"></use>
+                      </svg>
+                    </div>
+                    <div class="form-control-container">
+                      <div>
+                        <input type="text" class="form-control token-amount-input" name="mntpAmountInput" id="mntpAmountInput"
+                               [ngClass]="{'is-invalid': errors.mntpAmount}"
+                               [(ngModel)]="mntpAmount"
+                               (input)="changeValue($event, 'mntp')"
+                               autocomplete="off"
+                               [disabled]="swapMntpTxHash">
                       </div>
-                      <input type="text" class="form-control token-amount-input" name="tokenAmountInput" id="tokenAmountInput"
-                             [ngClass]="{'is-invalid': errors.invalidMntpValue}"
-                             #tokenAmountControl="ngModel"
-                             [(ngModel)]="tokenAmount"
-                             (input)="changeValue($event)"
-                             autocomplete="off"
-                             [disabled]="swapMntpTxHash">
-                      <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors.invalidMntpValue">
+                      <div class="percent-btn-cont">
+                        <button class="percent-btn" (click)="!swapMntpTxHash && setTokenAmount(0.25, 'mntp')">25%</button>
+                        <button class="percent-btn" (click)="!swapMntpTxHash && setTokenAmount(0.5, 'mntp')">50%</button>
+                        <button class="percent-btn" (click)="!swapMntpTxHash && setTokenAmount(1, 'mntp')">100%</button>
+                      </div>
+                      <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors.mntpAmount">
                         invalid amount value
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div class="col-12 lead" *ngIf="mntpBalance && ethAddress && sumusAddress && !swapMntpTxHash">
-                  <div class="d-flex align-items-center mb-2">
-                    <div>{{ ethAddress | reduction:6:4 }} (Ethereum)</div>
-
-                    <div class="form-currency ml-3 mr-2">
-                      <svg class="icon" width="25px" height="25px">
-                        <use xlink:href="#next-arrow"></use>
-                      </svg>
-                    </div>
-
-                    <div>{{ tokenAmount }} MNTP</div>
-
-                    <div class="form-currency ml-3 mr-2">
-                      <svg class="icon" width="25px" height="25px">
-                        <use xlink:href="#next-arrow"></use>
-                      </svg>
-                    </div>
-
-                    <div>{{ sumusAddress | reduction:6:4 }} (Mint)</div>
-                  </div>
-
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="agreeCheck" name="agreeCheck" [(ngModel)]="agreeCheck" [disabled]="loading">
-                    <label class="custom-control-label" for="agreeCheck">{{ "PAGES.MasterNode.LaunchPage.Labels.Check" | translate }}</label>
-                    <a href="https://app.goldmint.io/#/legal-security/termsOfTesting" target="_blank">link</a>
-                  </div>
-                </div>
-
-                <div class="col-12 line-height">
-                  <div class="font-weight-500 lead icon--red pointer" *ngIf="noMetamask">
-                    <span (click)="getMetamaskModal()">{{ "PAGES.Sell.Errors.GetMM" | translate }}</span>
-                  </div>
-                  <div class="font-weight-500 lead icon--red pointer" *ngIf="!noMetamask && !ethAddress">
-                    <span (click)="enableMetamaskModal()">{{ "PAGES.Sell.Errors.EnableMM" | translate }}</span>
-                  </div>
-                  <div class="font-weight-500 lead icon--red pointer" *ngIf="noMintWallet">
-                    <span (click)="getMintWalletModal()">{{ "PAGES.Sell.Errors.GetMW" | translate }}</span>
-                  </div>
-                  <div class="font-weight-500 lead icon--red pointer" *ngIf="!noMintWallet && !sumusAddress">
-                    <span (click)="enableMintWalletModal()">{{ "PAGES.Sell.Errors.EnableMW" | translate }}</span>
-                  </div>
-                </div>
-
-                <div class="col mt-4" *ngIf="!swapMntpTxHash">
-                  <button class="btn btn-primary" [disabled]="!isMetamask || !sumusAddress || !agreeCheck || !tokenAmount || isInvalidMMNetwork || isInvalidWalletNetwork || loading || swapMntpTxHash || errors.invalidMntpValue" (click)="onSubmit()">
-                    {{ "PAGES.MasterNode.LaunchPage.Buttons.Go" | translate }}
-                  </button>
-                  <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
-                </div>
-
-                <div class="col" *ngIf="swapMntpTxHash">
-                  See your transaction: <a class="word-break" [href]="etherscanUrl + swapMntpTxHash" target="_blank">{{ swapMntpTxHash }}</a>
                 </div>
               </div>
-            </form>
-          </div>
 
-        </ng-template>
+              <div class="col-12">
+                <div class="mb-2">
+                  You will be prompted to allow <a [href]="etherscanContractUrl + swapContractAddress" target="_blank">swap contract</a> to charge you for {{ mntpAmount }} MNTP. <br>
+                  Swap operation could take up to an hour, please stay patient.
+                </div>
 
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox"
+                         class="custom-control-input"
+                         id="agreeMntpConditions"
+                         name="agreeMntpConditions"
+                         [(ngModel)]="agreeMntpConditions"
+                         [disabled]="loading">
+                  <label class="custom-control-label" for="agreeMntpConditions">I accept the conditions</label>
+                </div>
+              </div>
+
+              <div class="col mt-4" *ngIf="!swapMntpTxHash">
+                <button class="btn btn-primary"
+                        [disabled]="!ethAddress || !sumusAddress || !agreeMntpConditions || !mntpAmount || isInvalidMMNetwork || isInvalidWalletNetwork || loading || errors.mntpAmount"
+                        (click)="swapMNTP()">
+                  Begin Swap
+                </button>
+                <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+              </div>
+
+              <div class="col mt-4" *ngIf="swapMntpTxHash">
+                See your transaction: <a class="word-break" [href]="etherscanUrl + swapMntpTxHash" target="_blank">{{ swapMntpTxHash }}</a>
+              </div>
+            </div>
+          </form>
+        </div>
       </ng-template>
 
     </section>
@@ -169,7 +168,127 @@
 
   <ng-container *ngIf="switchModel.type == 'mnt'">
     <section class="page__section section pb-4">
-      <h2 class="section__title">Swap  MNT (MINT blockchain) to MNTP (Ethereum ERC 20) tokens</h2>
+      <h2 class="section__title">
+        MNT (Mint blockchain)
+        <div class="mx-2">
+          <svg class="icon" width="18px" height="18px">
+            <use xlink:href="#next-arrow"></use>
+          </svg>
+        </div>
+        MNTP (Ethereum ERC20)
+      </h2>
+
+      <div class="progress-linear progress-linear--tiny" *ngIf="!isDataLoaded; else blockLoaded">
+        <div class="container"></div>
+      </div>
+
+      <ng-template #blockLoaded>
+        <div class="mt-4">
+          <form #swapMintForm="ngForm">
+            <div class="row">
+              <div class="col-12 overflow-hidden">
+                <div class="from-row form-group">
+                  <div class="wallets-condition-block">
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': noMetamask}">
+                        <use [attr.xlink:href]="noMetamask ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': noMetamask}"
+                         (click)="noMetamask && getMetamaskModal()">Enable</a> MetaMask
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !ethAddress}">
+                        <use [attr.xlink:href]="!ethAddress ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': !ethAddress}"
+                         (click)="!ethAddress && enableMetamaskModal()">Authorize</a> MetaMask
+                      <span *ngIf="ethAddress">({{ ethAddress | reduction:6:4 }})</span>
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': noMintWallet}">
+                        <use [attr.xlink:href]="noMintWallet ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': noMintWallet}"
+                         (click)="noMintWallet && getMintWalletModal()">Enable</a> Lite Wallet
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !sumusAddress}">
+                        <use [attr.xlink:href]="!sumusAddress ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a [ngClass]="{'a-link': !sumusAddress}"
+                         (click)="!sumusAddress && enableMintWalletModal()">Authorize</a> Lite Wallet
+                      <span *ngIf="sumusAddress">({{ sumusAddress | reduction:6:4 }})</span>
+                    </div>
+                    <div>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !mntpAmount || errors.mntpAmount}">
+                        <use [attr.xlink:href]="!mntpAmount || errors.mntpAmount ? '#nok' : '#ok'"></use>
+                      </svg>
+                      <a>MNT amount</a>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center">
+                    <div class="form-currency form-currency--gold">
+                      <svg class="icon">
+                        <use xlink:href="#cur-gold"></use>
+                      </svg>
+                    </div>
+                    <div class="form-control-container">
+                      <div>
+                        <input type="text" class="form-control token-amount-input" name="mintAmountInput" id="mintAmountInput"
+                               [ngClass]="{'is-invalid': errors.mintAmount}"
+                               [(ngModel)]="mintAmount"
+                               (input)="changeValue($event, 'mint')"
+                               autocomplete="off"
+                               [disabled]="swapMintTxHash">
+                      </div>
+                      <div class="percent-btn-cont">
+                        <button class="percent-btn" (click)="!swapMintTxHash && setTokenAmount(0.25, 'mint')">25%</button>
+                        <button class="percent-btn" (click)="!swapMintTxHash && setTokenAmount(0.5, 'mint')">50%</button>
+                        <button class="percent-btn" (click)="!swapMintTxHash && setTokenAmount(1, 'mint')">100%</button>
+                      </div>
+                      <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors.mintAmount">
+                        invalid amount value
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="mb-2">
+                  You will be prompted to sign your request with Lite Wallet. <br>
+                  Swap operation could take up to an hour, please stay patient
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox"
+                         class="custom-control-input"
+                         id="agreeMintConditions"
+                         name="agreeMintConditions"
+                         [(ngModel)]="agreeMintConditions"
+                         [disabled]="loading">
+                  <label class="custom-control-label" for="agreeMintConditions">I accept the conditions</label>
+                </div>
+              </div>
+
+              <div class="col mt-4" *ngIf="!swapMintTxHash">
+                <button class="btn btn-primary"
+                        [disabled]="!sumusAddress || !agreeMintConditions || !mintAmount || isInvalidMMNetwork|| isInvalidWalletNetwork || loading || errors.mintAmount"
+                        (click)="swapMNT()">
+                  Begin Swap
+                </button>
+                <img *ngIf="loading" alt="Processing..." width="17" height="17" class="form-loader" src="assets/img/loader-gold-bg-white.gif">
+              </div>
+
+              <div class="col mt-4" *ngIf="swapMintTxHash">
+                See your transaction: <a class="word-break" [routerLink]="'/scanner/tx/' + swapMintTxHash">{{ swapMintTxHash }}</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </ng-template>
 
     </section>
   </ng-container>
