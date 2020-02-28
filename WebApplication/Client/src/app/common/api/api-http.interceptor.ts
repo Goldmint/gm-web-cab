@@ -61,7 +61,7 @@ export class APIHttpInterceptor implements HttpInterceptor {
           } else if (error.error.errorCode === 104) {
             this._apiService.transferTradingLimit$.next(error.error.data);
           } else if (error.error.errorCode === 50) {
-            this._router.navigate(['/master-node']);
+            this._router.navigate(['/buy-sell-gold']);
           } else {
             if (error.error.hasOwnProperty('errorCode')) {
               let errorCode = parseInt(error.error.errorCode, 10);

@@ -11,14 +11,12 @@ import {AddressInfoPageComponent} from "./pages/scaner-page/address-info-page/ad
 import {TransactionsInBlockPageComponent} from "./pages/scaner-page/transactions-in-block-page/transactions-in-block-page.component";
 import {ScanerPageComponent} from "./pages/scaner-page/scaner-page.component";
 import {BlockchainPoolPageComponent} from "./pages/blockchain-pool-page/blockchain-pool-page.component";
-import {LaunchNodePageComponent} from "./pages/master-node-page/launch-node-page/launch-node-page.component";
 import {BuyMntpPageComponent} from "./pages/buy-mntp-page/buy-mntp-page.component";
 import {SwapMntpComponent} from "./pages/swap-mntp/swap-mntp.component";
 import {BuySellGoldPageComponent} from "./pages/buy-sell-gold-page/buy-sell-gold-page.component";
 
 
 const appRoutes: Routes = [
-  { path: 'master-node', component: LaunchNodePageComponent},
   { path: 'legal-security', component: LegalSecurityPageComponent },
   { path: 'legal-security/:page', component: StaticPagesComponent },
   { path: 'ethereum-pool', component: BlockchainPoolPageComponent },
@@ -33,7 +31,7 @@ const appRoutes: Routes = [
   { path: 'scanner/transactions', component: AllTransactionsPageComponent },
   { path: 'scanner/transactions-in-block/:id', component: TransactionsInBlockPageComponent },
 
-  { path: '', redirectTo: 'master-node', pathMatch: 'full' },
+  { path: '', redirectTo: 'buy-sell-gold', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent }
 ];
 

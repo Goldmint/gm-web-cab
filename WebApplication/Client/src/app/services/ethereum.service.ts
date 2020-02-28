@@ -35,7 +35,7 @@ export class EthereumService {
 
   private Web3 = new Web3();
   private _allowedUrlOccurrencesForInject = [
-    'sell', 'buy', 'master-node', 'ethereum-pool', 'swap-mntp'
+    'buy-sell-gold', 'ethereum-pool', 'swap-mntp'
   ];
   private checkBalanceInterval = null;
 

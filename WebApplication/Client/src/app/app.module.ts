@@ -62,8 +62,6 @@ import { NoautocompleteDirective } from './directives/noautocomplete.directive';
 import { StaticPagesComponent } from './pages/static-pages/static-pages.component';
 import {SafePipe} from "./directives/safe.pipe";
 import { LegalSecurityPageComponent } from './pages/legal-security-page/legal-security-page.component';
-import { MasterNodePageComponent } from './pages/master-node-page/master-node-page.component';
-import { LaunchNodePageComponent } from './pages/master-node-page/launch-node-page/launch-node-page.component';
 import {GoldDiscount} from "./pipes/gold-discount";
 import {SubstrPipe} from "./pipes/substr.pipe";
 import {NoexpPipe} from "./pipes/noexp.pipe";
@@ -118,8 +116,6 @@ export function createTranslateLoader(http: HttpClient) {
     FooterBlockComponent,
     MessageBoxComponent,
     SpriteComponent,
-	  MasterNodePageComponent,
-    LaunchNodePageComponent,
     NotFoundPageComponent,
     PagerBlockComponent,
     BlurDirective,
