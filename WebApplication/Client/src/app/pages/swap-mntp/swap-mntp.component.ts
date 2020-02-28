@@ -1,6 +1,5 @@
 import {ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {environment} from "../../../environments/environment";
-import {User} from "../../interfaces";
 import {Subject, Subscription} from "rxjs";
 import {APIService, EthereumService, MessageBoxService, UserService} from "../../services";
 import {TranslateService} from "@ngx-translate/core";
@@ -67,22 +66,20 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.switchModel.type = 'mntp';
 
-    this.liteWallet = window['GoldMint'];
     let isFirefox = typeof window['InstallTrigger'] !== 'undefined';
     this.liteWalletLink = isFirefox ? environment.getLiteWalletLink.firefox : environment.getLiteWalletLink.chrome;
 
     this.initModal();
     this.getEthAddress();
     this.detectMetaMask();
-    this.detectLiteWallet();
-
-    this.isDataLoaded = true;
-    this._cdRef.markForCheck();
 
     this.checkLiteWallet();
     this.checkLiteWalletInterval = setInterval(() => {
       this.checkLiteWallet();
     }, 500);
+
+    this.isDataLoaded = true;
+    this._cdRef.markForCheck();
 
     this.ethService.getObservableNetwork().takeUntil(this.destroy$).subscribe(network => {
       if (network !== null) {
@@ -146,10 +143,8 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   }
 
   detectLiteWallet() {
-    if (!window.hasOwnProperty('GoldMint')) {
-      this.noMintWallet = true;
-      this._cdRef.markForCheck();
-    }
+    this.noMintWallet = !window.hasOwnProperty('GoldMint');
+    this._cdRef.markForCheck();
   }
 
   getMetamaskModal() {
@@ -179,7 +174,11 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   }
 
   checkLiteWallet() {
+    !this.liteWallet && this.detectLiteWallet();
+
     if (window.hasOwnProperty('GoldMint')) {
+      this.liteWallet = window['GoldMint'];
+
       this.liteWallet && this.liteWallet.getCurrentNetwork().then(res => {
         if (this.currentWalletNetwork != res) {
           this.currentWalletNetwork = res;
@@ -265,6 +264,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
             eth: this.ethAddress
           }
 
+          this.loading = true;
           this.apiService.swapMNT(model).subscribe((data: any) => {
             if (data && data.data) {
               this.liteWallet.sendTransaction(data.data.swap_address, 'MNT', this.mintAmount).then(digest => {
@@ -274,6 +274,11 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
                 }
               });
             }
+            this.loading = false;
+            this._cdRef.markForCheck();
+          }, () => {
+            this.loading = false;
+            this._cdRef.markForCheck();
           });
         }
     });
