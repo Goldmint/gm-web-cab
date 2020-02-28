@@ -43,6 +43,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   public swapMntpTxHash: string = null;
   public swapMintTxHash: string = null;
   public swapContractAddress = environment.SwapContractAddress;
+  private mntFee: number = 0.02;
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
   private liteWallet = null;
@@ -212,10 +213,13 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
 
   private checkLiteWalletBalance() {
     this.liteWallet.getBalance(this.sumusAddress).then(res => {
-      if (res && this.mintBalance !== +res.mint) {
-        this.mintBalance = +res.mint;
-        this.setTokenAmount(1, 'mint')
-        this._cdRef.markForCheck();
+      if (res) {
+        const balance = (+res.mint - this.mntFee) > 0 ? (+res.mint - this.mntFee) : 0;
+        if (this.mintBalance !== balance) {
+          this.mintBalance = balance;
+          this.setTokenAmount(1, 'mint')
+          this._cdRef.markForCheck();
+        }
       }
     });
   }
