@@ -5,6 +5,7 @@ import {ActivatedRoute} from "@angular/router";
 import {Subscription} from "rxjs/Subscription";
 import {TransactionInfo} from "../../../interfaces/transaction-info";
 import {Base64} from 'js-base64';
+import { BigNumber } from 'bignumber.js';
 import {TranslateService} from "@ngx-translate/core";
 
 @Component({
@@ -64,6 +65,11 @@ export class TxInfoPageComponent implements OnInit, OnDestroy {
   getTransactionInfo() {
     this.apiService.checkTransactionStatus(this.digest).subscribe((data: any) => {
       this.tx = data.res;
+
+      if (this.tx.transaction) {
+        this.tx.transaction.amount_gold = new BigNumber(this.tx.transaction.amount_gold).toString(10);
+        this.tx.transaction.amount_mnt = new BigNumber(this.tx.transaction.amount_mnt).toString(10);
+      }
 
       if (this.tx.transaction && this.tx.transaction.data_piece) {
         this.dataPiece.text = Base64.decode(this.tx.transaction.data_piece);

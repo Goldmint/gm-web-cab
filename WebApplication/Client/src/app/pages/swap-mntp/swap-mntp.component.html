@@ -225,8 +225,8 @@
                       <span *ngIf="sumusAddress">({{ sumusAddress | reduction:6:4 }})</span>
                     </div>
                     <div>
-                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !mintAmount || errors.mintAmount}">
-                        <use [attr.xlink:href]="!mntpAmount || errors.mntpAmount ? '#nok' : '#ok'"></use>
+                      <svg class="icon" width="18px" height="18px" [ngClass]="{'nok': !+mintAmount || errors.mintAmount}">
+                        <use [attr.xlink:href]="!+mintAmount || errors.mntpAmount ? '#nok' : '#ok'"></use>
                       </svg>
                       <a>MNT amount (+0.02 MNT transaction fee)</a>
                     </div>
@@ -243,14 +243,14 @@
                         <input type="text" class="form-control token-amount-input" name="mintAmountInput" id="mintAmountInput"
                                [ngClass]="{'is-invalid': errors.mintAmount}"
                                [(ngModel)]="mintAmount"
-                               (input)="changeValue($event, 'mint')"
+                               (input)="changeMintAmount($event)"
                                autocomplete="off"
                                [disabled]="swapMintTxHash">
                       </div>
                       <div class="percent-btn-cont">
-                        <button class="percent-btn" (click)="!swapMintTxHash && setTokenAmount(0.25, 'mint')">25%</button>
-                        <button class="percent-btn" (click)="!swapMintTxHash && setTokenAmount(0.5, 'mint')">50%</button>
-                        <button class="percent-btn" (click)="!swapMintTxHash && setTokenAmount(1, 'mint')">100%</button>
+                        <button class="percent-btn" (click)="!swapMintTxHash && setMintAmount(0.25)">25%</button>
+                        <button class="percent-btn" (click)="!swapMintTxHash && setMintAmount(0.5)">50%</button>
+                        <button class="percent-btn" (click)="!swapMintTxHash && setMintAmount(1)">100%</button>
                       </div>
                       <div class="invalid-feedback invalid-feedback--abs" *ngIf="errors.mintAmount">
                         invalid amount value
@@ -280,7 +280,7 @@
 
               <div class="col mt-4" *ngIf="!swapMintTxHash">
                 <button class="btn btn-primary"
-                        [disabled]="!sumusAddress || !agreeMintConditions || !mintAmount || isInvalidMMNetwork|| isInvalidWalletNetwork || loading || errors.mintAmount"
+                        [disabled]="!sumusAddress || !agreeMintConditions || !+mintAmount || isInvalidMMNetwork|| isInvalidWalletNetwork || loading || errors.mintAmount"
                         (click)="swapMNT()">
                   Begin Swap
                 </button>

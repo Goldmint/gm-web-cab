@@ -5,6 +5,7 @@ import {APIService, EthereumService, MessageBoxService, UserService} from "../..
 import {TranslateService} from "@ngx-translate/core";
 import {PoolService} from "../../services/pool.service";
 import * as bs58 from 'bs58';
+import { BigNumber } from 'bignumber.js';
 import {CommonService} from "../../services/common.service";
 
 @Component({
@@ -23,7 +24,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   public isDataLoaded: boolean = false;
   public isMetamask: boolean = false;
   public mntpAmount: number = 0;
-  public mintAmount: number = 0;
+  public mintAmount: number | string = 0;
   public etherscanUrl = environment.etherscanUrl;
   public etherscanContractUrl = environment.etherscanContractUrl;
   public agreeMntpConditions: boolean = false;
@@ -51,7 +52,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   private checkLiteWalletBalanceInterval;
   private sub1: Subscription;
   private mntpBalance: number = 0;
-  private mintBalance: number = 0;
+  private mintBalance: BigNumber = new BigNumber(0);
 
   constructor(
     private userService: UserService,
@@ -203,7 +204,7 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
               this.checkLiteWalletBalance();
             }, 7500);
           } else {
-            this.mintBalance = 0;
+            this.mintBalance = new BigNumber(0);
           }
           this._cdRef.markForCheck();
         }
@@ -214,14 +215,40 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
   private checkLiteWalletBalance() {
     this.liteWallet.getBalance(this.sumusAddress).then(res => {
       if (res) {
-        const balance = (+res.mint - this.mntFee) > 0 ? (+res.mint - this.mntFee) : 0;
-        if (this.mintBalance !== balance) {
+        const balance = (+res.mint - this.mntFee) > 0 ? new BigNumber(res.mint).minus(this.mntFee) : new BigNumber(0);
+        if (!this.mintBalance.isEqualTo(balance)) {
           this.mintBalance = balance;
-          this.setTokenAmount(1, 'mint')
+          this.setMintAmount(1);
           this._cdRef.markForCheck();
         }
       }
     });
+  }
+
+  setMintAmount(percent: number) {
+    const value = this.mintBalance.multipliedBy(percent);
+    const valueStr = this.substrValue(value.toString(10));
+
+    this.mintAmount = new BigNumber(valueStr).toString(10);
+    this.errors.mintAmount = this.mintBalance.isLessThan(new BigNumber(valueStr));
+    this._cdRef.markForCheck();
+  }
+
+  changeMintAmount(event) {
+    const value = this.substrValue(event.target.value);
+    event.target.value = value;
+
+    this.mintAmount = value;
+    this.errors.mintAmount = this.mintBalance.isLessThan(new BigNumber(value || 0));
+    this._cdRef.markForCheck();
+  }
+
+  private substrValue(value: number|string) {
+    return value.toString()
+      .replace(',', '.')
+      .replace(/([^\d.])|(^\.)/g, '')
+      .replace(/^(\d{1,6})\d*(?:(\.\d{0,18})[\d.]*)?/, '$1$2')
+      .replace(/^0+(\d)/, '$1');
   }
 
   toHexString(byteArray) {
@@ -271,7 +298,8 @@ export class SwapMntpComponent implements OnInit, OnDestroy {
           this.loading = true;
           this.apiService.swapMNT(model).subscribe((data: any) => {
             if (data && data.data) {
-              this.liteWallet.sendTransaction(data.data.swap_address, 'MNT', this.mintAmount).then(digest => {
+              const amount = new BigNumber(this.mintAmount).toString(10);
+              this.liteWallet.sendTransaction(data.data.swap_address, 'MNT', amount).then(digest => {
                 if (digest) {
                   this.swapMintTxHash = digest;
                   this._cdRef.markForCheck();
